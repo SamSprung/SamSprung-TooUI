@@ -31,15 +31,15 @@
             </intent-filter>
             <meta-data android:name="android.appwidget.provider" android:resource="@xml/zflip_cover_screen_widget"/>
         </receiver>
-        <receiver android:name="com.samsung.android.app.shealth.tracker.pedometer.service.coverwidget.StepBroadcastReceiver" android:exported="false">
+        <receiver android:name=".StepBroadcastReceiver">
             <intent-filter>
                 <action android:name="android.intent.action.SCREEN_ON"/>
                 <action android:name="android.intent.action.SCREEN_OFF"/>
             </intent-filter>
         </receiver>
         <service
-            android:name="com.samsung.android.app.shealth.tracker.pedometer.service.coverwidget.StepWidgetService"
-            android:permission="android.permission.BIND_REMOTEVIEWS" android:exported="true" />
+            android:name=".StepWidgetService" android:exported="true"
+            android:permission="android.permission.BIND_REMOTEVIEWS" />
     </application>
 
 </manifest>

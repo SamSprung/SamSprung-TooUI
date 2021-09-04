@@ -1,4 +1,4 @@
-package com.samsung.android.app.shealth.tracker.pedometer.service.coverwidget;
+package com.sec.android.app.shealth;
 
 import android.content.Context;
 import android.content.Intent;

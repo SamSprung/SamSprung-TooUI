@@ -1,4 +1,4 @@
-package com.samsung.android.app.shealth.tracker.pedometer.service.coverwidget;
+package com.sec.android.app.shealth;
 
 import android.app.ActivityManager;
 import android.content.BroadcastReceiver;
@@ -7,7 +7,6 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 
 public class StepBroadcastReceiver extends BroadcastReceiver {
-
 
     @Override
     public void onReceive(final Context context, final Intent intent) {

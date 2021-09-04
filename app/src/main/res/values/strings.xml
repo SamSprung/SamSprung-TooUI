@@ -1,7 +1,3 @@
 <resources>
     <string name="app_name">ZFLip Launcher</string>
-    <string name="button_start_browser">Launch Application</string>
-    <string name="intent_test_button">Test Package Name / Launch Activity</string>
-    <string name="launch_activity">Launch Activity</string>
-    <string name="package_name">Package Name</string>
 </resources>

@@ -9,6 +9,8 @@ import android.content.Intent.ACTION_SCREEN_OFF
 import android.net.Uri
 import android.widget.RemoteViews
 import com.sec.android.app.shealth.R
+import com.sec.android.app.shealth.StepBroadcastReceiver
+import com.sec.android.app.shealth.StepWidgetService
 
 
 class StepCoverAppWidget: AppWidgetProvider() {
@@ -44,9 +46,9 @@ class StepCoverAppWidget: AppWidgetProvider() {
 //                this?.apply()
 //            }
 
-            val intentFilter = IntentFilter(ACTION_SCREEN_OFF)
             val mReceiver: BroadcastReceiver = StepBroadcastReceiver()
-            context?.registerReceiver(mReceiver, intentFilter)
+            context?.applicationContext?.registerReceiver(
+                mReceiver, IntentFilter(ACTION_SCREEN_OFF))
         }
         super.onReceive(context, intent);
     }
