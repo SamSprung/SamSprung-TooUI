@@ -2,10 +2,18 @@ package com.samsung.android.app.shealth.tracker.pedometer.service.coverwidget;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
+import android.graphics.Bitmap;
+import android.graphics.Canvas;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
+import android.graphics.drawable.Icon;
 import android.os.Bundle;
 import android.widget.RemoteViews;
 import android.widget.RemoteViewsService;
+
+import androidx.annotation.NonNull;
 
 import com.sec.android.app.shealth.R;
 
@@ -46,10 +54,18 @@ public class StepRemoteViewsFactory implements RemoteViewsService.RemoteViewsFac
     @Override
     public RemoteViews getViewAt(int position) {
         ResolveInfo application = packages.get(position);
+        PackageManager pacMan = context.getPackageManager();
 
         RemoteViews rv = new RemoteViews(context.getPackageName(), R.layout.step_widget_item);
-        rv.setTextViewText(R.id.widgetItemText, application.nonLocalizedLabel);
-        rv.setImageViewResource(R.id.widgetItemImage, application.icon);
+        rv.setTextViewText(R.id.widgetItemText, application.loadLabel(pacMan).toString());
+        try {
+            Drawable drawable = pacMan.getApplicationIcon(
+                    application.activityInfo.packageName);
+            rv.setImageViewBitmap(R.id.widgetItemImage, getBitmapFromDrawable(drawable));
+        } catch (PackageManager.NameNotFoundException e) {
+            e.printStackTrace();
+            rv.setImageViewBitmap(R.id.widgetItemImage, getBitmapFromDrawable(application.loadIcon(pacMan)));
+        }
 
         Bundle extras = new Bundle();
         extras.putString("launchPackage", application.activityInfo.packageName);
@@ -79,5 +95,15 @@ public class StepRemoteViewsFactory implements RemoteViewsService.RemoteViewsFac
     @Override
     public boolean hasStableIds() {
         return true;
+    }
+
+    @NonNull
+    private Bitmap getBitmapFromDrawable(@NonNull Drawable drawable) {
+        final Bitmap bmp = Bitmap.createBitmap(drawable.getIntrinsicWidth(),
+                drawable.getIntrinsicHeight(), Bitmap.Config.ARGB_8888);
+        final Canvas canvas = new Canvas(bmp);
+        drawable.setBounds(0, 0, canvas.getWidth(), canvas.getHeight());
+        drawable.draw(canvas);
+        return bmp;
     }
 }
