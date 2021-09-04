@@ -5,6 +5,7 @@ import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import android.view.KeyEvent
 import android.widget.Button
 import android.widget.EditText
 import androidx.appcompat.app.AppCompatActivity
@@ -19,7 +20,22 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        val sharedPref = getSharedPreferences("com.endgames.zflip.launcher.PREFS", Context.MODE_PRIVATE)
+//        val intent = intent
+//        if (intent != null) {
+//            val launchPackage = intent.getStringExtra("launchPackage")
+//            val launchActivity = intent.getStringExtra("launchActivity")
+//            if (launchPackage != null && launchActivity != null) {
+//                val launchIntent = Intent(Intent.ACTION_MAIN)
+//                launchIntent.addCategory(Intent.CATEGORY_LAUNCHER)
+//                launchIntent.component = ComponentName(launchPackage, launchActivity)
+//                val options = ActivityOptions.makeBasic().setLaunchDisplayId(1)
+//                launchIntent.addFlags(Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS)
+//                startActivity(launchIntent, options.toBundle())
+//            }
+//            finish()
+//        }
+
+        val sharedPref = getSharedPreferences("com.zflip.launcher.PREFS", Context.MODE_PRIVATE)
 
         findViewById<EditText>(R.id.launchPackage).setText(sharedPref.getString("launchPackage", launchPackage) ?: launchPackage)
         findViewById<EditText>(R.id.launchActivity).setText(sharedPref.getString("launchActivity", launchActivity) ?: launchActivity)
@@ -47,5 +63,12 @@ class MainActivity : AppCompatActivity() {
             intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
             startActivity(intent, options.toBundle())
         }
+    }
+
+    override fun onKeyDown(keyCode: Int, event: KeyEvent): Boolean {
+        return if (event.keyCode == KeyEvent.KEYCODE_POWER) {
+            // do what you want with the power button
+            true
+        } else super.onKeyDown(keyCode, event)
     }
 }

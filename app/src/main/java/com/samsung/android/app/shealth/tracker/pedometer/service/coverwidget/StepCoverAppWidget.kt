@@ -4,9 +4,8 @@ import android.app.ActivityOptions
 import android.app.PendingIntent
 import android.appwidget.AppWidgetManager
 import android.appwidget.AppWidgetProvider
-import android.content.ComponentName
-import android.content.Context
-import android.content.Intent
+import android.content.*
+import android.content.Intent.ACTION_SCREEN_OFF
 import android.net.Uri
 import android.widget.RemoteViews
 import com.sec.android.app.shealth.R
@@ -26,13 +25,28 @@ class StepCoverAppWidget: AppWidgetProvider() {
         if (intent.action.equals(onClickTag)) {
             val launchPackage = intent.getStringExtra("launchPackage")
             val launchActivity = intent.getStringExtra("launchActivity")
-            val intent = Intent(Intent.ACTION_MAIN)
-            intent.addCategory(Intent.CATEGORY_LAUNCHER)
-            intent.component = ComponentName(launchPackage!!, launchActivity!!)
+            val appIntent = Intent(Intent.ACTION_MAIN)
+            appIntent.addCategory(Intent.CATEGORY_LAUNCHER)
+            appIntent.component = ComponentName(launchPackage!!, launchActivity!!)
             val options = ActivityOptions.makeBasic().setLaunchDisplayId(1)
-            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            appIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
 
-            context?.startActivity(intent, options.toBundle())
+            context?.startActivity(appIntent, options.toBundle())
+
+            val sharedPref = context?.getSharedPreferences(
+                "com.zflip.launcher.PREFS", Context.MODE_PRIVATE)
+            with(sharedPref?.edit()) {
+                this?.putString("launchPackage", launchPackage)
+                this?.apply()
+            }
+//            with(sharedPref?.edit()) {
+//                this?.putString("launchActivity", launchActivity)
+//                this?.apply()
+//            }
+
+            val intentFilter = IntentFilter(ACTION_SCREEN_OFF)
+            val mReceiver: BroadcastReceiver = StepBroadcastReceiver()
+            context?.registerReceiver(mReceiver, intentFilter)
         }
         super.onReceive(context, intent);
     }
