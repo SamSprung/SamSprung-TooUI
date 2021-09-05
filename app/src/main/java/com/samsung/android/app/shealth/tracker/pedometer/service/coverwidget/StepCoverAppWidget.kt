@@ -24,19 +24,19 @@ class StepCoverAppWidget: AppWidgetProvider() {
         if (intent.action == AppWidgetManager.ACTION_APPWIDGET_UPDATE) {
             // refresh all your widgets
             val mgr = AppWidgetManager.getInstance(context)
-            val cn = ComponentName(context, StepCoverAppWidget::class.java)
-            mgr.notifyAppWidgetViewDataChanged(mgr.getAppWidgetIds(cn), R.id.widgetListView)
+            mgr.notifyAppWidgetViewDataChanged(mgr.getAppWidgetIds(
+                ComponentName(context, StepCoverAppWidget::class.java)), R.id.widgetListView)
         }
         if (intent.action.equals(onClickTag)) {
             val launchPackage = intent.getStringExtra("launchPackage")
             val launchActivity = intent.getStringExtra("launchActivity")
-            val appIntent = Intent(Intent.ACTION_MAIN)
-            appIntent.addCategory(Intent.CATEGORY_LAUNCHER)
-            appIntent.component = ComponentName(launchPackage!!, launchActivity!!)
-            val options = ActivityOptions.makeBasic().setLaunchDisplayId(1)
-            appIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
 
-            context.startActivity(appIntent, options.toBundle())
+            val coverIntent = Intent(Intent.ACTION_MAIN)
+            coverIntent.addCategory(Intent.CATEGORY_LAUNCHER)
+            coverIntent.component = ComponentName(launchPackage!!, launchActivity!!)
+            val options = ActivityOptions.makeBasic().setLaunchDisplayId(1)
+            coverIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            context.startActivity(coverIntent, options.toBundle())
 
             val sharedPref = context.getSharedPreferences(
                 "com.zflip.launcher.PREFS", Context.MODE_PRIVATE)
@@ -50,18 +50,19 @@ class StepCoverAppWidget: AppWidgetProvider() {
             }
 
             mDisplayListener = object : DisplayListener {
-                override fun onDisplayAdded(arg0: Int) {}
-                override fun onDisplayChanged(arg0: Int) {
-                    val appIntent = Intent(Intent.ACTION_MAIN)
-                    appIntent.addCategory(Intent.CATEGORY_LAUNCHER)
-                    appIntent.component = ComponentName(launchPackage, launchActivity)
-                    val options = ActivityOptions.makeBasic().setLaunchDisplayId(arg0)
-                    appIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                    context.startActivity(appIntent, options.toBundle())
+                override fun onDisplayAdded(display: Int) {}
+                override fun onDisplayChanged(display: Int) {
+                    val displayIntent = Intent(Intent.ACTION_MAIN)
+                    displayIntent.addCategory(Intent.CATEGORY_LAUNCHER)
+                    displayIntent.component = ComponentName(launchPackage, launchActivity)
+                    val launchDisplay = ActivityOptions.makeBasic().setLaunchDisplayId(display)
+                    displayIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                    context.startActivity(displayIntent, launchDisplay.toBundle())
                 }
 
-                override fun onDisplayRemoved(arg0: Int) {}
+                override fun onDisplayRemoved(display: Int) {}
             }
+
             val manager = context.getSystemService(Context.DISPLAY_SERVICE) as DisplayManager
             manager.registerDisplayListener(mDisplayListener, null)
 
@@ -97,7 +98,6 @@ class StepCoverAppWidget: AppWidgetProvider() {
             views.setPendingIntentTemplate(R.id.widgetListView, itemPendingIntent)
 
             appWidgetManager.updateAppWidget(appWidgetId, views)
-
         }
     }
 }
