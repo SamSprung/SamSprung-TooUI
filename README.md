@@ -14,8 +14,6 @@
 
 - Samsung Health must be uninstalled to free up the package name for the whitelisted widgets. Installing this app will then add it as one of the options in the cover screen widgets.
 
-Downloads are available in the Actions tab. Unzip the archive for the apk file
-
 
 [Thanks to CarudiBu for discovering the exploit to allow loading a custom widget](https://forum.xda-developers.com/t/app-subui-browser-browse-the-web-on-the-cover-screen.4325963/)
 

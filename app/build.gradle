@@ -40,24 +40,7 @@ android {
     }
 
     applicationVariants.all { variant ->
-//        variant.outputs[0].outputFileName = project.archivesBaseName + ".apk"
-//        getAssembleProvider().configure() {
-//            it.doLast {
-//                exec {
-//                    ignoreExitValue true
-//                    workingDir variant.outputs[0].outputFile.parent
-//                    commandLine "find", ".", "-type", "f", "-not", "-name",
-//                            variant.outputs[0].outputFileName, "-delete"
-//                }
-//            }
-//        }
-//        variant.getAssembleProvider().configure() {
-//            it.doLast {
-//                variant.outputs.each { output ->
-//                    delete "${variant.outputs[0].outputFile.parent}/output.json"
-//                }
-//            }
-//        }
+        variant.outputs[0].outputFileName = project.archivesBaseName + ".apk"
     }
 }
 
