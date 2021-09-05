@@ -10,6 +10,8 @@ import android.graphics.drawable.Drawable
 import android.os.Bundle
 import android.widget.RemoteViews
 import android.widget.RemoteViewsService.RemoteViewsFactory
+import java.util.*
+
 
 class StepRemoteViewsFactory(private val context: Context) : RemoteViewsFactory {
     private val packages: MutableList<ResolveInfo>
@@ -79,6 +81,8 @@ class StepRemoteViewsFactory(private val context: Context) : RemoteViewsFactory 
     init {
         val mainIntent = Intent(Intent.ACTION_MAIN, null)
         mainIntent.addCategory(Intent.CATEGORY_LAUNCHER)
+        mainIntent.removeCategory(Intent.CATEGORY_HOME)
         packages = context.packageManager.queryIntentActivities(mainIntent, 0)
+        Collections.sort(packages, ResolveInfo.DisplayNameComparator(context.packageManager))
     }
 }
