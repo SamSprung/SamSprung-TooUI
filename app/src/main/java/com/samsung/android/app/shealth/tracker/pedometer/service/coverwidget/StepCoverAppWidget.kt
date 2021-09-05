@@ -6,6 +6,8 @@ import android.appwidget.AppWidgetManager
 import android.appwidget.AppWidgetProvider
 import android.content.*
 import android.content.Intent.ACTION_SCREEN_OFF
+import android.hardware.display.DisplayManager
+import android.hardware.display.DisplayManager.DisplayListener
 import android.net.Uri
 import android.widget.RemoteViews
 import com.sec.android.app.shealth.R
@@ -16,12 +18,13 @@ import com.sec.android.app.shealth.StepWidgetService
 class StepCoverAppWidget: AppWidgetProvider() {
 
     private val onClickTag = "OnClickTag"
+    private var mDisplayListener : DisplayListener? = null
 
-    override fun onReceive(context: Context?, intent: Intent) {
+    override fun onReceive(context: Context, intent: Intent) {
         if (intent.action == AppWidgetManager.ACTION_APPWIDGET_UPDATE) {
             // refresh all your widgets
             val mgr = AppWidgetManager.getInstance(context)
-            val cn = context?.let { ComponentName(it, StepCoverAppWidget::class.java) }
+            val cn = ComponentName(context, StepCoverAppWidget::class.java)
             mgr.notifyAppWidgetViewDataChanged(mgr.getAppWidgetIds(cn), R.id.widgetListView)
         }
         if (intent.action.equals(onClickTag)) {
@@ -33,34 +36,50 @@ class StepCoverAppWidget: AppWidgetProvider() {
             val options = ActivityOptions.makeBasic().setLaunchDisplayId(1)
             appIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
 
-            context?.startActivity(appIntent, options.toBundle())
+            context.startActivity(appIntent, options.toBundle())
 
-            val sharedPref = context?.getSharedPreferences(
+            val sharedPref = context.getSharedPreferences(
                 "com.zflip.launcher.PREFS", Context.MODE_PRIVATE)
-            with(sharedPref?.edit()) {
-                this?.putString("launchPackage", launchPackage)
-                this?.apply()
+            with(sharedPref.edit()) {
+                this.putString("launchPackage", launchPackage)
+                this.apply()
             }
-//            with(sharedPref?.edit()) {
-//                this?.putString("launchActivity", launchActivity)
-//                this?.apply()
-//            }
+            with(sharedPref.edit()) {
+                this.putString("launchActivity", launchActivity)
+                this.apply()
+            }
 
-            val mReceiver: BroadcastReceiver = StepBroadcastReceiver()
-            context?.applicationContext?.registerReceiver(
+            mDisplayListener = object : DisplayListener {
+                override fun onDisplayAdded(arg0: Int) {}
+                override fun onDisplayChanged(arg0: Int) {
+                    val appIntent = Intent(Intent.ACTION_MAIN)
+                    appIntent.addCategory(Intent.CATEGORY_LAUNCHER)
+                    appIntent.component = ComponentName(launchPackage, launchActivity)
+                    val options = ActivityOptions.makeBasic().setLaunchDisplayId(arg0)
+                    appIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                    context.startActivity(appIntent, options.toBundle())
+                }
+
+                override fun onDisplayRemoved(arg0: Int) {}
+            }
+            val manager = context.getSystemService(Context.DISPLAY_SERVICE) as DisplayManager
+            manager.registerDisplayListener(mDisplayListener, null)
+
+            val mReceiver: BroadcastReceiver = StepBroadcastReceiver(mDisplayListener)
+            context.applicationContext?.registerReceiver(
                 mReceiver, IntentFilter(ACTION_SCREEN_OFF))
         }
         super.onReceive(context, intent);
     }
 
     override fun onUpdate(
-        context: Context?,
-        appWidgetManager: AppWidgetManager?,
-        appWidgetIds: IntArray?
+        context: Context,
+        appWidgetManager: AppWidgetManager,
+        appWidgetIds: IntArray
     ) {
-        appWidgetIds?.forEach { appWidgetId ->
+        appWidgetIds.forEach { appWidgetId ->
             val views = RemoteViews(
-                context?.packageName,
+                context.packageName,
                 R.layout.step_widget_view
             )
             val intent = Intent(context, StepWidgetService::class.java)
@@ -71,13 +90,13 @@ class StepCoverAppWidget: AppWidgetProvider() {
             val itemIntent = Intent(context, StepCoverAppWidget::class.java)
             itemIntent.action = onClickTag
             itemIntent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId)
-            val toastPendingIntent = PendingIntent.getBroadcast(
+            val itemPendingIntent = PendingIntent.getBroadcast(
                 context, 0, itemIntent,
                 PendingIntent.FLAG_UPDATE_CURRENT
             )
-            views.setPendingIntentTemplate(R.id.widgetListView, toastPendingIntent)
+            views.setPendingIntentTemplate(R.id.widgetListView, itemPendingIntent)
 
-            appWidgetManager?.updateAppWidget(appWidgetId, views)
+            appWidgetManager.updateAppWidget(appWidgetId, views)
 
         }
     }

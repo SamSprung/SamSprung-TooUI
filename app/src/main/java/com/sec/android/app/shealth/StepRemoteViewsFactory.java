@@ -13,8 +13,6 @@ import android.widget.RemoteViewsService;
 
 import androidx.annotation.NonNull;
 
-import com.sec.android.app.shealth.R;
-
 import java.util.List;
 
 public class StepRemoteViewsFactory implements RemoteViewsService.RemoteViewsFactory {

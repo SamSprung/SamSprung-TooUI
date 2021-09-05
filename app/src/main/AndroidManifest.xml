@@ -15,6 +15,7 @@
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
+        android:sharedUserId="shealth"
         android:theme="@style/Theme.SecondScreenTest">
         <activity
             android:name=".MainActivity"

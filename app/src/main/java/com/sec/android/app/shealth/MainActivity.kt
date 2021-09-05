@@ -1,15 +1,8 @@
 package com.sec.android.app.shealth
 
-import android.app.ActivityOptions
-import android.content.ComponentName
-import android.content.Context
-import android.content.Intent
 import android.os.Bundle
 import android.view.KeyEvent
-import android.widget.Button
-import android.widget.EditText
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.widget.doOnTextChanged
 
 class MainActivity : AppCompatActivity() {
 
