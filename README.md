@@ -1,29 +1,33 @@
-# Z Flip Launcher
-Adds a widget to Z Flip3 cover screen that lets you launch installed apps on the cover screen. 
+## Z Flip Launcher
 
-No onscreen keyboard (yet)
+#### Current limitations:
 
-No root required! Note - you CANNOT have Samsung Health installed at the same time as this app.
+- Keyboards will not open on the cover screen and some app functionality is limited
 
-## How to use
-Install the app APK, 
+- Switching apps requires tapping power to close the widget and launching the widget again (turn on cover, swipe to widget). The app list, however, can be swiped closed.
 
-Add the widget to the cover screen in settings, 
+-  ~~Apps launched from the cover will not launch from the launcher app drawer when opening the phone. This can be resolved in two ways:~~
+     
+     - ~~Tap the power button to turn off the screen before opening the phone. This will launch a new instance of the app when opening the phone that will function normally.~~
 
-Close your phone, 
+    - ~~Launch or close any apps used on the cover from the "Recents" navigation button. This will restore the app or allow it to launch normally next time.~~
 
-Navigate to the widget,
+- Samsung Health must be uninstalled to free up the package name for the whitelisted widgets. Installing this app will then add it as one of the options in the cover screen widgets.
 
-Tap on the blank widget,
+Downloads are available in the Actions tab. Unzip the archive for the apk file
 
-Open the phone,
 
-Toggle the widget off and on again in settings,
+[Thanks to CarudiBu for discovering the exploit to allow loading a custom widget](https://forum.xda-developers.com/t/app-subui-browser-browse-the-web-on-the-cover-screen.4325963/)
 
-Reboot your phone,
+#### How to Activate
 
-Navigate to the widget and wait for it to load,
+###### From Settings
+- Open Settings -> Cover screen -> Widgets
+- Enable ZFlip Launcher
 
-Press 'LAUNCH' twice, 
+OR
 
-Enjoy! :)
+###### From Cover Screen
+- Turn on cover screen
+- Swipe to the +
+- Select ZFlip Launcher

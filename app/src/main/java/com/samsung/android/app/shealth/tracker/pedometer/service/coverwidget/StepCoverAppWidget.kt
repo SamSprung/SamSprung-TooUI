@@ -38,17 +38,6 @@ class StepCoverAppWidget: AppWidgetProvider() {
             coverIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
             context.startActivity(coverIntent, options.toBundle())
 
-            val sharedPref = context.getSharedPreferences(
-                "com.zflip.launcher.PREFS", Context.MODE_PRIVATE)
-            with(sharedPref.edit()) {
-                this.putString("launchPackage", launchPackage)
-                this.apply()
-            }
-            with(sharedPref.edit()) {
-                this.putString("launchActivity", launchActivity)
-                this.apply()
-            }
-
             mDisplayListener = object : DisplayListener {
                 override fun onDisplayAdded(display: Int) {}
                 override fun onDisplayChanged(display: Int) {
@@ -66,7 +55,9 @@ class StepCoverAppWidget: AppWidgetProvider() {
             val manager = context.getSystemService(Context.DISPLAY_SERVICE) as DisplayManager
             manager.registerDisplayListener(mDisplayListener, null)
 
-            val mReceiver: BroadcastReceiver = StepBroadcastReceiver(mDisplayListener)
+            val mReceiver: BroadcastReceiver = StepBroadcastReceiver(
+                mDisplayListener, ComponentName(launchPackage, launchActivity)
+            )
             context.applicationContext?.registerReceiver(
                 mReceiver, IntentFilter(ACTION_SCREEN_OFF))
         }
