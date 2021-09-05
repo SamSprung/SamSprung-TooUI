@@ -2,6 +2,8 @@
 
 #### Current limitations:
 
+- Currently requires Screen lock type to be set to None in Settings -> Lock screen
+
 - Keyboards will not open on the cover screen and some app functionality is limited
 
 - Switching apps requires tapping power to close the widget and launching the widget again (turn on cover, swipe to widget). The app list, however, can be swiped closed.

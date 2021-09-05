@@ -15,6 +15,7 @@ import java.util.*
 
 class StepRemoteViewsFactory(private val context: Context) : RemoteViewsFactory {
     private val packages: MutableList<ResolveInfo>
+    private val pacMan = context.packageManager
     override fun onCreate() {}
     override fun onDataSetChanged() {}
     override fun onDestroy() {
@@ -27,7 +28,6 @@ class StepRemoteViewsFactory(private val context: Context) : RemoteViewsFactory 
 
     override fun getViewAt(position: Int): RemoteViews {
         val application = packages[position]
-        val pacMan = context.packageManager
         val rv = RemoteViews(context.packageName, R.layout.step_widget_item)
         rv.setTextViewText(R.id.widgetItemText, application.loadLabel(pacMan).toString())
         try {
@@ -82,7 +82,7 @@ class StepRemoteViewsFactory(private val context: Context) : RemoteViewsFactory 
         val mainIntent = Intent(Intent.ACTION_MAIN, null)
         mainIntent.addCategory(Intent.CATEGORY_LAUNCHER)
         mainIntent.removeCategory(Intent.CATEGORY_HOME)
-        packages = context.packageManager.queryIntentActivities(mainIntent, 0)
-        Collections.sort(packages, ResolveInfo.DisplayNameComparator(context.packageManager))
+        packages = pacMan.queryIntentActivities(mainIntent, 0)
+        Collections.sort(packages, ResolveInfo.DisplayNameComparator(pacMan))
     }
 }

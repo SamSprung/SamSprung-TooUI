@@ -6,6 +6,8 @@ import android.appwidget.AppWidgetManager
 import android.appwidget.AppWidgetProvider
 import android.content.*
 import android.content.Intent.ACTION_SCREEN_OFF
+import android.content.pm.ApplicationInfo
+import android.content.pm.PackageManager
 import android.hardware.display.DisplayManager
 import android.hardware.display.DisplayManager.DisplayListener
 import android.net.Uri
@@ -35,6 +37,16 @@ class StepCoverAppWidget: AppWidgetProvider() {
             coverIntent.addCategory(Intent.CATEGORY_LAUNCHER)
             coverIntent.component = ComponentName(launchPackage!!, launchActivity!!)
             val options = ActivityOptions.makeBasic().setLaunchDisplayId(1)
+            try {
+                val applicationInfo : ApplicationInfo = context.packageManager.getApplicationInfo (
+                    launchPackage, PackageManager.GET_META_DATA
+                )
+                applicationInfo.metaData.putString(
+                    "com.samsung.android.activity.showWhenLocked", "true"
+                )
+            } catch (e: PackageManager.NameNotFoundException) {
+                e.printStackTrace()
+            }
             coverIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
             context.startActivity(coverIntent, options.toBundle())
 
