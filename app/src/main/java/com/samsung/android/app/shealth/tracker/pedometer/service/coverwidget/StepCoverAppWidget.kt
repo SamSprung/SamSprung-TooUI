@@ -11,6 +11,8 @@ import android.content.pm.PackageManager
 import android.hardware.display.DisplayManager
 import android.hardware.display.DisplayManager.DisplayListener
 import android.net.Uri
+import android.os.Handler
+import android.os.Looper
 import android.widget.RemoteViews
 import com.sec.android.app.shealth.R
 import com.sec.android.app.shealth.StepBroadcastReceiver
@@ -33,22 +35,7 @@ class StepCoverAppWidget: AppWidgetProvider() {
             val launchPackage = intent.getStringExtra("launchPackage")
             val launchActivity = intent.getStringExtra("launchActivity")
 
-            val coverIntent = Intent(Intent.ACTION_MAIN)
-            coverIntent.addCategory(Intent.CATEGORY_LAUNCHER)
-            coverIntent.component = ComponentName(launchPackage!!, launchActivity!!)
-            val options = ActivityOptions.makeBasic().setLaunchDisplayId(1)
-            try {
-                val applicationInfo : ApplicationInfo = context.packageManager.getApplicationInfo (
-                    launchPackage, PackageManager.GET_META_DATA
-                )
-                applicationInfo.metaData.putString(
-                    "com.samsung.android.activity.showWhenLocked", "true"
-                )
-            } catch (e: PackageManager.NameNotFoundException) {
-                e.printStackTrace()
-            }
-            coverIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-            context.startActivity(coverIntent, options.toBundle())
+            if (launchPackage == null || launchActivity == null) return
 
             mDisplayListener = object : DisplayListener {
                 override fun onDisplayAdded(display: Int) {}
@@ -65,13 +52,30 @@ class StepCoverAppWidget: AppWidgetProvider() {
             }
 
             val manager = context.getSystemService(Context.DISPLAY_SERVICE) as DisplayManager
-            manager.registerDisplayListener(mDisplayListener, null)
+            manager.registerDisplayListener(mDisplayListener, Handler(Looper.getMainLooper()))
 
             val mReceiver: BroadcastReceiver = StepBroadcastReceiver(
                 mDisplayListener, ComponentName(launchPackage, launchActivity)
             )
             context.applicationContext?.registerReceiver(
                 mReceiver, IntentFilter(ACTION_SCREEN_OFF))
+
+            val coverIntent = Intent(Intent.ACTION_MAIN)
+            coverIntent.addCategory(Intent.CATEGORY_LAUNCHER)
+            coverIntent.component = ComponentName(launchPackage, launchActivity)
+            val options = ActivityOptions.makeBasic().setLaunchDisplayId(1)
+            try {
+                val applicationInfo : ApplicationInfo = context.packageManager.getApplicationInfo (
+                    launchPackage, PackageManager.GET_META_DATA
+                )
+                applicationInfo.metaData.putString(
+                    "com.samsung.android.activity.showWhenLocked", "true"
+                )
+            } catch (e: PackageManager.NameNotFoundException) {
+                e.printStackTrace()
+            }
+            coverIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            context.startActivity(coverIntent, options.toBundle())
         }
         super.onReceive(context, intent);
     }
