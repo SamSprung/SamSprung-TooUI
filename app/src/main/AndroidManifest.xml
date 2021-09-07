@@ -16,7 +16,7 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:sharedUserId="shealth"
-        android:theme="@style/Theme.SecondScreenTest">
+        android:theme="@style/Theme.SecondScreen">
         <activity
             android:name=".MainActivity"
             android:exported="true">
@@ -26,20 +26,22 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <receiver android:name="com.samsung.android.app.shealth.tracker.pedometer.service.coverwidget.StepCoverAppWidget" android:exported="false">
+        <receiver android:name="com.samsung.android.app.shealth.tracker.pedometer.service.coverwidget.StepCoverAppWidget"
+            android:exported="false">
             <intent-filter>
-                <action android:name="android.appwidget.action.APPWIDGET_UPDATE"/>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
             </intent-filter>
-            <meta-data android:name="android.appwidget.provider" android:resource="@xml/cover_screen_widget"/>
+            <meta-data android:name="android.appwidget.provider"
+                android:resource="@xml/cover_screen_widget" />
         </receiver>
         <receiver android:name=".StepBroadcastReceiver">
             <intent-filter>
-                <action android:name="android.intent.action.SCREEN_ON"/>
-                <action android:name="android.intent.action.SCREEN_OFF"/>
+                <action android:name="android.intent.action.SCREEN_ON" />
+                <action android:name="android.intent.action.SCREEN_OFF" />
             </intent-filter>
         </receiver>
-        <service
-            android:name=".StepWidgetService" android:exported="true"
+        <service android:name=".StepLauncherService"
+            android:exported="true"
             android:permission="android.permission.BIND_REMOTEVIEWS" />
     </application>
 

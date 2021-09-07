@@ -10,8 +10,6 @@ import android.hardware.display.DisplayManager
 import android.hardware.display.DisplayManager.DisplayListener
 
 class StepBroadcastReceiver : BroadcastReceiver {
-    private val coverLock = "cover_lock"
-
     private var mDisplayListener : DisplayListener? = null
     private var mKeyguardLock : KeyguardManager.KeyguardLock? = null
     private var componentName : ComponentName? = null

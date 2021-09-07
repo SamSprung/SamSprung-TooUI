@@ -17,7 +17,7 @@ import android.os.Looper
 import android.widget.RemoteViews
 import com.sec.android.app.shealth.R
 import com.sec.android.app.shealth.StepBroadcastReceiver
-import com.sec.android.app.shealth.StepWidgetService
+import com.sec.android.app.shealth.StepLauncherService
 
 
 class StepCoverAppWidget: AppWidgetProvider() {
@@ -40,8 +40,8 @@ class StepCoverAppWidget: AppWidgetProvider() {
 
             if (launchPackage == null || launchActivity == null) return
 
-            val kgm = context.getSystemService(Context.KEYGUARD_SERVICE) as KeyguardManager
-            val mKeyguardLock = kgm.newKeyguardLock(coverLock)
+            val mKeyguardLock = (context.getSystemService(Context.KEYGUARD_SERVICE)
+                    as KeyguardManager).newKeyguardLock(coverLock)
             mKeyguardLock.disableKeyguard()
 
             mDisplayListener = object : DisplayListener {
@@ -101,7 +101,7 @@ class StepCoverAppWidget: AppWidgetProvider() {
                 context.packageName,
                 R.layout.step_widget_view
             )
-            val intent = Intent(context, StepWidgetService::class.java)
+            val intent = Intent(context, StepLauncherService::class.java)
             intent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId);
             intent.data = Uri.parse(intent.toUri(Intent.URI_INTENT_SCHEME));
             views.setRemoteAdapter(R.id.widgetListView, intent)
