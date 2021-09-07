@@ -1,30 +1,39 @@
 package com.sec.android.app.shealth
 
+import android.app.KeyguardManager
+import android.content.Context
+import android.content.Intent
 import android.os.Bundle
+import android.provider.Settings
 import android.view.KeyEvent
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+
 
 class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
-//        val intent = intent
-//        if (intent != null) {
-//            val launchPackage = intent.getStringExtra("launchPackage")
-//            val launchActivity = intent.getStringExtra("launchActivity")
-//            if (launchPackage != null && launchActivity != null) {
-//                val launchIntent = Intent(Intent.ACTION_MAIN)
-//                launchIntent.addCategory(Intent.CATEGORY_LAUNCHER)
-//                launchIntent.component = ComponentName(launchPackage, launchActivity)
-//                val options = ActivityOptions.makeBasic().setLaunchDisplayId(1)
-//                launchIntent.addFlags(Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS)
-//                startActivity(launchIntent, options.toBundle())
-//            }
-//            finish()
-//        }
-
+        if (isDeviceLocked()) {
+            Toast.makeText(
+                applicationContext,
+                R.string.caveats_warning,
+                Toast.LENGTH_LONG
+            ).show()
+            startActivity(Intent(Settings.ACTION_SETTINGS))
+        } else {
+            startActivity(Intent(Settings.ACTION_SETTINGS))
+        }
         finishAndRemoveTask()
+    }
+
+    /**
+     * @return true if pass or pin or pattern locks screen
+     */
+    private fun isDeviceLocked(): Boolean {
+        val keyguardManager =
+            getSystemService(Context.KEYGUARD_SERVICE) as KeyguardManager
+        return keyguardManager.isDeviceSecure
     }
 
     override fun onKeyDown(keyCode: Int, event: KeyEvent): Boolean {

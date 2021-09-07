@@ -1,6 +1,7 @@
 package com.samsung.android.app.shealth.tracker.pedometer.service.coverwidget
 
 import android.app.ActivityOptions
+import android.app.KeyguardManager
 import android.app.PendingIntent
 import android.appwidget.AppWidgetManager
 import android.appwidget.AppWidgetProvider
@@ -22,6 +23,7 @@ import com.sec.android.app.shealth.StepWidgetService
 class StepCoverAppWidget: AppWidgetProvider() {
 
     private val onClickTag = "OnClickTag"
+    private val coverLock = "cover_lock"
     private var mDisplayListener : DisplayListener? = null
 
     override fun onReceive(context: Context, intent: Intent) {
@@ -32,10 +34,15 @@ class StepCoverAppWidget: AppWidgetProvider() {
                 ComponentName(context, StepCoverAppWidget::class.java)), R.id.widgetListView)
         }
         if (intent.action.equals(onClickTag)) {
+
             val launchPackage = intent.getStringExtra("launchPackage")
             val launchActivity = intent.getStringExtra("launchActivity")
 
             if (launchPackage == null || launchActivity == null) return
+
+            val kgm = context.getSystemService(Context.KEYGUARD_SERVICE) as KeyguardManager
+            val mKeyguardLock = kgm.newKeyguardLock(coverLock)
+            mKeyguardLock.disableKeyguard()
 
             mDisplayListener = object : DisplayListener {
                 override fun onDisplayAdded(display: Int) {}
@@ -46,6 +53,10 @@ class StepCoverAppWidget: AppWidgetProvider() {
                     val launchDisplay = ActivityOptions.makeBasic().setLaunchDisplayId(display)
                     displayIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
                     context.startActivity(displayIntent, launchDisplay.toBundle())
+                    if (display == 0)
+                        mKeyguardLock.reenableKeyguard()
+                    else
+                        mKeyguardLock.disableKeyguard()
                 }
 
                 override fun onDisplayRemoved(display: Int) {}
@@ -55,7 +66,7 @@ class StepCoverAppWidget: AppWidgetProvider() {
             manager.registerDisplayListener(mDisplayListener, Handler(Looper.getMainLooper()))
 
             val mReceiver: BroadcastReceiver = StepBroadcastReceiver(
-                mDisplayListener, ComponentName(launchPackage, launchActivity)
+                mKeyguardLock, mDisplayListener, ComponentName(launchPackage, launchActivity)
             )
             context.applicationContext?.registerReceiver(
                 mReceiver, IntentFilter(ACTION_SCREEN_OFF))

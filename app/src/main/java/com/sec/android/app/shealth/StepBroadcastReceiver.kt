@@ -1,6 +1,7 @@
 package com.sec.android.app.shealth
 
 import android.app.ActivityOptions
+import android.app.KeyguardManager
 import android.content.BroadcastReceiver
 import android.content.ComponentName
 import android.content.Context
@@ -9,17 +10,27 @@ import android.hardware.display.DisplayManager
 import android.hardware.display.DisplayManager.DisplayListener
 
 class StepBroadcastReceiver : BroadcastReceiver {
+    private val coverLock = "cover_lock"
+
     private var mDisplayListener : DisplayListener? = null
+    private var mKeyguardLock : KeyguardManager.KeyguardLock? = null
     private var componentName : ComponentName? = null
 
     constructor() {}
-    constructor(mDisplayListener: DisplayListener?, componentName: ComponentName) {
+    constructor(
+        mKeyguardLock : KeyguardManager.KeyguardLock?,
+        mDisplayListener: DisplayListener?,
+        componentName: ComponentName
+    ) {
         this.mDisplayListener = mDisplayListener
+        this.mKeyguardLock = mKeyguardLock
         this.componentName = componentName
     }
 
     override fun onReceive(context: Context, intent: Intent) {
         if (intent.action == Intent.ACTION_SCREEN_OFF) {
+            mKeyguardLock?.reenableKeyguard()
+
             val manager = context.getSystemService(Context.DISPLAY_SERVICE) as DisplayManager
             manager.unregisterDisplayListener(mDisplayListener)
 
