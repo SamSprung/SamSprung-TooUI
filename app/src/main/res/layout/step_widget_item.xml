@@ -5,16 +5,18 @@
     android:orientation="horizontal"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    tools:context=".MainActivity">
+    tools:context=".MainActivity"
+    tools:ignore="UseCompoundDrawables">
 
     <ImageView
         android:id="@+id/widgetItemImage"
         android:layout_width="48dp"
-        android:layout_height="48dp" />
+        android:layout_height="48dp"
+        android:contentDescription="@string/list_icon" />
 
     <TextView
         android:id="@+id/widgetItemText"
-        android:layout_width="match_parent"
+        android:layout_width="0dp"
         android:gravity="center"
         android:layout_weight="1"
         android:textSize="24sp"

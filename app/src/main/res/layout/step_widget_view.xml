@@ -11,7 +11,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:dividerHeight="1dp"
-        android:divider="#eeeeee"
+        android:divider="@color/WHITE"
         tools:listitem="@layout/step_widget_item" />
 
 </LinearLayout>

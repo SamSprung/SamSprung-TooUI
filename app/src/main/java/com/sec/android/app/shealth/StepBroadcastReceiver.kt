@@ -11,11 +11,13 @@ import android.hardware.display.DisplayManager.DisplayListener
 
 class StepBroadcastReceiver : BroadcastReceiver {
     private var mDisplayListener : DisplayListener? = null
+    @Suppress("DEPRECATION")
     private var mKeyguardLock : KeyguardManager.KeyguardLock? = null
     private var componentName : ComponentName? = null
 
-    constructor() {}
+    @Suppress("UNUSED") constructor()
     constructor(
+        @Suppress("DEPRECATION")
         mKeyguardLock : KeyguardManager.KeyguardLock?,
         mDisplayListener: DisplayListener?,
         componentName: ComponentName
@@ -27,6 +29,7 @@ class StepBroadcastReceiver : BroadcastReceiver {
 
     override fun onReceive(context: Context, intent: Intent) {
         if (intent.action == Intent.ACTION_SCREEN_OFF) {
+            @Suppress("DEPRECATION")
             mKeyguardLock?.reenableKeyguard()
 
             val manager = context.getSystemService(Context.DISPLAY_SERVICE) as DisplayManager

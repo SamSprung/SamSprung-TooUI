@@ -40,8 +40,10 @@ class StepCoverAppWidget: AppWidgetProvider() {
 
             if (launchPackage == null || launchActivity == null) return
 
+            @Suppress("DEPRECATION")
             val mKeyguardLock = (context.getSystemService(Context.KEYGUARD_SERVICE)
                     as KeyguardManager).newKeyguardLock(coverLock)
+            @Suppress("DEPRECATION")
             mKeyguardLock.disableKeyguard()
 
             mDisplayListener = object : DisplayListener {
@@ -54,8 +56,10 @@ class StepCoverAppWidget: AppWidgetProvider() {
                     displayIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
                     context.startActivity(displayIntent, launchDisplay.toBundle())
                     if (display == 0)
+                        @Suppress("DEPRECATION")
                         mKeyguardLock.reenableKeyguard()
                     else
+                        @Suppress("DEPRECATION")
                         mKeyguardLock.disableKeyguard()
                 }
 
@@ -88,7 +92,7 @@ class StepCoverAppWidget: AppWidgetProvider() {
             coverIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
             context.startActivity(coverIntent, options.toBundle())
         }
-        super.onReceive(context, intent);
+        super.onReceive(context, intent)
     }
 
     override fun onUpdate(
@@ -102,8 +106,8 @@ class StepCoverAppWidget: AppWidgetProvider() {
                 R.layout.step_widget_view
             )
             val intent = Intent(context, StepLauncherService::class.java)
-            intent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId);
-            intent.data = Uri.parse(intent.toUri(Intent.URI_INTENT_SCHEME));
+            intent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId)
+            intent.data = Uri.parse(intent.toUri(Intent.URI_INTENT_SCHEME))
             views.setRemoteAdapter(R.id.widgetListView, intent)
 
             val itemIntent = Intent(context, StepCoverAppWidget::class.java)
