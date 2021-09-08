@@ -24,7 +24,7 @@ class StepCoverAppWidget: AppWidgetProvider() {
 
     private val onClickTag = "OnClickTag"
     private val coverLock = "cover_lock"
-    private var mDisplayListener : DisplayListener? = null
+    private var mDisplayListener: DisplayListener? = null
 
     override fun onReceive(context: Context, intent: Intent) {
         if (intent.action == AppWidgetManager.ACTION_APPWIDGET_UPDATE) {
@@ -49,18 +49,18 @@ class StepCoverAppWidget: AppWidgetProvider() {
             mDisplayListener = object : DisplayListener {
                 override fun onDisplayAdded(display: Int) {}
                 override fun onDisplayChanged(display: Int) {
-                    val displayIntent = Intent(Intent.ACTION_MAIN)
-                    displayIntent.addCategory(Intent.CATEGORY_LAUNCHER)
-                    displayIntent.component = ComponentName(launchPackage, launchActivity)
-                    val launchDisplay = ActivityOptions.makeBasic().setLaunchDisplayId(display)
-                    displayIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                    context.startActivity(displayIntent, launchDisplay.toBundle())
                     if (display == 0)
                         @Suppress("DEPRECATION")
                         mKeyguardLock.reenableKeyguard()
                     else
                         @Suppress("DEPRECATION")
                         mKeyguardLock.disableKeyguard()
+                    val displayIntent = Intent(Intent.ACTION_MAIN)
+                    displayIntent.addCategory(Intent.CATEGORY_LAUNCHER)
+                    displayIntent.component = ComponentName(launchPackage, launchActivity)
+                    val launchDisplay = ActivityOptions.makeBasic().setLaunchDisplayId(display)
+                    displayIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                    context.startActivity(displayIntent, launchDisplay.toBundle())
                 }
 
                 override fun onDisplayRemoved(display: Int) {}
@@ -70,7 +70,7 @@ class StepCoverAppWidget: AppWidgetProvider() {
             manager.registerDisplayListener(mDisplayListener, Handler(Looper.getMainLooper()))
 
             val mReceiver: BroadcastReceiver = StepBroadcastReceiver(
-                mKeyguardLock, mDisplayListener, ComponentName(launchPackage, launchActivity)
+                mDisplayListener, mKeyguardLock, ComponentName(launchPackage, launchActivity)
             )
             context.applicationContext?.registerReceiver(
                 mReceiver, IntentFilter(ACTION_SCREEN_OFF))
@@ -80,7 +80,7 @@ class StepCoverAppWidget: AppWidgetProvider() {
             coverIntent.component = ComponentName(launchPackage, launchActivity)
             val options = ActivityOptions.makeBasic().setLaunchDisplayId(1)
             try {
-                val applicationInfo : ApplicationInfo = context.packageManager.getApplicationInfo (
+                val applicationInfo: ApplicationInfo = context.packageManager.getApplicationInfo (
                     launchPackage, PackageManager.GET_META_DATA
                 )
                 applicationInfo.metaData.putString(
