@@ -38,6 +38,9 @@ android {
     kotlinOptions {
         jvmTarget = '1.8'
     }
+    lintOptions {
+        abortOnError false
+    }
 
     applicationVariants.all { variant ->
         variant.outputs[0].outputFileName = project.archivesBaseName + ".apk"
