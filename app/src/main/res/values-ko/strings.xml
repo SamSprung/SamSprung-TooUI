@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">Z플립 런처</string>
+    <string name="caveats_warning">앱을 실행하기 위해서는 잠금화면이 해제되어야 해요.</string>
+    <string name="list_icon">아이콘</string>
+</resources>
