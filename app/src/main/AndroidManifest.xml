@@ -11,11 +11,10 @@
     <application
         android:allowBackup="true"
         android:extractNativeLibs="true"
-        android:icon="@mipmap/ic_launcher"
+        android:icon="@mipmap/s_health_icon"
         android:label="@string/app_name"
-        android:roundIcon="@mipmap/ic_launcher_round"
+        android:roundIcon="@mipmap/s_health_icon_round"
         android:supportsRtl="true"
-        android:sharedUserId="shealth"
         android:theme="@style/Theme.SecondScreen">
         <activity
             android:name=".MainActivity"
