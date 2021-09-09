@@ -1,8 +1,10 @@
 package com.sec.android.app.shealth
 
 import android.app.KeyguardManager
+import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.os.Bundle
 import android.provider.Settings
 import android.view.KeyEvent
@@ -14,6 +16,7 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        displaySecondaryLaunchers(this)
         if (isDeviceLocked()) {
             Toast.makeText(
                 applicationContext,
@@ -41,5 +44,19 @@ class MainActivity : AppCompatActivity() {
             // do what you want with the power button
             true
         } else super.onKeyDown(keyCode, event)
+    }
+
+    private fun displaySecondaryLaunchers(context: Context) {
+        val packageManager: PackageManager = context.packageManager
+        val componentName = ComponentName(context, LauncherOverride::class.java)
+        packageManager.setComponentEnabledSetting(
+            componentName,
+            PackageManager.COMPONENT_ENABLED_STATE_ENABLED,
+            PackageManager.DONT_KILL_APP
+        )
+        val selector = Intent(Intent.ACTION_MAIN)
+        selector.addCategory(Intent.CATEGORY_SECONDARY_HOME)
+        selector.flags = Intent.FLAG_ACTIVITY_NEW_TASK
+        context.startActivity(selector)
     }
 }
