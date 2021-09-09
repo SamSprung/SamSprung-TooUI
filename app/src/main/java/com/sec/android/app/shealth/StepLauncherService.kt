@@ -8,6 +8,7 @@ import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.drawable.Drawable
 import android.os.Bundle
+import android.view.View
 import android.widget.RemoteViews
 import android.widget.RemoteViewsService
 import java.util.*
@@ -18,6 +19,7 @@ class StepLauncherService : RemoteViewsService() {
     }
 
     class StepRemoteViewsFactory(private val context: Context) : RemoteViewsFactory {
+        private var isGridView = true
         private val packages: MutableList<ResolveInfo>
         private val pacMan = context.packageManager
         override fun onCreate() {}
@@ -33,25 +35,35 @@ class StepLauncherService : RemoteViewsService() {
         override fun getViewAt(position: Int): RemoteViews {
             val application = packages[position]
             val rv = RemoteViews(context.packageName, R.layout.step_widget_item)
-            rv.setTextViewText(R.id.widgetItemText, application.loadLabel(pacMan).toString())
+
+            rv.setViewVisibility(R.id.widgetListContainer,
+                if (isGridView) View.GONE else View.VISIBLE)
+            rv.setViewVisibility(R.id.widgetGridImage,
+                if (isGridView) View.VISIBLE else View.GONE)
+
+            val icon = if (isGridView) R.id.widgetGridImage else R.id.widgetItemImage
+
             try {
                 val drawable = pacMan.getApplicationIcon(
                     application.activityInfo.packageName
                 )
-                rv.setImageViewBitmap(R.id.widgetItemImage, getBitmapFromDrawable(drawable))
+                rv.setImageViewBitmap(icon, getBitmapFromDrawable(drawable))
             } catch (e: PackageManager.NameNotFoundException) {
                 e.printStackTrace()
                 rv.setImageViewBitmap(
-                    R.id.widgetItemImage,
-                    getBitmapFromDrawable(application.loadIcon(pacMan))
+                    icon, getBitmapFromDrawable(application.loadIcon(pacMan))
                 )
             }
+
             val extras = Bundle()
             extras.putString("launchPackage", application.activityInfo.packageName)
             extras.putString("launchActivity", application.activityInfo.name)
             val fillInIntent = Intent()
             fillInIntent.putExtras(extras)
-            rv.setOnClickFillInIntent(R.id.widgetItemContainer, fillInIntent)
+                rv.setOnClickFillInIntent(R.id.widgetItemContainer, fillInIntent)
+            if (!isGridView) {
+                rv.setTextViewText(R.id.widgetItemText, application.loadLabel(pacMan).toString())
+            }
             return rv
         }
 
@@ -72,17 +84,21 @@ class StepLauncherService : RemoteViewsService() {
         }
 
         private fun getBitmapFromDrawable(drawable: Drawable): Bitmap {
-            val bmp = Bitmap.createBitmap(
+            val bitmapDrawable = Bitmap.createBitmap(
                 drawable.intrinsicWidth,
                 drawable.intrinsicHeight, Bitmap.Config.ARGB_8888
             )
-            val canvas = Canvas(bmp)
+            val canvas = Canvas(bitmapDrawable)
             drawable.setBounds(0, 0, canvas.width, canvas.height)
             drawable.draw(canvas)
-            return bmp
+            return bitmapDrawable
         }
 
         init {
+            val sharedPref = context.getSharedPreferences(
+                "samsprung.launcher.PREFS", Context.MODE_PRIVATE
+            )
+            isGridView = sharedPref.getBoolean("gridview", isGridView)
             val mainIntent = Intent(Intent.ACTION_MAIN, null)
             mainIntent.addCategory(Intent.CATEGORY_LAUNCHER)
             mainIntent.removeCategory(Intent.CATEGORY_HOME)

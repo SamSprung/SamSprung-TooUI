@@ -11,6 +11,7 @@ import android.hardware.display.DisplayManager.DisplayListener
 
 class StepBroadcastReceiver : BroadcastReceiver {
     private var mDisplayListener : DisplayListener? = null
+    @Suppress("DEPRECATION")
     private var mKeyguardLock : KeyguardManager.KeyguardLock? = null
     private var componentName : ComponentName? = null
 

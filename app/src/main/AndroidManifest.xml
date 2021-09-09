@@ -17,7 +17,7 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.SecondScreen">
         <activity
-            android:name=".MainActivity"
+            android:name=".SettingsActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -25,7 +25,7 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".LauncherOverride"
+            android:name=".SecondHomePicker"
             android:enabled="false"
             android:exported="true">
             <intent-filter>

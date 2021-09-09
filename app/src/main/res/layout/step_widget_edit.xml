@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context=".SettingsActivity">
+
+    <Space
+        android:layout_width="match_parent"
+        android:layout_height="12dp" />
+
+    <Button
+        android:id="@+id/testLauncher"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/test_launcher" />
+
+    <Space
+        android:layout_width="match_parent"
+        android:layout_height="12dp" />
+
+    <Button
+        android:id="@+id/openSettings"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/open_settings" />
+
+    <Space
+        android:layout_width="match_parent"
+        android:layout_height="12dp" />
+
+    <ToggleButton
+        android:id="@+id/swapViewType"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textOn="@string/swap_viewlist"
+        android:textOff="@string/swap_viewgrid"/>
+
+</LinearLayout>

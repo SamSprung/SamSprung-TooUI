@@ -1,5 +1,9 @@
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="MissingTranslation">
     <string name="app_name">SamSprung Launcher</string>
     <string name="caveats_warning">Lock screen must be disabled to launch apps</string>
+    <string name="test_launcher">List Second Home Launchers</string>
+    <string name="open_settings">Launch System Settings App</string>
+    <string name="swap_viewgrid">Switch to GridView Widget Style</string>
+    <string name="swap_viewlist">Switch to ListView Widget Style</string>
     <string name="list_icon">Icon</string>
 </resources>

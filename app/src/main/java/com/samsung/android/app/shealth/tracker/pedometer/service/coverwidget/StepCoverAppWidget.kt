@@ -14,6 +14,7 @@ import android.hardware.display.DisplayManager.DisplayListener
 import android.net.Uri
 import android.os.Handler
 import android.os.Looper
+import android.view.View
 import android.widget.RemoteViews
 import com.sec.android.app.shealth.R
 import com.sec.android.app.shealth.StepBroadcastReceiver
@@ -27,12 +28,6 @@ class StepCoverAppWidget: AppWidgetProvider() {
     private var mDisplayListener: DisplayListener? = null
 
     override fun onReceive(context: Context, intent: Intent) {
-        if (intent.action == AppWidgetManager.ACTION_APPWIDGET_UPDATE) {
-            // refresh all your widgets
-            val mgr = AppWidgetManager.getInstance(context)
-            mgr.notifyAppWidgetViewDataChanged(mgr.getAppWidgetIds(
-                ComponentName(context, StepCoverAppWidget::class.java)), R.id.widgetListView)
-        }
         if (intent.action.equals(onClickTag)) {
 
             val launchPackage = intent.getStringExtra("launchPackage")
@@ -100,15 +95,27 @@ class StepCoverAppWidget: AppWidgetProvider() {
         appWidgetManager: AppWidgetManager,
         appWidgetIds: IntArray
     ) {
+        val sharedPref = context.getSharedPreferences(
+            "samsprung.launcher.PREFS", Context.MODE_PRIVATE
+        )
+        val isGridView = sharedPref.getBoolean("gridview", true)
         appWidgetIds.forEach { appWidgetId ->
             val views = RemoteViews(
                 context.packageName,
                 R.layout.step_widget_view
             )
+
+            views.setViewVisibility(R.id.widgetListView,
+                if (isGridView) View.GONE else View.VISIBLE)
+            views.setViewVisibility(R.id.widgetGridView,
+                if (isGridView) View.VISIBLE else View.GONE)
+
+            val view = if (isGridView) R.id.widgetGridView else R.id.widgetListView
+
             val intent = Intent(context, StepLauncherService::class.java)
             intent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId)
             intent.data = Uri.parse(intent.toUri(Intent.URI_INTENT_SCHEME))
-            views.setRemoteAdapter(R.id.widgetListView, intent)
+            views.setRemoteAdapter(view, intent)
 
             val itemIntent = Intent(context, StepCoverAppWidget::class.java)
             itemIntent.action = onClickTag
@@ -117,7 +124,7 @@ class StepCoverAppWidget: AppWidgetProvider() {
                 context, 0, itemIntent,
                 PendingIntent.FLAG_UPDATE_CURRENT
             )
-            views.setPendingIntentTemplate(R.id.widgetListView, itemPendingIntent)
+            views.setPendingIntentTemplate(view, itemPendingIntent)
 
             appWidgetManager.updateAppWidget(appWidgetId, views)
         }
