@@ -30,10 +30,6 @@ class SettingsActivity : AppCompatActivity() {
             ).show()
         }
 
-        findViewById<Button>(R.id.testLauncher).setOnClickListener {
-            displaySecondaryLaunchers(this)
-        }
-
         findViewById<Button>(R.id.openSettings).setOnClickListener {
             startActivity(Intent(Settings.ACTION_SETTINGS))
         }
@@ -81,19 +77,5 @@ class SettingsActivity : AppCompatActivity() {
         }
         widgetIntent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS, ids)
         sendBroadcast(widgetIntent)
-    }
-
-    private fun displaySecondaryLaunchers(context: Context) {
-        val packageManager: PackageManager = context.packageManager
-        val componentName = ComponentName(context, SecondHomePicker::class.java)
-        packageManager.setComponentEnabledSetting(
-            componentName,
-            PackageManager.COMPONENT_ENABLED_STATE_ENABLED,
-            PackageManager.DONT_KILL_APP
-        )
-        val selector = Intent(Intent.ACTION_MAIN)
-        selector.addCategory(Intent.CATEGORY_SECONDARY_HOME)
-        selector.flags = Intent.FLAG_ACTIVITY_NEW_TASK
-        context.startActivity(selector)
     }
 }

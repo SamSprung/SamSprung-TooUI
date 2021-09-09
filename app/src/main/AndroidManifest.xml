@@ -24,16 +24,6 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity
-            android:name=".SecondHomePicker"
-            android:enabled="false"
-            android:exported="true">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="android.intent.category.SECONDARY_HOME" />
-                <category android:name="android.intent.category.DEFAULT" />
-            </intent-filter>
-        </activity>
         <receiver android:name="com.samsung.android.app.shealth.tracker.pedometer.service.coverwidget.StepCoverAppWidget"
             android:exported="false">
             <intent-filter>
