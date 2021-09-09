@@ -20,9 +20,21 @@ class StepLauncherService : RemoteViewsService() {
 
     class StepRemoteViewsFactory(private val context: Context) : RemoteViewsFactory {
         private var isGridView = true
-        private val packages: MutableList<ResolveInfo>
+        private var packages: MutableList<ResolveInfo> = arrayListOf()
         private val pacMan = context.packageManager
-        override fun onCreate() {}
+
+        override fun onCreate() {
+            val sharedPref = context.getSharedPreferences(
+                "samsprung.launcher.PREFS", Context.MODE_PRIVATE
+            )
+            isGridView = sharedPref.getBoolean("gridview", isGridView)
+            val mainIntent = Intent(Intent.ACTION_MAIN, null)
+            mainIntent.addCategory(Intent.CATEGORY_LAUNCHER)
+            mainIntent.removeCategory(Intent.CATEGORY_HOME)
+            packages = pacMan.queryIntentActivities(mainIntent, 0)
+            packages.removeIf { item -> item.activityInfo.packageName == context.packageName }
+            Collections.sort(packages, ResolveInfo.DisplayNameComparator(pacMan))
+        }
         override fun onDataSetChanged() {}
         override fun onDestroy() {
             packages.clear()
@@ -92,19 +104,6 @@ class StepLauncherService : RemoteViewsService() {
             drawable.setBounds(0, 0, canvas.width, canvas.height)
             drawable.draw(canvas)
             return bitmapDrawable
-        }
-
-        init {
-            val sharedPref = context.getSharedPreferences(
-                "samsprung.launcher.PREFS", Context.MODE_PRIVATE
-            )
-            isGridView = sharedPref.getBoolean("gridview", isGridView)
-            val mainIntent = Intent(Intent.ACTION_MAIN, null)
-            mainIntent.addCategory(Intent.CATEGORY_LAUNCHER)
-            mainIntent.removeCategory(Intent.CATEGORY_HOME)
-            packages = pacMan.queryIntentActivities(mainIntent, 0)
-            packages.removeIf { item -> item.activityInfo.packageName == context.packageName }
-            Collections.sort(packages, ResolveInfo.DisplayNameComparator(pacMan))
         }
     }
 }

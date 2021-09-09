@@ -38,18 +38,15 @@ class StepCoverAppWidget: AppWidgetProvider() {
             @Suppress("DEPRECATION")
             val mKeyguardLock = (context.getSystemService(Context.KEYGUARD_SERVICE)
                     as KeyguardManager).newKeyguardLock(coverLock)
-            @Suppress("DEPRECATION")
-            mKeyguardLock.disableKeyguard()
+            @Suppress("DEPRECATION") mKeyguardLock.disableKeyguard()
 
             mDisplayListener = object : DisplayListener {
                 override fun onDisplayAdded(display: Int) {}
                 override fun onDisplayChanged(display: Int) {
                     if (display == 0)
-                        @Suppress("DEPRECATION")
-                        mKeyguardLock.reenableKeyguard()
+                        @Suppress("DEPRECATION") mKeyguardLock.reenableKeyguard()
                     else
-                        @Suppress("DEPRECATION")
-                        mKeyguardLock.disableKeyguard()
+                        @Suppress("DEPRECATION") mKeyguardLock.disableKeyguard()
                     val displayIntent = Intent(Intent.ACTION_MAIN)
                     displayIntent.addCategory(Intent.CATEGORY_LAUNCHER)
                     displayIntent.component = ComponentName(launchPackage, launchActivity)

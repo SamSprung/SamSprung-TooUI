@@ -18,8 +18,7 @@ class StepBroadcastReceiver : BroadcastReceiver {
     @Suppress("UNUSED") constructor()
     constructor(
         mDisplayListener: DisplayListener?,
-        @Suppress("DEPRECATION")
-        mKeyguardLock : KeyguardManager.KeyguardLock?,
+        @Suppress("DEPRECATION") mKeyguardLock : KeyguardManager.KeyguardLock?,
         componentName: ComponentName
     ) {
         this.mDisplayListener = mDisplayListener
@@ -29,8 +28,7 @@ class StepBroadcastReceiver : BroadcastReceiver {
 
     override fun onReceive(context: Context, intent: Intent) {
         if (intent.action == Intent.ACTION_SCREEN_OFF) {
-            @Suppress("DEPRECATION")
-            mKeyguardLock?.reenableKeyguard()
+            @Suppress("DEPRECATION") mKeyguardLock?.reenableKeyguard()
 
             val manager = context.getSystemService(Context.DISPLAY_SERVICE) as DisplayManager
             manager.unregisterDisplayListener(mDisplayListener)

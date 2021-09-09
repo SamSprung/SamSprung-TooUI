@@ -57,8 +57,7 @@ class SettingsActivity : AppCompatActivity() {
      * @return true if pass or pin or pattern locks screen
      */
     private fun isDeviceLocked(): Boolean {
-        val keyguardManager = getSystemService(Context.KEYGUARD_SERVICE) as KeyguardManager
-        return keyguardManager.isDeviceSecure
+        return (getSystemService(Context.KEYGUARD_SERVICE) as KeyguardManager).isDeviceSecure
     }
 
     override fun onKeyDown(keyCode: Int, event: KeyEvent): Boolean {
@@ -82,7 +81,6 @@ class SettingsActivity : AppCompatActivity() {
         }
         widgetIntent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS, ids)
         sendBroadcast(widgetIntent)
-        finishAndRemoveTask()
     }
 
     private fun displaySecondaryLaunchers(context: Context) {
