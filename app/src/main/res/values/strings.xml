@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">ZFLip Launcher</string>
+    <string name="app_name">SamSprung Launcher</string>
     <string name="caveats_warning">Lock screen must be disabled to launch apps</string>
     <string name="list_icon">Icon</string>
 </resources>

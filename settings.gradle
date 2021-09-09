@@ -6,8 +6,7 @@ dependencyResolutionManagement {
         maven {
             url "https://maven.mozilla.org/maven2/"
         }
-        jcenter() // Warning: this repository is going to shut down soon
     }
 }
-rootProject.name = "ZFlip-Launcher"
+rootProject.name = "SamSprung"
 include ':app'

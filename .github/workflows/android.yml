@@ -54,6 +54,6 @@ jobs:
         repo_token: "${{ secrets.GITHUB_TOKEN }}"
         automatic_release_tag: "latest"
         prerelease: false
-        title: ZFlip-Launcher-${{ env.GIT_HASH }}
+        title: SamSprung-${{ env.GIT_HASH }}
         files: ${{steps.sign_app.outputs.signedReleaseFile}}
 

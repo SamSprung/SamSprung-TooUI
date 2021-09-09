@@ -1,4 +1,4 @@
-## Z Flip Launcher
+## SamSprung Launcher
 
 #### Current limitations:
 
@@ -23,11 +23,11 @@
 
 ###### From Settings
 - Open Settings -> Cover screen -> Widgets
-- Enable ZFlip Launcher
+- Enable SamSprung Launcher
 
 OR
 
 ###### From Cover Screen
 - Turn on cover screen
 - Swipe to the +
-- Select ZFlip Launcher
+- Select SamSprung Launcher
