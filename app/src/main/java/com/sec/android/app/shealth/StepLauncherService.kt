@@ -87,10 +87,7 @@ class StepLauncherService : RemoteViewsService() {
             mainIntent.addCategory(Intent.CATEGORY_LAUNCHER)
             mainIntent.removeCategory(Intent.CATEGORY_HOME)
             packages = pacMan.queryIntentActivities(mainIntent, 0)
-            for (listItem: ResolveInfo in packages) {
-                if (listItem.activityInfo.packageName == context.packageName)
-                    packages.remove(listItem)
-            }
+            packages.removeIf { item -> item.activityInfo.packageName == context.packageName }
             Collections.sort(packages, ResolveInfo.DisplayNameComparator(pacMan))
         }
     }

@@ -9,12 +9,23 @@ import android.content.Intent
 import android.hardware.display.DisplayManager
 import android.hardware.display.DisplayManager.DisplayListener
 
-class StepBroadcastReceiver(
-    @Suppress("DEPRECATION")
-    private var mDisplayListener: DisplayListener?,
-    private var mKeyguardLock: KeyguardManager.KeyguardLock?,
-    private var componentName: ComponentName?
-) : BroadcastReceiver() {
+class StepBroadcastReceiver : BroadcastReceiver {
+    private var mDisplayListener : DisplayListener? = null
+    private var mKeyguardLock : KeyguardManager.KeyguardLock? = null
+    private var componentName : ComponentName? = null
+
+    @Suppress("UNUSED") constructor()
+    constructor(
+        mDisplayListener: DisplayListener?,
+        @Suppress("DEPRECATION")
+        mKeyguardLock : KeyguardManager.KeyguardLock?,
+        componentName: ComponentName
+    ) {
+        this.mDisplayListener = mDisplayListener
+        this.mKeyguardLock = mKeyguardLock
+        this.componentName = componentName
+    }
+
     override fun onReceive(context: Context, intent: Intent) {
         if (intent.action == Intent.ACTION_SCREEN_OFF) {
             @Suppress("DEPRECATION")
