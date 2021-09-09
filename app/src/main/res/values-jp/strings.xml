@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">SamSprung ランチャー</string>
+    <string name="caveats_warning">アプリを起動するには、画面のロックを無効にする必要があります</string>
+    <string name="list_icon">アイコン</string>
+</resources>
