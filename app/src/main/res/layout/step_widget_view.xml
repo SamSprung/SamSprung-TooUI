@@ -24,6 +24,6 @@
         android:verticalSpacing="16dp"
         android:columnWidth="56dp"
         android:numColumns="auto_fit"
-        android:visibility="gone"/>
+        android:visibility="gone" />
 
 </LinearLayout>

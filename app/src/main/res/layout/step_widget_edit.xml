@@ -8,7 +8,7 @@
 
     <Space
         android:layout_width="match_parent"
-        android:layout_height="12dp" />
+        android:layout_height="10dp" />
 
     <Button
         android:id="@+id/openSettings"
@@ -18,22 +18,41 @@
 
     <Space
         android:layout_width="match_parent"
-        android:layout_height="12dp" />
+        android:layout_height="10dp" />
 
     <ToggleButton
         android:id="@+id/swapViewType"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:textOn="@string/swap_viewlist"
-        android:textOff="@string/swap_viewgrid"/>
+        android:textOff="@string/swap_viewgrid"
+        android:textOn="@string/swap_viewlist" />
+
     <Space
         android:layout_width="match_parent"
-        android:layout_height="12dp" />
+        android:layout_height="10dp" />
 
     <Button
         android:id="@+id/printLogcat"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="@string/print_logcat" />
+
+    <Space
+        android:layout_width="match_parent"
+        android:layout_height="10dp" />
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:fillViewport="true"
+        android:scrollbars="vertical">
+
+        <TextView
+            android:id="@+id/showLogcat"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/print_logcat" />
+
+    </ScrollView>
 
 </LinearLayout>

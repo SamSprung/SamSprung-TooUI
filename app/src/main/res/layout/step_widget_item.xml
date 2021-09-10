@@ -40,6 +40,6 @@
         android:layout_height="56dp"
         android:layout_gravity="center"
         android:src="@mipmap/s_health_icon"
-        android:visibility="gone"/>
+        android:visibility="gone" />
 
 </LinearLayout>

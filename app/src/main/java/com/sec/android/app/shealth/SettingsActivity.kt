@@ -13,6 +13,7 @@ import android.os.Bundle
 import android.provider.Settings
 import android.view.KeyEvent
 import android.widget.Button
+import android.widget.TextView
 import android.widget.Toast
 import android.widget.ToggleButton
 import androidx.appcompat.app.AppCompatActivity
@@ -65,6 +66,9 @@ class SettingsActivity : AppCompatActivity() {
                 dumpLogcat()
             }
         }
+
+        findViewById<TextView>(R.id.showLogcat).text = showLogcat()
+
     }
 
     /**
@@ -90,9 +94,7 @@ class SettingsActivity : AppCompatActivity() {
         sendBroadcast(widgetIntent)
     }
 
-    @Throws(Exception::class)
-    fun dumpLogcat() {
-        val file = File(externalCacheDir, "samsprung_logcat.txt")
+    fun showLogcat(): String {
         var mLogcatProc: Process
         var reader: BufferedReader
         val log = StringBuilder()
@@ -162,7 +164,13 @@ class SettingsActivity : AppCompatActivity() {
         } catch (e: IOException) {
             e.printStackTrace()
         }
-        FileOutputStream(file).use { fos -> fos.write(log.toString().toByteArray()) }
+        return log.toString()
+    }
+
+    @Throws(Exception::class)
+    fun dumpLogcat() {
+        val file = File(externalCacheDir, "samsprung_logcat.txt")
+        FileOutputStream(file).use { fos -> fos.write(showLogcat().toByteArray()) }
         try {
             MediaScannerConnection.scanFile(this,
                 arrayOf(file.absolutePath), null, null)
