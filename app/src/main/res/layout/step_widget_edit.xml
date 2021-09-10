@@ -8,7 +8,7 @@
 
     <Space
         android:layout_width="match_parent"
-        android:layout_height="10dp" />
+        android:layout_height="8dp" />
 
     <Button
         android:id="@+id/openSettings"
@@ -18,7 +18,7 @@
 
     <Space
         android:layout_width="match_parent"
-        android:layout_height="10dp" />
+        android:layout_height="8dp" />
 
     <ToggleButton
         android:id="@+id/swapViewType"
@@ -29,7 +29,7 @@
 
     <Space
         android:layout_width="match_parent"
-        android:layout_height="10dp" />
+        android:layout_height="8dp" />
 
     <Button
         android:id="@+id/printLogcat"
@@ -39,7 +39,7 @@
 
     <Space
         android:layout_width="match_parent"
-        android:layout_height="10dp" />
+        android:layout_height="16dp" />
 
     <ScrollView
         android:layout_width="match_parent"
@@ -50,8 +50,7 @@
         <TextView
             android:id="@+id/showLogcat"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="@string/print_logcat" />
+            android:layout_height="wrap_content" />
 
     </ScrollView>
 

@@ -25,7 +25,7 @@ class StepCoverAppWidget: AppWidgetProvider() {
 
     private val onClickTag = "OnClickTag"
     private val coverLock = "cover_lock"
-    private var mDisplayListener: DisplayListener? = null
+    private lateinit var mDisplayListener: DisplayListener
 
     override fun onReceive(context: Context, intent: Intent) {
         if (intent.action.equals(onClickTag)) {

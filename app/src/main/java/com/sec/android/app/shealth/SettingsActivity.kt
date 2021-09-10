@@ -8,7 +8,6 @@ import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.media.MediaScannerConnection
-import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
 import android.view.KeyEvent
@@ -19,15 +18,24 @@ import android.widget.ToggleButton
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.lifecycle.ViewModelProvider
 import com.samsung.android.app.shealth.tracker.pedometer.service.coverwidget.StepCoverAppWidget
-import java.io.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import java.io.File
+import java.io.FileOutputStream
 
 
 class SettingsActivity : AppCompatActivity() {
+    private lateinit var viewModel: LogcatViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.step_widget_edit)
+
+        viewModel = ViewModelProvider(this).get(LogcatViewModel::class.java)
 
         if (isDeviceLocked()) {
             Toast.makeText(
@@ -63,11 +71,16 @@ class SettingsActivity : AppCompatActivity() {
                 ActivityCompat.requestPermissions(this,
                     arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE), 9001)
             } else {
-                dumpLogcat()
+                cacheLogcat()
             }
         }
 
-        findViewById<TextView>(R.id.showLogcat).text = showLogcat()
+        CoroutineScope(Dispatchers.IO).launch {
+            val logcat = viewModel.printLogcat()
+            withContext(Dispatchers.Main) {
+                findViewById<TextView>(R.id.showLogcat).text = logcat
+            }
+        }
 
     }
 
@@ -94,88 +107,22 @@ class SettingsActivity : AppCompatActivity() {
         sendBroadcast(widgetIntent)
     }
 
-    fun showLogcat(): String {
-        var mLogcatProc: Process
-        var reader: BufferedReader
-        val log = StringBuilder()
-        val separator = System.getProperty("line.separator")
-        log.append(Build.MANUFACTURER)
-        log.append(" ")
-        log.append(Build.MODEL)
-        log.append(separator)
-        log.append("Android SDK ")
-        log.append(Build.VERSION.SDK_INT)
-        log.append(" (")
-        log.append(Build.VERSION.RELEASE)
-        log.append(")")
-        try {
-            var line: String?
-            mLogcatProc = Runtime.getRuntime().exec(arrayOf("logcat", "-ds", "AndroidRuntime:E"))
-            reader = BufferedReader(
-                InputStreamReader(
-                    mLogcatProc.inputStream
-                )
-            )
-            log.append(separator)
-            log.append(separator)
-            log.append("AndroidRuntime Logs")
-            log.append(separator)
-            log.append(separator)
-            while (reader.readLine().also { line = it } != null) {
-                log.append(line)
-                log.append(separator)
-            }
-            reader.close()
-            mLogcatProc =
-                Runtime.getRuntime().exec(arrayOf("logcat", "-d", BuildConfig.APPLICATION_ID))
-            reader = BufferedReader(
-                InputStreamReader(
-                    mLogcatProc.inputStream
-                )
-            )
-            log.append(separator)
-            log.append(separator)
-            log.append("SamSprung Default Logs")
-            log.append(separator)
-            log.append(separator)
-            while (reader.readLine().also { line = it } != null) {
-                log.append(line)
-                log.append(separator)
-            }
-            reader.close()
-            mLogcatProc =
-                Runtime.getRuntime().exec(arrayOf("logcat", "-d",
-                    "com.samsung.android.app.shealth.tracker.pedometer.service.coverwidget"))
-            reader = BufferedReader(
-                InputStreamReader(
-                    mLogcatProc.inputStream
-                )
-            )
-            log.append(separator)
-            log.append(separator)
-            log.append("SamSprung Widget Logs")
-            log.append(separator)
-            log.append(separator)
-            while (reader.readLine().also { line = it } != null) {
-                log.append(line)
-                log.append(separator)
-            }
-            reader.close()
-        } catch (e: IOException) {
-            e.printStackTrace()
-        }
-        return log.toString()
-    }
-
     @Throws(Exception::class)
-    fun dumpLogcat() {
-        val file = File(externalCacheDir, "samsprung_logcat.txt")
-        FileOutputStream(file).use { fos -> fos.write(showLogcat().toByteArray()) }
-        try {
-            MediaScannerConnection.scanFile(this,
-                arrayOf(file.absolutePath), null, null)
-        } catch (e: java.lang.Exception) {
-            e.printStackTrace()
+    fun cacheLogcat() {
+        CoroutineScope(Dispatchers.IO).launch {
+            runCatching {
+                val file = File(externalCacheDir, "samsprung_logcat.txt")
+                FileOutputStream(file).use { fos ->
+                    fos.write(viewModel.printLogcat().toByteArray())
+                }
+                try {
+                    MediaScannerConnection.scanFile(applicationContext,
+                        arrayOf(file.absolutePath), null, null
+                    )
+                } catch (e: java.lang.Exception) {
+                    e.printStackTrace()
+                }
+            }
         }
     }
 
@@ -189,7 +136,7 @@ class SettingsActivity : AppCompatActivity() {
             this, Manifest.permission.READ_EXTERNAL_STORAGE
         )
         if (permission == PackageManager.PERMISSION_GRANTED) {
-            dumpLogcat()
+            cacheLogcat()
         }
     }
 
