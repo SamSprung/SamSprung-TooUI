@@ -5,5 +5,7 @@
     <string name="swap_viewgrid">Switch to GridView Widget Style</string>
     <string name="swap_viewlist">Switch to ListView Widget Style</string>
     <string name="print_logcat">Save a Logcat Print to Cache</string>
+    <string name="display_service">&#160;Display Service</string>
+    <string name="click_stop_service">Click to Stop Service</string>
     <string name="list_icon">Icon</string>
 </resources>

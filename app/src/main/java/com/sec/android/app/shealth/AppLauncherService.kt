@@ -13,7 +13,7 @@ import android.widget.RemoteViews
 import android.widget.RemoteViewsService
 import java.util.*
 
-class StepLauncherService : RemoteViewsService() {
+class AppLauncherService : RemoteViewsService() {
     override fun onGetViewFactory(intent: Intent): RemoteViewsFactory {
         return StepRemoteViewsFactory(applicationContext)
     }

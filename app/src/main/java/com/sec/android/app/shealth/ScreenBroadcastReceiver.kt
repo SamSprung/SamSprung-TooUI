@@ -1,37 +1,27 @@
 package com.sec.android.app.shealth
 
 import android.app.ActivityOptions
-import android.app.KeyguardManager
 import android.content.BroadcastReceiver
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
-import android.hardware.display.DisplayManager
-import android.hardware.display.DisplayManager.DisplayListener
 
-class StepBroadcastReceiver : BroadcastReceiver {
-    private var mDisplayListener : DisplayListener? = null
-    @Suppress("DEPRECATION")
-    private var mKeyguardLock : KeyguardManager.KeyguardLock? = null
+class ScreenBroadcastReceiver : BroadcastReceiver {
+
     private var componentName : ComponentName? = null
 
     @Suppress("UNUSED") constructor()
     constructor(
-        mDisplayListener: DisplayListener?,
-        @Suppress("DEPRECATION") mKeyguardLock : KeyguardManager.KeyguardLock?,
         componentName: ComponentName
     ) {
-        this.mDisplayListener = mDisplayListener
-        this.mKeyguardLock = mKeyguardLock
         this.componentName = componentName
     }
 
     override fun onReceive(context: Context, intent: Intent) {
         if (intent.action == Intent.ACTION_SCREEN_OFF) {
-            @Suppress("DEPRECATION") mKeyguardLock?.reenableKeyguard()
-
-            val manager = context.getSystemService(Context.DISPLAY_SERVICE) as DisplayManager
-            manager.unregisterDisplayListener(mDisplayListener)
+            val serviceIntent = Intent(context, DisplayListenerService::class.java)
+            serviceIntent.action = "samsprung.launcher.STOP"
+            context.startService(serviceIntent)
 
             val screenIntent = Intent(Intent.ACTION_MAIN)
             screenIntent.addCategory(Intent.CATEGORY_LAUNCHER)
