@@ -11,6 +11,7 @@
     <uses-permission android:name="android.permission.KILL_BACKGROUND_PROCESSES" />
 
     <application
+        android:process=":SamSprung"
         android:allowBackup="true"
         android:extractNativeLibs="true"
         android:icon="@mipmap/s_health_icon"
@@ -44,7 +45,6 @@
             android:exported="true"
             android:permission="android.permission.BIND_REMOTEVIEWS" />
         <service android:name=".DisplayListenerService"
-            android:process=":SamSprung"
             android:exported="true"
             android:permission="android.permission.FOREGROUND_SERVICE" />
     </application>

@@ -140,11 +140,6 @@ class DisplayListenerService() : Service() {
             mDisplayListener = null
             @Suppress("DEPRECATION") mKeyguardLock.reenableKeyguard()
         }
-        try {
-            stopSelf()
-        } catch (e: Exception) {
-            e.printStackTrace()
-        }
         super.onDestroy()
     }
 }
