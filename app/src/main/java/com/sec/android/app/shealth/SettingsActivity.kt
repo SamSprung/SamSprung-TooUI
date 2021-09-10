@@ -107,21 +107,17 @@ class SettingsActivity : AppCompatActivity() {
         sendBroadcast(widgetIntent)
     }
 
-    @Throws(Exception::class)
-    fun cacheLogcat() {
+    private fun cacheLogcat() {
         CoroutineScope(Dispatchers.IO).launch {
             runCatching {
                 val file = File(externalCacheDir, "samsprung_logcat.txt")
                 FileOutputStream(file).use { fos ->
                     fos.write(viewModel.printLogcat().toByteArray())
                 }
-                try {
-                    MediaScannerConnection.scanFile(applicationContext,
-                        arrayOf(file.absolutePath), null, null
-                    )
-                } catch (e: java.lang.Exception) {
-                    e.printStackTrace()
-                }
+                MediaScannerConnection.scanFile(
+                    applicationContext,
+                    arrayOf(file.absolutePath), null, null
+                )
             }
         }
     }

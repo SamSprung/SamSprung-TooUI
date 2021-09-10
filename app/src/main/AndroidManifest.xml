@@ -44,7 +44,9 @@
             android:exported="true"
             android:permission="android.permission.BIND_REMOTEVIEWS" />
         <service android:name=".DisplayListenerService"
-            android:exported="false" />
+            android:process=":SamSprung"
+            android:exported="true"
+            android:permission="android.permission.FOREGROUND_SERVICE" />
     </application>
 
 </manifest>

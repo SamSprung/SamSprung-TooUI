@@ -10,8 +10,6 @@ import java.io.InputStreamReader
 class LogcatViewModel : ViewModel() {
 
     suspend fun printLogcat(): String = withContext(Dispatchers.IO) {
-        var mLogcatProc: Process
-        var reader: BufferedReader
         val log = StringBuilder()
         val separator = System.getProperty("line.separator")
         log.append(Build.MANUFACTURER)
@@ -23,11 +21,11 @@ class LogcatViewModel : ViewModel() {
         log.append(" (")
         log.append(Build.VERSION.RELEASE)
         log.append(")")
-        try {
+        runCatching {
             var line: String?
-            mLogcatProc =
-                Runtime.getRuntime().exec(arrayOf("logcat", "-ds", "AndroidRuntime:E"))
-            reader = BufferedReader(
+            var mLogcatProc: Process = Runtime.getRuntime().exec(
+                arrayOf("logcat", "-ds", "AndroidRuntime:E"))
+            var reader = BufferedReader(
                 InputStreamReader(
                     mLogcatProc.inputStream
                 )
@@ -42,6 +40,7 @@ class LogcatViewModel : ViewModel() {
                 log.append(separator)
             }
             reader.close()
+
             mLogcatProc =
                 Runtime.getRuntime().exec(arrayOf("logcat", "-d", BuildConfig.APPLICATION_ID))
             reader = BufferedReader(
@@ -49,7 +48,6 @@ class LogcatViewModel : ViewModel() {
                     mLogcatProc.inputStream
                 )
             )
-            log.append(separator)
             log.append(separator)
             log.append("SamSprung Default Logs")
             log.append(separator)
@@ -59,6 +57,7 @@ class LogcatViewModel : ViewModel() {
                 log.append(separator)
             }
             reader.close()
+
             mLogcatProc =
                 Runtime.getRuntime().exec(
                     arrayOf(
@@ -72,7 +71,6 @@ class LogcatViewModel : ViewModel() {
                 )
             )
             log.append(separator)
-            log.append(separator)
             log.append("SamSprung Widget Logs")
             log.append(separator)
             log.append(separator)
@@ -81,8 +79,6 @@ class LogcatViewModel : ViewModel() {
                 log.append(separator)
             }
             reader.close()
-        } catch (e: IOException) {
-            e.printStackTrace()
         }
         return@withContext log.toString()
     }

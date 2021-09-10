@@ -17,7 +17,6 @@ import androidx.core.content.ContextCompat
 class DisplayListenerService() : Service() {
 
     private val coverLock = "cover_lock"
-    private lateinit var mDisplayListener: DisplayManager.DisplayListener
 
     override fun onBind(intent: Intent?): IBinder? {
         return null
@@ -26,14 +25,17 @@ class DisplayListenerService() : Service() {
     override fun onStartCommand(intent: Intent, flags: Int, startId: Int): Int {
         super.onStartCommand(intent, flags, startId)
 
+        var mDisplayListener: DisplayManager.DisplayListener? = null
         if (intent.action.equals("samsprung.launcher.STOP")) {
             stopForeground(true)
-            val manager = getSystemService(Context.DISPLAY_SERVICE) as DisplayManager
-            manager.unregisterDisplayListener(mDisplayListener)
-            @Suppress("DEPRECATION")
-            val mKeyguardLock = (getSystemService(Context.KEYGUARD_SERVICE)
-                    as KeyguardManager).newKeyguardLock(coverLock)
-            @Suppress("DEPRECATION") mKeyguardLock.reenableKeyguard()
+            if (mDisplayListener != null) {
+                val manager = getSystemService(Context.DISPLAY_SERVICE) as DisplayManager
+                manager.unregisterDisplayListener(mDisplayListener)
+                @Suppress("DEPRECATION")
+                val mKeyguardLock = (getSystemService(Context.KEYGUARD_SERVICE)
+                        as KeyguardManager).newKeyguardLock(coverLock)
+                @Suppress("DEPRECATION") mKeyguardLock.reenableKeyguard()
+            }
             stopSelfResult(startId)
             return START_NOT_STICKY
         }
@@ -88,7 +90,7 @@ class DisplayListenerService() : Service() {
             NotificationChannelGroup("services_group", "Services")
         )
         val notificationChannel = NotificationChannel("service_channel",
-            "Service Notification", NotificationManager.IMPORTANCE_MIN)
+            "Service Notification", NotificationManager.IMPORTANCE_LOW)
         notificationChannel.enableLights(false)
         notificationChannel.lockscreenVisibility = Notification.VISIBILITY_SECRET
         mNotificationManager!!.createNotificationChannel(notificationChannel)
