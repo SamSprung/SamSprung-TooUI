@@ -32,10 +32,10 @@
         android:layout_height="8dp" />
 
     <Button
-        android:id="@+id/printLogcat"
+        android:id="@+id/cacheLogcat"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="@string/print_logcat" />
+        android:text="@string/cache_logcat" />
 
     <Space
         android:layout_width="match_parent"
@@ -48,7 +48,7 @@
         android:scrollbars="vertical">
 
         <TextView
-            android:id="@+id/showLogcat"
+            android:id="@+id/printLogcat"
             android:layout_width="match_parent"
             android:layout_height="wrap_content" />
 

@@ -48,23 +48,21 @@ class AppLauncherService : RemoteViewsService() {
             val application = packages[position]
             val rv = RemoteViews(context.packageName, R.layout.step_widget_item)
 
-            rv.setViewVisibility(R.id.widgetListContainer,
+            rv.setViewVisibility(
+                R.id.widgetListContainer,
                 if (isGridView) View.GONE else View.VISIBLE)
-            rv.setViewVisibility(R.id.widgetGridImage,
+            rv.setViewVisibility(
+                R.id.widgetGridImage,
                 if (isGridView) View.VISIBLE else View.GONE)
 
             val icon = if (isGridView) R.id.widgetGridImage else R.id.widgetItemImage
 
-            try {
-                val drawable = pacMan.getApplicationIcon(
-                    application.activityInfo.packageName
-                )
-                rv.setImageViewBitmap(icon, getBitmapFromDrawable(drawable))
-            } catch (e: PackageManager.NameNotFoundException) {
-                e.printStackTrace()
-                rv.setImageViewBitmap(
-                    icon, getBitmapFromDrawable(application.loadIcon(pacMan))
-                )
+            rv.setImageViewBitmap(
+                icon, getBitmapFromDrawable(application.loadIcon(pacMan))
+            )
+            if (!isGridView) {
+                rv.setTextViewText(R.id.widgetItemText,
+                    application.loadLabel(pacMan).toString())
             }
 
             val extras = Bundle()
@@ -73,9 +71,6 @@ class AppLauncherService : RemoteViewsService() {
             val fillInIntent = Intent()
             fillInIntent.putExtras(extras)
                 rv.setOnClickFillInIntent(R.id.widgetItemContainer, fillInIntent)
-            if (!isGridView) {
-                rv.setTextViewText(R.id.widgetItemText, application.loadLabel(pacMan).toString())
-            }
             return rv
         }
 

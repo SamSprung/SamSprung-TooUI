@@ -11,9 +11,7 @@ class ScreenBroadcastReceiver : BroadcastReceiver {
     private var componentName : ComponentName? = null
 
     @Suppress("UNUSED") constructor()
-    constructor(
-        componentName: ComponentName
-    ) {
+    constructor(componentName: ComponentName) {
         this.componentName = componentName
     }
 
@@ -21,8 +19,7 @@ class ScreenBroadcastReceiver : BroadcastReceiver {
         if (intent.action == Intent.ACTION_SCREEN_OFF) {
             val serviceIntent = Intent(context, DisplayListenerService::class.java)
             serviceIntent.action = "samsprung.launcher.STOP"
-            // context.startService(serviceIntent)
-            context.stopService(serviceIntent)
+            context.startService(serviceIntent)
 
             val screenIntent = Intent(Intent.ACTION_MAIN)
             screenIntent.addCategory(Intent.CATEGORY_LAUNCHER)
@@ -30,6 +27,8 @@ class ScreenBroadcastReceiver : BroadcastReceiver {
             val options = ActivityOptions.makeBasic().setLaunchDisplayId(0)
             screenIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
             context.startActivity(screenIntent, options.toBundle())
+
+            context.applicationContext.unregisterReceiver(this)
         }
     }
 }

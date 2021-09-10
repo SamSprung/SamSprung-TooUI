@@ -26,29 +26,28 @@ class StepCoverAppWidget: AppWidgetProvider() {
 
     override fun onReceive(context: Context, intent: Intent) {
         if (intent.action.equals(onClickTag)) {
-
             val launchPackage = intent.getStringExtra("launchPackage")
             val launchActivity = intent.getStringExtra("launchActivity")
 
             if (launchPackage == null || launchActivity == null) return
 
             @Suppress("DEPRECATION")
-            val mKeyguardLock = (context.applicationContext.getSystemService(
-                Context.KEYGUARD_SERVICE) as KeyguardManager)
-                .newKeyguardLock(coverLock)
+            val mKeyguardLock = (context.getSystemService(
+                Context.KEYGUARD_SERVICE) as KeyguardManager).newKeyguardLock(coverLock)
             @Suppress("DEPRECATION") mKeyguardLock.disableKeyguard()
 
             val serviceIntent = Intent(context, DisplayListenerService::class.java)
             val extras = Bundle()
             extras.putString("launchPackage", launchPackage)
             extras.putString("launchActivity", launchActivity)
-            context.startService(serviceIntent.putExtras(extras))
+            context.startForegroundService(serviceIntent.putExtras(extras))
 
             val mReceiver: BroadcastReceiver = ScreenBroadcastReceiver(
                 ComponentName(launchPackage, launchActivity)
             )
-            context.applicationContext?.registerReceiver(
-                mReceiver, IntentFilter(ACTION_SCREEN_OFF))
+            IntentFilter(ACTION_SCREEN_OFF).also {
+                context.applicationContext.registerReceiver(mReceiver,it)
+            }
 
             val coverIntent = Intent(Intent.ACTION_MAIN)
             coverIntent.addCategory(Intent.CATEGORY_LAUNCHER)
@@ -81,8 +80,7 @@ class StepCoverAppWidget: AppWidgetProvider() {
         val isGridView = sharedPref.getBoolean("gridview", true)
         appWidgetIds.forEach { appWidgetId ->
             val views = RemoteViews(
-                context.packageName,
-                R.layout.step_widget_view
+                context.packageName, R.layout.step_widget_view
             )
 
             views.setViewVisibility(R.id.widgetListView,
@@ -92,17 +90,16 @@ class StepCoverAppWidget: AppWidgetProvider() {
 
             val view = if (isGridView) R.id.widgetGridView else R.id.widgetListView
 
-            val intent = Intent(context, AppLauncherService::class.java)
-            intent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId)
-            intent.data = Uri.parse(intent.toUri(Intent.URI_INTENT_SCHEME))
-            views.setRemoteAdapter(view, intent)
+            val appintent = Intent(context, AppLauncherService::class.java)
+            appintent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId)
+            appintent.data = Uri.parse(appintent.toUri(Intent.URI_INTENT_SCHEME))
+            views.setRemoteAdapter(view, appintent)
 
             val itemIntent = Intent(context, StepCoverAppWidget::class.java)
             itemIntent.action = onClickTag
             itemIntent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId)
             val itemPendingIntent = PendingIntent.getBroadcast(
-                context, 0, itemIntent,
-                PendingIntent.FLAG_UPDATE_CURRENT
+                context, 0, itemIntent, PendingIntent.FLAG_UPDATE_CURRENT
             )
             views.setPendingIntentTemplate(view, itemPendingIntent)
 

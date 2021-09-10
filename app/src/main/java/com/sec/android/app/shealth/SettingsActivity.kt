@@ -10,7 +10,6 @@ import android.content.pm.PackageManager
 import android.media.MediaScannerConnection
 import android.os.Bundle
 import android.provider.Settings
-import android.view.KeyEvent
 import android.widget.Button
 import android.widget.TextView
 import android.widget.Toast
@@ -20,22 +19,18 @@ import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModelProvider
 import com.samsung.android.app.shealth.tracker.pedometer.service.coverwidget.StepCoverAppWidget
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
+import java.io.BufferedReader
 import java.io.File
 import java.io.FileOutputStream
+import java.io.InputStreamReader
 
 
 class SettingsActivity : AppCompatActivity() {
-    private lateinit var viewModel: LogcatViewModel
+    private lateinit var logcat: String
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.step_widget_edit)
-
-        viewModel = ViewModelProvider(this).get(LogcatViewModel::class.java)
 
         if (isDeviceLocked()) {
             Toast.makeText(
@@ -63,7 +58,10 @@ class SettingsActivity : AppCompatActivity() {
             updateWidgets(isChecked)
         }
 
-        findViewById<Button>(R.id.printLogcat).setOnClickListener {
+        logcat = printLogcat()
+        findViewById<TextView>(R.id.printLogcat).text = logcat
+
+        findViewById<Button>(R.id.cacheLogcat).setOnClickListener {
             val permission = ContextCompat.checkSelfPermission(
                 this, Manifest.permission.READ_EXTERNAL_STORAGE
             )
@@ -74,14 +72,6 @@ class SettingsActivity : AppCompatActivity() {
                 cacheLogcat()
             }
         }
-
-        CoroutineScope(Dispatchers.IO).launch {
-            val logcat = viewModel.printLogcat()
-            withContext(Dispatchers.Main) {
-                findViewById<TextView>(R.id.showLogcat).text = logcat
-            }
-        }
-
     }
 
     /**
@@ -107,19 +97,40 @@ class SettingsActivity : AppCompatActivity() {
         sendBroadcast(widgetIntent)
     }
 
-    private fun cacheLogcat() {
-        CoroutineScope(Dispatchers.IO).launch {
-            runCatching {
-                val file = File(externalCacheDir, "samsprung_logcat.txt")
-                FileOutputStream(file).use { fos ->
-                    fos.write(viewModel.printLogcat().toByteArray())
-                }
-                MediaScannerConnection.scanFile(
-                    applicationContext,
-                    arrayOf(file.absolutePath), null, null
-                )
+    private fun printLogcat(): String {
+        val log = StringBuilder()
+        val separator = System.getProperty("line.separator")
+        try {
+            var line: String?
+            val mLogcatProc: Process = Runtime.getRuntime().exec(arrayOf(
+                "logcat", "-d",
+                "com.samsung.android.app.shealth.tracker.pedometer.service.coverwidget"
+            ))
+            val reader = BufferedReader(InputStreamReader(mLogcatProc.inputStream))
+            log.append(separator)
+            log.append("SamSprung Widget Logs")
+            log.append(separator)
+            log.append(separator)
+            while (reader.readLine().also { line = it } != null) {
+                log.append(line)
+                log.append(separator)
             }
+            reader.close()
+        } catch (e: Exception) {
+            e.printStackTrace()
         }
+        return log.toString()
+    }
+
+    private fun cacheLogcat() {
+        val file = File(externalCacheDir, "samsprung_logcat.txt")
+        FileOutputStream(file).use { fos ->
+            fos.write(logcat.toByteArray())
+        }
+        MediaScannerConnection.scanFile(
+            applicationContext,
+            arrayOf(file.absolutePath), null, null
+        )
     }
 
     override fun onRequestPermissionsResult(
@@ -134,12 +145,5 @@ class SettingsActivity : AppCompatActivity() {
         if (permission == PackageManager.PERMISSION_GRANTED) {
             cacheLogcat()
         }
-    }
-
-    override fun onKeyDown(keyCode: Int, event: KeyEvent): Boolean {
-        return if (event.keyCode == KeyEvent.KEYCODE_POWER) {
-            finishAndRemoveTask()
-            true
-        } else super.onKeyDown(keyCode, event)
     }
 }
