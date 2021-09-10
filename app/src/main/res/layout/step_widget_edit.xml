@@ -11,16 +11,6 @@
         android:layout_height="12dp" />
 
     <Button
-        android:id="@+id/testLauncher"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="@string/test_launcher" />
-
-    <Space
-        android:layout_width="match_parent"
-        android:layout_height="12dp" />
-
-    <Button
         android:id="@+id/openSettings"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -36,5 +26,14 @@
         android:layout_height="wrap_content"
         android:textOn="@string/swap_viewlist"
         android:textOff="@string/swap_viewgrid"/>
+    <Space
+        android:layout_width="match_parent"
+        android:layout_height="12dp" />
+
+    <Button
+        android:id="@+id/printLogcat"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/print_logcat" />
 
 </LinearLayout>
