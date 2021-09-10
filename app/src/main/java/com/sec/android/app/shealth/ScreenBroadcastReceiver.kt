@@ -21,7 +21,8 @@ class ScreenBroadcastReceiver : BroadcastReceiver {
         if (intent.action == Intent.ACTION_SCREEN_OFF) {
             val serviceIntent = Intent(context, DisplayListenerService::class.java)
             serviceIntent.action = "samsprung.launcher.STOP"
-            context.startService(serviceIntent)
+            // context.startService(serviceIntent)
+            context.stopService(serviceIntent)
 
             val screenIntent = Intent(Intent.ACTION_MAIN)
             screenIntent.addCategory(Intent.CATEGORY_LAUNCHER)

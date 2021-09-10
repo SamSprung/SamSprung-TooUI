@@ -33,8 +33,9 @@ class StepCoverAppWidget: AppWidgetProvider() {
             if (launchPackage == null || launchActivity == null) return
 
             @Suppress("DEPRECATION")
-            val mKeyguardLock = (context.getSystemService(Context.KEYGUARD_SERVICE)
-                    as KeyguardManager).newKeyguardLock(coverLock)
+            val mKeyguardLock = (context.applicationContext.getSystemService(
+                Context.KEYGUARD_SERVICE) as KeyguardManager)
+                .newKeyguardLock(coverLock)
             @Suppress("DEPRECATION") mKeyguardLock.disableKeyguard()
 
             val serviceIntent = Intent(context, DisplayListenerService::class.java)

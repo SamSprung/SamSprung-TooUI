@@ -17,6 +17,7 @@ import androidx.core.content.ContextCompat
 class DisplayListenerService() : Service() {
 
     private val coverLock = "cover_lock"
+    private var mDisplayListener: DisplayManager.DisplayListener? = null
 
     override fun onBind(intent: Intent?): IBinder? {
         return null
@@ -25,34 +26,46 @@ class DisplayListenerService() : Service() {
     override fun onStartCommand(intent: Intent, flags: Int, startId: Int): Int {
         super.onStartCommand(intent, flags, startId)
 
-        var mDisplayListener: DisplayManager.DisplayListener? = null
+        @Suppress("DEPRECATION")
+        val mKeyguardLock = (applicationContext.getSystemService(
+            Context.KEYGUARD_SERVICE) as KeyguardManager)
+            .newKeyguardLock(coverLock)
+        val manager = applicationContext.getSystemService(
+            Context.DISPLAY_SERVICE) as DisplayManager
+
         if (intent.action.equals("samsprung.launcher.STOP")) {
-            stopForeground(true)
+            try {
+                stopForeground(true)
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
             if (mDisplayListener != null) {
-                val manager = getSystemService(Context.DISPLAY_SERVICE) as DisplayManager
                 manager.unregisterDisplayListener(mDisplayListener)
-                @Suppress("DEPRECATION")
-                val mKeyguardLock = (getSystemService(Context.KEYGUARD_SERVICE)
-                        as KeyguardManager).newKeyguardLock(coverLock)
+                mDisplayListener = null
                 @Suppress("DEPRECATION") mKeyguardLock.reenableKeyguard()
             }
-            stopSelfResult(startId)
+            try {
+                stopSelf()
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
             return START_NOT_STICKY
         }
 
         val launchPackage = intent.getStringExtra("launchPackage")
         val launchActivity = intent.getStringExtra("launchActivity")
 
-        @Suppress("DEPRECATION")
-        val mKeyguardLock = (getSystemService(Context.KEYGUARD_SERVICE)
-                as KeyguardManager).newKeyguardLock(coverLock)
+        showForegroundNotification(startId)
+
         mDisplayListener = object : DisplayManager.DisplayListener {
             override fun onDisplayAdded(display: Int) {}
             override fun onDisplayChanged(display: Int) {
                 if (display == 0) {
                     stopForeground(true)
+                    manager.unregisterDisplayListener(this)
+                    mDisplayListener = null
                     @Suppress("DEPRECATION") mKeyguardLock.reenableKeyguard()
-                    stopSelfResult(startId)
+                    stopSelf()
                 } else {
                     @Suppress("DEPRECATION") mKeyguardLock.disableKeyguard()
                 }
@@ -66,9 +79,7 @@ class DisplayListenerService() : Service() {
 
             override fun onDisplayRemoved(display: Int) {}
         }
-        val manager = getSystemService(Context.DISPLAY_SERVICE) as DisplayManager
         manager.registerDisplayListener(mDisplayListener, Handler(Looper.getMainLooper()))
-        generateForegroundNotification()
         return START_STICKY
     }
 
@@ -76,11 +87,11 @@ class DisplayListenerService() : Service() {
     private var mNotificationManager: NotificationManager? = null
     private val mNotificationId = 123
 
-    private fun generateForegroundNotification() {
+    private fun showForegroundNotification(startId: Int) {
         val stopIntent = Intent(this, DisplayListenerService::class.java)
         stopIntent.action = "samsprung.launcher.STOP"
         val pendingIntent = PendingIntent.getForegroundService(
-            this, 0, stopIntent, 0)
+            this, startId, stopIntent, 0)
         iconNotification = BitmapFactory.decodeResource(resources, R.mipmap.s_health_icon)
         if (mNotificationManager == null) {
             mNotificationManager =
@@ -110,5 +121,30 @@ class DisplayListenerService() : Service() {
         }
         builder.color = ContextCompat.getColor(this, R.color.purple_200)
         startForeground(mNotificationId, builder.build())
+    }
+
+    override fun onDestroy() {
+        try {
+            stopForeground(true)
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+        if (mDisplayListener != null) {
+            @Suppress("DEPRECATION")
+            val mKeyguardLock = (applicationContext.getSystemService(
+                Context.KEYGUARD_SERVICE) as KeyguardManager)
+                .newKeyguardLock(coverLock)
+            val manager = applicationContext.getSystemService(
+                Context.DISPLAY_SERVICE) as DisplayManager
+            manager.unregisterDisplayListener(mDisplayListener)
+            mDisplayListener = null
+            @Suppress("DEPRECATION") mKeyguardLock.reenableKeyguard()
+        }
+        try {
+            stopSelf()
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+        super.onDestroy()
     }
 }
