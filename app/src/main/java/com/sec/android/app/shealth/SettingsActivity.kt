@@ -17,7 +17,6 @@ import android.widget.ToggleButton
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
-import androidx.lifecycle.ViewModelProvider
 import com.samsung.android.app.shealth.tracker.pedometer.service.coverwidget.StepCoverAppWidget
 import java.io.BufferedReader
 import java.io.File
@@ -26,8 +25,6 @@ import java.io.InputStreamReader
 
 
 class SettingsActivity : AppCompatActivity() {
-    private lateinit var logcat: String
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.step_widget_edit)
@@ -58,8 +55,7 @@ class SettingsActivity : AppCompatActivity() {
             updateWidgets(isChecked)
         }
 
-        logcat = printLogcat()
-        findViewById<TextView>(R.id.printLogcat).text = logcat
+        findViewById<TextView>(R.id.printLogcat).text = printLogcat()
 
         findViewById<Button>(R.id.cacheLogcat).setOnClickListener {
             val permission = ContextCompat.checkSelfPermission(
@@ -104,7 +100,8 @@ class SettingsActivity : AppCompatActivity() {
             var line: String?
             val mLogcatProc: Process = Runtime.getRuntime().exec(arrayOf(
                 "logcat", "-d",
-                "com.samsung.android.app.shealth.tracker.pedometer.service.coverwidget"
+                "com.samsung.android.app.shealth.tracker.pedometer.service.coverwidget",
+                "-t", "2048"
             ))
             val reader = BufferedReader(InputStreamReader(mLogcatProc.inputStream))
             log.append(separator)
@@ -123,6 +120,7 @@ class SettingsActivity : AppCompatActivity() {
     }
 
     private fun cacheLogcat() {
+        val logcat = findViewById<TextView>(R.id.printLogcat).text.toString()
         val file = File(externalCacheDir, "samsprung_logcat.txt")
         FileOutputStream(file).use { fos ->
             fos.write(logcat.toByteArray())
