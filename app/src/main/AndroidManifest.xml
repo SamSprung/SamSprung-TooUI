@@ -35,7 +35,7 @@
             <meta-data android:name="android.appwidget.provider"
                 android:resource="@xml/cover_screen_widget" />
         </receiver>
-        <receiver android:name=".ScreenBroadcastReceiver">
+        <receiver android:name=".OffBroadcastReceiver">
             <intent-filter>
                 <action android:name="android.intent.action.SCREEN_ON" />
                 <action android:name="android.intent.action.SCREEN_OFF" />

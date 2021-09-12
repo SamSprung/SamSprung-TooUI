@@ -6,7 +6,6 @@ import android.app.PendingIntent
 import android.appwidget.AppWidgetManager
 import android.appwidget.AppWidgetProvider
 import android.content.*
-import android.content.Intent.ACTION_SCREEN_OFF
 import android.content.pm.ApplicationInfo
 import android.content.pm.PackageManager
 import android.net.Uri
@@ -16,7 +15,7 @@ import android.widget.RemoteViews
 import com.sec.android.app.shealth.AppLauncherService
 import com.sec.android.app.shealth.DisplayListenerService
 import com.sec.android.app.shealth.R
-import com.sec.android.app.shealth.ScreenBroadcastReceiver
+import com.sec.android.app.shealth.OffBroadcastReceiver
 
 
 class StepCoverAppWidget: AppWidgetProvider() {
@@ -42,10 +41,10 @@ class StepCoverAppWidget: AppWidgetProvider() {
             extras.putString("launchActivity", launchActivity)
             context.startForegroundService(serviceIntent.putExtras(extras))
 
-            val mReceiver: BroadcastReceiver = ScreenBroadcastReceiver(
+            val mReceiver: BroadcastReceiver = OffBroadcastReceiver(
                 ComponentName(launchPackage, launchActivity)
             )
-            IntentFilter(ACTION_SCREEN_OFF).also {
+            IntentFilter(Intent.ACTION_SCREEN_OFF).also {
                 context.applicationContext.registerReceiver(mReceiver, it)
             }
 
@@ -91,13 +90,15 @@ class StepCoverAppWidget: AppWidgetProvider() {
             context.applicationContext.registerReceiver(object : BroadcastReceiver() {
                 override fun onReceive(contxt: Context?, intent: Intent?) {
                     when (intent?.action) {
-                        Intent.ACTION_PACKAGE_ADDED -> {
+                        Intent.ACTION_PACKAGE_FULLY_REMOVED -> {
                             appWidgetManager.notifyAppWidgetViewDataChanged(appWidgetIds, view)
                             context.applicationContext.unregisterReceiver(this)
                         }
-                        Intent.ACTION_PACKAGE_REMOVED -> {
-                            appWidgetManager.notifyAppWidgetViewDataChanged(appWidgetIds, view)
-                            context.applicationContext.unregisterReceiver(this)
+                        Intent.ACTION_PACKAGE_ADDED -> {
+                            if (!intent.getBooleanExtra(Intent.EXTRA_REPLACING, false)) {
+                                appWidgetManager.notifyAppWidgetViewDataChanged(appWidgetIds, view)
+                                context.applicationContext.unregisterReceiver(this)
+                            }
                         }
                     }
                 }

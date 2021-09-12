@@ -6,7 +6,7 @@ import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 
-class ScreenBroadcastReceiver : BroadcastReceiver {
+class OffBroadcastReceiver : BroadcastReceiver {
 
     private var componentName : ComponentName? = null
 
@@ -16,7 +16,7 @@ class ScreenBroadcastReceiver : BroadcastReceiver {
     }
 
     override fun onReceive(context: Context, intent: Intent) {
-        if (intent.action == Intent.ACTION_SCREEN_OFF) {
+        if (intent.action == Intent.ACTION_SCREEN_OFF && componentName != null) {
             val serviceIntent = Intent(context, DisplayListenerService::class.java)
             serviceIntent.action = "samsprung.launcher.STOP"
             context.startService(serviceIntent)
