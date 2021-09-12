@@ -22,20 +22,23 @@ class AppLauncherService : RemoteViewsService() {
         private var isGridView = true
         private var packages: MutableList<ResolveInfo> = arrayListOf()
         private val pacMan = context.packageManager
+        private lateinit var mainIntent: Intent
 
         override fun onCreate() {
             val sharedPref = context.getSharedPreferences(
                 "samsprung.launcher.PREFS", Context.MODE_PRIVATE
             )
             isGridView = sharedPref.getBoolean("gridview", isGridView)
-            val mainIntent = Intent(Intent.ACTION_MAIN, null)
+
+            mainIntent = Intent(Intent.ACTION_MAIN, null)
             mainIntent.addCategory(Intent.CATEGORY_LAUNCHER)
             mainIntent.removeCategory(Intent.CATEGORY_HOME)
+        }
+        override fun onDataSetChanged() {
             packages = pacMan.queryIntentActivities(mainIntent, 0)
             packages.removeIf { item -> item.activityInfo.packageName == context.packageName }
             Collections.sort(packages, ResolveInfo.DisplayNameComparator(pacMan))
         }
-        override fun onDataSetChanged() {}
         override fun onDestroy() {
             packages.clear()
         }

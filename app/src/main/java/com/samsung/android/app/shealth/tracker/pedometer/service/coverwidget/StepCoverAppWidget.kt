@@ -46,7 +46,7 @@ class StepCoverAppWidget: AppWidgetProvider() {
                 ComponentName(launchPackage, launchActivity)
             )
             IntentFilter(ACTION_SCREEN_OFF).also {
-                context.applicationContext.registerReceiver(mReceiver,it)
+                context.applicationContext.registerReceiver(mReceiver, it)
             }
 
             val coverIntent = Intent(Intent.ACTION_MAIN)
@@ -81,6 +81,29 @@ class StepCoverAppWidget: AppWidgetProvider() {
             "samsprung.launcher.PREFS", Context.MODE_PRIVATE
         )
         val isGridView = sharedPref.getBoolean("gridview", true)
+        val view = if (isGridView) R.id.widgetGridView else R.id.widgetListView
+
+        IntentFilter().apply {
+            addAction(Intent.ACTION_PACKAGE_ADDED)
+            addAction(Intent.ACTION_PACKAGE_REMOVED)
+            addDataScheme("package")
+        }.also {
+            context.applicationContext.registerReceiver(object : BroadcastReceiver() {
+                override fun onReceive(contxt: Context?, intent: Intent?) {
+                    when (intent?.action) {
+                        Intent.ACTION_PACKAGE_ADDED -> {
+                            appWidgetManager.notifyAppWidgetViewDataChanged(appWidgetIds, view)
+                            context.applicationContext.unregisterReceiver(this)
+                        }
+                        Intent.ACTION_PACKAGE_REMOVED -> {
+                            appWidgetManager.notifyAppWidgetViewDataChanged(appWidgetIds, view)
+                            context.applicationContext.unregisterReceiver(this)
+                        }
+                    }
+                }
+            }, it)
+        }
+
         appWidgetIds.forEach { appWidgetId ->
             val views = RemoteViews(
                 context.packageName, R.layout.step_widget_view
@@ -90,8 +113,6 @@ class StepCoverAppWidget: AppWidgetProvider() {
                 if (isGridView) View.GONE else View.VISIBLE)
             views.setViewVisibility(R.id.widgetGridView,
                 if (isGridView) View.VISIBLE else View.GONE)
-
-            val view = if (isGridView) R.id.widgetGridView else R.id.widgetListView
 
             val appintent = Intent(context, AppLauncherService::class.java)
             appintent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId)
