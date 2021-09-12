@@ -64,6 +64,9 @@ class StepCoverAppWidget: AppWidgetProvider() {
                 e.printStackTrace()
             }
             coverIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            coverIntent.addFlags(Intent.FLAG_ACTIVITY_MULTIPLE_TASK)
+            coverIntent.addFlags(Intent.FLAG_ACTIVITY_FORWARD_RESULT)
+            coverIntent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION)
             context.startActivity(coverIntent, options.toBundle())
         }
         super.onReceive(context, intent)

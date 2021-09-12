@@ -34,9 +34,8 @@ class DisplayListenerService() : Service() {
         if (intent?.action != null && intent.action.equals("samsprung.launcher.STOP")) {
             if (mDisplayListener != null) {
                 displayManager.unregisterDisplayListener(mDisplayListener)
-                mDisplayListener = null
-                @Suppress("DEPRECATION") mKeyguardLock.reenableKeyguard()
             }
+            @Suppress("DEPRECATION") mKeyguardLock.reenableKeyguard()
             try {
                 stopForeground(true)
                 stopSelf()
@@ -65,7 +64,6 @@ class DisplayListenerService() : Service() {
             override fun onDisplayChanged(display: Int) {
                 if (display == 0) {
                     displayManager.unregisterDisplayListener(this)
-                    mDisplayListener = null
                     @Suppress("DEPRECATION") mKeyguardLock.reenableKeyguard()
                     try {
                         stopForeground(true)
@@ -78,9 +76,12 @@ class DisplayListenerService() : Service() {
                 }
                 val displayIntent = Intent(Intent.ACTION_MAIN)
                 displayIntent.addCategory(Intent.CATEGORY_LAUNCHER)
-                displayIntent.component = ComponentName(launchPackage!!, launchActivity!!)
+                displayIntent.component = ComponentName(launchPackage, launchActivity)
                 val launchDisplay = ActivityOptions.makeBasic().setLaunchDisplayId(display)
                 displayIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                displayIntent.addFlags(Intent.FLAG_ACTIVITY_MULTIPLE_TASK)
+                displayIntent.addFlags(Intent.FLAG_ACTIVITY_FORWARD_RESULT)
+                displayIntent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION)
                 startActivity(displayIntent, launchDisplay.toBundle())
             }
 
