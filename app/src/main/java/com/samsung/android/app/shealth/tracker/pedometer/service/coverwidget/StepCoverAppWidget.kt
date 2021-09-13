@@ -24,6 +24,15 @@ class StepCoverAppWidget: AppWidgetProvider() {
     private val coverLock = "cover_lock"
 
     override fun onReceive(context: Context, intent: Intent) {
+        if (intent.action == AppWidgetManager.ACTION_APPWIDGET_UPDATE) {
+            val isGridView = context.getSharedPreferences(
+                "samsprung.launcher.PREFS", Context.MODE_PRIVATE
+            ).getBoolean("gridview", true)
+            val view = if (isGridView) R.id.widgetGridView else R.id.widgetListView
+            val mgr = AppWidgetManager.getInstance(context.applicationContext)
+            mgr.notifyAppWidgetViewDataChanged(mgr.getAppWidgetIds(ComponentName(
+                context.applicationContext, StepCoverAppWidget::class.java)), view)
+        }
         if (intent.action.equals(onClickTag)) {
             val launchPackage = intent.getStringExtra("launchPackage")
             val launchActivity = intent.getStringExtra("launchActivity")
@@ -76,34 +85,19 @@ class StepCoverAppWidget: AppWidgetProvider() {
         appWidgetManager: AppWidgetManager,
         appWidgetIds: IntArray
     ) {
-        val sharedPref = context.getSharedPreferences(
+        val isGridView = context.getSharedPreferences(
             "samsprung.launcher.PREFS", Context.MODE_PRIVATE
-        )
-        val isGridView = sharedPref.getBoolean("gridview", true)
+        ).getBoolean("gridview", true)
         val view = if (isGridView) R.id.widgetGridView else R.id.widgetListView
 
-        IntentFilter().apply {
-            addAction(Intent.ACTION_PACKAGE_ADDED)
-            addAction(Intent.ACTION_PACKAGE_REMOVED)
-            addDataScheme("package")
-        }.also {
-            context.applicationContext.registerReceiver(object : BroadcastReceiver() {
-                override fun onReceive(contxt: Context?, intent: Intent?) {
-                    when (intent?.action) {
-                        Intent.ACTION_PACKAGE_FULLY_REMOVED -> {
-                            appWidgetManager.notifyAppWidgetViewDataChanged(appWidgetIds, view)
-                            context.applicationContext.unregisterReceiver(this)
-                        }
-                        Intent.ACTION_PACKAGE_ADDED -> {
-                            if (!intent.getBooleanExtra(Intent.EXTRA_REPLACING, false)) {
-                                appWidgetManager.notifyAppWidgetViewDataChanged(appWidgetIds, view)
-                                context.applicationContext.unregisterReceiver(this)
-                            }
-                        }
-                    }
-                }
-            }, it)
-        }
+//        val mReceiver: BroadcastReceiver = OffBroadcastReceiver()
+//        IntentFilter().apply {
+//            addAction(Intent.ACTION_PACKAGE_ADDED)
+//            addAction(Intent.ACTION_PACKAGE_REMOVED)
+//            addDataScheme("package")
+//        }.also {
+//            context.applicationContext.registerReceiver(mReceiver, it)
+//        }
 
         appWidgetIds.forEach { appWidgetId ->
             val views = RemoteViews(

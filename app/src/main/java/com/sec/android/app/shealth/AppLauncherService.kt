@@ -1,7 +1,6 @@
 package com.sec.android.app.shealth
 
-import android.content.Context
-import android.content.Intent
+import android.content.*
 import android.content.pm.PackageManager
 import android.content.pm.ResolveInfo
 import android.graphics.Bitmap
@@ -23,16 +22,24 @@ class AppLauncherService : RemoteViewsService() {
         private var packages: MutableList<ResolveInfo> = arrayListOf()
         private val pacMan = context.packageManager
         private lateinit var mainIntent: Intent
+        private val mReceiver: BroadcastReceiver = OffBroadcastReceiver()
 
         override fun onCreate() {
-            val sharedPref = context.getSharedPreferences(
+            isGridView = context.getSharedPreferences(
                 "samsprung.launcher.PREFS", Context.MODE_PRIVATE
-            )
-            isGridView = sharedPref.getBoolean("gridview", isGridView)
+            ).getBoolean("gridview", isGridView)
 
             mainIntent = Intent(Intent.ACTION_MAIN, null)
             mainIntent.addCategory(Intent.CATEGORY_LAUNCHER)
             mainIntent.removeCategory(Intent.CATEGORY_HOME)
+
+            IntentFilter().apply {
+                addAction(Intent.ACTION_PACKAGE_ADDED)
+                addAction(Intent.ACTION_PACKAGE_REMOVED)
+                addDataScheme("package")
+            }.also {
+                context.applicationContext.registerReceiver(mReceiver, it)
+            }
         }
         override fun onDataSetChanged() {
             packages = pacMan.queryIntentActivities(mainIntent, 0)
@@ -40,6 +47,7 @@ class AppLauncherService : RemoteViewsService() {
             Collections.sort(packages, ResolveInfo.DisplayNameComparator(pacMan))
         }
         override fun onDestroy() {
+            context.applicationContext.unregisterReceiver(mReceiver)
             packages.clear()
         }
 

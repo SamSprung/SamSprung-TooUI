@@ -19,6 +19,8 @@
         android:roundIcon="@mipmap/s_health_icon_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.SecondScreen">
+        <meta-data
+            android:name="android.supports_size_changes" android:value="true" />
         <activity
             android:name=".SettingsActivity"
             android:exported="true">
