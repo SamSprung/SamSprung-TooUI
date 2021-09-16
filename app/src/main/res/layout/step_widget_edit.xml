@@ -41,9 +41,23 @@
         android:layout_width="match_parent"
         android:layout_height="16dp" />
 
+    <Space
+        android:layout_width="match_parent"
+        android:layout_height="16dp" />
+
+    <ListView
+        android:id="@+id/selectionListView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_weight="1"
+        android:dividerHeight="1dp"
+        android:divider="@color/WHITE"
+        tools:listitem="@layout/step_widget_item" />
+
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:layout_weight="1"
         android:fillViewport="true"
         android:scrollbars="vertical">
 

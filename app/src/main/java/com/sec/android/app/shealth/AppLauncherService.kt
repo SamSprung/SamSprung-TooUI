@@ -1,7 +1,6 @@
 package com.sec.android.app.shealth
 
 import android.content.*
-import android.content.pm.PackageManager
 import android.content.pm.ResolveInfo
 import android.graphics.Bitmap
 import android.graphics.Canvas
@@ -18,6 +17,8 @@ class AppLauncherService : RemoteViewsService() {
     }
 
     class StepRemoteViewsFactory(private val context: Context) : RemoteViewsFactory {
+        private lateinit var sharedPref: SharedPreferences
+        private val hidden = "hidden_packages"
         private var isGridView = true
         private var packages: MutableList<ResolveInfo> = arrayListOf()
         private val pacMan = context.packageManager
@@ -25,9 +26,11 @@ class AppLauncherService : RemoteViewsService() {
         private val mReceiver: BroadcastReceiver = OffBroadcastReceiver()
 
         override fun onCreate() {
-            isGridView = context.getSharedPreferences(
+            sharedPref = context.getSharedPreferences(
                 "samsprung.launcher.PREFS", Context.MODE_PRIVATE
-            ).getBoolean("gridview", isGridView)
+            )
+
+            isGridView = sharedPref.getBoolean("gridview", isGridView)
 
             mainIntent = Intent(Intent.ACTION_MAIN, null)
             mainIntent.addCategory(Intent.CATEGORY_LAUNCHER)
@@ -43,7 +46,8 @@ class AppLauncherService : RemoteViewsService() {
         }
         override fun onDataSetChanged() {
             packages = pacMan.queryIntentActivities(mainIntent, 0)
-            packages.removeIf { item -> item.activityInfo.packageName == context.packageName }
+            packages.removeIf { item -> sharedPref.getStringSet(
+                hidden, HashSet())!!.contains(item.activityInfo.packageName) }
             Collections.sort(packages, ResolveInfo.DisplayNameComparator(pacMan))
         }
         override fun onDestroy() {
