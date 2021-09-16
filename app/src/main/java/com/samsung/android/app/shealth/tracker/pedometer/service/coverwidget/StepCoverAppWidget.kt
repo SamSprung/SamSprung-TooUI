@@ -90,15 +90,6 @@ class StepCoverAppWidget: AppWidgetProvider() {
         ).getBoolean("gridview", true)
         val view = if (isGridView) R.id.widgetGridView else R.id.widgetListView
 
-//        val mReceiver: BroadcastReceiver = OffBroadcastReceiver()
-//        IntentFilter().apply {
-//            addAction(Intent.ACTION_PACKAGE_ADDED)
-//            addAction(Intent.ACTION_PACKAGE_REMOVED)
-//            addDataScheme("package")
-//        }.also {
-//            context.applicationContext.registerReceiver(mReceiver, it)
-//        }
-
         appWidgetIds.forEach { appWidgetId ->
             val views = RemoteViews(
                 context.packageName, R.layout.step_widget_view

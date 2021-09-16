@@ -87,13 +87,13 @@ class AppSelectionAdapter(
                     ), Toast.LENGTH_SHORT
                 ).show()
             }
-            updateAppWidget(context)
+            sendAppWidgetUpdateBroadcast(context)
         }
 
         return convertView
     }
 
-    private fun updateAppWidget(context: Context) {
+    private fun sendAppWidgetUpdateBroadcast(context: Context) {
         val updateIntent = Intent(context, StepCoverAppWidget::class.java)
         updateIntent.action = AppWidgetManager.ACTION_APPWIDGET_UPDATE
         updateIntent.putExtra(

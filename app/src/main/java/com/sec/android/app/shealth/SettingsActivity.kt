@@ -47,7 +47,7 @@ class SettingsActivity : AppCompatActivity() {
         val sharedPref = getSharedPreferences(
             "samsprung.launcher.PREFS", Context.MODE_PRIVATE
         )
-        var isGridView = sharedPref.getBoolean("gridview", true)
+        val isGridView = sharedPref.getBoolean("gridview", true)
 
         findViewById<ToggleButton>(R.id.swapViewType).isChecked = isGridView
         findViewById<ToggleButton>(R.id.swapViewType).setOnCheckedChangeListener { _, isChecked ->
@@ -55,7 +55,7 @@ class SettingsActivity : AppCompatActivity() {
                 putBoolean("gridview", isChecked)
                 apply()
             }
-            isGridView = updateWidgets(isChecked)
+            notifyAppWidgetViewDataChanged(isChecked)
         }
 
         findViewById<Button>(R.id.cacheLogcat).setOnClickListener {
@@ -93,21 +93,13 @@ class SettingsActivity : AppCompatActivity() {
         return (getSystemService(Context.KEYGUARD_SERVICE) as KeyguardManager).isDeviceSecure
     }
 
-    private fun updateWidgets(isChecked: Boolean) : Boolean {
-        val widgetIntent = Intent(applicationContext, StepCoverAppWidget::class.java)
-        widgetIntent.action = AppWidgetManager.ACTION_APPWIDGET_UPDATE
+    private fun notifyAppWidgetViewDataChanged(isGridView: Boolean) {
         val widgetManager = AppWidgetManager.getInstance(applicationContext)
         val ids = widgetManager.getAppWidgetIds(
             ComponentName(applicationContext, StepCoverAppWidget::class.java)
         )
-        if (isChecked) {
-            widgetManager.notifyAppWidgetViewDataChanged(ids, R.id.widgetGridView)
-        } else {
-            widgetManager.notifyAppWidgetViewDataChanged(ids, R.id.widgetListView)
-        }
-        widgetIntent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS, ids)
-        sendBroadcast(widgetIntent)
-        return isChecked
+        widgetManager.notifyAppWidgetViewDataChanged(ids,
+            if (isGridView) R.id.widgetGridView else R.id.widgetListView)
     }
 
     private fun printLogcat(): String {

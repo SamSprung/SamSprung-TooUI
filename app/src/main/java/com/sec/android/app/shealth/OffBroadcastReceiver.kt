@@ -20,11 +20,11 @@ class OffBroadcastReceiver : BroadcastReceiver {
 
     override fun onReceive(context: Context, intent: Intent) {
         if (intent.action == Intent.ACTION_PACKAGE_FULLY_REMOVED) {
-            updateAppWidget(context)
+            sendAppWidgetUpdateBroadcast(context)
         }
         if (intent.action == Intent.ACTION_PACKAGE_ADDED) {
             if (!intent.getBooleanExtra(Intent.EXTRA_REPLACING, false)) {
-                updateAppWidget(context)
+                sendAppWidgetUpdateBroadcast(context)
             }
         }
         if (intent.action == Intent.ACTION_SCREEN_OFF && componentName != null) {
@@ -46,7 +46,7 @@ class OffBroadcastReceiver : BroadcastReceiver {
         }
     }
 
-    private fun updateAppWidget(context: Context) {
+    private fun sendAppWidgetUpdateBroadcast(context: Context) {
         val updateIntent = Intent(context, StepCoverAppWidget::class.java)
         updateIntent.action = AppWidgetManager.ACTION_APPWIDGET_UPDATE
         updateIntent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS,
