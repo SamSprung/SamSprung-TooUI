@@ -12,6 +12,7 @@ import android.widget.RemoteViewsService
 import java.util.*
 
 class AppLauncherService : RemoteViewsService() {
+
     override fun onGetViewFactory(intent: Intent): RemoteViewsFactory {
         return StepRemoteViewsFactory(applicationContext)
     }
@@ -44,7 +45,7 @@ class AppLauncherService : RemoteViewsService() {
         }
         override fun onDataSetChanged() {
             isGridView = sharedPref.getBoolean("gridview", isGridView)
-            
+
             packages = pacMan.queryIntentActivities(mainIntent, 0)
             packages.removeIf { item -> sharedPref.getStringSet(
                 hidden, HashSet())!!.contains(item.activityInfo.packageName) }

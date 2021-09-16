@@ -12,9 +12,7 @@ import android.media.MediaScannerConnection
 import android.os.Bundle
 import android.provider.Settings
 import android.widget.*
-import android.widget.AdapterView.OnItemLongClickListener
 import androidx.appcompat.app.AppCompatActivity
-import androidx.appcompat.widget.SwitchCompat
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.samsung.android.app.shealth.tracker.pedometer.service.coverwidget.StepCoverAppWidget
@@ -27,6 +25,7 @@ import kotlin.collections.HashSet
 
 
 class SettingsActivity : AppCompatActivity() {
+
     private val hidden = "hidden_packages"
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -84,33 +83,7 @@ class SettingsActivity : AppCompatActivity() {
         hidenew.addAll(hide)
 
         val listView: ListView = findViewById(R.id.selectionListView)
-        listView.adapter = AppSelectionAdapter(this, packages, hidenew, packageManager)
-
-        listView.onItemLongClickListener = OnItemLongClickListener { _, view, index, _ ->
-            val packageName = packages[index].activityInfo.packageName
-            val appName = packages[index].loadLabel(packageManager).toString()
-            if (hide.contains(packageName)) {
-                hidenew.remove(packageName)
-                with(sharedPref.edit()) {
-                    putStringSet(hidden, hidenew)
-                    apply()
-                }
-                view.findViewById<SwitchCompat>(R.id.hiddenItemSwitch).isChecked = true
-                Toast.makeText(this, getString(
-                    R.string.show_package, appName), Toast.LENGTH_SHORT).show()
-            } else {
-                hidenew.add(packageName)
-                with(sharedPref.edit()) {
-                    putStringSet(hidden, hidenew)
-                    apply()
-                }
-                view.findViewById<SwitchCompat>(R.id.hiddenItemSwitch).isChecked = false
-                Toast.makeText(this, getString(
-                    R.string.hide_package, appName), Toast.LENGTH_SHORT).show()
-            }
-            updateWidgets(isGridView)
-            true
-        }
+        listView.adapter = AppSelectionAdapter(this, packages, hidenew)
     }
 
     /**
