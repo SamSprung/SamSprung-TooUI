@@ -30,8 +30,6 @@ class AppLauncherService : RemoteViewsService() {
                 "samsprung.launcher.PREFS", Context.MODE_PRIVATE
             )
 
-            isGridView = sharedPref.getBoolean("gridview", isGridView)
-
             mainIntent = Intent(Intent.ACTION_MAIN, null)
             mainIntent.addCategory(Intent.CATEGORY_LAUNCHER)
             mainIntent.removeCategory(Intent.CATEGORY_HOME)
@@ -45,6 +43,8 @@ class AppLauncherService : RemoteViewsService() {
             }
         }
         override fun onDataSetChanged() {
+            isGridView = sharedPref.getBoolean("gridview", isGridView)
+            
             packages = pacMan.queryIntentActivities(mainIntent, 0)
             packages.removeIf { item -> sharedPref.getStringSet(
                 hidden, HashSet())!!.contains(item.activityInfo.packageName) }

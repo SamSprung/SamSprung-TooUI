@@ -37,8 +37,8 @@
     <ImageView
         android:id="@+id/widgetGridImage"
         android:contentDescription="@string/list_icon"
-        android:layout_width="60dp"
-        android:layout_height="60dp"
+        android:layout_width="68dp"
+        android:layout_height="68dp"
         android:layout_gravity="center"
         android:src="@mipmap/s_health_icon"
         android:visibility="gone" />

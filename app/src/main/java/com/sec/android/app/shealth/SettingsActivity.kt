@@ -48,15 +48,15 @@ class SettingsActivity : AppCompatActivity() {
         val sharedPref = getSharedPreferences(
             "samsprung.launcher.PREFS", Context.MODE_PRIVATE
         )
+        var isGridView = sharedPref.getBoolean("gridview", true)
 
-        findViewById<ToggleButton>(R.id.swapViewType).isChecked =
-            sharedPref.getBoolean("gridview", true)
+        findViewById<ToggleButton>(R.id.swapViewType).isChecked = isGridView
         findViewById<ToggleButton>(R.id.swapViewType).setOnCheckedChangeListener { _, isChecked ->
             with (sharedPref.edit()) {
                 putBoolean("gridview", isChecked)
                 apply()
             }
-            updateWidgets(isChecked)
+            isGridView = updateWidgets(isChecked)
         }
 
         findViewById<Button>(R.id.cacheLogcat).setOnClickListener {
@@ -108,13 +108,7 @@ class SettingsActivity : AppCompatActivity() {
                 Toast.makeText(this, getString(
                     R.string.hide_package, appName), Toast.LENGTH_SHORT).show()
             }
-            val updateIntent = Intent(this, StepCoverAppWidget::class.java)
-            updateIntent.action = AppWidgetManager.ACTION_APPWIDGET_UPDATE
-            updateIntent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS,
-                AppWidgetManager.getInstance(applicationContext).getAppWidgetIds(
-                    ComponentName(applicationContext, StepCoverAppWidget::class.java))
-            )
-            sendBroadcast(updateIntent)
+            updateWidgets(isGridView)
             true
         }
     }
@@ -126,7 +120,7 @@ class SettingsActivity : AppCompatActivity() {
         return (getSystemService(Context.KEYGUARD_SERVICE) as KeyguardManager).isDeviceSecure
     }
 
-    private fun updateWidgets(isChecked: Boolean) {
+    private fun updateWidgets(isChecked: Boolean) : Boolean {
         val widgetIntent = Intent(applicationContext, StepCoverAppWidget::class.java)
         widgetIntent.action = AppWidgetManager.ACTION_APPWIDGET_UPDATE
         val widgetManager = AppWidgetManager.getInstance(applicationContext)
@@ -140,6 +134,7 @@ class SettingsActivity : AppCompatActivity() {
         }
         widgetIntent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS, ids)
         sendBroadcast(widgetIntent)
+        return isChecked
     }
 
     private fun printLogcat(): String {
