@@ -1,7 +1,7 @@
 package com.sec.android.app.shealth
 
 /* ====================================================================
- * Copyright (c) 2012-2021 Abandoned Cart.  All rights reserved.
+ * Copyright (c) 2012-2021 AbandonedCart.  All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -18,19 +18,19 @@ package com.sec.android.app.shealth
  * 3. All advertising materials mentioning features or use of this
  *    software and redistributions of any form whatsoever
  *    must display the following acknowledgment:
- *    "This product includes software developed by Abandoned Cart" unless
+ *    "This product includes software developed by AbandonedCart" unless
  *    otherwise displayed by tagged, public repository entries.
  *
- * 4. The names "8-Bit Dream", "TwistedUmbrella" and "Abandoned Cart"
+ * 4. The names "8-Bit Dream", "TwistedUmbrella" and "AbandonedCart"
  *    must not be used in any form to endorse or promote products
  *    derived from this software without prior written permission. For
  *    written permission, please contact enderinexiledc@gmail.com
  *
  * 5. Products derived from this software may not be called "8-Bit Dream",
- *    "TwistedUmbrella" or "Abandoned Cart" nor may these labels appear
- *    in their names without prior written permission of Abandoned Cart.
+ *    "TwistedUmbrella" or "AbandonedCart" nor may these labels appear
+ *    in their names without prior written permission of AbandonedCart.
  *
- * THIS SOFTWARE IS PROVIDED BY Abandoned Cart ``AS IS'' AND ANY
+ * THIS SOFTWARE IS PROVIDED BY AbandonedCart ``AS IS'' AND ANY
  * EXPRESSED OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
  * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
  * PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE OpenSSL PROJECT OR
@@ -57,7 +57,14 @@ import android.content.Intent
 import android.content.pm.ApplicationInfo
 import android.content.pm.PackageManager
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import androidx.appcompat.app.AppCompatActivity
+import androidx.window.java.layout.WindowInfoRepositoryCallbackAdapter
+import androidx.window.layout.FoldingFeature
+import androidx.window.layout.WindowInfoRepository.Companion.windowInfoRepository
+import androidx.window.layout.WindowLayoutInfo
+import java.util.concurrent.Executor
 
 
 class AppLauncherActivity : AppCompatActivity() {
@@ -69,6 +76,28 @@ class AppLauncherActivity : AppCompatActivity() {
         val launchActivity = intent.getStringExtra("launchActivity")
 
         if (launchPackage == null || launchActivity == null) finish()
+
+        WindowInfoRepositoryCallbackAdapter(
+            windowInfoRepository()
+        ).addWindowLayoutInfoListener(runOnUiThreadExecutor(),
+            { windowLayoutInfo: WindowLayoutInfo ->
+            for (displayFeature in windowLayoutInfo.displayFeatures) {
+                if (displayFeature is FoldingFeature) {
+                    if (displayFeature.state == FoldingFeature.State.HALF_OPENED ||
+                        displayFeature.state == FoldingFeature.State.FLAT) {
+                        val displayIntent = Intent(Intent.ACTION_MAIN)
+                        displayIntent.addCategory(Intent.CATEGORY_LAUNCHER)
+                        displayIntent.component = ComponentName(launchPackage!!, launchActivity!!)
+                        val launchDisplay = ActivityOptions.makeBasic().setLaunchDisplayId(0)
+                        displayIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                        displayIntent.addFlags(Intent.FLAG_ACTIVITY_MULTIPLE_TASK)
+                        displayIntent.addFlags(Intent.FLAG_ACTIVITY_FORWARD_RESULT)
+                        displayIntent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION)
+                        startActivity(displayIntent, launchDisplay.toBundle())
+                    }
+                }
+            }
+        })
 
         val launchIntent = Intent(Intent.ACTION_MAIN)
         launchIntent.addCategory(Intent.CATEGORY_LAUNCHER)
@@ -91,4 +120,10 @@ class AppLauncherActivity : AppCompatActivity() {
         finish()
     }
 
+    private fun runOnUiThreadExecutor(): Executor {
+        val handler = Handler(Looper.getMainLooper())
+        return Executor() {
+            handler.post(it)
+        }
+    }
 }

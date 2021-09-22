@@ -41,7 +41,8 @@
         <activity
             android:name=".AppLauncherActivity"
             android:exported="true"
-            android:configChanges="orientation|keyboard|keyboardHidden|screenSize|screenLayout|uiMode">
+            android:configChanges="orientation|keyboard|keyboardHidden|screenSize|screenLayout|uiMode"
+            android:resizeableActivity="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.DEFAULT" />
