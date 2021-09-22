@@ -130,12 +130,12 @@ class DisplayListenerService() : Service() {
 //                    val displayIntent = Intent(Intent.ACTION_MAIN)
 //                    displayIntent.addCategory(Intent.CATEGORY_LAUNCHER)
 //                    displayIntent.component = ComponentName(launchPackage, launchActivity)
-//                    val launchDisplay = ActivityOptions.makeBasic().setLaunchDisplayId(display)
+//                    val options = ActivityOptions.makeBasic().setLaunchDisplayId(display)
 //                    displayIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
 //                    displayIntent.addFlags(Intent.FLAG_ACTIVITY_MULTIPLE_TASK)
 //                    displayIntent.addFlags(Intent.FLAG_ACTIVITY_FORWARD_RESULT)
 //                    displayIntent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION)
-//                    startActivity(displayIntent, launchDisplay.toBundle())
+//                    startActivity(displayIntent, options.toBundle())
                 } else {
                     @Suppress("DEPRECATION") mKeyguardLock.disableKeyguard()
 //                    val extras = Bundle()
@@ -149,12 +149,12 @@ class DisplayListenerService() : Service() {
                 val displayIntent = Intent(Intent.ACTION_MAIN)
                 displayIntent.addCategory(Intent.CATEGORY_LAUNCHER)
                 displayIntent.component = ComponentName(launchPackage, launchActivity)
-                val launchDisplay = ActivityOptions.makeBasic().setLaunchDisplayId(display)
+                val options = ActivityOptions.makeBasic().setLaunchDisplayId(display)
                 displayIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
                 displayIntent.addFlags(Intent.FLAG_ACTIVITY_MULTIPLE_TASK)
                 displayIntent.addFlags(Intent.FLAG_ACTIVITY_FORWARD_RESULT)
                 displayIntent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION)
-                startActivity(displayIntent, launchDisplay.toBundle())
+                startActivity(displayIntent, options.toBundle())
             }
 
             override fun onDisplayRemoved(display: Int) {}

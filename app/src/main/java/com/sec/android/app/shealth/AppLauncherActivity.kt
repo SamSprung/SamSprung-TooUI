@@ -60,6 +60,7 @@ import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.util.Consumer
 import androidx.window.java.layout.WindowInfoRepositoryCallbackAdapter
 import androidx.window.layout.FoldingFeature
 import androidx.window.layout.WindowInfoRepository.Companion.windowInfoRepository
@@ -69,6 +70,8 @@ import java.util.concurrent.Executor
 
 class AppLauncherActivity : AppCompatActivity() {
 
+    private lateinit var windowWasher : Consumer<WindowLayoutInfo>
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -77,27 +80,28 @@ class AppLauncherActivity : AppCompatActivity() {
 
         if (launchPackage == null || launchActivity == null) finish()
 
-        WindowInfoRepositoryCallbackAdapter(
-            windowInfoRepository()
-        ).addWindowLayoutInfoListener(runOnUiThreadExecutor(),
-            { windowLayoutInfo: WindowLayoutInfo ->
+        val wIRCA = WindowInfoRepositoryCallbackAdapter(windowInfoRepository())
+        windowWasher = Consumer<WindowLayoutInfo> { windowLayoutInfo ->
             for (displayFeature in windowLayoutInfo.displayFeatures) {
                 if (displayFeature is FoldingFeature) {
                     if (displayFeature.state == FoldingFeature.State.HALF_OPENED ||
-                        displayFeature.state == FoldingFeature.State.FLAT) {
-                        val displayIntent = Intent(Intent.ACTION_MAIN)
-                        displayIntent.addCategory(Intent.CATEGORY_LAUNCHER)
-                        displayIntent.component = ComponentName(launchPackage!!, launchActivity!!)
-                        val launchDisplay = ActivityOptions.makeBasic().setLaunchDisplayId(0)
-                        displayIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                        displayIntent.addFlags(Intent.FLAG_ACTIVITY_MULTIPLE_TASK)
-                        displayIntent.addFlags(Intent.FLAG_ACTIVITY_FORWARD_RESULT)
-                        displayIntent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION)
-                        startActivity(displayIntent, launchDisplay.toBundle())
+                        displayFeature.state == FoldingFeature.State.FLAT
+                    ) {
+                        val windowIntent = Intent(Intent.ACTION_MAIN)
+                        windowIntent.addCategory(Intent.CATEGORY_LAUNCHER)
+                        windowIntent.component = ComponentName(launchPackage!!, launchActivity!!)
+                        val options = ActivityOptions.makeBasic().setLaunchDisplayId(0)
+                        windowIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                        windowIntent.addFlags(Intent.FLAG_ACTIVITY_MULTIPLE_TASK)
+                        windowIntent.addFlags(Intent.FLAG_ACTIVITY_FORWARD_RESULT)
+                        windowIntent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION)
+                        startActivity(windowIntent, options.toBundle())
+                        wIRCA.removeWindowLayoutInfoListener(windowWasher)
                     }
                 }
             }
-        })
+        }
+        wIRCA.addWindowLayoutInfoListener(runOnUiThreadExecutor(), windowWasher)
 
         val launchIntent = Intent(Intent.ACTION_MAIN)
         launchIntent.addCategory(Intent.CATEGORY_LAUNCHER)

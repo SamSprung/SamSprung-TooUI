@@ -148,16 +148,16 @@ class StepCoverAppWidget: AppWidgetProvider() {
             views.setViewVisibility(R.id.widgetGridView,
                 if (isGridView) View.VISIBLE else View.GONE)
 
-            val appintent = Intent(context, AppLauncherService::class.java)
-            appintent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId)
-            appintent.data = Uri.parse(appintent.toUri(Intent.URI_INTENT_SCHEME))
-            views.setRemoteAdapter(view, appintent)
+            val serviceIntent = Intent(context, AppLauncherService::class.java)
+            serviceIntent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId)
+            serviceIntent.data = Uri.parse(serviceIntent.toUri(Intent.URI_INTENT_SCHEME))
+            views.setRemoteAdapter(view, serviceIntent)
 
-            val itemIntent = Intent(context, StepCoverAppWidget::class.java)
-            itemIntent.action = onClickTag
-            itemIntent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId)
+            val widgetIntent = Intent(context, StepCoverAppWidget::class.java)
+            widgetIntent.action = onClickTag
+            widgetIntent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId)
             val itemPendingIntent = PendingIntent.getBroadcast(
-                context, 0, itemIntent, PendingIntent.FLAG_UPDATE_CURRENT
+                context, 0, widgetIntent, PendingIntent.FLAG_UPDATE_CURRENT
             )
             views.setPendingIntentTemplate(view, itemPendingIntent)
 
