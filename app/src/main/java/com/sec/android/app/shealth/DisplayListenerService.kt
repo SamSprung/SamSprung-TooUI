@@ -92,7 +92,8 @@ class DisplayListenerService() : Service() {
             if (mDisplayListener != null) {
                 displayManager.unregisterDisplayListener(mDisplayListener)
             }
-            @Suppress("DEPRECATION") mKeyguardLock.reenableKeyguard()
+            if (SamSprung.isKeyguardLocked)
+                @Suppress("DEPRECATION") mKeyguardLock.reenableKeyguard()
             try {
                 stopForeground(true)
                 stopSelf()
@@ -121,7 +122,8 @@ class DisplayListenerService() : Service() {
             override fun onDisplayChanged(display: Int) {
                 if (display == 0) {
                     displayManager.unregisterDisplayListener(this)
-                    @Suppress("DEPRECATION") mKeyguardLock.reenableKeyguard()
+                    if (SamSprung.isKeyguardLocked)
+                        @Suppress("DEPRECATION") mKeyguardLock.reenableKeyguard()
                     try {
                         stopForeground(true)
                         stopSelf()
@@ -140,7 +142,8 @@ class DisplayListenerService() : Service() {
                         startActivity(displayIntent, options.toBundle())
                     }
                 } else {
-                    @Suppress("DEPRECATION") mKeyguardLock.disableKeyguard()
+                    if (SamSprung.isKeyguardLocked)
+                        @Suppress("DEPRECATION") mKeyguardLock.disableKeyguard()
                     if (SamSprung.useAppLauncherActivity) {
                         val extras = Bundle()
                         extras.putString("launchPackage", launchPackage)

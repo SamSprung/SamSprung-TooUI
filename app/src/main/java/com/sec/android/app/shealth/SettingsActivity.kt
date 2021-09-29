@@ -84,7 +84,7 @@ class SettingsActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.step_widget_edit)
 
-        if (isDeviceLocked()) {
+        if (isDeviceSecure()) {
             Toast.makeText(
                 applicationContext,
                 R.string.caveats_warning,
@@ -141,7 +141,7 @@ class SettingsActivity : AppCompatActivity() {
     /**
      * @return true if pass or pin or pattern locks screen
      */
-    private fun isDeviceLocked(): Boolean {
+    private fun isDeviceSecure(): Boolean {
         return (getSystemService(Context.KEYGUARD_SERVICE) as KeyguardManager).isDeviceSecure
     }
 

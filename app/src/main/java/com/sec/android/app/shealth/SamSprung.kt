@@ -1,6 +1,7 @@
 package com.sec.android.app.shealth
 
 import android.app.Application
+import android.app.KeyguardManager
 import android.content.Context
 import android.content.SharedPreferences
 import android.os.Process
@@ -67,15 +68,16 @@ class SamSprung : Application() {
         )
         Thread.setDefaultUncaughtExceptionHandler { _: Thread?, error: Throwable ->
             error.printStackTrace()
-            Process.killProcess(Process.myPid())
-            exitProcess(0)
+            // Process.killProcess(Process.myPid())
+            // exitProcess(0)
         }
     }
 
     companion object {
-        const val useAppLauncherActivity: Boolean = false
         private lateinit var mContext: WeakReference<Context>
+        var isKeyguardLocked: Boolean = false
         private lateinit var mPrefs: WeakReference<SharedPreferences>
+        const val useAppLauncherActivity: Boolean = false
         val context: Context get() = mContext.get()!!
         val prefs: SharedPreferences get() = mPrefs.get()!!
     }
