@@ -59,6 +59,7 @@ import android.content.pm.PackageManager
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
+import android.view.KeyEvent
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.util.Consumer
 import androidx.window.java.layout.WindowInfoRepositoryCallbackAdapter
@@ -87,6 +88,9 @@ class AppLauncherActivity : AppCompatActivity() {
                     if (displayFeature.state == FoldingFeature.State.HALF_OPENED ||
                         displayFeature.state == FoldingFeature.State.FLAT
                     ) {
+                        startService(Intent(applicationContext,
+                            DisplayListenerService::class.java))
+
                         val windowIntent = Intent(Intent.ACTION_MAIN)
                         windowIntent.addCategory(Intent.CATEGORY_LAUNCHER)
                         windowIntent.component = ComponentName(launchPackage!!, launchActivity!!)
@@ -97,6 +101,7 @@ class AppLauncherActivity : AppCompatActivity() {
                         windowIntent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION)
                         startActivity(windowIntent, options.toBundle())
                         wIRCA.removeWindowLayoutInfoListener(windowWasher)
+                        finish()
                     }
                 }
             }
@@ -121,7 +126,6 @@ class AppLauncherActivity : AppCompatActivity() {
         launchIntent.addFlags(Intent.FLAG_ACTIVITY_MULTIPLE_TASK)
         launchIntent.addFlags(Intent.FLAG_ACTIVITY_FORWARD_RESULT)
         startActivity(launchIntent, options.toBundle())
-        finish()
     }
 
     private fun runOnUiThreadExecutor(): Executor {
@@ -129,5 +133,25 @@ class AppLauncherActivity : AppCompatActivity() {
         return Executor() {
             handler.post(it)
         }
+    }
+
+
+    override fun onKeyDown(keyCode: Int, event: KeyEvent): Boolean {
+        return if (event.keyCode == KeyEvent.KEYCODE_POWER) {
+            /*
+            startService(Intent(applicationContext, DisplayListenerService::class.java))
+
+            val screenIntent = Intent(Intent.ACTION_MAIN)
+            screenIntent.addCategory(Intent.CATEGORY_LAUNCHER)
+            screenIntent.component = componentName
+            val options = ActivityOptions.makeBasic().setLaunchDisplayId(0)
+            screenIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            screenIntent.addFlags(Intent.FLAG_ACTIVITY_MULTIPLE_TASK)
+            screenIntent.addFlags(Intent.FLAG_ACTIVITY_FORWARD_RESULT)
+            screenIntent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION)
+            startActivity(screenIntent, options.toBundle())
+            */
+            true
+        } else super.onKeyDown(keyCode, event)
     }
 }

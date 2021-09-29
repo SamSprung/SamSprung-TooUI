@@ -1,12 +1,9 @@
 package com.sec.android.app.shealth
 
 import android.app.Application
-import android.app.KeyguardManager
 import android.content.Context
 import android.content.SharedPreferences
-import android.os.Process
 import java.lang.ref.WeakReference
-import kotlin.system.exitProcess
 
 /* ====================================================================
  * Copyright (c) 2012-2021 AbandonedCart.  All rights reserved.
@@ -75,7 +72,7 @@ class SamSprung : Application() {
 
     companion object {
         private lateinit var mContext: WeakReference<Context>
-        var isKeyguardLocked: Boolean = false
+        var isKeyguardLocked: Boolean = true
         private lateinit var mPrefs: WeakReference<SharedPreferences>
         const val useAppLauncherActivity: Boolean = false
         val context: Context get() = mContext.get()!!

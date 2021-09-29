@@ -57,9 +57,6 @@ import android.content.BroadcastReceiver
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
-import androidx.core.util.Consumer
-import androidx.window.layout.FoldingFeature
-import androidx.window.layout.WindowLayoutInfo
 import com.samsung.android.app.shealth.tracker.pedometer.service.coverwidget.StepCoverAppWidget
 
 
@@ -82,9 +79,7 @@ class OffBroadcastReceiver : BroadcastReceiver {
             }
         }
         if (intent.action == Intent.ACTION_SCREEN_OFF && componentName != null) {
-            val serviceIntent = Intent(context, DisplayListenerService::class.java)
-            serviceIntent.action = "samsprung.launcher.STOP"
-            context.startService(serviceIntent)
+            context.startService(Intent(context, DisplayListenerService::class.java))
 
             val screenIntent = Intent(Intent.ACTION_MAIN)
             screenIntent.addCategory(Intent.CATEGORY_LAUNCHER)

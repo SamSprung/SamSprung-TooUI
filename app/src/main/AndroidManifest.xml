@@ -50,12 +50,7 @@
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
-        <receiver android:name=".OffBroadcastReceiver">
-            <intent-filter>
-                <action android:name="android.intent.action.SCREEN_ON" />
-                <action android:name="android.intent.action.SCREEN_OFF" />
-            </intent-filter>
-        </receiver>
+        <receiver android:name=".OffBroadcastReceiver" />
         <service android:name=".AppLauncherService"
             android:exported="true"
             android:permission="android.permission.BIND_REMOTEVIEWS" />

@@ -62,13 +62,8 @@ import android.os.Bundle
 import android.os.Handler
 import android.os.IBinder
 import android.os.Looper
-import android.view.WindowManager
 import androidx.core.app.NotificationCompat
 import androidx.core.content.ContextCompat
-import androidx.core.util.Consumer
-import androidx.window.layout.FoldingFeature
-import androidx.window.layout.WindowLayoutInfo
-import java.util.concurrent.Executor
 
 
 class DisplayListenerService() : Service() {
@@ -88,32 +83,11 @@ class DisplayListenerService() : Service() {
                 as KeyguardManager).newKeyguardLock(coverLock)
         val displayManager = getSystemService(Context.DISPLAY_SERVICE) as DisplayManager
 
-        if (intent?.action != null && intent.action.equals("samsprung.launcher.STOP")) {
-            if (mDisplayListener != null) {
-                displayManager.unregisterDisplayListener(mDisplayListener)
-            }
-            if (SamSprung.isKeyguardLocked)
-                @Suppress("DEPRECATION") mKeyguardLock.reenableKeyguard()
-            try {
-                stopForeground(true)
-                stopSelf()
-            } catch (e: Exception) {
-                e.printStackTrace()
-            }
-            return START_NOT_STICKY
-        }
-
         val launchPackage = intent?.getStringExtra("launchPackage")
         val launchActivity = intent?.getStringExtra("launchActivity")
 
-        if (launchPackage == null || launchActivity == null) {
-            try {
-                stopSelf()
-            } catch (e: Exception) {
-                e.printStackTrace()
-            }
-            return START_NOT_STICKY
-        }
+        if (launchPackage == null || launchActivity == null)
+            return dismissDisplayListener(displayManager, mKeyguardLock)
 
         showForegroundNotification(startId)
 
@@ -174,14 +148,31 @@ class DisplayListenerService() : Service() {
         return START_STICKY
     }
 
+    private fun dismissDisplayListener(
+        displayManager: DisplayManager,
+        @Suppress("DEPRECATION")
+        mKeyguardLock: KeyguardManager.KeyguardLock
+    ): Int {
+        if (mDisplayListener != null) {
+            displayManager.unregisterDisplayListener(mDisplayListener)
+        }
+        if (SamSprung.isKeyguardLocked)
+            @Suppress("DEPRECATION") mKeyguardLock.reenableKeyguard()
+        try {
+            stopForeground(true)
+            stopSelf()
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+        return START_NOT_STICKY
+    }
+
     private var iconNotification: Bitmap? = null
     private var mNotificationManager: NotificationManager? = null
 
     private fun showForegroundNotification(startId: Int) {
-        val stopIntent = Intent(this, DisplayListenerService::class.java)
-        stopIntent.action = "samsprung.launcher.STOP"
-        val pendingIntent = PendingIntent.getService(
-            this, 0, stopIntent, 0)
+        val pendingIntent = PendingIntent.getService(this, 0,
+            Intent(this, DisplayListenerService::class.java), 0)
         iconNotification = BitmapFactory.decodeResource(resources, R.mipmap.s_health_icon)
         if (mNotificationManager == null) {
             mNotificationManager = getSystemService(

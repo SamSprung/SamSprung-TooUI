@@ -56,7 +56,9 @@ import android.app.KeyguardManager
 import android.app.PendingIntent
 import android.appwidget.AppWidgetManager
 import android.appwidget.AppWidgetProvider
-import android.content.*
+import android.content.ComponentName
+import android.content.Context
+import android.content.Intent
 import android.content.pm.ApplicationInfo
 import android.content.pm.PackageManager
 import android.net.Uri
@@ -100,18 +102,19 @@ class StepCoverAppWidget: AppWidgetProvider() {
             extras.putString("launchActivity", launchActivity)
             context.startForegroundService(serviceIntent.putExtras(extras))
 
-            val mReceiver: BroadcastReceiver = OffBroadcastReceiver(
-                ComponentName(launchPackage, launchActivity)
-            )
-            IntentFilter(Intent.ACTION_SCREEN_OFF).also {
-                context.applicationContext.registerReceiver(mReceiver, it)
-            }
-
             if (SamSprung.useAppLauncherActivity) {
                 context.startActivity(Intent(context.applicationContext,
                     AppLauncherActivity::class.java).addFlags(
                     Intent.FLAG_ACTIVITY_NEW_TASK).putExtras(extras))
             } else {
+                /*
+                val mReceiver: BroadcastReceiver = OffBroadcastReceiver(
+                    ComponentName(launchPackage, launchActivity)
+                )
+                IntentFilter(Intent.ACTION_SCREEN_OFF).also {
+                    context.applicationContext.registerReceiver(mReceiver, it)
+                }
+                */
                 val coverIntent = Intent(Intent.ACTION_MAIN)
                 coverIntent.addCategory(Intent.CATEGORY_LAUNCHER)
                 coverIntent.component = ComponentName(launchPackage, launchActivity)
