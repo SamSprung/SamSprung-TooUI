@@ -58,12 +58,10 @@ import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.hardware.display.DisplayManager
-import android.os.Bundle
-import android.os.Handler
-import android.os.IBinder
-import android.os.Looper
+import android.os.*
 import androidx.core.app.NotificationCompat
 import androidx.core.content.ContextCompat
+import kotlin.system.exitProcess
 
 
 class DisplayListenerService() : Service() {
@@ -114,6 +112,10 @@ class DisplayListenerService() : Service() {
                         displayIntent.addFlags(Intent.FLAG_ACTIVITY_FORWARD_RESULT)
                         displayIntent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION)
                         startActivity(displayIntent, options.toBundle())
+
+                        // Only ghosts can pass through here
+                        Process.killProcess(Process.myPid())
+                        exitProcess(0)
                     }
                 } else {
                     if (SamSprung.isKeyguardLocked)

@@ -1,10 +1,5 @@
 package com.sec.android.app.shealth
 
-import android.app.Application
-import android.content.Context
-import android.content.SharedPreferences
-import java.lang.ref.WeakReference
-
 /* ====================================================================
  * Copyright (c) 2012-2021 AbandonedCart.  All rights reserved.
  *
@@ -56,6 +51,13 @@ import java.lang.ref.WeakReference
  * subject to to the terms and conditions of the Apache License, Version 2.0.
  */
 
+import android.app.Application
+import android.content.Context
+import android.content.SharedPreferences
+import android.os.Process
+import java.lang.ref.WeakReference
+import kotlin.system.exitProcess
+
 class SamSprung : Application() {
     override fun onCreate() {
         super.onCreate()
@@ -65,8 +67,9 @@ class SamSprung : Application() {
         )
         Thread.setDefaultUncaughtExceptionHandler { _: Thread?, error: Throwable ->
             error.printStackTrace()
-            // Process.killProcess(Process.myPid())
-            // exitProcess(0)
+            // Unrecoverable error encountered
+            Process.killProcess(Process.myPid())
+            exitProcess(0)
         }
     }
 

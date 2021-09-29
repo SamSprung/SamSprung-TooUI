@@ -54,6 +54,7 @@ package com.sec.android.app.shealth
 import android.app.ActivityOptions
 import android.content.ComponentName
 import android.content.Intent
+import android.content.pm.ActivityInfo
 import android.content.pm.ApplicationInfo
 import android.content.pm.PackageManager
 import android.os.Bundle
@@ -81,6 +82,8 @@ class AppLauncherActivity : AppCompatActivity() {
 
         if (launchPackage == null || launchActivity == null) finish()
 
+        requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_BEHIND
+
         val wIRCA = WindowInfoRepositoryCallbackAdapter(windowInfoRepository())
         windowWasher = Consumer<WindowLayoutInfo> { windowLayoutInfo ->
             for (displayFeature in windowLayoutInfo.displayFeatures) {
@@ -100,7 +103,11 @@ class AppLauncherActivity : AppCompatActivity() {
                         windowIntent.addFlags(Intent.FLAG_ACTIVITY_FORWARD_RESULT)
                         windowIntent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION)
                         startActivity(windowIntent, options.toBundle())
+
+                        requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
+
                         wIRCA.removeWindowLayoutInfoListener(windowWasher)
+
                         finish()
                     }
                 }
@@ -151,6 +158,7 @@ class AppLauncherActivity : AppCompatActivity() {
             screenIntent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION)
             startActivity(screenIntent, options.toBundle())
             */
+            requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
             true
         } else super.onKeyDown(keyCode, event)
     }
