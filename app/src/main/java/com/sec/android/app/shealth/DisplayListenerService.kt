@@ -58,6 +58,7 @@ import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.hardware.display.DisplayManager
+import android.os.Bundle
 import android.os.Handler
 import android.os.IBinder
 import android.os.Looper
@@ -127,34 +128,39 @@ class DisplayListenerService() : Service() {
                     } catch (e: Exception) {
                         e.printStackTrace()
                     }
-//                    val displayIntent = Intent(Intent.ACTION_MAIN)
-//                    displayIntent.addCategory(Intent.CATEGORY_LAUNCHER)
-//                    displayIntent.component = ComponentName(launchPackage, launchActivity)
-//                    val options = ActivityOptions.makeBasic().setLaunchDisplayId(display)
-//                    displayIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-//                    displayIntent.addFlags(Intent.FLAG_ACTIVITY_MULTIPLE_TASK)
-//                    displayIntent.addFlags(Intent.FLAG_ACTIVITY_FORWARD_RESULT)
-//                    displayIntent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION)
-//                    startActivity(displayIntent, options.toBundle())
+                    if (SamSprung.useAppLauncherActivity) {
+                        val displayIntent = Intent(Intent.ACTION_MAIN)
+                        displayIntent.addCategory(Intent.CATEGORY_LAUNCHER)
+                        displayIntent.component = ComponentName(launchPackage, launchActivity)
+                        val options = ActivityOptions.makeBasic().setLaunchDisplayId(display)
+                        displayIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                        displayIntent.addFlags(Intent.FLAG_ACTIVITY_MULTIPLE_TASK)
+                        displayIntent.addFlags(Intent.FLAG_ACTIVITY_FORWARD_RESULT)
+                        displayIntent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION)
+                        startActivity(displayIntent, options.toBundle())
+                    }
                 } else {
                     @Suppress("DEPRECATION") mKeyguardLock.disableKeyguard()
-//                    val extras = Bundle()
-//                    extras.putString("launchPackage", launchPackage)
-//                    extras.putString("launchActivity", launchActivity)
-//                    startActivity(Intent(applicationContext,
-//                        AppLauncherActivity::class.java).addFlags(
-//                        Intent.FLAG_ACTIVITY_NEW_TASK).putExtras(extras))
+                    if (SamSprung.useAppLauncherActivity) {
+                        val extras = Bundle()
+                        extras.putString("launchPackage", launchPackage)
+                        extras.putString("launchActivity", launchActivity)
+                        startActivity(Intent(applicationContext,
+                            AppLauncherActivity::class.java).addFlags(
+                            Intent.FLAG_ACTIVITY_NEW_TASK).putExtras(extras))
+                    }
                 }
-
-                val displayIntent = Intent(Intent.ACTION_MAIN)
-                displayIntent.addCategory(Intent.CATEGORY_LAUNCHER)
-                displayIntent.component = ComponentName(launchPackage, launchActivity)
-                val options = ActivityOptions.makeBasic().setLaunchDisplayId(display)
-                displayIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                displayIntent.addFlags(Intent.FLAG_ACTIVITY_MULTIPLE_TASK)
-                displayIntent.addFlags(Intent.FLAG_ACTIVITY_FORWARD_RESULT)
-                displayIntent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION)
-                startActivity(displayIntent, options.toBundle())
+                if (!SamSprung.useAppLauncherActivity) {
+                    val displayIntent = Intent(Intent.ACTION_MAIN)
+                    displayIntent.addCategory(Intent.CATEGORY_LAUNCHER)
+                    displayIntent.component = ComponentName(launchPackage, launchActivity)
+                    val options = ActivityOptions.makeBasic().setLaunchDisplayId(display)
+                    displayIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                    displayIntent.addFlags(Intent.FLAG_ACTIVITY_MULTIPLE_TASK)
+                    displayIntent.addFlags(Intent.FLAG_ACTIVITY_FORWARD_RESULT)
+                    displayIntent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION)
+                    startActivity(displayIntent, options.toBundle())
+                }
             }
 
             override fun onDisplayRemoved(display: Int) {}

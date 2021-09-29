@@ -103,28 +103,32 @@ class StepCoverAppWidget: AppWidgetProvider() {
                 context.applicationContext.registerReceiver(mReceiver, it)
             }
 
-            val coverIntent = Intent(Intent.ACTION_MAIN)
-            coverIntent.addCategory(Intent.CATEGORY_LAUNCHER)
-            coverIntent.component = ComponentName(launchPackage, launchActivity)
-            val options = ActivityOptions.makeBasic().setLaunchDisplayId(1)
-            try {
-                val applicationInfo: ApplicationInfo = context.packageManager.getApplicationInfo (
-                    launchPackage, PackageManager.GET_META_DATA
-                )
-                applicationInfo.metaData.putString(
-                    "com.samsung.android.activity.showWhenLocked", "true"
-                )
-            } catch (e: PackageManager.NameNotFoundException) {
-                e.printStackTrace()
+            if (SamSprung.useAppLauncherActivity) {
+                context.startActivity(Intent(context.applicationContext,
+                    AppLauncherActivity::class.java).addFlags(
+                    Intent.FLAG_ACTIVITY_NEW_TASK).putExtras(extras))
+            } else {
+                val coverIntent = Intent(Intent.ACTION_MAIN)
+                coverIntent.addCategory(Intent.CATEGORY_LAUNCHER)
+                coverIntent.component = ComponentName(launchPackage, launchActivity)
+                val options = ActivityOptions.makeBasic().setLaunchDisplayId(1)
+                try {
+                    val applicationInfo: ApplicationInfo =
+                        context.packageManager.getApplicationInfo(
+                            launchPackage, PackageManager.GET_META_DATA
+                        )
+                    applicationInfo.metaData.putString(
+                        "com.samsung.android.activity.showWhenLocked", "true"
+                    )
+                } catch (e: PackageManager.NameNotFoundException) {
+                    e.printStackTrace()
+                }
+                coverIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                coverIntent.addFlags(Intent.FLAG_ACTIVITY_MULTIPLE_TASK)
+                coverIntent.addFlags(Intent.FLAG_ACTIVITY_FORWARD_RESULT)
+                coverIntent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION)
+                context.startActivity(coverIntent.putExtras(extras), options.toBundle())
             }
-            coverIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-            coverIntent.addFlags(Intent.FLAG_ACTIVITY_MULTIPLE_TASK)
-            coverIntent.addFlags(Intent.FLAG_ACTIVITY_FORWARD_RESULT)
-            coverIntent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION)
-            context.startActivity(coverIntent.putExtras(extras), options.toBundle())
-//            context.startActivity(Intent(context.applicationContext,
-//                AppLauncherActivity::class.java).addFlags(
-//                Intent.FLAG_ACTIVITY_NEW_TASK).putExtras(extras))
         }
         super.onReceive(context, intent)
     }

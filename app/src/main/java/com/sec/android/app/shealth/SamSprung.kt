@@ -73,6 +73,7 @@ class SamSprung : Application() {
     }
 
     companion object {
+        const val useAppLauncherActivity: Boolean = false
         private lateinit var mContext: WeakReference<Context>
         private lateinit var mPrefs: WeakReference<SharedPreferences>
         val context: Context get() = mContext.get()!!
