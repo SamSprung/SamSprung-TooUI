@@ -32,6 +32,7 @@
             </intent-filter>
         </activity>
         <receiver android:name="com.samsung.android.app.shealth.tracker.pedometer.service.coverwidget.StepCoverAppWidget"
+            android:configChanges="density|orientation|screenLayout|screenSize|smallestScreenSize|uiMode"
             android:exported="false">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
@@ -42,7 +43,7 @@
         <activity
             android:name=".AppLauncherActivity"
             android:exported="true"
-            android:configChanges="orientation|keyboard|keyboardHidden|screenSize|screenLayout|uiMode"
+            android:configChanges="density|orientation|screenLayout|screenSize|smallestScreenSize|uiMode"
             android:resizeableActivity="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

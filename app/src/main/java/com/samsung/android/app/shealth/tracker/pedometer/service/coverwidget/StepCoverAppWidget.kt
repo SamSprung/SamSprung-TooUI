@@ -62,7 +62,6 @@ import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Bundle
 import android.view.View
-import android.view.WindowManager
 import android.widget.RemoteViews
 import com.sec.android.app.shealth.*
 
@@ -163,5 +162,14 @@ class StepCoverAppWidget: AppWidgetProvider() {
 
             appWidgetManager.updateAppWidget(appWidgetId, views)
         }
+    }
+
+    override fun onAppWidgetOptionsChanged(
+        context: Context?,
+        appWidgetManager: AppWidgetManager?,
+        appWidgetId: Int,
+        newOptions: Bundle?
+    ) {
+        // TODO: Attempt to override configuration changes
     }
 }
