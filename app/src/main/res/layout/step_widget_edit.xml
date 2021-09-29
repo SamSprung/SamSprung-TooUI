@@ -55,11 +55,13 @@
         android:layout_height="8dp" />
 
     <ScrollView
+        android:id="@+id/logWrapper"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_weight="1"
         android:fillViewport="true"
-        android:scrollbars="vertical">
+        android:scrollbars="vertical"
+        android:visibility="gone" >
 
         <TextView
             android:id="@+id/printLogcat"

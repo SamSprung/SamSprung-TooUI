@@ -62,6 +62,7 @@ import android.content.pm.ResolveInfo
 import android.media.MediaScannerConnection
 import android.os.Bundle
 import android.provider.Settings
+import android.view.View
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
@@ -107,7 +108,9 @@ class SettingsActivity : AppCompatActivity() {
         }
 
         findViewById<Button>(R.id.cacheLogcat).setOnClickListener {
+            findViewById<ScrollView>(R.id.logWrapper).visibility = View.VISIBLE
             findViewById<TextView>(R.id.printLogcat).text = printLogcat()
+
             val permission = ContextCompat.checkSelfPermission(
                 this, Manifest.permission.READ_EXTERNAL_STORAGE
             )
