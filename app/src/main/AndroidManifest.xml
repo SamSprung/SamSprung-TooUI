@@ -20,7 +20,7 @@
         android:roundIcon="@mipmap/s_health_icon_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.SecondScreen"
-        android:fullBackupContent="">
+        android:fullBackupContent="@xml/full_backup_content">
         <meta-data
             android:name="android.supports_size_changes" android:value="true" />
         <activity
