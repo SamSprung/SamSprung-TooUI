@@ -59,6 +59,7 @@ import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.hardware.display.DisplayManager
 import android.os.*
+import android.provider.Settings
 import androidx.core.app.NotificationCompat
 import androidx.core.content.ContextCompat
 import kotlin.system.exitProcess
@@ -157,6 +158,11 @@ class DisplayListenerService() : Service() {
     ): Int {
         if (mDisplayListener != null) {
             displayManager.unregisterDisplayListener(mDisplayListener)
+        }
+        if (SamSprung.prefs.getBoolean("autoRotate", true)) {
+            Settings.System.putInt(
+                contentResolver, Settings.System.ACCELEROMETER_ROTATION, 1
+            )
         }
         if (SamSprung.isKeyguardLocked)
             @Suppress("DEPRECATION") mKeyguardLock.reenableKeyguard()

@@ -60,6 +60,7 @@ import android.content.pm.PackageManager
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
+import android.provider.Settings
 import android.view.KeyEvent
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.util.Consumer
@@ -82,6 +83,12 @@ class AppLauncherActivity : AppCompatActivity() {
 
         if (launchPackage == null || launchActivity == null) finish()
 
+        if (SamSprung.prefs.getBoolean("autoRotate", true)) {
+            Settings.System.putInt(
+                contentResolver, Settings.System.ACCELEROMETER_ROTATION, 0
+            )
+        }
+        requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_LOCKED
         requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_BEHIND
 
         val wIRCA = WindowInfoRepositoryCallbackAdapter(windowInfoRepository())

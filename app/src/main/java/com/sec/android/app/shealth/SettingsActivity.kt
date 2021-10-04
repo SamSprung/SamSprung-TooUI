@@ -60,10 +60,13 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.content.pm.ResolveInfo
 import android.media.MediaScannerConnection
+import android.net.Uri
 import android.os.Bundle
 import android.provider.Settings
+import android.provider.Settings.SettingNotFoundException
 import android.view.View
 import android.widget.*
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
@@ -92,8 +95,33 @@ class SettingsActivity : AppCompatActivity() {
             ).show()
         }
 
+         val settingsLauncher = registerForActivityResult(
+            ActivityResultContracts.StartActivityForResult()) { _ ->
+            if (Settings.System.canWrite(this))  {
+                try {
+                    with (SamSprung.prefs.edit()) {
+                        putBoolean("autoRotate",  Settings.System.getInt(contentResolver,
+                            Settings.System.ACCELEROMETER_ROTATION) == 1)
+                        apply()
+                    }
+                } catch (e: SettingNotFoundException) {
+                    e.printStackTrace()
+                }
+            }
+        }
+
         findViewById<Button>(R.id.openSettings).setOnClickListener {
-            startActivity(Intent(Settings.ACTION_SETTINGS))
+            if (!Settings.System.canWrite(this)) {
+                val intent = Intent(Settings.ACTION_MANAGE_WRITE_SETTINGS)
+                intent.data = Uri.parse("package:$packageName")
+                settingsLauncher.launch(intent);
+            } else {
+                Toast.makeText(
+                    applicationContext,
+                    R.string.settings_notice,
+                    Toast.LENGTH_LONG
+                ).show()
+            }
         }
 
         val isGridView = SamSprung.prefs.getBoolean("gridview", true)
