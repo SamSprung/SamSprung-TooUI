@@ -144,7 +144,6 @@ class AppLauncherActivity : AppCompatActivity() {
             overlayLauncher.launch(Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
                 Uri.parse("package:$packageName")))
         }
-
     }
 
     private fun runOnUiThreadExecutor(): Executor {
@@ -158,11 +157,9 @@ class AppLauncherActivity : AppCompatActivity() {
         val orientationChanger = LinearLayout(this)
         val orientationLayout = WindowManager.LayoutParams(
             WindowManager.LayoutParams.TYPE_SYSTEM_OVERLAY,
-            0,
-            PixelFormat.RGBA_8888
+            0, PixelFormat.RGBA_8888
         )
         orientationLayout.screenOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
-
         (getSystemService(Context.WINDOW_SERVICE) as WindowManager).addView(
             orientationChanger, orientationLayout)
         orientationChanger.visibility = View.VISIBLE

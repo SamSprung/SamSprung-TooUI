@@ -10,8 +10,8 @@ android {
         applicationId "com.sec.android.app.shealth"
         minSdk 30
         targetSdk 30
-        versionCode 2
-        versionName "1.1"
+        versionCode 6190043
+        versionName "6.19.0.043"
     }
 
     project.archivesBaseName = "SamSprung-" + 'git rev-parse --short HEAD'.execute().text.trim()
