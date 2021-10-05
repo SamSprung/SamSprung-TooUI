@@ -89,7 +89,8 @@ class StepCoverAppWidget: AppWidgetProvider() {
 
             val mKeyguardManager = (context.getSystemService(
                 Context.KEYGUARD_SERVICE) as KeyguardManager)
-            SamSprung.isKeyguardLocked = mKeyguardManager.isKeyguardLocked
+            @Suppress("DEPRECATION")
+            SamSprung.isKeyguardLocked = mKeyguardManager.inKeyguardRestrictedInputMode()
 
             if (SamSprung.isKeyguardLocked) {
                 @Suppress("DEPRECATION")

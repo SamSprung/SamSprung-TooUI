@@ -8,7 +8,7 @@
 
 - Keyboards will not open on the cover screen and some app functionality is limited
 
-- Switching apps requires tapping power and waiting for at least two seconds to close the widget before launching the widget again (turn on cover, swipe to widget). The app list, however, can be swiped closed.
+- Switching apps requires tapping power and waiting for at least two seconds to close the app before launching the widget again (turn on cover, swipe to widget). The app list, however, can be swiped closed.
 
 -  ~~Apps launched from the cover will not launch from the launcher app drawer when opening the phone. This can be resolved in two ways:~~
      
