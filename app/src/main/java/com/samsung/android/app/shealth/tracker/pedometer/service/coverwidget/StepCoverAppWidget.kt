@@ -63,6 +63,7 @@ import android.content.pm.ApplicationInfo
 import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Bundle
+import android.provider.Settings
 import android.view.View
 import android.widget.RemoteViews
 import com.sec.android.app.shealth.*
@@ -86,6 +87,20 @@ class StepCoverAppWidget: AppWidgetProvider() {
             val launchActivity = intent.getStringExtra("launchActivity")
 
             if (launchPackage == null || launchActivity == null) return
+
+            if (Settings.System.canWrite(SamSprung.context))  {
+                try {
+                    with (SamSprung.prefs.edit()) {
+                        putBoolean("autoRotate",  Settings.System.getInt(
+                            SamSprung.context.contentResolver,
+                            Settings.System.ACCELEROMETER_ROTATION
+                        ) == 1)
+                        apply()
+                    }
+                } catch (e: Settings.SettingNotFoundException) {
+                    e.printStackTrace()
+                }
+            }
 
             val mKeyguardManager = (context.getSystemService(
                 Context.KEYGUARD_SERVICE) as KeyguardManager)

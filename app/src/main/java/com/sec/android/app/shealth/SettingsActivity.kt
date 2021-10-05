@@ -63,7 +63,6 @@ import android.media.MediaScannerConnection
 import android.net.Uri
 import android.os.Bundle
 import android.provider.Settings
-import android.provider.Settings.SettingNotFoundException
 import android.view.View
 import android.widget.*
 import androidx.activity.result.contract.ActivityResultContracts
@@ -95,32 +94,29 @@ class SettingsActivity : AppCompatActivity() {
             ).show()
         }
 
-         val settingsLauncher = registerForActivityResult(
+        val settingsLauncher = registerForActivityResult(
             ActivityResultContracts.StartActivityForResult()) { _ ->
-            if (Settings.System.canWrite(this))  {
-                try {
-                    with (SamSprung.prefs.edit()) {
-                        putBoolean("autoRotate",  Settings.System.getInt(contentResolver,
-                            Settings.System.ACCELEROMETER_ROTATION) == 1)
-                        apply()
-                    }
-                } catch (e: SettingNotFoundException) {
-                    e.printStackTrace()
-                }
+            if (!Settings.canDrawOverlays(SamSprung.context)) {
+                startActivity(Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
+                    Uri.parse("package:$packageName")))
             }
         }
 
         findViewById<Button>(R.id.openSettings).setOnClickListener {
-            if (!Settings.System.canWrite(this)) {
-                val intent = Intent(Settings.ACTION_MANAGE_WRITE_SETTINGS)
-                intent.data = Uri.parse("package:$packageName")
-                settingsLauncher.launch(intent);
+            if (Settings.System.canWrite(SamSprung.context)) {
+                if (Settings.canDrawOverlays(SamSprung.context)) {
+                    Toast.makeText(
+                        applicationContext,
+                        R.string.settings_notice,
+                        Toast.LENGTH_LONG
+                    ).show()
+                } else {
+                    startActivity(Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
+                        Uri.parse("package:$packageName")))
+                }
             } else {
-                Toast.makeText(
-                    applicationContext,
-                    R.string.settings_notice,
-                    Toast.LENGTH_LONG
-                ).show()
+                settingsLauncher.launch(Intent(Settings.ACTION_MANAGE_WRITE_SETTINGS,
+                    Uri.parse("package:$packageName")))
             }
         }
 

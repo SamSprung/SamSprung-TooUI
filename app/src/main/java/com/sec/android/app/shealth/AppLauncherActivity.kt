@@ -53,15 +53,22 @@ package com.sec.android.app.shealth
 
 import android.app.ActivityOptions
 import android.content.ComponentName
+import android.content.Context
 import android.content.Intent
 import android.content.pm.ActivityInfo
 import android.content.pm.ApplicationInfo
 import android.content.pm.PackageManager
+import android.graphics.PixelFormat
+import android.net.Uri
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.provider.Settings
 import android.view.KeyEvent
+import android.view.View
+import android.view.WindowManager
+import android.widget.LinearLayout
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.util.Consumer
 import androidx.window.java.layout.WindowInfoRepositoryCallbackAdapter
@@ -85,7 +92,8 @@ class AppLauncherActivity : AppCompatActivity() {
 
         if (SamSprung.prefs.getBoolean("autoRotate", true)) {
             Settings.System.putInt(
-                contentResolver, Settings.System.ACCELEROMETER_ROTATION, 0
+                SamSprung.context.contentResolver,
+                Settings.System.ACCELEROMETER_ROTATION, 0
             )
         }
         requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_LOCKED
@@ -122,6 +130,45 @@ class AppLauncherActivity : AppCompatActivity() {
         }
         wIRCA.addWindowLayoutInfoListener(runOnUiThreadExecutor(), windowWasher)
 
+        val overlayLauncher = registerForActivityResult(
+            ActivityResultContracts.StartActivityForResult()) { _ ->
+            if (Settings.canDrawOverlays(SamSprung.context))  {
+                launchWidgetActivity(launchActivity, launchPackage)
+                fakeOrientationLock()
+            }
+        }
+        if (Settings.canDrawOverlays(SamSprung.context)) {
+            launchWidgetActivity(launchActivity, launchPackage)
+            fakeOrientationLock()
+        } else {
+            overlayLauncher.launch(Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
+                Uri.parse("package:$packageName")))
+        }
+
+    }
+
+    private fun runOnUiThreadExecutor(): Executor {
+        val handler = Handler(Looper.getMainLooper())
+        return Executor() {
+            handler.post(it)
+        }
+    }
+
+    private fun fakeOrientationLock() {
+        val orientationChanger = LinearLayout(this)
+        val orientationLayout = WindowManager.LayoutParams(
+            WindowManager.LayoutParams.TYPE_SYSTEM_OVERLAY,
+            0,
+            PixelFormat.RGBA_8888
+        )
+        orientationLayout.screenOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
+
+        (getSystemService(Context.WINDOW_SERVICE) as WindowManager).addView(
+            orientationChanger, orientationLayout)
+        orientationChanger.visibility = View.VISIBLE
+    }
+
+    private fun launchWidgetActivity(launchPackage: String?, launchActivity: String?) {
         val launchIntent = Intent(Intent.ACTION_MAIN)
         launchIntent.addCategory(Intent.CATEGORY_LAUNCHER)
         launchIntent.component = ComponentName(launchPackage!!, launchActivity!!)
@@ -141,14 +188,6 @@ class AppLauncherActivity : AppCompatActivity() {
         launchIntent.addFlags(Intent.FLAG_ACTIVITY_FORWARD_RESULT)
         startActivity(launchIntent, options.toBundle())
     }
-
-    private fun runOnUiThreadExecutor(): Executor {
-        val handler = Handler(Looper.getMainLooper())
-        return Executor() {
-            handler.post(it)
-        }
-    }
-
 
     override fun onKeyDown(keyCode: Int, event: KeyEvent): Boolean {
         return if (event.keyCode == KeyEvent.KEYCODE_POWER) {
