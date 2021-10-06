@@ -14,7 +14,20 @@
         android:id="@+id/openSettings"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:minHeight="36dp"
         android:text="@string/open_settings" />
+
+    <Space
+        android:layout_width="match_parent"
+        android:layout_height="8dp" />
+
+    <ToggleButton
+        android:id="@+id/swapScreenOff"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:minHeight="36dp"
+        android:textOff="@string/swap_so_system"
+        android:textOn="@string/swap_so_listen" />
 
     <Space
         android:layout_width="match_parent"
@@ -24,6 +37,7 @@
         android:id="@+id/swapViewType"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:minHeight="36dp"
         android:textOff="@string/swap_viewgrid"
         android:textOn="@string/swap_viewlist" />
 
@@ -35,6 +49,7 @@
         android:id="@+id/cacheLogcat"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:minHeight="36dp"
         android:text="@string/cache_logcat" />
 
     <Space

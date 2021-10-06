@@ -121,7 +121,7 @@ class StepCoverAppWidget: AppWidgetProvider() {
                     AppLauncherActivity::class.java).addFlags(
                     Intent.FLAG_ACTIVITY_NEW_TASK).putExtras(extras))
             } else {
-                if (SamSprung.enablePowerButtonReset) {
+                if (SamSprung.prefs.getBoolean("screenoff", false)) {
                     val mReceiver: BroadcastReceiver = OffBroadcastReceiver(
                         ComponentName(launchPackage, launchActivity)
                     )

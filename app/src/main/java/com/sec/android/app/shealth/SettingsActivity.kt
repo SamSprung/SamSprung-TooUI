@@ -120,6 +120,16 @@ class SettingsActivity : AppCompatActivity() {
             }
         }
 
+        val enableScreenOff = SamSprung.prefs.getBoolean("screenoff", true)
+
+        findViewById<ToggleButton>(R.id.swapScreenOff).isChecked = enableScreenOff
+        findViewById<ToggleButton>(R.id.swapScreenOff).setOnCheckedChangeListener { _, isChecked ->
+            with (SamSprung.prefs.edit()) {
+                putBoolean("screenoff", isChecked)
+                apply()
+            }
+        }
+
         val isGridView = SamSprung.prefs.getBoolean("gridview", true)
 
         findViewById<ToggleButton>(R.id.swapViewType).isChecked = isGridView
@@ -128,7 +138,7 @@ class SettingsActivity : AppCompatActivity() {
                 putBoolean("gridview", isChecked)
                 apply()
             }
-            notifyAppWidgetViewDataChanged(isChecked)
+            sendAppWidgetUpdateBroadcast(SamSprung.context)
         }
 
         findViewById<Button>(R.id.cacheLogcat).setOnClickListener {
@@ -169,13 +179,14 @@ class SettingsActivity : AppCompatActivity() {
         return (getSystemService(Context.KEYGUARD_SERVICE) as KeyguardManager).isDeviceSecure
     }
 
-    private fun notifyAppWidgetViewDataChanged(isGridView: Boolean) {
-        val widgetManager = AppWidgetManager.getInstance(applicationContext)
-        val ids = widgetManager.getAppWidgetIds(
-            ComponentName(applicationContext, StepCoverAppWidget::class.java)
+    private fun sendAppWidgetUpdateBroadcast(context: Context) {
+        val updateIntent = Intent(context, StepCoverAppWidget::class.java)
+        updateIntent.action = AppWidgetManager.ACTION_APPWIDGET_UPDATE
+        updateIntent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS,
+            AppWidgetManager.getInstance(context.applicationContext).getAppWidgetIds(
+                ComponentName(context.applicationContext, StepCoverAppWidget::class.java))
         )
-        widgetManager.notifyAppWidgetViewDataChanged(ids,
-            if (isGridView) R.id.widgetGridView else R.id.widgetListView)
+        context.sendBroadcast(updateIntent)
     }
 
     private fun printLogcat(): String {
