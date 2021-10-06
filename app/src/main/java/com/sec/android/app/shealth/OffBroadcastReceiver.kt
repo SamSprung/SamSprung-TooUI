@@ -61,7 +61,6 @@ import com.samsung.android.app.shealth.tracker.pedometer.service.coverwidget.Ste
 
 
 class OffBroadcastReceiver : BroadcastReceiver {
-
     private var componentName : ComponentName? = null
 
     constructor()
@@ -91,6 +90,7 @@ class OffBroadcastReceiver : BroadcastReceiver {
             screenIntent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION)
             context.startActivity(screenIntent, options.toBundle())
 
+            componentName = null
             SamSprung.context.unregisterReceiver(this)
         }
     }

@@ -78,6 +78,7 @@ class SamSprung : Application() {
         var isKeyguardLocked: Boolean = true
         private lateinit var mPrefs: WeakReference<SharedPreferences>
         const val useAppLauncherActivity: Boolean = false
+        const val enablePowerButtonReset: Boolean = false
         val context: Context get() = mContext.get()!!
         val prefs: SharedPreferences get() = mPrefs.get()!!
     }

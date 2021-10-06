@@ -64,7 +64,6 @@ import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.provider.Settings
-import android.view.KeyEvent
 import android.view.View
 import android.view.WindowManager
 import android.widget.LinearLayout
@@ -79,7 +78,6 @@ import java.util.concurrent.Executor
 
 
 class AppLauncherActivity : AppCompatActivity() {
-
     private lateinit var windowWasher : Consumer<WindowLayoutInfo>
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -182,25 +180,5 @@ class AppLauncherActivity : AppCompatActivity() {
         launchIntent.addFlags(Intent.FLAG_ACTIVITY_MULTIPLE_TASK)
         launchIntent.addFlags(Intent.FLAG_ACTIVITY_FORWARD_RESULT)
         startActivity(launchIntent, options.toBundle())
-    }
-
-    override fun onKeyDown(keyCode: Int, event: KeyEvent): Boolean {
-        return if (event.keyCode == KeyEvent.KEYCODE_POWER) {
-            /*
-            startService(Intent(applicationContext, DisplayListenerService::class.java))
-
-            val screenIntent = Intent(Intent.ACTION_MAIN)
-            screenIntent.addCategory(Intent.CATEGORY_LAUNCHER)
-            screenIntent.component = componentName
-            val options = ActivityOptions.makeBasic().setLaunchDisplayId(0)
-            screenIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-            screenIntent.addFlags(Intent.FLAG_ACTIVITY_MULTIPLE_TASK)
-            screenIntent.addFlags(Intent.FLAG_ACTIVITY_FORWARD_RESULT)
-            screenIntent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION)
-            startActivity(screenIntent, options.toBundle())
-            */
-            requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
-            true
-        } else super.onKeyDown(keyCode, event)
     }
 }
