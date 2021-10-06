@@ -120,7 +120,7 @@ class SettingsActivity : AppCompatActivity() {
             }
         }
 
-        val enableScreenOff = SamSprung.prefs.getBoolean("screenoff", true)
+        val enableScreenOff = SamSprung.prefs.getBoolean("screenoff", false)
 
         findViewById<ToggleButton>(R.id.swapScreenOff).isChecked = enableScreenOff
         findViewById<ToggleButton>(R.id.swapScreenOff).setOnCheckedChangeListener { _, isChecked ->

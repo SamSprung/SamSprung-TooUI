@@ -94,6 +94,8 @@ class AppLauncherActivity : AppCompatActivity() {
                 Settings.System.ACCELEROMETER_ROTATION, 0
             )
         }
+        requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_LOCKED
+        requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_BEHIND
 
         val wIRCA = WindowInfoRepositoryCallbackAdapter(windowInfoRepository())
         windowWasher = Consumer<WindowLayoutInfo> { windowLayoutInfo ->
@@ -116,6 +118,8 @@ class AppLauncherActivity : AppCompatActivity() {
                         startActivity(windowIntent, options.toBundle())
 
                         fakeOrientationLock(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED)
+                        requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
+
                         wIRCA.removeWindowLayoutInfoListener(windowWasher)
 
                         finish()
@@ -129,12 +133,12 @@ class AppLauncherActivity : AppCompatActivity() {
             ActivityResultContracts.StartActivityForResult()) { _ ->
             if (Settings.canDrawOverlays(SamSprung.context))  {
                 launchWidgetActivity(launchActivity, launchPackage)
-                fakeOrientationLock(ActivityInfo.SCREEN_ORIENTATION_BEHIND)
+                fakeOrientationLock(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT)
             }
         }
         if (Settings.canDrawOverlays(SamSprung.context)) {
             launchWidgetActivity(launchActivity, launchPackage)
-            fakeOrientationLock(ActivityInfo.SCREEN_ORIENTATION_BEHIND)
+            fakeOrientationLock(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT)
         } else {
             overlayLauncher.launch(Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
                 Uri.parse("package:$packageName")))
