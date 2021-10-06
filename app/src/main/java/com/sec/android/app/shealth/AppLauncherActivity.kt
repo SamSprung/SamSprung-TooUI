@@ -96,8 +96,6 @@ class AppLauncherActivity : AppCompatActivity() {
                 Settings.System.ACCELEROMETER_ROTATION, 0
             )
         }
-        requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_LOCKED
-        requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_BEHIND
 
         val wIRCA = WindowInfoRepositoryCallbackAdapter(windowInfoRepository())
         windowWasher = Consumer<WindowLayoutInfo> { windowLayoutInfo ->
@@ -119,8 +117,7 @@ class AppLauncherActivity : AppCompatActivity() {
                         windowIntent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION)
                         startActivity(windowIntent, options.toBundle())
 
-                        requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
-
+                        fakeOrientationLock(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED)
                         wIRCA.removeWindowLayoutInfoListener(windowWasher)
 
                         finish()
@@ -134,12 +131,12 @@ class AppLauncherActivity : AppCompatActivity() {
             ActivityResultContracts.StartActivityForResult()) { _ ->
             if (Settings.canDrawOverlays(SamSprung.context))  {
                 launchWidgetActivity(launchActivity, launchPackage)
-                fakeOrientationLock()
+                fakeOrientationLock(ActivityInfo.SCREEN_ORIENTATION_BEHIND)
             }
         }
         if (Settings.canDrawOverlays(SamSprung.context)) {
             launchWidgetActivity(launchActivity, launchPackage)
-            fakeOrientationLock()
+            fakeOrientationLock(ActivityInfo.SCREEN_ORIENTATION_BEHIND)
         } else {
             overlayLauncher.launch(Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
                 Uri.parse("package:$packageName")))
@@ -153,13 +150,14 @@ class AppLauncherActivity : AppCompatActivity() {
         }
     }
 
-    private fun fakeOrientationLock() {
+    private fun fakeOrientationLock(screenOrientation: Int) {
         val orientationChanger = LinearLayout(this)
+        @Suppress("DEPRECATION")
         val orientationLayout = WindowManager.LayoutParams(
             WindowManager.LayoutParams.TYPE_SYSTEM_OVERLAY,
             0, PixelFormat.RGBA_8888
         )
-        orientationLayout.screenOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
+        orientationLayout.screenOrientation = screenOrientation
         (getSystemService(Context.WINDOW_SERVICE) as WindowManager).addView(
             orientationChanger, orientationLayout)
         orientationChanger.visibility = View.VISIBLE
