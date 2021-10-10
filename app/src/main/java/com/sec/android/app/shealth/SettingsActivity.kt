@@ -63,6 +63,7 @@ import android.media.MediaScannerConnection
 import android.net.Uri
 import android.os.Bundle
 import android.provider.Settings
+import android.text.TextUtils
 import android.view.View
 import android.widget.*
 import androidx.activity.result.contract.ActivityResultContracts
@@ -94,29 +95,49 @@ class SettingsActivity : AppCompatActivity() {
             ).show()
         }
 
+        val overlayLauncher = registerForActivityResult(
+            ActivityResultContracts.StartActivityForResult()) { _ ->
+            if (!isNotificationListenerEnabled())
+                startActivity(Intent(
+                    Settings.ACTION_NOTIFICATION_LISTENER_SETTINGS)
+                )
+        }
+
         val settingsLauncher = registerForActivityResult(
             ActivityResultContracts.StartActivityForResult()) { _ ->
-            if (!Settings.canDrawOverlays(SamSprung.context)) {
-                startActivity(Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
-                    Uri.parse("package:$packageName")))
+            if (!Settings.canDrawOverlays(applicationContext)) {
+                overlayLauncher.launch(Intent(
+                    Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
+                    Uri.parse("package:$packageName")
+                ))
             }
         }
 
         findViewById<Button>(R.id.openSettings).setOnClickListener {
-            if (Settings.System.canWrite(SamSprung.context)) {
-                if (Settings.canDrawOverlays(SamSprung.context)) {
-                    Toast.makeText(
-                        applicationContext,
-                        R.string.settings_notice,
-                        Toast.LENGTH_LONG
-                    ).show()
+            if (Settings.System.canWrite(applicationContext)) {
+                if (Settings.canDrawOverlays(applicationContext)) {
+                    if (isNotificationListenerEnabled()) {
+                        Toast.makeText(
+                            applicationContext,
+                            R.string.settings_notice,
+                            Toast.LENGTH_LONG
+                        ).show()
+                    } else {
+                        startActivity(Intent(
+                            Settings.ACTION_NOTIFICATION_LISTENER_SETTINGS)
+                        )
+                    }
                 } else {
-                    startActivity(Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
-                        Uri.parse("package:$packageName")))
+                    overlayLauncher.launch(Intent(
+                        Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
+                        Uri.parse("package:$packageName")
+                    ))
                 }
             } else {
-                settingsLauncher.launch(Intent(Settings.ACTION_MANAGE_WRITE_SETTINGS,
-                    Uri.parse("package:$packageName")))
+                settingsLauncher.launch(Intent(
+                    Settings.ACTION_MANAGE_WRITE_SETTINGS,
+                    Uri.parse("package:$packageName")
+                ))
             }
         }
 
@@ -138,7 +159,7 @@ class SettingsActivity : AppCompatActivity() {
                 putBoolean("gridview", isChecked)
                 apply()
             }
-            sendAppWidgetUpdateBroadcast(SamSprung.context)
+            sendAppWidgetUpdateBroadcast(isChecked)
         }
 
         findViewById<Button>(R.id.cacheLogcat).setOnClickListener {
@@ -163,13 +184,13 @@ class SettingsActivity : AppCompatActivity() {
         packages.removeIf { item -> item.activityInfo.packageName == packageName }
         Collections.sort(packages, ResolveInfo.DisplayNameComparator(packageManager))
 
-        val hidenew: HashSet<String> = HashSet<String>().plus(packageName) as HashSet<String>
+        val unlisted: HashSet<String> = HashSet<String>().plus(packageName) as HashSet<String>
         val hide: Set<String> = SamSprung.prefs.getStringSet(
             hidden, setOf<String>()) as Set<String>
-        hidenew.addAll(hide)
+        unlisted.addAll(hide)
 
         val listView: ListView = findViewById(R.id.selectionListView)
-        listView.adapter = AppSelectionAdapter(this, packages, hidenew)
+        listView.adapter = AppSelectionAdapter(this, packages, unlisted)
     }
 
     /**
@@ -179,14 +200,40 @@ class SettingsActivity : AppCompatActivity() {
         return (getSystemService(Context.KEYGUARD_SERVICE) as KeyguardManager).isDeviceSecure
     }
 
-    private fun sendAppWidgetUpdateBroadcast(context: Context) {
-        val updateIntent = Intent(context, StepCoverAppWidget::class.java)
+    /**
+     * https://github.com/kpbird/NotificationListenerService-Example
+     */
+    private fun isNotificationListenerEnabled(): Boolean {
+        val flat = Settings.Secure.getString(
+            contentResolver,
+            "enabled_notification_listeners"
+        )
+        if (!TextUtils.isEmpty(flat)) {
+            val names = flat.split(":").toTypedArray()
+            for (i in names.indices) {
+                val cn = ComponentName.unflattenFromString(names[i])
+                if (cn != null && TextUtils.equals(packageName, cn.packageName))
+                    return true
+            }
+        }
+        return false
+    }
+
+
+    private fun sendAppWidgetUpdateBroadcast(isGridView: Boolean) {
+        val widgetManager = AppWidgetManager.getInstance(applicationContext)
+        val ids = widgetManager.getAppWidgetIds(
+            ComponentName(applicationContext, StepCoverAppWidget::class.java))
+        widgetManager.notifyAppWidgetViewDataChanged(ids,
+            if (isGridView) R.id.widgetGridView else R.id.widgetListView)
+
+        val updateIntent = Intent(applicationContext, StepCoverAppWidget::class.java)
         updateIntent.action = AppWidgetManager.ACTION_APPWIDGET_UPDATE
         updateIntent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS,
-            AppWidgetManager.getInstance(context.applicationContext).getAppWidgetIds(
-                ComponentName(context.applicationContext, StepCoverAppWidget::class.java))
+            AppWidgetManager.getInstance(applicationContext).getAppWidgetIds(
+                ComponentName(applicationContext, StepCoverAppWidget::class.java))
         )
-        context.sendBroadcast(updateIntent)
+        applicationContext.sendBroadcast(updateIntent)
     }
 
     private fun printLogcat(): String {

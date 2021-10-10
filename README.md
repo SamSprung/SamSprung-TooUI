@@ -2,8 +2,7 @@
 
 #### Current limitations:
 
-- Currently requires Screen lock type to be set to None in Settings -> Lock screen
-     - BETA - Also supports a Swipe lock screen (without a password)
+- Currently requires Screen lock type set to None / Swipe in Settings -> Lock screen
      - Bixby unlock can be used as a workaround for other lock types
 
 - Keyboards will not open on the cover screen and some app functionality is limited

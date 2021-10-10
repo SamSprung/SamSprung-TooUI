@@ -145,8 +145,8 @@ class AppSelectionAdapter(
         updateIntent.action = AppWidgetManager.ACTION_APPWIDGET_UPDATE
         updateIntent.putExtra(
             AppWidgetManager.EXTRA_APPWIDGET_IDS,
-            AppWidgetManager.getInstance(context.applicationContext).getAppWidgetIds(
-                ComponentName(context.applicationContext, StepCoverAppWidget::class.java)
+            AppWidgetManager.getInstance(SamSprung.context).getAppWidgetIds(
+                ComponentName(SamSprung.context, StepCoverAppWidget::class.java)
             )
         )
         context.sendBroadcast(updateIntent)

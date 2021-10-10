@@ -81,10 +81,10 @@ class StepCoverAppWidget: AppWidgetProvider() {
                 context.applicationContext, StepCoverAppWidget::class.java)), view)
         }
         if (intent.action.equals(onClickTag)) {
-            val launchPackage = intent.getStringExtra("launchPackage")
-            val launchActivity = intent.getStringExtra("launchActivity")
-
-            if (launchPackage == null || launchActivity == null) return
+            if (!intent.hasExtra("launchPackage")
+                || !intent.hasExtra("launchActivity")) return
+            val launchPackage = intent.getStringExtra("launchPackage")!!
+            val launchActivity = intent.getStringExtra("launchActivity")!!
 
             if (Settings.System.canWrite(SamSprung.context))  {
                 try {

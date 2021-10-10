@@ -51,19 +51,24 @@ package com.sec.android.app.shealth
  * subject to to the terms and conditions of the Apache License, Version 2.0.
  */
 
+import android.R.color
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.content.pm.ResolveInfo
 import android.graphics.Bitmap
+import android.graphics.BlendMode
+import android.graphics.BlendModeColorFilter
 import android.graphics.Canvas
 import android.graphics.drawable.Drawable
 import android.os.Bundle
 import android.view.View
 import android.widget.RemoteViews
 import android.widget.RemoteViewsService
+import androidx.core.content.ContextCompat
 import java.util.*
+
 
 class AppLauncherService : RemoteViewsService() {
 
@@ -73,6 +78,8 @@ class AppLauncherService : RemoteViewsService() {
 
     class StepRemoteViewsFactory(private val context: Context) : RemoteViewsFactory {
         private val hidden = "hidden_packages"
+        private val active = "active_notifier"
+        private var notices: Set<String> = setOf()
         private var isGridView = true
         private var packages: MutableList<ResolveInfo> = arrayListOf()
         private val pacMan = context.packageManager
@@ -99,6 +106,8 @@ class AppLauncherService : RemoteViewsService() {
             packages.removeIf { item -> SamSprung.prefs.getStringSet(
                 hidden, HashSet())!!.contains(item.activityInfo.packageName) }
             Collections.sort(packages, ResolveInfo.DisplayNameComparator(pacMan))
+
+            notices = SamSprung.prefs.getStringSet(active, setOf<String>()) as Set<String>
         }
         override fun onDestroy() {
             SamSprung.context.unregisterReceiver(mReceiver)
@@ -113,6 +122,8 @@ class AppLauncherService : RemoteViewsService() {
             val application = packages[position]
             val rv = RemoteViews(context.packageName, R.layout.step_widget_item)
 
+            val packageName = application.activityInfo.packageName
+
             rv.setViewVisibility(
                 R.id.widgetListContainer,
                 if (isGridView) View.GONE else View.VISIBLE)
@@ -122,8 +133,15 @@ class AppLauncherService : RemoteViewsService() {
 
             val icon = if (isGridView) R.id.widgetGridImage else R.id.widgetItemImage
 
+            val applicationIcon = application.loadIcon(pacMan)
+            if (notices.contains(packageName)) {
+                applicationIcon.colorFilter =
+                    BlendModeColorFilter(ContextCompat.getColor(
+                    SamSprung.context, color.holo_green_light
+                ), BlendMode.COLOR_DODGE)
+            }
             rv.setImageViewBitmap(
-                icon, getBitmapFromDrawable(application.loadIcon(pacMan))
+                icon, getBitmapFromDrawable(applicationIcon)
             )
             if (!isGridView) {
                 rv.setTextViewText(R.id.widgetItemText,
@@ -131,7 +149,7 @@ class AppLauncherService : RemoteViewsService() {
             }
 
             val extras = Bundle()
-            extras.putString("launchPackage", application.activityInfo.packageName)
+            extras.putString("launchPackage", packageName)
             extras.putString("launchActivity", application.activityInfo.name)
             val fillInIntent = Intent()
             fillInIntent.putExtras(extras)
