@@ -74,7 +74,7 @@ class StepCoverAppWidget: AppWidgetProvider() {
 
     override fun onReceive(context: Context, intent: Intent) {
         if (intent.action == AppWidgetManager.ACTION_APPWIDGET_UPDATE) {
-            val isGridView = SamSprung.prefs.getBoolean("gridview", true)
+            val isGridView = SamSprung.prefs.getBoolean(SamSprung.prefLayout, true)
             val view = if (isGridView) R.id.widgetGridView else R.id.widgetListView
             val mgr = AppWidgetManager.getInstance(context.applicationContext)
             mgr.notifyAppWidgetViewDataChanged(mgr.getAppWidgetIds(ComponentName(
@@ -121,7 +121,7 @@ class StepCoverAppWidget: AppWidgetProvider() {
                     AppLauncherActivity::class.java).addFlags(
                     Intent.FLAG_ACTIVITY_NEW_TASK).putExtras(extras))
             } else {
-                if (SamSprung.prefs.getBoolean("screenoff", false)) {
+                if (SamSprung.prefs.getBoolean(SamSprung.prefScreen, false)) {
                     val mReceiver: BroadcastReceiver = OffBroadcastReceiver(
                         ComponentName(launchPackage, launchActivity)
                     )
@@ -159,7 +159,7 @@ class StepCoverAppWidget: AppWidgetProvider() {
         appWidgetManager: AppWidgetManager,
         appWidgetIds: IntArray
     ) {
-        val isGridView = SamSprung.prefs.getBoolean("gridview", true)
+        val isGridView = SamSprung.prefs.getBoolean(SamSprung.prefLayout, true)
         val view = if (isGridView) R.id.widgetGridView else R.id.widgetListView
 
         appWidgetIds.forEach { appWidgetId ->

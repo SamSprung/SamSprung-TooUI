@@ -128,7 +128,7 @@ class AppLauncherActivity : AppCompatActivity() {
         wIRCA.addWindowLayoutInfoListener(runOnUiThreadExecutor(), windowWasher)
 
         val overlayLauncher = registerForActivityResult(
-            ActivityResultContracts.StartActivityForResult()) { _ ->
+            ActivityResultContracts.StartActivityForResult()) {
             if (Settings.canDrawOverlays(SamSprung.context))  {
                 launchWidgetActivity(launchActivity, launchPackage)
                 fakeOrientationLock(ActivityInfo.SCREEN_ORIENTATION_USER_PORTRAIT)
@@ -145,9 +145,7 @@ class AppLauncherActivity : AppCompatActivity() {
 
     private fun runOnUiThreadExecutor(): Executor {
         val handler = Handler(Looper.getMainLooper())
-        return Executor() {
-            handler.post(it)
-        }
+        return Executor { handler.post(it) }
     }
 
     private fun fakeOrientationLock(screenOrientation: Int) {

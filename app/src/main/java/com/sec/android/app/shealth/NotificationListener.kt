@@ -61,7 +61,6 @@ import com.samsung.android.app.shealth.tracker.pedometer.service.coverwidget.Ste
 
 
 class NotificationListener : NotificationListenerService() {
-    private val active = "active_notifier"
 
     override fun onBind(intent: Intent?): IBinder? {
         return super.onBind(intent)
@@ -70,12 +69,12 @@ class NotificationListener : NotificationListenerService() {
     override fun onNotificationPosted(sbn: StatusBarNotification) {
         val notices: HashSet<String> = HashSet()
         val hide: Set<String> = SamSprung.prefs.getStringSet(
-            active, setOf<String>()) as Set<String>
+            SamSprung.prefActive, setOf<String>()) as Set<String>
         notices.addAll(hide)
 
         notices.add(sbn.packageName)
         with(SamSprung.prefs.edit()) {
-            putStringSet(active, notices)
+            putStringSet(SamSprung.prefActive, notices)
             apply()
         }
         sendAppWidgetUpdateBroadcast()
@@ -84,12 +83,12 @@ class NotificationListener : NotificationListenerService() {
     override fun onNotificationRemoved(sbn: StatusBarNotification) {
         val notices: HashSet<String> = HashSet()
         val hide: Set<String> = SamSprung.prefs.getStringSet(
-            active, setOf<String>()) as Set<String>
+            SamSprung.prefActive, setOf<String>()) as Set<String>
         notices.addAll(hide)
 
         notices.remove(sbn.packageName)
         with(SamSprung.prefs.edit()) {
-            putStringSet(active, notices)
+            putStringSet(SamSprung.prefActive, notices)
             apply()
         }
         sendAppWidgetUpdateBroadcast()

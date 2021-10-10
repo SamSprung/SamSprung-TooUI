@@ -77,8 +77,12 @@ class SamSprung : Application() {
         private lateinit var mContext: WeakReference<Context>
         var isKeyguardLocked: Boolean = true
         private lateinit var mPrefs: WeakReference<SharedPreferences>
-        const val useAppLauncherActivity: Boolean = false
         val context: Context get() = mContext.get()!!
         val prefs: SharedPreferences get() = mPrefs.get()!!
+        const val prefScreen: String = "screenoff"
+        const val prefLayout: String = "gridview"
+        const val prefHidden: String = "hidden_packages"
+        const val prefActive: String = "active_notifier"
+        const val useAppLauncherActivity: Boolean = false
     }
 }

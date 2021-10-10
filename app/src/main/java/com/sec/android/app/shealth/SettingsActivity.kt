@@ -81,8 +81,6 @@ import kotlin.collections.HashSet
 
 class SettingsActivity : AppCompatActivity() {
 
-    private val hidden = "hidden_packages"
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.step_widget_edit)
@@ -95,37 +93,50 @@ class SettingsActivity : AppCompatActivity() {
             ).show()
         }
 
-        val overlayLauncher = registerForActivityResult(
-            ActivityResultContracts.StartActivityForResult()) { _ ->
-            if (!isNotificationListenerEnabled())
-                startActivity(Intent(
-                    Settings.ACTION_NOTIFICATION_LISTENER_SETTINGS)
-                )
+        val settingsLauncher = registerForActivityResult(
+            ActivityResultContracts.StartActivityForResult()) {
+            // End of permission approval process
         }
 
-        val settingsLauncher = registerForActivityResult(
-            ActivityResultContracts.StartActivityForResult()) { _ ->
+        val overlayLauncher = registerForActivityResult(
+            ActivityResultContracts.StartActivityForResult()) {
+            if (!Settings.System.canWrite(applicationContext)) {
+                settingsLauncher.launch(Intent(
+                    Settings.ACTION_MANAGE_WRITE_SETTINGS,
+                    Uri.parse("package:$packageName")
+                ))
+            }
+        }
+
+        val noticesLauncher = registerForActivityResult(
+            ActivityResultContracts.StartActivityForResult()) {
             if (!Settings.canDrawOverlays(applicationContext)) {
                 overlayLauncher.launch(Intent(
                     Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
+                    Uri.parse("package:$packageName")
+                ))
+            } else if (!Settings.System.canWrite(applicationContext)) {
+                settingsLauncher.launch(Intent(
+                    Settings.ACTION_MANAGE_WRITE_SETTINGS,
                     Uri.parse("package:$packageName")
                 ))
             }
         }
 
         findViewById<Button>(R.id.openSettings).setOnClickListener {
-            if (Settings.System.canWrite(applicationContext)) {
+            if (isNotificationListenerEnabled()) {
                 if (Settings.canDrawOverlays(applicationContext)) {
-                    if (isNotificationListenerEnabled()) {
+                    if (Settings.System.canWrite(applicationContext)) {
                         Toast.makeText(
                             applicationContext,
                             R.string.settings_notice,
                             Toast.LENGTH_LONG
                         ).show()
                     } else {
-                        startActivity(Intent(
-                            Settings.ACTION_NOTIFICATION_LISTENER_SETTINGS)
-                        )
+                        settingsLauncher.launch(Intent(
+                            Settings.ACTION_MANAGE_WRITE_SETTINGS,
+                            Uri.parse("package:$packageName")
+                        ))
                     }
                 } else {
                     overlayLauncher.launch(Intent(
@@ -134,29 +145,28 @@ class SettingsActivity : AppCompatActivity() {
                     ))
                 }
             } else {
-                settingsLauncher.launch(Intent(
-                    Settings.ACTION_MANAGE_WRITE_SETTINGS,
-                    Uri.parse("package:$packageName")
+                noticesLauncher.launch(Intent(
+                    Settings.ACTION_NOTIFICATION_LISTENER_SETTINGS
                 ))
             }
         }
 
-        val enableScreenOff = SamSprung.prefs.getBoolean("screenoff", false)
+        val enableScreenOff = SamSprung.prefs.getBoolean(SamSprung.prefScreen, false)
 
         findViewById<ToggleButton>(R.id.swapScreenOff).isChecked = enableScreenOff
         findViewById<ToggleButton>(R.id.swapScreenOff).setOnCheckedChangeListener { _, isChecked ->
             with (SamSprung.prefs.edit()) {
-                putBoolean("screenoff", isChecked)
+                putBoolean(SamSprung.prefScreen, isChecked)
                 apply()
             }
         }
 
-        val isGridView = SamSprung.prefs.getBoolean("gridview", true)
+        val isGridView = SamSprung.prefs.getBoolean(SamSprung.prefLayout, true)
 
         findViewById<ToggleButton>(R.id.swapViewType).isChecked = isGridView
         findViewById<ToggleButton>(R.id.swapViewType).setOnCheckedChangeListener { _, isChecked ->
             with (SamSprung.prefs.edit()) {
-                putBoolean("gridview", isChecked)
+                putBoolean(SamSprung.prefLayout, isChecked)
                 apply()
             }
             sendAppWidgetUpdateBroadcast(isChecked)
@@ -186,7 +196,7 @@ class SettingsActivity : AppCompatActivity() {
 
         val unlisted: HashSet<String> = HashSet<String>().plus(packageName) as HashSet<String>
         val hide: Set<String> = SamSprung.prefs.getStringSet(
-            hidden, setOf<String>()) as Set<String>
+            SamSprung.prefHidden, setOf<String>()) as Set<String>
         unlisted.addAll(hide)
 
         val listView: ListView = findViewById(R.id.selectionListView)
@@ -205,20 +215,17 @@ class SettingsActivity : AppCompatActivity() {
      */
     private fun isNotificationListenerEnabled(): Boolean {
         val flat = Settings.Secure.getString(
-            contentResolver,
-            "enabled_notification_listeners"
+            contentResolver, "enabled_notification_listeners"
         )
         if (!TextUtils.isEmpty(flat)) {
             val names = flat.split(":").toTypedArray()
             for (i in names.indices) {
                 val cn = ComponentName.unflattenFromString(names[i])
-                if (cn != null && TextUtils.equals(packageName, cn.packageName))
-                    return true
+                if (cn != null && TextUtils.equals(packageName, cn.packageName)) return true
             }
         }
         return false
     }
-
 
     private fun sendAppWidgetUpdateBroadcast(isGridView: Boolean) {
         val widgetManager = AppWidgetManager.getInstance(applicationContext)

@@ -77,8 +77,6 @@ class AppLauncherService : RemoteViewsService() {
     }
 
     class StepRemoteViewsFactory(private val context: Context) : RemoteViewsFactory {
-        private val hidden = "hidden_packages"
-        private val active = "active_notifier"
         private var notices: Set<String> = setOf()
         private var isGridView = true
         private var packages: MutableList<ResolveInfo> = arrayListOf()
@@ -100,14 +98,17 @@ class AppLauncherService : RemoteViewsService() {
             }
         }
         override fun onDataSetChanged() {
-            isGridView = SamSprung.prefs.getBoolean("gridview", isGridView)
+            isGridView = SamSprung.prefs.getBoolean(SamSprung.prefLayout, isGridView)
 
             packages = pacMan.queryIntentActivities(mainIntent, 0)
             packages.removeIf { item -> SamSprung.prefs.getStringSet(
-                hidden, HashSet())!!.contains(item.activityInfo.packageName) }
+                SamSprung.prefHidden, HashSet())!!.contains(item.activityInfo.packageName
+            ) }
             Collections.sort(packages, ResolveInfo.DisplayNameComparator(pacMan))
 
-            notices = SamSprung.prefs.getStringSet(active, setOf<String>()) as Set<String>
+            notices = SamSprung.prefs.getStringSet(
+                SamSprung.prefActive, setOf<String>()
+            ) as Set<String>
         }
         override fun onDestroy() {
             SamSprung.context.unregisterReceiver(mReceiver)

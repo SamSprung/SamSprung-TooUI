@@ -73,7 +73,6 @@ class AppSelectionAdapter(
     private var packages: MutableList<ResolveInfo>,
     private var hide: HashSet<String>
 ) : BaseAdapter() {
-    private val hidden = "hidden_packages"
     private var pacMan: PackageManager = context.packageManager
 
     override fun getCount(): Int {
@@ -114,7 +113,7 @@ class AppSelectionAdapter(
             if (hide.contains(packageName)) {
                 hide.remove(packageName)
                 with(SamSprung.prefs.edit()) {
-                    putStringSet(hidden, hide)
+                    putStringSet(SamSprung.prefHidden, hide)
                     apply()
                 }
                 Toast.makeText(
@@ -125,7 +124,7 @@ class AppSelectionAdapter(
             } else {
                 hide.add(packageName)
                 with(SamSprung.prefs.edit()) {
-                    putStringSet(hidden, hide)
+                    putStringSet(SamSprung.prefHidden, hide)
                     apply()
                 }
                 Toast.makeText(
