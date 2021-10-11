@@ -77,7 +77,6 @@ class AppLauncherService : RemoteViewsService() {
     }
 
     class StepRemoteViewsFactory(private val context: Context) : RemoteViewsFactory {
-        private var notices: Set<String> = setOf()
         private var isGridView = true
         private var packages: MutableList<ResolveInfo> = arrayListOf()
         private val pacMan = context.packageManager
@@ -105,14 +104,11 @@ class AppLauncherService : RemoteViewsService() {
                 SamSprung.prefHidden, HashSet())!!.contains(item.activityInfo.packageName
             ) }
             Collections.sort(packages, ResolveInfo.DisplayNameComparator(pacMan))
-
-            notices = SamSprung.prefs.getStringSet(
-                SamSprung.prefActive, setOf<String>()
-            ) as Set<String>
         }
         override fun onDestroy() {
             SamSprung.context.unregisterReceiver(mReceiver)
             packages.clear()
+            SamSprung.notices.clear()
         }
 
         override fun getCount(): Int {
@@ -120,9 +116,9 @@ class AppLauncherService : RemoteViewsService() {
         }
 
         override fun getViewAt(position: Int): RemoteViews {
-            val application = packages[position]
             val rv = RemoteViews(context.packageName, R.layout.step_widget_item)
 
+            val application = packages[position]
             val packageName = application.activityInfo.packageName
 
             rv.setViewVisibility(
@@ -135,7 +131,7 @@ class AppLauncherService : RemoteViewsService() {
             val icon = if (isGridView) R.id.widgetGridImage else R.id.widgetItemImage
 
             val applicationIcon = application.loadIcon(pacMan)
-            if (notices.contains(packageName)) {
+            if (SamSprung.notices.contains(packageName)) {
                 applicationIcon.colorFilter =
                     BlendModeColorFilter(ContextCompat.getColor(
                     SamSprung.context, color.holo_green_light
@@ -159,7 +155,7 @@ class AppLauncherService : RemoteViewsService() {
         }
 
         override fun getLoadingView(): RemoteViews? {
-            return null
+            return RemoteViews(context.packageName, R.layout.step_loader_view)
         }
 
         override fun getViewTypeCount(): Int {

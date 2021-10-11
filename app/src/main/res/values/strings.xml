@@ -12,5 +12,6 @@
     <string name="show_package">%1$s visible!</string>
     <string name="display_service">&#160;Display Service</string>
     <string name="click_stop_service">Click to Stop Service</string>
+    <string name="loading_text">Loading&#8230;</string>
     <string name="list_icon">Icon</string>
 </resources>

@@ -159,7 +159,7 @@ class DisplayListenerService() : Service() {
         if (mDisplayListener != null) {
             displayManager.unregisterDisplayListener(mDisplayListener)
         }
-        if (SamSprung.prefs.getBoolean("autoRotate", true)) {
+        if (SamSprung.prefs.getBoolean(SamSprung.autoRotate, true)) {
             Settings.System.putInt(
                 SamSprung.context.contentResolver,
                 Settings.System.ACCELEROMETER_ROTATION, 1

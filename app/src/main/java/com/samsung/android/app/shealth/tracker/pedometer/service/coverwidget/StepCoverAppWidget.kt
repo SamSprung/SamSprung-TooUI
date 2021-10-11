@@ -89,7 +89,7 @@ class StepCoverAppWidget: AppWidgetProvider() {
             if (Settings.System.canWrite(SamSprung.context))  {
                 try {
                     with (SamSprung.prefs.edit()) {
-                        putBoolean("autoRotate",  Settings.System.getInt(
+                        putBoolean(SamSprung.autoRotate,  Settings.System.getInt(
                             SamSprung.context.contentResolver,
                             Settings.System.ACCELEROMETER_ROTATION
                         ) == 1)

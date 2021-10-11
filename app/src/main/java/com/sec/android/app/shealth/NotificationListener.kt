@@ -67,30 +67,14 @@ class NotificationListener : NotificationListenerService() {
     }
 
     override fun onNotificationPosted(sbn: StatusBarNotification) {
-        val notices: HashSet<String> = HashSet()
-        val hide: Set<String> = SamSprung.prefs.getStringSet(
-            SamSprung.prefActive, setOf<String>()) as Set<String>
-        notices.addAll(hide)
-
-        notices.add(sbn.packageName)
-        with(SamSprung.prefs.edit()) {
-            putStringSet(SamSprung.prefActive, notices)
-            apply()
-        }
+        if (!SamSprung.notices.contains(sbn.packageName))
+            SamSprung.notices.add(sbn.packageName)
         sendAppWidgetUpdateBroadcast()
     }
 
     override fun onNotificationRemoved(sbn: StatusBarNotification) {
-        val notices: HashSet<String> = HashSet()
-        val hide: Set<String> = SamSprung.prefs.getStringSet(
-            SamSprung.prefActive, setOf<String>()) as Set<String>
-        notices.addAll(hide)
-
-        notices.remove(sbn.packageName)
-        with(SamSprung.prefs.edit()) {
-            putStringSet(SamSprung.prefActive, notices)
-            apply()
-        }
+        if (SamSprung.notices.contains(sbn.packageName))
+            SamSprung.notices.remove(sbn.packageName)
         sendAppWidgetUpdateBroadcast()
     }
 

@@ -71,6 +71,27 @@ class SamSprung : Application() {
             Process.killProcess(Process.myPid())
             exitProcess(0)
         }
+        if (prefs.contains("screenoff")) {
+            with(prefs.edit()) {
+                putBoolean(prefScreen, prefs.getBoolean("screenoff", true))
+                remove("screenoff")
+                apply()
+            }
+        }
+        if (prefs.contains("gridview")) {
+            with(prefs.edit()) {
+                putBoolean(prefLayout, prefs.getBoolean("gridview", true))
+                remove("gridview")
+                apply()
+            }
+        }
+        if (prefs.contains("hidden_packages")) {
+            with(prefs.edit()) {
+                putStringSet(prefHidden, prefs.getStringSet("hidden_packages", setOf<String>()))
+                remove("hidden_packages")
+                apply()
+            }
+        }
     }
 
     companion object {
@@ -79,10 +100,11 @@ class SamSprung : Application() {
         private lateinit var mPrefs: WeakReference<SharedPreferences>
         val context: Context get() = mContext.get()!!
         val prefs: SharedPreferences get() = mPrefs.get()!!
-        const val prefScreen: String = "screenoff"
-        const val prefLayout: String = "gridview"
-        const val prefHidden: String = "hidden_packages"
-        const val prefActive: String = "active_notifier"
+        var notices: MutableList<String> = arrayListOf()
+        const val prefScreen: String = "prefScreen"
+        const val prefLayout: String = "prefLayout"
+        const val prefHidden: String = "prefHidden"
+        const val autoRotate: String = "autoRotate"
         const val useAppLauncherActivity: Boolean = false
     }
 }
