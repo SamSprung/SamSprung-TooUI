@@ -71,6 +71,8 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.samsung.android.app.shealth.tracker.pedometer.service.coverwidget.StepCoverAppWidget
+import org.json.JSONObject
+import org.json.JSONTokener
 import java.io.BufferedReader
 import java.io.File
 import java.io.FileOutputStream
@@ -84,6 +86,22 @@ class SettingsActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.step_widget_edit)
+
+        RequestLatestCommit().setListener(object : RequestLatestCommit.RequestCommitListener {
+            override fun onRequestCommitFinished(result: String?) {
+                try {
+                    val jsonObject = JSONTokener(result).nextValue() as JSONObject
+                    val sha: String = (jsonObject.get("object") as JSONObject).get("sha") as String
+                    val commit = sha.substring(0,7)
+                    if (commit != BuildConfig.COMMIT)
+                        startActivity(Intent(
+                            Intent.ACTION_VIEW, Uri.parse(getString(R.string.apk_url))
+                        ))
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                }
+            }
+        }).execute(getString(R.string.git_url))
 
         if (isDeviceSecure()) {
             Toast.makeText(

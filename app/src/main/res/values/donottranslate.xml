@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="git_url">https://api.github.com/repos/AbandonedCart/SamSprung-Launcher/git/refs/heads/custom</string>
+    <string name="apk_url">https://github.com/AbandonedCart/SamSprung-Launcher/releases/tag/latest</string>
+
+    <string name="description_icon">Icon</string>
+</resources>

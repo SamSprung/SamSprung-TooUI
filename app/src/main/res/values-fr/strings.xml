@@ -1,5 +1,5 @@
 <resources>
     <string name="app_name">SamSprung Lanceur</string>
     <string name="caveats_warning">L\'écran de verrouillage doit être désactivé pour lancer des applications</string>
-    <string name="list_icon">Icône</string>
+    <string name="description_icon">Icône</string>
 </resources>

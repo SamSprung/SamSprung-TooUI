@@ -88,6 +88,8 @@ class AppLauncherService : RemoteViewsService() {
             mainIntent.addCategory(Intent.CATEGORY_LAUNCHER)
             mainIntent.removeCategory(Intent.CATEGORY_HOME)
 
+            SamSprung.notices.clear()
+
             IntentFilter().apply {
                 addAction(Intent.ACTION_PACKAGE_ADDED)
                 addAction(Intent.ACTION_PACKAGE_REMOVED)
@@ -108,7 +110,6 @@ class AppLauncherService : RemoteViewsService() {
         override fun onDestroy() {
             SamSprung.context.unregisterReceiver(mReceiver)
             packages.clear()
-            SamSprung.notices.clear()
         }
 
         override fun getCount(): Int {
