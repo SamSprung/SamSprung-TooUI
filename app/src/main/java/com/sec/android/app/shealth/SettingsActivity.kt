@@ -95,7 +95,7 @@ class SettingsActivity : AppCompatActivity() {
                     val commit = sha.substring(0,7)
                     if (commit != BuildConfig.COMMIT)
                         startActivity(Intent(
-                            Intent.ACTION_VIEW, Uri.parse(getString(R.string.apk_url))
+                            Intent.ACTION_VIEW, Uri.parse(getString(R.string.apk_url, commit))
                         ))
                 } catch (e: Exception) {
                     e.printStackTrace()
