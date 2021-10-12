@@ -1,4 +1,4 @@
-package com.sec.android.app.shealth
+package com.sec.android.app.shealth.samsprung
 
 /* ====================================================================
  * Copyright (c) 2012-2021 AbandonedCart.  All rights reserved.
@@ -67,6 +67,8 @@ import android.view.View
 import android.widget.RemoteViews
 import android.widget.RemoteViewsService
 import androidx.core.content.ContextCompat
+import com.sec.android.app.shealth.R
+import com.sec.android.app.shealth.SamSprung
 import java.util.*
 
 
@@ -135,14 +137,15 @@ class AppLauncherService : RemoteViewsService() {
             if (SamSprung.notices.contains(packageName)) {
                 applicationIcon.colorFilter =
                     BlendModeColorFilter(ContextCompat.getColor(
-                    SamSprung.context, color.holo_green_light
+                        SamSprung.context, color.holo_green_light
                 ), BlendMode.COLOR_DODGE)
             }
             rv.setImageViewBitmap(
                 icon, getBitmapFromDrawable(applicationIcon)
             )
             if (!isGridView) {
-                rv.setTextViewText(R.id.widgetItemText,
+                rv.setTextViewText(
+                    R.id.widgetItemText,
                     application.loadLabel(pacMan).toString())
             }
 

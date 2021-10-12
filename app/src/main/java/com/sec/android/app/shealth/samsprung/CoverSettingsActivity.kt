@@ -1,4 +1,4 @@
-package com.sec.android.app.shealth
+package com.sec.android.app.shealth.samsprung
 
 /* ====================================================================
  * Copyright (c) 2012-2021 AbandonedCart.  All rights reserved.
@@ -71,6 +71,9 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.samsung.android.app.shealth.tracker.pedometer.service.coverwidget.StepCoverAppWidget
+import com.sec.android.app.shealth.BuildConfig
+import com.sec.android.app.shealth.R
+import com.sec.android.app.shealth.SamSprung
 import org.json.JSONObject
 import org.json.JSONTokener
 import java.io.BufferedReader
@@ -81,7 +84,7 @@ import java.util.*
 import kotlin.collections.HashSet
 
 
-class SettingsActivity : AppCompatActivity() {
+class CoverSettingsActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -250,7 +253,8 @@ class SettingsActivity : AppCompatActivity() {
         val ids = widgetManager.getAppWidgetIds(
             ComponentName(applicationContext, StepCoverAppWidget::class.java))
         widgetManager.notifyAppWidgetViewDataChanged(ids,
-            if (isGridView) R.id.widgetGridView else R.id.widgetListView)
+            if (isGridView) R.id.widgetGridView else R.id.widgetListView
+        )
 
         val updateIntent = Intent(applicationContext, StepCoverAppWidget::class.java)
         updateIntent.action = AppWidgetManager.ACTION_APPWIDGET_UPDATE

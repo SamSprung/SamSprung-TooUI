@@ -1,4 +1,4 @@
-package com.sec.android.app.shealth
+package com.sec.android.app.shealth.samsprung
 
 /* ====================================================================
  * Copyright (c) 2012-2021 AbandonedCart.  All rights reserved.
@@ -62,6 +62,8 @@ import android.os.*
 import android.provider.Settings
 import androidx.core.app.NotificationCompat
 import androidx.core.content.ContextCompat
+import com.sec.android.app.shealth.R
+import com.sec.android.app.shealth.SamSprung
 import kotlin.system.exitProcess
 
 

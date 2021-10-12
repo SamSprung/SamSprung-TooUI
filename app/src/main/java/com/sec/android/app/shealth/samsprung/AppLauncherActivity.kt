@@ -1,4 +1,4 @@
-package com.sec.android.app.shealth
+package com.sec.android.app.shealth.samsprung
 
 /* ====================================================================
  * Copyright (c) 2012-2021 AbandonedCart.  All rights reserved.
@@ -74,6 +74,7 @@ import androidx.window.java.layout.WindowInfoRepositoryCallbackAdapter
 import androidx.window.layout.FoldingFeature
 import androidx.window.layout.WindowInfoRepository.Companion.windowInfoRepository
 import androidx.window.layout.WindowLayoutInfo
+import com.sec.android.app.shealth.SamSprung
 import java.util.concurrent.Executor
 
 

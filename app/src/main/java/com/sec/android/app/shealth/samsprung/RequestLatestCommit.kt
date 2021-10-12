@@ -1,4 +1,4 @@
-package com.sec.android.app.shealth
+package com.sec.android.app.shealth.samsprung
 
 /* ====================================================================
  * Copyright (c) 2012-2021 AbandonedCart.  All rights reserved.
@@ -51,57 +51,56 @@ package com.sec.android.app.shealth
  * subject to to the terms and conditions of the Apache License, Version 2.0.
  */
 
-import android.app.ActivityOptions
-import android.appwidget.AppWidgetManager
-import android.content.BroadcastReceiver
-import android.content.ComponentName
-import android.content.Context
-import android.content.Intent
-import com.samsung.android.app.shealth.tracker.pedometer.service.coverwidget.StepCoverAppWidget
+import android.os.AsyncTask
+import java.io.BufferedReader
+import java.io.IOException
+import java.io.InputStreamReader
+import java.net.HttpURLConnection
+import java.net.URL
+import java.nio.charset.StandardCharsets
 
+class RequestLatestCommit : AsyncTask<String, Int, String>() {
 
-class OffBroadcastReceiver : BroadcastReceiver {
-    private var componentName : ComponentName? = null
+    private var listener: RequestCommitListener? = null
 
-    constructor()
-    constructor(componentName: ComponentName) {
-        this.componentName = componentName
+    override fun doInBackground(vararg urls: String?): String? {
+        try {
+            val conn = URL(urls[0]).openConnection() as HttpURLConnection
+            conn.doInput = true
+            return lineReader(conn)
+        } catch (e: IOException) {
+            e.printStackTrace()
+        }
+        return null
     }
 
-    override fun onReceive(context: Context, intent: Intent) {
-        if (intent.action == Intent.ACTION_PACKAGE_FULLY_REMOVED) {
-            sendAppWidgetUpdateBroadcast()
-        }
-        if (intent.action == Intent.ACTION_PACKAGE_ADDED) {
-            if (!intent.getBooleanExtra(Intent.EXTRA_REPLACING, false)) {
-                sendAppWidgetUpdateBroadcast()
-            }
-        }
-        if (intent.action == Intent.ACTION_SCREEN_OFF && componentName != null) {
-            context.startService(Intent(context, DisplayListenerService::class.java))
-
-            val screenIntent = Intent(Intent.ACTION_MAIN)
-            screenIntent.addCategory(Intent.CATEGORY_LAUNCHER)
-            screenIntent.component = componentName
-            val options = ActivityOptions.makeBasic().setLaunchDisplayId(0)
-            screenIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-            screenIntent.addFlags(Intent.FLAG_ACTIVITY_MULTIPLE_TASK)
-            screenIntent.addFlags(Intent.FLAG_ACTIVITY_FORWARD_RESULT)
-            screenIntent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION)
-            context.startActivity(screenIntent, options.toBundle())
-
-            componentName = null
-            SamSprung.context.unregisterReceiver(this)
+    override fun onPostExecute(result: String?) {
+        super.onPostExecute(result)
+        if (listener != null) {
+            listener!!.onRequestCommitFinished(result)
         }
     }
 
-    private fun sendAppWidgetUpdateBroadcast() {
-        val updateIntent = Intent(SamSprung.context, StepCoverAppWidget::class.java)
-        updateIntent.action = AppWidgetManager.ACTION_APPWIDGET_UPDATE
-        updateIntent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS,
-            AppWidgetManager.getInstance(SamSprung.context).getAppWidgetIds(
-            ComponentName(SamSprung.context, StepCoverAppWidget::class.java))
+    fun setListener(listener: RequestCommitListener?): RequestLatestCommit {
+        this.listener = listener
+        return this
+    }
+
+    interface RequestCommitListener {
+        fun onRequestCommitFinished(result: String?)
+    }
+
+    @Throws(IOException::class)
+    private fun lineReader(conn: HttpURLConnection): String? {
+        val `in` = conn.inputStream
+        val streamReader = BufferedReader(
+            InputStreamReader(`in`, StandardCharsets.UTF_8)
         )
-        SamSprung.context.sendBroadcast(updateIntent)
+        val responseStrBuilder = StringBuilder()
+        var inputStr: String?
+        while (streamReader.readLine().also { inputStr = it } != null) responseStrBuilder.append(
+            inputStr
+        )
+        return responseStrBuilder.toString()
     }
 }

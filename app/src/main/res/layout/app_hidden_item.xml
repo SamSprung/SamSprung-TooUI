@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="52dp"
     android:orientation="horizontal"
-    tools:context=".SettingsActivity"
+    tools:context=".samsprung.CoverSettingsActivity"
     tools:ignore="UseCompoundDrawables">
 
         <ImageView

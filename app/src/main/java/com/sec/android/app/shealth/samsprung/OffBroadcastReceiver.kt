@@ -1,4 +1,4 @@
-package com.sec.android.app.shealth
+package com.sec.android.app.shealth.samsprung
 
 /* ====================================================================
  * Copyright (c) 2012-2021 AbandonedCart.  All rights reserved.
@@ -51,41 +51,57 @@ package com.sec.android.app.shealth
  * subject to to the terms and conditions of the Apache License, Version 2.0.
  */
 
+import android.app.ActivityOptions
 import android.appwidget.AppWidgetManager
+import android.content.BroadcastReceiver
 import android.content.ComponentName
+import android.content.Context
 import android.content.Intent
-import android.os.IBinder
-import android.service.notification.NotificationListenerService
-import android.service.notification.StatusBarNotification
 import com.samsung.android.app.shealth.tracker.pedometer.service.coverwidget.StepCoverAppWidget
+import com.sec.android.app.shealth.SamSprung
 
 
-class NotificationListener : NotificationListenerService() {
+class OffBroadcastReceiver : BroadcastReceiver {
+    private var componentName : ComponentName? = null
 
-    override fun onBind(intent: Intent?): IBinder? {
-        return super.onBind(intent)
+    constructor()
+    constructor(componentName: ComponentName) {
+        this.componentName = componentName
     }
 
-    override fun onNotificationPosted(sbn: StatusBarNotification) {
-        if (!SamSprung.notices.contains(sbn.packageName))
-            SamSprung.notices.add(sbn.packageName)
-        sendAppWidgetUpdateBroadcast()
-    }
+    override fun onReceive(context: Context, intent: Intent) {
+        if (intent.action == Intent.ACTION_PACKAGE_FULLY_REMOVED) {
+            sendAppWidgetUpdateBroadcast()
+        }
+        if (intent.action == Intent.ACTION_PACKAGE_ADDED) {
+            if (!intent.getBooleanExtra(Intent.EXTRA_REPLACING, false)) {
+                sendAppWidgetUpdateBroadcast()
+            }
+        }
+        if (intent.action == Intent.ACTION_SCREEN_OFF && componentName != null) {
+            context.startService(Intent(context, DisplayListenerService::class.java))
 
-    override fun onNotificationRemoved(sbn: StatusBarNotification) {
-        if (SamSprung.notices.contains(sbn.packageName))
-            SamSprung.notices.remove(sbn.packageName)
-        sendAppWidgetUpdateBroadcast()
+            val screenIntent = Intent(Intent.ACTION_MAIN)
+            screenIntent.addCategory(Intent.CATEGORY_LAUNCHER)
+            screenIntent.component = componentName
+            val options = ActivityOptions.makeBasic().setLaunchDisplayId(0)
+            screenIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            screenIntent.addFlags(Intent.FLAG_ACTIVITY_MULTIPLE_TASK)
+            screenIntent.addFlags(Intent.FLAG_ACTIVITY_FORWARD_RESULT)
+            screenIntent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION)
+            context.startActivity(screenIntent, options.toBundle())
+
+            componentName = null
+            SamSprung.context.unregisterReceiver(this)
+        }
     }
 
     private fun sendAppWidgetUpdateBroadcast() {
         val updateIntent = Intent(SamSprung.context, StepCoverAppWidget::class.java)
         updateIntent.action = AppWidgetManager.ACTION_APPWIDGET_UPDATE
-        updateIntent.putExtra(
-            AppWidgetManager.EXTRA_APPWIDGET_IDS,
+        updateIntent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS,
             AppWidgetManager.getInstance(SamSprung.context).getAppWidgetIds(
-                ComponentName(SamSprung.context, StepCoverAppWidget::class.java)
-            )
+            ComponentName(SamSprung.context, StepCoverAppWidget::class.java))
         )
         SamSprung.context.sendBroadcast(updateIntent)
     }
