@@ -233,11 +233,9 @@ class DisplayListenerService : Service() {
     private fun showUpdateNotification() {
         var mNotificationManager: NotificationManager? = null
 
-        val pendingIntent = PendingIntent.getActivity(
-            SamSprung.context, 1,
+        val pendingIntent = PendingIntent.getActivity(SamSprung.context, 0,
             Intent(SamSprung.context, GithubInstallActivity::class.java),
-            PendingIntent.FLAG_ONE_SHOT
-        )
+            PendingIntent.FLAG_ONE_SHOT)
         val iconNotification = BitmapFactory.decodeResource(
             SamSprung.context.resources, R.mipmap.s_health_icon)
         if (mNotificationManager == null) {

@@ -58,11 +58,8 @@ import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageInstaller
-import android.media.AudioManager
-import android.media.ToneGenerator
 import android.widget.Toast
 import com.samsung.android.app.shealth.tracker.pedometer.service.coverwidget.StepCoverAppWidget
-import com.sec.android.app.shealth.R
 import com.sec.android.app.shealth.SamSprung
 
 
@@ -92,9 +89,9 @@ class OffBroadcastReceiver : BroadcastReceiver {
                         context.startActivity(activityIntent.addFlags(
                             Intent.FLAG_ACTIVITY_NEW_TASK))
                 }
-                PackageInstaller.STATUS_SUCCESS ->
+                PackageInstaller.STATUS_SUCCESS -> {
                     // Installation was successful
-                else -> {
+                } else -> {
                     Toast.makeText(
                         SamSprung.context,
                         intent.getStringExtra(PackageInstaller.EXTRA_STATUS_MESSAGE),

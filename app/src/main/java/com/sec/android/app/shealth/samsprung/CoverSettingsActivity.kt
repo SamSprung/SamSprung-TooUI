@@ -53,6 +53,7 @@ package com.sec.android.app.shealth.samsprung
 
 import android.Manifest
 import android.app.KeyguardManager
+import android.app.PendingIntent
 import android.appwidget.AppWidgetManager
 import android.content.ComponentName
 import android.content.Context
@@ -71,8 +72,11 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.samsung.android.app.shealth.tracker.pedometer.service.coverwidget.StepCoverAppWidget
+import com.sec.android.app.shealth.BuildConfig
 import com.sec.android.app.shealth.R
 import com.sec.android.app.shealth.SamSprung
+import org.json.JSONObject
+import org.json.JSONTokener
 import java.io.BufferedReader
 import java.io.File
 import java.io.FileOutputStream
@@ -86,6 +90,21 @@ class CoverSettingsActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.step_widget_edit)
+
+//        @Suppress("DEPRECATION")
+//        RequestLatestCommit().setListener(object : RequestLatestCommit.RequestCommitListener {
+//            override fun onRequestCommitFinished(result: String?) {
+//                try {
+//                    val jsonObject = JSONTokener(result).nextValue() as JSONObject
+//                    val sha: String = (jsonObject.get("object") as JSONObject).get("sha") as String
+//                    val commit = sha.substring(0,7)
+//                    if (commit != BuildConfig.COMMIT)
+//                        startActivity(Intent(SamSprung.context, GithubInstallActivity::class.java))
+//                } catch (e: Exception) {
+//                    e.printStackTrace()
+//                }
+//            }
+//        }).execute(getString(R.string.git_url))
 
         if (isDeviceSecure()) {
             Toast.makeText(
