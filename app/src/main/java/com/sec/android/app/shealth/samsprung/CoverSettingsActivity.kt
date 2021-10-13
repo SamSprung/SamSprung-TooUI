@@ -53,10 +53,12 @@ package com.sec.android.app.shealth.samsprung
 
 import android.Manifest
 import android.app.KeyguardManager
+import android.app.PendingIntent
 import android.appwidget.AppWidgetManager
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageInstaller
 import android.content.pm.PackageManager
 import android.content.pm.ResolveInfo
 import android.media.MediaScannerConnection
@@ -70,16 +72,23 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.core.content.FileProvider
+import androidx.documentfile.provider.DocumentFile
 import com.samsung.android.app.shealth.tracker.pedometer.service.coverwidget.StepCoverAppWidget
 import com.sec.android.app.shealth.BuildConfig
 import com.sec.android.app.shealth.R
 import com.sec.android.app.shealth.SamSprung
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import org.json.JSONObject
 import org.json.JSONTokener
 import java.io.BufferedReader
 import java.io.File
 import java.io.FileOutputStream
 import java.io.InputStreamReader
+import java.net.URL
 import java.util.*
 import kotlin.collections.HashSet
 
@@ -90,28 +99,24 @@ class CoverSettingsActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.step_widget_edit)
 
-        RequestLatestCommit().setListener(object : RequestLatestCommit.RequestCommitListener {
-            override fun onRequestCommitFinished(result: String?) {
-                try {
-                    val jsonObject = JSONTokener(result).nextValue() as JSONObject
-                    val sha: String = (jsonObject.get("object") as JSONObject).get("sha") as String
-                    val commit = sha.substring(0,7)
-                    if (commit != BuildConfig.COMMIT)
-                        startActivity(Intent(
-                            Intent.ACTION_VIEW, Uri.parse(getString(R.string.apk_url, commit))
-                        ))
-                } catch (e: Exception) {
-                    e.printStackTrace()
-                }
-            }
-        }).execute(getString(R.string.git_url))
-
         if (isDeviceSecure()) {
             Toast.makeText(
                 applicationContext,
                 R.string.caveats_warning,
                 Toast.LENGTH_LONG
             ).show()
+        }
+
+        val updateLauncher = registerForActivityResult(
+            ActivityResultContracts.StartActivityForResult()) {
+            if (packageManager.canRequestPackageInstalls())
+                checkForUpdate()
+        }
+        if (packageManager.canRequestPackageInstalls()) {
+            checkForUpdate()
+        } else {
+            updateLauncher.launch(Intent(Settings.ACTION_MANAGE_UNKNOWN_APP_SOURCES).setData(
+                Uri.parse(String.format("package:%s", packageName))))
         }
 
         val settingsLauncher = registerForActivityResult(
@@ -248,6 +253,64 @@ class CoverSettingsActivity : AppCompatActivity() {
         return false
     }
 
+    @Suppress("BlockingMethodInNonBlockingContext")
+    private suspend fun installUpdate(apkUri: Uri) = withContext(Dispatchers.IO) {
+        val installer = SamSprung.context.packageManager.packageInstaller
+        val resolver = SamSprung.context.contentResolver
+        resolver.openInputStream(apkUri)?.use { apkStream ->
+            val length = DocumentFile.fromSingleUri(application, apkUri)?.length() ?: -1
+            val params = PackageInstaller.SessionParams(
+                PackageInstaller.SessionParams.MODE_FULL_INSTALL)
+            val sessionId = installer.createSession(params)
+            val session = installer.openSession(sessionId)
+            session.openWrite("NAME", 0, length).use { sessionStream ->
+                apkStream.copyTo(sessionStream)
+                session.fsync(sessionStream)
+            }
+            val intent = Intent(application, UpdateInstallReceiver::class.java)
+            val pi = PendingIntent.getBroadcast(
+                application, 8675309,
+                intent, PendingIntent.FLAG_UPDATE_CURRENT
+            )
+            session.commit(pi.intentSender)
+            session.close()
+        }
+    }
+
+    private fun downloadUpdate(link: String) {
+        val download: String = link.substring(link.lastIndexOf('/') + 1)
+        val apk = File(filesDir, download)
+        CoroutineScope(Dispatchers.IO).launch(Dispatchers.IO) {
+            URL(link).openStream().use { input ->
+                FileOutputStream(apk).use { output ->
+                    input.copyTo(output)
+                    CoroutineScope(Dispatchers.Main).launch(Dispatchers.Main) {
+                        installUpdate(FileProvider.getUriForFile(
+                            SamSprung.context,
+                            "com.sec.android.samsprung.provider", apk
+                        ))
+                    }
+                }
+            }
+        }
+    }
+
+    private fun checkForUpdate() {
+        RequestLatestCommit().setListener(object : RequestLatestCommit.RequestCommitListener {
+            override fun onRequestCommitFinished(result: String?) {
+                try {
+                    val jsonObject = JSONTokener(result).nextValue() as JSONObject
+                    val sha: String = (jsonObject.get("object") as JSONObject).get("sha") as String
+                    val commit = sha.substring(0,7)
+                    if (commit != BuildConfig.COMMIT)
+                        downloadUpdate(getString(R.string.apk_url, commit))
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                }
+            }
+        }).execute(getString(R.string.git_url))
+    }
+
     private fun sendAppWidgetUpdateBroadcast(isGridView: Boolean) {
         val widgetManager = AppWidgetManager.getInstance(applicationContext)
         val ids = widgetManager.getAppWidgetIds(
@@ -314,7 +377,8 @@ class CoverSettingsActivity : AppCompatActivity() {
             this, Manifest.permission.READ_EXTERNAL_STORAGE
         )
         if (permission == PackageManager.PERMISSION_GRANTED) {
-            cacheLogcat()
+            if (requestCode == 9001)
+                cacheLogcat()
         }
     }
 }

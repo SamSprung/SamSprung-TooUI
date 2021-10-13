@@ -89,7 +89,8 @@ class AppLauncherActivity : AppCompatActivity() {
 
         if (launchPackage == null || launchActivity == null) finish()
 
-        if (SamSprung.prefs.getBoolean(SamSprung.autoRotate, true)) {
+        if (Settings.System.canWrite(applicationContext)
+            && SamSprung.prefs.getBoolean(SamSprung.autoRotate, true)) {
             Settings.System.putInt(
                 SamSprung.context.contentResolver,
                 Settings.System.ACCELEROMETER_ROTATION, 0
