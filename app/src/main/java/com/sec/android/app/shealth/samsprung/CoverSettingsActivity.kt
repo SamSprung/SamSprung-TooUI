@@ -71,11 +71,8 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.samsung.android.app.shealth.tracker.pedometer.service.coverwidget.StepCoverAppWidget
-import com.sec.android.app.shealth.BuildConfig
 import com.sec.android.app.shealth.R
 import com.sec.android.app.shealth.SamSprung
-import org.json.JSONObject
-import org.json.JSONTokener
 import java.io.BufferedReader
 import java.io.File
 import java.io.FileOutputStream
@@ -97,20 +94,6 @@ class CoverSettingsActivity : AppCompatActivity() {
                 Toast.LENGTH_LONG
             ).show()
         }
-
-        RequestLatestCommit().setListener(object : RequestLatestCommit.RequestCommitListener {
-            override fun onRequestCommitFinished(result: String?) {
-                try {
-                    val jsonObject = JSONTokener(result).nextValue() as JSONObject
-                    val sha: String = (jsonObject.get("object") as JSONObject).get("sha") as String
-                    val commit = sha.substring(0,7)
-                    if (commit != BuildConfig.COMMIT)
-                        SamSprung.updateNotification()
-                } catch (e: Exception) {
-                    e.printStackTrace()
-                }
-            }
-        }).execute(getString(com.sec.android.app.shealth.R.string.git_url))
 
         val settingsLauncher = registerForActivityResult(
             ActivityResultContracts.StartActivityForResult()) {

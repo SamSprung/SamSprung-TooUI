@@ -95,10 +95,9 @@
                 android:value="ongoing,silent">
             </meta-data>
         </service>
-        <receiver android:name=".samsprung.UpdateInstallReceiver" />
         <meta-data
             android:name="com.android.packageinstaller.notification.smallIcon"
-            android:resource="@drawable/ic_widget_preview" />
+            android:resource="@mipmap/s_health_icon" />
 
         <provider
             android:name="androidx.core.content.FileProvider"

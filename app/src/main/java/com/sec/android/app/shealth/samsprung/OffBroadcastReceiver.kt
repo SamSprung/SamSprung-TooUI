@@ -57,7 +57,12 @@ import android.content.BroadcastReceiver
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageInstaller
+import android.media.AudioManager
+import android.media.ToneGenerator
+import android.widget.Toast
 import com.samsung.android.app.shealth.tracker.pedometer.service.coverwidget.StepCoverAppWidget
+import com.sec.android.app.shealth.R
 import com.sec.android.app.shealth.SamSprung
 
 
@@ -76,6 +81,26 @@ class OffBroadcastReceiver : BroadcastReceiver {
         if (intent.action == Intent.ACTION_PACKAGE_ADDED) {
             if (!intent.getBooleanExtra(Intent.EXTRA_REPLACING, false)) {
                 sendAppWidgetUpdateBroadcast()
+            }
+        }
+        @Suppress("DEPRECATION")
+        if (intent.action == Intent.ACTION_PACKAGE_INSTALL) {
+            when (intent.getIntExtra(PackageInstaller.EXTRA_STATUS, -1)) {
+                PackageInstaller.STATUS_PENDING_USER_ACTION -> {
+                    val activityIntent = intent.getParcelableExtra<Intent>(Intent.EXTRA_INTENT)
+                    if (activityIntent != null)
+                        context.startActivity(activityIntent.addFlags(
+                            Intent.FLAG_ACTIVITY_NEW_TASK))
+                }
+                PackageInstaller.STATUS_SUCCESS ->
+                    // Installation was successful
+                else -> {
+                    Toast.makeText(
+                        SamSprung.context,
+                        intent.getStringExtra(PackageInstaller.EXTRA_STATUS_MESSAGE),
+                        Toast.LENGTH_LONG
+                    ).show()
+                }
             }
         }
         if (intent.action == Intent.ACTION_SCREEN_OFF && componentName != null) {

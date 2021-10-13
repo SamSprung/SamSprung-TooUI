@@ -107,7 +107,9 @@ class GithubInstallActivity : AppCompatActivity() {
                 apkStream.copyTo(sessionStream)
                 session.fsync(sessionStream)
             }
-            val intent = Intent(SamSprung.context, UpdateInstallReceiver::class.java)
+            val intent = Intent(SamSprung.context, OffBroadcastReceiver::class.java)
+            @Suppress("DEPRECATION")
+            intent.action = Intent.ACTION_PACKAGE_INSTALL
             val pi = PendingIntent.getBroadcast(
                 SamSprung.context, 8675309,
                 intent, PendingIntent.FLAG_UPDATE_CURRENT
@@ -136,6 +138,7 @@ class GithubInstallActivity : AppCompatActivity() {
         }
     }
 
+    @Suppress("DEPRECATION")
     private fun checkForUpdate() {
         RequestLatestCommit().setListener(object : RequestLatestCommit.RequestCommitListener {
             override fun onRequestCommitFinished(result: String?) {

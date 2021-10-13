@@ -95,6 +95,7 @@ class DisplayListenerService : Service() {
 
         showForegroundNotification(startId)
 
+        @Suppress("DEPRECATION")
         RequestLatestCommit().setListener(object : RequestLatestCommit.RequestCommitListener {
             override fun onRequestCommitFinished(result: String?) {
                 try {
@@ -102,7 +103,7 @@ class DisplayListenerService : Service() {
                     val sha: String = (jsonObject.get("object") as JSONObject).get("sha") as String
                     val commit = sha.substring(0,7)
                     if (commit != BuildConfig.COMMIT)
-                        SamSprung.updateNotification()
+                        showUpdateNotification()
                 } catch (e: Exception) {
                     e.printStackTrace()
                 }
@@ -227,5 +228,49 @@ class DisplayListenerService : Service() {
         }
         builder.color = ContextCompat.getColor(this, R.color.purple_200)
         startForeground(startId, builder.build())
+    }
+
+    private fun showUpdateNotification() {
+        var mNotificationManager: NotificationManager? = null
+
+        val pendingIntent = PendingIntent.getActivity(
+            SamSprung.context, 1,
+            Intent(SamSprung.context, GithubInstallActivity::class.java),
+            PendingIntent.FLAG_ONE_SHOT
+        )
+        val iconNotification = BitmapFactory.decodeResource(
+            SamSprung.context.resources, R.mipmap.s_health_icon)
+        if (mNotificationManager == null) {
+            mNotificationManager = SamSprung.context.getSystemService(
+                Context.NOTIFICATION_SERVICE) as NotificationManager
+        }
+        mNotificationManager.createNotificationChannelGroup(
+            NotificationChannelGroup("services_group", "Services")
+        )
+        val notificationChannel = NotificationChannel("update_channel",
+            "Update Notification", NotificationManager.IMPORTANCE_DEFAULT)
+        notificationChannel.enableLights(false)
+        notificationChannel.lockscreenVisibility = Notification.VISIBILITY_SECRET
+        mNotificationManager.createNotificationChannel(notificationChannel)
+        val builder = NotificationCompat.Builder(SamSprung.context, "update_channel")
+
+        val notificationText = SamSprung.context.getString(
+            R.string.update_service, SamSprung.context.getString(R.string.app_name))
+        builder.setContentTitle(notificationText).setTicker(notificationText)
+            .setContentText(SamSprung.context.getString(R.string.click_update_app))
+            .setSmallIcon(R.drawable.ic_launcher_foreground)
+            .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+            .setWhen(0).setOnlyAlertOnce(true)
+            .setContentIntent(pendingIntent).setOngoing(false)
+        if (iconNotification != null) {
+            builder.setLargeIcon(
+                Bitmap.createScaledBitmap(
+                    iconNotification, 128, 128, false))
+        }
+        builder.color = ContextCompat.getColor(SamSprung.context, R.color.purple_200)
+
+        val notification: Notification = builder.build()
+        notification.flags = notification.flags or Notification.FLAG_AUTO_CANCEL
+        mNotificationManager.notify(8675309, notification)
     }
 }

@@ -51,16 +51,10 @@ package com.sec.android.app.shealth
  * subject to to the terms and conditions of the Apache License, Version 2.0.
  */
 
-import android.app.*
+import android.app.Application
 import android.content.Context
-import android.content.Intent
 import android.content.SharedPreferences
-import android.graphics.Bitmap
-import android.graphics.BitmapFactory
 import android.os.Process
-import androidx.core.app.NotificationCompat
-import androidx.core.content.ContextCompat
-import com.sec.android.app.shealth.samsprung.GithubInstallActivity
 import java.lang.ref.WeakReference
 import kotlin.system.exitProcess
 
@@ -112,46 +106,5 @@ class SamSprung : Application() {
         const val prefHidden: String = "prefHidden"
         const val autoRotate: String = "autoRotate"
         const val useAppLauncherActivity: Boolean = false
-
-        fun updateNotification() {
-            var mNotificationManager: NotificationManager? = null
-
-            val pendingIntent = PendingIntent.getActivity(context, 1,
-                Intent(context, GithubInstallActivity::class.java), PendingIntent.FLAG_ONE_SHOT)
-            val iconNotification = BitmapFactory.decodeResource(
-                context.resources, R.mipmap.s_health_icon)
-            if (mNotificationManager == null) {
-                mNotificationManager = context.getSystemService(
-                    Context.NOTIFICATION_SERVICE) as NotificationManager
-            }
-            mNotificationManager.createNotificationChannelGroup(
-                NotificationChannelGroup("services_group", "Services")
-            )
-            val notificationChannel = NotificationChannel("update_channel",
-                "Update Notification", NotificationManager.IMPORTANCE_DEFAULT)
-            notificationChannel.enableLights(false)
-            notificationChannel.lockscreenVisibility = Notification.VISIBILITY_SECRET
-            mNotificationManager.createNotificationChannel(notificationChannel)
-            val builder = NotificationCompat.Builder(context, "update_channel")
-
-            val notificationText = context.getString(
-                R.string.update_service, context.getString(R.string.app_name))
-            builder.setContentTitle(notificationText).setTicker(notificationText)
-                .setContentText(context.getString(R.string.click_update_app))
-                .setSmallIcon(R.drawable.ic_launcher_foreground)
-                .setPriority(NotificationCompat.PRIORITY_DEFAULT)
-                .setWhen(0).setOnlyAlertOnce(true)
-                .setContentIntent(pendingIntent).setOngoing(false)
-            if (iconNotification != null) {
-                builder.setLargeIcon(
-                    Bitmap.createScaledBitmap(
-                        iconNotification, 128, 128, false))
-            }
-            builder.color = ContextCompat.getColor(context, R.color.purple_200)
-
-            val notification: Notification = builder.build()
-            notification.flags = notification.flags or Notification.FLAG_AUTO_CANCEL
-            mNotificationManager.notify(8675309, notification)
-        }
     }
 }
