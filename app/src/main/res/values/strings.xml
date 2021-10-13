@@ -10,7 +10,9 @@
     <string name="cache_logcat">Save a Logcat Print to Cache</string>
     <string name="hide_package">%1$s hidden!</string>
     <string name="show_package">%1$s visible!</string>
-    <string name="display_service">&#160;Display Service</string>
+    <string name="display_service">%1$s Display Service</string>
     <string name="click_stop_service">Click to Stop Service</string>
+    <string name="update_service">%1$s Update Service</string>
+    <string name="click_update_app">Click to Update Package</string>
     <string name="loading_text">Loading&#8230;</string>
 </resources>

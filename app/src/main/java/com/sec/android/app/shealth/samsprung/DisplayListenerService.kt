@@ -62,12 +62,15 @@ import android.os.*
 import android.provider.Settings
 import androidx.core.app.NotificationCompat
 import androidx.core.content.ContextCompat
+import com.sec.android.app.shealth.BuildConfig
 import com.sec.android.app.shealth.R
 import com.sec.android.app.shealth.SamSprung
+import org.json.JSONObject
+import org.json.JSONTokener
 import kotlin.system.exitProcess
 
 
-class DisplayListenerService() : Service() {
+class DisplayListenerService : Service() {
 
     private val coverLock = "cover_lock"
     private var mDisplayListener: DisplayManager.DisplayListener? = null
@@ -91,6 +94,20 @@ class DisplayListenerService() : Service() {
             return dismissDisplayListener(displayManager, mKeyguardLock)
 
         showForegroundNotification(startId)
+
+        RequestLatestCommit().setListener(object : RequestLatestCommit.RequestCommitListener {
+            override fun onRequestCommitFinished(result: String?) {
+                try {
+                    val jsonObject = JSONTokener(result).nextValue() as JSONObject
+                    val sha: String = (jsonObject.get("object") as JSONObject).get("sha") as String
+                    val commit = sha.substring(0,7)
+                    if (commit != BuildConfig.COMMIT)
+                        SamSprung.updateNotification()
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                }
+            }
+        }).execute(getString(R.string.git_url))
 
         mDisplayListener = object : DisplayManager.DisplayListener {
             override fun onDisplayAdded(display: Int) {}
@@ -178,29 +195,26 @@ class DisplayListenerService() : Service() {
         return START_NOT_STICKY
     }
 
-    private var iconNotification: Bitmap? = null
-    private var mNotificationManager: NotificationManager? = null
-
     private fun showForegroundNotification(startId: Int) {
+        var mNotificationManager: NotificationManager? = null
         val pendingIntent = PendingIntent.getService(this, 0,
             Intent(this, DisplayListenerService::class.java), 0)
-        iconNotification = BitmapFactory.decodeResource(resources, R.mipmap.s_health_icon)
+        val iconNotification = BitmapFactory.decodeResource(resources, R.mipmap.s_health_icon)
         if (mNotificationManager == null) {
             mNotificationManager = getSystemService(
                 Context.NOTIFICATION_SERVICE) as NotificationManager
         }
-        mNotificationManager!!.createNotificationChannelGroup(
+        mNotificationManager.createNotificationChannelGroup(
             NotificationChannelGroup("services_group", "Services")
         )
         val notificationChannel = NotificationChannel("service_channel",
             "Service Notification", NotificationManager.IMPORTANCE_LOW)
         notificationChannel.enableLights(false)
         notificationChannel.lockscreenVisibility = Notification.VISIBILITY_SECRET
-        mNotificationManager!!.createNotificationChannel(notificationChannel)
+        mNotificationManager.createNotificationChannel(notificationChannel)
         val builder = NotificationCompat.Builder(this, "service_channel")
 
-        val notificationText = StringBuilder(resources.getString(R.string.app_name))
-            .append(R.string.display_service).toString()
+        val notificationText = getString(R.string.display_service, getString(R.string.app_name))
         builder.setContentTitle(notificationText).setTicker(notificationText)
             .setContentText(getString(R.string.click_stop_service))
             .setSmallIcon(R.drawable.ic_launcher_foreground)
@@ -209,7 +223,7 @@ class DisplayListenerService() : Service() {
             .setContentIntent(pendingIntent).setOngoing(true)
         if (iconNotification != null) {
             builder.setLargeIcon(Bitmap.createScaledBitmap(
-                iconNotification!!, 128, 128, false))
+                iconNotification, 128, 128, false))
         }
         builder.color = ContextCompat.getColor(this, R.color.purple_200)
         startForeground(startId, builder.build())
