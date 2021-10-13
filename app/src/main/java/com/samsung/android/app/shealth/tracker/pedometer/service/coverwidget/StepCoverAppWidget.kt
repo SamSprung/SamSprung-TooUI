@@ -66,7 +66,10 @@ import android.view.View
 import android.widget.RemoteViews
 import com.sec.android.app.shealth.R
 import com.sec.android.app.shealth.SamSprung
-import com.sec.android.app.shealth.samsprung.*
+import com.sec.android.app.shealth.samsprung.AppLauncherActivity
+import com.sec.android.app.shealth.samsprung.AppLauncherService
+import com.sec.android.app.shealth.samsprung.DisplayListenerService
+import com.sec.android.app.shealth.samsprung.OffBroadcastReceiver
 
 
 class StepCoverAppWidget: AppWidgetProvider() {
