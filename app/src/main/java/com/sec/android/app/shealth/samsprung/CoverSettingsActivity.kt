@@ -129,21 +129,6 @@ class CoverSettingsActivity : AppCompatActivity() {
             }
         }
 
-        val noticesLauncher = registerForActivityResult(
-            ActivityResultContracts.StartActivityForResult()) {
-            if (!Settings.canDrawOverlays(applicationContext)) {
-                overlayLauncher.launch(Intent(
-                    Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
-                    Uri.parse("package:$packageName")
-                ))
-            } else if (!Settings.System.canWrite(applicationContext)) {
-                settingsLauncher.launch(Intent(
-                    Settings.ACTION_MANAGE_WRITE_SETTINGS,
-                    Uri.parse("package:$packageName")
-                ))
-            }
-        }
-
         findViewById<Button>(R.id.openSettings).setOnClickListener {
             if (isNotificationListenerEnabled()) {
                 if (Settings.canDrawOverlays(applicationContext)) {
@@ -166,7 +151,20 @@ class CoverSettingsActivity : AppCompatActivity() {
                     ))
                 }
             } else {
-                noticesLauncher.launch(Intent(
+                registerForActivityResult(
+                    ActivityResultContracts.StartActivityForResult()) {
+                    if (!Settings.canDrawOverlays(applicationContext)) {
+                        overlayLauncher.launch(Intent(
+                            Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
+                            Uri.parse("package:$packageName")
+                        ))
+                    } else if (!Settings.System.canWrite(applicationContext)) {
+                        settingsLauncher.launch(Intent(
+                            Settings.ACTION_MANAGE_WRITE_SETTINGS,
+                            Uri.parse("package:$packageName")
+                        ))
+                    }
+                }.launch(Intent(
                     Settings.ACTION_NOTIFICATION_LISTENER_SETTINGS
                 ))
             }

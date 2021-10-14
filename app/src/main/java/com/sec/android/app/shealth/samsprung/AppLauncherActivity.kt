@@ -129,18 +129,17 @@ class AppLauncherActivity : AppCompatActivity() {
         }
         wIRCA.addWindowLayoutInfoListener(runOnUiThreadExecutor(), windowWasher)
 
-        val overlayLauncher = registerForActivityResult(
-            ActivityResultContracts.StartActivityForResult()) {
-            if (Settings.canDrawOverlays(SamSprung.context))  {
-                launchWidgetActivity(launchActivity, launchPackage)
-                fakeOrientationLock(ActivityInfo.SCREEN_ORIENTATION_USER_PORTRAIT)
-            }
-        }
         if (Settings.canDrawOverlays(SamSprung.context)) {
             launchWidgetActivity(launchActivity, launchPackage)
             fakeOrientationLock(ActivityInfo.SCREEN_ORIENTATION_USER_PORTRAIT)
         } else {
-            overlayLauncher.launch(Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
+            registerForActivityResult(
+                ActivityResultContracts.StartActivityForResult()) {
+                if (Settings.canDrawOverlays(SamSprung.context))  {
+                    launchWidgetActivity(launchActivity, launchPackage)
+                    fakeOrientationLock(ActivityInfo.SCREEN_ORIENTATION_USER_PORTRAIT)
+                }
+            }.launch(Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
                 Uri.parse("package:$packageName")))
         }
     }

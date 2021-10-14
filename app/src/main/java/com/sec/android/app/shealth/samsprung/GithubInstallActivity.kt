@@ -80,15 +80,14 @@ class GithubInstallActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        val updateLauncher = registerForActivityResult(
-            ActivityResultContracts.StartActivityForResult()) {
-            if (packageManager.canRequestPackageInstalls())
-                checkForUpdate()
-        }
         if (packageManager.canRequestPackageInstalls()) {
             checkForUpdate()
         } else {
-            updateLauncher.launch(Intent(Settings.ACTION_MANAGE_UNKNOWN_APP_SOURCES).setData(
+            registerForActivityResult(
+                ActivityResultContracts.StartActivityForResult()) {
+                if (packageManager.canRequestPackageInstalls())
+                    checkForUpdate()
+            }.launch(Intent(Settings.ACTION_MANAGE_UNKNOWN_APP_SOURCES).setData(
                 Uri.parse(String.format("package:%s", packageName))))
         }
     }
