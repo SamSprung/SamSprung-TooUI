@@ -1,4 +1,4 @@
-package com.sec.android.app.shealth.samsprung
+package com.sec.android.app.shealth
 
 /* ====================================================================
  * Copyright (c) 2012-2021 AbandonedCart.  All rights reserved.
@@ -66,8 +66,6 @@ import android.view.ViewGroup
 import android.widget.*
 import androidx.appcompat.widget.SwitchCompat
 import com.samsung.android.app.shealth.tracker.pedometer.service.coverwidget.StepCoverAppWidget
-import com.sec.android.app.shealth.R
-import com.sec.android.app.shealth.SamSprung
 
 
 class AppSelectionAdapter(

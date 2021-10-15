@@ -1,4 +1,4 @@
-package com.sec.android.app.shealth.samsprung
+package com.sec.android.app.shealth
 
 /* ====================================================================
  * Copyright (c) 2012-2021 AbandonedCart.  All rights reserved.
@@ -51,56 +51,42 @@ package com.sec.android.app.shealth.samsprung
  * subject to to the terms and conditions of the Apache License, Version 2.0.
  */
 
-import android.os.AsyncTask
-import java.io.BufferedReader
-import java.io.IOException
-import java.io.InputStreamReader
-import java.net.HttpURLConnection
-import java.net.URL
-import java.nio.charset.StandardCharsets
+import android.appwidget.AppWidgetManager
+import android.content.ComponentName
+import android.content.Intent
+import android.os.IBinder
+import android.service.notification.NotificationListenerService
+import android.service.notification.StatusBarNotification
+import com.samsung.android.app.shealth.tracker.pedometer.service.coverwidget.StepCoverAppWidget
 
-class RequestLatestCommit : AsyncTask<String, Int, String>() {
 
-    private var listener: RequestCommitListener? = null
+class NotificationListener : NotificationListenerService() {
 
-    override fun doInBackground(vararg urls: String?): String? {
-        try {
-            val conn = URL(urls[0]).openConnection() as HttpURLConnection
-            conn.doInput = true
-            return lineReader(conn)
-        } catch (e: IOException) {
-            e.printStackTrace()
-        }
-        return null
+    override fun onBind(intent: Intent?): IBinder? {
+        return super.onBind(intent)
     }
 
-    override fun onPostExecute(result: String?) {
-        super.onPostExecute(result)
-        if (listener != null) {
-            listener!!.onRequestCommitFinished(result)
-        }
+    override fun onNotificationPosted(sbn: StatusBarNotification) {
+        if (!SamSprung.notices.contains(sbn.packageName))
+            SamSprung.notices.add(sbn.packageName)
+        sendAppWidgetUpdateBroadcast()
     }
 
-    fun setListener(listener: RequestCommitListener?): RequestLatestCommit {
-        this.listener = listener
-        return this
+    override fun onNotificationRemoved(sbn: StatusBarNotification) {
+        if (SamSprung.notices.contains(sbn.packageName))
+            SamSprung.notices.remove(sbn.packageName)
+        sendAppWidgetUpdateBroadcast()
     }
 
-    interface RequestCommitListener {
-        fun onRequestCommitFinished(result: String?)
-    }
-
-    @Throws(IOException::class)
-    private fun lineReader(conn: HttpURLConnection): String? {
-        val `in` = conn.inputStream
-        val streamReader = BufferedReader(
-            InputStreamReader(`in`, StandardCharsets.UTF_8)
+    private fun sendAppWidgetUpdateBroadcast() {
+        val updateIntent = Intent(SamSprung.context, StepCoverAppWidget::class.java)
+        updateIntent.action = AppWidgetManager.ACTION_APPWIDGET_UPDATE
+        updateIntent.putExtra(
+            AppWidgetManager.EXTRA_APPWIDGET_IDS,
+            AppWidgetManager.getInstance(SamSprung.context).getAppWidgetIds(
+                ComponentName(SamSprung.context, StepCoverAppWidget::class.java)
+            )
         )
-        val responseStrBuilder = StringBuilder()
-        var inputStr: String?
-        while (streamReader.readLine().also { inputStr = it } != null) responseStrBuilder.append(
-            inputStr
-        )
-        return responseStrBuilder.toString()
+        SamSprung.context.sendBroadcast(updateIntent)
     }
 }

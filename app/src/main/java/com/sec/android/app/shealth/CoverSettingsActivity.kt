@@ -1,4 +1,4 @@
-package com.sec.android.app.shealth.samsprung
+package com.sec.android.app.shealth
 
 /* ====================================================================
  * Copyright (c) 2012-2021 AbandonedCart.  All rights reserved.
@@ -53,7 +53,6 @@ package com.sec.android.app.shealth.samsprung
 
 import android.Manifest
 import android.app.KeyguardManager
-import android.app.PendingIntent
 import android.appwidget.AppWidgetManager
 import android.content.ComponentName
 import android.content.Context
@@ -72,11 +71,6 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.samsung.android.app.shealth.tracker.pedometer.service.coverwidget.StepCoverAppWidget
-import com.sec.android.app.shealth.BuildConfig
-import com.sec.android.app.shealth.R
-import com.sec.android.app.shealth.SamSprung
-import org.json.JSONObject
-import org.json.JSONTokener
 import java.io.BufferedReader
 import java.io.File
 import java.io.FileOutputStream

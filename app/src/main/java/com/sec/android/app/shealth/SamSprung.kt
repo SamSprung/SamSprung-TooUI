@@ -100,7 +100,7 @@ class SamSprung : Application() {
         private lateinit var mPrefs: WeakReference<SharedPreferences>
         val context: Context get() = mContext.get()!!
         val prefs: SharedPreferences get() = mPrefs.get()!!
-        var notices: MutableList<String> = arrayListOf()
+        var notices: HashSet<String> = hashSetOf()
         const val prefScreen: String = "prefScreen"
         const val prefLayout: String = "prefLayout"
         const val prefHidden: String = "prefHidden"

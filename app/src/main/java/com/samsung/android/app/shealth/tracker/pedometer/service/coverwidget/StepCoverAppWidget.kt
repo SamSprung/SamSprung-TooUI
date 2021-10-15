@@ -66,10 +66,10 @@ import android.view.View
 import android.widget.RemoteViews
 import com.sec.android.app.shealth.R
 import com.sec.android.app.shealth.SamSprung
-import com.sec.android.app.shealth.samsprung.AppLauncherActivity
-import com.sec.android.app.shealth.samsprung.AppLauncherService
-import com.sec.android.app.shealth.samsprung.DisplayListenerService
-import com.sec.android.app.shealth.samsprung.OffBroadcastReceiver
+import com.sec.android.app.shealth.AppLauncherActivity
+import com.sec.android.app.shealth.AppCollectionService
+import com.sec.android.app.shealth.DisplayListenerService
+import com.sec.android.app.shealth.OffBroadcastReceiver
 
 
 class StepCoverAppWidget: AppWidgetProvider() {
@@ -177,7 +177,7 @@ class StepCoverAppWidget: AppWidgetProvider() {
             views.setViewVisibility(R.id.widgetGridView,
                 if (isGridView) View.VISIBLE else View.GONE)
 
-            val serviceIntent = Intent(context, AppLauncherService::class.java)
+            val serviceIntent = Intent(context, AppCollectionService::class.java)
             serviceIntent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId)
             serviceIntent.data = Uri.parse(serviceIntent.toUri(Intent.URI_INTENT_SCHEME))
             views.setRemoteAdapter(view, serviceIntent)

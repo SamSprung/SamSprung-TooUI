@@ -33,7 +33,7 @@
         <meta-data
             android:name="android.supports_size_changes" android:value="true" />
         <activity
-            android:name=".samsprung.CoverSettingsActivity"
+            android:name=".CoverSettingsActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -53,7 +53,7 @@
                 android:resource="@xml/cover_screen_widget" />
         </receiver>
         <activity
-            android:name=".samsprung.AppLauncherActivity"
+            android:name=".AppLauncherActivity"
             android:exported="true"
             android:configChanges="density|orientation|screenLayout|screenSize|smallestScreenSize|uiMode"
             android:resizeableActivity="true">
@@ -63,7 +63,7 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".samsprung.GithubInstallActivity"
+            android:name=".GithubInstallActivity"
             android:exported="true"
             android:configChanges="density|orientation|screenLayout|screenSize|smallestScreenSize|uiMode"
             android:resizeableActivity="true">
@@ -72,15 +72,15 @@
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
-        <receiver android:name=".samsprung.OffBroadcastReceiver" />
-        <service android:name=".samsprung.AppLauncherService"
+        <receiver android:name=".OffBroadcastReceiver" />
+        <service android:name=".AppCollectionService"
             android:exported="true"
             android:permission="android.permission.BIND_REMOTEVIEWS" />
-        <service android:name=".samsprung.DisplayListenerService"
+        <service android:name=".DisplayListenerService"
             android:exported="true"
             android:permission="android.permission.FOREGROUND_SERVICE" />
         <service
-            android:name=".samsprung.NotificationListener"
+            android:name=".NotificationListener"
             android:exported="true"
             android:permission="android.permission.BIND_NOTIFICATION_LISTENER_SERVICE" >
             <intent-filter>

@@ -1,4 +1,4 @@
-package com.sec.android.app.shealth.samsprung
+package com.sec.android.app.shealth
 
 /* ====================================================================
  * Copyright (c) 2012-2021 AbandonedCart.  All rights reserved.
@@ -67,12 +67,10 @@ import android.view.View
 import android.widget.RemoteViews
 import android.widget.RemoteViewsService
 import androidx.core.content.ContextCompat
-import com.sec.android.app.shealth.R
-import com.sec.android.app.shealth.SamSprung
 import java.util.*
 
 
-class AppLauncherService : RemoteViewsService() {
+class AppCollectionService : RemoteViewsService() {
 
     override fun onGetViewFactory(intent: Intent): RemoteViewsFactory {
         return StepRemoteViewsFactory(applicationContext)
@@ -89,8 +87,6 @@ class AppLauncherService : RemoteViewsService() {
             mainIntent = Intent(Intent.ACTION_MAIN, null)
             mainIntent.addCategory(Intent.CATEGORY_LAUNCHER)
             mainIntent.removeCategory(Intent.CATEGORY_HOME)
-
-            SamSprung.notices.clear()
 
             IntentFilter().apply {
                 addAction(Intent.ACTION_PACKAGE_ADDED)

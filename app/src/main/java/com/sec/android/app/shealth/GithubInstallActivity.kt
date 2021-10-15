@@ -1,4 +1,4 @@
-package com.sec.android.app.shealth.samsprung
+package com.sec.android.app.shealth
 
 /* ====================================================================
  * Copyright (c) 2012-2021 AbandonedCart.  All rights reserved.
@@ -61,9 +61,6 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.FileProvider
 import androidx.documentfile.provider.DocumentFile
-import com.sec.android.app.shealth.BuildConfig
-import com.sec.android.app.shealth.R
-import com.sec.android.app.shealth.SamSprung
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
