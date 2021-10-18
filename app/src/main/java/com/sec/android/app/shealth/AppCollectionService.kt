@@ -108,6 +108,7 @@ class AppCollectionService : RemoteViewsService() {
         override fun onDestroy() {
             SamSprung.context.unregisterReceiver(mReceiver)
             packages.clear()
+            SamSprung.notices.clear()
         }
 
         override fun getCount(): Int {

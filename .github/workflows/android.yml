@@ -37,7 +37,7 @@ jobs:
       env:
         # override default build-tools version (29.0.3) -- optional
         BUILD_TOOLS_VERSION: "30.0.2"
-        
+
     - name: Retrieve commit short hash
       run: |
          GIT_HASH=$(git rev-parse --short HEAD)
@@ -48,12 +48,11 @@ jobs:
       with:
         name: ZFlip-Launcher-${{ env.GIT_HASH }}
         path: ${{steps.sign_app.outputs.signedReleaseFile}}
-    
+
     - uses: marvinpinto/action-automatic-releases@v1.2.1
       with:
         repo_token: "${{ secrets.GITHUB_TOKEN }}"
         automatic_release_tag: "latest"
-        prerelease: false
+        prerelease: ${{ github.event_name == 'pull_request' }}
         title: SamSprung-${{ env.GIT_HASH }}
         files: ${{steps.sign_app.outputs.signedReleaseFile}}
-
