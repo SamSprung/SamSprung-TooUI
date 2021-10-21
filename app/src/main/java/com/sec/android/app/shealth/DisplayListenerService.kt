@@ -62,6 +62,7 @@ import android.os.*
 import android.provider.Settings
 import androidx.core.app.NotificationCompat
 import androidx.core.content.ContextCompat
+import org.json.JSONArray
 import org.json.JSONObject
 import org.json.JSONTokener
 import kotlin.system.exitProcess
@@ -97,10 +98,10 @@ class DisplayListenerService : Service() {
             override fun onRequestCommitFinished(result: String?) {
                 try {
                     val jsonObject = JSONTokener(result).nextValue() as JSONObject
-                    val sha: String = (jsonObject.get("object") as JSONObject).get("sha") as String
-                    val commit = sha.substring(0,7)
-                    if (commit != BuildConfig.COMMIT)
+                    val commit = (jsonObject["name"] as String).substring(10)
+                    if (commit != BuildConfig.COMMIT) {
                         showUpdateNotification()
+                    }
                 } catch (e: Exception) {
                     e.printStackTrace()
                 }

@@ -71,13 +71,20 @@ import org.json.JSONTokener
 import java.io.File
 import java.io.FileOutputStream
 import java.net.URL
+import java.util.*
 
 
 class GithubInstallActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
+        val files: Array<File>? = filesDir.listFiles { _, name ->
+            name.lowercase(Locale.getDefault()).endsWith(".apk") }
+        if (files != null) {
+            for (file in files) {
+                if (!file.isDirectory) file.delete()
+            }
+        }
         if (packageManager.canRequestPackageInstalls()) {
             checkForUpdate()
         } else {
@@ -141,11 +148,8 @@ class GithubInstallActivity : AppCompatActivity() {
             override fun onRequestCommitFinished(result: String?) {
                 try {
                     val jsonObject = JSONTokener(result).nextValue() as JSONObject
-                    val commit = (jsonObject["name"] as String).substring(10)
-                    if (commit != BuildConfig.COMMIT) {
-                        val assets = (jsonObject["assets"] as JSONArray)[0] as JSONObject
-                        downloadUpdate(assets["browser_download_url"] as String)
-                    }
+                    val assets = (jsonObject["assets"] as JSONArray)[0] as JSONObject
+                    downloadUpdate(assets["browser_download_url"] as String)
                 } catch (e: Exception) {
                     e.printStackTrace()
                     finish()
