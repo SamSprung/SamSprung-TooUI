@@ -65,6 +65,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import org.json.JSONArray
 import org.json.JSONObject
 import org.json.JSONTokener
 import java.io.File
@@ -140,10 +141,11 @@ class GithubInstallActivity : AppCompatActivity() {
             override fun onRequestCommitFinished(result: String?) {
                 try {
                     val jsonObject = JSONTokener(result).nextValue() as JSONObject
-                    val sha: String = (jsonObject.get("object") as JSONObject).get("sha") as String
-                    val commit = sha.substring(0,7)
-                    if (commit != BuildConfig.COMMIT)
-                        downloadUpdate(getString(R.string.apk_url, commit))
+                    val commit = (jsonObject["name"] as String).substring(10)
+                    if (commit != BuildConfig.COMMIT) {
+                        val assets = (jsonObject["assets"] as JSONArray)[0] as JSONObject
+                        downloadUpdate(assets["browser_download_url"] as String)
+                    }
                 } catch (e: Exception) {
                     e.printStackTrace()
                     finish()
