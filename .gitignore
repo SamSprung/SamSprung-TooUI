@@ -2,6 +2,7 @@
 *.orig
 
 local.properties
+keystore.properties
 *.iml
 
 .cxx
