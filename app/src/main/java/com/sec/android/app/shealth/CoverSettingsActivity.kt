@@ -85,21 +85,6 @@ class CoverSettingsActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.step_widget_edit)
 
-//        @Suppress("DEPRECATION")
-//        RequestLatestCommit().setListener(object : RequestLatestCommit.RequestCommitListener {
-//            override fun onRequestCommitFinished(result: String?) {
-//                try {
-//                    val jsonObject = JSONTokener(result).nextValue() as JSONObject
-//                    val sha: String = (jsonObject.get("object") as JSONObject).get("sha") as String
-//                    val commit = sha.substring(0,7)
-//                    if (commit != BuildConfig.COMMIT)
-//                        startActivity(Intent(SamSprung.context, GithubInstallActivity::class.java))
-//                } catch (e: Exception) {
-//                    e.printStackTrace()
-//                }
-//            }
-//        }).execute(getString(R.string.git_url))
-
         if (isDeviceSecure()) {
             Toast.makeText(
                 applicationContext,
@@ -116,6 +101,21 @@ class CoverSettingsActivity : AppCompatActivity() {
         val overlayLauncher = registerForActivityResult(
             ActivityResultContracts.StartActivityForResult()) {
             if (!Settings.System.canWrite(applicationContext)) {
+                settingsLauncher.launch(Intent(
+                    Settings.ACTION_MANAGE_WRITE_SETTINGS,
+                    Uri.parse("package:$packageName")
+                ))
+            }
+        }
+
+        val noticeLauncher = registerForActivityResult(
+            ActivityResultContracts.StartActivityForResult()) {
+            if (!Settings.canDrawOverlays(applicationContext)) {
+                overlayLauncher.launch(Intent(
+                    Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
+                    Uri.parse("package:$packageName")
+                ))
+            } else if (!Settings.System.canWrite(applicationContext)) {
                 settingsLauncher.launch(Intent(
                     Settings.ACTION_MANAGE_WRITE_SETTINGS,
                     Uri.parse("package:$packageName")
@@ -145,20 +145,7 @@ class CoverSettingsActivity : AppCompatActivity() {
                     ))
                 }
             } else {
-                registerForActivityResult(
-                    ActivityResultContracts.StartActivityForResult()) {
-                    if (!Settings.canDrawOverlays(applicationContext)) {
-                        overlayLauncher.launch(Intent(
-                            Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
-                            Uri.parse("package:$packageName")
-                        ))
-                    } else if (!Settings.System.canWrite(applicationContext)) {
-                        settingsLauncher.launch(Intent(
-                            Settings.ACTION_MANAGE_WRITE_SETTINGS,
-                            Uri.parse("package:$packageName")
-                        ))
-                    }
-                }.launch(Intent(
+                noticeLauncher.launch(Intent(
                     Settings.ACTION_NOTIFICATION_LISTENER_SETTINGS
                 ))
             }
