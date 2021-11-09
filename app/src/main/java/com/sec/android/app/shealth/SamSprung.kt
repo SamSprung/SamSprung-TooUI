@@ -95,6 +95,7 @@ class SamSprung : Application() {
     }
 
     companion object {
+        const val provider: String = "com.sec.android.samsprung.provider";
         private lateinit var mContext: WeakReference<Context>
         var isKeyguardLocked: Boolean = true
         private lateinit var mPrefs: WeakReference<SharedPreferences>

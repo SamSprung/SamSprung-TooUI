@@ -136,8 +136,7 @@ class GithubInstallActivity : AppCompatActivity() {
                     input.copyTo(output)
                     CoroutineScope(Dispatchers.Main).launch(Dispatchers.Main) {
                         installUpdate(FileProvider.getUriForFile(
-                            SamSprung.context,
-                            "com.sec.android.samsprung.provider", apk
+                            SamSprung.context, SamSprung.provider, apk
                         ))
                     }
                 }
