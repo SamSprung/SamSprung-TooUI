@@ -189,7 +189,7 @@ class StepCoverAppWidget: AppWidgetProvider() {
             val itemPendingIntent = PendingIntent.getBroadcast(
                 context, 0, widgetIntent,
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S)
-                    PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+                    PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_MUTABLE
                 else PendingIntent.FLAG_UPDATE_CURRENT)
             views.setPendingIntentTemplate(view, itemPendingIntent)
 
