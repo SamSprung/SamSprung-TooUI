@@ -55,6 +55,7 @@ import android.app.PendingIntent
 import android.content.Intent
 import android.content.pm.PackageInstaller
 import android.net.Uri
+import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
 import androidx.activity.result.contract.ActivityResultContracts
@@ -116,7 +117,9 @@ class GithubInstallActivity : AppCompatActivity() {
             intent.action = Intent.ACTION_PACKAGE_INSTALL
             val pi = PendingIntent.getBroadcast(
                 SamSprung.context, 8675309,
-                intent, PendingIntent.FLAG_UPDATE_CURRENT
+                intent, if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S)
+                    PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_MUTABLE
+                else PendingIntent.FLAG_UPDATE_CURRENT
             )
             session.commit(pi.intentSender)
             session.close()
@@ -142,10 +145,9 @@ class GithubInstallActivity : AppCompatActivity() {
         }
     }
 
-    @Suppress("DEPRECATION")
     private fun checkForUpdate() {
-        RequestLatestCommit().setListener(object : RequestLatestCommit.RequestCommitListener {
-            override fun onRequestCommitFinished(result: String?) {
+        RequestLatestCommit(getString(R.string.git_url)).setResultListener { result ->
+            if (result != null) {
                 try {
                     val jsonObject = JSONTokener(result).nextValue() as JSONObject
                     val assets = (jsonObject["assets"] as JSONArray)[0] as JSONObject
@@ -155,6 +157,9 @@ class GithubInstallActivity : AppCompatActivity() {
                     finish()
                 }
             }
-        }).execute(getString(R.string.git_url))
+        }
+
+
+
     }
 }
