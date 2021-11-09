@@ -95,7 +95,9 @@ class SamSprung : Application() {
     }
 
     companion object {
-        const val provider: String = "com.sec.android.samsprung.provider";
+        const val provider: String = "com.sec.android.samsprung.provider"
+        const val updating: String = "com.sec.android.samsprung.UPDATING"
+        const val request_code = 8675309
         private lateinit var mContext: WeakReference<Context>
         var isKeyguardLocked: Boolean = true
         private lateinit var mPrefs: WeakReference<SharedPreferences>

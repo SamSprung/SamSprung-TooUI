@@ -79,8 +79,7 @@ class OffBroadcastReceiver : BroadcastReceiver {
                 sendAppWidgetUpdateBroadcast()
             }
         }
-        @Suppress("DEPRECATION")
-        if (intent.action == Intent.ACTION_PACKAGE_INSTALL) {
+        if (intent.action == SamSprung.updating) {
             when (intent.getIntExtra(PackageInstaller.EXTRA_STATUS, -1)) {
                 PackageInstaller.STATUS_PENDING_USER_ACTION -> {
                     val activityIntent = intent.getParcelableExtra<Intent>(Intent.EXTRA_INTENT)

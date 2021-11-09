@@ -113,18 +113,17 @@ class GithubInstallActivity : AppCompatActivity() {
                 session.fsync(sessionStream)
             }
             val intent = Intent(SamSprung.context, OffBroadcastReceiver::class.java)
-            @Suppress("DEPRECATION")
-            intent.action = Intent.ACTION_PACKAGE_INSTALL
+            intent.action = SamSprung.updating
             val pi = PendingIntent.getBroadcast(
-                SamSprung.context, 8675309, intent,
+                SamSprung.context, SamSprung.request_code, intent,
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S)
                     PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_MUTABLE
                 else PendingIntent.FLAG_UPDATE_CURRENT
             )
             session.commit(pi.intentSender)
             session.close()
+            finish()
         }
-        finish()
     }
 
     private fun downloadUpdate(link: String) {

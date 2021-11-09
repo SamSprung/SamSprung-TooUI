@@ -51,6 +51,7 @@ package com.sec.android.app.shealth
  * subject to to the terms and conditions of the Apache License, Version 2.0.
  */
 
+import android.annotation.SuppressLint
 import android.app.*
 import android.content.ComponentName
 import android.content.Context
@@ -62,7 +63,6 @@ import android.os.*
 import android.provider.Settings
 import androidx.core.app.NotificationCompat
 import androidx.core.content.ContextCompat
-import org.json.JSONArray
 import org.json.JSONObject
 import org.json.JSONTokener
 import kotlin.system.exitProcess
@@ -194,10 +194,13 @@ class DisplayListenerService : Service() {
         return START_NOT_STICKY
     }
 
+    @SuppressLint("LaunchActivityFromNotification")
     private fun showForegroundNotification(startId: Int) {
         var mNotificationManager: NotificationManager? = null
         val pendingIntent = PendingIntent.getService(this, 0,
-            Intent(this, DisplayListenerService::class.java), 0)
+            Intent(this, DisplayListenerService::class.java),
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S)
+                PendingIntent.FLAG_IMMUTABLE else 0)
         val iconNotification = BitmapFactory.decodeResource(resources, R.mipmap.s_health_icon)
         if (mNotificationManager == null) {
             mNotificationManager = getSystemService(
@@ -234,7 +237,7 @@ class DisplayListenerService : Service() {
         val pendingIntent = PendingIntent.getActivity(SamSprung.context, 0,
             Intent(SamSprung.context, GithubInstallActivity::class.java),
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S)
-                PendingIntent.FLAG_ONE_SHOT or PendingIntent.FLAG_IMMUTABLE
+                PendingIntent.FLAG_ONE_SHOT or PendingIntent.FLAG_MUTABLE
             else PendingIntent.FLAG_ONE_SHOT)
         val iconNotification = BitmapFactory.decodeResource(
             SamSprung.context.resources, R.mipmap.s_health_icon)
@@ -269,6 +272,6 @@ class DisplayListenerService : Service() {
 
         val notification: Notification = builder.build()
         notification.flags = notification.flags or Notification.FLAG_AUTO_CANCEL
-        mNotificationManager.notify(8675309, notification)
+        mNotificationManager.notify(SamSprung.request_code, notification)
     }
 }
