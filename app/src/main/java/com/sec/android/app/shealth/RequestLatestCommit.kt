@@ -8,12 +8,8 @@ import java.net.URL
 import java.nio.charset.StandardCharsets
 import java.util.concurrent.Executors
 
-class RequestLatestCommit(url: String?) {
-    private var listener: ResultListener? = null
-
-    interface ResultListener {
-        fun onResults(result: String?)
-    }
+class RequestLatestCommit(url: String) {
+    private lateinit var listener: ResultListener
 
     init {
         Executors.newSingleThreadExecutor().execute {
@@ -36,14 +32,18 @@ class RequestLatestCommit(url: String?) {
                 while (streamReader.readLine()
                         .also { inputStr = it } != null
                 ) responseStrBuilder.append(inputStr)
-                listener!!.onResults(responseStrBuilder.toString())
+                listener.onResults(responseStrBuilder.toString())
             } catch (e: IOException) {
                 e.printStackTrace()
             }
         }
     }
 
-    fun setResultListener(listener: ResultListener?) {
+    interface ResultListener {
+        fun onResults(result: String)
+    }
+
+    fun setResultListener(listener: ResultListener) {
         this.listener = listener
     }
 }

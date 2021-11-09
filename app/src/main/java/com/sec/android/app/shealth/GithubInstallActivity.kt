@@ -146,8 +146,9 @@ class GithubInstallActivity : AppCompatActivity() {
     }
 
     private fun checkForUpdate() {
-        RequestLatestCommit(getString(R.string.git_url)).setResultListener { result ->
-            if (result != null) {
+        RequestLatestCommit(getString(R.string.git_url)).setResultListener(
+            object : RequestLatestCommit.ResultListener {
+            override fun onResults(result: String) {
                 try {
                     val jsonObject = JSONTokener(result).nextValue() as JSONObject
                     val assets = (jsonObject["assets"] as JSONArray)[0] as JSONObject
@@ -157,9 +158,6 @@ class GithubInstallActivity : AppCompatActivity() {
                     finish()
                 }
             }
-        }
-
-
-
+        })
     }
 }
