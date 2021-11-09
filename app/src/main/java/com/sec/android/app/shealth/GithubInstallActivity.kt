@@ -87,12 +87,12 @@ class GithubInstallActivity : AppCompatActivity() {
             }
         }
         if (packageManager.canRequestPackageInstalls()) {
-            checkForUpdate()
+            retrieveUpdate()
         } else {
             registerForActivityResult(
                 ActivityResultContracts.StartActivityForResult()) {
                 if (packageManager.canRequestPackageInstalls())
-                    checkForUpdate()
+                    retrieveUpdate()
             }.launch(Intent(Settings.ACTION_MANAGE_UNKNOWN_APP_SOURCES).setData(
                 Uri.parse(String.format("package:%s", packageName))))
         }
@@ -116,8 +116,8 @@ class GithubInstallActivity : AppCompatActivity() {
             @Suppress("DEPRECATION")
             intent.action = Intent.ACTION_PACKAGE_INSTALL
             val pi = PendingIntent.getBroadcast(
-                SamSprung.context, 8675309,
-                intent, if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S)
+                SamSprung.context, 8675309, intent,
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S)
                     PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_MUTABLE
                 else PendingIntent.FLAG_UPDATE_CURRENT
             )
@@ -144,7 +144,7 @@ class GithubInstallActivity : AppCompatActivity() {
         }
     }
 
-    private fun checkForUpdate() {
+    private fun retrieveUpdate() {
         RequestLatestCommit(getString(R.string.git_url)).setResultListener(
             object : RequestLatestCommit.ResultListener {
             override fun onResults(result: String) {

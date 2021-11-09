@@ -62,6 +62,7 @@ import android.os.*
 import android.provider.Settings
 import androidx.core.app.NotificationCompat
 import androidx.core.content.ContextCompat
+import org.json.JSONArray
 import org.json.JSONObject
 import org.json.JSONTokener
 import kotlin.system.exitProcess
@@ -92,9 +93,9 @@ class DisplayListenerService : Service() {
 
         showForegroundNotification(startId)
 
-        @Suppress("DEPRECATION")
-        RequestLatestCommit().setListener(object : RequestLatestCommit.RequestCommitListener {
-            override fun onRequestCommitFinished(result: String?) {
+        RequestLatestCommit(getString(R.string.git_url)).setResultListener(
+            object : RequestLatestCommit.ResultListener {
+            override fun onResults(result: String) {
                 try {
                     val jsonObject = JSONTokener(result).nextValue() as JSONObject
                     val lastCommit = (jsonObject["name"] as String).substring(10)
@@ -105,7 +106,7 @@ class DisplayListenerService : Service() {
                     e.printStackTrace()
                 }
             }
-        }).execute(getString(R.string.git_url))
+        })
 
         mDisplayListener = object : DisplayManager.DisplayListener {
             override fun onDisplayAdded(display: Int) {}
@@ -232,7 +233,9 @@ class DisplayListenerService : Service() {
 
         val pendingIntent = PendingIntent.getActivity(SamSprung.context, 0,
             Intent(SamSprung.context, GithubInstallActivity::class.java),
-            PendingIntent.FLAG_ONE_SHOT)
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S)
+                PendingIntent.FLAG_ONE_SHOT or PendingIntent.FLAG_IMMUTABLE
+            else PendingIntent.FLAG_ONE_SHOT)
         val iconNotification = BitmapFactory.decodeResource(
             SamSprung.context.resources, R.mipmap.s_health_icon)
         if (mNotificationManager == null) {

@@ -60,6 +60,7 @@ import android.content.*
 import android.content.pm.ApplicationInfo
 import android.content.pm.PackageManager
 import android.net.Uri
+import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
 import android.view.View
@@ -186,8 +187,10 @@ class StepCoverAppWidget: AppWidgetProvider() {
             widgetIntent.action = onClickTag
             widgetIntent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId)
             val itemPendingIntent = PendingIntent.getBroadcast(
-                context, 0, widgetIntent, PendingIntent.FLAG_UPDATE_CURRENT
-            )
+                context, 0, widgetIntent,
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S)
+                    PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+                else PendingIntent.FLAG_UPDATE_CURRENT)
             views.setPendingIntentTemplate(view, itemPendingIntent)
 
             appWidgetManager.updateAppWidget(appWidgetId, views)
