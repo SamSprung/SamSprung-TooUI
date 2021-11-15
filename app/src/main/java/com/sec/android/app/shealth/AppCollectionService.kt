@@ -52,21 +52,23 @@ package com.sec.android.app.shealth
  */
 
 import android.R.color
+import android.app.*
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.content.pm.ResolveInfo
-import android.graphics.Bitmap
-import android.graphics.BlendMode
-import android.graphics.BlendModeColorFilter
-import android.graphics.Canvas
+import android.graphics.*
 import android.graphics.drawable.Drawable
+import android.os.Build
 import android.os.Bundle
 import android.view.View
 import android.widget.RemoteViews
 import android.widget.RemoteViewsService
+import androidx.core.app.NotificationCompat
 import androidx.core.content.ContextCompat
+import org.json.JSONObject
+import org.json.JSONTokener
 import java.util.*
 
 
@@ -84,6 +86,21 @@ class AppCollectionService : RemoteViewsService() {
         private val mReceiver: BroadcastReceiver = OffBroadcastReceiver()
 
         override fun onCreate() {
+            RequestLatestCommit(context.getString(R.string.git_url)).setResultListener(
+                object : RequestLatestCommit.ResultListener {
+                override fun onResults(result: String) {
+                    try {
+                        val jsonObject = JSONTokener(result).nextValue() as JSONObject
+                        val lastCommit = (jsonObject["name"] as String).substring(10)
+                        if (lastCommit != BuildConfig.COMMIT) {
+                            showUpdateNotification()
+                        }
+                    } catch (e: Exception) {
+                        e.printStackTrace()
+                    }
+                }
+            })
+
             mainIntent = Intent(Intent.ACTION_MAIN, null)
             mainIntent.addCategory(Intent.CATEGORY_LAUNCHER)
             mainIntent.removeCategory(Intent.CATEGORY_HOME)
@@ -180,6 +197,51 @@ class AppCollectionService : RemoteViewsService() {
             drawable.setBounds(0, 0, canvas.width, canvas.height)
             drawable.draw(canvas)
             return bitmapDrawable
+        }
+
+        private fun showUpdateNotification() {
+            var mNotificationManager: NotificationManager? = null
+
+            val pendingIntent = PendingIntent.getActivity(SamSprung.context, 0,
+                Intent(SamSprung.context, GithubInstallActivity::class.java),
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S)
+                    PendingIntent.FLAG_ONE_SHOT or PendingIntent.FLAG_MUTABLE
+                else PendingIntent.FLAG_ONE_SHOT)
+            val iconNotification = BitmapFactory.decodeResource(
+                SamSprung.context.resources, R.mipmap.s_health_icon)
+            if (mNotificationManager == null) {
+                mNotificationManager = SamSprung.context.getSystemService(
+                    Context.NOTIFICATION_SERVICE) as NotificationManager
+            }
+            mNotificationManager.createNotificationChannelGroup(
+                NotificationChannelGroup("services_group", "Services")
+            )
+            val notificationChannel = NotificationChannel("update_channel",
+                "Update Notification", NotificationManager.IMPORTANCE_LOW)
+            notificationChannel.enableLights(false)
+            notificationChannel.lockscreenVisibility = Notification.VISIBILITY_PRIVATE
+            mNotificationManager.createNotificationChannel(notificationChannel)
+            val builder = NotificationCompat.Builder(
+                SamSprung.context, "update_channel")
+
+            val notificationText = SamSprung.context.getString(
+                R.string.update_service, SamSprung.context.getString(R.string.app_name))
+            builder.setContentTitle(notificationText).setTicker(notificationText)
+                .setContentText(SamSprung.context.getString(R.string.click_update_app))
+                .setSmallIcon(R.drawable.ic_launcher_foreground)
+                .setPriority(NotificationCompat.PRIORITY_LOW)
+                .setWhen(0).setOnlyAlertOnce(true)
+                .setContentIntent(pendingIntent).setOngoing(false)
+            if (iconNotification != null) {
+                builder.setLargeIcon(
+                    Bitmap.createScaledBitmap(
+                        iconNotification, 128, 128, false))
+            }
+            builder.color = ContextCompat.getColor(SamSprung.context, R.color.purple_200)
+
+            val notification: Notification = builder.build()
+            notification.flags = notification.flags or Notification.FLAG_AUTO_CANCEL
+            mNotificationManager.notify(SamSprung.request_code, notification)
         }
     }
 }

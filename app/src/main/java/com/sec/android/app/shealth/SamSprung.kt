@@ -55,14 +55,14 @@ import android.app.Application
 import android.content.Context
 import android.content.SharedPreferences
 import android.os.Process
-import java.lang.ref.WeakReference
+import java.lang.ref.SoftReference
 import kotlin.system.exitProcess
 
 class SamSprung : Application() {
     override fun onCreate() {
         super.onCreate()
-        mContext = WeakReference(this)
-        mPrefs = WeakReference(
+        mContext = SoftReference(this)
+        mPrefs = SoftReference(
             getSharedPreferences("samsprung.launcher.PREFS", MODE_PRIVATE)
         )
         Thread.setDefaultUncaughtExceptionHandler { _: Thread?, error: Throwable ->
@@ -98,9 +98,9 @@ class SamSprung : Application() {
         const val provider: String = "com.sec.android.samsprung.provider"
         const val updating: String = "com.sec.android.samsprung.UPDATING"
         const val request_code = 8675309
-        private lateinit var mContext: WeakReference<Context>
+        private lateinit var mContext: SoftReference<Context>
         var isKeyguardLocked: Boolean = true
-        private lateinit var mPrefs: WeakReference<SharedPreferences>
+        private lateinit var mPrefs: SoftReference<SharedPreferences>
         val context: Context get() = mContext.get()!!
         val prefs: SharedPreferences get() = mPrefs.get()!!
         var notices: HashSet<String> = hashSetOf()
