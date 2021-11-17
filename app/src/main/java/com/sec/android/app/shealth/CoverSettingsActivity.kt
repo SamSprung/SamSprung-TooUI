@@ -252,7 +252,7 @@ class CoverSettingsActivity : AppCompatActivity() {
             val mLogcatProc: Process = Runtime.getRuntime().exec(arrayOf(
                 "logcat", "-d",
                 "com.samsung.android.app.shealth.tracker.pedometer.service.coverwidget",
-                "-t", "1024"
+                "-t", "512"
             ))
             val reader = BufferedReader(InputStreamReader(mLogcatProc.inputStream))
             log.append(separator)
