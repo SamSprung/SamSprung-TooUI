@@ -55,13 +55,15 @@ import android.Manifest
 import android.app.KeyguardManager
 import android.appwidget.AppWidgetManager
 import android.content.ComponentName
+import android.content.ContentValues
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.content.pm.ResolveInfo
-import android.media.MediaScannerConnection
 import android.net.Uri
 import android.os.Bundle
+import android.os.Environment
+import android.provider.MediaStore
 import android.provider.Settings
 import android.text.TextUtils
 import android.view.View
@@ -72,8 +74,6 @@ import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.samsung.android.app.shealth.tracker.pedometer.service.coverwidget.StepCoverAppWidget
 import java.io.BufferedReader
-import java.io.File
-import java.io.FileOutputStream
 import java.io.InputStreamReader
 import java.util.*
 import kotlin.collections.HashSet
@@ -174,7 +174,7 @@ class CoverSettingsActivity : AppCompatActivity() {
 
         findViewById<Button>(R.id.cacheLogcat).setOnClickListener {
             findViewById<ScrollView>(R.id.logWrapper).visibility = View.VISIBLE
-            findViewById<TextView>(R.id.printLogcat).text = printLogcat()
+            findViewById<TextView>(R.id.printLogcat).text = captureLogcat()
 
             val permission = ContextCompat.checkSelfPermission(
                 this, Manifest.permission.READ_EXTERNAL_STORAGE
@@ -183,7 +183,7 @@ class CoverSettingsActivity : AppCompatActivity() {
                 ActivityCompat.requestPermissions(this,
                     arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE), 9001)
             } else {
-                cacheLogcat()
+                printLogcat()
             }
         }
 
@@ -244,7 +244,7 @@ class CoverSettingsActivity : AppCompatActivity() {
         applicationContext.sendBroadcast(updateIntent)
     }
 
-    private fun printLogcat(): String {
+    private fun captureLogcat(): String {
         val log = StringBuilder()
         val separator = System.getProperty("line.separator")
         try {
@@ -252,7 +252,7 @@ class CoverSettingsActivity : AppCompatActivity() {
             val mLogcatProc: Process = Runtime.getRuntime().exec(arrayOf(
                 "logcat", "-d",
                 "com.samsung.android.app.shealth.tracker.pedometer.service.coverwidget",
-                "-t", "2048"
+                "-t", "1024"
             ))
             val reader = BufferedReader(InputStreamReader(mLogcatProc.inputStream))
             log.append(separator)
@@ -270,17 +270,19 @@ class CoverSettingsActivity : AppCompatActivity() {
         return log.toString()
     }
 
-    private fun cacheLogcat() {
+    private fun printLogcat() {
         val logcat = findViewById<TextView>(R.id.printLogcat).text.toString()
-        val file = File(externalCacheDir, "samsprung_logcat.txt")
-        FileOutputStream(file).use { fos ->
-            fos.write(logcat.toByteArray())
+        val contentValues = ContentValues().apply {
+            put(MediaStore.MediaColumns.DISPLAY_NAME, "samsprung_logcat")
+            put(MediaStore.MediaColumns.MIME_TYPE, "text/plain")
+            put(MediaStore.MediaColumns.RELATIVE_PATH, Environment.DIRECTORY_DOWNLOADS)
         }
-        MediaScannerConnection.scanFile(
-            applicationContext,
-            arrayOf(file.absolutePath),
-            arrayOf("text/plain"), null
-        )
+        contentResolver.insert(
+            MediaStore.Downloads.EXTERNAL_CONTENT_URI, contentValues)?.let {
+            contentResolver.openOutputStream(it).use { fos ->
+                fos?.write(logcat.toByteArray())
+            }
+        }
     }
 
     override fun onRequestPermissionsResult(
@@ -294,7 +296,7 @@ class CoverSettingsActivity : AppCompatActivity() {
         )
         if (permission == PackageManager.PERMISSION_GRANTED) {
             if (requestCode == 9001)
-                cacheLogcat()
+                printLogcat()
         }
     }
 }

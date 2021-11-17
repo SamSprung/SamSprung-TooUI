@@ -7,7 +7,7 @@
     <string name="swap_so_listen">Apps close for screen off state</string>
     <string name="swap_viewgrid">Display as ListView Widget Style</string>
     <string name="swap_viewlist">Display as GridView Widget Style</string>
-    <string name="cache_logcat">Save a Logcat Print to Cache</string>
+    <string name="print_logcat">Print Logcat Capture to File</string>
     <string name="hide_package">%1$s hidden!</string>
     <string name="show_package">%1$s visible!</string>
     <string name="display_service">%1$s Display Service</string>
