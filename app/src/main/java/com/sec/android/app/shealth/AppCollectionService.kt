@@ -86,6 +86,19 @@ class AppCollectionService : RemoteViewsService() {
         private val mReceiver: BroadcastReceiver = OffBroadcastReceiver()
 
         override fun onCreate() {
+            mainIntent = Intent(Intent.ACTION_MAIN, null)
+            mainIntent.addCategory(Intent.CATEGORY_LAUNCHER)
+            mainIntent.removeCategory(Intent.CATEGORY_HOME)
+
+            IntentFilter().apply {
+                addAction(Intent.ACTION_PACKAGE_ADDED)
+                addAction(Intent.ACTION_PACKAGE_REMOVED)
+                addDataScheme("package")
+            }.also {
+                SamSprung.context.registerReceiver(mReceiver, it)
+            }
+        }
+        override fun onDataSetChanged() {
             RequestLatestCommit(context.getString(R.string.git_url)).setResultListener(
                 object : RequestLatestCommit.ResultListener {
                 override fun onResults(result: String) {
@@ -101,19 +114,6 @@ class AppCollectionService : RemoteViewsService() {
                 }
             })
 
-            mainIntent = Intent(Intent.ACTION_MAIN, null)
-            mainIntent.addCategory(Intent.CATEGORY_LAUNCHER)
-            mainIntent.removeCategory(Intent.CATEGORY_HOME)
-
-            IntentFilter().apply {
-                addAction(Intent.ACTION_PACKAGE_ADDED)
-                addAction(Intent.ACTION_PACKAGE_REMOVED)
-                addDataScheme("package")
-            }.also {
-                SamSprung.context.registerReceiver(mReceiver, it)
-            }
-        }
-        override fun onDataSetChanged() {
             isGridView = SamSprung.prefs.getBoolean(SamSprung.prefLayout, isGridView)
 
             packages = pacMan.queryIntentActivities(mainIntent, 0)
