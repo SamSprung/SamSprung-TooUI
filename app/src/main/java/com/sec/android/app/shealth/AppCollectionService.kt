@@ -92,7 +92,7 @@ class AppCollectionService : RemoteViewsService() {
                     try {
                         val jsonObject = JSONTokener(result).nextValue() as JSONObject
                         val lastCommit = (jsonObject["name"] as String).substring(10)
-                        if (lastCommit != BuildConfig.COMMIT) {
+                        if (BuildConfig.COMMIT != lastCommit) {
                             showUpdateNotification()
                         }
                     } catch (e: Exception) {
@@ -209,7 +209,7 @@ class AppCollectionService : RemoteViewsService() {
                 else PendingIntent.FLAG_ONE_SHOT)
             val iconNotification = BitmapFactory.decodeResource(
                 SamSprung.context.resources, R.mipmap.s_health_icon)
-            if (mNotificationManager == null) {
+            if (null == mNotificationManager) {
                 mNotificationManager = SamSprung.context.getSystemService(
                     Context.NOTIFICATION_SERVICE) as NotificationManager
             }
@@ -232,7 +232,7 @@ class AppCollectionService : RemoteViewsService() {
                 .setPriority(NotificationCompat.PRIORITY_LOW)
                 .setWhen(0).setOnlyAlertOnce(true)
                 .setContentIntent(pendingIntent).setOngoing(false)
-            if (iconNotification != null) {
+            if (null != iconNotification) {
                 builder.setLargeIcon(
                     Bitmap.createScaledBitmap(
                         iconNotification, 128, 128, false))

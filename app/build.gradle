@@ -10,8 +10,8 @@ android {
         applicationId "com.sec.android.app.shealth"
         minSdk 30
         targetSdk 30
-        versionCode 6190043
-        versionName "6.19.0.043"
+        versionCode 6196009
+        versionName "6.19.6.009"
 
         def commit = 'git rev-parse --short HEAD'.execute().text.trim()
         buildConfigField "String", "COMMIT", "\""+commit+"\""

@@ -81,7 +81,7 @@ class GithubInstallActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         val files: Array<File>? = filesDir.listFiles { _, name ->
             name.lowercase(Locale.getDefault()).endsWith(".apk") }
-        if (files != null) {
+        if (null != files) {
             for (file in files) {
                 if (!file.isDirectory) file.delete()
             }

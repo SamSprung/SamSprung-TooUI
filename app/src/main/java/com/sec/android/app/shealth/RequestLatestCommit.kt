@@ -22,15 +22,14 @@ class RequestLatestCommit(url: String) {
                 if (responseCode == HttpURLConnection.HTTP_MOVED_PERM) conn = URL(
                     conn.getHeaderField("Location")
                 ).openConnection() as HttpURLConnection
-                else if (responseCode != 200) return@execute
+                else if (200 != responseCode) return@execute
                 val `in` = conn.inputStream
                 val streamReader = BufferedReader(
                     InputStreamReader(`in`, StandardCharsets.UTF_8)
                 )
                 val responseStrBuilder = StringBuilder()
                 var inputStr: String?
-                while (streamReader.readLine()
-                        .also { inputStr = it } != null
+                while (streamReader.readLine().also { inputStr = it } != null
                 ) responseStrBuilder.append(inputStr)
                 listener.onResults(responseStrBuilder.toString())
             } catch (e: IOException) {

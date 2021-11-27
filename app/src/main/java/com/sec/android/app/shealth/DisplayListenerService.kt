@@ -86,7 +86,7 @@ class DisplayListenerService : Service() {
         val launchPackage = intent?.getStringExtra("launchPackage")
         val launchActivity = intent?.getStringExtra("launchActivity")
 
-        if (launchPackage == null || launchActivity == null)
+        if (null == launchPackage || null == launchActivity)
             return dismissDisplayListener(displayManager, mKeyguardLock)
 
         showForegroundNotification(startId)
@@ -157,7 +157,7 @@ class DisplayListenerService : Service() {
         @Suppress("DEPRECATION")
         mKeyguardLock: KeyguardManager.KeyguardLock
     ): Int {
-        if (mDisplayListener != null) {
+        if (null != mDisplayListener) {
             displayManager.unregisterDisplayListener(mDisplayListener)
         }
         if (SamSprung.prefs.getBoolean(SamSprung.autoRotate, true)) {
@@ -185,7 +185,7 @@ class DisplayListenerService : Service() {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S)
                 PendingIntent.FLAG_IMMUTABLE else 0)
         val iconNotification = BitmapFactory.decodeResource(resources, R.mipmap.s_health_icon)
-        if (mNotificationManager == null) {
+        if (null == mNotificationManager) {
             mNotificationManager = getSystemService(
                 Context.NOTIFICATION_SERVICE) as NotificationManager
         }
@@ -206,7 +206,7 @@ class DisplayListenerService : Service() {
             .setPriority(NotificationCompat.PRIORITY_LOW)
             .setWhen(0).setOnlyAlertOnce(true)
             .setContentIntent(pendingIntent).setOngoing(true)
-        if (iconNotification != null) {
+        if (null != iconNotification) {
             builder.setLargeIcon(Bitmap.createScaledBitmap(
                 iconNotification, 128, 128, false))
         }

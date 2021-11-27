@@ -80,6 +80,9 @@ import kotlin.collections.HashSet
 
 
 class CoverSettingsActivity : AppCompatActivity() {
+    companion object {
+        const val LOGCAT = 9001
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -181,7 +184,7 @@ class CoverSettingsActivity : AppCompatActivity() {
             )
             if (permission != PackageManager.PERMISSION_GRANTED) {
                 ActivityCompat.requestPermissions(this,
-                    arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE), 9001)
+                    arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE), LOGCAT)
             } else {
                 printLogcat()
             }
@@ -221,7 +224,7 @@ class CoverSettingsActivity : AppCompatActivity() {
             val names = flat.split(":").toTypedArray()
             for (i in names.indices) {
                 val cn = ComponentName.unflattenFromString(names[i])
-                if (cn != null && TextUtils.equals(packageName, cn.packageName)) return true
+                if (null != cn && TextUtils.equals(packageName, cn.packageName)) return true
             }
         }
         return false
@@ -295,7 +298,7 @@ class CoverSettingsActivity : AppCompatActivity() {
             this, Manifest.permission.READ_EXTERNAL_STORAGE
         )
         if (permission == PackageManager.PERMISSION_GRANTED) {
-            if (requestCode == 9001)
+            if (LOGCAT == requestCode)
                 printLogcat()
         }
     }

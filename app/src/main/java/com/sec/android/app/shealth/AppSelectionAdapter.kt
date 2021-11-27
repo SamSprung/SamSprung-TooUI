@@ -89,7 +89,7 @@ class AppSelectionAdapter(
 
     override fun getView(position: Int, view: View?, parent: ViewGroup): View {
         var convertView = view
-        if (convertView == null) {
+        if (null == convertView) {
             convertView = LayoutInflater.from(context)
                 .inflate(R.layout.app_hidden_item, parent, false)
         }

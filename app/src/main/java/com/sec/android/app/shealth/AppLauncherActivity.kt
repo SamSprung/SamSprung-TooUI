@@ -86,7 +86,7 @@ class AppLauncherActivity : AppCompatActivity() {
         val launchPackage = intent.getStringExtra("launchPackage")
         val launchActivity = intent.getStringExtra("launchActivity")
 
-        if (launchPackage == null || launchActivity == null) finish()
+        if (null == launchPackage || null == launchActivity) finish()
 
         if (Settings.System.canWrite(applicationContext)
             && SamSprung.prefs.getBoolean(SamSprung.autoRotate, true)) {

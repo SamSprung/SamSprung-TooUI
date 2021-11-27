@@ -83,7 +83,7 @@ class OffBroadcastReceiver : BroadcastReceiver {
             when (intent.getIntExtra(PackageInstaller.EXTRA_STATUS, -1)) {
                 PackageInstaller.STATUS_PENDING_USER_ACTION -> {
                     val activityIntent = intent.getParcelableExtra<Intent>(Intent.EXTRA_INTENT)
-                    if (activityIntent != null)
+                    if (null != activityIntent)
                         context.startActivity(activityIntent.addFlags(
                             Intent.FLAG_ACTIVITY_NEW_TASK))
                 }
@@ -98,7 +98,7 @@ class OffBroadcastReceiver : BroadcastReceiver {
                 }
             }
         }
-        if (intent.action == Intent.ACTION_SCREEN_OFF && componentName != null) {
+        if (intent.action == Intent.ACTION_SCREEN_OFF && null != componentName) {
             context.startService(Intent(context, DisplayListenerService::class.java))
 
             val screenIntent = Intent(Intent.ACTION_MAIN)
