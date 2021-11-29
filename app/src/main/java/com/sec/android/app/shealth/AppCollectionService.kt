@@ -51,14 +51,15 @@ package com.sec.android.app.shealth
  * subject to to the terms and conditions of the Apache License, Version 2.0.
  */
 
-import android.R.color
 import android.app.*
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.content.pm.ResolveInfo
-import android.graphics.*
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
+import android.graphics.Canvas
 import android.graphics.drawable.Drawable
 import android.os.Build
 import android.os.Bundle
@@ -148,12 +149,17 @@ class AppCollectionService : RemoteViewsService() {
             val icon = if (isGridView) R.id.widgetGridImage else R.id.widgetItemImage
 
             val applicationIcon = application.loadIcon(pacMan)
+            rv.setViewVisibility(
+                if (isGridView) R.id.widgetGridBadge else R.id.widgetItemBadge,
+                if (SamSprung.notices.contains(packageName)) View.VISIBLE else View.GONE)
+            /*
             if (SamSprung.notices.contains(packageName)) {
                 applicationIcon.colorFilter =
                     BlendModeColorFilter(ContextCompat.getColor(
                         SamSprung.context, color.holo_orange_light
                 ), BlendMode.COLOR_DODGE)
             }
+            */
             rv.setImageViewBitmap(
                 icon, getBitmapFromDrawable(applicationIcon)
             )
@@ -172,7 +178,7 @@ class AppCollectionService : RemoteViewsService() {
             return rv
         }
 
-        override fun getLoadingView(): RemoteViews? {
+        override fun getLoadingView(): RemoteViews {
             return RemoteViews(context.packageName, R.layout.step_loader_view)
         }
 

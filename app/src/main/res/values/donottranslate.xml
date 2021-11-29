@@ -2,4 +2,5 @@
 <resources>
     <string name="git_url">https://api.github.com/repos/AbandonedCart/SamSprung-Launcher/releases/latest</string>
     <string name="description_icon">Icon</string>
+    <string name="description_badge">Badge</string>
 </resources>
