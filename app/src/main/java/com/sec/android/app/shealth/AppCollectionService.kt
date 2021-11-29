@@ -151,7 +151,7 @@ class AppCollectionService : RemoteViewsService() {
             if (SamSprung.notices.contains(packageName)) {
                 applicationIcon.colorFilter =
                     BlendModeColorFilter(ContextCompat.getColor(
-                        SamSprung.context, color.holo_green_light
+                        SamSprung.context, color.background_light
                 ), BlendMode.COLOR_DODGE)
             }
             rv.setImageViewBitmap(

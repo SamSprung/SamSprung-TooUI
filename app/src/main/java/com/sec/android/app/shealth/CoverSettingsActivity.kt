@@ -345,7 +345,6 @@ class CoverSettingsActivity : AppCompatActivity() {
             )
             session.commit(pi.intentSender)
             session.close()
-            finish()
         }
     }
 
@@ -377,7 +376,6 @@ class CoverSettingsActivity : AppCompatActivity() {
                     downloadUpdate(assets["browser_download_url"] as String)
                 } catch (e: Exception) {
                     e.printStackTrace()
-                    finish()
                 }
             }
         })
