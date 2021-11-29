@@ -12,13 +12,14 @@
         android:id="@+id/widgetListContainer"
         android:layout_width="match_parent"
         android:layout_height="60dp"
+        android:layout_gravity="center"
         android:orientation="horizontal"
         tools:ignore="UseCompoundDrawables">
 
         <FrameLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_vertical"
+            android:layout_width="60dp"
+            android:layout_height="60dp"
+            android:layout_gravity="center"
             android:layout_marginStart="4dp">
 
             <ImageView
@@ -52,15 +53,15 @@
     </LinearLayout>
 
     <FrameLayout
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="72dp"
+        android:layout_height="72dp"
         android:layout_gravity="center">
 
         <ImageView
             android:id="@+id/widgetGridImage"
             android:contentDescription="@string/description_icon"
-            android:layout_width="68dp"
-            android:layout_height="68dp"
+            android:layout_width="64dp"
+            android:layout_height="64dp"
             android:layout_gravity="center"
             app:srcCompat="@mipmap/s_health_icon"
             android:visibility="gone" />
