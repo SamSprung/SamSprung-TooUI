@@ -57,11 +57,6 @@
             android:configChanges="density|orientation|screenLayout|screenSize|smallestScreenSize|uiMode"
             android:resizeableActivity="true">
         </activity>
-        <activity
-            android:name=".GithubInstallActivity"
-            android:configChanges="density|orientation|screenLayout|screenSize|smallestScreenSize|uiMode"
-            android:resizeableActivity="true">
-        </activity>
         <receiver android:name=".OffBroadcastReceiver" />
         <service android:name=".AppCollectionService"
             android:exported="true"

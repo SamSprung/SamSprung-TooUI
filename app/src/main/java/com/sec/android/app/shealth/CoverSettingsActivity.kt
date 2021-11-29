@@ -53,14 +53,17 @@ package com.sec.android.app.shealth
 
 import android.Manifest
 import android.app.KeyguardManager
+import android.app.PendingIntent
 import android.appwidget.AppWidgetManager
 import android.content.ComponentName
 import android.content.ContentValues
 import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageInstaller
 import android.content.pm.PackageManager
 import android.content.pm.ResolveInfo
 import android.net.Uri
+import android.os.Build
 import android.os.Bundle
 import android.os.Environment
 import android.provider.MediaStore
@@ -72,9 +75,21 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.core.content.FileProvider
+import androidx.documentfile.provider.DocumentFile
 import com.samsung.android.app.shealth.tracker.pedometer.service.coverwidget.StepCoverAppWidget
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import org.json.JSONArray
+import org.json.JSONObject
+import org.json.JSONTokener
 import java.io.BufferedReader
+import java.io.File
+import java.io.FileOutputStream
 import java.io.InputStreamReader
+import java.net.URL
 import java.util.*
 import kotlin.collections.HashSet
 
@@ -87,6 +102,24 @@ class CoverSettingsActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.step_widget_edit)
+
+        val files: Array<File>? = filesDir.listFiles { _, name ->
+            name.lowercase(Locale.getDefault()).endsWith(".apk") }
+        if (null != files) {
+            for (file in files) {
+                if (!file.isDirectory) file.delete()
+            }
+        }
+        if (packageManager.canRequestPackageInstalls()) {
+            retrieveUpdate()
+        } else {
+            registerForActivityResult(
+                ActivityResultContracts.StartActivityForResult()) {
+                if (packageManager.canRequestPackageInstalls())
+                    retrieveUpdate()
+            }.launch(Intent(Settings.ACTION_MANAGE_UNKNOWN_APP_SOURCES).setData(
+                Uri.parse(String.format("package:%s", packageName))))
+        }
 
         if (isDeviceSecure()) {
             Toast.makeText(
@@ -286,6 +319,68 @@ class CoverSettingsActivity : AppCompatActivity() {
                 fos?.write(logcat.toByteArray())
             }
         }
+    }
+
+    @Suppress("BlockingMethodInNonBlockingContext")
+    private suspend fun installUpdate(apkUri: Uri) = withContext(Dispatchers.IO) {
+        val installer = SamSprung.context.packageManager.packageInstaller
+        val resolver = SamSprung.context.contentResolver
+        resolver.openInputStream(apkUri)?.use { apkStream ->
+            val length = DocumentFile.fromSingleUri(SamSprung.context, apkUri)?.length() ?: -1
+            val params = PackageInstaller.SessionParams(
+                PackageInstaller.SessionParams.MODE_FULL_INSTALL)
+            val sessionId = installer.createSession(params)
+            val session = installer.openSession(sessionId)
+            session.openWrite("NAME", 0, length).use { sessionStream ->
+                apkStream.copyTo(sessionStream)
+                session.fsync(sessionStream)
+            }
+            val intent = Intent(SamSprung.context, OffBroadcastReceiver::class.java)
+            intent.action = SamSprung.updating
+            val pi = PendingIntent.getBroadcast(
+                SamSprung.context, SamSprung.request_code, intent,
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S)
+                    PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_MUTABLE
+                else PendingIntent.FLAG_UPDATE_CURRENT
+            )
+            session.commit(pi.intentSender)
+            session.close()
+            finish()
+        }
+    }
+
+    private fun downloadUpdate(link: String) {
+        val download: String = link.substring(link.lastIndexOf('/') + 1)
+        val apk = File(filesDir, download)
+        CoroutineScope(Dispatchers.IO).launch(Dispatchers.IO) {
+            URL(link).openStream().use { input ->
+                FileOutputStream(apk).use { output ->
+                    input.copyTo(output)
+                    CoroutineScope(Dispatchers.Main).launch(Dispatchers.Main) {
+                        installUpdate(
+                            FileProvider.getUriForFile(
+                            SamSprung.context, SamSprung.provider, apk
+                        ))
+                    }
+                }
+            }
+        }
+    }
+
+    private fun retrieveUpdate() {
+        RequestLatestCommit(getString(R.string.git_url)).setResultListener(
+            object : RequestLatestCommit.ResultListener {
+            override fun onResults(result: String) {
+                try {
+                    val jsonObject = JSONTokener(result).nextValue() as JSONObject
+                    val assets = (jsonObject["assets"] as JSONArray)[0] as JSONObject
+                    downloadUpdate(assets["browser_download_url"] as String)
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                    finish()
+                }
+            }
+        })
     }
 
     override fun onRequestPermissionsResult(

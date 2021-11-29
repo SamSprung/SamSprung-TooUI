@@ -203,7 +203,7 @@ class AppCollectionService : RemoteViewsService() {
             var mNotificationManager: NotificationManager? = null
 
             val pendingIntent = PendingIntent.getActivity(SamSprung.context, 0,
-                Intent(SamSprung.context, GithubInstallActivity::class.java),
+                Intent(SamSprung.context, CoverSettingsActivity::class.java),
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S)
                     PendingIntent.FLAG_ONE_SHOT or PendingIntent.FLAG_MUTABLE
                 else PendingIntent.FLAG_ONE_SHOT)
