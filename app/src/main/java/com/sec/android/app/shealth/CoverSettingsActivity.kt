@@ -372,8 +372,11 @@ class CoverSettingsActivity : AppCompatActivity() {
             override fun onResults(result: String) {
                 try {
                     val jsonObject = JSONTokener(result).nextValue() as JSONObject
-                    val assets = (jsonObject["assets"] as JSONArray)[0] as JSONObject
-                    downloadUpdate(assets["browser_download_url"] as String)
+                    val lastCommit = (jsonObject["name"] as String).substring(10)
+                    if (BuildConfig.COMMIT != lastCommit) {
+                        val assets = (jsonObject["assets"] as JSONArray)[0] as JSONObject
+                        downloadUpdate(assets["browser_download_url"] as String)
+                    }
                 } catch (e: Exception) {
                     e.printStackTrace()
                 }
