@@ -236,7 +236,7 @@ class CoverSettingsActivity : AppCompatActivity() {
         unlisted.addAll(hide)
 
         val listView: ListView = findViewById(R.id.selectionListView)
-        listView.adapter = AppSelectionAdapter(this, packages, unlisted)
+        listView.adapter = FilteredAppsAdapter(this, packages, unlisted)
     }
 
     /**

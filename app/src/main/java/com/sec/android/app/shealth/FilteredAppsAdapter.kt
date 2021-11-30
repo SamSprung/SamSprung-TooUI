@@ -68,7 +68,7 @@ import androidx.appcompat.widget.SwitchCompat
 import com.samsung.android.app.shealth.tracker.pedometer.service.coverwidget.StepCoverAppWidget
 
 
-class AppSelectionAdapter(
+class FilteredAppsAdapter(
     private val context: Context,
     private var packages: MutableList<ResolveInfo>,
     private var hide: HashSet<String>

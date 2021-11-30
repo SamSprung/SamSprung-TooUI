@@ -73,7 +73,7 @@ import org.json.JSONTokener
 import java.util.*
 
 
-class AppCollectionService : RemoteViewsService() {
+class AppLauncherFactory : RemoteViewsService() {
 
     override fun onGetViewFactory(intent: Intent): RemoteViewsFactory {
         return StepRemoteViewsFactory(applicationContext)

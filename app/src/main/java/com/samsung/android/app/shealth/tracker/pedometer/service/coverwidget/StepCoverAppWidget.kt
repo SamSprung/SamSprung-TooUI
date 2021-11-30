@@ -173,7 +173,7 @@ class StepCoverAppWidget: AppWidgetProvider() {
             views.setViewVisibility(R.id.widgetGridView,
                 if (isGridView) View.VISIBLE else View.GONE)
 
-            val serviceIntent = Intent(context, AppCollectionService::class.java)
+            val serviceIntent = Intent(context, AppLauncherFactory::class.java)
             serviceIntent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId)
             serviceIntent.data = Uri.parse(serviceIntent.toUri(Intent.URI_INTENT_SCHEME))
             views.setRemoteAdapter(view, serviceIntent)

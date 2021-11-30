@@ -58,7 +58,7 @@
             android:resizeableActivity="true">
         </activity>
         <receiver android:name=".OffBroadcastReceiver" />
-        <service android:name=".AppCollectionService"
+        <service android:name=".AppLauncherFactory"
             android:exported="true"
             android:permission="android.permission.BIND_REMOTEVIEWS" />
         <service android:name=".DisplayListenerService"
