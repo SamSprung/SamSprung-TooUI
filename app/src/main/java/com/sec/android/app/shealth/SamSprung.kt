@@ -69,7 +69,6 @@ class SamSprung : Application() {
             error.printStackTrace()
             // Unrecoverable error encountered
             Process.killProcess(Process.myPid())
-            exitProcess(0)
         }
         if (prefs.contains("screenoff")) {
             with(prefs.edit()) {
