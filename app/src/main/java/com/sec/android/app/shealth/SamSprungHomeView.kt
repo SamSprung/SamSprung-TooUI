@@ -51,61 +51,54 @@ package com.sec.android.app.shealth
  * subject to to the terms and conditions of the Apache License, Version 2.0.
  */
 
-import android.app.Application
+import android.Manifest
+import android.app.KeyguardManager
+import android.app.PendingIntent
+import android.appwidget.AppWidgetManager
+import android.content.ComponentName
+import android.content.ContentValues
 import android.content.Context
-import android.content.SharedPreferences
-import java.lang.ref.SoftReference
-import kotlin.system.exitProcess
+import android.content.Intent
+import android.content.pm.PackageInstaller
+import android.content.pm.PackageManager
+import android.content.pm.ResolveInfo
+import android.net.Uri
+import android.os.Build
+import android.os.Bundle
+import android.os.Environment
+import android.provider.MediaStore
+import android.provider.Settings
+import android.text.TextUtils
+import android.view.View
+import android.widget.*
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.appcompat.app.AppCompatActivity
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
+import androidx.core.content.FileProvider
+import androidx.documentfile.provider.DocumentFile
+import com.samsung.android.app.shealth.tracker.pedometer.service.coverwidget.StepCoverAppWidget
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import org.json.JSONArray
+import org.json.JSONObject
+import org.json.JSONTokener
+import java.io.BufferedReader
+import java.io.File
+import java.io.FileOutputStream
+import java.io.InputStreamReader
+import java.net.URL
+import java.util.*
+import kotlin.collections.HashSet
 
-class SamSprung : Application() {
-    override fun onCreate() {
-        super.onCreate()
-        mContext = SoftReference(this)
-        mPrefs = SoftReference(
-            getSharedPreferences("samsprung.launcher.PREFS", MODE_PRIVATE)
-        )
-        Thread.setDefaultUncaughtExceptionHandler { _: Thread?, error: Throwable ->
-            error.printStackTrace()
-            // Unrecoverable error encountered
-            exitProcess(1)
-        }
-        if (prefs.contains("screenoff")) {
-            with(prefs.edit()) {
-                putBoolean(prefScreen, prefs.getBoolean("screenoff", true))
-                remove("screenoff")
-                apply()
-            }
-        }
-        if (prefs.contains("gridview")) {
-            with(prefs.edit()) {
-                putBoolean(prefLayout, prefs.getBoolean("gridview", true))
-                remove("gridview")
-                apply()
-            }
-        }
-        if (prefs.contains("hidden_packages")) {
-            with(prefs.edit()) {
-                putStringSet(prefHidden, prefs.getStringSet("hidden_packages", setOf<String>()))
-                remove("hidden_packages")
-                apply()
-            }
-        }
-    }
 
-    companion object {
-        const val provider: String = "com.sec.android.samsprung.provider"
-        const val updating: String = "com.sec.android.samsprung.UPDATING"
-        const val request_code = 8675309
-        private lateinit var mContext: SoftReference<Context>
-        var isKeyguardLocked: Boolean = true
-        private lateinit var mPrefs: SoftReference<SharedPreferences>
-        val context: Context get() = mContext.get()!!
-        val prefs: SharedPreferences get() = mPrefs.get()!!
-        var notices: HashSet<String> = hashSetOf()
-        const val prefScreen: String = "prefScreen"
-        const val prefLayout: String = "prefLayout"
-        const val prefHidden: String = "prefHidden"
-        const val autoRotate: String = "autoRotate"
-        const val useAppLauncherActivity: Boolean = false
+class SamSprungHomeView : AppCompatActivity() {
+    
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContentView(R.layout.launcher_layout)
     }
 }
