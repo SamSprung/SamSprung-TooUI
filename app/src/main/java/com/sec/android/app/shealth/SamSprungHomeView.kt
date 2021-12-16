@@ -51,54 +51,38 @@ package com.sec.android.app.shealth
  * subject to to the terms and conditions of the Apache License, Version 2.0.
  */
 
-import android.Manifest
-import android.app.KeyguardManager
 import android.app.PendingIntent
 import android.appwidget.AppWidgetManager
-import android.content.ComponentName
-import android.content.ContentValues
-import android.content.Context
 import android.content.Intent
-import android.content.pm.PackageInstaller
-import android.content.pm.PackageManager
 import android.content.pm.ResolveInfo
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
-import android.os.Environment
-import android.provider.MediaStore
-import android.provider.Settings
-import android.text.TextUtils
 import android.view.View
-import android.widget.*
-import androidx.activity.result.contract.ActivityResultContracts
+import android.widget.ListView
+import android.widget.RemoteViews
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.app.ActivityCompat
-import androidx.core.content.ContextCompat
-import androidx.core.content.FileProvider
-import androidx.documentfile.provider.DocumentFile
 import com.samsung.android.app.shealth.tracker.pedometer.service.coverwidget.StepCoverAppWidget
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
-import org.json.JSONArray
-import org.json.JSONObject
-import org.json.JSONTokener
-import java.io.BufferedReader
-import java.io.File
-import java.io.FileOutputStream
-import java.io.InputStreamReader
-import java.net.URL
 import java.util.*
 import kotlin.collections.HashSet
 
 
 class SamSprungHomeView : AppCompatActivity() {
-    
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.launcher_layout)
+
+        val mainIntent = Intent(Intent.ACTION_MAIN, null)
+        mainIntent.addCategory(Intent.CATEGORY_LAUNCHER)
+        mainIntent.removeCategory(Intent.CATEGORY_HOME)
+        val packages = packageManager.queryIntentActivities(mainIntent, 0)
+        packages.removeIf { item -> item.activityInfo.packageName == packageName }
+        Collections.sort(packages, ResolveInfo.DisplayNameComparator(packageManager))
+
+        val unlisted: HashSet<String> = HashSet()
+
+        val listView: ListView = findViewById(R.id.selectionListView)
+        listView.adapter = FilteredAppsAdapter(this, packages, unlisted)
     }
 }

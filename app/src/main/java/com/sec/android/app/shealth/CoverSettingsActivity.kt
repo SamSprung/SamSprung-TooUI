@@ -230,7 +230,7 @@ class CoverSettingsActivity : AppCompatActivity() {
         packages.removeIf { item -> item.activityInfo.packageName == packageName }
         Collections.sort(packages, ResolveInfo.DisplayNameComparator(packageManager))
 
-        val unlisted: HashSet<String> = HashSet<String>().plus(packageName) as HashSet<String>
+        val unlisted: HashSet<String> = HashSet()
         val hide: Set<String> = SamSprung.prefs.getStringSet(
             SamSprung.prefHidden, setOf<String>()) as Set<String>
         unlisted.addAll(hide)

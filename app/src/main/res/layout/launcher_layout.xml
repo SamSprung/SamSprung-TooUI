@@ -6,4 +6,13 @@
     android:orientation="vertical"
     tools:context=".SamSprungHomeView">
 
+    <ListView
+        android:id="@+id/selectionListView"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:dividerHeight="1dp"
+        android:divider="@color/WHITE"
+        tools:listitem="@layout/step_widget_item" />
+
 </LinearLayout>
