@@ -54,6 +54,7 @@ package com.sec.android.app.shealth
 import android.app.Application
 import android.content.Context
 import android.content.SharedPreferences
+import android.service.notification.StatusBarNotification
 import java.lang.ref.SoftReference
 import kotlin.system.exitProcess
 
@@ -102,6 +103,7 @@ class SamSprung : Application() {
         val context: Context get() = mContext.get()!!
         val prefs: SharedPreferences get() = mPrefs.get()!!
         var notices: HashSet<String> = hashSetOf()
+        var statuses: HashSet<StatusBarNotification> = hashSetOf()
         const val prefScreen: String = "prefScreen"
         const val prefLayout: String = "prefLayout"
         const val prefHidden: String = "prefHidden"

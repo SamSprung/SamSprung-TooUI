@@ -51,38 +51,49 @@ package com.sec.android.app.shealth
  * subject to to the terms and conditions of the Apache License, Version 2.0.
  */
 
-import android.app.PendingIntent
-import android.appwidget.AppWidgetManager
-import android.content.Intent
-import android.content.pm.ResolveInfo
-import android.net.Uri
-import android.os.Build
+import android.annotation.SuppressLint
 import android.os.Bundle
+import android.service.notification.StatusBarNotification
 import android.view.View
+import android.widget.ImageView
 import android.widget.ListView
-import android.widget.RemoteViews
+import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
-import com.samsung.android.app.shealth.tracker.pedometer.service.coverwidget.StepCoverAppWidget
+import androidx.core.app.NotificationCompat
 import java.util.*
-import kotlin.collections.HashSet
 
 
 class SamSprungHomeView : AppCompatActivity() {
 
+    @SuppressLint("InflateParams", "CutPasteId")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.launcher_layout)
 
-        val mainIntent = Intent(Intent.ACTION_MAIN, null)
-        mainIntent.addCategory(Intent.CATEGORY_LAUNCHER)
-        mainIntent.removeCategory(Intent.CATEGORY_HOME)
-        val packages = packageManager.queryIntentActivities(mainIntent, 0)
-        packages.removeIf { item -> item.activityInfo.packageName == packageName }
-        Collections.sort(packages, ResolveInfo.DisplayNameComparator(packageManager))
+        for (notice : StatusBarNotification in SamSprung.statuses) {
+            val card : View = layoutInflater.inflate(R.layout.notification_card, null)
+            card.findViewById<ImageView>(R.id.icon).setImageDrawable(
+                notice.notification.smallIcon.loadDrawable(this))
+            card.findViewById<TextView>(R.id.ticker).text = notice.notification.tickerText
+            if (null != notice.notification.extras) {
+                if (notice.notification.extras.getCharSequenceArray(
+                        NotificationCompat.EXTRA_TEXT_LINES) != null) {
+                    val content = Arrays.toString(
+                        notice.notification.extras.getCharSequenceArray(
+                            NotificationCompat.EXTRA_TEXT_LINES)
+                    )
+                    if (notice.notification.tickerText == content)
+                        card.findViewById<TextView>(R.id.ticker).visibility = View.GONE
+                    card.findViewById<TextView>(R.id.lines).text = content
+                }
 
-        val unlisted: HashSet<String> = HashSet()
+            }
+            card.setOnClickListener {
+                startIntentSender(notice.notification.contentIntent.intentSender,
+                    null, 0, 0, 0)
+            }
 
-        val listView: ListView = findViewById(R.id.selectionListView)
-        listView.adapter = FilteredAppsAdapter(this, packages, unlisted)
+            findViewById<ListView>(R.id.selectionListView).addView(card)
+        }
     }
 }

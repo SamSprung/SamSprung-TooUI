@@ -47,7 +47,7 @@ android {
                     }
                 }
                 buildTypes.debug.signingConfig signingConfigs.debug
-            } catch (FileNotFoundException e) {
+            } catch (FileNotFoundException ignored) {
                 // Github actions can go $#%& right off with this
             }
         }

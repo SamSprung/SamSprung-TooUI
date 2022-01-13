@@ -70,12 +70,18 @@ class NotificationListener : NotificationListenerService() {
         if (!SamSprung.notices.contains(sbn.packageName))
             SamSprung.notices.add(sbn.packageName)
         sendAppWidgetUpdateBroadcast()
+
+        if (!SamSprung.statuses.contains(sbn))
+            SamSprung.statuses.add(sbn)
     }
 
     override fun onNotificationRemoved(sbn: StatusBarNotification) {
         if (SamSprung.notices.contains(sbn.packageName))
             SamSprung.notices.remove(sbn.packageName)
         sendAppWidgetUpdateBroadcast()
+
+        if (SamSprung.statuses.contains(sbn))
+            SamSprung.statuses.remove(sbn)
     }
 
     private fun sendAppWidgetUpdateBroadcast() {

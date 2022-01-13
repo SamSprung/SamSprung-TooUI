@@ -116,7 +116,6 @@ class DisplayListenerService : Service() {
                         startActivity(displayIntent, options.toBundle())
 
                         // Only ghosts can pass through here
-                        Process.killProcess(Process.myPid())
                         exitProcess(0)
                     }
                 } else {
