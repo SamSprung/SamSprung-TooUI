@@ -56,6 +56,7 @@ import android.os.Bundle
 import android.service.notification.StatusBarNotification
 import android.view.View
 import android.widget.ImageView
+import android.widget.LinearLayout
 import android.widget.ListView
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
@@ -65,10 +66,20 @@ import java.util.*
 
 class SamSprungHomeView : AppCompatActivity() {
 
-    @SuppressLint("InflateParams", "CutPasteId")
+    @SuppressLint("InflateParams", "CutPasteId", "ClickableViewAccessibility")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.launcher_layout)
+
+        findViewById<LinearLayout>(R.id.rootLayout).setOnTouchListener(
+            object: OnSwipeTouchListener(this@SamSprungHomeView) {
+            override fun onSwipeLeft() {
+
+            }
+            override fun onSwipeRight() {
+
+            }
+        })
 
         for (notice : StatusBarNotification in SamSprung.statuses) {
             val card : View = layoutInflater.inflate(R.layout.notification_card, null)
@@ -93,7 +104,7 @@ class SamSprungHomeView : AppCompatActivity() {
                     null, 0, 0, 0)
             }
 
-            findViewById<ListView>(R.id.selectionListView).addView(card)
+            findViewById<ListView>(R.id.notificationList).addView(card)
         }
     }
 }
