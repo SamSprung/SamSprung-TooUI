@@ -53,14 +53,8 @@ package com.sec.android.app.shealth
 
 import android.app.ActivityOptions
 import android.appwidget.AppWidgetManager
-import android.content.BroadcastReceiver
-import android.content.ComponentName
-import android.content.Context
-import android.content.Intent
-import android.content.pm.ApplicationInfo
+import android.content.*
 import android.content.pm.PackageInstaller
-import android.content.pm.PackageManager
-import android.os.Bundle
 import android.widget.Toast
 import com.samsung.android.app.shealth.tracker.pedometer.service.coverwidget.StepCoverAppWidget
 
@@ -132,6 +126,11 @@ class OffBroadcastReceiver : BroadcastReceiver {
             coverIntent.addFlags(Intent.FLAG_ACTIVITY_FORWARD_RESULT)
             coverIntent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION)
             context.startActivity(coverIntent, options.toBundle())
+        }
+        if (intent.action == Intent.ACTION_BOOT_COMPLETED) {
+            IntentFilter(Intent.ACTION_SCREEN_ON).also {
+                context.registerReceiver(OffBroadcastReceiver(), it)
+            }
         }
     }
 

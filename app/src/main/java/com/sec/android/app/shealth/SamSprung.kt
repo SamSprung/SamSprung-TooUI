@@ -103,7 +103,7 @@ class SamSprung : Application() {
         val context: Context get() = mContext.get()!!
         val prefs: SharedPreferences get() = mPrefs.get()!!
         var notices: HashSet<String> = hashSetOf()
-        var statuses: HashSet<StatusBarNotification> = hashSetOf()
+        var statuses: ArrayList<StatusBarNotification> = arrayListOf()
         const val prefScreen: String = "prefScreen"
         const val prefLayout: String = "prefLayout"
         const val prefHidden: String = "prefHidden"

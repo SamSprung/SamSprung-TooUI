@@ -56,16 +56,14 @@ import android.app.ActivityOptions
 import android.content.Intent
 import android.os.Bundle
 import android.service.notification.StatusBarNotification
-import android.view.View
-import android.widget.ImageView
-import android.widget.ListView
-import android.widget.TextView
+import android.widget.LinearLayout
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.app.NotificationCompat
-import java.util.*
+import androidx.recyclerview.widget.ItemTouchHelper
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 
 
-class SamSprungHomeView : AppCompatActivity() {
+class SamSprungHomeView : AppCompatActivity(), NotificationsAdapter.OnNoticeClickListener  {
 
     @SuppressLint("InflateParams", "CutPasteId", "ClickableViewAccessibility")
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -75,7 +73,7 @@ class SamSprungHomeView : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.home_view_layout)
 
-        findViewById<ListView>(R.id.notificationList).setOnTouchListener(
+        findViewById<LinearLayout>(R.id.rootLayout).setOnTouchListener(
             object: OnSwipeTouchListener(this@SamSprungHomeView) {
             override fun onSwipeLeft() {
                 val coverIntent = Intent(SamSprung.context, CoverListenerService::class.java)
@@ -83,6 +81,7 @@ class SamSprungHomeView : AppCompatActivity() {
                 startService(coverIntent)
                 finish()
             }
+
             override fun onSwipeRight() {
                 val coverIntent = Intent(SamSprung.context, SamSprungAppsView::class.java)
                 coverIntent.addCategory(Intent.CATEGORY_LAUNCHER)
@@ -94,38 +93,49 @@ class SamSprungHomeView : AppCompatActivity() {
                 startActivity(coverIntent, options.toBundle())
                 finish()
             }
-            override fun onSwipeTop() {
-
-            }
-            override fun onSwipeBottom() {
-
-            }
         })
 
-        for (notice : StatusBarNotification in SamSprung.statuses) {
-            val card : View = layoutInflater.inflate(R.layout.notification_card, null)
-            card.findViewById<ImageView>(R.id.icon).setImageDrawable(
-                notice.notification.smallIcon.loadDrawable(this))
-            card.findViewById<TextView>(R.id.ticker).text = notice.notification.tickerText
-            if (null != notice.notification.extras) {
-                if (notice.notification.extras.getCharSequenceArray(
-                        NotificationCompat.EXTRA_TEXT_LINES) != null) {
-                    val content = Arrays.toString(
-                        notice.notification.extras.getCharSequenceArray(
-                            NotificationCompat.EXTRA_TEXT_LINES)
-                    )
-                    if (notice.notification.tickerText == content)
-                        card.findViewById<TextView>(R.id.ticker).visibility = View.GONE
-                    card.findViewById<TextView>(R.id.lines).text = content
+        val noticesView = findViewById<RecyclerView>(R.id.notificationList)
+
+        noticesView.layoutManager = LinearLayoutManager(this)
+        noticesView.adapter = NotificationsAdapter(this)
+
+        val simpleItemTouchCallback: ItemTouchHelper.SimpleCallback = object :
+            ItemTouchHelper.SimpleCallback(ItemTouchHelper.RIGHT, ItemTouchHelper.LEFT) {
+            override fun onMove(
+                recyclerView: RecyclerView,
+                viewHolder: RecyclerView.ViewHolder,
+                target: RecyclerView.ViewHolder
+            ): Boolean {
+                return false
+            }
+
+            override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
+                if (direction == ItemTouchHelper.RIGHT) {
+                    val coverIntent = Intent(SamSprung.context, SamSprungAppsView::class.java)
+                    coverIntent.addCategory(Intent.CATEGORY_LAUNCHER)
+                    val options = ActivityOptions.makeBasic().setLaunchDisplayId(1)
+                    coverIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                    coverIntent.addFlags(Intent.FLAG_ACTIVITY_MULTIPLE_TASK)
+                    coverIntent.addFlags(Intent.FLAG_ACTIVITY_FORWARD_RESULT)
+                    coverIntent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION)
+                    startActivity(coverIntent, options.toBundle())
+                    finish()
                 }
-
+                if (direction == ItemTouchHelper.LEFT) {
+                    val coverIntent = Intent(SamSprung.context, CoverListenerService::class.java)
+                    coverIntent.putExtra("dismissListener", "dismissListener")
+                    startService(coverIntent)
+                    finish()
+                }
             }
-            card.setOnClickListener {
-                startIntentSender(notice.notification.contentIntent.intentSender,
-                    null, 0, 0, 0)
-            }
-
-            findViewById<ListView>(R.id.notificationList).addView(card)
         }
+        ItemTouchHelper(simpleItemTouchCallback).attachToRecyclerView(noticesView)
+    }
+
+    override fun onNoticeClicked(notice: StatusBarNotification, position: Int) {
+        startIntentSender(
+            notice.notification.contentIntent.intentSender,
+            null, 0, 0, 0)
     }
 }

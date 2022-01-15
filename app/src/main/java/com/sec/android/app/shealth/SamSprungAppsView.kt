@@ -61,13 +61,14 @@ import android.content.IntentFilter
 import android.content.pm.ApplicationInfo
 import android.content.pm.PackageManager
 import android.content.pm.ResolveInfo
+import android.graphics.Rect
 import android.os.Bundle
 import android.provider.Settings
 import android.util.DisplayMetrics
-import android.view.WindowManager
-import android.widget.ListView
+import android.view.WindowMetrics
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.GridLayoutManager
+import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import java.util.*
@@ -82,37 +83,9 @@ class SamSprungAppsView : AppCompatActivity(), AppLauncherAdapter.OnAppClickList
 
         super.onCreate(savedInstanceState)
         setContentView(R.layout.apps_view_layout)
-
-        val launcherView = findViewById<RecyclerView>(R.id.appsList)
-
         actionBar?.hide()
 
-        findViewById<RecyclerView>(R.id.appsList).setOnTouchListener(
-            object: OnSwipeTouchListener(this@SamSprungAppsView) {
-            override fun onSwipeLeft() {
-                val coverIntent = Intent(SamSprung.context, SamSprungHomeView::class.java)
-                coverIntent.addCategory(Intent.CATEGORY_LAUNCHER)
-                val options = ActivityOptions.makeBasic().setLaunchDisplayId(1)
-                coverIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                coverIntent.addFlags(Intent.FLAG_ACTIVITY_MULTIPLE_TASK)
-                coverIntent.addFlags(Intent.FLAG_ACTIVITY_FORWARD_RESULT)
-                coverIntent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION)
-                startActivity(coverIntent, options.toBundle())
-                finish()
-            }
-            override fun onSwipeRight() {
-                val coverIntent = Intent(SamSprung.context, CoverListenerService::class.java)
-                coverIntent.putExtra("dismissListener", "dismissListener")
-                startService(coverIntent)
-                finish()
-            }
-            override fun onSwipeTop() {
-
-            }
-            override fun onSwipeBottom() {
-
-            }
-        })
+        val launcherView = findViewById<RecyclerView>(R.id.appsList)
 
         val mainIntent = Intent(Intent.ACTION_MAIN, null)
         mainIntent.addCategory(Intent.CATEGORY_LAUNCHER)
@@ -129,6 +102,38 @@ class SamSprungAppsView : AppCompatActivity(), AppLauncherAdapter.OnAppClickList
         else
             launcherView.layoutManager = LinearLayoutManager(this)
         launcherView.adapter = AppLauncherAdapter(packages, this, packageManager)
+
+        val simpleItemTouchCallback: ItemTouchHelper.SimpleCallback = object :
+            ItemTouchHelper.SimpleCallback(ItemTouchHelper.RIGHT, ItemTouchHelper.LEFT) {
+            override fun onMove(
+                recyclerView: RecyclerView,
+                viewHolder: RecyclerView.ViewHolder,
+                target: RecyclerView.ViewHolder
+            ): Boolean {
+                return false
+            }
+
+            override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
+                if (direction == ItemTouchHelper.RIGHT) {
+                    val coverIntent = Intent(SamSprung.context, CoverListenerService::class.java)
+                    coverIntent.putExtra("dismissListener", "dismissListener")
+                    startService(coverIntent)
+                    finish()
+                }
+                if (direction == ItemTouchHelper.LEFT) {
+                    val coverIntent = Intent(SamSprung.context, SamSprungHomeView::class.java)
+                    coverIntent.addCategory(Intent.CATEGORY_LAUNCHER)
+                    val options = ActivityOptions.makeBasic().setLaunchDisplayId(1)
+                    coverIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                    coverIntent.addFlags(Intent.FLAG_ACTIVITY_MULTIPLE_TASK)
+                    coverIntent.addFlags(Intent.FLAG_ACTIVITY_FORWARD_RESULT)
+                    coverIntent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION)
+                    startActivity(coverIntent, options.toBundle())
+                    finish()
+                }
+            }
+        }
+        ItemTouchHelper(simpleItemTouchCallback).attachToRecyclerView(launcherView)
     }
 
     private fun launchExported(launchPackage: String, launchActivity: String) {
@@ -200,14 +205,14 @@ class SamSprungAppsView : AppCompatActivity(), AppLauncherAdapter.OnAppClickList
 
     private fun getColumnCount(): Int {
         val metrics = DisplayMetrics()
-        val mWindowManager = getSystemService(WINDOW_SERVICE) as WindowManager
-        mWindowManager.defaultDisplay.getRealMetrics(metrics)
-        return (metrics.widthPixels / metrics.density / 112 + 0.5).toInt()
+        val windowMetrics: WindowMetrics = windowManager.currentWindowMetrics
+        val bounds: Rect = windowMetrics.bounds
+        return (bounds.width() / metrics.density / 112 + 0.5).toInt()
     }
 
-    override fun onAppClicked(appInfo: ResolveInfo?, position: Int) {
+    override fun onAppClicked(appInfo: ResolveInfo, position: Int) {
         val extras = Bundle()
-        extras.putString("launchPackage", appInfo!!.resolvePackageName)
+        extras.putString("launchPackage", appInfo.resolvePackageName)
         extras.putString("launchActivity", appInfo.activityInfo.name)
         launchExported(appInfo.resolvePackageName, appInfo.activityInfo.name)
     }

@@ -36,13 +36,13 @@ class AppLauncherAdapter(
     override fun onBindViewHolder(holder: AppViewHolder, position: Int) {
         holder.itemView.setOnClickListener {
             if (null != holder.listener) holder.listener.onAppClicked(
-                holder.appItem,
+                holder.appInfo!!,
                 position
             )
         }
         holder.iconView.setOnClickListener {
             if (null != holder.listener) {
-                holder.listener.onAppClicked(holder.appItem, position)
+                holder.listener.onAppClicked(holder.appInfo!!, position)
             }
         }
         holder.bind(getItem(position))
@@ -58,9 +58,10 @@ class AppLauncherAdapter(
         val iconView: ImageView =  itemView.findViewById(
             if (isGridView) R.id.widgetGridImage else R.id.widgetItemImage)
         private val widgetItemText: TextView = itemView.findViewById(R.id.widgetItemText)
-        var appItem: ResolveInfo? = null
+        var appInfo: ResolveInfo? = null;
         @SuppressLint("SetTextI18n")
         fun bind(appInfo: ResolveInfo) {
+            this.appInfo = appInfo
             widgetListContainer.visibility = if (isGridView) View.GONE else View.VISIBLE
             itemView.findViewById<ImageView>(R.id.widgetGridImage).visibility =
                 if (isGridView) View.VISIBLE else View.GONE
@@ -87,6 +88,6 @@ class AppLauncherAdapter(
     )
 
     interface OnAppClickListener {
-        fun onAppClicked(appInfo: ResolveInfo?, position: Int)
+        fun onAppClicked(appInfo: ResolveInfo, position: Int)
     }
 }
