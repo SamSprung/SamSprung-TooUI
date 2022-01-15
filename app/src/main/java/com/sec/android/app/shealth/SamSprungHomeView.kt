@@ -77,10 +77,13 @@ class SamSprungHomeView : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.launcher_layout)
 
-        findViewById<LinearLayout>(R.id.rootLayout).setOnTouchListener(
+        findViewById<ListView>(R.id.notificationList).setOnTouchListener(
             object: OnSwipeTouchListener(this@SamSprungHomeView) {
             override fun onSwipeLeft() {
-
+                val coverIntent = Intent(SamSprung.context, CoverListenerService::class.java)
+                coverIntent.putExtra("dismissListener", "dismissListener")
+                startService(coverIntent)
+                finish()
             }
             override fun onSwipeRight() {
 
