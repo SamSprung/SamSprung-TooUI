@@ -1,4 +1,4 @@
-package com.sec.android.app.shealth
+package com.eightbit.samsprung
 
 /* ====================================================================
  * Copyright (c) 2012-2022 AbandonedCart.  All rights reserved.
@@ -53,6 +53,7 @@ package com.sec.android.app.shealth
 
 import android.annotation.SuppressLint
 import android.app.*
+import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.graphics.Bitmap
@@ -62,9 +63,10 @@ import android.os.*
 import android.provider.Settings
 import androidx.core.app.NotificationCompat
 import androidx.core.content.ContextCompat
+import kotlin.system.exitProcess
 
 
-class CoverListenerService : Service() {
+class DisplayListenerService : Service() {
 
     private val coverLock = "cover_lock"
     private var mDisplayListener: DisplayManager.DisplayListener? = null
@@ -81,7 +83,10 @@ class CoverListenerService : Service() {
                 as KeyguardManager).newKeyguardLock(coverLock)
         val displayManager = getSystemService(Context.DISPLAY_SERVICE) as DisplayManager
 
-        if (null != intent?.getStringExtra("dismissListener"))
+        val launchPackage = intent?.getStringExtra("launchPackage")
+        val launchActivity = intent?.getStringExtra("launchActivity")
+
+        if (null == launchPackage || null == launchActivity)
             return dismissDisplayListener(displayManager, mKeyguardLock)
 
         showForegroundNotification(startId)
@@ -99,17 +104,42 @@ class CoverListenerService : Service() {
                     } catch (e: Exception) {
                         e.printStackTrace()
                     }
+                    if (SamSprung.useAppLauncherActivity) {
+                        val displayIntent = Intent(Intent.ACTION_MAIN)
+                        displayIntent.addCategory(Intent.CATEGORY_LAUNCHER)
+                        displayIntent.component = ComponentName(launchPackage, launchActivity)
+                        val options = ActivityOptions.makeBasic().setLaunchDisplayId(display)
+                        displayIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                        displayIntent.addFlags(Intent.FLAG_ACTIVITY_MULTIPLE_TASK)
+                        displayIntent.addFlags(Intent.FLAG_ACTIVITY_FORWARD_RESULT)
+                        displayIntent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION)
+                        startActivity(displayIntent, options.toBundle())
+
+                        // Only ghosts can pass through here
+                        exitProcess(0)
+                    }
                 } else {
                     if (SamSprung.isKeyguardLocked)
                         @Suppress("DEPRECATION") mKeyguardLock.disableKeyguard()
                     if (SamSprung.useAppLauncherActivity) {
                         val extras = Bundle()
-                        extras.putString("launchPackage", packageName)
-                        extras.putString("launchActivity", "$packageName.SamSprungHomeView")
+                        extras.putString("launchPackage", launchPackage)
+                        extras.putString("launchActivity", launchActivity)
                         startActivity(Intent(applicationContext,
                             AppLauncherActivity::class.java).addFlags(
                             Intent.FLAG_ACTIVITY_NEW_TASK).putExtras(extras))
                     }
+                }
+                if (!SamSprung.useAppLauncherActivity) {
+                    val displayIntent = Intent(Intent.ACTION_MAIN)
+                    displayIntent.addCategory(Intent.CATEGORY_LAUNCHER)
+                    displayIntent.component = ComponentName(launchPackage, launchActivity)
+                    val options = ActivityOptions.makeBasic().setLaunchDisplayId(display)
+                    displayIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                    displayIntent.addFlags(Intent.FLAG_ACTIVITY_MULTIPLE_TASK)
+                    displayIntent.addFlags(Intent.FLAG_ACTIVITY_FORWARD_RESULT)
+                    displayIntent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION)
+                    startActivity(displayIntent, options.toBundle())
                 }
             }
 
@@ -150,7 +180,7 @@ class CoverListenerService : Service() {
     private fun showForegroundNotification(startId: Int) {
         var mNotificationManager: NotificationManager? = null
         val pendingIntent = PendingIntent.getService(this, 0,
-            Intent(this, CoverListenerService::class.java),
+            Intent(this, DisplayListenerService::class.java),
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S)
                 PendingIntent.FLAG_IMMUTABLE else 0)
         val iconNotification = BitmapFactory.decodeResource(resources, R.mipmap.s_health_icon)

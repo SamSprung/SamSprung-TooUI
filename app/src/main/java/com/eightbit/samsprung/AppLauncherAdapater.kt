@@ -1,4 +1,4 @@
-package com.sec.android.app.shealth
+package com.eightbit.samsprung
 
 import android.content.pm.PackageManager
 import android.content.pm.ResolveInfo
@@ -8,7 +8,7 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
-import com.sec.android.app.shealth.AppLauncherAdapter.AppViewHolder
+import com.eightbit.samsprung.AppLauncherAdapter.AppViewHolder
 
 class AppLauncherAdapter(
     private val packages: MutableList<ResolveInfo>,

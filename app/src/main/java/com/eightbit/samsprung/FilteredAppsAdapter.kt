@@ -1,4 +1,4 @@
-package com.sec.android.app.shealth
+package com.eightbit.samsprung
 
 /* ====================================================================
  * Copyright (c) 2012-2022 AbandonedCart.  All rights reserved.
@@ -51,10 +51,7 @@ package com.sec.android.app.shealth
  * subject to to the terms and conditions of the Apache License, Version 2.0.
  */
 
-import android.appwidget.AppWidgetManager
-import android.content.ComponentName
 import android.content.Context
-import android.content.Intent
 import android.content.pm.PackageManager
 import android.content.pm.ResolveInfo
 import android.graphics.Bitmap
@@ -65,7 +62,6 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.*
 import androidx.appcompat.widget.SwitchCompat
-import com.samsung.android.app.shealth.tracker.pedometer.service.coverwidget.StepCoverAppWidget
 
 
 class FilteredAppsAdapter(
@@ -133,22 +129,9 @@ class FilteredAppsAdapter(
                     ), Toast.LENGTH_SHORT
                 ).show()
             }
-//            sendAppWidgetUpdateBroadcast(context)
         }
 
         return convertView
-    }
-
-    private fun sendAppWidgetUpdateBroadcast(context: Context) {
-        val updateIntent = Intent(context, StepCoverAppWidget::class.java)
-        updateIntent.action = AppWidgetManager.ACTION_APPWIDGET_UPDATE
-        updateIntent.putExtra(
-            AppWidgetManager.EXTRA_APPWIDGET_IDS,
-            AppWidgetManager.getInstance(SamSprung.context).getAppWidgetIds(
-                ComponentName(SamSprung.context, StepCoverAppWidget::class.java)
-            )
-        )
-        context.sendBroadcast(updateIntent)
     }
 
     private fun getBitmapFromDrawable(drawable: Drawable): Bitmap {

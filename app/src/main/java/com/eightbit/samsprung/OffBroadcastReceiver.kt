@@ -1,4 +1,4 @@
-package com.sec.android.app.shealth
+package com.eightbit.samsprung
 
 /* ====================================================================
  * Copyright (c) 2012-2022 AbandonedCart.  All rights reserved.
@@ -52,11 +52,9 @@ package com.sec.android.app.shealth
  */
 
 import android.app.ActivityOptions
-import android.appwidget.AppWidgetManager
 import android.content.*
 import android.content.pm.PackageInstaller
 import android.widget.Toast
-import com.samsung.android.app.shealth.tracker.pedometer.service.coverwidget.StepCoverAppWidget
 
 
 class OffBroadcastReceiver : BroadcastReceiver {
@@ -69,11 +67,11 @@ class OffBroadcastReceiver : BroadcastReceiver {
 
     override fun onReceive(context: Context, intent: Intent) {
         if (intent.action == Intent.ACTION_PACKAGE_FULLY_REMOVED) {
-            sendAppWidgetUpdateBroadcast()
+            // sendAppWidgetUpdateBroadcast()
         }
         if (intent.action == Intent.ACTION_PACKAGE_ADDED) {
             if (!intent.getBooleanExtra(Intent.EXTRA_REPLACING, false)) {
-                sendAppWidgetUpdateBroadcast()
+                // sendAppWidgetUpdateBroadcast()
             }
         }
         if (intent.action == SamSprung.updating) {
@@ -132,15 +130,5 @@ class OffBroadcastReceiver : BroadcastReceiver {
                 context.registerReceiver(OffBroadcastReceiver(), it)
             }
         }
-    }
-
-    private fun sendAppWidgetUpdateBroadcast() {
-        val updateIntent = Intent(SamSprung.context, StepCoverAppWidget::class.java)
-        updateIntent.action = AppWidgetManager.ACTION_APPWIDGET_UPDATE
-        updateIntent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS,
-            AppWidgetManager.getInstance(SamSprung.context).getAppWidgetIds(
-            ComponentName(SamSprung.context, StepCoverAppWidget::class.java))
-        )
-        SamSprung.context.sendBroadcast(updateIntent)
     }
 }

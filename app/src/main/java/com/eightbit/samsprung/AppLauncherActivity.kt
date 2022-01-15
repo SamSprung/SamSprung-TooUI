@@ -1,4 +1,4 @@
-package com.sec.android.app.shealth
+package com.eightbit.samsprung
 
 /* ====================================================================
  * Copyright (c) 2012-2022 AbandonedCart.  All rights reserved.

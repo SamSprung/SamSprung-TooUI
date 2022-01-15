@@ -1,4 +1,4 @@
-package com.sec.android.app.shealth
+package com.eightbit.samsprung
 
 /* ====================================================================
  * Copyright (c) 2012-2022 AbandonedCart.  All rights reserved.
@@ -54,7 +54,6 @@ package com.sec.android.app.shealth
 import android.Manifest
 import android.app.KeyguardManager
 import android.app.PendingIntent
-import android.appwidget.AppWidgetManager
 import android.content.*
 import android.content.pm.PackageInstaller
 import android.content.pm.PackageManager
@@ -74,7 +73,6 @@ import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
 import androidx.documentfile.provider.DocumentFile
-import com.samsung.android.app.shealth.tracker.pedometer.service.coverwidget.StepCoverAppWidget
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -206,7 +204,6 @@ class CoverSettingsActivity : AppCompatActivity() {
                 putBoolean(SamSprung.prefLayout, isChecked)
                 apply()
             }
-            // sendAppWidgetUpdateBroadcast(isChecked)
         }
 
         findViewById<Button>(R.id.cacheLogcat).setOnClickListener {
@@ -262,23 +259,6 @@ class CoverSettingsActivity : AppCompatActivity() {
             }
         }
         return false
-    }
-
-    private fun sendAppWidgetUpdateBroadcast(isGridView: Boolean) {
-        val widgetManager = AppWidgetManager.getInstance(applicationContext)
-        val ids = widgetManager.getAppWidgetIds(
-            ComponentName(applicationContext, StepCoverAppWidget::class.java))
-        widgetManager.notifyAppWidgetViewDataChanged(ids,
-            if (isGridView) R.id.widgetGridView else R.id.widgetListView
-        )
-
-        val updateIntent = Intent(applicationContext, StepCoverAppWidget::class.java)
-        updateIntent.action = AppWidgetManager.ACTION_APPWIDGET_UPDATE
-        updateIntent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS,
-            AppWidgetManager.getInstance(applicationContext).getAppWidgetIds(
-                ComponentName(applicationContext, StepCoverAppWidget::class.java))
-        )
-        applicationContext.sendBroadcast(updateIntent)
     }
 
     private fun captureLogcat(): String {

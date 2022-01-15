@@ -1,4 +1,4 @@
-package com.sec.android.app.shealth
+package com.eightbit.samsprung
 
 /* ====================================================================
  * Copyright (c) 2012-2022 AbandonedCart.  All rights reserved.
@@ -51,13 +51,10 @@ package com.sec.android.app.shealth
  * subject to to the terms and conditions of the Apache License, Version 2.0.
  */
 
-import android.appwidget.AppWidgetManager
-import android.content.ComponentName
 import android.content.Intent
 import android.os.IBinder
 import android.service.notification.NotificationListenerService
 import android.service.notification.StatusBarNotification
-import com.samsung.android.app.shealth.tracker.pedometer.service.coverwidget.StepCoverAppWidget
 
 
 class NotificationListener : NotificationListenerService() {
@@ -69,38 +66,15 @@ class NotificationListener : NotificationListenerService() {
     override fun onNotificationPosted(sbn: StatusBarNotification) {
         if (!SamSprung.statuses.contains(sbn))
             SamSprung.statuses.add(sbn)
-//        if (!SamSprung.notices.contains(sbn.packageName))
-//            SamSprung.notices.add(sbn.packageName)
-//        sendAppWidgetUpdateBroadcast()
     }
 
     override fun onNotificationRemoved(sbn: StatusBarNotification) {
         if (SamSprung.statuses.contains(sbn))
             SamSprung.statuses.remove(sbn)
-//        if (SamSprung.notices.contains(sbn.packageName))
-//            SamSprung.notices.remove(sbn.packageName)
-//        sendAppWidgetUpdateBroadcast()
     }
 
     override fun onListenerConnected() {
         super.onListenerConnected()
         SamSprung.statuses.addAll(activeNotifications)
-//        for (sbn: StatusBarNotification in activeNotifications) {
-//            if (!SamSprung.notices.contains(sbn.packageName))
-//                SamSprung.notices.add(sbn.packageName)
-//        }
-//        sendAppWidgetUpdateBroadcast()
-    }
-
-    private fun sendAppWidgetUpdateBroadcast() {
-        val updateIntent = Intent(SamSprung.context, StepCoverAppWidget::class.java)
-        updateIntent.action = AppWidgetManager.ACTION_APPWIDGET_UPDATE
-        updateIntent.putExtra(
-            AppWidgetManager.EXTRA_APPWIDGET_IDS,
-            AppWidgetManager.getInstance(SamSprung.context).getAppWidgetIds(
-                ComponentName(SamSprung.context, StepCoverAppWidget::class.java)
-            )
-        )
-        SamSprung.context.sendBroadcast(updateIntent)
     }
 }

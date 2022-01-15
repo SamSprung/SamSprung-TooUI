@@ -1,4 +1,4 @@
-package com.sec.android.app.shealth
+package com.eightbit.samsprung
 
 import android.service.notification.StatusBarNotification
 import android.view.LayoutInflater

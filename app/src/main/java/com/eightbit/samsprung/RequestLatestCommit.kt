@@ -1,4 +1,4 @@
-package com.sec.android.app.shealth
+package com.eightbit.samsprung
 
 import java.io.BufferedReader
 import java.io.IOException

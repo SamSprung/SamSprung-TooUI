@@ -1,4 +1,4 @@
-package com.sec.android.app.shealth
+package com.eightbit.samsprung
 
 import android.annotation.SuppressLint
 import android.content.Context
