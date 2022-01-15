@@ -123,11 +123,12 @@ class StepCoverAppWidget: AppWidgetProvider() {
                     Intent.FLAG_ACTIVITY_NEW_TASK).putExtras(extras))
             } else {
                 if (SamSprung.prefs.getBoolean(SamSprung.prefScreen, false)) {
-                    val mReceiver: BroadcastReceiver = OffBroadcastReceiver(
-                        ComponentName(launchPackage, launchActivity)
-                    )
                     IntentFilter(Intent.ACTION_SCREEN_OFF).also {
-                        context.applicationContext.registerReceiver(mReceiver, it)
+                        context.applicationContext.registerReceiver(
+                            OffBroadcastReceiver(
+                                ComponentName(launchPackage, launchActivity)
+                            ), it
+                        )
                     }
                 }
                 val coverIntent = Intent(Intent.ACTION_MAIN)

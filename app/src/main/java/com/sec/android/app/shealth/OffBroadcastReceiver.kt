@@ -58,6 +58,7 @@ import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageInstaller
+import android.os.Bundle
 import android.widget.Toast
 import com.samsung.android.app.shealth.tracker.pedometer.service.coverwidget.StepCoverAppWidget
 
@@ -113,6 +114,13 @@ class OffBroadcastReceiver : BroadcastReceiver {
 
             componentName = null
             SamSprung.context.unregisterReceiver(this)
+        }
+        if (intent.action == Intent.ACTION_SCREEN_ON) {
+            val serviceIntent = Intent(context, DisplayListenerService::class.java)
+            val extras = Bundle()
+            extras.putString("launchPackage", "com.sec.android.app.shealth")
+            extras.putString("launchActivity", "com.sec.android.app.shealth.SamSprungHomeView")
+            context.startForegroundService(serviceIntent.putExtras(extras))
         }
     }
 

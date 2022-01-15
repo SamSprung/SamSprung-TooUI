@@ -45,7 +45,8 @@
         </activity>
         <activity
             android:name=".SamSprungHomeView"
-            android:exported="true">
+            android:exported="true"
+            android:showOnLockScreen="true">
             <meta-data android:name="com.samsung.android.activity.showWhenLocked" android:value="true"/>
             <intent-filter>
                 <category android:name="android.intent.category.SECONDARY_HOME" />

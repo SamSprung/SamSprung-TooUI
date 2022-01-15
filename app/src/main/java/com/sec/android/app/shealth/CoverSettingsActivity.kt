@@ -55,10 +55,7 @@ import android.Manifest
 import android.app.KeyguardManager
 import android.app.PendingIntent
 import android.appwidget.AppWidgetManager
-import android.content.ComponentName
-import android.content.ContentValues
-import android.content.Context
-import android.content.Intent
+import android.content.*
 import android.content.pm.PackageInstaller
 import android.content.pm.PackageManager
 import android.content.pm.ResolveInfo
@@ -102,6 +99,10 @@ class CoverSettingsActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.step_widget_edit)
+
+        IntentFilter(Intent.ACTION_SCREEN_ON).also {
+            applicationContext.registerReceiver(OffBroadcastReceiver(), it)
+        }
 
         val files: Array<File>? = filesDir.listFiles { _, name ->
             name.lowercase(Locale.getDefault()).endsWith(".apk") }
