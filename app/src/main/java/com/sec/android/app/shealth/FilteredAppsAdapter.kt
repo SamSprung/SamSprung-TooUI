@@ -133,7 +133,7 @@ class FilteredAppsAdapter(
                     ), Toast.LENGTH_SHORT
                 ).show()
             }
-            sendAppWidgetUpdateBroadcast(context)
+//            sendAppWidgetUpdateBroadcast(context)
         }
 
         return convertView

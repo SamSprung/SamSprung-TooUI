@@ -67,21 +67,29 @@ class NotificationListener : NotificationListenerService() {
     }
 
     override fun onNotificationPosted(sbn: StatusBarNotification) {
-        if (!SamSprung.notices.contains(sbn.packageName))
-            SamSprung.notices.add(sbn.packageName)
-        sendAppWidgetUpdateBroadcast()
-
         if (!SamSprung.statuses.contains(sbn))
             SamSprung.statuses.add(sbn)
+//        if (!SamSprung.notices.contains(sbn.packageName))
+//            SamSprung.notices.add(sbn.packageName)
+//        sendAppWidgetUpdateBroadcast()
     }
 
     override fun onNotificationRemoved(sbn: StatusBarNotification) {
-        if (SamSprung.notices.contains(sbn.packageName))
-            SamSprung.notices.remove(sbn.packageName)
-        sendAppWidgetUpdateBroadcast()
-
         if (SamSprung.statuses.contains(sbn))
             SamSprung.statuses.remove(sbn)
+//        if (SamSprung.notices.contains(sbn.packageName))
+//            SamSprung.notices.remove(sbn.packageName)
+//        sendAppWidgetUpdateBroadcast()
+    }
+
+    override fun onListenerConnected() {
+        super.onListenerConnected()
+        SamSprung.statuses.addAll(activeNotifications)
+//        for (sbn: StatusBarNotification in activeNotifications) {
+//            if (!SamSprung.notices.contains(sbn.packageName))
+//                SamSprung.notices.add(sbn.packageName)
+//        }
+//        sendAppWidgetUpdateBroadcast()
     }
 
     private fun sendAppWidgetUpdateBroadcast() {

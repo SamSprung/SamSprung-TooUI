@@ -206,7 +206,7 @@ class CoverSettingsActivity : AppCompatActivity() {
                 putBoolean(SamSprung.prefLayout, isChecked)
                 apply()
             }
-            sendAppWidgetUpdateBroadcast(isChecked)
+            // sendAppWidgetUpdateBroadcast(isChecked)
         }
 
         findViewById<Button>(R.id.cacheLogcat).setOnClickListener {
