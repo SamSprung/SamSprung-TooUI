@@ -1,6 +1,5 @@
 package com.sec.android.app.shealth
 
-import android.annotation.SuppressLint
 import android.service.notification.StatusBarNotification
 import android.view.LayoutInflater
 import android.view.View
@@ -19,11 +18,11 @@ class NotificationsAdapter(
     }
 
     override fun getItemId(i: Int): Long {
-        return i.toLong()
+        return SamSprung.statuses.toTypedArray()[i].id.toLong()
     }
 
     private fun getItem(i: Int): StatusBarNotification {
-        return SamSprung.statuses[i]
+        return SamSprung.statuses.toTypedArray()[i]
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): NoticeViewHolder {
@@ -52,12 +51,18 @@ class NotificationsAdapter(
         private val tickerText: TextView =  itemView.findViewById(R.id.ticker)
         private val linesText: TextView =  itemView.findViewById(R.id.lines)
         var notice: StatusBarNotification? = null
-        @SuppressLint("SetTextI18n")
         fun bind(notice: StatusBarNotification) {
             this.notice = notice
-            iconView.setImageDrawable(
-                notice.notification.smallIcon.loadDrawable(itemView.context))
-            tickerText.text = notice.notification.tickerText
+            if (null != notice.notification.smallIcon)
+                iconView.setImageDrawable(
+                    notice.notification.smallIcon.loadDrawable(itemView.context))
+            else if (null != notice.notification.getLargeIcon())
+                iconView.setImageDrawable(
+                    notice.notification.getLargeIcon().loadDrawable(itemView.context))
+            if (null != notice.notification.tickerText)
+                tickerText.text = notice.notification.tickerText
+            else
+                tickerText.visibility = View.GONE
             if (null != notice.notification.extras) {
                 if (notice.notification.extras.getCharSequenceArray(
                         NotificationCompat.EXTRA_TEXT_LINES) != null) {
@@ -65,7 +70,8 @@ class NotificationsAdapter(
                         notice.notification.extras.getCharSequenceArray(
                             NotificationCompat.EXTRA_TEXT_LINES)
                     )
-                    if (notice.notification.tickerText == content)
+                    if (tickerText.visibility == View.VISIBLE
+                        && notice.notification.tickerText == content)
                         tickerText.visibility = View.GONE
                     linesText.text = content
                 }

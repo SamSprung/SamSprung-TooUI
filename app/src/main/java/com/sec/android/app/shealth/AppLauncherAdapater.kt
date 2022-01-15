@@ -1,13 +1,11 @@
 package com.sec.android.app.shealth
 
-import android.annotation.SuppressLint
 import android.content.pm.PackageManager
 import android.content.pm.ResolveInfo
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
-import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.sec.android.app.shealth.AppLauncherAdapter.AppViewHolder
@@ -30,7 +28,10 @@ class AppLauncherAdapter(
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): AppViewHolder {
-        return SimpleViewHolder(parent, listener, packageManager)
+        return if (SamSprung.prefs.getBoolean(SamSprung.prefLayout, true))
+            SimpleGridHolder(parent, listener, packageManager)
+        else
+            SimpleViewHolder(parent, listener, packageManager)
     }
 
     override fun onBindViewHolder(holder: AppViewHolder, position: Int) {
@@ -53,18 +54,12 @@ class AppLauncherAdapter(
         private val packageManager: PackageManager
     ) : RecyclerView.ViewHolder(itemView) {
         private val isGridView = SamSprung.prefs.getBoolean(SamSprung.prefLayout, true)
-        private val widgetListContainer = itemView.findViewById<LinearLayout>(
-            R.id.widgetListContainer)
         val iconView: ImageView =  itemView.findViewById(
             if (isGridView) R.id.widgetGridImage else R.id.widgetItemImage)
         private val widgetItemText: TextView = itemView.findViewById(R.id.widgetItemText)
-        var appInfo: ResolveInfo? = null;
-        @SuppressLint("SetTextI18n")
+        var appInfo: ResolveInfo? = null
         fun bind(appInfo: ResolveInfo) {
             this.appInfo = appInfo
-            widgetListContainer.visibility = if (isGridView) View.GONE else View.VISIBLE
-            itemView.findViewById<ImageView>(R.id.widgetGridImage).visibility =
-                if (isGridView) View.VISIBLE else View.GONE
             if (null != appInfo.loadIcon(packageManager)) {
                 iconView.setImageDrawable(appInfo.loadIcon(packageManager))
             }
@@ -82,7 +77,18 @@ class AppLauncherAdapter(
         packageManager: PackageManager
     ) : AppViewHolder(
         LayoutInflater.from(parent.context).inflate(
-            R.layout.step_widget_item,
+            R.layout.app_launcher_item,
+            parent, false
+        ), listener, packageManager
+    )
+
+    internal class SimpleGridHolder(
+        parent: ViewGroup,
+        listener: OnAppClickListener?,
+        packageManager: PackageManager
+    ) : AppViewHolder(
+        LayoutInflater.from(parent.context).inflate(
+            R.layout.app_launcher_icon,
             parent, false
         ), listener, packageManager
     )

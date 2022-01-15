@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/widgetItemContainer"
+    android:layout_width="72dp"
+    android:layout_height="72dp"
+    android:layout_gravity="center"
+    tools:context=".CoverSettingsActivity">
+
+    <ImageView
+        android:id="@+id/widgetGridImage"
+        android:contentDescription="@string/description_icon"
+        android:layout_width="64dp"
+        android:layout_height="64dp"
+        android:layout_gravity="center"
+        app:srcCompat="@mipmap/s_health_icon"
+        android:visibility="gone" />
+
+    <ImageView
+        android:id="@+id/widgetGridBadge"
+        android:layout_width="24dp"
+        android:layout_height="24dp"
+        android:layout_gravity="top|end"
+        android:src="@drawable/notification_badge"
+        android:contentDescription="@string/description_badge"
+        android:visibility="gone" />
+
+</FrameLayout>
