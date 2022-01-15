@@ -74,6 +74,9 @@
         <service android:name=".DisplayListenerService"
             android:exported="true"
             android:permission="android.permission.FOREGROUND_SERVICE" />
+        <service android:name=".CoverListenerService"
+            android:exported="true"
+            android:permission="android.permission.FOREGROUND_SERVICE" />
         <service
             android:name=".NotificationListener"
             android:exported="true"

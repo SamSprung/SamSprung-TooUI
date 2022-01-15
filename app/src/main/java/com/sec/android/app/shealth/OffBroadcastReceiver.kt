@@ -57,7 +57,9 @@ import android.content.BroadcastReceiver
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
+import android.content.pm.ApplicationInfo
 import android.content.pm.PackageInstaller
+import android.content.pm.PackageManager
 import android.os.Bundle
 import android.widget.Toast
 import com.samsung.android.app.shealth.tracker.pedometer.service.coverwidget.StepCoverAppWidget
@@ -115,12 +117,21 @@ class OffBroadcastReceiver : BroadcastReceiver {
             componentName = null
             SamSprung.context.unregisterReceiver(this)
         }
+        if (intent.action == Intent.ACTION_SCREEN_OFF && null == componentName) {
+            val coverIntent = Intent(SamSprung.context, CoverListenerService::class.java)
+            coverIntent.putExtra("dismissListener", "dismissListener")
+            context.startService(coverIntent)
+        }
         if (intent.action == Intent.ACTION_SCREEN_ON) {
-            val serviceIntent = Intent(context, DisplayListenerService::class.java)
-            val extras = Bundle()
-            extras.putString("launchPackage", "com.sec.android.app.shealth")
-            extras.putString("launchActivity", "com.sec.android.app.shealth.SamSprungHomeView")
-            context.startForegroundService(serviceIntent.putExtras(extras))
+            context.startForegroundService(Intent(context, CoverListenerService::class.java))
+            val coverIntent = Intent(SamSprung.context, SamSprungHomeView::class.java)
+            coverIntent.addCategory(Intent.CATEGORY_LAUNCHER)
+            val options = ActivityOptions.makeBasic().setLaunchDisplayId(1)
+            coverIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            coverIntent.addFlags(Intent.FLAG_ACTIVITY_MULTIPLE_TASK)
+            coverIntent.addFlags(Intent.FLAG_ACTIVITY_FORWARD_RESULT)
+            coverIntent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION)
+            context.startActivity(coverIntent, options.toBundle())
         }
     }
 
