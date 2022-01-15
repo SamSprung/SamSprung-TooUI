@@ -1,7 +1,7 @@
 package com.sec.android.app.shealth
 
 /* ====================================================================
- * Copyright (c) 2012-2021 AbandonedCart.  All rights reserved.
+ * Copyright (c) 2012-2022 AbandonedCart.  All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -52,14 +52,12 @@ package com.sec.android.app.shealth
  */
 
 import android.annotation.SuppressLint
+import android.app.ActivityOptions
 import android.content.Intent
-import android.os.Build
 import android.os.Bundle
 import android.service.notification.StatusBarNotification
 import android.view.View
-import android.view.WindowManager
 import android.widget.ImageView
-import android.widget.LinearLayout
 import android.widget.ListView
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
@@ -75,7 +73,7 @@ class SamSprungHomeView : AppCompatActivity() {
         setTurnScreenOn(true)
 
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.launcher_layout)
+        setContentView(R.layout.home_view_layout)
 
         findViewById<ListView>(R.id.notificationList).setOnTouchListener(
             object: OnSwipeTouchListener(this@SamSprungHomeView) {
@@ -86,6 +84,20 @@ class SamSprungHomeView : AppCompatActivity() {
                 finish()
             }
             override fun onSwipeRight() {
+                val coverIntent = Intent(SamSprung.context, SamSprungAppsView::class.java)
+                coverIntent.addCategory(Intent.CATEGORY_LAUNCHER)
+                val options = ActivityOptions.makeBasic().setLaunchDisplayId(1)
+                coverIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                coverIntent.addFlags(Intent.FLAG_ACTIVITY_MULTIPLE_TASK)
+                coverIntent.addFlags(Intent.FLAG_ACTIVITY_FORWARD_RESULT)
+                coverIntent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION)
+                startActivity(coverIntent, options.toBundle())
+                finish()
+            }
+            override fun onSwipeTop() {
+
+            }
+            override fun onSwipeBottom() {
 
             }
         })
