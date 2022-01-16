@@ -52,10 +52,12 @@ package com.eightbit.samsprung
  */
 
 import android.app.ActivityOptions
-import android.content.*
+import android.content.BroadcastReceiver
+import android.content.ComponentName
+import android.content.Context
+import android.content.Intent
 import android.content.pm.PackageInstaller
 import android.widget.Toast
-import androidx.core.app.ShareCompat.getCallingActivity
 
 
 class OffBroadcastReceiver : BroadcastReceiver {
@@ -67,22 +69,6 @@ class OffBroadcastReceiver : BroadcastReceiver {
     }
 
     override fun onReceive(context: Context, intent: Intent) {
-        if (intent.`package` != context.packageName) {
-            if (intent.action == Intent.ACTION_BOOT_COMPLETED)
-                IntentFilter(Intent.ACTION_SCREEN_ON).also {
-                    context.registerReceiver(OffBroadcastReceiver(), it)
-                }
-            else return
-        }
-
-        if (intent.action == Intent.ACTION_PACKAGE_FULLY_REMOVED) {
-            // sendAppWidgetUpdateBroadcast()
-        }
-        if (intent.action == Intent.ACTION_PACKAGE_ADDED) {
-            if (!intent.getBooleanExtra(Intent.EXTRA_REPLACING, false)) {
-                // sendAppWidgetUpdateBroadcast()
-            }
-        }
         if (intent.action == SamSprung.updating) {
             when (intent.getIntExtra(PackageInstaller.EXTRA_STATUS, -1)) {
                 PackageInstaller.STATUS_PENDING_USER_ACTION -> {
@@ -102,29 +88,26 @@ class OffBroadcastReceiver : BroadcastReceiver {
                 }
             }
         }
-        if (intent.action == Intent.ACTION_SCREEN_OFF && null == componentName) {
-            context.startService(Intent(SamSprung.context, CoverListenerService::class.java)
-                .setAction(SamSprung.listener))
-        }
-        if (intent.action == Intent.ACTION_SCREEN_OFF && null != componentName) {
-            context.startService(Intent(context, DisplayListenerService::class.java))
+        if (intent.action == Intent.ACTION_SCREEN_OFF) {
+            if (null != componentName) {
+                context.startService(Intent(context, DisplayListenerService::class.java))
 
-            val screenIntent = Intent(Intent.ACTION_MAIN)
-            screenIntent.addCategory(Intent.CATEGORY_LAUNCHER)
-            screenIntent.component = componentName
-            val options = ActivityOptions.makeBasic().setLaunchDisplayId(0)
-            screenIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-            screenIntent.addFlags(Intent.FLAG_ACTIVITY_MULTIPLE_TASK)
-            screenIntent.addFlags(Intent.FLAG_ACTIVITY_FORWARD_RESULT)
-            screenIntent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION)
-            context.startActivity(screenIntent, options.toBundle())
+                val screenIntent = Intent(Intent.ACTION_MAIN)
+                screenIntent.addCategory(Intent.CATEGORY_LAUNCHER)
+                screenIntent.component = componentName
+                val options = ActivityOptions.makeBasic().setLaunchDisplayId(0)
+                screenIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                screenIntent.addFlags(Intent.FLAG_ACTIVITY_MULTIPLE_TASK)
+                screenIntent.addFlags(Intent.FLAG_ACTIVITY_FORWARD_RESULT)
+                screenIntent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION)
+                context.startActivity(screenIntent, options.toBundle())
 
-            componentName = null
-            SamSprung.context.unregisterReceiver(this)
+                componentName = null
+                SamSprung.context.unregisterReceiver(this)
+            }
         }
         if (intent.action == Intent.ACTION_SCREEN_ON) {
-            context.startForegroundService(Intent(context, CoverListenerService::class.java))
-            val coverIntent = Intent(SamSprung.context, SamSprungAppsView::class.java)
+            val coverIntent = Intent(SamSprung.context, CoverDrawerActivity::class.java)
             coverIntent.addCategory(Intent.CATEGORY_LAUNCHER)
             val options = ActivityOptions.makeBasic().setLaunchDisplayId(1)
             coverIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)

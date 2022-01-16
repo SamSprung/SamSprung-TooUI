@@ -63,11 +63,8 @@ import android.content.IntentFilter
 import android.content.pm.ApplicationInfo
 import android.content.pm.PackageManager
 import android.content.pm.ResolveInfo
-import android.graphics.drawable.Drawable
-import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
-import android.view.Window
 import android.widget.LinearLayout
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
@@ -76,17 +73,16 @@ import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.eightbitlab.blurview.BlurView
-import com.eightbitlab.blurview.BlurViewFacade
 import com.eightbitlab.blurview.RenderScriptBlur
 import java.util.*
 
 
-class SamSprungAppsView : AppCompatActivity(), AppLauncherAdapter.OnAppClickListener {
+class CoverDrawerActivity : AppCompatActivity(), AppLauncherAdapter.OnAppClickListener {
 
     @SuppressLint("InflateParams", "CutPasteId", "ClickableViewAccessibility")
     override fun onCreate(savedInstanceState: Bundle?) {
         setShowWhenLocked(true)
-        setTurnScreenOn(true)
+        // setTurnScreenOn(true)
 
         super.onCreate(savedInstanceState)
         supportActionBar?.hide()
@@ -138,14 +134,12 @@ class SamSprungAppsView : AppCompatActivity(), AppLauncherAdapter.OnAppClickList
 
             override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
                 if (direction == ItemTouchHelper.RIGHT) {
-                    startActivity(Intent(SamSprung.context, SamSprungHomeView::class.java)
+                    startActivity(Intent(SamSprung.context, CoverNotifications::class.java)
                         .addCategory(Intent.CATEGORY_LAUNCHER),
                         ActivityOptions.makeBasic().setLaunchDisplayId(1).toBundle())
                     finish()
                 }
                 if (direction == ItemTouchHelper.LEFT) {
-                    startService(Intent(SamSprung.context, CoverListenerService::class.java)
-                        .setAction(SamSprung.listener))
                     finish()
                 }
             }

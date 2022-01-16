@@ -88,22 +88,12 @@ class AppLauncherActivity : AppCompatActivity() {
 
         if (null == launchPackage || null == launchActivity) finish()
 
-        if (Settings.System.canWrite(applicationContext)
-            && SamSprung.prefs.getBoolean(SamSprung.autoRotate, true)) {
-            Settings.System.putInt(
-                SamSprung.context.contentResolver,
-                Settings.System.ACCELEROMETER_ROTATION, 0
-            )
-        }
-        requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_BEHIND
-
         val wIRCA = WindowInfoRepositoryCallbackAdapter(windowInfoRepository())
         windowWasher = Consumer<WindowLayoutInfo> { windowLayoutInfo ->
             for (displayFeature in windowLayoutInfo.displayFeatures) {
                 if (displayFeature is FoldingFeature) {
                     if (displayFeature.state == FoldingFeature.State.HALF_OPENED ||
-                        displayFeature.state == FoldingFeature.State.FLAT
-                    ) {
+                        displayFeature.state == FoldingFeature.State.FLAT) {
                         startService(Intent(applicationContext,
                             DisplayListenerService::class.java))
 
@@ -127,6 +117,15 @@ class AppLauncherActivity : AppCompatActivity() {
             }
         }
         wIRCA.addWindowLayoutInfoListener(runOnUiThreadExecutor(), windowWasher)
+
+        if (Settings.System.canWrite(applicationContext)
+            && SamSprung.prefs.getBoolean(SamSprung.autoRotate, true)) {
+            Settings.System.putInt(
+                SamSprung.context.contentResolver,
+                Settings.System.ACCELEROMETER_ROTATION, 0
+            )
+        }
+        requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_BEHIND
 
         if (Settings.canDrawOverlays(SamSprung.context)) {
             launchWidgetActivity(launchActivity, launchPackage)

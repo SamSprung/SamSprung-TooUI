@@ -75,7 +75,7 @@ class AppLauncherAdapter(
         packageManager: PackageManager
     ) : AppViewHolder(
         LayoutInflater.from(parent.context).inflate(
-            R.layout.app_launcher_item,
+            R.layout.app_drawer_item,
             parent, false
         ), listener, packageManager
     )
@@ -86,7 +86,7 @@ class AppLauncherAdapter(
         packageManager: PackageManager
     ) : AppViewHolder(
         LayoutInflater.from(parent.context).inflate(
-            R.layout.app_launcher_icon,
+            R.layout.app_drawer_icon,
             parent, false
         ), listener, packageManager
     )

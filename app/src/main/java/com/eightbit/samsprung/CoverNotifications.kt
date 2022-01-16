@@ -66,21 +66,20 @@ import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.eightbitlab.blurview.BlurView
-import com.eightbitlab.blurview.BlurViewFacade
 import com.eightbitlab.blurview.RenderScriptBlur
 import java.util.*
 
 
-class SamSprungHomeView : AppCompatActivity(), NotificationsAdapter.OnNoticeClickListener  {
+class CoverNotifications : AppCompatActivity(), NotificationsAdapter.OnNoticeClickListener  {
 
     @SuppressLint("InflateParams", "CutPasteId", "ClickableViewAccessibility")
     override fun onCreate(savedInstanceState: Bundle?) {
         setShowWhenLocked(true)
-        setTurnScreenOn(true)
+        // setTurnScreenOn(true)
 
         super.onCreate(savedInstanceState)
         supportActionBar?.hide()
-        setContentView(R.layout.home_view_layout)
+        setContentView(R.layout.notification_list)
 
         val permission = ContextCompat.checkSelfPermission(
             this, Manifest.permission.READ_EXTERNAL_STORAGE
@@ -99,17 +98,15 @@ class SamSprungHomeView : AppCompatActivity(), NotificationsAdapter.OnNoticeClic
         }
 
         findViewById<BlurView>(R.id.blurContainer).setOnTouchListener(
-            object: OnSwipeTouchListener(this@SamSprungHomeView) {
+            object: OnSwipeTouchListener(this@CoverNotifications) {
             override fun onSwipeLeft() {
-                startActivity(Intent(SamSprung.context, SamSprungAppsView::class.java)
+                startActivity(Intent(SamSprung.context, CoverDrawerActivity::class.java)
                     .addCategory(Intent.CATEGORY_LAUNCHER),
                     ActivityOptions.makeBasic().setLaunchDisplayId(1).toBundle())
                 finish()
             }
 
             override fun onSwipeRight() {
-                startService(Intent(SamSprung.context, CoverListenerService::class.java)
-                    .setAction(SamSprung.listener))
                 finish()
             }
         })
@@ -131,12 +128,10 @@ class SamSprungHomeView : AppCompatActivity(), NotificationsAdapter.OnNoticeClic
 
             override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
                 if (direction == ItemTouchHelper.RIGHT) {
-                    startService(Intent(SamSprung.context, CoverListenerService::class.java)
-                        .setAction(SamSprung.listener))
                     finish()
                 }
                 if (direction == ItemTouchHelper.LEFT) {
-                    startActivity(Intent(SamSprung.context, SamSprungAppsView::class.java)
+                    startActivity(Intent(SamSprung.context, CoverDrawerActivity::class.java)
                         .addCategory(Intent.CATEGORY_LAUNCHER),
                         ActivityOptions.makeBasic().setLaunchDisplayId(1).toBundle())
                     finish()

@@ -34,6 +34,7 @@
             android:name="android.supports_size_changes" android:value="true" />
         <activity
             android:name=".CoverSettingsActivity"
+            android:launchMode="singleTop"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -41,8 +42,9 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".SamSprungHomeView"
+            android:name=".CoverNotifications"
             android:exported="true"
+            android:launchMode="singleTop"
             android:showOnLockScreen="true">
             <meta-data android:name="com.samsung.android.activity.showWhenLocked" android:value="true"/>
             <intent-filter>
@@ -51,8 +53,9 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".SamSprungAppsView"
+            android:name=".CoverDrawerActivity"
             android:exported="true"
+            android:launchMode="singleTop"
             android:showOnLockScreen="true">
             <meta-data android:name="com.samsung.android.activity.showWhenLocked" android:value="true"/>
         </activity>
@@ -62,15 +65,8 @@
             android:resizeableActivity="true">
         </activity>
         <receiver android:name=".OffBroadcastReceiver"
-            android:exported="true">
-            <intent-filter>
-                <action android:name="android.intent.action.BOOT_COMPLETED" />
-            </intent-filter>
-        </receiver>
+            android:exported="false" />
         <service android:name=".DisplayListenerService"
-            android:exported="true"
-            android:permission="android.permission.FOREGROUND_SERVICE" />
-        <service android:name=".CoverListenerService"
             android:exported="true"
             android:permission="android.permission.FOREGROUND_SERVICE" />
         <service
