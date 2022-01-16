@@ -1,6 +1,7 @@
 package com.eightbit.samsprung
 
-import android.service.notification.StatusBarNotification
+import android.app.Notification
+import android.graphics.Bitmap
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -14,15 +15,15 @@ class NotificationsAdapter(
     private val listener: OnNoticeClickListener
 ) : RecyclerView.Adapter<NotificationsAdapter.NoticeViewHolder>() {
     override fun getItemCount(): Int {
-        return SamSprung.statuses.size
+        return SamSprung.notices.size
     }
 
     override fun getItemId(i: Int): Long {
-        return SamSprung.statuses.toTypedArray()[i].id.toLong()
+        return SamSprung.notices[i].number.toLong()
     }
 
-    private fun getItem(i: Int): StatusBarNotification {
-        return SamSprung.statuses.toTypedArray()[i]
+    private fun getItem(i: Int): Notification {
+        return SamSprung.notices[i]
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): NoticeViewHolder {
@@ -50,30 +51,35 @@ class NotificationsAdapter(
         val iconView: ImageView = itemView.findViewById(R.id.icon)
         private val tickerText: TextView =  itemView.findViewById(R.id.ticker)
         private val linesText: TextView =  itemView.findViewById(R.id.lines)
-        var notice: StatusBarNotification? = null
-        fun bind(notice: StatusBarNotification) {
+        var notice: Notification? = null
+        fun bind(notice: Notification) {
             this.notice = notice
-            if (null != notice.notification.smallIcon)
-                iconView.setImageDrawable(
-                    notice.notification.smallIcon.loadDrawable(itemView.context))
-            else if (null != notice.notification.getLargeIcon())
-                iconView.setImageDrawable(
-                    notice.notification.getLargeIcon().loadDrawable(itemView.context))
-            if (null != notice.notification.tickerText)
-                tickerText.text = notice.notification.tickerText
+
+            val bigPicture: Bitmap? = notice.extras.getParcelable(Notification.EXTRA_PICTURE)
+            val bigLargeIcon: Any? = notice.extras.get(Notification.EXTRA_LARGE_ICON_BIG)
+            when {
+                null != notice.smallIcon -> iconView.setImageDrawable(
+                    notice.smallIcon.loadDrawable(itemView.context))
+                null != notice.getLargeIcon() -> iconView.setImageDrawable(
+                    notice.getLargeIcon().loadDrawable(itemView.context))
+                null != bigPicture -> iconView.setImageBitmap(bigPicture)
+                bigLargeIcon is Bitmap -> iconView.setImageBitmap(bigLargeIcon)
+            }
+
+            if (null != notice.tickerText)
+                tickerText.text = notice.tickerText
             else
                 tickerText.visibility = View.GONE
-            if (null != notice.notification.extras) {
-                if (notice.notification.extras.getCharSequenceArray(
-                        NotificationCompat.EXTRA_TEXT_LINES) != null) {
-                    val content = Arrays.toString(
-                        notice.notification.extras.getCharSequenceArray(
+            if (null != notice.extras) {
+                if (null != notice.extras.getCharSequenceArray(
+                        NotificationCompat.EXTRA_TEXT_LINES)) {
+                    linesText.text = Arrays.toString(
+                        notice.extras.getCharSequenceArray(
                             NotificationCompat.EXTRA_TEXT_LINES)
                     )
-                    if (tickerText.visibility == View.VISIBLE
-                        && notice.notification.tickerText == content)
+                    if (View.VISIBLE == tickerText.visibility
+                        && notice.tickerText == linesText.text)
                         tickerText.visibility = View.GONE
-                    linesText.text = content
                 }
 
             }
@@ -91,6 +97,6 @@ class NotificationsAdapter(
     )
 
     interface OnNoticeClickListener {
-        fun onNoticeClicked(notice: StatusBarNotification, position: Int)
+        fun onNoticeClicked(notice: Notification, position: Int)
     }
 }

@@ -14,8 +14,7 @@
         android:layout_width="64dp"
         android:layout_height="64dp"
         android:layout_gravity="center"
-        app:srcCompat="@mipmap/s_health_icon"
-        android:visibility="gone" />
+        app:srcCompat="@mipmap/s_health_icon" />
 
     <ImageView
         android:id="@+id/widgetGridBadge"

@@ -52,6 +52,7 @@ package com.eightbit.samsprung
  */
 
 import android.app.Application
+import android.app.Notification
 import android.content.Context
 import android.content.SharedPreferences
 import android.service.notification.StatusBarNotification
@@ -102,8 +103,7 @@ class SamSprung : Application() {
         private lateinit var mPrefs: SoftReference<SharedPreferences>
         val context: Context get() = mContext.get()!!
         val prefs: SharedPreferences get() = mPrefs.get()!!
-        var notices: HashSet<String> = hashSetOf()
-        var statuses: HashSet<StatusBarNotification> = hashSetOf()
+        var notices: ArrayList<Notification> = arrayListOf()
         const val prefScreen: String = "prefScreen"
         const val prefLayout: String = "prefLayout"
         const val prefHidden: String = "prefHidden"

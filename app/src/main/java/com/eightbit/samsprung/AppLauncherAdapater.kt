@@ -28,9 +28,9 @@ class AppLauncherAdapter(
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): AppViewHolder {
-//        return if (SamSprung.prefs.getBoolean(SamSprung.prefLayout, true))
-//            SimpleGridHolder(parent, listener, packageManager)
-//        else
+        return if (SamSprung.prefs.getBoolean(SamSprung.prefLayout, true))
+            SimpleGridHolder(parent, listener, packageManager)
+        else
         return SimpleViewHolder(parent, listener, packageManager)
     }
 
@@ -60,12 +60,12 @@ class AppLauncherAdapter(
             if (null != appInfo.loadIcon(packageManager)) {
                 iconView.setImageDrawable(appInfo.loadIcon(packageManager))
             }
-//            if (!SamSprung.prefs.getBoolean(SamSprung.prefLayout, true)) {
+            if (!SamSprung.prefs.getBoolean(SamSprung.prefLayout, true)) {
                 if (null != appInfo.loadLabel(packageManager)) {
                     itemView.findViewById<TextView>(R.id.widgetItemText).text =
                         appInfo.loadLabel(packageManager).toString()
                 }
-//            }
+            }
         }
     }
 

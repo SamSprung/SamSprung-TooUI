@@ -53,6 +53,7 @@ package com.eightbit.samsprung
 
 import android.annotation.SuppressLint
 import android.app.ActivityOptions
+import android.app.Notification
 import android.content.Intent
 import android.os.Bundle
 import android.service.notification.StatusBarNotification
@@ -99,10 +100,10 @@ class SamSprungHomeView : AppCompatActivity(), NotificationsAdapter.OnNoticeClic
         val noticesView = findViewById<RecyclerView>(R.id.notificationList)
 
         noticesView.layoutManager = LinearLayoutManager(this)
-//        noticesView.adapter = NotificationsAdapter(this)
+        noticesView.adapter = NotificationsAdapter(this)
 
         val simpleItemTouchCallback: ItemTouchHelper.SimpleCallback = object :
-            ItemTouchHelper.SimpleCallback(ItemTouchHelper.RIGHT, ItemTouchHelper.LEFT) {
+            ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.RIGHT or ItemTouchHelper.LEFT) {
             override fun onMove(
                 recyclerView: RecyclerView,
                 viewHolder: RecyclerView.ViewHolder,
@@ -134,9 +135,9 @@ class SamSprungHomeView : AppCompatActivity(), NotificationsAdapter.OnNoticeClic
         ItemTouchHelper(simpleItemTouchCallback).attachToRecyclerView(noticesView)
     }
 
-    override fun onNoticeClicked(notice: StatusBarNotification, position: Int) {
+    override fun onNoticeClicked(notice: Notification, position: Int) {
         startIntentSender(
-            notice.notification.contentIntent.intentSender,
+            notice.contentIntent.intentSender,
             null, 0, 0, 0)
     }
 }

@@ -94,14 +94,14 @@ class SamSprungAppsView : AppCompatActivity(), AppLauncherAdapter.OnAppClickList
         ) }
         Collections.sort(packages, ResolveInfo.DisplayNameComparator(packageManager))
 
-//        if (SamSprung.prefs.getBoolean(SamSprung.prefLayout, true))
-//            launcherView.layoutManager = GridLayoutManager(this, 4)
-//        else
+        if (SamSprung.prefs.getBoolean(SamSprung.prefLayout, true))
+            launcherView.layoutManager = GridLayoutManager(this, getColumnCount())
+        else
             launcherView.layoutManager = LinearLayoutManager(this)
         launcherView.adapter = AppLauncherAdapter(packages, this, packageManager)
 
         val simpleItemTouchCallback: ItemTouchHelper.SimpleCallback = object :
-            ItemTouchHelper.SimpleCallback(ItemTouchHelper.RIGHT, ItemTouchHelper.LEFT) {
+            ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.RIGHT or ItemTouchHelper.LEFT) {
             override fun onMove(
                 recyclerView: RecyclerView,
                 viewHolder: RecyclerView.ViewHolder,
@@ -198,5 +198,9 @@ class SamSprungAppsView : AppCompatActivity(), AppLauncherAdapter.OnAppClickList
             coverIntent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION)
             startActivity(coverIntent.putExtras(extras), options.toBundle())
         }
+    }
+
+    private fun getColumnCount(): Int {
+        return (windowManager.currentWindowMetrics.bounds.width() / 96 + 0.5).toInt()
     }
 }
