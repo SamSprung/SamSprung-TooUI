@@ -140,8 +140,7 @@ class CoverNotifications : AppCompatActivity(), NotificationsAdapter.OnNoticeCli
     }
 
     override fun onNoticeClicked(notice: Notification, position: Int) {
-        startIntentSender(
-            notice.contentIntent.intentSender,
+        startIntentSender(notice.contentIntent.intentSender,
             null, 0, 0, 0)
     }
 }

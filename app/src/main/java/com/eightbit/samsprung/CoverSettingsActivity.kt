@@ -235,7 +235,6 @@ class CoverSettingsActivity : AppCompatActivity() {
         mainIntent.addCategory(Intent.CATEGORY_LAUNCHER)
         mainIntent.removeCategory(Intent.CATEGORY_HOME)
         val packages = packageManager.queryIntentActivities(mainIntent, 0)
-        packages.removeIf { item -> item.activityInfo.packageName == packageName }
         Collections.sort(packages, ResolveInfo.DisplayNameComparator(packageManager))
 
         val unlisted: HashSet<String> = HashSet()
