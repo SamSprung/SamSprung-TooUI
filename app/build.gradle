@@ -10,8 +10,8 @@ android {
         applicationId "com.eightbit.samsprung"
         minSdk 30
         targetSdk 30
-        versionCode 6196009
-        versionName "6.19.6.009"
+        versionCode 100
+        versionName "1.0.0"
 
         def commit = 'git rev-parse --short HEAD'.execute().text.trim()
         buildConfigField "String", "COMMIT", "\""+commit+"\""
@@ -72,7 +72,7 @@ android {
 dependencies {
     api 'com.google.android.material:material:1.4.0'
     api 'androidx.core:core-ktx:1.7.0'
-    api 'androidx.appcompat:appcompat:1.4.0'
+    api 'androidx.appcompat:appcompat:1.4.1'
     // Includes WindowInfoRepositoryCallbackAdapter
     api 'androidx.window:window:1.0.0-beta03'
     api 'androidx.window:window-java:1.0.0-beta03'
