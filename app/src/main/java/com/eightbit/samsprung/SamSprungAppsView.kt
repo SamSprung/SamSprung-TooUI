@@ -61,11 +61,8 @@ import android.content.IntentFilter
 import android.content.pm.ApplicationInfo
 import android.content.pm.PackageManager
 import android.content.pm.ResolveInfo
-import android.graphics.Rect
 import android.os.Bundle
 import android.provider.Settings
-import android.util.DisplayMetrics
-import android.view.WindowMetrics
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.ItemTouchHelper
@@ -97,9 +94,9 @@ class SamSprungAppsView : AppCompatActivity(), AppLauncherAdapter.OnAppClickList
         ) }
         Collections.sort(packages, ResolveInfo.DisplayNameComparator(packageManager))
 
-        if (SamSprung.prefs.getBoolean(SamSprung.prefLayout, true))
-            launcherView.layoutManager = GridLayoutManager(this, getColumnCount())
-        else
+//        if (SamSprung.prefs.getBoolean(SamSprung.prefLayout, true))
+//            launcherView.layoutManager = GridLayoutManager(this, 4)
+//        else
             launcherView.layoutManager = LinearLayoutManager(this)
         launcherView.adapter = AppLauncherAdapter(packages, this, packageManager)
 
@@ -136,7 +133,7 @@ class SamSprungAppsView : AppCompatActivity(), AppLauncherAdapter.OnAppClickList
         ItemTouchHelper(simpleItemTouchCallback).attachToRecyclerView(launcherView)
     }
 
-    private fun launchExported(launchPackage: String, launchActivity: String) {
+    override fun onAppClicked(appInfo: ResolveInfo, position: Int) {
         if (Settings.System.canWrite(SamSprung.context))  {
             try {
                 with (SamSprung.prefs.edit()) {
@@ -160,10 +157,10 @@ class SamSprungAppsView : AppCompatActivity(), AppLauncherAdapter.OnAppClickList
             mKeyguardManager.newKeyguardLock("cover_lock").disableKeyguard()
         }
 
-        val serviceIntent = Intent(applicationContext, DisplayListenerService::class.java)
+        val serviceIntent = Intent(this, DisplayListenerService::class.java)
         val extras = Bundle()
-        extras.putString("launchPackage", launchPackage)
-        extras.putString("launchActivity", launchActivity)
+        extras.putString("launchPackage", appInfo.activityInfo.packageName)
+        extras.putString("launchActivity", appInfo.activityInfo.name)
         startForegroundService(serviceIntent.putExtras(extras))
 
         if (SamSprung.useAppLauncherActivity) {
@@ -175,19 +172,19 @@ class SamSprungAppsView : AppCompatActivity(), AppLauncherAdapter.OnAppClickList
                 IntentFilter(Intent.ACTION_SCREEN_OFF).also {
                     applicationContext.registerReceiver(
                         OffBroadcastReceiver(
-                            ComponentName(launchPackage, launchActivity)
+                            ComponentName(appInfo.activityInfo.packageName, appInfo.activityInfo.name)
                         ), it
                     )
                 }
             }
             val coverIntent = Intent(Intent.ACTION_MAIN)
             coverIntent.addCategory(Intent.CATEGORY_LAUNCHER)
-            coverIntent.component = ComponentName(launchPackage, launchActivity)
+            coverIntent.component = ComponentName(appInfo.activityInfo.packageName, appInfo.activityInfo.name)
             val options = ActivityOptions.makeBasic().setLaunchDisplayId(1)
             try {
                 val applicationInfo: ApplicationInfo =
                     packageManager.getApplicationInfo(
-                        launchPackage, PackageManager.GET_META_DATA
+                        appInfo.activityInfo.packageName, PackageManager.GET_META_DATA
                     )
                 applicationInfo.metaData.putString(
                     "com.samsung.android.activity.showWhenLocked", "true"
@@ -201,19 +198,5 @@ class SamSprungAppsView : AppCompatActivity(), AppLauncherAdapter.OnAppClickList
             coverIntent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION)
             startActivity(coverIntent.putExtras(extras), options.toBundle())
         }
-    }
-
-    private fun getColumnCount(): Int {
-        val metrics = DisplayMetrics()
-        val windowMetrics: WindowMetrics = windowManager.currentWindowMetrics
-        val bounds: Rect = windowMetrics.bounds
-        return (bounds.width() / metrics.density / 112 + 0.5).toInt()
-    }
-
-    override fun onAppClicked(appInfo: ResolveInfo, position: Int) {
-        val extras = Bundle()
-        extras.putString("launchPackage", appInfo.resolvePackageName)
-        extras.putString("launchActivity", appInfo.activityInfo.name)
-        launchExported(appInfo.resolvePackageName, appInfo.activityInfo.name)
     }
 }

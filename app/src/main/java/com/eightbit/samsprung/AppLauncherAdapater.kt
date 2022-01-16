@@ -28,10 +28,10 @@ class AppLauncherAdapter(
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): AppViewHolder {
-        return if (SamSprung.prefs.getBoolean(SamSprung.prefLayout, true))
-            SimpleGridHolder(parent, listener, packageManager)
-        else
-            SimpleViewHolder(parent, listener, packageManager)
+//        return if (SamSprung.prefs.getBoolean(SamSprung.prefLayout, true))
+//            SimpleGridHolder(parent, listener, packageManager)
+//        else
+        return SimpleViewHolder(parent, listener, packageManager)
     }
 
     override fun onBindViewHolder(holder: AppViewHolder, position: Int) {
@@ -53,21 +53,19 @@ class AppLauncherAdapter(
         itemView: View, val listener: OnAppClickListener?,
         private val packageManager: PackageManager
     ) : RecyclerView.ViewHolder(itemView) {
-        private val isGridView = SamSprung.prefs.getBoolean(SamSprung.prefLayout, true)
-        val iconView: ImageView =  itemView.findViewById(
-            if (isGridView) R.id.widgetGridImage else R.id.widgetItemImage)
-        private val widgetItemText: TextView = itemView.findViewById(R.id.widgetItemText)
+        val iconView: ImageView = itemView.findViewById(R.id.widgetItemImage)
         var appInfo: ResolveInfo? = null
         fun bind(appInfo: ResolveInfo) {
             this.appInfo = appInfo
             if (null != appInfo.loadIcon(packageManager)) {
                 iconView.setImageDrawable(appInfo.loadIcon(packageManager))
             }
-            if (!isGridView) {
+//            if (!SamSprung.prefs.getBoolean(SamSprung.prefLayout, true)) {
                 if (null != appInfo.loadLabel(packageManager)) {
-                    widgetItemText.text = appInfo.loadLabel(packageManager).toString()
+                    itemView.findViewById<TextView>(R.id.widgetItemText).text =
+                        appInfo.loadLabel(packageManager).toString()
                 }
-            }
+//            }
         }
     }
 
