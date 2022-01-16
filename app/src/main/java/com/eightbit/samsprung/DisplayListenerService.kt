@@ -183,7 +183,7 @@ class DisplayListenerService : Service() {
             Intent(this, DisplayListenerService::class.java),
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S)
                 PendingIntent.FLAG_IMMUTABLE else 0)
-        val iconNotification = BitmapFactory.decodeResource(resources, R.mipmap.s_health_icon)
+        val iconNotification = BitmapFactory.decodeResource(resources, R.mipmap.sprung_icon)
         if (null == mNotificationManager) {
             mNotificationManager = getSystemService(
                 Context.NOTIFICATION_SERVICE) as NotificationManager

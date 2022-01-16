@@ -63,7 +63,7 @@
         android:layout_weight="1"
         android:dividerHeight="1dp"
         android:divider="@color/WHITE"
-        tools:listitem="@layout/step_widget_item" />
+        tools:listitem="@layout/app_hidden_item" />
 
     <Space
         android:layout_width="match_parent"

@@ -75,7 +75,9 @@ class NotificationListener : NotificationListenerService() {
 
     override fun onListenerConnected() {
         super.onListenerConnected()
-        for (sbn: StatusBarNotification in activeNotifications)
-            SamSprung.notices.add(sbn.notification)
+        for (sbn: StatusBarNotification in activeNotifications) {
+            if (!sbn.isOngoing && packageName != sbn.packageName)
+                SamSprung.notices.add(sbn.notification)
+        }
     }
 }

@@ -25,9 +25,9 @@
         android:allowBackup="true"
         android:fullBackupContent="@xml/full_backup_content"
         android:extractNativeLibs="true"
-        android:icon="@mipmap/s_health_icon"
+        android:icon="@mipmap/sprung_icon"
         android:label="@string/app_name"
-        android:roundIcon="@mipmap/s_health_icon_round"
+        android:roundIcon="@mipmap/sprung_icon_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.SecondScreen">
         <meta-data
@@ -90,7 +90,7 @@
         </service>
         <meta-data
             android:name="com.android.packageinstaller.notification.smallIcon"
-            android:resource="@mipmap/s_health_icon" />
+            android:resource="@mipmap/sprung_icon" />
 
         <provider
             android:name="androidx.core.content.FileProvider"
