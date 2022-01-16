@@ -29,7 +29,7 @@ jobs:
       # ID used to access action output
       id: sign_app
       with:
-        releaseDirectory: app/build/outputs/apk/release
+        releaseDirectory: app/build/outputs/apk/github/release
         signingKeyBase64: ${{ secrets.KEYSTORE }}
         alias: ${{ secrets.KEY_ALIAS }}
         keyStorePassword: ${{ secrets.STOREPASS }}
@@ -46,13 +46,13 @@ jobs:
     # Example use of `signedReleaseFile` output -- not needed
     - uses: actions/upload-artifact@v2
       with:
-        name: ZFlip-Launcher-${{ env.GIT_HASH }}
+        name: SamSprung-Launcher-${{ env.GIT_HASH }}
         path: ${{steps.sign_app.outputs.signedReleaseFile}}
 
     - uses: marvinpinto/action-automatic-releases@v1.2.1
       with:
         repo_token: "${{ secrets.GITHUB_TOKEN }}"
-        automatic_release_tag: "sideload"
+        automatic_release_tag: "latest"
         prerelease: ${{ github.event_name == 'pull_request' }}
         title: SamSprung-${{ env.GIT_HASH }}
         files: ${{steps.sign_app.outputs.signedReleaseFile}}
