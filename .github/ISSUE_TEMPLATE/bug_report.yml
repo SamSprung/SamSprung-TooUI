@@ -1,0 +1,42 @@
+name: Bug Report
+description: File a bug report
+title: "[Bug]: "
+labels: ["logcat"]
+assignees:
+  - AbandonedCart
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Please provide as much detail as possible
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: Issue Description
+      description: Please describe the issue in your own words
+      placeholder: Detailed Description
+      value: "Error messages, steps to reproduce, etc."
+    validations:
+      required: true
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logcat Output
+      description: |
+          Logs are saved to the public Download folder
+
+          Perform the action causing a crash or issue
+          Select the "Logcat" item from the menu bar
+          Log will be saved as "samsprung_logcat.txt"
+
+      render: shell
+    validations:
+      required: true
+  - type: checkboxes
+    id: terms
+    attributes:
+      label: Wiki Confirmation
+      description: By submitting this issue, you confirm checking the [Wiki](https://github.com/SamSprung/SamSprung-TooUI/wiki)
+      options:
+        - label: I have read and understood the current wiki
+          required: true
