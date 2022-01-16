@@ -134,8 +134,7 @@ class CoverDrawerActivity : AppCompatActivity(), AppLauncherAdapter.OnAppClickLi
 
             override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
                 if (direction == ItemTouchHelper.RIGHT) {
-                    startActivity(Intent(SamSprung.context, CoverNotifications::class.java)
-                        .addCategory(Intent.CATEGORY_LAUNCHER),
+                    startActivity(Intent(SamSprung.context, CoverNotifications::class.java),
                         ActivityOptions.makeBasic().setLaunchDisplayId(1).toBundle())
                     finish()
                 }

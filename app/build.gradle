@@ -10,8 +10,8 @@ android {
         applicationId "com.eightbit.samsprung"
         minSdk 30
         targetSdk 30
-        versionCode 102
-        versionName "1.0.2"
+        versionCode 104
+        versionName "1.0.4"
 
         renderscriptTargetApi 31
         renderscriptSupportModeEnabled true

@@ -100,8 +100,7 @@ class CoverNotifications : AppCompatActivity(), NotificationsAdapter.OnNoticeCli
         findViewById<BlurView>(R.id.blurContainer).setOnTouchListener(
             object: OnSwipeTouchListener(this@CoverNotifications) {
             override fun onSwipeLeft() {
-                startActivity(Intent(SamSprung.context, CoverDrawerActivity::class.java)
-                    .addCategory(Intent.CATEGORY_LAUNCHER),
+                startActivity(Intent(SamSprung.context, CoverDrawerActivity::class.java),
                     ActivityOptions.makeBasic().setLaunchDisplayId(1).toBundle())
                 finish()
             }
@@ -131,8 +130,7 @@ class CoverNotifications : AppCompatActivity(), NotificationsAdapter.OnNoticeCli
                     finish()
                 }
                 if (direction == ItemTouchHelper.LEFT) {
-                    startActivity(Intent(SamSprung.context, CoverDrawerActivity::class.java)
-                        .addCategory(Intent.CATEGORY_LAUNCHER),
+                    startActivity(Intent(SamSprung.context, CoverDrawerActivity::class.java),
                         ActivityOptions.makeBasic().setLaunchDisplayId(1).toBundle())
                     finish()
                 }

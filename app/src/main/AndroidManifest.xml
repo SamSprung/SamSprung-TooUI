@@ -18,6 +18,7 @@
     <uses-permission android:name="android.permission.WRITE_SETTINGS"
         tools:ignore="ProtectedPermissions" />
     <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW"/>
+    <permission android:name="intent.redirection.BULLSHIT" />
 
     <application
         android:process=":SamSprung"
@@ -43,7 +44,14 @@
         </activity>
         <activity
             android:name=".CoverNotifications"
-            android:exported="true"
+            android:exported="false"
+            android:launchMode="singleTop"
+            android:showOnLockScreen="true">
+            <meta-data android:name="com.samsung.android.activity.showWhenLocked" android:value="true"/>
+        </activity>
+        <activity
+            android:name=".CoverDrawerActivity"
+            android:exported="false"
             android:launchMode="singleTop"
             android:showOnLockScreen="true">
             <meta-data android:name="com.samsung.android.activity.showWhenLocked" android:value="true"/>
@@ -53,19 +61,13 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".CoverDrawerActivity"
-            android:exported="true"
-            android:launchMode="singleTop"
-            android:showOnLockScreen="true">
-            <meta-data android:name="com.samsung.android.activity.showWhenLocked" android:value="true"/>
-        </activity>
-        <activity
             android:name=".AppLauncherActivity"
             android:configChanges="density|orientation|screenLayout|screenSize|smallestScreenSize|uiMode"
             android:resizeableActivity="true">
         </activity>
         <receiver android:name=".OffBroadcastReceiver"
-            android:exported="false" />
+            android:exported="false"
+            android:permission="intent.redirection.BULLSHIT"/>
         <service android:name=".DisplayListenerService"
             android:exported="true"
             android:permission="android.permission.FOREGROUND_SERVICE" />

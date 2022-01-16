@@ -108,13 +108,9 @@ class OffBroadcastReceiver : BroadcastReceiver {
         }
         if (intent.action == Intent.ACTION_SCREEN_ON) {
             val coverIntent = Intent(SamSprung.context, CoverDrawerActivity::class.java)
-            coverIntent.addCategory(Intent.CATEGORY_LAUNCHER)
-            val options = ActivityOptions.makeBasic().setLaunchDisplayId(1)
             coverIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-            coverIntent.addFlags(Intent.FLAG_ACTIVITY_MULTIPLE_TASK)
-            coverIntent.addFlags(Intent.FLAG_ACTIVITY_FORWARD_RESULT)
-            coverIntent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION)
-            context.startActivity(coverIntent, options.toBundle())
+            context.startActivity(coverIntent,
+                ActivityOptions.makeBasic().setLaunchDisplayId(1).toBundle())
         }
     }
 }
