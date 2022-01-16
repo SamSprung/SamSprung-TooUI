@@ -64,12 +64,14 @@ class NotificationListener : NotificationListenerService() {
     }
 
     override fun onNotificationPosted(sbn: StatusBarNotification) {
-        if (!SamSprung.notices.contains(sbn.notification))
+        if (!SamSprung.notices.contains(sbn.notification)
+            && packageName != sbn.packageName)
             SamSprung.notices.add(sbn.notification)
     }
 
     override fun onNotificationRemoved(sbn: StatusBarNotification) {
-        if (SamSprung.notices.contains(sbn.notification))
+        if (SamSprung.notices.contains(sbn.notification)
+            && packageName != sbn.packageName)
             SamSprung.notices.remove(sbn.notification)
     }
 

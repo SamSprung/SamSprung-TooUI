@@ -27,6 +27,15 @@ android {
         }
     }
 
+    flavorDimensions "source"
+    productFlavors {
+        github {
+            getIsDefault().set(true)
+        }
+
+        google { }
+    }
+
     buildTypes {
         release {
             minifyEnabled true

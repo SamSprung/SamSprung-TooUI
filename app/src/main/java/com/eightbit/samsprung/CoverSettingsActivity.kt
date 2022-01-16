@@ -105,15 +105,21 @@ class CoverSettingsActivity : AppCompatActivity() {
                 if (!file.isDirectory) file.delete()
             }
         }
-        if (packageManager.canRequestPackageInstalls()) {
-            retrieveUpdate()
-        } else {
-            registerForActivityResult(
-                ActivityResultContracts.StartActivityForResult()) {
-                if (packageManager.canRequestPackageInstalls())
-                    retrieveUpdate()
-            }.launch(Intent(Settings.ACTION_MANAGE_UNKNOWN_APP_SOURCES).setData(
-                Uri.parse(String.format("package:%s", packageName))))
+        if (BuildConfig.FLAVOR.equals("google")) {
+            if (packageManager.canRequestPackageInstalls()) {
+                retrieveUpdate()
+            } else {
+                registerForActivityResult(
+                    ActivityResultContracts.StartActivityForResult()
+                ) {
+                    if (packageManager.canRequestPackageInstalls())
+                        retrieveUpdate()
+                }.launch(
+                    Intent(Settings.ACTION_MANAGE_UNKNOWN_APP_SOURCES).setData(
+                        Uri.parse(String.format("package:%s", packageName))
+                    )
+                )
+            }
         }
 
         if (isDeviceSecure()) {
