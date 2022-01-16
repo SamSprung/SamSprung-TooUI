@@ -115,7 +115,7 @@ class OffBroadcastReceiver : BroadcastReceiver {
         }
         if (intent.action == Intent.ACTION_SCREEN_ON) {
             context.startForegroundService(Intent(context, CoverListenerService::class.java))
-            val coverIntent = Intent(SamSprung.context, SamSprungHomeView::class.java)
+            val coverIntent = Intent(SamSprung.context, SamSprungAppsView::class.java)
             coverIntent.addCategory(Intent.CATEGORY_LAUNCHER)
             val options = ActivityOptions.makeBasic().setLaunchDisplayId(1)
             coverIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)

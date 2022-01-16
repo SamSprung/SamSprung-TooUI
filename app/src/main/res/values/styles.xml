@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="SlimButton" parent="Widget.AppCompat.Button">
+        <item name="android:minHeight">@dimen/button_height_min</item>
+    </style>
+    <declare-styleable name="BlurView">
+        <attr name="blurOverlayColor" format="color"/>
+    </declare-styleable>
+</resources>

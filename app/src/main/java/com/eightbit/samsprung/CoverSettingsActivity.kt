@@ -91,6 +91,7 @@ import kotlin.collections.HashSet
 
 class CoverSettingsActivity : AppCompatActivity() {
     companion object {
+        const val GENERAL = 9000
         const val LOGCAT = 9001
     }
 
@@ -105,7 +106,14 @@ class CoverSettingsActivity : AppCompatActivity() {
                 if (!file.isDirectory) file.delete()
             }
         }
-        if (BuildConfig.FLAVOR.equals("google")) {
+        val permission = ContextCompat.checkSelfPermission(
+            this, Manifest.permission.READ_EXTERNAL_STORAGE
+        )
+        if (permission != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this,
+                arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE), GENERAL)
+        }
+        if (BuildConfig.FLAVOR == "google") {
             if (packageManager.canRequestPackageInstalls()) {
                 retrieveUpdate()
             } else {
@@ -218,9 +226,6 @@ class CoverSettingsActivity : AppCompatActivity() {
             findViewById<ScrollView>(R.id.logWrapper).visibility = View.VISIBLE
             findViewById<TextView>(R.id.printLogcat).text = captureLogcat()
 
-            val permission = ContextCompat.checkSelfPermission(
-                this, Manifest.permission.READ_EXTERNAL_STORAGE
-            )
             if (permission != PackageManager.PERMISSION_GRANTED) {
                 ActivityCompat.requestPermissions(this,
                     arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE), LOGCAT)
@@ -391,9 +396,7 @@ class CoverSettingsActivity : AppCompatActivity() {
         val permission = ContextCompat.checkSelfPermission(
             this, Manifest.permission.READ_EXTERNAL_STORAGE
         )
-        if (permission == PackageManager.PERMISSION_GRANTED) {
-            if (LOGCAT == requestCode)
-                printLogcat()
-        }
+        if (permission == PackageManager.PERMISSION_GRANTED && LOGCAT == requestCode)
+            printLogcat()
     }
 }

@@ -51,16 +51,23 @@ package com.eightbit.samsprung
  * subject to to the terms and conditions of the Apache License, Version 2.0.
  */
 
+import android.Manifest
 import android.annotation.SuppressLint
 import android.app.ActivityOptions
 import android.app.Notification
+import android.app.WallpaperManager
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.os.Bundle
 import android.widget.LinearLayout
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.eightbitlab.blurview.BlurView
+import com.eightbitlab.blurview.BlurViewFacade
+import com.eightbitlab.blurview.RenderScriptBlur
 import java.util.*
 
 
@@ -72,20 +79,37 @@ class SamSprungHomeView : AppCompatActivity(), NotificationsAdapter.OnNoticeClic
         setTurnScreenOn(true)
 
         super.onCreate(savedInstanceState)
+        supportActionBar?.hide()
         setContentView(R.layout.home_view_layout)
 
-        findViewById<LinearLayout>(R.id.rootLayout).setOnTouchListener(
+        val permission = ContextCompat.checkSelfPermission(
+            this, Manifest.permission.READ_EXTERNAL_STORAGE
+        )
+        if (permission == PackageManager.PERMISSION_GRANTED) {
+            val wallpaperManager: WallpaperManager = WallpaperManager.getInstance(this)
+            findViewById<LinearLayout>(R.id.rootLayout).background = wallpaperManager.drawable
+            findViewById<BlurView>(R.id.blurContainer).setupWith(
+                window.decorView.findViewById(R.id.rootLayout)
+            )
+                .setFrameClearDrawable(window.decorView.background)
+                .setBlurRadius(1f)
+                .setBlurAutoUpdate(true)
+                .setHasFixedTransformationMatrix(true)
+                .setBlurAlgorithm(RenderScriptBlur(this))
+        }
+
+        findViewById<BlurView>(R.id.blurContainer).setOnTouchListener(
             object: OnSwipeTouchListener(this@SamSprungHomeView) {
             override fun onSwipeLeft() {
-                startService(Intent(SamSprung.context, CoverListenerService::class.java)
-                    .setAction(SamSprung.listener))
+                startActivity(Intent(SamSprung.context, SamSprungAppsView::class.java)
+                    .addCategory(Intent.CATEGORY_LAUNCHER),
+                    ActivityOptions.makeBasic().setLaunchDisplayId(1).toBundle())
                 finish()
             }
 
             override fun onSwipeRight() {
-                startActivity(Intent(SamSprung.context, SamSprungAppsView::class.java)
-                    .addCategory(Intent.CATEGORY_LAUNCHER),
-                    ActivityOptions.makeBasic().setLaunchDisplayId(1).toBundle())
+                startService(Intent(SamSprung.context, CoverListenerService::class.java)
+                    .setAction(SamSprung.listener))
                 finish()
             }
         })
@@ -107,14 +131,14 @@ class SamSprungHomeView : AppCompatActivity(), NotificationsAdapter.OnNoticeClic
 
             override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
                 if (direction == ItemTouchHelper.RIGHT) {
-                    startActivity(Intent(SamSprung.context, SamSprungAppsView::class.java)
-                        .addCategory(Intent.CATEGORY_LAUNCHER),
-                        ActivityOptions.makeBasic().setLaunchDisplayId(1).toBundle())
+                    startService(Intent(SamSprung.context, CoverListenerService::class.java)
+                        .setAction(SamSprung.listener))
                     finish()
                 }
                 if (direction == ItemTouchHelper.LEFT) {
-                    startService(Intent(SamSprung.context, CoverListenerService::class.java)
-                        .setAction(SamSprung.listener))
+                    startActivity(Intent(SamSprung.context, SamSprungAppsView::class.java)
+                        .addCategory(Intent.CATEGORY_LAUNCHER),
+                        ActivityOptions.makeBasic().setLaunchDisplayId(1).toBundle())
                     finish()
                 }
             }

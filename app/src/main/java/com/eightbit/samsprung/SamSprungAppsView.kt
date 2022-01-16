@@ -51,9 +51,11 @@ package com.eightbit.samsprung
  * subject to to the terms and conditions of the Apache License, Version 2.0.
  */
 
+import android.Manifest
 import android.annotation.SuppressLint
 import android.app.ActivityOptions
 import android.app.KeyguardManager
+import android.app.WallpaperManager
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
@@ -61,13 +63,21 @@ import android.content.IntentFilter
 import android.content.pm.ApplicationInfo
 import android.content.pm.PackageManager
 import android.content.pm.ResolveInfo
+import android.graphics.drawable.Drawable
+import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
+import android.view.Window
+import android.widget.LinearLayout
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.eightbitlab.blurview.BlurView
+import com.eightbitlab.blurview.BlurViewFacade
+import com.eightbitlab.blurview.RenderScriptBlur
 import java.util.*
 
 
@@ -79,8 +89,24 @@ class SamSprungAppsView : AppCompatActivity(), AppLauncherAdapter.OnAppClickList
         setTurnScreenOn(true)
 
         super.onCreate(savedInstanceState)
+        supportActionBar?.hide()
         setContentView(R.layout.apps_view_layout)
-        actionBar?.hide()
+
+        val permission = ContextCompat.checkSelfPermission(
+            this, Manifest.permission.READ_EXTERNAL_STORAGE
+        )
+        if (permission == PackageManager.PERMISSION_GRANTED) {
+            val wallpaperManager: WallpaperManager = WallpaperManager.getInstance(this)
+            findViewById<LinearLayout>(R.id.rootLayout).background = wallpaperManager.drawable
+            findViewById<BlurView>(R.id.blurContainer).setupWith(
+                window.decorView.findViewById(R.id.rootLayout)
+            )
+                .setFrameClearDrawable(window.decorView.background)
+                .setBlurRadius(1f)
+                .setBlurAutoUpdate(true)
+                .setHasFixedTransformationMatrix(true)
+                .setBlurAlgorithm(RenderScriptBlur(this))
+        }
 
         val launcherView = findViewById<RecyclerView>(R.id.appsList)
 
@@ -112,14 +138,14 @@ class SamSprungAppsView : AppCompatActivity(), AppLauncherAdapter.OnAppClickList
 
             override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
                 if (direction == ItemTouchHelper.RIGHT) {
-                    startService(Intent(SamSprung.context, CoverListenerService::class.java)
-                        .setAction(SamSprung.listener))
-                    finish()
-                }
-                if (direction == ItemTouchHelper.LEFT) {
                     startActivity(Intent(SamSprung.context, SamSprungHomeView::class.java)
                         .addCategory(Intent.CATEGORY_LAUNCHER),
                         ActivityOptions.makeBasic().setLaunchDisplayId(1).toBundle())
+                    finish()
+                }
+                if (direction == ItemTouchHelper.LEFT) {
+                    startService(Intent(SamSprung.context, CoverListenerService::class.java)
+                        .setAction(SamSprung.listener))
                     finish()
                 }
             }

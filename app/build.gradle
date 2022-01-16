@@ -13,6 +13,9 @@ android {
         versionCode 100
         versionName "1.0.0"
 
+        renderscriptTargetApi 31
+        renderscriptSupportModeEnabled true
+
         def commit = 'git rev-parse --short HEAD'.execute().text.trim()
         buildConfigField "String", "COMMIT", "\""+commit+"\""
         project.archivesBaseName = "SamSprung-" + commit
