@@ -55,6 +55,7 @@ import android.app.ActivityOptions
 import android.content.*
 import android.content.pm.PackageInstaller
 import android.widget.Toast
+import androidx.core.app.ShareCompat.getCallingActivity
 
 
 class OffBroadcastReceiver : BroadcastReceiver {
@@ -66,6 +67,14 @@ class OffBroadcastReceiver : BroadcastReceiver {
     }
 
     override fun onReceive(context: Context, intent: Intent) {
+        if (intent.`package` != context.packageName) {
+            if (intent.action == Intent.ACTION_BOOT_COMPLETED)
+                IntentFilter(Intent.ACTION_SCREEN_ON).also {
+                    context.registerReceiver(OffBroadcastReceiver(), it)
+                }
+            else return
+        }
+
         if (intent.action == Intent.ACTION_PACKAGE_FULLY_REMOVED) {
             // sendAppWidgetUpdateBroadcast()
         }
@@ -123,11 +132,6 @@ class OffBroadcastReceiver : BroadcastReceiver {
             coverIntent.addFlags(Intent.FLAG_ACTIVITY_FORWARD_RESULT)
             coverIntent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION)
             context.startActivity(coverIntent, options.toBundle())
-        }
-        if (intent.action == Intent.ACTION_BOOT_COMPLETED) {
-            IntentFilter(Intent.ACTION_SCREEN_ON).also {
-                context.registerReceiver(OffBroadcastReceiver(), it)
-            }
         }
     }
 }

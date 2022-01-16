@@ -61,7 +61,8 @@
             android:configChanges="density|orientation|screenLayout|screenSize|smallestScreenSize|uiMode"
             android:resizeableActivity="true">
         </activity>
-        <receiver android:name=".OffBroadcastReceiver">
+        <receiver android:name=".OffBroadcastReceiver"
+            android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
             </intent-filter>
