@@ -55,7 +55,6 @@ import android.app.Application
 import android.app.Notification
 import android.content.Context
 import android.content.SharedPreferences
-import android.service.notification.StatusBarNotification
 import java.lang.ref.SoftReference
 import kotlin.system.exitProcess
 
@@ -97,6 +96,7 @@ class SamSprung : Application() {
     companion object {
         const val provider: String = "com.eightbit.samsprung.provider"
         const val updating: String = "com.eightbit.samsprung.UPDATING"
+        const val listener: String = "com.eightbit.samsprung.LISTENER"
         const val request_code = 8675309
         private lateinit var mContext: SoftReference<Context>
         var isKeyguardLocked: Boolean = true

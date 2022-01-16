@@ -65,11 +65,6 @@ class NotificationsAdapter(
                 null != bigPicture -> iconView.setImageBitmap(bigPicture)
                 bigLargeIcon is Bitmap -> iconView.setImageBitmap(bigLargeIcon)
             }
-
-            if (null != notice.tickerText)
-                tickerText.text = notice.tickerText
-            else
-                tickerText.visibility = View.GONE
             if (null != notice.extras) {
                 if (null != notice.extras.getCharSequenceArray(
                         NotificationCompat.EXTRA_TEXT_LINES)) {
@@ -77,11 +72,11 @@ class NotificationsAdapter(
                         notice.extras.getCharSequenceArray(
                             NotificationCompat.EXTRA_TEXT_LINES)
                     )
-                    if (View.VISIBLE == tickerText.visibility
-                        && notice.tickerText == linesText.text)
-                        tickerText.visibility = View.GONE
                 }
-
+            }
+            if (null != notice.tickerText && notice.tickerText != linesText.text) {
+                tickerText.text = notice.tickerText
+                tickerText.visibility = View.VISIBLE
             }
         }
     }

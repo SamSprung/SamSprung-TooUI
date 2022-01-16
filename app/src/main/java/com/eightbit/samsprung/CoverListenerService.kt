@@ -81,7 +81,7 @@ class CoverListenerService : Service() {
                 as KeyguardManager).newKeyguardLock(coverLock)
         val displayManager = getSystemService(Context.DISPLAY_SERVICE) as DisplayManager
 
-        if (null != intent?.getStringExtra("dismissListener"))
+        if (null != intent?.action && SamSprung.listener == intent.action)
             return dismissDisplayListener(displayManager, mKeyguardLock)
 
         showForegroundNotification(startId)
@@ -150,7 +150,8 @@ class CoverListenerService : Service() {
     private fun showForegroundNotification(startId: Int) {
         var mNotificationManager: NotificationManager? = null
         val pendingIntent = PendingIntent.getService(this, 0,
-            Intent(this, CoverListenerService::class.java),
+            Intent(this, CoverListenerService::class.java)
+                .setAction(SamSprung.listener),
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S)
                 PendingIntent.FLAG_IMMUTABLE else 0)
         val iconNotification = BitmapFactory.decodeResource(resources, R.mipmap.sprung_icon)

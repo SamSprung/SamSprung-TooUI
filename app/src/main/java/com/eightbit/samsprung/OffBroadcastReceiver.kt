@@ -93,6 +93,10 @@ class OffBroadcastReceiver : BroadcastReceiver {
                 }
             }
         }
+        if (intent.action == Intent.ACTION_SCREEN_OFF && null == componentName) {
+            context.startService(Intent(SamSprung.context, CoverListenerService::class.java)
+                .setAction(SamSprung.listener))
+        }
         if (intent.action == Intent.ACTION_SCREEN_OFF && null != componentName) {
             context.startService(Intent(context, DisplayListenerService::class.java))
 
@@ -108,11 +112,6 @@ class OffBroadcastReceiver : BroadcastReceiver {
 
             componentName = null
             SamSprung.context.unregisterReceiver(this)
-        }
-        if (intent.action == Intent.ACTION_SCREEN_OFF && null == componentName) {
-            val coverIntent = Intent(SamSprung.context, CoverListenerService::class.java)
-            coverIntent.putExtra("dismissListener", "dismissListener")
-            context.startService(coverIntent)
         }
         if (intent.action == Intent.ACTION_SCREEN_ON) {
             context.startForegroundService(Intent(context, CoverListenerService::class.java))

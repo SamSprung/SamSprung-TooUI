@@ -112,20 +112,14 @@ class SamSprungAppsView : AppCompatActivity(), AppLauncherAdapter.OnAppClickList
 
             override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
                 if (direction == ItemTouchHelper.RIGHT) {
-                    val coverIntent = Intent(SamSprung.context, CoverListenerService::class.java)
-                    coverIntent.putExtra("dismissListener", "dismissListener")
-                    startService(coverIntent)
+                    startService(Intent(SamSprung.context, CoverListenerService::class.java)
+                        .setAction(SamSprung.listener))
                     finish()
                 }
                 if (direction == ItemTouchHelper.LEFT) {
-                    val coverIntent = Intent(SamSprung.context, SamSprungHomeView::class.java)
-                    coverIntent.addCategory(Intent.CATEGORY_LAUNCHER)
-                    val options = ActivityOptions.makeBasic().setLaunchDisplayId(1)
-                    coverIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                    coverIntent.addFlags(Intent.FLAG_ACTIVITY_MULTIPLE_TASK)
-                    coverIntent.addFlags(Intent.FLAG_ACTIVITY_FORWARD_RESULT)
-                    coverIntent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION)
-                    startActivity(coverIntent, options.toBundle())
+                    startActivity(Intent(SamSprung.context, SamSprungHomeView::class.java)
+                        .addCategory(Intent.CATEGORY_LAUNCHER),
+                        ActivityOptions.makeBasic().setLaunchDisplayId(1).toBundle())
                     finish()
                 }
             }

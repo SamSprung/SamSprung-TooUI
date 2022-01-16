@@ -140,6 +140,9 @@ class CoverSettingsActivity : AppCompatActivity() {
             IntentFilter(Intent.ACTION_SCREEN_ON).also {
                 applicationContext.registerReceiver(OffBroadcastReceiver(), it)
             }
+            IntentFilter(Intent.ACTION_SCREEN_OFF).also {
+                applicationContext.registerReceiver(OffBroadcastReceiver(), it)
+            }
         }
 
         val noticeLauncher = registerForActivityResult(
@@ -237,6 +240,9 @@ class CoverSettingsActivity : AppCompatActivity() {
 
         if (isNotificationListenerEnabled() && Settings.canDrawOverlays(applicationContext)) {
             IntentFilter(Intent.ACTION_SCREEN_ON).also {
+                applicationContext.registerReceiver(OffBroadcastReceiver(), it)
+            }
+            IntentFilter(Intent.ACTION_SCREEN_OFF).also {
                 applicationContext.registerReceiver(OffBroadcastReceiver(), it)
             }
         }
