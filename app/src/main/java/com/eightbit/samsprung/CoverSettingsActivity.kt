@@ -98,10 +98,6 @@ class CoverSettingsActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.step_widget_edit)
 
-        IntentFilter(Intent.ACTION_SCREEN_ON).also {
-            applicationContext.registerReceiver(OffBroadcastReceiver(), it)
-        }
-
         val files: Array<File>? = filesDir.listFiles { _, name ->
             name.lowercase(Locale.getDefault()).endsWith(".apk") }
         if (null != files) {
@@ -140,6 +136,9 @@ class CoverSettingsActivity : AppCompatActivity() {
                     Settings.ACTION_MANAGE_WRITE_SETTINGS,
                     Uri.parse("package:$packageName")
                 ))
+            }
+            IntentFilter(Intent.ACTION_SCREEN_ON).also {
+                applicationContext.registerReceiver(OffBroadcastReceiver(), it)
             }
         }
 
@@ -235,6 +234,12 @@ class CoverSettingsActivity : AppCompatActivity() {
 
         val listView: ListView = findViewById(R.id.selectionListView)
         listView.adapter = FilteredAppsAdapter(this, packages, unlisted)
+
+        if (isNotificationListenerEnabled() && Settings.canDrawOverlays(applicationContext)) {
+            IntentFilter(Intent.ACTION_SCREEN_ON).also {
+                applicationContext.registerReceiver(OffBroadcastReceiver(), it)
+            }
+        }
     }
 
     /**

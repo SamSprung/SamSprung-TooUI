@@ -99,7 +99,7 @@ class SamSprungHomeView : AppCompatActivity(), NotificationsAdapter.OnNoticeClic
         val noticesView = findViewById<RecyclerView>(R.id.notificationList)
 
         noticesView.layoutManager = LinearLayoutManager(this)
-        noticesView.adapter = NotificationsAdapter(this)
+//        noticesView.adapter = NotificationsAdapter(this)
 
         val simpleItemTouchCallback: ItemTouchHelper.SimpleCallback = object :
             ItemTouchHelper.SimpleCallback(ItemTouchHelper.RIGHT, ItemTouchHelper.LEFT) {

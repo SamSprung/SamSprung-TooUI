@@ -39,9 +39,6 @@
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
-            <intent-filter>
-                <action android:name="android.appwidget.action.APPWIDGET_CONFIGURE"/>
-            </intent-filter>
         </activity>
         <activity
             android:name=".SamSprungHomeView"
@@ -58,10 +55,6 @@
             android:exported="true"
             android:showOnLockScreen="true">
             <meta-data android:name="com.samsung.android.activity.showWhenLocked" android:value="true"/>
-            <intent-filter>
-                <category android:name="android.intent.category.SECONDARY_HOME" />
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
         </activity>
         <activity
             android:name=".AppLauncherActivity"
