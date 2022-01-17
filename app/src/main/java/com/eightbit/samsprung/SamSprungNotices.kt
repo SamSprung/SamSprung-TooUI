@@ -56,6 +56,7 @@ import android.annotation.SuppressLint
 import android.app.ActivityOptions
 import android.app.Notification
 import android.app.WallpaperManager
+import android.content.ComponentName
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Bundle
@@ -70,7 +71,7 @@ import com.eightbitlab.blurview.RenderScriptBlur
 import java.util.*
 
 
-class SamSprungNotices : AppCompatActivity(), NotificationsAdapter.OnNoticeClickListener  {
+class SamSprungNotices : AppCompatActivity(), NotificationAdapter.OnNoticeClickListener  {
 
     @SuppressLint("InflateParams", "CutPasteId", "ClickableViewAccessibility")
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -80,6 +81,8 @@ class SamSprungNotices : AppCompatActivity(), NotificationsAdapter.OnNoticeClick
         super.onCreate(savedInstanceState)
         supportActionBar?.hide()
         setContentView(R.layout.notification_list)
+
+        toggleNotificationListenerService()
 
         val permission = ContextCompat.checkSelfPermission(
             this, Manifest.permission.READ_EXTERNAL_STORAGE
@@ -113,7 +116,8 @@ class SamSprungNotices : AppCompatActivity(), NotificationsAdapter.OnNoticeClick
         val noticesView = findViewById<RecyclerView>(R.id.notificationList)
 
         noticesView.layoutManager = LinearLayoutManager(this)
-        noticesView.adapter = NotificationsAdapter(this)
+        SamSprung.notificationAdapter.setListener(this)
+        noticesView.adapter = SamSprung.notificationAdapter
 
         val simpleItemTouchCallback: ItemTouchHelper.SimpleCallback = object :
             ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.RIGHT or ItemTouchHelper.LEFT) {
@@ -142,5 +146,16 @@ class SamSprungNotices : AppCompatActivity(), NotificationsAdapter.OnNoticeClick
     override fun onNoticeClicked(notice: Notification, position: Int) {
         startIntentSender(notice.contentIntent.intentSender,
             null, 0, 0, 0)
+    }
+
+    private fun toggleNotificationListenerService() {
+        packageManager.setComponentEnabledSetting(
+            ComponentName(this, NotificationListener::class.java),
+            PackageManager.COMPONENT_ENABLED_STATE_DISABLED, PackageManager.DONT_KILL_APP
+        )
+        packageManager.setComponentEnabledSetting(
+            ComponentName(this, NotificationListener::class.java),
+            PackageManager.COMPONENT_ENABLED_STATE_ENABLED, PackageManager.DONT_KILL_APP
+        )
     }
 }

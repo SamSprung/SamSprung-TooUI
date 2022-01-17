@@ -8,9 +8,9 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
-import com.eightbit.samsprung.AppLauncherAdapter.AppViewHolder
+import com.eightbit.samsprung.AppDrawerAdapater.AppViewHolder
 
-class AppLauncherAdapter(
+class AppDrawerAdapater(
     private val packages: MutableList<ResolveInfo>,
     private val listener: OnAppClickListener,
     private val packageManager: PackageManager

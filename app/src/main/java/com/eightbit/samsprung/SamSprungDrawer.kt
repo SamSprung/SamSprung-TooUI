@@ -78,7 +78,7 @@ import com.eightbitlab.blurview.RenderScriptBlur
 import java.util.*
 
 
-class SamSprungDrawer : AppCompatActivity(), AppLauncherAdapter.OnAppClickListener {
+class SamSprungDrawer : AppCompatActivity(), AppDrawerAdapater.OnAppClickListener {
 
     @SuppressLint("InflateParams", "CutPasteId", "ClickableViewAccessibility")
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -121,7 +121,7 @@ class SamSprungDrawer : AppCompatActivity(), AppLauncherAdapter.OnAppClickListen
             launcherView.layoutManager = GridLayoutManager(this, getColumnCount())
         else
             launcherView.layoutManager = LinearLayoutManager(this)
-        launcherView.adapter = AppLauncherAdapter(packages, this, packageManager)
+        launcherView.adapter = AppDrawerAdapater(packages, this, packageManager)
 
         val simpleItemTouchCallback: ItemTouchHelper.SimpleCallback = object :
             ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.RIGHT or ItemTouchHelper.LEFT) {

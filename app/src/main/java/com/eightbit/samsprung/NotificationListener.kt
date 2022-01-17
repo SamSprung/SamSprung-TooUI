@@ -51,12 +51,13 @@ package com.eightbit.samsprung
  * subject to to the terms and conditions of the Apache License, Version 2.0.
  */
 
+import android.annotation.SuppressLint
 import android.content.Intent
 import android.os.IBinder
 import android.service.notification.NotificationListenerService
 import android.service.notification.StatusBarNotification
 
-
+@SuppressLint("NotifyDataSetChanged")
 class NotificationListener : NotificationListenerService() {
 
     override fun onBind(intent: Intent?): IBinder? {
@@ -67,20 +68,22 @@ class NotificationListener : NotificationListenerService() {
         if (!SamSprung.notices.contains(sbn.notification)
             && packageName != sbn.packageName)
             SamSprung.notices.add(sbn.notification)
+        SamSprung.notificationAdapter.notifyDataSetChanged()
     }
 
     override fun onNotificationRemoved(sbn: StatusBarNotification) {
         if (SamSprung.notices.contains(sbn.notification)
             && packageName != sbn.packageName)
             SamSprung.notices.remove(sbn.notification)
+        SamSprung.notificationAdapter.notifyDataSetChanged()
     }
 
     override fun onListenerConnected() {
         super.onListenerConnected()
-        SamSprung.notices.clear()
         for (sbn: StatusBarNotification in activeNotifications) {
             if (!sbn.isOngoing && packageName != sbn.packageName)
                 SamSprung.notices.add(sbn.notification)
         }
+        SamSprung.notificationAdapter.notifyDataSetChanged()
     }
 }

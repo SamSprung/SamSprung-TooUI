@@ -1,7 +1,6 @@
 package com.eightbit.samsprung
 
 import android.app.Notification
-import android.graphics.Bitmap
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -11,15 +10,15 @@ import androidx.core.app.NotificationCompat
 import androidx.recyclerview.widget.RecyclerView
 import java.util.*
 
-class NotificationsAdapter(
-    private val listener: OnNoticeClickListener
-) : RecyclerView.Adapter<NotificationsAdapter.NoticeViewHolder>() {
+class NotificationAdapter(
+    private var listener: OnNoticeClickListener
+) : RecyclerView.Adapter<NotificationAdapter.NoticeViewHolder>() {
     override fun getItemCount(): Int {
         return SamSprung.notices.size
     }
 
     override fun getItemId(i: Int): Long {
-        return SamSprung.notices[i].number.toLong()
+        return SamSprung.notices[i].locusId.hashCode().toLong()
     }
 
     private fun getItem(i: Int): Notification {
@@ -32,15 +31,12 @@ class NotificationsAdapter(
 
     override fun onBindViewHolder(holder: NoticeViewHolder, position: Int) {
         holder.itemView.setOnClickListener {
-            if (null != holder.listener) holder.listener.onNoticeClicked(
-                holder.notice!!,
-                position
-            )
+            if (null != holder.listener)
+                holder.listener.onNoticeClicked(holder.notice!!, position)
         }
         holder.iconView.setOnClickListener {
-            if (null != holder.listener) {
+            if (null != holder.listener)
                 holder.listener.onNoticeClicked(holder.notice!!, position)
-            }
         }
         holder.bind(getItem(position))
     }
@@ -54,16 +50,15 @@ class NotificationsAdapter(
         var notice: Notification? = null
         fun bind(notice: Notification) {
             this.notice = notice
-
-            val bigPicture: Bitmap? = notice.extras.getParcelable(Notification.EXTRA_PICTURE)
-            val bigLargeIcon: Any? = notice.extras.get(Notification.EXTRA_LARGE_ICON_BIG)
             when {
-                null != notice.smallIcon -> iconView.setImageDrawable(
-                    notice.smallIcon.loadDrawable(itemView.context))
                 null != notice.getLargeIcon() -> iconView.setImageDrawable(
-                    notice.getLargeIcon().loadDrawable(itemView.context))
-                null != bigPicture -> iconView.setImageBitmap(bigPicture)
-                bigLargeIcon is Bitmap -> iconView.setImageBitmap(bigLargeIcon)
+                    notice.getLargeIcon().loadDrawable(SamSprung.context))
+                null != notice.smallIcon -> iconView.setImageDrawable(
+                    notice.smallIcon.loadDrawable(SamSprung.context))
+            }
+            if (null != notice.tickerText) {
+                tickerText.text = notice.tickerText
+                tickerText.visibility = View.VISIBLE
             }
             if (null != notice.extras) {
                 if (null != notice.extras.getCharSequenceArray(
@@ -72,11 +67,10 @@ class NotificationsAdapter(
                         notice.extras.getCharSequenceArray(
                             NotificationCompat.EXTRA_TEXT_LINES)
                     )
+                    if (tickerText.visibility == View.VISIBLE
+                        && notice.tickerText != linesText.text)
+                        tickerText.visibility = View.GONE
                 }
-            }
-            if (null != notice.tickerText && notice.tickerText != linesText.text) {
-                tickerText.text = notice.tickerText
-                tickerText.visibility = View.VISIBLE
             }
         }
     }
@@ -90,6 +84,10 @@ class NotificationsAdapter(
             parent, false
         ), listener
     )
+
+    fun setListener(listener: OnNoticeClickListener) {
+        this.listener = listener
+    }
 
     interface OnNoticeClickListener {
         fun onNoticeClicked(notice: Notification, position: Int)
