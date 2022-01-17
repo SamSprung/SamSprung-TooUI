@@ -59,6 +59,7 @@ import android.app.WallpaperManager
 import android.content.ComponentName
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.graphics.Canvas
 import android.os.Bundle
 import android.widget.LinearLayout
 import androidx.appcompat.app.AppCompatActivity
@@ -107,10 +108,6 @@ class SamSprungNotices : AppCompatActivity(), NotificationAdapter.OnNoticeClickL
                     ActivityOptions.makeBasic().setLaunchDisplayId(1).toBundle())
                 finish()
             }
-
-            override fun onSwipeRight() {
-                finish()
-            }
         })
 
         val noticesView = findViewById<RecyclerView>(R.id.notificationList)
@@ -120,7 +117,7 @@ class SamSprungNotices : AppCompatActivity(), NotificationAdapter.OnNoticeClickL
         noticesView.adapter = SamSprung.notificationAdapter
 
         val simpleItemTouchCallback: ItemTouchHelper.SimpleCallback = object :
-            ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.RIGHT or ItemTouchHelper.LEFT) {
+            ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT) {
             override fun onMove(
                 recyclerView: RecyclerView,
                 viewHolder: RecyclerView.ViewHolder,
@@ -129,10 +126,17 @@ class SamSprungNotices : AppCompatActivity(), NotificationAdapter.OnNoticeClickL
                 return false
             }
 
+            override fun onChildDraw(
+                c: Canvas,
+                recyclerView: RecyclerView,
+                viewHolder: RecyclerView.ViewHolder,
+                dX: Float,
+                dY: Float,
+                actionState: Int,
+                isCurrentlyActive: Boolean
+            ) { }
+
             override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
-                if (direction == ItemTouchHelper.RIGHT) {
-                    finish()
-                }
                 if (direction == ItemTouchHelper.LEFT) {
                     startActivity(Intent(SamSprung.context, SamSprungDrawer::class.java),
                         ActivityOptions.makeBasic().setLaunchDisplayId(1).toBundle())

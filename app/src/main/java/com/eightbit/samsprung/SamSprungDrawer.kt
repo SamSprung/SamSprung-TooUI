@@ -63,6 +63,7 @@ import android.content.IntentFilter
 import android.content.pm.ApplicationInfo
 import android.content.pm.PackageManager
 import android.content.pm.ResolveInfo
+import android.graphics.Canvas
 import android.os.Bundle
 import android.provider.Settings
 import android.text.TextUtils
@@ -132,6 +133,16 @@ class SamSprungDrawer : AppCompatActivity(), AppDrawerAdapater.OnAppClickListene
             ): Boolean {
                 return false
             }
+
+            override fun onChildDraw(
+                c: Canvas,
+                recyclerView: RecyclerView,
+                viewHolder: RecyclerView.ViewHolder,
+                dX: Float,
+                dY: Float,
+                actionState: Int,
+                isCurrentlyActive: Boolean
+            ) { }
 
             override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
                 if (direction == ItemTouchHelper.RIGHT) {

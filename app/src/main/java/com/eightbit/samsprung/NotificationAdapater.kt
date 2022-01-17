@@ -45,8 +45,8 @@ class NotificationAdapter(
         itemView: View, val listener: OnNoticeClickListener?
     ) : RecyclerView.ViewHolder(itemView) {
         val iconView: ImageView = itemView.findViewById(R.id.icon)
-        private val tickerText: TextView =  itemView.findViewById(R.id.ticker)
-        private val linesText: TextView =  itemView.findViewById(R.id.lines)
+        private val tickerText: TextView = itemView.findViewById(R.id.ticker)
+        private val linesText: TextView = itemView.findViewById(R.id.lines)
         var notice: Notification? = null
         fun bind(notice: Notification) {
             this.notice = notice

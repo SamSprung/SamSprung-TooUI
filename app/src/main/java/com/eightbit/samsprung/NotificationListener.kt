@@ -65,25 +65,29 @@ class NotificationListener : NotificationListenerService() {
     }
 
     override fun onNotificationPosted(sbn: StatusBarNotification) {
-        if (!SamSprung.notices.contains(sbn.notification)
-            && packageName != sbn.packageName)
+        if (null == sbn.notification || packageName == sbn.packageName) return
+        if (!SamSprung.notices.contains(sbn.notification)) {
             SamSprung.notices.add(sbn.notification)
-        SamSprung.notificationAdapter.notifyDataSetChanged()
+            SamSprung.notificationAdapter.notifyDataSetChanged()
+        }
     }
 
     override fun onNotificationRemoved(sbn: StatusBarNotification) {
-        if (SamSprung.notices.contains(sbn.notification)
-            && packageName != sbn.packageName)
+        if (null == sbn.notification || packageName == sbn.packageName) return
+        if (SamSprung.notices.contains(sbn.notification)) {
             SamSprung.notices.remove(sbn.notification)
-        SamSprung.notificationAdapter.notifyDataSetChanged()
+            SamSprung.notificationAdapter.notifyDataSetChanged()
+        }
     }
 
     override fun onListenerConnected() {
         super.onListenerConnected()
         for (sbn: StatusBarNotification in activeNotifications) {
-            if (!sbn.isOngoing && packageName != sbn.packageName)
+            if (null == sbn.notification || sbn.isOngoing
+                || packageName == sbn.packageName) continue
                 SamSprung.notices.add(sbn.notification)
         }
-        SamSprung.notificationAdapter.notifyDataSetChanged()
+        if (SamSprung.notices.isNotEmpty())
+            SamSprung.notificationAdapter.notifyDataSetChanged()
     }
 }
