@@ -61,6 +61,7 @@ import android.widget.Toast
 class GitBroadcastReceiver : BroadcastReceiver() {
 
     override fun onReceive(context: Context, intent: Intent) {
+        if (BuildConfig.FLAVOR != "github") return
         if (intent.identifier == "8675309" && intent.action == SamSprung.updating) {
             when (intent.getIntExtra(PackageInstaller.EXTRA_STATUS, -1)) {
                 PackageInstaller.STATUS_PENDING_USER_ACTION -> {
