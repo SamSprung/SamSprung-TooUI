@@ -78,7 +78,7 @@ import com.eightbitlab.blurview.RenderScriptBlur
 import java.util.*
 
 
-class CoverDrawerActivity : AppCompatActivity(), AppLauncherAdapter.OnAppClickListener {
+class SamSprungDrawer : AppCompatActivity(), AppLauncherAdapter.OnAppClickListener {
 
     @SuppressLint("InflateParams", "CutPasteId", "ClickableViewAccessibility")
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -137,7 +137,7 @@ class CoverDrawerActivity : AppCompatActivity(), AppLauncherAdapter.OnAppClickLi
                 if (direction == ItemTouchHelper.RIGHT) {
                     if (isNotificationListenerEnabled()) {
                         startActivity(
-                            Intent(SamSprung.context, CoverNotifications::class.java),
+                            Intent(SamSprung.context, SamSprungNotices::class.java),
                             ActivityOptions.makeBasic().setLaunchDisplayId(1).toBundle()
                         )
                     }

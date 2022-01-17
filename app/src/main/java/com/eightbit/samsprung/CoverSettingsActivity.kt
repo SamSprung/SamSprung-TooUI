@@ -113,7 +113,7 @@ class CoverSettingsActivity : AppCompatActivity() {
             ActivityCompat.requestPermissions(this,
                 arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE), GENERAL)
         }
-        if (BuildConfig.FLAVOR == "google") {
+        if (BuildConfig.FLAVOR != "google") {
             if (packageManager.canRequestPackageInstalls()) {
                 retrieveUpdate()
             } else {
@@ -330,7 +330,7 @@ class CoverSettingsActivity : AppCompatActivity() {
                 apkStream.copyTo(sessionStream)
                 session.fsync(sessionStream)
             }
-            val intent = Intent(SamSprung.context, AppBroadcastReceiver::class.java)
+            val intent = Intent(SamSprung.context, GitBroadcastReceiver::class.java)
             intent.identifier = "8675309"
             intent.action = SamSprung.updating
             val pi = PendingIntent.getBroadcast(

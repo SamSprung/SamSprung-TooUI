@@ -70,7 +70,7 @@ import com.eightbitlab.blurview.RenderScriptBlur
 import java.util.*
 
 
-class CoverNotifications : AppCompatActivity(), NotificationsAdapter.OnNoticeClickListener  {
+class SamSprungNotices : AppCompatActivity(), NotificationsAdapter.OnNoticeClickListener  {
 
     @SuppressLint("InflateParams", "CutPasteId", "ClickableViewAccessibility")
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -98,9 +98,9 @@ class CoverNotifications : AppCompatActivity(), NotificationsAdapter.OnNoticeCli
         }
 
         findViewById<BlurView>(R.id.blurContainer).setOnTouchListener(
-            object: OnSwipeTouchListener(this@CoverNotifications) {
+            object: OnSwipeTouchListener(this@SamSprungNotices) {
             override fun onSwipeLeft() {
-                startActivity(Intent(SamSprung.context, CoverDrawerActivity::class.java),
+                startActivity(Intent(SamSprung.context, SamSprungDrawer::class.java),
                     ActivityOptions.makeBasic().setLaunchDisplayId(1).toBundle())
                 finish()
             }
@@ -130,7 +130,7 @@ class CoverNotifications : AppCompatActivity(), NotificationsAdapter.OnNoticeCli
                     finish()
                 }
                 if (direction == ItemTouchHelper.LEFT) {
-                    startActivity(Intent(SamSprung.context, CoverDrawerActivity::class.java),
+                    startActivity(Intent(SamSprung.context, SamSprungDrawer::class.java),
                         ActivityOptions.makeBasic().setLaunchDisplayId(1).toBundle())
                     finish()
                 }

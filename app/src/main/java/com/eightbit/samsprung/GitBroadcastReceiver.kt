@@ -58,7 +58,7 @@ import android.content.pm.PackageInstaller
 import android.widget.Toast
 
 
-class AppBroadcastReceiver : BroadcastReceiver() {
+class GitBroadcastReceiver : BroadcastReceiver() {
 
     override fun onReceive(context: Context, intent: Intent) {
         if (intent.identifier == "8675309" && intent.action == SamSprung.updating) {
