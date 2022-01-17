@@ -56,7 +56,6 @@ import android.annotation.SuppressLint
 import android.app.ActivityOptions
 import android.app.Notification
 import android.app.WallpaperManager
-import android.content.ComponentName
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Canvas
@@ -82,8 +81,6 @@ class SamSprungNotices : AppCompatActivity(), NotificationAdapter.OnNoticeClickL
         super.onCreate(savedInstanceState)
         supportActionBar?.hide()
         setContentView(R.layout.notification_list)
-
-        toggleNotificationListenerService()
 
         val permission = ContextCompat.checkSelfPermission(
             this, Manifest.permission.READ_EXTERNAL_STORAGE
@@ -113,8 +110,7 @@ class SamSprungNotices : AppCompatActivity(), NotificationAdapter.OnNoticeClickL
         val noticesView = findViewById<RecyclerView>(R.id.notificationList)
 
         noticesView.layoutManager = LinearLayoutManager(this)
-        SamSprung.notificationAdapter.setListener(this)
-        noticesView.adapter = SamSprung.notificationAdapter
+        noticesView.adapter = NotificationAdapter(this)
 
         val simpleItemTouchCallback: ItemTouchHelper.SimpleCallback = object :
             ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT) {
@@ -150,16 +146,5 @@ class SamSprungNotices : AppCompatActivity(), NotificationAdapter.OnNoticeClickL
     override fun onNoticeClicked(notice: Notification, position: Int) {
         startIntentSender(notice.contentIntent.intentSender,
             null, 0, 0, 0)
-    }
-
-    private fun toggleNotificationListenerService() {
-        packageManager.setComponentEnabledSetting(
-            ComponentName(this, NotificationListener::class.java),
-            PackageManager.COMPONENT_ENABLED_STATE_DISABLED, PackageManager.DONT_KILL_APP
-        )
-        packageManager.setComponentEnabledSetting(
-            ComponentName(this, NotificationListener::class.java),
-            PackageManager.COMPONENT_ENABLED_STATE_ENABLED, PackageManager.DONT_KILL_APP
-        )
     }
 }

@@ -103,10 +103,6 @@ class SamSprung : Application() {
         val context: Context get() = mContext.get()!!
         val prefs: SharedPreferences get() = mPrefs.get()!!
         var notices: ArrayList<Notification> = arrayListOf()
-        val notificationAdapter : NotificationAdapter = NotificationAdapter(
-            object : NotificationAdapter.OnNoticeClickListener {
-            override fun onNoticeClicked(notice: Notification, position: Int) { }
-        })
         const val prefScreen: String = "prefScreen"
         const val prefLayout: String = "prefLayout"
         const val prefHidden: String = "prefHidden"

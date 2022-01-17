@@ -56,38 +56,39 @@ import android.content.Intent
 import android.os.IBinder
 import android.service.notification.NotificationListenerService
 import android.service.notification.StatusBarNotification
+import android.util.Log
 
 @SuppressLint("NotifyDataSetChanged")
-class NotificationListener : NotificationListenerService() {
+class NotificationObserver : NotificationListenerService() {
+
+    private var isListening: Boolean = false
 
     override fun onBind(intent: Intent?): IBinder? {
         return super.onBind(intent)
     }
 
     override fun onNotificationPosted(sbn: StatusBarNotification) {
-        if (null == sbn.notification || packageName == sbn.packageName) return
+        super.onNotificationPosted(sbn)
+        if (!isListening || null == sbn.notification) return
         if (!SamSprung.notices.contains(sbn.notification)) {
             SamSprung.notices.add(sbn.notification)
-            SamSprung.notificationAdapter.notifyDataSetChanged()
         }
     }
 
     override fun onNotificationRemoved(sbn: StatusBarNotification) {
-        if (null == sbn.notification || packageName == sbn.packageName) return
+        super.onNotificationRemoved(sbn)
+        if (!isListening || null == sbn.notification) return
         if (SamSprung.notices.contains(sbn.notification)) {
             SamSprung.notices.remove(sbn.notification)
-            SamSprung.notificationAdapter.notifyDataSetChanged()
         }
     }
 
     override fun onListenerConnected() {
         super.onListenerConnected()
+        isListening = true
         for (sbn: StatusBarNotification in activeNotifications) {
-            if (null == sbn.notification || sbn.isOngoing
-                || packageName == sbn.packageName) continue
+            if (null == sbn.notification || sbn.isOngoing) continue
                 SamSprung.notices.add(sbn.notification)
         }
-        if (SamSprung.notices.isNotEmpty())
-            SamSprung.notificationAdapter.notifyDataSetChanged()
     }
 }

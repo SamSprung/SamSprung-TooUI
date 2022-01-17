@@ -52,9 +52,11 @@ class NotificationAdapter(
             this.notice = notice
             when {
                 null != notice.getLargeIcon() -> iconView.setImageDrawable(
-                    notice.getLargeIcon().loadDrawable(SamSprung.context))
+                    notice.getLargeIcon().loadDrawable(SamSprung.context)
+                )
                 null != notice.smallIcon -> iconView.setImageDrawable(
-                    notice.smallIcon.loadDrawable(SamSprung.context))
+                    notice.smallIcon.loadDrawable(SamSprung.context)
+                )
             }
             if (null != notice.tickerText) {
                 tickerText.text = notice.tickerText
@@ -62,13 +64,17 @@ class NotificationAdapter(
             }
             if (null != notice.extras) {
                 if (null != notice.extras.getCharSequenceArray(
-                        NotificationCompat.EXTRA_TEXT_LINES)) {
+                        NotificationCompat.EXTRA_TEXT_LINES
+                    )
+                ) {
                     linesText.text = Arrays.toString(
                         notice.extras.getCharSequenceArray(
-                            NotificationCompat.EXTRA_TEXT_LINES)
+                            NotificationCompat.EXTRA_TEXT_LINES
+                        )
                     )
                     if (tickerText.visibility == View.VISIBLE
-                        && notice.tickerText != linesText.text)
+                        && notice.tickerText != linesText.text
+                    )
                         tickerText.visibility = View.GONE
                 }
             }
@@ -84,10 +90,6 @@ class NotificationAdapter(
             parent, false
         ), listener
     )
-
-    fun setListener(listener: OnNoticeClickListener) {
-        this.listener = listener
-    }
 
     interface OnNoticeClickListener {
         fun onNoticeClicked(notice: Notification, position: Int)
