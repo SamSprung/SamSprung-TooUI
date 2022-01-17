@@ -5,7 +5,7 @@
 - Does NOT work with OneUI 4 beta or any firmware with verification for Samsung Health.  
 
 - Running apps requires Screen lock type set to None / Swipe in Settings -> Lock screen
-    - Bixby unlock can be used as a workaround for other lock types  
+    - Bixby unlock can be used as a workaround for other lock screen types  
     
 - Keyboards will not open on the cover screen and some app functionality is limited
     - Firmware limitation by Samsung - Secondary IME support is disabled  

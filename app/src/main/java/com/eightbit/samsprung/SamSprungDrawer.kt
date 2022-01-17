@@ -217,7 +217,7 @@ class SamSprungDrawer : AppCompatActivity(), AppLauncherAdapter.OnAppClickListen
     }
 
     private fun getColumnCount(): Int {
-        return (windowManager.currentWindowMetrics.bounds.width() / 96 + 0.5).toInt()
+        return (windowManager.currentWindowMetrics.bounds.width() / 88 + 0.5).toInt()
     }
 
     /**
