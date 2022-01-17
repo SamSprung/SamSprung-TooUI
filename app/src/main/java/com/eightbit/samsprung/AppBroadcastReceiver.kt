@@ -51,62 +51,34 @@ package com.eightbit.samsprung
  * subject to to the terms and conditions of the Apache License, Version 2.0.
  */
 
-import android.app.Application
-import android.app.Notification
+import android.content.BroadcastReceiver
 import android.content.Context
-import android.content.SharedPreferences
-import java.lang.ref.SoftReference
-import kotlin.system.exitProcess
+import android.content.Intent
+import android.content.pm.PackageInstaller
+import android.widget.Toast
 
-class SamSprung : Application() {
-    override fun onCreate() {
-        super.onCreate()
-        mContext = SoftReference(this)
-        mPrefs = SoftReference(
-            getSharedPreferences("samsprung.launcher.PREFS", MODE_PRIVATE)
-        )
-        Thread.setDefaultUncaughtExceptionHandler { _: Thread?, error: Throwable ->
-            error.printStackTrace()
-            // Unrecoverable error encountered
-            exitProcess(1)
-        }
-        if (prefs.contains("screenoff")) {
-            with(prefs.edit()) {
-                putBoolean(prefScreen, prefs.getBoolean("screenoff", true))
-                remove("screenoff")
-                apply()
-            }
-        }
-        if (prefs.contains("gridview")) {
-            with(prefs.edit()) {
-                putBoolean(prefLayout, prefs.getBoolean("gridview", true))
-                remove("gridview")
-                apply()
-            }
-        }
-        if (prefs.contains("hidden_packages")) {
-            with(prefs.edit()) {
-                putStringSet(prefHidden, prefs.getStringSet("hidden_packages", setOf<String>()))
-                remove("hidden_packages")
-                apply()
-            }
-        }
-    }
 
-    companion object {
-        const val provider: String = "com.eightbit.samsprung.provider"
-        const val updating: String = "com.eightbit.samsprung.UPDATING"
-        const val request_code = 8675309
-        private lateinit var mContext: SoftReference<Context>
-        var isKeyguardLocked: Boolean = true
-        private lateinit var mPrefs: SoftReference<SharedPreferences>
-        val context: Context get() = mContext.get()!!
-        val prefs: SharedPreferences get() = mPrefs.get()!!
-        var notices: ArrayList<Notification> = arrayListOf()
-        const val prefScreen: String = "prefScreen"
-        const val prefLayout: String = "prefLayout"
-        const val prefHidden: String = "prefHidden"
-        const val autoRotate: String = "autoRotate"
-        const val useAppLauncherActivity: Boolean = false
+class AppBroadcastReceiver : BroadcastReceiver() {
+
+    override fun onReceive(context: Context, intent: Intent) {
+        if (intent.identifier == "8675309" && intent.action == SamSprung.updating) {
+            when (intent.getIntExtra(PackageInstaller.EXTRA_STATUS, -1)) {
+                PackageInstaller.STATUS_PENDING_USER_ACTION -> {
+                    val activityIntent = intent.getParcelableExtra<Intent>(Intent.EXTRA_INTENT)
+                    if (null != activityIntent)
+                        context.startActivity(activityIntent.addFlags(
+                            Intent.FLAG_ACTIVITY_NEW_TASK))
+                }
+                PackageInstaller.STATUS_SUCCESS -> {
+                    // Installation was successful
+                } else -> {
+                    Toast.makeText(
+                        SamSprung.context,
+                        intent.getStringExtra(PackageInstaller.EXTRA_STATUS_MESSAGE),
+                        Toast.LENGTH_LONG
+                    ).show()
+                }
+            }
+        }
     }
 }

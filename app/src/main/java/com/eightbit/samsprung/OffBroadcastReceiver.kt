@@ -69,26 +69,12 @@ class OffBroadcastReceiver : BroadcastReceiver {
     }
 
     override fun onReceive(context: Context, intent: Intent) {
-        if (intent.action == SamSprung.updating) {
-            when (intent.getIntExtra(PackageInstaller.EXTRA_STATUS, -1)) {
-                PackageInstaller.STATUS_PENDING_USER_ACTION -> {
-                    val activityIntent = intent.getParcelableExtra<Intent>(Intent.EXTRA_INTENT)
-                    if (null != activityIntent)
-                        context.startActivity(activityIntent.addFlags(
-                            Intent.FLAG_ACTIVITY_NEW_TASK))
-                }
-                PackageInstaller.STATUS_SUCCESS -> {
-                    // Installation was successful
-                } else -> {
-                    Toast.makeText(
-                        SamSprung.context,
-                        intent.getStringExtra(PackageInstaller.EXTRA_STATUS_MESSAGE),
-                        Toast.LENGTH_LONG
-                    ).show()
-                }
-            }
-        }
-        if (intent.action == Intent.ACTION_SCREEN_OFF) {
+        if (intent.action == Intent.ACTION_SCREEN_ON) {
+            val coverIntent = Intent(SamSprung.context, CoverDrawerActivity::class.java)
+            coverIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            context.startActivity(coverIntent,
+                ActivityOptions.makeBasic().setLaunchDisplayId(1).toBundle())
+        } else if (intent.action == Intent.ACTION_SCREEN_OFF) {
             if (null != componentName) {
                 context.startService(Intent(context, DisplayListenerService::class.java))
 
@@ -105,12 +91,6 @@ class OffBroadcastReceiver : BroadcastReceiver {
                 componentName = null
                 SamSprung.context.unregisterReceiver(this)
             }
-        }
-        if (intent.action == Intent.ACTION_SCREEN_ON) {
-            val coverIntent = Intent(SamSprung.context, CoverDrawerActivity::class.java)
-            coverIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-            context.startActivity(coverIntent,
-                ActivityOptions.makeBasic().setLaunchDisplayId(1).toBundle())
         }
     }
 }

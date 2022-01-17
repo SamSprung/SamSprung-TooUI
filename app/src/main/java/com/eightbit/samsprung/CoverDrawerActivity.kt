@@ -65,6 +65,7 @@ import android.content.pm.PackageManager
 import android.content.pm.ResolveInfo
 import android.os.Bundle
 import android.provider.Settings
+import android.text.TextUtils
 import android.widget.LinearLayout
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
@@ -134,8 +135,12 @@ class CoverDrawerActivity : AppCompatActivity(), AppLauncherAdapter.OnAppClickLi
 
             override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
                 if (direction == ItemTouchHelper.RIGHT) {
-                    startActivity(Intent(SamSprung.context, CoverNotifications::class.java),
-                        ActivityOptions.makeBasic().setLaunchDisplayId(1).toBundle())
+                    if (isNotificationListenerEnabled()) {
+                        startActivity(
+                            Intent(SamSprung.context, CoverNotifications::class.java),
+                            ActivityOptions.makeBasic().setLaunchDisplayId(1).toBundle()
+                        )
+                    }
                     finish()
                 }
                 if (direction == ItemTouchHelper.LEFT) {
@@ -177,9 +182,7 @@ class CoverDrawerActivity : AppCompatActivity(), AppLauncherAdapter.OnAppClickLi
         startForegroundService(serviceIntent.putExtras(extras))
 
         if (SamSprung.useAppLauncherActivity) {
-            startActivity(Intent(applicationContext,
-                AppLauncherActivity::class.java).addFlags(
-                Intent.FLAG_ACTIVITY_NEW_TASK).putExtras(extras))
+            startActivity(Intent(applicationContext, AppLauncherActivity::class.java).putExtras(extras))
         } else {
             if (SamSprung.prefs.getBoolean(SamSprung.prefScreen, false)) {
                 IntentFilter(Intent.ACTION_SCREEN_OFF).also {
@@ -215,5 +218,22 @@ class CoverDrawerActivity : AppCompatActivity(), AppLauncherAdapter.OnAppClickLi
 
     private fun getColumnCount(): Int {
         return (windowManager.currentWindowMetrics.bounds.width() / 96 + 0.5).toInt()
+    }
+
+    /**
+     * https://github.com/kpbird/NotificationListenerService-Example
+     */
+    private fun isNotificationListenerEnabled(): Boolean {
+        val flat = Settings.Secure.getString(
+            contentResolver, "enabled_notification_listeners"
+        )
+        if (!TextUtils.isEmpty(flat)) {
+            val names = flat.split(":").toTypedArray()
+            for (i in names.indices) {
+                val cn = ComponentName.unflattenFromString(names[i])
+                if (null != cn && TextUtils.equals(packageName, cn.packageName)) return true
+            }
+        }
+        return false
     }
 }

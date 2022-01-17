@@ -68,6 +68,8 @@
         <receiver android:name=".OffBroadcastReceiver"
             android:exported="false"
             android:permission="intent.redirection.BULLSHIT"/>
+        <receiver android:name=".AppBroadcastReceiver"
+            android:exported="false"/>
         <service android:name=".DisplayListenerService"
             android:exported="true"
             android:permission="android.permission.FOREGROUND_SERVICE" />

@@ -143,9 +143,23 @@ class CoverSettingsActivity : AppCompatActivity() {
             // End of permission approval process
         }
 
-        val overlayLauncher = registerForActivityResult(
+        val noticeLauncher = registerForActivityResult(
             ActivityResultContracts.StartActivityForResult()) {
             if (!Settings.System.canWrite(applicationContext)) {
+                settingsLauncher.launch(Intent(
+                    Settings.ACTION_MANAGE_WRITE_SETTINGS,
+                    Uri.parse("package:$packageName")
+                ))
+            }
+        }
+
+        val overlayLauncher = registerForActivityResult(
+            ActivityResultContracts.StartActivityForResult()) {
+            if (isNotificationListenerEnabled()) {
+                noticeLauncher.launch(Intent(
+                    Settings.ACTION_NOTIFICATION_LISTENER_SETTINGS
+                ))
+            } else if (!Settings.System.canWrite(applicationContext)) {
                 settingsLauncher.launch(Intent(
                     Settings.ACTION_MANAGE_WRITE_SETTINGS,
                     Uri.parse("package:$packageName")
@@ -156,24 +170,9 @@ class CoverSettingsActivity : AppCompatActivity() {
             }
         }
 
-        val noticeLauncher = registerForActivityResult(
-            ActivityResultContracts.StartActivityForResult()) {
-            if (!Settings.canDrawOverlays(applicationContext)) {
-                overlayLauncher.launch(Intent(
-                    Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
-                    Uri.parse("package:$packageName")
-                ))
-            } else if (!Settings.System.canWrite(applicationContext)) {
-                settingsLauncher.launch(Intent(
-                    Settings.ACTION_MANAGE_WRITE_SETTINGS,
-                    Uri.parse("package:$packageName")
-                ))
-            }
-        }
-
         findViewById<Button>(R.id.openSettings).setOnClickListener {
-            if (isNotificationListenerEnabled()) {
-                if (Settings.canDrawOverlays(applicationContext)) {
+            if (Settings.canDrawOverlays(applicationContext)) {
+                if (isNotificationListenerEnabled()) {
                     if (Settings.System.canWrite(applicationContext)) {
                         Toast.makeText(
                             applicationContext,
@@ -187,14 +186,14 @@ class CoverSettingsActivity : AppCompatActivity() {
                         ))
                     }
                 } else {
-                    overlayLauncher.launch(Intent(
-                        Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
-                        Uri.parse("package:$packageName")
+                    noticeLauncher.launch(Intent(
+                        Settings.ACTION_NOTIFICATION_LISTENER_SETTINGS
                     ))
                 }
             } else {
-                noticeLauncher.launch(Intent(
-                    Settings.ACTION_NOTIFICATION_LISTENER_SETTINGS
+                overlayLauncher.launch(Intent(
+                    Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
+                    Uri.parse("package:$packageName")
                 ))
             }
         }
@@ -245,11 +244,8 @@ class CoverSettingsActivity : AppCompatActivity() {
         val listView: ListView = findViewById(R.id.selectionListView)
         listView.adapter = FilteredAppsAdapter(this, packages, unlisted)
 
-        if (isNotificationListenerEnabled() && Settings.canDrawOverlays(applicationContext)) {
+        if (Settings.canDrawOverlays(applicationContext)) {
             IntentFilter(Intent.ACTION_SCREEN_ON).also {
-                applicationContext.registerReceiver(OffBroadcastReceiver(), it)
-            }
-            IntentFilter(Intent.ACTION_SCREEN_OFF).also {
                 applicationContext.registerReceiver(OffBroadcastReceiver(), it)
             }
         }
@@ -334,7 +330,8 @@ class CoverSettingsActivity : AppCompatActivity() {
                 apkStream.copyTo(sessionStream)
                 session.fsync(sessionStream)
             }
-            val intent = Intent(SamSprung.context, OffBroadcastReceiver::class.java)
+            val intent = Intent(SamSprung.context, AppBroadcastReceiver::class.java)
+            intent.identifier = "8675309"
             intent.action = SamSprung.updating
             val pi = PendingIntent.getBroadcast(
                 SamSprung.context, SamSprung.request_code, intent,
