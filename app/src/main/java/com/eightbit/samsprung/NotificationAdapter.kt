@@ -1,7 +1,6 @@
 package com.eightbit.samsprung
 
 import android.app.Notification
-import android.service.notification.StatusBarNotification
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -10,22 +9,20 @@ import android.widget.TextView
 import androidx.core.app.NotificationCompat
 import androidx.recyclerview.widget.RecyclerView
 import java.util.*
-import kotlin.collections.ArrayList
 
 class NotificationAdapter(
-    private var notifications: ArrayList<StatusBarNotification>,
     private var listener: OnNoticeClickListener
 ) : RecyclerView.Adapter<NotificationAdapter.NoticeViewHolder>() {
     override fun getItemCount(): Int {
-        return notifications.size
+        return SamSprung.notifications.size
     }
 
     override fun getItemId(i: Int): Long {
-        return notifications[i].key.toLong()
+        return i.toLong()
     }
 
-    private fun getItem(i: Int): StatusBarNotification {
-        return notifications[i]
+    private fun getItem(i: Int): Notification {
+        return SamSprung.notifications[i]
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): NoticeViewHolder {
@@ -51,9 +48,8 @@ class NotificationAdapter(
         private val tickerText: TextView = itemView.findViewById(R.id.ticker)
         private val linesText: TextView = itemView.findViewById(R.id.lines)
         var notification: Notification? = null
-        fun bind(sbn: StatusBarNotification) {
-            val notice: Notification = sbn.notification
-            notification = notice
+        fun bind(notice: Notification) {
+            this.notification = notice
             when {
                 null != notice.getLargeIcon() -> iconView.setImageDrawable(
                     notice.getLargeIcon().loadDrawable(iconView.context)

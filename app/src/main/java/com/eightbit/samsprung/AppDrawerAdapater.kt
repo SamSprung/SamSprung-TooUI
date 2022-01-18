@@ -62,9 +62,13 @@ class AppDrawerAdapater(
                 iconView.setImageDrawable(icon)
             }
             if (!SamSprung.prefs.getBoolean(SamSprung.prefLayout, true)) {
-                val label = appInfo.loadLabel(packageManager)
+                val label: CharSequence? = try {
+                    appInfo.loadLabel(packageManager)
+                } catch (e: Exception) {
+                    appInfo.nonLocalizedLabel
+                }
                 if (null != label) {
-                    itemView.findViewById<TextView>(R.id.widgetItemText).text = label.toString()
+                    itemView.findViewById<TextView>(R.id.widgetItemText).text = label
                 }
             }
         }

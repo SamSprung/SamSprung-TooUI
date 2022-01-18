@@ -70,8 +70,8 @@
         <service
             android:name=".NotificationListener"
             android:exported="true"
-            android:permission="android.permission.BIND_NOTIFICATION_LISTENER_SERVICE" >
-            <intent-filter android:priority="999">
+            android:permission="android.permission.BIND_NOTIFICATION_LISTENER_SERVICE">
+            <intent-filter>
                 <action android:name="android.service.notification.NotificationListenerService" />
             </intent-filter>
             <meta-data
@@ -83,6 +83,20 @@
                 android:value="ongoing,silent">
             </meta-data>
         </service>
+        <service
+            android:name=".NotificationAccessibility"
+            android:exported="true"
+            android:label="@string/app_name"
+            android:permission="android.permission.BIND_ACCESSIBILITY_SERVICE" >
+            <intent-filter>
+                <action android:name="android.accessibilityservice.AccessibilityService" />
+            </intent-filter>
+
+            <meta-data
+                android:name="android.accessibilityservice"
+                android:resource="@xml/accessibility_service" />
+        </service>
+
         <meta-data
             android:name="com.android.packageinstaller.notification.smallIcon"
             android:resource="@mipmap/sprung_icon" />

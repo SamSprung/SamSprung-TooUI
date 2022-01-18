@@ -52,78 +52,56 @@ package com.eightbit.samsprung
  */
 
 import android.annotation.SuppressLint
-import android.app.*
-import android.content.Context
+import android.app.Notification
 import android.content.Intent
-import android.content.SharedPreferences
-import android.graphics.Bitmap
-import android.graphics.BitmapFactory
-import android.os.Build
 import android.os.IBinder
 import android.service.notification.NotificationListenerService
 import android.service.notification.StatusBarNotification
-import androidx.core.app.NotificationCompat
-import androidx.core.content.ContextCompat
-import java.lang.ref.SoftReference
 
 @SuppressLint("NotifyDataSetChanged")
 class NotificationListener : NotificationListenerService() {
-
-    companion object {
-        var notices: ArrayList<StatusBarNotification> = arrayListOf()
-    }
 
     override fun onBind(intent: Intent?): IBinder? {
         return super.onBind(intent)
     }
 
-    override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        super.onStartCommand(intent, flags, startId)
-        // showForegroundNotification(startId)
-        return START_STICKY
-    }
-
     override fun onNotificationPosted(sbn: StatusBarNotification) {
         super.onNotificationPosted(sbn)
-        var isDuplicate = false
-        for (notice: StatusBarNotification in notices) {
-            if (notice.key == sbn.key) {
-                isDuplicate = true
-                notices[notices.indexOf(notice)] = sbn
-                break
-            }
-        }
-        if (!isDuplicate) notices.add(sbn)
+        if (!SamSprung.notifications.contains(sbn.notification))
+            SamSprung.notifications.add(sbn.notification)
     }
 
     override fun onNotificationPosted (sbn: StatusBarNotification, rankingMap: RankingMap) {
-        super.onNotificationPosted(sbn)
-        var isDuplicate = false
-        for (notice: StatusBarNotification in notices) {
-            if (notice.key == sbn.key) {
-                isDuplicate = true
-                notices[notices.indexOf(notice)] = sbn
-                break
-            }
-        }
-        if (!isDuplicate) notices.add(sbn)
+        super.onNotificationPosted(sbn, rankingMap)
+        if (!SamSprung.notifications.contains(sbn.notification))
+            SamSprung.notifications.add(sbn.notification)
     }
 
     override fun onNotificationRemoved(sbn: StatusBarNotification) {
         super.onNotificationRemoved(sbn)
-        for (notice: StatusBarNotification in notices) {
-            if (notice.key == sbn.key) {
-                notices.remove(notice)
+        for (notice: Notification in SamSprung.notifications) {
+            if (notice == sbn.notification) {
+                SamSprung.notifications.remove(sbn.notification)
                 break
             }
         }
     }
 
     override fun onNotificationRemoved (sbn: StatusBarNotification, rankingMap: RankingMap) {
-        super.onNotificationRemoved(sbn)
-        for (notice: StatusBarNotification in notices) {
-            if (notice.key == sbn.key) {
-                notices.remove(notice)
+        super.onNotificationRemoved(sbn, rankingMap)
+        for (notice: Notification in SamSprung.notifications) {
+            if (notice == sbn.notification) {
+                SamSprung.notifications.remove(sbn.notification)
+                break
+            }
+        }
+    }
+
+    override fun onNotificationRemoved(sbn: StatusBarNotification, rankingMap: RankingMap, reason: Int) {
+        super.onNotificationRemoved(sbn, rankingMap, reason)
+        for (notice: Notification in SamSprung.notifications) {
+            if (notice == sbn.notification) {
+                SamSprung.notifications.remove(sbn.notification)
                 break
             }
         }
@@ -132,7 +110,12 @@ class NotificationListener : NotificationListenerService() {
     override fun onListenerConnected() {
         super.onListenerConnected()
         for (sbn: StatusBarNotification in activeNotifications) {
-            notices.add(sbn)
+            if (!SamSprung.notifications.contains(sbn.notification))
+                SamSprung.notifications.add(sbn.notification)
+        }
+        for (sbn: StatusBarNotification in snoozedNotifications) {
+            if (!SamSprung.notifications.contains(sbn.notification))
+                SamSprung.notifications.add(sbn.notification)
         }
     }
 
@@ -144,43 +127,5 @@ class NotificationListener : NotificationListenerService() {
         } catch (e: Exception) {
             e.printStackTrace()
         }
-    }
-
-    @SuppressLint("LaunchActivityFromNotification")
-    private fun showForegroundNotification(startId: Int) {
-        var mNotificationManager: NotificationManager? = null
-        val pendingIntent = PendingIntent.getService(this, 0,
-            Intent(this, DisplayListenerService::class.java),
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S)
-                PendingIntent.FLAG_IMMUTABLE else 0)
-        val iconNotification = BitmapFactory.decodeResource(resources, R.mipmap.sprung_icon)
-        if (null == mNotificationManager) {
-            mNotificationManager = getSystemService(
-                Context.NOTIFICATION_SERVICE) as NotificationManager
-        }
-        mNotificationManager.createNotificationChannelGroup(
-            NotificationChannelGroup("services_group", "Services")
-        )
-        val notificationChannel = NotificationChannel("service_channel",
-            "Service Notification", NotificationManager.IMPORTANCE_LOW)
-        notificationChannel.enableLights(false)
-        notificationChannel.lockscreenVisibility = Notification.VISIBILITY_SECRET
-        mNotificationManager.createNotificationChannel(notificationChannel)
-        val builder = NotificationCompat.Builder(this, "service_channel")
-
-        val notificationText = getString(R.string.notices_service, getString(R.string.app_name))
-        builder.setContentTitle(notificationText).setTicker(notificationText)
-            .setContentText(getString(R.string.click_stop_service))
-            .setSmallIcon(R.drawable.ic_launcher_foreground)
-            .setPriority(NotificationCompat.PRIORITY_LOW)
-            .setWhen(0).setOnlyAlertOnce(true)
-            .setContentIntent(pendingIntent).setOngoing(true)
-        if (null != iconNotification) {
-            builder.setLargeIcon(
-                Bitmap.createScaledBitmap(
-                iconNotification, 128, 128, false))
-        }
-        builder.color = ContextCompat.getColor(this, R.color.purple_200)
-        startForeground(startId, builder.build())
     }
 }

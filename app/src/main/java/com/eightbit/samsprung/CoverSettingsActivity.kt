@@ -52,12 +52,14 @@ package com.eightbit.samsprung
  */
 
 import android.Manifest
+import android.accessibilityservice.AccessibilityServiceInfo
 import android.app.KeyguardManager
 import android.app.PendingIntent
 import android.content.*
 import android.content.pm.PackageInstaller
 import android.content.pm.PackageManager
 import android.content.pm.ResolveInfo
+import android.content.pm.ServiceInfo
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
@@ -65,10 +67,14 @@ import android.os.Environment
 import android.provider.MediaStore
 import android.provider.Settings
 import android.text.TextUtils
+import android.view.Menu
+import android.view.MenuItem
 import android.view.View
+import android.view.accessibility.AccessibilityManager
 import android.widget.*
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.widget.SwitchCompat
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
@@ -94,6 +100,8 @@ class CoverSettingsActivity : AppCompatActivity() {
         const val GENERAL = 9000
         const val LOGCAT = 9001
     }
+
+    private lateinit var switch: SwitchCompat
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -136,66 +144,6 @@ class CoverSettingsActivity : AppCompatActivity() {
                 R.string.caveats_warning,
                 Toast.LENGTH_LONG
             ).show()
-        }
-
-        val settingsLauncher = registerForActivityResult(
-            ActivityResultContracts.StartActivityForResult()) {
-            // End of permission approval process
-        }
-
-        val noticeLauncher = registerForActivityResult(
-            ActivityResultContracts.StartActivityForResult()) {
-            if (!Settings.System.canWrite(applicationContext)) {
-                settingsLauncher.launch(Intent(
-                    Settings.ACTION_MANAGE_WRITE_SETTINGS,
-                    Uri.parse("package:$packageName")
-                ))
-            }
-        }
-
-        val overlayLauncher = registerForActivityResult(
-            ActivityResultContracts.StartActivityForResult()) {
-            if (!isNotificationListenerEnabled()) {
-                noticeLauncher.launch(Intent(
-                    Settings.ACTION_NOTIFICATION_LISTENER_SETTINGS
-                ))
-            } else if (!Settings.System.canWrite(applicationContext)) {
-                settingsLauncher.launch(Intent(
-                    Settings.ACTION_MANAGE_WRITE_SETTINGS,
-                    Uri.parse("package:$packageName")
-                ))
-            }
-            IntentFilter(Intent.ACTION_SCREEN_ON).also {
-                applicationContext.registerReceiver(OffBroadcastReceiver(), it)
-            }
-        }
-
-        findViewById<Button>(R.id.openSettings).setOnClickListener {
-            if (Settings.canDrawOverlays(applicationContext)) {
-                if (isNotificationListenerEnabled()) {
-                    if (Settings.System.canWrite(applicationContext)) {
-                        Toast.makeText(
-                            applicationContext,
-                            R.string.settings_notice,
-                            Toast.LENGTH_LONG
-                        ).show()
-                    } else {
-                        settingsLauncher.launch(Intent(
-                            Settings.ACTION_MANAGE_WRITE_SETTINGS,
-                            Uri.parse("package:$packageName")
-                        ))
-                    }
-                } else {
-                    noticeLauncher.launch(Intent(
-                        Settings.ACTION_NOTIFICATION_LISTENER_SETTINGS
-                    ))
-                }
-            } else {
-                overlayLauncher.launch(Intent(
-                    Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
-                    Uri.parse("package:$packageName")
-                ))
-            }
         }
 
         val enableScreenOff = SamSprung.prefs.getBoolean(SamSprung.prefScreen, false)
@@ -251,11 +199,131 @@ class CoverSettingsActivity : AppCompatActivity() {
         }
     }
 
+    private val noticeLauncher = registerForActivityResult(
+        ActivityResultContracts.StartActivityForResult()) {
+        // End of permission approval process
+    }
+
+    private val settingsLauncher = registerForActivityResult(
+        ActivityResultContracts.StartActivityForResult()) {
+        if (!isNotificationListenerEnabled()) {
+            noticeLauncher.launch(Intent(
+                Settings.ACTION_NOTIFICATION_LISTENER_SETTINGS
+            ))
+        }
+    }
+
+    private val accessibilityLauncher = registerForActivityResult(
+        ActivityResultContracts.StartActivityForResult()) {
+        if (isAccessibilityEnabled())
+            switch.isChecked = true
+        if (!Settings.System.canWrite(applicationContext)) {
+            settingsLauncher.launch(Intent(
+                Settings.ACTION_MANAGE_WRITE_SETTINGS,
+                Uri.parse("package:$packageName")
+            ))
+        } else if (!isNotificationListenerEnabled()) {
+            noticeLauncher.launch(Intent(
+                Settings.ACTION_NOTIFICATION_LISTENER_SETTINGS
+            ))
+        }
+    }
+
+    private val overlayLauncher = registerForActivityResult(
+        ActivityResultContracts.StartActivityForResult()) {
+        if (isAccessibilityEnabled()) {
+            if (Settings.canDrawOverlays(applicationContext)) {
+                switch.isChecked = true
+                IntentFilter(Intent.ACTION_SCREEN_ON).also {
+                    applicationContext.registerReceiver(OffBroadcastReceiver(), it)
+                }
+            }
+            if (!Settings.System.canWrite(applicationContext)) {
+                settingsLauncher.launch(Intent(
+                    Settings.ACTION_MANAGE_WRITE_SETTINGS,
+                    Uri.parse("package:$packageName")
+                ))
+            } else if (!isNotificationListenerEnabled()) {
+                noticeLauncher.launch(Intent(
+                    Settings.ACTION_NOTIFICATION_LISTENER_SETTINGS
+                ))
+            }
+        } else {
+            switch.isChecked = false
+            accessibilityLauncher.launch(Intent(
+                Settings.ACTION_ACCESSIBILITY_SETTINGS,
+            ))
+        }
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu): Boolean {
+        menuInflater.inflate(R.menu.action_menu, menu)
+        val itemswitch: MenuItem = menu.findItem(R.id.switch_action_bar)
+        itemswitch.setActionView(R.layout.permission_switch)
+        switch = menu.findItem(R.id.switch_action_bar).actionView
+            .findViewById(R.id.switch2) as SwitchCompat
+        switch.isChecked = Settings.canDrawOverlays(applicationContext) && isAccessibilityEnabled()
+        switch.setOnClickListener {
+            if (switch.isChecked) {
+                if (Settings.canDrawOverlays(applicationContext)) {
+                    if (isAccessibilityEnabled()) {
+                        switch.isChecked = true
+                        if (Settings.System.canWrite(applicationContext)) {
+                            if (isNotificationListenerEnabled()) {
+                                Toast.makeText(
+                                    applicationContext,
+                                    R.string.settings_notice,
+                                    Toast.LENGTH_LONG
+                                ).show()
+                            } else {
+                                noticeLauncher.launch(Intent(
+                                    Settings.ACTION_NOTIFICATION_LISTENER_SETTINGS
+                                ))
+                            }
+                        } else {
+                            settingsLauncher.launch(Intent(
+                                Settings.ACTION_MANAGE_WRITE_SETTINGS,
+                                Uri.parse("package:$packageName")
+                            ))
+                        }
+                    } else {
+                        switch.isChecked = false
+                        accessibilityLauncher.launch(Intent(
+                            Settings.ACTION_ACCESSIBILITY_SETTINGS
+                        ))
+                    }
+                } else {
+                    switch.isChecked = false
+                    overlayLauncher.launch(Intent(
+                        Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
+                        Uri.parse("package:$packageName")
+                    ))
+                }
+            }
+        }
+        return true
+    }
+
     /**
      * @return true if pass or pin or pattern locks screen
      */
     private fun isDeviceSecure(): Boolean {
         return (getSystemService(Context.KEYGUARD_SERVICE) as KeyguardManager).isDeviceSecure
+    }
+
+    /**
+     * https://stackoverflow.com/a/14923144/461982
+     */
+    private fun isAccessibilityEnabled(): Boolean {
+        val enabledServices = (getSystemService(ACCESSIBILITY_SERVICE) as AccessibilityManager)
+            .getEnabledAccessibilityServiceList(AccessibilityServiceInfo.FEEDBACK_VISUAL)
+        for (enabledService in enabledServices) {
+            val enabledServiceInfo: ServiceInfo = enabledService.resolveInfo.serviceInfo
+            if (enabledServiceInfo.packageName.equals(packageName)
+                && enabledServiceInfo.name.equals(NotificationAccessibility::class.java.name)
+            ) return true
+        }
+        return false
     }
 
     /**

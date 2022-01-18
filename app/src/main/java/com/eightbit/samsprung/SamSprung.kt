@@ -52,11 +52,9 @@ package com.eightbit.samsprung
  */
 
 import android.app.Application
-import android.content.Context
+import android.app.Notification
 import android.content.SharedPreferences
-import android.service.notification.StatusBarNotification
 import java.lang.ref.SoftReference
-import kotlin.system.exitProcess
 
 class SamSprung : Application() {
     override fun onCreate() {
@@ -99,6 +97,7 @@ class SamSprung : Application() {
         var isKeyguardLocked: Boolean = true
         private lateinit var mPrefs: SoftReference<SharedPreferences>
         val prefs: SharedPreferences get() = mPrefs.get()!!
+        var notifications: ArrayList<Notification> = arrayListOf()
         const val prefScreen: String = "prefScreen"
         const val prefLayout: String = "prefLayout"
         const val prefHidden: String = "prefHidden"

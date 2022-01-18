@@ -52,8 +52,12 @@ package com.eightbit.samsprung
  */
 
 import android.Manifest
+import android.accessibilityservice.AccessibilityServiceInfo
 import android.annotation.SuppressLint
-import android.app.*
+import android.app.ActivityOptions
+import android.app.KeyguardManager
+import android.app.Notification
+import android.app.WallpaperManager
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
@@ -61,12 +65,12 @@ import android.content.IntentFilter
 import android.content.pm.ApplicationInfo
 import android.content.pm.PackageManager
 import android.content.pm.ResolveInfo
+import android.content.pm.ServiceInfo
 import android.graphics.Canvas
 import android.os.Bundle
 import android.provider.Settings
-import android.service.notification.StatusBarNotification
-import android.text.TextUtils
 import android.view.View
+import android.view.accessibility.AccessibilityManager
 import androidx.appcompat.app.AppCompatActivity
 import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.core.content.ContextCompat
@@ -94,8 +98,6 @@ class SamSprungDrawer : AppCompatActivity(),
         supportActionBar?.hide()
         setContentView(R.layout.apps_view_layout)
 
-        startForegroundService(Intent(this, NotificationListener::class.java))
-
         val permission = ContextCompat.checkSelfPermission(
             this, Manifest.permission.READ_EXTERNAL_STORAGE
         )
@@ -112,43 +114,19 @@ class SamSprungDrawer : AppCompatActivity(),
                 .setBlurAlgorithm(RenderScriptBlur(this))
         }
 
-        if (isNotificationListenerEnabled()) {
+        if (isAccessibilityEnabled()) {
             val noticesView = findViewById<RecyclerView>(R.id.notificationList)
             noticesView.layoutManager = LinearLayoutManager(this)
+            noticesView.adapter = NotificationAdapter(this@SamSprungDrawer)
 
             val bottomSheetBehavior: BottomSheetBehavior<View> =
                 BottomSheetBehavior.from(findViewById(R.id.bottom_sheet))
             bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
             bottomSheetBehavior.addBottomSheetCallback(object : BottomSheetCallback() {
+                @SuppressLint("NotifyDataSetChanged")
                 override fun onStateChanged(bottomSheet: View, newState: Int) {
                     if (newState == BottomSheetBehavior.STATE_EXPANDED) {
-                        var notifications: Array<StatusBarNotification>? = null
-                        try {
-                            notifications = (getSystemService(NOTIFICATION_SERVICE)
-                                    as NotificationManager).activeNotifications
-                        } catch (ignored: Throwable) { }
-                        if (notifications != null) for (sbn in notifications) {
-                            var isDuplicate = false
-                            for (notice: StatusBarNotification in NotificationListener.notices) {
-                                if (notice.key == sbn.key) {
-                                    isDuplicate = true
-                                    NotificationListener.notices[
-                                            NotificationListener.notices.indexOf(notice)
-                                    ] = sbn
-                                    break
-                                }
-                            }
-                            if (!isDuplicate) NotificationListener.notices.add(sbn)
-                        }
-                        noticesView.adapter = NotificationAdapter(NotificationListener.notices,
-                            object: NotificationAdapter.OnNoticeClickListener {
-                            override fun onNoticeClicked(notice: Notification, position: Int) {
-                                startIntentSender(
-                                    notice.contentIntent.intentSender,
-                                    null, 0, 0, 0
-                                )
-                            }
-                        })
+                        (noticesView.adapter as NotificationAdapter).notifyDataSetChanged()
                     }
                 }
 
@@ -175,7 +153,8 @@ class SamSprungDrawer : AppCompatActivity(),
         launcherView.adapter = AppDrawerAdapater(packages, this, packageManager)
 
         val simpleItemTouchCallback: ItemTouchHelper.SimpleCallback = object :
-            ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.RIGHT or ItemTouchHelper.LEFT) {
+            ItemTouchHelper.SimpleCallback(0,
+                ItemTouchHelper.RIGHT or ItemTouchHelper.LEFT) {
             override fun onMove(
                 recyclerView: RecyclerView,
                 viewHolder: RecyclerView.ViewHolder,
@@ -280,19 +259,14 @@ class SamSprungDrawer : AppCompatActivity(),
         return (windowManager.currentWindowMetrics.bounds.width() / 88 + 0.5).toInt()
     }
 
-    /**
-     * https://github.com/kpbird/NotificationListenerService-Example
-     */
-    private fun isNotificationListenerEnabled(): Boolean {
-        val flat = Settings.Secure.getString(
-            contentResolver, "enabled_notification_listeners"
-        )
-        if (!TextUtils.isEmpty(flat)) {
-            val names = flat.split(":").toTypedArray()
-            for (i in names.indices) {
-                val cn = ComponentName.unflattenFromString(names[i])
-                if (null != cn && TextUtils.equals(packageName, cn.packageName)) return true
-            }
+    private fun isAccessibilityEnabled(): Boolean {
+        val enabledServices = (getSystemService(ACCESSIBILITY_SERVICE) as AccessibilityManager)
+            .getEnabledAccessibilityServiceList(AccessibilityServiceInfo.FEEDBACK_VISUAL)
+        for (enabledService in enabledServices) {
+            val enabledServiceInfo: ServiceInfo = enabledService.resolveInfo.serviceInfo
+            if (enabledServiceInfo.packageName.equals(packageName)
+                && enabledServiceInfo.name.equals(NotificationAccessibility::class.java.name)
+            ) return true
         }
         return false
     }
