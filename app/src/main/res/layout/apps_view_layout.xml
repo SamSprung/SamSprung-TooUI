@@ -53,14 +53,16 @@
                 android:ellipsize="middle"
                 android:textColor="@android:color/white"
                 android:text="@string/notification_drawer"
-                android:textSize="20sp"/>
+                android:textSize="20sp" />
 
         </LinearLayout>
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/notificationList"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"/>
+            android:layout_height="match_parent"
+            android:layout_marginTop="4dp"
+            android:layout_marginBottom="4dp" />
 
     </LinearLayout>
 

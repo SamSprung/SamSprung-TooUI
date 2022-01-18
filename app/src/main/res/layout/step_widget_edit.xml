@@ -11,18 +11,6 @@
         android:layout_height="8dp" />
 
     <ToggleButton
-        android:id="@+id/swapScreenOff"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:minHeight="@dimen/button_height_min"
-        android:textOff="@string/swap_so_system"
-        android:textOn="@string/swap_so_listen" />
-
-    <Space
-        android:layout_width="match_parent"
-        android:layout_height="8dp" />
-
-    <ToggleButton
         android:id="@+id/swapViewType"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -34,12 +22,13 @@
         android:layout_width="match_parent"
         android:layout_height="8dp" />
 
-    <Button
-        android:id="@+id/cacheLogcat"
+    <ToggleButton
+        android:id="@+id/swapScreenOff"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:minHeight="@dimen/button_height_min"
-        android:text="@string/print_logcat" />
+        android:textOff="@string/swap_so_system"
+        android:textOn="@string/swap_so_listen" />
 
     <Space
         android:layout_width="match_parent"

@@ -6,4 +6,14 @@
         android:title="@string/app_name"
         app:actionLayout="@layout/permission_switch"
         app:showAsAction="always" />
+    <item
+        android:id="@+id/logcat"
+        android:title="@string/capture_logcat"
+        android:icon="@mipmap/ic_github_white_24dp"
+        app:showAsAction="never" />
+    <item
+        android:id="@+id/donate"
+        android:title="@string/donation_link"
+        android:icon="@mipmap/ic_paypal_donation"
+        app:showAsAction="never" />
 </menu>

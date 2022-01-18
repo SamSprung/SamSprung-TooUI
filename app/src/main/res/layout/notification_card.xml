@@ -4,7 +4,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_margin="8dp"
+    android:layout_margin="4dp"
     android:clickable="true"
     android:focusable="true"
     android:foreground="@drawable/card_foreground"
@@ -14,7 +14,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:padding="8dp">
+        android:padding="4dp">
 
         <ImageView
             android:id="@+id/icon"

@@ -6,7 +6,6 @@
     <string name="swap_so_listen">Apps close for screen off state</string>
     <string name="swap_viewgrid">Display as ListView Widget Style</string>
     <string name="swap_viewlist">Display as GridView Widget Style</string>
-    <string name="print_logcat">Print Logcat Capture to File</string>
     <string name="hide_package">%1$s hidden!</string>
     <string name="show_package">%1$s visible!</string>
     <string name="display_service">%1$s Display Service</string>
@@ -16,4 +15,7 @@
     <string name="update_service">%1$s Update Service</string>
     <string name="click_update_app">Click to Update Package</string>
     <string name="loading_text">Loading&#8230;</string>
+
+    <string name="capture_logcat">Capture a Logcat File</string>
+    <string name="donation_link">Sponsor Development</string>
 </resources>

@@ -224,13 +224,11 @@ class SamSprungDrawer : AppCompatActivity(),
         if (SamSprung.useAppLauncherActivity) {
             startActivity(Intent(applicationContext, AppLauncherActivity::class.java).putExtras(extras))
         } else {
-            if (SamSprung.prefs.getBoolean(SamSprung.prefScreen, false)) {
+            if (SamSprung.prefs.getBoolean(SamSprung.prefScreen, true)) {
                 IntentFilter(Intent.ACTION_SCREEN_OFF).also {
-                    applicationContext.registerReceiver(
-                        OffBroadcastReceiver(
-                            ComponentName(appInfo.activityInfo.packageName, appInfo.activityInfo.name)
-                        ), it
-                    )
+                    applicationContext.registerReceiver(OffBroadcastReceiver(
+                        ComponentName(appInfo.activityInfo.packageName, appInfo.activityInfo.name)
+                    ), it)
                 }
             }
             val coverIntent = Intent(Intent.ACTION_MAIN)
@@ -262,7 +260,7 @@ class SamSprungDrawer : AppCompatActivity(),
     }
 
     private fun getColumnCount(): Int {
-        return (windowManager.currentWindowMetrics.bounds.width() / 88 + 0.5).toInt()
+        return (windowManager.currentWindowMetrics.bounds.width() / 96 + 0.5).toInt()
     }
 
     private fun isAccessibilityEnabled(): Boolean {
