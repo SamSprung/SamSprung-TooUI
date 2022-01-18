@@ -57,13 +57,14 @@ class AppDrawerAdapater(
         var appInfo: ResolveInfo? = null
         fun bind(appInfo: ResolveInfo) {
             this.appInfo = appInfo
-            if (null != appInfo.loadIcon(packageManager)) {
-                iconView.setImageDrawable(appInfo.loadIcon(packageManager))
+            val icon = appInfo.loadIcon(packageManager)
+            if (null != icon) {
+                iconView.setImageDrawable(icon)
             }
             if (!SamSprung.prefs.getBoolean(SamSprung.prefLayout, true)) {
-                if (null != appInfo.loadLabel(packageManager)) {
-                    itemView.findViewById<TextView>(R.id.widgetItemText).text =
-                        appInfo.loadLabel(packageManager).toString()
+                val label = appInfo.loadLabel(packageManager)
+                if (null != label) {
+                    itemView.findViewById<TextView>(R.id.widgetItemText).text = label.toString()
                 }
             }
         }

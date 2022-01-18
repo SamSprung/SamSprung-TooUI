@@ -112,22 +112,12 @@ class FilteredAppsAdapter(
                     putStringSet(SamSprung.prefHidden, hide)
                     apply()
                 }
-                Toast.makeText(
-                    context, context.getString(
-                        R.string.show_package, appName
-                    ), Toast.LENGTH_SHORT
-                ).show()
             } else {
                 hide.add(packageName)
                 with(SamSprung.prefs.edit()) {
                     putStringSet(SamSprung.prefHidden, hide)
                     apply()
                 }
-                Toast.makeText(
-                    context, context.getString(
-                        R.string.hide_package, appName
-                    ), Toast.LENGTH_SHORT
-                ).show()
             }
         }
 
