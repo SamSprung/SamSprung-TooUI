@@ -54,7 +54,6 @@ package com.eightbit.samsprung
 import android.annotation.SuppressLint
 import android.app.Notification
 import android.content.Intent
-import android.os.Binder
 import android.os.IBinder
 import android.service.notification.NotificationListenerService
 import android.service.notification.StatusBarNotification
@@ -106,12 +105,17 @@ class NotificationListener : NotificationListenerService() {
 
     override fun onListenerConnected() {
         super.onListenerConnected()
+        var notification: Notification
         for (sbn: StatusBarNotification in activeNotifications) {
-            if (!SamSprung.notifications.contains(sbn.notification))
+            notification = sbn.notification
+            if ((notification.extras != null || notification.tickerText != null)
+                && !SamSprung.notifications.contains(notification))
                 SamSprung.notifications.add(sbn.notification)
         }
         for (sbn: StatusBarNotification in snoozedNotifications) {
-            if (!SamSprung.notifications.contains(sbn.notification))
+            notification = sbn.notification
+            if ((notification.extras != null || notification.tickerText != null)
+                && !SamSprung.notifications.contains(notification))
                 SamSprung.notifications.add(sbn.notification)
         }
     }

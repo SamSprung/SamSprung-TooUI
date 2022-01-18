@@ -67,10 +67,11 @@ class NotificationAccessibility : AccessibilityService() {
 
     override fun onAccessibilityEvent(event: AccessibilityEvent) {
         if (AccessibilityEvent.TYPE_NOTIFICATION_STATE_CHANGED == event.eventType) {
-            val data = event.parcelableData
-            if (data is Notification) {
-                if (!SamSprung.notifications.contains(data))
-                    SamSprung.notifications.add(data)
+            val notification = event.parcelableData
+            if (notification is Notification) {
+                if ((notification.extras != null || notification.tickerText != null)
+                    && !SamSprung.notifications.contains(notification))
+                    SamSprung.notifications.add(notification)
             }
         }
     }
