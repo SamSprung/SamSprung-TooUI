@@ -108,25 +108,13 @@ class NotificationListener : NotificationListenerService() {
         var notification: Notification
         for (sbn: StatusBarNotification in activeNotifications) {
             notification = sbn.notification
-            if ((notification.extras != null || notification.tickerText != null)
-                && !SamSprung.notifications.contains(notification))
+            if (!SamSprung.notifications.contains(notification))
                 SamSprung.notifications.add(sbn.notification)
         }
         for (sbn: StatusBarNotification in snoozedNotifications) {
             notification = sbn.notification
-            if ((notification.extras != null || notification.tickerText != null)
-                && !SamSprung.notifications.contains(notification))
-                SamSprung.notifications.add(sbn.notification)
-        }
-    }
-
-    override fun onListenerDisconnected() {
-        super.onListenerDisconnected()
-        try {
-            stopForeground(true)
-            stopSelf()
-        } catch (e: Exception) {
-            e.printStackTrace()
+            if (SamSprung.notifications.contains(notification))
+                SamSprung.notifications.remove(sbn.notification)
         }
     }
 }

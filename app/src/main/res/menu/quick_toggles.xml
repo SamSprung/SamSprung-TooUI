@@ -16,4 +16,14 @@
         android:title="@string/toggle_sound"
         android:icon="@drawable/ic_baseline_hearing_24"
         app:showAsAction="always" />
+    <item
+        android:id="@+id/toggle_nfc"
+        android:title="@string/toggle_nfc"
+        android:icon="@drawable/ic_baseline_nfc_24"
+        app:showAsAction="always" />
+    <item
+        android:id="@+id/toggle_torch"
+        android:title="@string/toggle_torch"
+        android:icon="@drawable/ic_baseline_flashlight_off_24"
+        app:showAsAction="always" />
 </menu>

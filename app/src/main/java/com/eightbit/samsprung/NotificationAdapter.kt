@@ -45,7 +45,6 @@ class NotificationAdapter(
         itemView: View, val listener: OnNoticeClickListener?
     ) : RecyclerView.ViewHolder(itemView) {
         val iconView: ImageView = itemView.findViewById(R.id.icon)
-        private val tickerText: TextView = itemView.findViewById(R.id.ticker)
         private val linesText: TextView = itemView.findViewById(R.id.lines)
         var notification: Notification? = null
         fun bind(notice: Notification) {
@@ -58,25 +57,14 @@ class NotificationAdapter(
                     notice.smallIcon.loadDrawable(iconView.context)
                 )
             }
-            if (null != notice.tickerText) {
-                tickerText.text = notice.tickerText
-                tickerText.visibility = View.VISIBLE
-            }
             if (null != notice.extras) {
-                if (null != notice.extras.getCharSequenceArray(
+                if (null != notice.extras.getCharSequenceArray(NotificationCompat.EXTRA_TEXT_LINES)) {
+                    linesText.text = Arrays.toString(notice.extras.getCharSequenceArray(
                         NotificationCompat.EXTRA_TEXT_LINES
-                    )
-                ) {
-                    linesText.text = Arrays.toString(
-                        notice.extras.getCharSequenceArray(
-                            NotificationCompat.EXTRA_TEXT_LINES
-                        )
-                    )
-                    if (tickerText.visibility == View.VISIBLE
-                        && notice.tickerText != linesText.text
-                    )
-                        tickerText.visibility = View.GONE
+                    ))
                 }
+            } else if (null != notice.tickerText) {
+                linesText.text = notice.tickerText
             }
         }
     }

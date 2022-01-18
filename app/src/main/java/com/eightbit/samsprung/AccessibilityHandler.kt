@@ -56,7 +56,7 @@ import android.accessibilityservice.AccessibilityServiceInfo
 import android.app.Notification
 import android.view.accessibility.AccessibilityEvent
 
-class NotificationAccessibility : AccessibilityService() {
+class AccessibilityHandler : AccessibilityService() {
     override fun onServiceConnected() {
         val info = AccessibilityServiceInfo()
         info.eventTypes = AccessibilityEvent.TYPE_NOTIFICATION_STATE_CHANGED
@@ -69,8 +69,7 @@ class NotificationAccessibility : AccessibilityService() {
         if (AccessibilityEvent.TYPE_NOTIFICATION_STATE_CHANGED == event.eventType) {
             val notification = event.parcelableData
             if (notification is Notification) {
-                if ((notification.extras != null || notification.tickerText != null)
-                    && !SamSprung.notifications.contains(notification))
+                if (!SamSprung.notifications.contains(notification))
                     SamSprung.notifications.add(notification)
             }
         }

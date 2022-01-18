@@ -68,6 +68,7 @@ import android.content.pm.ResolveInfo
 import android.graphics.Canvas
 import android.media.AudioManager
 import android.net.wifi.WifiManager
+import android.nfc.NfcManager
 import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
@@ -88,6 +89,10 @@ import com.eightbitlab.blurview.RenderScriptBlur
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetBehavior.BottomSheetCallback
 import java.util.*
+import android.hardware.camera2.CameraManager
+
+
+
 
 
 class SamSprungDrawer : AppCompatActivity(),
@@ -139,6 +144,15 @@ class SamSprungDrawer : AppCompatActivity(),
                 toolbar.menu.findItem(R.id.toggle_wifi).setIcon(R.drawable.ic_baseline_wifi_off_24)
         }
 
+        val nfcAdapter = (getSystemService(NFC_SERVICE) as NfcManager).defaultAdapter
+        val nfcEnabler = registerForActivityResult(
+            ActivityResultContracts.StartActivityForResult()) {
+            if (nfcAdapter.isEnabled)
+                toolbar.menu.findItem(R.id.toggle_nfc).setIcon(R.drawable.ic_baseline_nfc_24)
+            else
+                toolbar.menu.findItem(R.id.toggle_nfc).setIcon(R.drawable.ic_baseline_nfc_disabled_24)
+        }
+
         val bottomSheetBehavior: BottomSheetBehavior<View> =
             BottomSheetBehavior.from(findViewById(R.id.bottom_sheet))
         bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
@@ -155,17 +169,18 @@ class SamSprungDrawer : AppCompatActivity(),
 
                     val bluetoothAdapter = (getSystemService(Context.BLUETOOTH_SERVICE)
                             as BluetoothManager).adapter
-                    if (bluetoothAdapter.isEnabled)
-                        toolbar.menu.findItem(R.id.toggle_bluetooth)
-                            .setIcon(R.drawable.ic_baseline_bluetooth_24)
-                    else
-                        toolbar.menu.findItem(R.id.toggle_bluetooth)
-                            .setIcon(R.drawable.ic_baseline_bluetooth_disabled_24)
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S &&
                         ContextCompat.checkSelfPermission(
                             this@SamSprungDrawer,
                             Manifest.permission.BLUETOOTH_CONNECT,
-                        ) != PackageManager.PERMISSION_GRANTED) {
+                        ) == PackageManager.PERMISSION_GRANTED) {
+                        if (bluetoothAdapter.isEnabled)
+                            toolbar.menu.findItem(R.id.toggle_bluetooth)
+                                .setIcon(R.drawable.ic_baseline_bluetooth_24)
+                        else
+                            toolbar.menu.findItem(R.id.toggle_bluetooth)
+                                .setIcon(R.drawable.ic_baseline_bluetooth_disabled_24)
+                    } else {
                         toolbar.menu.findItem(R.id.toggle_bluetooth).isVisible = false
                     }
 
@@ -176,6 +191,21 @@ class SamSprungDrawer : AppCompatActivity(),
                     else
                         toolbar.menu.findItem(R.id.toggle_sound)
                             .setIcon(R.drawable.ic_baseline_hearing_disabled_24)
+
+                    if (nfcAdapter.isEnabled)
+                        toolbar.menu.findItem(R.id.toggle_nfc)
+                            .setIcon(R.drawable.ic_baseline_nfc_24)
+                    else
+                        toolbar.menu.findItem(R.id.toggle_nfc)
+                            .setIcon(R.drawable.ic_baseline_nfc_disabled_24)
+
+                    val camManager = getSystemService(CAMERA_SERVICE) as CameraManager
+                    var isTorchEnabled = false
+                    if (packageManager.hasSystemFeature(PackageManager.FEATURE_CAMERA_FLASH)) {
+                        camManager.setTorchMode(camManager.cameraIdList[0], isTorchEnabled)
+                    } else {
+                        toolbar.menu.findItem(R.id.toggle_torch).isVisible = isTorchEnabled
+                    }
 
                     toolbar.setOnMenuItemClickListener { item: MenuItem ->
                         when (item.itemId) {
@@ -205,6 +235,23 @@ class SamSprungDrawer : AppCompatActivity(),
                                     toolbar.menu.findItem(R.id.toggle_sound)
                                         .setIcon(R.drawable.ic_baseline_hearing_24)
                                 }
+                                return@setOnMenuItemClickListener true
+                            }
+                            R.id.toggle_nfc -> {
+                                nfcEnabler.launch(Intent(Settings.Panel.ACTION_NFC))
+                                return@setOnMenuItemClickListener true
+                            }
+                            R.id.toggle_torch -> {
+                                if (isTorchEnabled) {
+                                    isTorchEnabled = false
+                                    toolbar.menu.findItem(R.id.toggle_torch)
+                                        .setIcon(R.drawable.ic_baseline_flashlight_off_24)
+                                } else {
+                                    isTorchEnabled = true
+                                    toolbar.menu.findItem(R.id.toggle_torch)
+                                        .setIcon(R.drawable.ic_baseline_flashlight_on_24)
+                                }
+                                camManager.setTorchMode(camManager.cameraIdList[0], isTorchEnabled)
                                 return@setOnMenuItemClickListener true
                             }
                             else -> {

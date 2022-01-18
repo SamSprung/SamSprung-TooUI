@@ -364,31 +364,22 @@ class CoverSettingsActivity : AppCompatActivity() {
         return true
     }
 
-    /**
-     * @return true if pass or pin or pattern locks screen
-     */
     private fun isDeviceSecure(): Boolean {
         return (getSystemService(Context.KEYGUARD_SERVICE) as KeyguardManager).isDeviceSecure
     }
 
-    /**
-     * https://stackoverflow.com/a/14923144/461982
-     */
     private fun isAccessibilityEnabled(): Boolean {
         val enabledServices = (getSystemService(ACCESSIBILITY_SERVICE) as AccessibilityManager)
             .getEnabledAccessibilityServiceList(AccessibilityServiceInfo.FEEDBACK_VISUAL)
         for (enabledService in enabledServices) {
             val enabledServiceInfo: ServiceInfo = enabledService.resolveInfo.serviceInfo
             if (enabledServiceInfo.packageName.equals(packageName)
-                && enabledServiceInfo.name.equals(NotificationAccessibility::class.java.name)
+                && enabledServiceInfo.name.equals(AccessibilityHandler::class.java.name)
             ) return true
         }
         return false
     }
 
-    /**
-     * https://github.com/kpbird/NotificationListenerService-Example
-     */
     private fun isNotificationListenerEnabled(): Boolean {
         val flat = Settings.Secure.getString(
             contentResolver, "enabled_notification_listeners"
