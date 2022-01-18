@@ -128,9 +128,17 @@ class SamSprungDrawer : AppCompatActivity(),
                                     as NotificationManager).activeNotifications
                         } catch (ignored: Throwable) { }
                         if (notifications != null) for (sbn in notifications) {
-                            if (!sbn.isOngoing) SamSprung.notices.add(sbn)
+                            var isDuplicate = false
+                            for (notice: StatusBarNotification in SamSprung.notices) {
+                                if (notice.key == sbn.key) {
+                                    isDuplicate = true
+                                    SamSprung.notices[SamSprung.notices.indexOf(notice)] = sbn
+                                    break
+                                }
+                            }
+                            if (!isDuplicate) SamSprung.notices.add(sbn)
                         }
-                        noticesView.adapter = notifications?.let { NotificationAdapter(it,
+                        noticesView.adapter = NotificationAdapter(SamSprung.notices,
                             object: NotificationAdapter.OnNoticeClickListener {
                             override fun onNoticeClicked(notice: Notification, position: Int) {
                                 startIntentSender(
@@ -138,7 +146,7 @@ class SamSprungDrawer : AppCompatActivity(),
                                     null, 0, 0, 0
                                 )
                             }
-                        })}
+                        })
                     }
                 }
 

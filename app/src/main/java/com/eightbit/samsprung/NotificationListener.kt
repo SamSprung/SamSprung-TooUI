@@ -73,43 +73,60 @@ class NotificationListener : NotificationListenerService() {
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         super.onStartCommand(intent, flags, startId)
-
-        showForegroundNotification(startId)
+        // showForegroundNotification(startId)
         return START_STICKY
     }
 
     override fun onNotificationPosted(sbn: StatusBarNotification) {
         super.onNotificationPosted(sbn)
-        if (!SamSprung.notices.contains(sbn)) {
-            SamSprung.notices.add(sbn)
+        var isDuplicate = false
+        for (notice: StatusBarNotification in SamSprung.notices) {
+            if (notice.key == sbn.key) {
+                isDuplicate = true
+                SamSprung.notices[SamSprung.notices.indexOf(notice)] = sbn
+                break
+            }
         }
+        if (!isDuplicate) SamSprung.notices.add(sbn)
     }
 
     override fun onNotificationPosted (sbn: StatusBarNotification, rankingMap: RankingMap) {
         super.onNotificationPosted(sbn)
-        if (!SamSprung.notices.contains(sbn)) {
-            SamSprung.notices.add(sbn)
+        var isDuplicate = false
+        for (notice: StatusBarNotification in SamSprung.notices) {
+            if (notice.key == sbn.key) {
+                isDuplicate = true
+                SamSprung.notices[SamSprung.notices.indexOf(notice)] = sbn
+                break
+            }
         }
+        if (!isDuplicate) SamSprung.notices.add(sbn)
     }
 
     override fun onNotificationRemoved(sbn: StatusBarNotification) {
         super.onNotificationRemoved(sbn)
-        if (SamSprung.notices.contains(sbn)) {
-            SamSprung.notices.remove(sbn)
+        for (notice: StatusBarNotification in SamSprung.notices) {
+            if (notice.key == sbn.key) {
+                SamSprung.notices.remove(notice)
+                break
+            }
         }
     }
 
     override fun onNotificationRemoved (sbn: StatusBarNotification, rankingMap: RankingMap) {
         super.onNotificationRemoved(sbn)
-        if (SamSprung.notices.contains(sbn)) {
-            SamSprung.notices.remove(sbn)
+        for (notice: StatusBarNotification in SamSprung.notices) {
+            if (notice.key == sbn.key) {
+                SamSprung.notices.remove(notice)
+                break
+            }
         }
     }
 
     override fun onListenerConnected() {
         super.onListenerConnected()
         for (sbn: StatusBarNotification in activeNotifications) {
-            if (!sbn.isOngoing) SamSprung.notices.add(sbn)
+            SamSprung.notices.add(sbn)
         }
     }
 

@@ -10,9 +10,10 @@ import android.widget.TextView
 import androidx.core.app.NotificationCompat
 import androidx.recyclerview.widget.RecyclerView
 import java.util.*
+import kotlin.collections.ArrayList
 
 class NotificationAdapter(
-    private var notifications: Array<StatusBarNotification>,
+    private var notifications: ArrayList<StatusBarNotification>,
     private var listener: OnNoticeClickListener
 ) : RecyclerView.Adapter<NotificationAdapter.NoticeViewHolder>() {
     override fun getItemCount(): Int {
@@ -20,7 +21,7 @@ class NotificationAdapter(
     }
 
     override fun getItemId(i: Int): Long {
-        return notifications[i].id.toLong()
+        return notifications[i].key.toLong()
     }
 
     private fun getItem(i: Int): StatusBarNotification {
