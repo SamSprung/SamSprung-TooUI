@@ -52,12 +52,12 @@ package com.eightbit.samsprung
  */
 
 import android.Manifest
-import android.accessibilityservice.AccessibilityServiceInfo
 import android.annotation.SuppressLint
 import android.app.ActivityOptions
 import android.app.KeyguardManager
 import android.app.Notification
 import android.app.WallpaperManager
+import android.bluetooth.BluetoothManager
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
@@ -65,14 +65,18 @@ import android.content.IntentFilter
 import android.content.pm.ApplicationInfo
 import android.content.pm.PackageManager
 import android.content.pm.ResolveInfo
-import android.content.pm.ServiceInfo
 import android.graphics.Canvas
+import android.media.AudioManager
+import android.net.wifi.WifiManager
+import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
 import android.service.notification.NotificationListenerService.requestRebind
+import android.view.MenuItem
 import android.view.View
-import android.view.accessibility.AccessibilityManager
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.widget.Toolbar
 import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.GridLayoutManager
@@ -120,25 +124,100 @@ class SamSprungDrawer : AppCompatActivity(),
                 .setBlurAlgorithm(RenderScriptBlur(this))
         }
 
-        if (isAccessibilityEnabled()) {
-            val noticesView = findViewById<RecyclerView>(R.id.notificationList)
-            noticesView.layoutManager = LinearLayoutManager(this)
-            noticesView.adapter = NotificationAdapter(this@SamSprungDrawer)
+        val toolbar = findViewById<Toolbar>(R.id.toolbar)
+        toolbar.inflateMenu(R.menu.quick_toggles)
+        val noticesView = findViewById<RecyclerView>(R.id.notificationList)
+        noticesView.layoutManager = LinearLayoutManager(this)
+        noticesView.adapter = NotificationAdapter(this@SamSprungDrawer)
 
-            val bottomSheetBehavior: BottomSheetBehavior<View> =
-                BottomSheetBehavior.from(findViewById(R.id.bottom_sheet))
-            bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
-            bottomSheetBehavior.addBottomSheetCallback(object : BottomSheetCallback() {
-                @SuppressLint("NotifyDataSetChanged")
-                override fun onStateChanged(bottomSheet: View, newState: Int) {
-                    if (newState == BottomSheetBehavior.STATE_EXPANDED) {
-                        (noticesView.adapter as NotificationAdapter).notifyDataSetChanged()
-                    }
-                }
-
-                override fun onSlide(bottomSheet: View, slideOffset: Float) {}
-            })
+        val wifiManager = getSystemService(WIFI_SERVICE) as WifiManager
+        val wifiEnabler = registerForActivityResult(
+            ActivityResultContracts.StartActivityForResult()) {
+            if (wifiManager.isWifiEnabled)
+                toolbar.menu.findItem(R.id.toggle_wifi).setIcon(R.drawable.ic_baseline_wifi_24)
+            else
+                toolbar.menu.findItem(R.id.toggle_wifi).setIcon(R.drawable.ic_baseline_wifi_off_24)
         }
+
+        val bottomSheetBehavior: BottomSheetBehavior<View> =
+            BottomSheetBehavior.from(findViewById(R.id.bottom_sheet))
+        bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
+        bottomSheetBehavior.addBottomSheetCallback(object : BottomSheetCallback() {
+            @SuppressLint("NotifyDataSetChanged")
+            override fun onStateChanged(bottomSheet: View, newState: Int) {
+                if (newState == BottomSheetBehavior.STATE_EXPANDED) {
+                    if (wifiManager.isWifiEnabled)
+                        toolbar.menu.findItem(R.id.toggle_wifi)
+                            .setIcon(R.drawable.ic_baseline_wifi_24)
+                    else
+                        toolbar.menu.findItem(R.id.toggle_wifi)
+                            .setIcon(R.drawable.ic_baseline_wifi_off_24)
+
+                    val bluetoothAdapter = (getSystemService(Context.BLUETOOTH_SERVICE)
+                            as BluetoothManager).adapter
+                    if (bluetoothAdapter.isEnabled)
+                        toolbar.menu.findItem(R.id.toggle_bluetooth)
+                            .setIcon(R.drawable.ic_baseline_bluetooth_24)
+                    else
+                        toolbar.menu.findItem(R.id.toggle_bluetooth)
+                            .setIcon(R.drawable.ic_baseline_bluetooth_disabled_24)
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S &&
+                        ContextCompat.checkSelfPermission(
+                            this@SamSprungDrawer,
+                            Manifest.permission.BLUETOOTH_CONNECT,
+                        ) != PackageManager.PERMISSION_GRANTED) {
+                        toolbar.menu.findItem(R.id.toggle_bluetooth).isVisible = false
+                    }
+
+                    val audioManager = getSystemService(AUDIO_SERVICE) as AudioManager
+                    if (audioManager.ringerMode == AudioManager.RINGER_MODE_NORMAL)
+                        toolbar.menu.findItem(R.id.toggle_sound)
+                            .setIcon(R.drawable.ic_baseline_hearing_24)
+                    else
+                        toolbar.menu.findItem(R.id.toggle_sound)
+                            .setIcon(R.drawable.ic_baseline_hearing_disabled_24)
+
+                    toolbar.setOnMenuItemClickListener { item: MenuItem ->
+                        when (item.itemId) {
+                            R.id.toggle_wifi -> {
+                                wifiEnabler.launch(Intent(Settings.Panel.ACTION_WIFI))
+                                return@setOnMenuItemClickListener true
+                            }
+                            R.id.toggle_bluetooth -> {
+                                if (bluetoothAdapter.isEnabled) {
+                                    bluetoothAdapter.disable()
+                                    toolbar.menu.findItem(R.id.toggle_bluetooth)
+                                        .setIcon(R.drawable.ic_baseline_bluetooth_disabled_24)
+                                } else {
+                                    bluetoothAdapter.enable()
+                                    toolbar.menu.findItem(R.id.toggle_bluetooth)
+                                        .setIcon(R.drawable.ic_baseline_bluetooth_24)
+                                }
+                                return@setOnMenuItemClickListener true
+                            }
+                            R.id.toggle_sound -> {
+                                if (audioManager.ringerMode == AudioManager.RINGER_MODE_NORMAL) {
+                                    audioManager.ringerMode = AudioManager.RINGER_MODE_SILENT
+                                    toolbar.menu.findItem(R.id.toggle_sound)
+                                        .setIcon(R.drawable.ic_baseline_hearing_disabled_24)
+                                } else {
+                                    audioManager.ringerMode = AudioManager.RINGER_MODE_NORMAL
+                                    toolbar.menu.findItem(R.id.toggle_sound)
+                                        .setIcon(R.drawable.ic_baseline_hearing_24)
+                                }
+                                return@setOnMenuItemClickListener true
+                            }
+                            else -> {
+                                return@setOnMenuItemClickListener false
+                            }
+                        }
+                    }
+                    (noticesView.adapter as NotificationAdapter).notifyDataSetChanged()
+                }
+            }
+
+            override fun onSlide(bottomSheet: View, slideOffset: Float) {}
+        })
 
         val launcherView = findViewById<RecyclerView>(R.id.appsList)
 
@@ -261,17 +340,5 @@ class SamSprungDrawer : AppCompatActivity(),
 
     private fun getColumnCount(): Int {
         return (windowManager.currentWindowMetrics.bounds.width() / 96 + 0.5).toInt()
-    }
-
-    private fun isAccessibilityEnabled(): Boolean {
-        val enabledServices = (getSystemService(ACCESSIBILITY_SERVICE) as AccessibilityManager)
-            .getEnabledAccessibilityServiceList(AccessibilityServiceInfo.FEEDBACK_VISUAL)
-        for (enabledService in enabledServices) {
-            val enabledServiceInfo: ServiceInfo = enabledService.resolveInfo.serviceInfo
-            if (enabledServiceInfo.packageName.equals(packageName)
-                && enabledServiceInfo.name.equals(NotificationAccessibility::class.java.name)
-            ) return true
-        }
-        return false
     }
 }

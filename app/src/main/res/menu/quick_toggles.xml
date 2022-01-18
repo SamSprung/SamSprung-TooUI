@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <item
+        android:id="@+id/toggle_wifi"
+        android:title="@string/toggle_wifi"
+        android:icon="@drawable/ic_baseline_wifi_24"
+        app:showAsAction="always" />
+    <item
+        android:id="@+id/toggle_bluetooth"
+        android:title="@string/toggle_bluetooth"
+        android:icon="@drawable/ic_baseline_bluetooth_24"
+        app:showAsAction="always" />
+    <item
+        android:id="@+id/toggle_sound"
+        android:title="@string/toggle_sound"
+        android:icon="@drawable/ic_baseline_hearing_24"
+        app:showAsAction="always" />
+</menu>

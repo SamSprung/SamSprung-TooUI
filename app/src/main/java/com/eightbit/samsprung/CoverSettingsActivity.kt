@@ -66,16 +66,19 @@ import android.os.Bundle
 import android.os.Environment
 import android.provider.MediaStore
 import android.provider.Settings
+import android.text.SpannableStringBuilder
+import android.text.Spanned
 import android.text.TextUtils
+import android.text.style.ImageSpan
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import android.view.accessibility.AccessibilityManager
 import android.widget.*
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.SwitchCompat
-import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
 import androidx.documentfile.provider.DocumentFile
@@ -93,31 +96,13 @@ import java.io.InputStreamReader
 import java.net.URL
 import java.util.*
 import kotlin.collections.HashSet
-import android.content.Intent
-import android.R.menu
-import android.annotation.SuppressLint
-import java.lang.RuntimeException
-import java.lang.reflect.Method
-import android.text.Spanned
-
-import android.text.style.ImageSpan
-
-import android.graphics.drawable.Drawable
-
-import android.text.SpannableStringBuilder
-
-import androidx.annotation.NonNull
-import androidx.appcompat.view.menu.MenuBuilder
 
 
 class CoverSettingsActivity : AppCompatActivity() {
-    companion object {
-        const val GENERAL = 9000
-        const val LOGCAT = 9001
-    }
 
     private lateinit var switch: SwitchCompat
 
+    @RequiresApi(Build.VERSION_CODES.S)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.step_widget_edit)
@@ -128,12 +113,6 @@ class CoverSettingsActivity : AppCompatActivity() {
             for (file in files) {
                 if (!file.isDirectory) file.delete()
             }
-        }
-        if (ContextCompat.checkSelfPermission(
-                this, Manifest.permission.READ_EXTERNAL_STORAGE
-            ) != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(this,
-                arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE), GENERAL)
         }
         if (BuildConfig.FLAVOR != "google") {
             if (packageManager.canRequestPackageInstalls()) {
@@ -201,9 +180,36 @@ class CoverSettingsActivity : AppCompatActivity() {
         }
     }
 
+    private val permissions =
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S)
+            arrayOf(
+                Manifest.permission.BLUETOOTH_CONNECT,
+                Manifest.permission.READ_EXTERNAL_STORAGE
+            )
+        else
+            arrayOf(
+                Manifest.permission.READ_EXTERNAL_STORAGE
+            )
+
+    private val requestPermission = registerForActivityResult(
+        ActivityResultContracts.RequestPermission()) { }
+
+    private val requestPermissions = registerForActivityResult(
+        ActivityResultContracts.RequestMultiplePermissions()) { permissions ->
+        permissions.entries.forEach {
+            if (it.key == Manifest.permission.BLUETOOTH_CONNECT && !it.value) {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                    requestPermission.launch(Manifest.permission.BLUETOOTH_CONNECT)
+                }
+            } else if (it.key == Manifest.permission.READ_EXTERNAL_STORAGE && !it.value) {
+                requestPermission.launch(Manifest.permission.READ_EXTERNAL_STORAGE)
+            }
+        }
+    }
+
     private val noticeLauncher = registerForActivityResult(
         ActivityResultContracts.StartActivityForResult()) {
-        // End of permission approval process
+        requestPermissions.launch(permissions)
     }
 
     private val settingsLauncher = registerForActivityResult(
@@ -262,13 +268,58 @@ class CoverSettingsActivity : AppCompatActivity() {
         }
     }
 
+    private fun checkPermissions() {
+        if (Settings.canDrawOverlays(applicationContext)) {
+            if (isAccessibilityEnabled()) {
+                switch.isChecked = true
+                IntentFilter(Intent.ACTION_SCREEN_ON).also {
+                    applicationContext.registerReceiver(OffBroadcastReceiver(), it)
+                }
+                if (Settings.System.canWrite(applicationContext)) {
+                    if (isNotificationListenerEnabled()) {
+                        requestPermissions.launch(permissions)
+                    } else {
+                        noticeLauncher.launch(Intent(
+                            Settings.ACTION_NOTIFICATION_LISTENER_SETTINGS
+                        ))
+                    }
+                } else {
+                    settingsLauncher.launch(Intent(
+                        Settings.ACTION_MANAGE_WRITE_SETTINGS,
+                        Uri.parse("package:$packageName")
+                    ))
+                }
+            } else {
+                switch.isChecked = false
+                accessibilityLauncher.launch(Intent(
+                    Settings.ACTION_ACCESSIBILITY_SETTINGS
+                ))
+            }
+        } else {
+            switch.isChecked = false
+            overlayLauncher.launch(Intent(
+                Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
+                Uri.parse("package:$packageName")
+            ))
+        }
+    }
+
+    private val requestLogcatLauncher = registerForActivityResult(
+        ActivityResultContracts.RequestPermission()) { isGranted: Boolean ->
+            if (isGranted) {
+                findViewById<ScrollView>(R.id.logWrapper).visibility = View.VISIBLE
+                findViewById<TextView>(R.id.printLogcat).text = captureLogcat()
+                printLogcat()
+            }
+    }
+
+
     override fun onOptionsItemSelected(item: MenuItem) = when (item.itemId) {
         R.id.logcat -> {
-            if (ContextCompat.checkSelfPermission(
-                    this, Manifest.permission.READ_EXTERNAL_STORAGE
-                ) != PackageManager.PERMISSION_GRANTED) {
-                ActivityCompat.requestPermissions(this,
-                    arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE), LOGCAT)
+            if (ContextCompat.checkSelfPermission(this,
+                    Manifest.permission.READ_EXTERNAL_STORAGE)
+                != PackageManager.PERMISSION_GRANTED) {
+                requestLogcatLauncher.launch(Manifest.permission.READ_EXTERNAL_STORAGE)
             } else {
                 findViewById<ScrollView>(R.id.logWrapper).visibility = View.VISIBLE
                 findViewById<TextView>(R.id.printLogcat).text = captureLogcat()
@@ -307,45 +358,8 @@ class CoverSettingsActivity : AppCompatActivity() {
             .findViewById(R.id.switch2) as SwitchCompat
         switch.isChecked = Settings.canDrawOverlays(applicationContext) && isAccessibilityEnabled()
         switch.setOnClickListener {
-            if (switch.isChecked) {
-                if (Settings.canDrawOverlays(applicationContext)) {
-                    if (isAccessibilityEnabled()) {
-                        switch.isChecked = true
-                        IntentFilter(Intent.ACTION_SCREEN_ON).also {
-                            applicationContext.registerReceiver(OffBroadcastReceiver(), it)
-                        }
-                        if (Settings.System.canWrite(applicationContext)) {
-                            if (isNotificationListenerEnabled()) {
-                                Toast.makeText(
-                                    applicationContext,
-                                    R.string.settings_notice,
-                                    Toast.LENGTH_LONG
-                                ).show()
-                            } else {
-                                noticeLauncher.launch(Intent(
-                                    Settings.ACTION_NOTIFICATION_LISTENER_SETTINGS
-                                ))
-                            }
-                        } else {
-                            settingsLauncher.launch(Intent(
-                                Settings.ACTION_MANAGE_WRITE_SETTINGS,
-                                Uri.parse("package:$packageName")
-                            ))
-                        }
-                    } else {
-                        switch.isChecked = false
-                        accessibilityLauncher.launch(Intent(
-                            Settings.ACTION_ACCESSIBILITY_SETTINGS
-                        ))
-                    }
-                } else {
-                    switch.isChecked = false
-                    overlayLauncher.launch(Intent(
-                        Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
-                        Uri.parse("package:$packageName")
-                    ))
-                }
-            }
+            if (switch.isChecked)
+                checkPermissions()
         }
         return true
     }
@@ -492,21 +506,5 @@ class CoverSettingsActivity : AppCompatActivity() {
                 }
             }
         })
-    }
-
-    override fun onRequestPermissionsResult(
-        requestCode: Int,
-        permissions: Array<String?>,
-        grantResults: IntArray
-    ) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        val permission = ContextCompat.checkSelfPermission(
-            this, Manifest.permission.READ_EXTERNAL_STORAGE
-        )
-        if (permission == PackageManager.PERMISSION_GRANTED && LOGCAT == requestCode) {
-            findViewById<ScrollView>(R.id.logWrapper).visibility = View.VISIBLE
-            findViewById<TextView>(R.id.printLogcat).text = captureLogcat()
-            printLogcat()
-        }
     }
 }
