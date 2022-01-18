@@ -55,6 +55,7 @@ import android.annotation.SuppressLint
 import android.app.*
 import android.content.Context
 import android.content.Intent
+import android.content.SharedPreferences
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.os.Build
@@ -63,9 +64,14 @@ import android.service.notification.NotificationListenerService
 import android.service.notification.StatusBarNotification
 import androidx.core.app.NotificationCompat
 import androidx.core.content.ContextCompat
+import java.lang.ref.SoftReference
 
 @SuppressLint("NotifyDataSetChanged")
 class NotificationListener : NotificationListenerService() {
+
+    companion object {
+        var notices: ArrayList<StatusBarNotification> = arrayListOf()
+    }
 
     override fun onBind(intent: Intent?): IBinder? {
         return super.onBind(intent)
@@ -80,34 +86,34 @@ class NotificationListener : NotificationListenerService() {
     override fun onNotificationPosted(sbn: StatusBarNotification) {
         super.onNotificationPosted(sbn)
         var isDuplicate = false
-        for (notice: StatusBarNotification in SamSprung.notices) {
+        for (notice: StatusBarNotification in notices) {
             if (notice.key == sbn.key) {
                 isDuplicate = true
-                SamSprung.notices[SamSprung.notices.indexOf(notice)] = sbn
+                notices[notices.indexOf(notice)] = sbn
                 break
             }
         }
-        if (!isDuplicate) SamSprung.notices.add(sbn)
+        if (!isDuplicate) notices.add(sbn)
     }
 
     override fun onNotificationPosted (sbn: StatusBarNotification, rankingMap: RankingMap) {
         super.onNotificationPosted(sbn)
         var isDuplicate = false
-        for (notice: StatusBarNotification in SamSprung.notices) {
+        for (notice: StatusBarNotification in notices) {
             if (notice.key == sbn.key) {
                 isDuplicate = true
-                SamSprung.notices[SamSprung.notices.indexOf(notice)] = sbn
+                notices[notices.indexOf(notice)] = sbn
                 break
             }
         }
-        if (!isDuplicate) SamSprung.notices.add(sbn)
+        if (!isDuplicate) notices.add(sbn)
     }
 
     override fun onNotificationRemoved(sbn: StatusBarNotification) {
         super.onNotificationRemoved(sbn)
-        for (notice: StatusBarNotification in SamSprung.notices) {
+        for (notice: StatusBarNotification in notices) {
             if (notice.key == sbn.key) {
-                SamSprung.notices.remove(notice)
+                notices.remove(notice)
                 break
             }
         }
@@ -115,9 +121,9 @@ class NotificationListener : NotificationListenerService() {
 
     override fun onNotificationRemoved (sbn: StatusBarNotification, rankingMap: RankingMap) {
         super.onNotificationRemoved(sbn)
-        for (notice: StatusBarNotification in SamSprung.notices) {
+        for (notice: StatusBarNotification in notices) {
             if (notice.key == sbn.key) {
-                SamSprung.notices.remove(notice)
+                notices.remove(notice)
                 break
             }
         }
@@ -126,7 +132,7 @@ class NotificationListener : NotificationListenerService() {
     override fun onListenerConnected() {
         super.onListenerConnected()
         for (sbn: StatusBarNotification in activeNotifications) {
-            SamSprung.notices.add(sbn)
+            notices.add(sbn)
         }
     }
 

@@ -129,16 +129,18 @@ class SamSprungDrawer : AppCompatActivity(),
                         } catch (ignored: Throwable) { }
                         if (notifications != null) for (sbn in notifications) {
                             var isDuplicate = false
-                            for (notice: StatusBarNotification in SamSprung.notices) {
+                            for (notice: StatusBarNotification in NotificationListener.notices) {
                                 if (notice.key == sbn.key) {
                                     isDuplicate = true
-                                    SamSprung.notices[SamSprung.notices.indexOf(notice)] = sbn
+                                    NotificationListener.notices[
+                                            NotificationListener.notices.indexOf(notice)
+                                    ] = sbn
                                     break
                                 }
                             }
-                            if (!isDuplicate) SamSprung.notices.add(sbn)
+                            if (!isDuplicate) NotificationListener.notices.add(sbn)
                         }
-                        noticesView.adapter = NotificationAdapter(SamSprung.notices,
+                        noticesView.adapter = NotificationAdapter(NotificationListener.notices,
                             object: NotificationAdapter.OnNoticeClickListener {
                             override fun onNoticeClicked(notice: Notification, position: Int) {
                                 startIntentSender(
@@ -205,11 +207,11 @@ class SamSprungDrawer : AppCompatActivity(),
     }
 
     override fun onAppClicked(appInfo: ResolveInfo, position: Int) {
-        if (Settings.System.canWrite(SamSprung.context))  {
+        if (Settings.System.canWrite(applicationContext))  {
             try {
                 with (SamSprung.prefs.edit()) {
                     putBoolean(SamSprung.autoRotate,  Settings.System.getInt(
-                        SamSprung.context.contentResolver,
+                        applicationContext.contentResolver,
                         Settings.System.ACCELEROMETER_ROTATION
                     ) == 1)
                     apply()

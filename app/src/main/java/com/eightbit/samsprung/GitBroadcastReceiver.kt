@@ -74,7 +74,7 @@ class GitBroadcastReceiver : BroadcastReceiver() {
                     // Installation was successful
                 } else -> {
                     Toast.makeText(
-                        SamSprung.context,
+                        context.applicationContext,
                         intent.getStringExtra(PackageInstaller.EXTRA_STATUS_MESSAGE),
                         Toast.LENGTH_LONG
                     ).show()

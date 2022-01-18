@@ -56,10 +56,10 @@ class NotificationAdapter(
             notification = notice
             when {
                 null != notice.getLargeIcon() -> iconView.setImageDrawable(
-                    notice.getLargeIcon().loadDrawable(SamSprung.context)
+                    notice.getLargeIcon().loadDrawable(iconView.context)
                 )
                 null != notice.smallIcon -> iconView.setImageDrawable(
-                    notice.smallIcon.loadDrawable(SamSprung.context)
+                    notice.smallIcon.loadDrawable(iconView.context)
                 )
             }
             if (null != notice.tickerText) {
