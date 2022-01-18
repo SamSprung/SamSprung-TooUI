@@ -52,9 +52,9 @@ package com.eightbit.samsprung
  */
 
 import android.app.Application
-import android.app.Notification
 import android.content.Context
 import android.content.SharedPreferences
+import android.service.notification.StatusBarNotification
 import java.lang.ref.SoftReference
 import kotlin.system.exitProcess
 
@@ -65,11 +65,11 @@ class SamSprung : Application() {
         mPrefs = SoftReference(
             getSharedPreferences("samsprung.launcher.PREFS", MODE_PRIVATE)
         )
-        Thread.setDefaultUncaughtExceptionHandler { _: Thread?, error: Throwable ->
-            error.printStackTrace()
-            // Unrecoverable error encountered
-            exitProcess(1)
-        }
+//        Thread.setDefaultUncaughtExceptionHandler { _: Thread?, error: Throwable ->
+//            error.printStackTrace()
+//            // Unrecoverable error encountered
+//            exitProcess(1)
+//        }
         if (prefs.contains("screenoff")) {
             with(prefs.edit()) {
                 putBoolean(prefScreen, prefs.getBoolean("screenoff", true))
@@ -102,7 +102,7 @@ class SamSprung : Application() {
         private lateinit var mPrefs: SoftReference<SharedPreferences>
         val context: Context get() = mContext.get()!!
         val prefs: SharedPreferences get() = mPrefs.get()!!
-        var notices: ArrayList<Notification> = arrayListOf()
+        var notices: ArrayList<StatusBarNotification> = arrayListOf()
         const val prefScreen: String = "prefScreen"
         const val prefLayout: String = "prefLayout"
         const val prefHidden: String = "prefHidden"

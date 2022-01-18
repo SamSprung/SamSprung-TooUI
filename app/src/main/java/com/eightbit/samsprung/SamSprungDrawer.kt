@@ -53,9 +53,7 @@ package com.eightbit.samsprung
 
 import android.Manifest
 import android.annotation.SuppressLint
-import android.app.ActivityOptions
-import android.app.KeyguardManager
-import android.app.WallpaperManager
+import android.app.*
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
@@ -66,9 +64,11 @@ import android.content.pm.ResolveInfo
 import android.graphics.Canvas
 import android.os.Bundle
 import android.provider.Settings
+import android.service.notification.StatusBarNotification
 import android.text.TextUtils
-import android.widget.LinearLayout
+import android.view.View
 import androidx.appcompat.app.AppCompatActivity
+import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.ItemTouchHelper
@@ -76,10 +76,14 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.eightbitlab.blurview.BlurView
 import com.eightbitlab.blurview.RenderScriptBlur
+import com.google.android.material.bottomsheet.BottomSheetBehavior
+import com.google.android.material.bottomsheet.BottomSheetBehavior.BottomSheetCallback
 import java.util.*
 
 
-class SamSprungDrawer : AppCompatActivity(), AppDrawerAdapater.OnAppClickListener {
+class SamSprungDrawer : AppCompatActivity(),
+    AppDrawerAdapater.OnAppClickListener,
+    NotificationAdapter.OnNoticeClickListener {
 
     @SuppressLint("InflateParams", "CutPasteId", "ClickableViewAccessibility")
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -90,12 +94,14 @@ class SamSprungDrawer : AppCompatActivity(), AppDrawerAdapater.OnAppClickListene
         supportActionBar?.hide()
         setContentView(R.layout.apps_view_layout)
 
+        startForegroundService(Intent(this, NotificationListener::class.java))
+
         val permission = ContextCompat.checkSelfPermission(
             this, Manifest.permission.READ_EXTERNAL_STORAGE
         )
         if (permission == PackageManager.PERMISSION_GRANTED) {
             val wallpaperManager: WallpaperManager = WallpaperManager.getInstance(this)
-            findViewById<LinearLayout>(R.id.rootLayout).background = wallpaperManager.drawable
+            findViewById<CoordinatorLayout>(R.id.rootLayout).background = wallpaperManager.drawable
             findViewById<BlurView>(R.id.blurContainer).setupWith(
                 window.decorView.findViewById(R.id.rootLayout)
             )
@@ -104,6 +110,40 @@ class SamSprungDrawer : AppCompatActivity(), AppDrawerAdapater.OnAppClickListene
                 .setBlurAutoUpdate(true)
                 .setHasFixedTransformationMatrix(true)
                 .setBlurAlgorithm(RenderScriptBlur(this))
+        }
+
+        if (isNotificationListenerEnabled()) {
+            val noticesView = findViewById<RecyclerView>(R.id.notificationList)
+            noticesView.layoutManager = LinearLayoutManager(this)
+
+            val bottomSheetBehavior: BottomSheetBehavior<View> =
+                BottomSheetBehavior.from(findViewById(R.id.bottom_sheet))
+            bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
+            bottomSheetBehavior.addBottomSheetCallback(object : BottomSheetCallback() {
+                override fun onStateChanged(bottomSheet: View, newState: Int) {
+                    if (newState == BottomSheetBehavior.STATE_EXPANDED) {
+                        var notifications: Array<StatusBarNotification>? = null
+                        try {
+                            notifications = (getSystemService(NOTIFICATION_SERVICE)
+                                    as NotificationManager).activeNotifications
+                        } catch (ignored: Throwable) { }
+                        if (notifications != null) for (sbn in notifications) {
+                            if (!sbn.isOngoing) SamSprung.notices.add(sbn)
+                        }
+                        noticesView.adapter = notifications?.let { NotificationAdapter(it,
+                            object: NotificationAdapter.OnNoticeClickListener {
+                            override fun onNoticeClicked(notice: Notification, position: Int) {
+                                startIntentSender(
+                                    notice.contentIntent.intentSender,
+                                    null, 0, 0, 0
+                                )
+                            }
+                        })}
+                    }
+                }
+
+                override fun onSlide(bottomSheet: View, slideOffset: Float) {}
+            })
         }
 
         val launcherView = findViewById<RecyclerView>(R.id.appsList)
@@ -146,12 +186,6 @@ class SamSprungDrawer : AppCompatActivity(), AppDrawerAdapater.OnAppClickListene
 
             override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
                 if (direction == ItemTouchHelper.RIGHT) {
-                    if (isNotificationListenerEnabled()) {
-                        startActivity(
-                            Intent(SamSprung.context, SamSprungNotices::class.java),
-                            ActivityOptions.makeBasic().setLaunchDisplayId(1).toBundle()
-                        )
-                    }
                     finish()
                 }
                 if (direction == ItemTouchHelper.LEFT) {
@@ -225,6 +259,11 @@ class SamSprungDrawer : AppCompatActivity(), AppDrawerAdapater.OnAppClickListene
             coverIntent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION)
             startActivity(coverIntent.putExtras(extras), options.toBundle())
         }
+    }
+
+    override fun onNoticeClicked(notice: Notification, position: Int) {
+        startIntentSender(notice.contentIntent.intentSender,
+            null, 0, 0, 0)
     }
 
     private fun getColumnCount(): Int {

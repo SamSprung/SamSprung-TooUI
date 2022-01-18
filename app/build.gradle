@@ -9,7 +9,7 @@ android {
     defaultConfig {
         applicationId "com.eightbit.samsprung"
         minSdk 30
-        targetSdk 30
+        targetSdk 31
         versionCode 106
         versionName "1.0.6"
 
@@ -59,9 +59,7 @@ android {
                     }
                 }
                 buildTypes.debug.signingConfig signingConfigs.debug
-            } catch (FileNotFoundException ignored) {
-                // Github actions can go $#%& right off with this
-            }
+            } catch (FileNotFoundException ignored) { }
         }
     }
 

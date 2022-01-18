@@ -1,6 +1,7 @@
 package com.eightbit.samsprung
 
 import android.app.Notification
+import android.service.notification.StatusBarNotification
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -11,18 +12,19 @@ import androidx.recyclerview.widget.RecyclerView
 import java.util.*
 
 class NotificationAdapter(
+    private var notifications: Array<StatusBarNotification>,
     private var listener: OnNoticeClickListener
 ) : RecyclerView.Adapter<NotificationAdapter.NoticeViewHolder>() {
     override fun getItemCount(): Int {
-        return SamSprung.notices.size
+        return notifications.size
     }
 
     override fun getItemId(i: Int): Long {
-        return SamSprung.notices[i].locusId.hashCode().toLong()
+        return notifications[i].id.toLong()
     }
 
-    private fun getItem(i: Int): Notification {
-        return SamSprung.notices[i]
+    private fun getItem(i: Int): StatusBarNotification {
+        return notifications[i]
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): NoticeViewHolder {
@@ -32,11 +34,11 @@ class NotificationAdapter(
     override fun onBindViewHolder(holder: NoticeViewHolder, position: Int) {
         holder.itemView.setOnClickListener {
             if (null != holder.listener)
-                holder.listener.onNoticeClicked(holder.notice!!, position)
+                holder.listener.onNoticeClicked(holder.notification!!, position)
         }
         holder.iconView.setOnClickListener {
             if (null != holder.listener)
-                holder.listener.onNoticeClicked(holder.notice!!, position)
+                holder.listener.onNoticeClicked(holder.notification!!, position)
         }
         holder.bind(getItem(position))
     }
@@ -47,9 +49,10 @@ class NotificationAdapter(
         val iconView: ImageView = itemView.findViewById(R.id.icon)
         private val tickerText: TextView = itemView.findViewById(R.id.ticker)
         private val linesText: TextView = itemView.findViewById(R.id.lines)
-        var notice: Notification? = null
-        fun bind(notice: Notification) {
-            this.notice = notice
+        var notification: Notification? = null
+        fun bind(sbn: StatusBarNotification) {
+            val notice: Notification = sbn.notification
+            notification = notice
             when {
                 null != notice.getLargeIcon() -> iconView.setImageDrawable(
                     notice.getLargeIcon().loadDrawable(SamSprung.context)

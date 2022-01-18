@@ -52,43 +52,112 @@ package com.eightbit.samsprung
  */
 
 import android.annotation.SuppressLint
+import android.app.*
+import android.content.Context
 import android.content.Intent
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
+import android.os.Build
 import android.os.IBinder
 import android.service.notification.NotificationListenerService
 import android.service.notification.StatusBarNotification
-import android.util.Log
+import androidx.core.app.NotificationCompat
+import androidx.core.content.ContextCompat
 
 @SuppressLint("NotifyDataSetChanged")
-class NotificationObserver : NotificationListenerService() {
-
-    private var isListening: Boolean = false
+class NotificationListener : NotificationListenerService() {
 
     override fun onBind(intent: Intent?): IBinder? {
         return super.onBind(intent)
     }
 
+    override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+        super.onStartCommand(intent, flags, startId)
+
+        showForegroundNotification(startId)
+        return START_STICKY
+    }
+
     override fun onNotificationPosted(sbn: StatusBarNotification) {
         super.onNotificationPosted(sbn)
-        if (!isListening || null == sbn.notification) return
-        if (!SamSprung.notices.contains(sbn.notification)) {
-            SamSprung.notices.add(sbn.notification)
+        if (!SamSprung.notices.contains(sbn)) {
+            SamSprung.notices.add(sbn)
+        }
+    }
+
+    override fun onNotificationPosted (sbn: StatusBarNotification, rankingMap: RankingMap) {
+        super.onNotificationPosted(sbn)
+        if (!SamSprung.notices.contains(sbn)) {
+            SamSprung.notices.add(sbn)
         }
     }
 
     override fun onNotificationRemoved(sbn: StatusBarNotification) {
         super.onNotificationRemoved(sbn)
-        if (!isListening || null == sbn.notification) return
-        if (SamSprung.notices.contains(sbn.notification)) {
-            SamSprung.notices.remove(sbn.notification)
+        if (SamSprung.notices.contains(sbn)) {
+            SamSprung.notices.remove(sbn)
+        }
+    }
+
+    override fun onNotificationRemoved (sbn: StatusBarNotification, rankingMap: RankingMap) {
+        super.onNotificationRemoved(sbn)
+        if (SamSprung.notices.contains(sbn)) {
+            SamSprung.notices.remove(sbn)
         }
     }
 
     override fun onListenerConnected() {
         super.onListenerConnected()
-        isListening = true
         for (sbn: StatusBarNotification in activeNotifications) {
-            if (null == sbn.notification || sbn.isOngoing) continue
-                SamSprung.notices.add(sbn.notification)
+            if (!sbn.isOngoing) SamSprung.notices.add(sbn)
         }
+    }
+
+    override fun onListenerDisconnected() {
+        super.onListenerDisconnected()
+        try {
+            stopForeground(true)
+            stopSelf()
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+    }
+
+    @SuppressLint("LaunchActivityFromNotification")
+    private fun showForegroundNotification(startId: Int) {
+        var mNotificationManager: NotificationManager? = null
+        val pendingIntent = PendingIntent.getService(this, 0,
+            Intent(this, DisplayListenerService::class.java),
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S)
+                PendingIntent.FLAG_IMMUTABLE else 0)
+        val iconNotification = BitmapFactory.decodeResource(resources, R.mipmap.sprung_icon)
+        if (null == mNotificationManager) {
+            mNotificationManager = getSystemService(
+                Context.NOTIFICATION_SERVICE) as NotificationManager
+        }
+        mNotificationManager.createNotificationChannelGroup(
+            NotificationChannelGroup("services_group", "Services")
+        )
+        val notificationChannel = NotificationChannel("service_channel",
+            "Service Notification", NotificationManager.IMPORTANCE_LOW)
+        notificationChannel.enableLights(false)
+        notificationChannel.lockscreenVisibility = Notification.VISIBILITY_SECRET
+        mNotificationManager.createNotificationChannel(notificationChannel)
+        val builder = NotificationCompat.Builder(this, "service_channel")
+
+        val notificationText = getString(R.string.notices_service, getString(R.string.app_name))
+        builder.setContentTitle(notificationText).setTicker(notificationText)
+            .setContentText(getString(R.string.click_stop_service))
+            .setSmallIcon(R.drawable.ic_launcher_foreground)
+            .setPriority(NotificationCompat.PRIORITY_LOW)
+            .setWhen(0).setOnlyAlertOnce(true)
+            .setContentIntent(pendingIntent).setOngoing(true)
+        if (null != iconNotification) {
+            builder.setLargeIcon(
+                Bitmap.createScaledBitmap(
+                iconNotification, 128, 128, false))
+        }
+        builder.color = ContextCompat.getColor(this, R.color.purple_200)
+        startForeground(startId, builder.build())
     }
 }
