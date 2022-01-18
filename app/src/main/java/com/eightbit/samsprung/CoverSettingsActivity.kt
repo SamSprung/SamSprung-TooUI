@@ -215,8 +215,12 @@ class CoverSettingsActivity : AppCompatActivity() {
 
     private val accessibilityLauncher = registerForActivityResult(
         ActivityResultContracts.StartActivityForResult()) {
-        if (isAccessibilityEnabled())
+        if (isAccessibilityEnabled()) {
             switch.isChecked = true
+            IntentFilter(Intent.ACTION_SCREEN_ON).also {
+                applicationContext.registerReceiver(OffBroadcastReceiver(), it)
+            }
+        }
         if (!Settings.System.canWrite(applicationContext)) {
             settingsLauncher.launch(Intent(
                 Settings.ACTION_MANAGE_WRITE_SETTINGS,
