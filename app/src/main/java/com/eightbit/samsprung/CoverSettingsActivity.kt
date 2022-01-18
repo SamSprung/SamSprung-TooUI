@@ -192,7 +192,7 @@ class CoverSettingsActivity : AppCompatActivity() {
         val listView: ListView = findViewById(R.id.selectionListView)
         listView.adapter = FilteredAppsAdapter(this, packages, unlisted)
 
-        if (Settings.canDrawOverlays(applicationContext)) {
+        if (Settings.canDrawOverlays(applicationContext) && isAccessibilityEnabled()) {
             IntentFilter(Intent.ACTION_SCREEN_ON).also {
                 applicationContext.registerReceiver(OffBroadcastReceiver(), it)
             }

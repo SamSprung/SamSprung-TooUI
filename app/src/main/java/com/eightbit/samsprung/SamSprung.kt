@@ -62,11 +62,6 @@ class SamSprung : Application() {
         mPrefs = SoftReference(
             getSharedPreferences("samsprung.launcher.PREFS", MODE_PRIVATE)
         )
-//        Thread.setDefaultUncaughtExceptionHandler { _: Thread?, error: Throwable ->
-//            error.printStackTrace()
-//            // Unrecoverable error encountered
-//            exitProcess(1)
-//        }
         if (prefs.contains("screenoff")) {
             with(prefs.edit()) {
                 putBoolean(prefScreen, prefs.getBoolean("screenoff", true))

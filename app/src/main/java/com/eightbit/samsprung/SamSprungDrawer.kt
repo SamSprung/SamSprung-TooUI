@@ -69,6 +69,7 @@ import android.content.pm.ServiceInfo
 import android.graphics.Canvas
 import android.os.Bundle
 import android.provider.Settings
+import android.service.notification.NotificationListenerService.requestRebind
 import android.view.View
 import android.view.accessibility.AccessibilityManager
 import androidx.appcompat.app.AppCompatActivity
@@ -97,6 +98,11 @@ class SamSprungDrawer : AppCompatActivity(),
         super.onCreate(savedInstanceState)
         supportActionBar?.hide()
         setContentView(R.layout.apps_view_layout)
+
+        requestRebind(ComponentName(
+            applicationContext,
+            NotificationListener::class.java
+        ))
 
         val permission = ContextCompat.checkSelfPermission(
             this, Manifest.permission.READ_EXTERNAL_STORAGE
