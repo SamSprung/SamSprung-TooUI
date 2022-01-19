@@ -114,22 +114,6 @@ class CoverSettingsActivity : AppCompatActivity() {
                 if (!file.isDirectory) file.delete()
             }
         }
-        if (BuildConfig.FLAVOR != "google") {
-            if (packageManager.canRequestPackageInstalls()) {
-                retrieveUpdate()
-            } else {
-                registerForActivityResult(
-                    ActivityResultContracts.StartActivityForResult()
-                ) {
-                    if (packageManager.canRequestPackageInstalls())
-                        retrieveUpdate()
-                }.launch(
-                    Intent(Settings.ACTION_MANAGE_UNKNOWN_APP_SOURCES).setData(
-                        Uri.parse(String.format("package:%s", packageName))
-                    )
-                )
-            }
-        }
 
         if (isDeviceSecure()) {
             Toast.makeText(
@@ -478,5 +462,25 @@ class CoverSettingsActivity : AppCompatActivity() {
                 }
             }
         })
+    }
+
+    override fun onResume() {
+        super.onResume()
+        if (BuildConfig.FLAVOR != "google") {
+            if (packageManager.canRequestPackageInstalls()) {
+                retrieveUpdate()
+            } else {
+                registerForActivityResult(
+                    ActivityResultContracts.StartActivityForResult()
+                ) {
+                    if (packageManager.canRequestPackageInstalls())
+                        retrieveUpdate()
+                }.launch(
+                    Intent(Settings.ACTION_MANAGE_UNKNOWN_APP_SOURCES).setData(
+                        Uri.parse(String.format("package:%s", packageName))
+                    )
+                )
+            }
+        }
     }
 }
