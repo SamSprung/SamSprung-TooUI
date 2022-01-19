@@ -1,3 +1,5 @@
+![SamSprung Logo](assets/feature_graphic.png)
+
 ## SamSprung Launcher
 
 #### Current limitations:
