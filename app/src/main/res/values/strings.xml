@@ -5,6 +5,7 @@
     <string name="swap_viewgrid">Display as ListView Widget Style</string>
     <string name="swap_viewlist">Display as GridView Widget Style</string>
 
+    <string name="handler_service">%1$s Handler Service</string>
     <string name="display_service">%1$s Display Service</string>
     <string name="click_stop_service">Click to Stop Service</string>
     <string name="update_service">%1$s Update Service</string>

@@ -164,9 +164,7 @@ class CoverSettingsActivity : AppCompatActivity() {
         listView.adapter = FilteredAppsAdapter(this, packages, unlisted)
 
         if (Settings.canDrawOverlays(applicationContext) && isAccessibilityEnabled()) {
-            IntentFilter(Intent.ACTION_SCREEN_ON).also {
-                applicationContext.registerReceiver(OffBroadcastReceiver(), it)
-            }
+            startForegroundService(Intent(this, OnBroadcastService::class.java))
         }
     }
 
@@ -215,9 +213,7 @@ class CoverSettingsActivity : AppCompatActivity() {
         ActivityResultContracts.StartActivityForResult()) {
         if (isAccessibilityEnabled()) {
             switch.isChecked = true
-            IntentFilter(Intent.ACTION_SCREEN_ON).also {
-                applicationContext.registerReceiver(OffBroadcastReceiver(), it)
-            }
+            startForegroundService(Intent(this, OnBroadcastService::class.java))
         }
         if (!Settings.System.canWrite(applicationContext)) {
             settingsLauncher.launch(Intent(
@@ -236,9 +232,7 @@ class CoverSettingsActivity : AppCompatActivity() {
         if (isAccessibilityEnabled()) {
             if (Settings.canDrawOverlays(applicationContext)) {
                 switch.isChecked = true
-                IntentFilter(Intent.ACTION_SCREEN_ON).also {
-                    applicationContext.registerReceiver(OffBroadcastReceiver(), it)
-                }
+                startForegroundService(Intent(this, OnBroadcastService::class.java))
             }
             if (!Settings.System.canWrite(applicationContext)) {
                 settingsLauncher.launch(Intent(
@@ -262,9 +256,7 @@ class CoverSettingsActivity : AppCompatActivity() {
         if (Settings.canDrawOverlays(applicationContext)) {
             if (isAccessibilityEnabled()) {
                 switch.isChecked = true
-                IntentFilter(Intent.ACTION_SCREEN_ON).also {
-                    applicationContext.registerReceiver(OffBroadcastReceiver(), it)
-                }
+                startForegroundService(Intent(this, OnBroadcastService::class.java))
                 if (Settings.System.canWrite(applicationContext)) {
                     if (isNotificationListenerEnabled()) {
                         requestPermissions.launch(permissions)

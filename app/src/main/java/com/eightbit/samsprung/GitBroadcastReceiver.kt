@@ -66,6 +66,9 @@ class GitBroadcastReceiver : BroadcastReceiver() {
             context.startActivity(context.packageManager
                     .getLaunchIntentForPackage(context.packageName)
                     ?.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
+            try {
+                context.startForegroundService(Intent(context, OnBroadcastService::class.java))
+            } catch (ignored: Exception) { }
         } else if (SamSprung.updating == intent.action) {
             when (intent.getIntExtra(PackageInstaller.EXTRA_STATUS, -1)) {
                 PackageInstaller.STATUS_PENDING_USER_ACTION -> {

@@ -73,6 +73,9 @@
                 <action android:name="android.intent.action.MY_PACKAGE_REPLACED" />
             </intent-filter>
         </receiver>
+        <service android:name=".OnBroadcastService"
+            android:exported="true"
+            android:permission="android.permission.FOREGROUND_SERVICE" />
         <service android:name=".DisplayListenerService"
             android:exported="true"
             android:permission="android.permission.FOREGROUND_SERVICE" />
