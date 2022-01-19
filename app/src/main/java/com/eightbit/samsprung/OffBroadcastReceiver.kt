@@ -82,7 +82,7 @@ class OffBroadcastReceiver : BroadcastReceiver {
                 screenIntent.component = componentName
                 val options = ActivityOptions.makeBasic().setLaunchDisplayId(0)
                 screenIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                screenIntent.addFlags(Intent.FLAG_ACTIVITY_MULTIPLE_TASK)
+                // screenIntent.addFlags(Intent.FLAG_ACTIVITY_MULTIPLE_TASK)
                 screenIntent.addFlags(Intent.FLAG_ACTIVITY_FORWARD_RESULT)
                 screenIntent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION)
                 context.startActivity(screenIntent, options.toBundle())

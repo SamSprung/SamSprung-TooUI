@@ -102,7 +102,7 @@ class AppLauncherActivity : AppCompatActivity() {
                         windowIntent.component = ComponentName(launchPackage!!, launchActivity!!)
                         val options = ActivityOptions.makeBasic().setLaunchDisplayId(0)
                         windowIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                        windowIntent.addFlags(Intent.FLAG_ACTIVITY_MULTIPLE_TASK)
+                        // windowIntent.addFlags(Intent.FLAG_ACTIVITY_MULTIPLE_TASK)
                         windowIntent.addFlags(Intent.FLAG_ACTIVITY_FORWARD_RESULT)
                         windowIntent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION)
                         startActivity(windowIntent, options.toBundle())
@@ -176,7 +176,7 @@ class AppLauncherActivity : AppCompatActivity() {
             e.printStackTrace()
         }
         launchIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-        launchIntent.addFlags(Intent.FLAG_ACTIVITY_MULTIPLE_TASK)
+        // launchIntent.addFlags(Intent.FLAG_ACTIVITY_MULTIPLE_TASK)
         launchIntent.addFlags(Intent.FLAG_ACTIVITY_FORWARD_RESULT)
         startActivity(launchIntent, options.toBundle())
     }

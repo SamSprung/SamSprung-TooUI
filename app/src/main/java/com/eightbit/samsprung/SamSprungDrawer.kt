@@ -480,7 +480,7 @@ class SamSprungDrawer : AppCompatActivity(),
                 e.printStackTrace()
             }
             coverIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-            coverIntent.addFlags(Intent.FLAG_ACTIVITY_MULTIPLE_TASK)
+            // coverIntent.addFlags(Intent.FLAG_ACTIVITY_MULTIPLE_TASK)
             coverIntent.addFlags(Intent.FLAG_ACTIVITY_FORWARD_RESULT)
             coverIntent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION)
             startActivity(coverIntent.putExtras(extras), options.toBundle())
