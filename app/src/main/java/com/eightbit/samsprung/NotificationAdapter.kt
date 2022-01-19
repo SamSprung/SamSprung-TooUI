@@ -57,12 +57,11 @@ class NotificationAdapter(
                     notice.smallIcon.loadDrawable(iconView.context)
                 )
             }
-            if (null != notice.extras) {
-                if (null != notice.extras.getCharSequenceArray(NotificationCompat.EXTRA_TEXT_LINES)) {
-                    linesText.text = Arrays.toString(notice.extras.getCharSequenceArray(
-                        NotificationCompat.EXTRA_TEXT_LINES
-                    ))
-                }
+            if (null != notice.extras && null != notice.extras.getCharSequenceArray(
+                    NotificationCompat.EXTRA_TEXT_LINES)) {
+                linesText.text = Arrays.toString(notice.extras.getCharSequenceArray(
+                    NotificationCompat.EXTRA_TEXT_LINES
+                ))
             } else if (null != notice.tickerText) {
                 linesText.text = notice.tickerText
             }
