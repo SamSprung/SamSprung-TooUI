@@ -56,28 +56,31 @@ import android.app.*
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
+import android.content.SharedPreferences
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.PixelFormat
 import android.hardware.display.DisplayManager
 import android.os.*
 import android.provider.Settings
-import android.view.ContextThemeWrapper
-import android.view.Display
-import android.view.LayoutInflater
-import android.view.WindowManager
+import android.view.*
 import androidx.core.app.NotificationCompat
 import androidx.core.content.ContextCompat
+import androidx.core.view.ViewCompat
 import kotlin.system.exitProcess
-import android.view.Gravity
-
-
+import androidx.core.view.isVisible
+import java.lang.ref.SoftReference
 
 
 class DisplayListenerService : Service() {
 
     private val coverLock = "cover_lock"
     private var mDisplayListener: DisplayManager.DisplayListener? = null
+
+    companion object {
+        lateinit var floatView: SoftReference<View>
+        val launcher: View? get() = if (this::floatView.isInitialized) floatView.get() else null
+    }
 
     override fun onBind(intent: Intent?): IBinder? {
         return null
@@ -101,8 +104,8 @@ class DisplayListenerService : Service() {
         showForegroundNotification(startId)
 
         val displayContext: Context = buildDisplayContext(displayManager.getDisplay(1))
-        val floatView = LayoutInflater.from(displayContext)
-            .inflate(R.layout.navigation_view, null)
+        floatView = SoftReference(LayoutInflater.from(displayContext)
+            .inflate(R.layout.navigation_view, null))
         val params = WindowManager.LayoutParams(
             WindowManager.LayoutParams.WRAP_CONTENT,
             WindowManager.LayoutParams.WRAP_CONTENT,
@@ -111,22 +114,23 @@ class DisplayListenerService : Service() {
             PixelFormat.TRANSLUCENT
         )
         params.gravity = Gravity.START
-        floatView.findViewById<VerticalTextView>(R.id.navigationText).setOnClickListener {
+        launcher!!.findViewById<VerticalTextView>(R.id.navigationText).setOnClickListener {
             (displayContext.getSystemService(WINDOW_SERVICE)
-                    as WindowManager).removeView(floatView)
+                    as WindowManager).removeView(launcher)
             startActivity(Intent(this, SamSprungDrawer::class.java)
                 .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK),
                 ActivityOptions.makeBasic().setLaunchDisplayId(1).toBundle())
         }
         (displayContext.getSystemService(WINDOW_SERVICE)
-                as WindowManager).addView(floatView, params)
+                as WindowManager).addView(launcher, params)
 
         mDisplayListener = object : DisplayManager.DisplayListener {
             override fun onDisplayAdded(display: Int) {}
             override fun onDisplayChanged(display: Int) {
                 if (display == 0) {
-                    (displayContext.getSystemService(WINDOW_SERVICE)
-                            as WindowManager).removeView(floatView)
+                    if (ViewCompat.isAttachedToWindow(launcher!!))
+                        (displayContext.getSystemService(WINDOW_SERVICE)
+                                as WindowManager).removeView(launcher)
                     dismissDisplayListener(displayManager, mKeyguardLock)
                     if (SamSprung.useAppLauncherActivity) {
                         val displayIntent = Intent(Intent.ACTION_MAIN)
@@ -145,8 +149,9 @@ class DisplayListenerService : Service() {
                 } else {
                     if (SamSprung.isKeyguardLocked)
                         @Suppress("DEPRECATION") mKeyguardLock.disableKeyguard()
-                    (displayContext.getSystemService(WINDOW_SERVICE)
-                            as WindowManager).addView(floatView, params)
+                    if (!ViewCompat.isAttachedToWindow(launcher!!))
+                        (displayContext.getSystemService(WINDOW_SERVICE)
+                                as WindowManager).addView(launcher, params)
                     if (SamSprung.useAppLauncherActivity) {
                         val extras = Bundle()
                         extras.putString("launchPackage", launchPackage)
@@ -206,6 +211,10 @@ class DisplayListenerService : Service() {
                 Settings.System.ACCELEROMETER_ROTATION, 1
             )
         }
+        val displayContext: Context = buildDisplayContext(displayManager.getDisplay(1))
+        if (null != launcher && ViewCompat.isAttachedToWindow(launcher!!))
+            (displayContext.getSystemService(WINDOW_SERVICE)
+                    as WindowManager).removeView(launcher)
         dismissDisplayListener(displayManager, mKeyguardLock)
         return START_NOT_STICKY
     }

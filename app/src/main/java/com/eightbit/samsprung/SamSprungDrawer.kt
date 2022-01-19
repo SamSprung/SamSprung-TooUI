@@ -106,6 +106,7 @@ class SamSprungDrawer : AppCompatActivity(),
             applicationContext,
             NotificationListener::class.java
         ))
+        startService(Intent(this, DisplayListenerService::class.java))
 
         val permission = ContextCompat.checkSelfPermission(
             this, Manifest.permission.READ_EXTERNAL_STORAGE
