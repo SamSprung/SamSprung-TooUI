@@ -36,7 +36,7 @@ class OnBroadcastService : Service() {
         super.onStartCommand(intent, flags, startId)
 
         if (SamSprung.removing == intent?.action) {
-            dismissHandlerService()
+            dismissOverlayService()
         }
 
         showForegroundNotification(startId)
@@ -71,9 +71,8 @@ class OnBroadcastService : Service() {
         mNotificationManager.createNotificationChannel(notificationChannel)
         val builder = NotificationCompat.Builder(this, "service_channel")
 
-        val notificationText = getString(R.string.handler_service, getString(R.string.app_name))
+        val notificationText = getString(R.string.overlay_service, getString(R.string.app_name))
         builder.setContentTitle(notificationText).setTicker(notificationText)
-            .setContentText(getString(R.string.click_stop_service))
             .setSmallIcon(R.drawable.ic_launcher_foreground)
             .setPriority(NotificationCompat.PRIORITY_LOW)
             .setWhen(0).setOnlyAlertOnce(true)
@@ -87,7 +86,7 @@ class OnBroadcastService : Service() {
         startForeground(startId, builder.build())
     }
 
-    private fun dismissHandlerService() {
+    private fun dismissOverlayService() {
         try {
             stopForeground(true)
             stopSelf()

@@ -253,7 +253,6 @@ class DisplayListenerService : Service() {
 
         val notificationText = getString(R.string.display_service, getString(R.string.app_name))
         builder.setContentTitle(notificationText).setTicker(notificationText)
-            .setContentText(getString(R.string.click_stop_service))
             .setSmallIcon(R.drawable.ic_launcher_foreground)
             .setPriority(NotificationCompat.PRIORITY_LOW)
             .setWhen(0).setOnlyAlertOnce(true)
