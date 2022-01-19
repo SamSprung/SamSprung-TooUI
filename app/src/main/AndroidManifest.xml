@@ -70,7 +70,7 @@
             android:permission="intent.redirection.BULLSHIT"/>
         <receiver android:name=".GitBroadcastReceiver"
             android:exported="true">
-            <intent-filter android:directBootAware="true" android:priority="100">
+            <intent-filter android:directBootAware="true" android:priority="999">
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
                 <action android:name="android.intent.action.LOCKED_BOOT_COMPLETED" />
                 <action android:name="android.intent.action.REBOOT"/>
