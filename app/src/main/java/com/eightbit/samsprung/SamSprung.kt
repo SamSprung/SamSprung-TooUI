@@ -62,13 +62,6 @@ class SamSprung : Application() {
         mPrefs = SoftReference(
             getSharedPreferences("samsprung.launcher.PREFS", MODE_PRIVATE)
         )
-        if (prefs.contains("screenoff")) {
-            with(prefs.edit()) {
-                putBoolean(prefScreen, prefs.getBoolean("screenoff", true))
-                remove("screenoff")
-                apply()
-            }
-        }
         if (prefs.contains("gridview")) {
             with(prefs.edit()) {
                 putBoolean(prefLayout, prefs.getBoolean("gridview", true))
@@ -93,7 +86,6 @@ class SamSprung : Application() {
         private lateinit var mPrefs: SoftReference<SharedPreferences>
         val prefs: SharedPreferences get() = mPrefs.get()!!
         var notifications: ArrayList<Notification> = arrayListOf()
-        const val prefScreen: String = "prefScreen"
         const val prefLayout: String = "prefLayout"
         const val prefHidden: String = "prefHidden"
         const val autoRotate: String = "autoRotate"

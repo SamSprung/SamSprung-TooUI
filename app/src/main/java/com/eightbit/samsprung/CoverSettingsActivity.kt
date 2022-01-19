@@ -149,16 +149,6 @@ class CoverSettingsActivity : AppCompatActivity() {
             }
         }
 
-        val enableScreenOff = SamSprung.prefs.getBoolean(SamSprung.prefScreen, true)
-
-        findViewById<ToggleButton>(R.id.swapScreenOff).isChecked = enableScreenOff
-        findViewById<ToggleButton>(R.id.swapScreenOff).setOnCheckedChangeListener { _, isChecked ->
-            with (SamSprung.prefs.edit()) {
-                putBoolean(SamSprung.prefScreen, isChecked)
-                apply()
-            }
-        }
-
         val mainIntent = Intent(Intent.ACTION_MAIN, null)
         mainIntent.addCategory(Intent.CATEGORY_LAUNCHER)
         mainIntent.removeCategory(Intent.CATEGORY_HOME)

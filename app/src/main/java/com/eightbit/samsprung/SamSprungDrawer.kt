@@ -106,7 +106,6 @@ class SamSprungDrawer : AppCompatActivity(),
             applicationContext,
             NotificationListener::class.java
         ))
-        startService(Intent(this, DisplayListenerService::class.java))
 
         val permission = ContextCompat.checkSelfPermission(
             this, Manifest.permission.READ_EXTERNAL_STORAGE
@@ -460,12 +459,10 @@ class SamSprungDrawer : AppCompatActivity(),
         if (SamSprung.useAppLauncherActivity) {
             startActivity(Intent(applicationContext, AppLauncherActivity::class.java).putExtras(extras))
         } else {
-            if (SamSprung.prefs.getBoolean(SamSprung.prefScreen, true)) {
-                IntentFilter(Intent.ACTION_SCREEN_OFF).also {
-                    applicationContext.registerReceiver(OffBroadcastReceiver(
-                        ComponentName(appInfo.activityInfo.packageName, appInfo.activityInfo.name)
-                    ), it)
-                }
+            IntentFilter(Intent.ACTION_SCREEN_OFF).also {
+                applicationContext.registerReceiver(OffBroadcastReceiver(
+                    ComponentName(appInfo.activityInfo.packageName, appInfo.activityInfo.name)
+                ), it)
             }
             val coverIntent = Intent(Intent.ACTION_MAIN)
             coverIntent.addCategory(Intent.CATEGORY_LAUNCHER)

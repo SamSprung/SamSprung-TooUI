@@ -56,7 +56,6 @@ import android.app.*
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
-import android.content.SharedPreferences
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.PixelFormat
@@ -67,9 +66,8 @@ import android.view.*
 import androidx.core.app.NotificationCompat
 import androidx.core.content.ContextCompat
 import androidx.core.view.ViewCompat
-import kotlin.system.exitProcess
-import androidx.core.view.isVisible
 import java.lang.ref.SoftReference
+import kotlin.system.exitProcess
 
 
 class DisplayListenerService : Service() {
