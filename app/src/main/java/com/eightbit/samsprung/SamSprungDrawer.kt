@@ -53,10 +53,7 @@ package com.eightbit.samsprung
 
 import android.Manifest
 import android.annotation.SuppressLint
-import android.app.ActivityOptions
-import android.app.KeyguardManager
-import android.app.Notification
-import android.app.WallpaperManager
+import android.app.*
 import android.bluetooth.BluetoothManager
 import android.content.ComponentName
 import android.content.Context
@@ -160,15 +157,20 @@ class SamSprungDrawer : AppCompatActivity(),
             @SuppressLint("NotifyDataSetChanged")
             override fun onStateChanged(bottomSheet: View, newState: Int) {
                 if (newState == BottomSheetBehavior.STATE_EXPANDED) {
+                    val bluetoothAdapter = (getSystemService(Context.BLUETOOTH_SERVICE)
+                            as BluetoothManager).adapter
+                    val audioManager = getSystemService(AUDIO_SERVICE) as AudioManager
+                    val notificationManager = getSystemService(NOTIFICATION_SERVICE)
+                            as NotificationManager
+                    val camManager = getSystemService(CAMERA_SERVICE) as CameraManager
+                    var isTorchEnabled = false
+
                     if (wifiManager.isWifiEnabled)
                         toolbar.menu.findItem(R.id.toggle_wifi)
                             .setIcon(R.drawable.ic_baseline_wifi_24)
                     else
                         toolbar.menu.findItem(R.id.toggle_wifi)
                             .setIcon(R.drawable.ic_baseline_wifi_off_24)
-
-                    val bluetoothAdapter = (getSystemService(Context.BLUETOOTH_SERVICE)
-                            as BluetoothManager).adapter
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S &&
                         ContextCompat.checkSelfPermission(
                             this@SamSprungDrawer,
@@ -184,14 +186,6 @@ class SamSprungDrawer : AppCompatActivity(),
                         toolbar.menu.findItem(R.id.toggle_bluetooth).isVisible = false
                     }
 
-                    val audioManager = getSystemService(AUDIO_SERVICE) as AudioManager
-                    if (audioManager.ringerMode == AudioManager.RINGER_MODE_NORMAL)
-                        toolbar.menu.findItem(R.id.toggle_sound)
-                            .setIcon(R.drawable.ic_baseline_hearing_24)
-                    else
-                        toolbar.menu.findItem(R.id.toggle_sound)
-                            .setIcon(R.drawable.ic_baseline_hearing_disabled_24)
-
                     if (nfcAdapter.isEnabled)
                         toolbar.menu.findItem(R.id.toggle_nfc)
                             .setIcon(R.drawable.ic_baseline_nfc_24)
@@ -199,8 +193,27 @@ class SamSprungDrawer : AppCompatActivity(),
                         toolbar.menu.findItem(R.id.toggle_nfc)
                             .setIcon(R.drawable.ic_baseline_nfc_disabled_24)
 
-                    val camManager = getSystemService(CAMERA_SERVICE) as CameraManager
-                    var isTorchEnabled = false
+                    toolbar.menu.findItem(R.id.toggle_gps).isVisible = false
+
+                    if (audioManager.ringerMode == AudioManager.RINGER_MODE_NORMAL)
+                        toolbar.menu.findItem(R.id.toggle_sound)
+                            .setIcon(R.drawable.ic_baseline_hearing_24)
+                    else
+                        toolbar.menu.findItem(R.id.toggle_sound)
+                            .setIcon(R.drawable.ic_baseline_hearing_disabled_24)
+
+                    if (notificationManager.isNotificationPolicyAccessGranted) {
+                        if (notificationManager.currentInterruptionFilter ==
+                            NotificationManager.INTERRUPTION_FILTER_NONE)
+                            toolbar.menu.findItem(R.id.toggle_dnd)
+                                .setIcon(R.drawable.ic_baseline_do_not_disturb_off_24)
+                        else
+                            toolbar.menu.findItem(R.id.toggle_dnd)
+                                .setIcon(R.drawable.ic_baseline_do_not_disturb_on_24)
+                    } else {
+                        toolbar.menu.findItem(R.id.toggle_dnd).isVisible = false
+                    }
+
                     if (packageManager.hasSystemFeature(PackageManager.FEATURE_CAMERA_FLASH)) {
                         camManager.setTorchMode(camManager.cameraIdList[0], isTorchEnabled)
                     } else {
@@ -225,6 +238,14 @@ class SamSprungDrawer : AppCompatActivity(),
                                 }
                                 return@setOnMenuItemClickListener true
                             }
+                            R.id.toggle_nfc -> {
+                                nfcEnabler.launch(Intent(Settings.Panel.ACTION_NFC))
+                                return@setOnMenuItemClickListener true
+                            }
+                            R.id.toggle_gps -> {
+
+                                return@setOnMenuItemClickListener true
+                            }
                             R.id.toggle_sound -> {
                                 if (audioManager.ringerMode == AudioManager.RINGER_MODE_NORMAL) {
                                     audioManager.ringerMode = AudioManager.RINGER_MODE_SILENT
@@ -237,8 +258,19 @@ class SamSprungDrawer : AppCompatActivity(),
                                 }
                                 return@setOnMenuItemClickListener true
                             }
-                            R.id.toggle_nfc -> {
-                                nfcEnabler.launch(Intent(Settings.Panel.ACTION_NFC))
+                            R.id.toggle_dnd -> {
+                                if (notificationManager.currentInterruptionFilter ==
+                                    NotificationManager.INTERRUPTION_FILTER_NONE) {
+                                    notificationManager.setInterruptionFilter(
+                                        NotificationManager.INTERRUPTION_FILTER_ALL)
+                                    toolbar.menu.findItem(R.id.toggle_dnd)
+                                        .setIcon(R.drawable.ic_baseline_do_not_disturb_on_24)
+                                } else {
+                                    notificationManager.setInterruptionFilter(
+                                        NotificationManager.INTERRUPTION_FILTER_NONE)
+                                    toolbar.menu.findItem(R.id.toggle_dnd)
+                                        .setIcon(R.drawable.ic_baseline_do_not_disturb_off_24)
+                                }
                                 return@setOnMenuItemClickListener true
                             }
                             R.id.toggle_torch -> {

@@ -20,7 +20,9 @@
     <string name="notification_drawer">Notifications</string>
     <string name="toggle_wifi">Toggle Wifi</string>
     <string name="toggle_bluetooth">Toggle Bluetooth</string>
-    <string name="toggle_sound">Toggle Sound</string>
     <string name="toggle_nfc">Toggle NFC</string>
+    <string name="toggle_gps">Toggle GPS</string>
+    <string name="toggle_sound">Toggle Sound</string>
+    <string name="toggle_dnd">Toggle DnD</string>
     <string name="toggle_torch">Toggle Torch</string>
 </resources>

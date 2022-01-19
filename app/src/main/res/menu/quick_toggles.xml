@@ -12,14 +12,24 @@
         android:icon="@drawable/ic_baseline_bluetooth_24"
         app:showAsAction="always" />
     <item
+        android:id="@+id/toggle_nfc"
+        android:title="@string/toggle_nfc"
+        android:icon="@drawable/ic_baseline_nfc_24"
+        app:showAsAction="always" />
+    <item
+        android:id="@+id/toggle_gps"
+        android:title="@string/toggle_gps"
+        android:icon="@drawable/ic_baseline_hearing_24"
+        app:showAsAction="always" />
+    <item
         android:id="@+id/toggle_sound"
         android:title="@string/toggle_sound"
         android:icon="@drawable/ic_baseline_hearing_24"
         app:showAsAction="always" />
     <item
-        android:id="@+id/toggle_nfc"
-        android:title="@string/toggle_nfc"
-        android:icon="@drawable/ic_baseline_nfc_24"
+        android:id="@+id/toggle_dnd"
+        android:title="@string/toggle_dnd"
+        android:icon="@drawable/ic_baseline_do_not_disturb_off_24"
         app:showAsAction="always" />
     <item
         android:id="@+id/toggle_torch"
