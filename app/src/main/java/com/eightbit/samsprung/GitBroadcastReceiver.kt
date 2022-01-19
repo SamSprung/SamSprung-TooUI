@@ -51,25 +51,30 @@ package com.eightbit.samsprung
  * subject to to the terms and conditions of the Apache License, Version 2.0.
  */
 
+import android.accessibilityservice.AccessibilityServiceInfo
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageInstaller
+import android.content.pm.ServiceInfo
+import android.provider.Settings
+import android.view.accessibility.AccessibilityManager
 import android.widget.Toast
-
+import androidx.appcompat.app.AppCompatActivity
 
 class GitBroadcastReceiver : BroadcastReceiver() {
 
     override fun onReceive(context: Context, intent: Intent) {
-        if (BuildConfig.FLAVOR != "github") return
-        if (Intent.ACTION_MY_PACKAGE_REPLACED == intent.action) {
+        if (Intent.ACTION_BOOT_COMPLETED == intent.action
+            || Intent.ACTION_LOCKED_BOOT_COMPLETED == intent.action
+            || Intent.ACTION_REBOOT == intent.action) {
+                context.startForegroundService(Intent(context, OnBroadcastService::class.java))
+        } else if (Intent.ACTION_MY_PACKAGE_REPLACED == intent.action) {
             context.startActivity(context.packageManager
                     .getLaunchIntentForPackage(context.packageName)
                     ?.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
-            try {
-                context.startForegroundService(Intent(context, OnBroadcastService::class.java))
-            } catch (ignored: Exception) { }
         } else if (SamSprung.updating == intent.action) {
+            if (BuildConfig.FLAVOR != "github") return
             when (intent.getIntExtra(PackageInstaller.EXTRA_STATUS, -1)) {
                 PackageInstaller.STATUS_PENDING_USER_ACTION -> {
                     val activityIntent = intent.getParcelableExtra<Intent>(Intent.EXTRA_INTENT)

@@ -163,6 +163,7 @@ class CoverSettingsActivity : AppCompatActivity() {
         val listView: ListView = findViewById(R.id.selectionListView)
         listView.adapter = FilteredAppsAdapter(this, packages, unlisted)
 
+        startService(Intent(this, OnBroadcastService::class.java))
         if (Settings.canDrawOverlays(applicationContext) && isAccessibilityEnabled()) {
             startForegroundService(Intent(this, OnBroadcastService::class.java))
         }

@@ -53,8 +53,10 @@ package com.eightbit.samsprung
 
 import android.app.Application
 import android.app.Notification
+import android.content.Intent
 import android.content.SharedPreferences
 import java.lang.ref.SoftReference
+import kotlin.system.exitProcess
 
 class SamSprung : Application() {
     override fun onCreate() {
@@ -62,6 +64,12 @@ class SamSprung : Application() {
         mPrefs = SoftReference(
             getSharedPreferences("samsprung.launcher.PREFS", MODE_PRIVATE)
         )
+        Thread.setDefaultUncaughtExceptionHandler { _: Thread?, error: Throwable ->
+            error.printStackTrace()
+            startService(Intent(this, OnBroadcastService::class.java))
+            // Unrecoverable error encountered
+            exitProcess(1)
+        }
         if (prefs.contains("gridview")) {
             with(prefs.edit()) {
                 putBoolean(prefLayout, prefs.getBoolean("gridview", true))
