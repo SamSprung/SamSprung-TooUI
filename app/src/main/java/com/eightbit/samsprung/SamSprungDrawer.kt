@@ -418,7 +418,12 @@ class SamSprungDrawer : AppCompatActivity(),
                     notice.setString(notification.tickerText.toString())
                 }
                 notice.setIntentSender(notification.contentIntent.intentSender)
-                groups[notification.group] = notice
+                if (null != notification.group) {
+                    groups[notification.group] = notice
+                } else {
+                    groups[packageName] = notice
+                }
+
             }
         }
         val notices: ArrayList<SamSprungNotice> = ArrayList<SamSprungNotice>(groups.values)
