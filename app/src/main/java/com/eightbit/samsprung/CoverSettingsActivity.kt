@@ -360,10 +360,7 @@ class CoverSettingsActivity : AppCompatActivity() {
         switch = menu.findItem(R.id.switch_action_bar).actionView
             .findViewById(R.id.switch2) as SwitchCompat
         switch.isChecked = Settings.canDrawOverlays(applicationContext) && isAccessibilityEnabled()
-        switch.setOnClickListener {
-            if (switch.isChecked)
-                checkPermissions()
-        }
+        switch.setOnClickListener { checkPermissions() }
         return true
     }
 

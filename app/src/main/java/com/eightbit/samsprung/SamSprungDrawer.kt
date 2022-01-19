@@ -55,14 +55,12 @@ import android.Manifest
 import android.annotation.SuppressLint
 import android.app.*
 import android.bluetooth.BluetoothManager
-import android.content.ComponentName
-import android.content.Context
-import android.content.Intent
-import android.content.IntentFilter
+import android.content.*
 import android.content.pm.ApplicationInfo
 import android.content.pm.PackageManager
 import android.content.pm.ResolveInfo
 import android.graphics.Canvas
+import android.hardware.camera2.CameraManager
 import android.media.AudioManager
 import android.net.wifi.WifiManager
 import android.nfc.NfcManager
@@ -76,6 +74,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.coordinatorlayout.widget.CoordinatorLayout
+import androidx.core.app.NotificationCompat
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.ItemTouchHelper
@@ -86,7 +85,7 @@ import com.eightbitlab.blurview.RenderScriptBlur
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetBehavior.BottomSheetCallback
 import java.util.*
-import android.hardware.camera2.CameraManager
+
 
 class SamSprungDrawer : AppCompatActivity(),
     AppDrawerAdapater.OnAppClickListener,
@@ -126,7 +125,6 @@ class SamSprungDrawer : AppCompatActivity(),
         toolbar.inflateMenu(R.menu.quick_toggles)
         val noticesView = findViewById<RecyclerView>(R.id.notificationList)
         noticesView.layoutManager = LinearLayoutManager(this)
-        noticesView.adapter = NotificationAdapter(this@SamSprungDrawer)
 
         val wifiManager = getSystemService(WIFI_SERVICE) as WifiManager
         val wifiEnabler = registerForActivityResult(
@@ -153,6 +151,8 @@ class SamSprungDrawer : AppCompatActivity(),
             @SuppressLint("NotifyDataSetChanged")
             override fun onStateChanged(bottomSheet: View, newState: Int) {
                 if (newState == BottomSheetBehavior.STATE_EXPANDED) {
+                    refreshNotifications(noticesView)
+
                     val bluetoothAdapter = (getSystemService(Context.BLUETOOTH_SERVICE)
                             as BluetoothManager).adapter
                     val audioManager = getSystemService(AUDIO_SERVICE) as AudioManager
@@ -287,7 +287,6 @@ class SamSprungDrawer : AppCompatActivity(),
                             }
                         }
                     }
-                    (noticesView.adapter as NotificationAdapter).notifyDataSetChanged()
                 }
             }
 
@@ -343,6 +342,51 @@ class SamSprungDrawer : AppCompatActivity(),
             }
         }
         ItemTouchHelper(simpleItemTouchCallback).attachToRecyclerView(launcherView)
+    }
+
+    private fun refreshNotifications(noticesView: RecyclerView) {
+        val groups: HashMap<String, SamSprungNotice> = hashMapOf()
+        for (notification: Notification in SamSprung.notifications) {
+            if (groups.containsKey(notification.group)
+                && null != groups[notification.group]) {
+                val notice : SamSprungNotice = groups[notification.group]!!
+                if (null != notification.extras
+                    && null != notification.extras.getCharSequenceArray(
+                        NotificationCompat.EXTRA_TEXT_LINES)) {
+                    notice.setString(Arrays.toString(
+                        notification.extras.getCharSequenceArray(
+                            NotificationCompat.EXTRA_TEXT_LINES)
+                    ))
+                } else if (null != notification.tickerText) {
+                    notice.setString(notification.tickerText.toString())
+                }
+                groups.replace(notification.group, notice)
+            } else {
+                val notice = SamSprungNotice()
+                when {
+                    null != notification.getLargeIcon() -> notice.setDrawable(
+                        notification.getLargeIcon().loadDrawable(this@SamSprungDrawer)
+                    )
+                    null != notification.smallIcon -> notice.setDrawable(
+                        notification.smallIcon.loadDrawable(this@SamSprungDrawer)
+                    )
+                }
+                if (null != notification.extras
+                    && null != notification.extras.getCharSequenceArray(
+                        NotificationCompat.EXTRA_TEXT_LINES)) {
+                    notice.setString(Arrays.toString(
+                        notification.extras.getCharSequenceArray(
+                            NotificationCompat.EXTRA_TEXT_LINES)
+                    ))
+                } else if (null != notification.tickerText) {
+                    notice.setString(notification.tickerText.toString())
+                }
+                notice.setIntentSender(notification.contentIntent.intentSender)
+                groups[notification.group] = notice
+            }
+        }
+        val notices: ArrayList<SamSprungNotice> = ArrayList<SamSprungNotice>(groups.values)
+        noticesView.adapter = NotificationAdapter(notices, this@SamSprungDrawer)
     }
 
     override fun onAppClicked(appInfo: ResolveInfo, position: Int) {
@@ -408,8 +452,8 @@ class SamSprungDrawer : AppCompatActivity(),
         }
     }
 
-    override fun onNoticeClicked(notice: Notification, position: Int) {
-        startIntentSender(notice.contentIntent.intentSender,
+    override fun onNoticeClicked(notice: SamSprungNotice, position: Int) {
+        startIntentSender(notice.getIntentSender(),
             null, 0, 0, 0)
     }
 

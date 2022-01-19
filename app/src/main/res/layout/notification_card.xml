@@ -16,6 +16,7 @@
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:padding="4dp"
+        android:gravity="center_vertical"
         tools:ignore="UseCompoundDrawables">
 
         <ImageView
@@ -29,7 +30,7 @@
             android:id="@+id/lines"
             android:layout_marginStart="16dp"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_height="wrap_content"
             android:textSize="16sp"/>
 
     </LinearLayout>

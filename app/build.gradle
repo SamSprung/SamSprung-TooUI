@@ -41,12 +41,14 @@ android {
 
     buildTypes {
         release {
+            getIsDefault().set(true)
             minifyEnabled true
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
         debug {
             initWith release
             debuggable true
+            minifyEnabled false
             try {
                 def keystoreProps = new Properties()
                 keystoreProps.load(new FileInputStream(rootProject.file("keystore.properties")))
