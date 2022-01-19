@@ -88,10 +88,6 @@ import com.google.android.material.bottomsheet.BottomSheetBehavior.BottomSheetCa
 import java.util.*
 import android.hardware.camera2.CameraManager
 
-
-
-
-
 class SamSprungDrawer : AppCompatActivity(),
     AppDrawerAdapater.OnAppClickListener,
     NotificationAdapter.OnNoticeClickListener {

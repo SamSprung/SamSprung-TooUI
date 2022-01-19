@@ -351,7 +351,10 @@ class CoverSettingsActivity : AppCompatActivity() {
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         menuInflater.inflate(R.menu.action_menu, menu)
         updateMenuWithIcon(menu.findItem(R.id.logcat), -1)
-        updateMenuWithIcon(menu.findItem(R.id.donate), -1)
+        if (BuildConfig.FLAVOR == "github")
+            updateMenuWithIcon(menu.findItem(R.id.donate), -1)
+        else
+            menu.findItem(R.id.donate).isVisible = false
         val actionSwitch: MenuItem = menu.findItem(R.id.switch_action_bar)
         actionSwitch.setActionView(R.layout.permission_switch)
         switch = menu.findItem(R.id.switch_action_bar).actionView
