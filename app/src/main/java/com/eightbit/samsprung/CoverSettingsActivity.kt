@@ -55,7 +55,10 @@ import android.Manifest
 import android.accessibilityservice.AccessibilityServiceInfo
 import android.app.KeyguardManager
 import android.app.PendingIntent
-import android.content.*
+import android.content.ComponentName
+import android.content.ContentValues
+import android.content.Context
+import android.content.Intent
 import android.content.pm.PackageInstaller
 import android.content.pm.PackageManager
 import android.content.pm.ResolveInfo
@@ -115,6 +118,23 @@ class CoverSettingsActivity : AppCompatActivity() {
             }
         }
 
+        if (BuildConfig.FLAVOR != "google") {
+            if (packageManager.canRequestPackageInstalls()) {
+                retrieveUpdate()
+            } else {
+                registerForActivityResult(
+                    ActivityResultContracts.StartActivityForResult()
+                ) {
+                    if (packageManager.canRequestPackageInstalls())
+                        retrieveUpdate()
+                }.launch(
+                    Intent(Settings.ACTION_MANAGE_UNKNOWN_APP_SOURCES).setData(
+                        Uri.parse(String.format("package:%s", packageName))
+                    )
+                )
+            }
+        }
+
         if (isDeviceSecure()) {
             Toast.makeText(
                 applicationContext,
@@ -146,11 +166,8 @@ class CoverSettingsActivity : AppCompatActivity() {
 
         val listView: ListView = findViewById(R.id.selectionListView)
         listView.adapter = FilteredAppsAdapter(this, packages, unlisted)
-
-        startService(Intent(this, OnBroadcastService::class.java))
-        if (Settings.canDrawOverlays(applicationContext) && isAccessibilityEnabled()) {
-            startForegroundService(Intent(this, OnBroadcastService::class.java))
-        }
+        
+        startForegroundService(Intent(this, OnBroadcastService::class.java))
     }
 
     private val permissions =
@@ -187,7 +204,7 @@ class CoverSettingsActivity : AppCompatActivity() {
 
     private val settingsLauncher = registerForActivityResult(
         ActivityResultContracts.StartActivityForResult()) {
-        if (!isNotificationListenerEnabled()) {
+        if (!hasNotificationListener()) {
             noticeLauncher.launch(Intent(
                 Settings.ACTION_NOTIFICATION_LISTENER_SETTINGS
             ))
@@ -196,7 +213,7 @@ class CoverSettingsActivity : AppCompatActivity() {
 
     private val accessibilityLauncher = registerForActivityResult(
         ActivityResultContracts.StartActivityForResult()) {
-        if (isAccessibilityEnabled()) {
+        if (hasAccessibility()) {
             switch.isChecked = true
             startForegroundService(Intent(this, OnBroadcastService::class.java))
         }
@@ -205,7 +222,7 @@ class CoverSettingsActivity : AppCompatActivity() {
                 Settings.ACTION_MANAGE_WRITE_SETTINGS,
                 Uri.parse("package:$packageName")
             ))
-        } else if (!isNotificationListenerEnabled()) {
+        } else if (!hasNotificationListener()) {
             noticeLauncher.launch(Intent(
                 Settings.ACTION_NOTIFICATION_LISTENER_SETTINGS
             ))
@@ -214,7 +231,7 @@ class CoverSettingsActivity : AppCompatActivity() {
 
     private val overlayLauncher = registerForActivityResult(
         ActivityResultContracts.StartActivityForResult()) {
-        if (isAccessibilityEnabled()) {
+        if (hasAccessibility()) {
             if (Settings.canDrawOverlays(applicationContext)) {
                 switch.isChecked = true
                 startForegroundService(Intent(this, OnBroadcastService::class.java))
@@ -224,7 +241,7 @@ class CoverSettingsActivity : AppCompatActivity() {
                     Settings.ACTION_MANAGE_WRITE_SETTINGS,
                     Uri.parse("package:$packageName")
                 ))
-            } else if (!isNotificationListenerEnabled()) {
+            } else if (!hasNotificationListener()) {
                 noticeLauncher.launch(Intent(
                     Settings.ACTION_NOTIFICATION_LISTENER_SETTINGS
                 ))
@@ -239,11 +256,11 @@ class CoverSettingsActivity : AppCompatActivity() {
 
     private fun checkPermissions() {
         if (Settings.canDrawOverlays(applicationContext)) {
-            if (isAccessibilityEnabled()) {
+            if (hasAccessibility()) {
                 switch.isChecked = true
                 startForegroundService(Intent(this, OnBroadcastService::class.java))
                 if (Settings.System.canWrite(applicationContext)) {
-                    if (isNotificationListenerEnabled()) {
+                    if (hasNotificationListener()) {
                         requestPermissions.launch(permissions)
                     } else {
                         noticeLauncher.launch(Intent(
@@ -326,8 +343,8 @@ class CoverSettingsActivity : AppCompatActivity() {
         actionSwitch.setActionView(R.layout.permission_switch)
         switch = menu.findItem(R.id.switch_action_bar).actionView
             .findViewById(R.id.switch2) as SwitchCompat
-        switch.isChecked = Settings.canDrawOverlays(applicationContext) && isAccessibilityEnabled()
-        switch.setOnClickListener { checkPermissions() }
+        switch.isChecked = Settings.canDrawOverlays(applicationContext) && hasAccessibility()
+        switch.setOnClickListener { if (switch.isChecked) checkPermissions() }
         return true
     }
 
@@ -335,19 +352,19 @@ class CoverSettingsActivity : AppCompatActivity() {
         return (getSystemService(Context.KEYGUARD_SERVICE) as KeyguardManager).isDeviceSecure
     }
 
-    private fun isAccessibilityEnabled(): Boolean {
+    private fun hasAccessibility(): Boolean {
         val enabledServices = (getSystemService(ACCESSIBILITY_SERVICE) as AccessibilityManager)
             .getEnabledAccessibilityServiceList(AccessibilityServiceInfo.FEEDBACK_VISUAL)
         for (enabledService in enabledServices) {
             val enabledServiceInfo: ServiceInfo = enabledService.resolveInfo.serviceInfo
-            if (enabledServiceInfo.packageName.equals(packageName)
+            if (enabledServiceInfo.packageName.equals(BuildConfig.APPLICATION_ID)
                 && enabledServiceInfo.name.equals(AccessibilityHandler::class.java.name)
             ) return true
         }
         return false
     }
 
-    private fun isNotificationListenerEnabled(): Boolean {
+    private fun hasNotificationListener(): Boolean {
         val flat = Settings.Secure.getString(
             contentResolver, "enabled_notification_listeners"
         )
@@ -462,25 +479,5 @@ class CoverSettingsActivity : AppCompatActivity() {
                 }
             }
         })
-    }
-
-    override fun onResume() {
-        super.onResume()
-        if (BuildConfig.FLAVOR != "google") {
-            if (packageManager.canRequestPackageInstalls()) {
-                retrieveUpdate()
-            } else {
-                registerForActivityResult(
-                    ActivityResultContracts.StartActivityForResult()
-                ) {
-                    if (packageManager.canRequestPackageInstalls())
-                        retrieveUpdate()
-                }.launch(
-                    Intent(Settings.ACTION_MANAGE_UNKNOWN_APP_SOURCES).setData(
-                        Uri.parse(String.format("package:%s", packageName))
-                    )
-                )
-            }
-        }
     }
 }

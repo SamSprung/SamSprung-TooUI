@@ -1,15 +1,19 @@
 package com.eightbit.samsprung
 
+import android.accessibilityservice.AccessibilityServiceInfo
 import android.annotation.SuppressLint
 import android.app.*
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
+import android.content.pm.ServiceInfo
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.os.Build
 import android.os.IBinder
+import android.provider.Settings
+import android.view.accessibility.AccessibilityManager
 import androidx.core.app.NotificationCompat
 import androidx.core.content.ContextCompat
 
@@ -35,13 +39,15 @@ class OnBroadcastService : Service() {
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         super.onStartCommand(intent, flags, startId)
 
-        if (SamSprung.removing == intent?.action) {
-            dismissOverlayService()
-        }
+        if (!Settings.canDrawOverlays(applicationContext)
+            || SamSprung.removing == intent?.action)
+            return dismissOverlayService()
 
         showForegroundNotification(startId)
 
-        IntentFilter(Intent.ACTION_SCREEN_ON).also {
+        val onScreenFilter = IntentFilter(Intent.ACTION_SCREEN_ON)
+        onScreenFilter.priority = 999
+        onScreenFilter.also {
             applicationContext.registerReceiver(OnBroadcastReceiver(), it)
         }
 
@@ -80,18 +86,17 @@ class OnBroadcastService : Service() {
         if (null != iconNotification) {
             builder.setLargeIcon(
                 Bitmap.createScaledBitmap(
-                iconNotification, 128, 128, false))
+                    iconNotification, 128, 128, false))
         }
         builder.color = ContextCompat.getColor(this, R.color.purple_200)
         startForeground(startId, builder.build())
     }
 
-    private fun dismissOverlayService() {
+    private fun dismissOverlayService(): Int {
         try {
             stopForeground(true)
             stopSelf()
-        } catch (e: Exception) {
-            e.printStackTrace()
-        }
+        } catch (ignored: Exception) { }
+        return START_NOT_STICKY
     }
 }

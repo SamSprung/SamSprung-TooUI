@@ -51,16 +51,11 @@ package com.eightbit.samsprung
  * subject to to the terms and conditions of the Apache License, Version 2.0.
  */
 
-import android.accessibilityservice.AccessibilityServiceInfo
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageInstaller
-import android.content.pm.ServiceInfo
-import android.provider.Settings
-import android.view.accessibility.AccessibilityManager
 import android.widget.Toast
-import androidx.appcompat.app.AppCompatActivity
 
 class GitBroadcastReceiver : BroadcastReceiver() {
 
@@ -71,7 +66,7 @@ class GitBroadcastReceiver : BroadcastReceiver() {
                 context.startForegroundService(Intent(context, OnBroadcastService::class.java))
         } else if (Intent.ACTION_MY_PACKAGE_REPLACED == intent.action) {
             context.startActivity(context.packageManager
-                    .getLaunchIntentForPackage(context.packageName)
+                    .getLaunchIntentForPackage(BuildConfig.APPLICATION_ID)
                     ?.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
         } else if (SamSprung.updating == intent.action) {
             if (BuildConfig.FLAVOR != "github") return

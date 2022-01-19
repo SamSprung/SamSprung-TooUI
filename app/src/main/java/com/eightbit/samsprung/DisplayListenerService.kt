@@ -180,43 +180,6 @@ class DisplayListenerService : Service() {
         return START_STICKY
     }
 
-    private fun dismissDisplayListener(
-        displayManager: DisplayManager,
-        @Suppress("DEPRECATION")
-        mKeyguardLock: KeyguardManager.KeyguardLock
-    ) {
-        if (null != mDisplayListener) {
-            displayManager.unregisterDisplayListener(mDisplayListener)
-        }
-        if (SamSprung.isKeyguardLocked)
-            @Suppress("DEPRECATION") mKeyguardLock.reenableKeyguard()
-        try {
-            stopForeground(true)
-            stopSelf()
-        } catch (e: Exception) {
-            e.printStackTrace()
-        }
-    }
-
-    private fun dismissDisplayService(
-        displayManager: DisplayManager,
-        @Suppress("DEPRECATION")
-        mKeyguardLock: KeyguardManager.KeyguardLock
-    ): Int {
-        if (SamSprung.prefs.getBoolean(SamSprung.autoRotate, true)) {
-            Settings.System.putInt(
-                applicationContext.contentResolver,
-                Settings.System.ACCELEROMETER_ROTATION, 1
-            )
-        }
-        val displayContext: Context = buildDisplayContext(displayManager.getDisplay(1))
-        if (null != launcher && ViewCompat.isAttachedToWindow(launcher!!))
-            (displayContext.getSystemService(WINDOW_SERVICE)
-                    as WindowManager).removeView(launcher)
-        dismissDisplayListener(displayManager, mKeyguardLock)
-        return START_NOT_STICKY
-    }
-
     private fun buildDisplayContext(display: Display): Context {
         val displayContext = createDisplayContext(display)
         val wm = displayContext.getSystemService(WINDOW_SERVICE) as WindowManager
@@ -263,5 +226,40 @@ class DisplayListenerService : Service() {
         }
         builder.color = ContextCompat.getColor(this, R.color.purple_200)
         startForeground(startId, builder.build())
+    }
+
+    private fun dismissDisplayListener(
+        displayManager: DisplayManager,
+        @Suppress("DEPRECATION")
+        mKeyguardLock: KeyguardManager.KeyguardLock
+    ) {
+        if (null != mDisplayListener) {
+            displayManager.unregisterDisplayListener(mDisplayListener)
+        }
+        if (SamSprung.isKeyguardLocked)
+            @Suppress("DEPRECATION") mKeyguardLock.reenableKeyguard()
+        try {
+            stopForeground(true)
+            stopSelf()
+        } catch (ignored: Exception) { }
+    }
+
+    private fun dismissDisplayService(
+        displayManager: DisplayManager,
+        @Suppress("DEPRECATION")
+        mKeyguardLock: KeyguardManager.KeyguardLock
+    ): Int {
+        if (SamSprung.prefs.getBoolean(SamSprung.autoRotate, true)) {
+            Settings.System.putInt(
+                applicationContext.contentResolver,
+                Settings.System.ACCELEROMETER_ROTATION, 1
+            )
+        }
+        val displayContext: Context = buildDisplayContext(displayManager.getDisplay(1))
+        if (null != launcher && ViewCompat.isAttachedToWindow(launcher!!))
+            (displayContext.getSystemService(WINDOW_SERVICE)
+                    as WindowManager).removeView(launcher)
+        dismissDisplayListener(displayManager, mKeyguardLock)
+        return START_NOT_STICKY
     }
 }
