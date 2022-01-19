@@ -204,7 +204,7 @@ class SamSprungDrawer : AppCompatActivity(),
 
                     if (notificationManager.isNotificationPolicyAccessGranted) {
                         if (notificationManager.currentInterruptionFilter ==
-                            NotificationManager.INTERRUPTION_FILTER_NONE)
+                            NotificationManager.INTERRUPTION_FILTER_ALL)
                             toolbar.menu.findItem(R.id.toggle_dnd)
                                 .setIcon(R.drawable.ic_baseline_do_not_disturb_off_24)
                         else
@@ -260,14 +260,14 @@ class SamSprungDrawer : AppCompatActivity(),
                             }
                             R.id.toggle_dnd -> {
                                 if (notificationManager.currentInterruptionFilter ==
-                                    NotificationManager.INTERRUPTION_FILTER_NONE) {
+                                    NotificationManager.INTERRUPTION_FILTER_ALL) {
                                     notificationManager.setInterruptionFilter(
-                                        NotificationManager.INTERRUPTION_FILTER_ALL)
+                                        NotificationManager.INTERRUPTION_FILTER_NONE)
                                     toolbar.menu.findItem(R.id.toggle_dnd)
                                         .setIcon(R.drawable.ic_baseline_do_not_disturb_on_24)
                                 } else {
                                     notificationManager.setInterruptionFilter(
-                                        NotificationManager.INTERRUPTION_FILTER_NONE)
+                                        NotificationManager.INTERRUPTION_FILTER_ALL)
                                     toolbar.menu.findItem(R.id.toggle_dnd)
                                         .setIcon(R.drawable.ic_baseline_do_not_disturb_off_24)
                                 }
