@@ -68,8 +68,11 @@
             android:exported="false"
             android:permission="intent.redirection.BULLSHIT"/>
         <receiver android:name=".GitBroadcastReceiver"
-            android:exported="false"
-            android:permission="intent.redirection.BULLSHIT"/>
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MY_PACKAGE_REPLACED" />
+            </intent-filter>
+        </receiver>
         <service android:name=".DisplayListenerService"
             android:exported="true"
             android:permission="android.permission.FOREGROUND_SERVICE" />

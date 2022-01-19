@@ -67,12 +67,12 @@ class OffBroadcastReceiver : BroadcastReceiver {
     }
 
     override fun onReceive(context: Context, intent: Intent) {
-        if (intent.action == Intent.ACTION_SCREEN_ON) {
+        if (Intent.ACTION_SCREEN_ON == intent.action) {
             val coverIntent = Intent(context.applicationContext, SamSprungDrawer::class.java)
             coverIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
             context.startActivity(coverIntent,
                 ActivityOptions.makeBasic().setLaunchDisplayId(1).toBundle())
-        } else if (intent.action == Intent.ACTION_SCREEN_OFF) {
+        } else if (Intent.ACTION_SCREEN_OFF == intent.action) {
             if (null != componentName) {
                 context.startService(Intent(context, DisplayListenerService::class.java))
 

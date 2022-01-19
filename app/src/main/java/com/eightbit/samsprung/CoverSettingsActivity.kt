@@ -452,11 +452,9 @@ class CoverSettingsActivity : AppCompatActivity() {
                 apkStream.copyTo(sessionStream)
                 session.fsync(sessionStream)
             }
-            val intent = Intent(applicationContext, GitBroadcastReceiver::class.java)
-            intent.identifier = "8675309"
-            intent.action = SamSprung.updating
             val pi = PendingIntent.getBroadcast(
-                applicationContext, SamSprung.request_code, intent,
+                applicationContext, SamSprung.request_code, Intent(applicationContext,
+                    GitBroadcastReceiver::class.java).setAction(SamSprung.updating),
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S)
                     PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_MUTABLE
                 else PendingIntent.FLAG_UPDATE_CURRENT

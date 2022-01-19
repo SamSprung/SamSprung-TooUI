@@ -62,7 +62,11 @@ class GitBroadcastReceiver : BroadcastReceiver() {
 
     override fun onReceive(context: Context, intent: Intent) {
         if (BuildConfig.FLAVOR != "github") return
-        if (intent.identifier == "8675309" && intent.action == SamSprung.updating) {
+        if (Intent.ACTION_MY_PACKAGE_REPLACED == intent.action) {
+            context.startActivity(context.packageManager
+                    .getLaunchIntentForPackage(context.packageName)
+                    ?.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
+        } else if (SamSprung.updating == intent.action) {
             when (intent.getIntExtra(PackageInstaller.EXTRA_STATUS, -1)) {
                 PackageInstaller.STATUS_PENDING_USER_ACTION -> {
                     val activityIntent = intent.getParcelableExtra<Intent>(Intent.EXTRA_INTENT)
