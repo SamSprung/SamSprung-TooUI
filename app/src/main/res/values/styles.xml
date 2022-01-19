@@ -3,6 +3,11 @@
     <style name="SlimButton" parent="Widget.AppCompat.Button">
         <item name="android:minHeight">@dimen/button_height_min</item>
     </style>
+    <style name="verticalTextStyle"
+        parent="android:Widget.TextView">
+        <item name="android:padding">16dp</item>
+        <item name="android:textSize">16sp</item>
+    </style>
     <declare-styleable name="BlurView">
         <attr name="blurOverlayColor" format="color"/>
     </declare-styleable>

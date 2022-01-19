@@ -379,6 +379,7 @@ class SamSprungDrawer : AppCompatActivity(),
         ItemTouchHelper(simpleItemTouchCallback).attachToRecyclerView(launcherView)
     }
 
+    @SuppressLint("NotifyDataSetChanged")
     private fun refreshNotifications(noticesView: RecyclerView) {
         val groups: HashMap<String, SamSprungNotice> = hashMapOf()
         for (notification: Notification in SamSprung.notifications) {

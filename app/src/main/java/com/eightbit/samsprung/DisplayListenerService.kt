@@ -58,12 +58,20 @@ import android.content.Context
 import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.graphics.PixelFormat
 import android.hardware.display.DisplayManager
 import android.os.*
 import android.provider.Settings
+import android.view.ContextThemeWrapper
+import android.view.Display
+import android.view.LayoutInflater
+import android.view.WindowManager
 import androidx.core.app.NotificationCompat
 import androidx.core.content.ContextCompat
 import kotlin.system.exitProcess
+import android.view.Gravity
+
+
 
 
 class DisplayListenerService : Service() {
@@ -75,35 +83,51 @@ class DisplayListenerService : Service() {
         return null
     }
 
+    @SuppressLint("InflateParams")
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         super.onStartCommand(intent, flags, startId)
+
+        val launchPackage = intent?.getStringExtra("launchPackage")
+        val launchActivity = intent?.getStringExtra("launchActivity")
 
         @Suppress("DEPRECATION")
         val mKeyguardLock = (getSystemService(Context.KEYGUARD_SERVICE)
                 as KeyguardManager).newKeyguardLock(coverLock)
         val displayManager = getSystemService(Context.DISPLAY_SERVICE) as DisplayManager
 
-        val launchPackage = intent?.getStringExtra("launchPackage")
-        val launchActivity = intent?.getStringExtra("launchActivity")
-
         if (null == launchPackage || null == launchActivity)
-            return dismissDisplayListener(displayManager, mKeyguardLock)
+            return dismissDisplayService(displayManager, mKeyguardLock)
 
         showForegroundNotification(startId)
+
+        val displayContext: Context = buildDisplayContext(displayManager.getDisplay(1))
+        val floatView = LayoutInflater.from(displayContext)
+            .inflate(R.layout.navigation_view, null)
+        val params = WindowManager.LayoutParams(
+            WindowManager.LayoutParams.WRAP_CONTENT,
+            WindowManager.LayoutParams.WRAP_CONTENT,
+            WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY,
+            WindowManager.LayoutParams.FLAG_WATCH_OUTSIDE_TOUCH,
+            PixelFormat.TRANSLUCENT
+        )
+        params.gravity = Gravity.START
+        floatView.findViewById<VerticalTextView>(R.id.navigationText).setOnClickListener {
+            (displayContext.getSystemService(WINDOW_SERVICE)
+                    as WindowManager).removeView(floatView)
+            startActivity(Intent(this, SamSprungDrawer::class.java)
+                .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK),
+                ActivityOptions.makeBasic().setLaunchDisplayId(1).toBundle())
+        }
+        (displayContext.getSystemService(WINDOW_SERVICE)
+                as WindowManager).addView(floatView, params)
 
         mDisplayListener = object : DisplayManager.DisplayListener {
             override fun onDisplayAdded(display: Int) {}
             override fun onDisplayChanged(display: Int) {
                 if (display == 0) {
-                    displayManager.unregisterDisplayListener(this)
-                    if (SamSprung.isKeyguardLocked)
-                        @Suppress("DEPRECATION") mKeyguardLock.reenableKeyguard()
-                    try {
-                        stopForeground(true)
-                        stopSelf()
-                    } catch (e: Exception) {
-                        e.printStackTrace()
-                    }
+                    (displayContext.getSystemService(WINDOW_SERVICE)
+                            as WindowManager).removeView(floatView)
+                    dismissDisplayListener(displayManager, mKeyguardLock)
                     if (SamSprung.useAppLauncherActivity) {
                         val displayIntent = Intent(Intent.ACTION_MAIN)
                         displayIntent.addCategory(Intent.CATEGORY_LAUNCHER)
@@ -121,6 +145,8 @@ class DisplayListenerService : Service() {
                 } else {
                     if (SamSprung.isKeyguardLocked)
                         @Suppress("DEPRECATION") mKeyguardLock.disableKeyguard()
+                    (displayContext.getSystemService(WINDOW_SERVICE)
+                            as WindowManager).addView(floatView, params)
                     if (SamSprung.useAppLauncherActivity) {
                         val extras = Bundle()
                         extras.putString("launchPackage", launchPackage)
@@ -155,15 +181,9 @@ class DisplayListenerService : Service() {
         displayManager: DisplayManager,
         @Suppress("DEPRECATION")
         mKeyguardLock: KeyguardManager.KeyguardLock
-    ): Int {
+    ) {
         if (null != mDisplayListener) {
             displayManager.unregisterDisplayListener(mDisplayListener)
-        }
-        if (SamSprung.prefs.getBoolean(SamSprung.autoRotate, true)) {
-            Settings.System.putInt(
-                applicationContext.contentResolver,
-                Settings.System.ACCELEROMETER_ROTATION, 1
-            )
         }
         if (SamSprung.isKeyguardLocked)
             @Suppress("DEPRECATION") mKeyguardLock.reenableKeyguard()
@@ -173,7 +193,33 @@ class DisplayListenerService : Service() {
         } catch (e: Exception) {
             e.printStackTrace()
         }
+    }
+
+    private fun dismissDisplayService(
+        displayManager: DisplayManager,
+        @Suppress("DEPRECATION")
+        mKeyguardLock: KeyguardManager.KeyguardLock
+    ): Int {
+        if (SamSprung.prefs.getBoolean(SamSprung.autoRotate, true)) {
+            Settings.System.putInt(
+                applicationContext.contentResolver,
+                Settings.System.ACCELEROMETER_ROTATION, 1
+            )
+        }
+        dismissDisplayListener(displayManager, mKeyguardLock)
         return START_NOT_STICKY
+    }
+
+    private fun buildDisplayContext(display: Display): Context {
+        val displayContext = createDisplayContext(display)
+        val wm = displayContext.getSystemService(WINDOW_SERVICE) as WindowManager
+        return object : ContextThemeWrapper(displayContext, R.style.Theme_SecondScreen) {
+            override fun getSystemService(name: String): Any? {
+                return if (WINDOW_SERVICE == name) {
+                    wm
+                } else super.getSystemService(name)
+            }
+        }
     }
 
     @SuppressLint("LaunchActivityFromNotification")
