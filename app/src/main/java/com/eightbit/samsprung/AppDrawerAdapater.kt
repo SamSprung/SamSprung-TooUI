@@ -11,10 +11,14 @@ import androidx.recyclerview.widget.RecyclerView
 import com.eightbit.samsprung.AppDrawerAdapater.AppViewHolder
 
 class AppDrawerAdapater(
-    private val packages: MutableList<ResolveInfo>,
+    private var packages: MutableList<ResolveInfo>,
     private val listener: OnAppClickListener,
     private val packageManager: PackageManager
 ) : RecyclerView.Adapter<AppViewHolder>() {
+    fun setPackages(packages: MutableList<ResolveInfo>) {
+        this.packages = packages
+    }
+
     override fun getItemCount(): Int {
         return packages.size
     }

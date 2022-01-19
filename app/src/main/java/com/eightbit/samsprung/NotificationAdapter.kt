@@ -11,6 +11,10 @@ class NotificationAdapter(
     private var notices: ArrayList<SamSprungNotice>,
     private var listener: OnNoticeClickListener
 ) : RecyclerView.Adapter<NotificationAdapter.NoticeViewHolder>() {
+    fun setNotices(notices: ArrayList<SamSprungNotice>) {
+        this.notices = notices
+    }
+
     override fun getItemCount(): Int {
         return notices.size
     }

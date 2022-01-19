@@ -91,6 +91,8 @@ class SamSprungDrawer : AppCompatActivity(),
     AppDrawerAdapater.OnAppClickListener,
     NotificationAdapter.OnNoticeClickListener {
 
+    private val mReceiver: BroadcastReceiver = OffBroadcastReceiver()
+
     @SuppressLint("InflateParams", "CutPasteId", "ClickableViewAccessibility")
     override fun onCreate(savedInstanceState: Bundle?) {
         setShowWhenLocked(true)
@@ -125,6 +127,7 @@ class SamSprungDrawer : AppCompatActivity(),
         toolbar.inflateMenu(R.menu.quick_toggles)
         val noticesView = findViewById<RecyclerView>(R.id.notificationList)
         noticesView.layoutManager = LinearLayoutManager(this)
+        noticesView.adapter = NotificationAdapter(arrayListOf(), this@SamSprungDrawer)
 
         val wifiManager = getSystemService(WIFI_SERVICE) as WifiManager
         val wifiEnabler = registerForActivityResult(
@@ -148,7 +151,6 @@ class SamSprungDrawer : AppCompatActivity(),
             BottomSheetBehavior.from(findViewById(R.id.bottom_sheet))
         bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
         bottomSheetBehavior.addBottomSheetCallback(object : BottomSheetCallback() {
-            @SuppressLint("NotifyDataSetChanged")
             override fun onStateChanged(bottomSheet: View, newState: Int) {
                 if (newState == BottomSheetBehavior.STATE_EXPANDED) {
                     refreshNotifications(noticesView)
@@ -299,7 +301,7 @@ class SamSprungDrawer : AppCompatActivity(),
         mainIntent.addCategory(Intent.CATEGORY_LAUNCHER)
         mainIntent.removeCategory(Intent.CATEGORY_HOME)
 
-        val packages: MutableList<ResolveInfo> = packageManager.queryIntentActivities(mainIntent, 0)
+        var packages: MutableList<ResolveInfo> = packageManager.queryIntentActivities(mainIntent, 0)
         packages.removeIf { item -> SamSprung.prefs.getStringSet(
             SamSprung.prefHidden, HashSet())!!.contains(item.activityInfo.packageName
         ) }
@@ -310,6 +312,39 @@ class SamSprungDrawer : AppCompatActivity(),
         else
             launcherView.layoutManager = LinearLayoutManager(this)
         launcherView.adapter = AppDrawerAdapater(packages, this, packageManager)
+
+        val mReceiver: BroadcastReceiver = object : BroadcastReceiver() {
+            @SuppressLint("NotifyDataSetChanged")
+            override fun onReceive(context: Context?, intent: Intent) {
+                if (intent.action == Intent.ACTION_PACKAGE_FULLY_REMOVED) {
+                    packages = packageManager.queryIntentActivities(mainIntent, 0)
+                    packages.removeIf { item -> SamSprung.prefs.getStringSet(
+                        SamSprung.prefHidden, HashSet())!!.contains(item.activityInfo.packageName
+                    ) }
+                    Collections.sort(packages, ResolveInfo.DisplayNameComparator(packageManager))
+                    (launcherView.adapter as AppDrawerAdapater).setPackages(packages)
+                    (launcherView.adapter as AppDrawerAdapater).notifyDataSetChanged()
+                }
+                if (intent.action == Intent.ACTION_PACKAGE_ADDED) {
+                    if (!intent.getBooleanExtra(Intent.EXTRA_REPLACING, false)) {
+                        packages = packageManager.queryIntentActivities(mainIntent, 0)
+                        packages.removeIf { item -> SamSprung.prefs.getStringSet(
+                            SamSprung.prefHidden, HashSet())!!.contains(item.activityInfo.packageName
+                        ) }
+                        (launcherView.adapter as AppDrawerAdapater).setPackages(packages)
+                        (launcherView.adapter as AppDrawerAdapater).notifyDataSetChanged()
+                    }
+                }
+            }
+        }
+
+        IntentFilter().apply {
+            addAction(Intent.ACTION_PACKAGE_ADDED)
+            addAction(Intent.ACTION_PACKAGE_REMOVED)
+            addDataScheme("package")
+        }.also {
+            registerReceiver(mReceiver, it)
+        }
 
         val simpleItemTouchCallback: ItemTouchHelper.SimpleCallback = object :
             ItemTouchHelper.SimpleCallback(0,
@@ -386,7 +421,8 @@ class SamSprungDrawer : AppCompatActivity(),
             }
         }
         val notices: ArrayList<SamSprungNotice> = ArrayList<SamSprungNotice>(groups.values)
-        noticesView.adapter = NotificationAdapter(notices, this@SamSprungDrawer)
+        (noticesView.adapter as NotificationAdapter).setNotices(notices)
+        (noticesView.adapter as NotificationAdapter).notifyDataSetChanged()
     }
 
     override fun onAppClicked(appInfo: ResolveInfo, position: Int) {
@@ -459,5 +495,10 @@ class SamSprungDrawer : AppCompatActivity(),
 
     private fun getColumnCount(): Int {
         return (windowManager.currentWindowMetrics.bounds.width() / 96 + 0.5).toInt()
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        unregisterReceiver(mReceiver)
     }
 }
