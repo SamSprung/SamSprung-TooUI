@@ -75,9 +75,10 @@ import android.text.TextUtils
 import android.text.style.ImageSpan
 import android.view.Menu
 import android.view.MenuItem
-import android.view.View
 import android.view.accessibility.AccessibilityManager
-import android.widget.*
+import android.widget.ListView
+import android.widget.Toast
+import android.widget.ToggleButton
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
@@ -104,6 +105,9 @@ import kotlin.collections.HashSet
 class CoverSettingsActivity : AppCompatActivity() {
 
     private lateinit var switch: SwitchCompat
+    private lateinit var accessibility: SwitchCompat
+    private lateinit var notifications: SwitchCompat
+    private lateinit var settings: SwitchCompat
 
     @RequiresApi(Build.VERSION_CODES.S)
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -144,12 +148,42 @@ class CoverSettingsActivity : AppCompatActivity() {
         }
 
         val isGridView = SamSprung.prefs.getBoolean(SamSprung.prefLayout, true)
-
         findViewById<ToggleButton>(R.id.swapViewType).isChecked = isGridView
         findViewById<ToggleButton>(R.id.swapViewType).setOnCheckedChangeListener { _, isChecked ->
             with (SamSprung.prefs.edit()) {
                 putBoolean(SamSprung.prefLayout, isChecked)
                 apply()
+            }
+        }
+
+        val accessibility = findViewById<SwitchCompat>(R.id.accessibility_switch)
+        accessibility.isChecked = hasAccessibility()
+        accessibility.setOnClickListener {
+            if (accessibility.isChecked) {
+                accessibilityLauncher.launch(Intent(
+                    Settings.ACTION_ACCESSIBILITY_SETTINGS,
+                ))
+            }
+        }
+
+        val notifications = findViewById<SwitchCompat>(R.id.notifications_switch)
+        notifications.isChecked = hasNotificationListener()
+        notifications.setOnClickListener {
+            if (notifications.isChecked) {
+                notificationLauncher.launch(Intent(
+                    Settings.ACTION_NOTIFICATION_LISTENER_SETTINGS
+                ))
+            }
+        }
+
+        val settings = findViewById<SwitchCompat>(R.id.settings_switch)
+        settings.isChecked = Settings.System.canWrite(applicationContext)
+        settings.setOnClickListener {
+            if (settings.isChecked) {
+                settingsLauncher.launch(Intent(
+                    Settings.ACTION_MANAGE_WRITE_SETTINGS,
+                    Uri.parse("package:$packageName")
+                ))
             }
         }
 
@@ -167,6 +201,7 @@ class CoverSettingsActivity : AppCompatActivity() {
         val listView: ListView = findViewById(R.id.selectionListView)
         listView.adapter = FilteredAppsAdapter(this, packages, unlisted)
 
+        requestPermissions.launch(permissions)
         startForegroundService(Intent(this, OnBroadcastService::class.java))
     }
 
@@ -197,117 +232,42 @@ class CoverSettingsActivity : AppCompatActivity() {
         }
     }
 
-    private val noticeLauncher = registerForActivityResult(
+    private val notificationLauncher = registerForActivityResult(
         ActivityResultContracts.StartActivityForResult()) {
-        requestPermissions.launch(permissions)
+        notifications.isChecked = hasNotificationListener()
     }
 
     private val settingsLauncher = registerForActivityResult(
         ActivityResultContracts.StartActivityForResult()) {
-        if (!hasNotificationListener()) {
-            noticeLauncher.launch(Intent(
-                Settings.ACTION_NOTIFICATION_LISTENER_SETTINGS
-            ))
-        }
+        settings.isChecked = Settings.System.canWrite(applicationContext)
     }
 
     private val accessibilityLauncher = registerForActivityResult(
         ActivityResultContracts.StartActivityForResult()) {
-        if (hasAccessibility()) {
-            switch.isChecked = true
-            startForegroundService(Intent(this, OnBroadcastService::class.java))
-        }
-        if (!Settings.System.canWrite(applicationContext)) {
-            settingsLauncher.launch(Intent(
-                Settings.ACTION_MANAGE_WRITE_SETTINGS,
-                Uri.parse("package:$packageName")
-            ))
-        } else if (!hasNotificationListener()) {
-            noticeLauncher.launch(Intent(
-                Settings.ACTION_NOTIFICATION_LISTENER_SETTINGS
-            ))
-        }
+            accessibility.isChecked = hasAccessibility()
     }
 
     private val overlayLauncher = registerForActivityResult(
         ActivityResultContracts.StartActivityForResult()) {
-        if (hasAccessibility()) {
-            if (Settings.canDrawOverlays(applicationContext)) {
-                switch.isChecked = true
-                startForegroundService(Intent(this, OnBroadcastService::class.java))
-            }
-            if (!Settings.System.canWrite(applicationContext)) {
-                settingsLauncher.launch(Intent(
-                    Settings.ACTION_MANAGE_WRITE_SETTINGS,
-                    Uri.parse("package:$packageName")
-                ))
-            } else if (!hasNotificationListener()) {
-                noticeLauncher.launch(Intent(
-                    Settings.ACTION_NOTIFICATION_LISTENER_SETTINGS
-                ))
-            }
-        } else {
-            switch.isChecked = false
-            accessibilityLauncher.launch(Intent(
-                Settings.ACTION_ACCESSIBILITY_SETTINGS,
-            ))
-        }
-    }
-
-    private fun checkPermissions() {
         if (Settings.canDrawOverlays(applicationContext)) {
-            if (hasAccessibility()) {
-                switch.isChecked = true
-                startForegroundService(Intent(this, OnBroadcastService::class.java))
-                if (Settings.System.canWrite(applicationContext)) {
-                    if (hasNotificationListener()) {
-                        requestPermissions.launch(permissions)
-                    } else {
-                        noticeLauncher.launch(Intent(
-                            Settings.ACTION_NOTIFICATION_LISTENER_SETTINGS
-                        ))
-                    }
-                } else {
-                    settingsLauncher.launch(Intent(
-                        Settings.ACTION_MANAGE_WRITE_SETTINGS,
-                        Uri.parse("package:$packageName")
-                    ))
-                }
-            } else {
-                switch.isChecked = false
-                accessibilityLauncher.launch(Intent(
-                    Settings.ACTION_ACCESSIBILITY_SETTINGS
-                ))
-            }
-        } else {
-            switch.isChecked = false
-            overlayLauncher.launch(Intent(
-                Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
-                Uri.parse("package:$packageName")
-            ))
+            switch.isChecked = true
+            startForegroundService(Intent(this, OnBroadcastService::class.java))
         }
     }
 
-    private val requestLogcatLauncher = registerForActivityResult(
+    private val requestLogcatCapture = registerForActivityResult(
         ActivityResultContracts.RequestPermission()) { isGranted: Boolean ->
-            if (isGranted) {
-                findViewById<ScrollView>(R.id.logWrapper).visibility = View.VISIBLE
-                findViewById<TextView>(R.id.printLogcat).text = captureLogcat()
-                printLogcat()
-            }
+        if (isGranted) captureLogcat()
     }
-
 
     override fun onOptionsItemSelected(item: MenuItem) = when (item.itemId) {
         R.id.logcat -> {
             if (ContextCompat.checkSelfPermission(this,
                     Manifest.permission.READ_EXTERNAL_STORAGE)
                 != PackageManager.PERMISSION_GRANTED) {
-                requestLogcatLauncher.launch(Manifest.permission.READ_EXTERNAL_STORAGE)
+                requestLogcatCapture.launch(Manifest.permission.READ_EXTERNAL_STORAGE)
             } else {
-                findViewById<ScrollView>(R.id.logWrapper).visibility = View.VISIBLE
-                findViewById<TextView>(R.id.printLogcat).text = captureLogcat()
-                printLogcat()
+                captureLogcat()
             }
             true
         }
@@ -343,8 +303,21 @@ class CoverSettingsActivity : AppCompatActivity() {
         actionSwitch.setActionView(R.layout.configure_switch)
         switch = menu.findItem(R.id.switch_action_bar).actionView
             .findViewById(R.id.switch2) as SwitchCompat
-        switch.isChecked = Settings.canDrawOverlays(applicationContext) && hasAccessibility()
-        switch.setOnClickListener { if (switch.isChecked) checkPermissions() }
+        switch.isChecked = Settings.canDrawOverlays(applicationContext)
+        switch.setOnClickListener {
+            if (switch.isChecked) {
+                if (Settings.canDrawOverlays(applicationContext)) {
+                    switch.isChecked = true
+                    startForegroundService(Intent(this, OnBroadcastService::class.java))
+                } else {
+                    switch.isChecked = false
+                    overlayLauncher.launch(Intent(
+                        Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
+                        Uri.parse("package:$packageName")
+                    ))
+                }
+            }
+        }
         return true
     }
 
@@ -378,7 +351,7 @@ class CoverSettingsActivity : AppCompatActivity() {
         return false
     }
 
-    private fun captureLogcat(): String {
+    private fun captureLogcat() {
         val log = StringBuilder()
         val separator = System.getProperty("line.separator")
         try {
@@ -401,11 +374,6 @@ class CoverSettingsActivity : AppCompatActivity() {
         } catch (e: Exception) {
             e.printStackTrace()
         }
-        return log.toString()
-    }
-
-    private fun printLogcat() {
-        val logcat = findViewById<TextView>(R.id.printLogcat).text.toString()
         val contentValues = ContentValues().apply {
             put(MediaStore.MediaColumns.DISPLAY_NAME, "samsprung_logcat")
             put(MediaStore.MediaColumns.MIME_TYPE, "text/plain")
@@ -414,7 +382,7 @@ class CoverSettingsActivity : AppCompatActivity() {
         contentResolver.insert(
             MediaStore.Downloads.EXTERNAL_CONTENT_URI, contentValues)?.let {
             contentResolver.openOutputStream(it).use { fos ->
-                fos?.write(logcat.toByteArray())
+                fos?.write(log.toString().toByteArray())
             }
         }
     }

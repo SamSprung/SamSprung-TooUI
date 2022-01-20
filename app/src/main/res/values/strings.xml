@@ -5,6 +5,10 @@
     <string name="swap_viewgrid">Display as ListView Widget Style</string>
     <string name="swap_viewlist">Display as GridView Widget Style</string>
 
+    <string name="permission_accessibility">Accessibility</string>
+    <string name="permission_notifications">Notifications</string>
+    <string name="permission_settings">Write Settings</string>
+
     <string name="overlay_service">%1$s Overlay Service</string>
     <string name="display_service">%1$s Display Service</string>
     <string name="update_service">%1$s Update Service</string>

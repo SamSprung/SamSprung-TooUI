@@ -18,6 +18,99 @@
         android:textOff="@string/swap_viewgrid"
         android:textOn="@string/swap_viewlist" />
 
+    <LinearLayout
+        android:id="@+id/accessibility"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="8dp"
+        android:layout_gravity="center_vertical"
+        tools:ignore="UseCompoundDrawables">
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:textSize="28sp"
+            android:textColor="@color/WHITE"
+            android:gravity="center_vertical"
+            android:layout_height="wrap_content"
+            android:text="@string/permission_accessibility" />
+
+        <androidx.appcompat.widget.SwitchCompat
+            android:id="@+id/accessibility_switch"
+            android:layout_width="0dp"
+            android:gravity="center"
+            android:layout_weight="1"
+            android:textSize="28sp"
+            android:textColor="@color/WHITE"
+            android:layout_gravity="center_vertical"
+            android:layout_height="wrap_content" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/notifications"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="8dp"
+        android:layout_gravity="center_vertical"
+        tools:ignore="UseCompoundDrawables">
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:textSize="28sp"
+            android:textColor="@color/WHITE"
+            android:gravity="center_vertical"
+            android:layout_height="wrap_content"
+            android:text="@string/permission_notifications" />
+
+        <androidx.appcompat.widget.SwitchCompat
+            android:id="@+id/notifications_switch"
+            android:layout_width="0dp"
+            android:gravity="center"
+            android:layout_weight="1"
+            android:textSize="28sp"
+            android:textColor="@color/WHITE"
+            android:layout_gravity="center_vertical"
+            android:layout_height="wrap_content" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/settings"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="8dp"
+        android:layout_gravity="center_vertical"
+        tools:ignore="UseCompoundDrawables">
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:textSize="28sp"
+            android:textColor="@color/WHITE"
+            android:gravity="center_vertical"
+            android:layout_height="wrap_content"
+            android:text="@string/permission_settings" />
+
+        <androidx.appcompat.widget.SwitchCompat
+            android:id="@+id/settings_switch"
+            android:layout_width="0dp"
+            android:gravity="center"
+            android:layout_weight="1"
+            android:textSize="28sp"
+            android:textColor="@color/WHITE"
+            android:layout_gravity="center_vertical"
+            android:layout_height="wrap_content" />
+
+    </LinearLayout>
+
     <Space
         android:layout_width="match_parent"
         android:layout_height="16dp" />
@@ -25,31 +118,11 @@
     <ListView
         android:id="@+id/selectionListView"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="0dp"
         android:layout_weight="1"
         android:dividerHeight="1dp"
         android:divider="@color/WHITE"
         tools:listitem="@layout/app_hidden_item" />
-
-    <Space
-        android:layout_width="match_parent"
-        android:layout_height="8dp" />
-
-    <ScrollView
-        android:id="@+id/logWrapper"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_weight="1"
-        android:fillViewport="true"
-        android:scrollbars="vertical"
-        android:visibility="gone" >
-
-        <TextView
-            android:id="@+id/printLogcat"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
-
-    </ScrollView>
 
     <Space
         android:layout_width="match_parent"
