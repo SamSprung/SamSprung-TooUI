@@ -86,6 +86,7 @@ import androidx.appcompat.widget.SwitchCompat
 import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
 import androidx.documentfile.provider.DocumentFile
+import com.heinrichreimersoftware.androidissuereporter.IssueReporterLauncher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -260,20 +261,9 @@ class CoverSettingsActivity : AppCompatActivity() {
         }
     }
 
-    private val requestLogcatCapture = registerForActivityResult(
-        ActivityResultContracts.RequestPermission()) { isGranted: Boolean ->
-        if (isGranted) captureLogcat()
-    }
-
     override fun onOptionsItemSelected(item: MenuItem) = when (item.itemId) {
         R.id.logcat -> {
-            if (ContextCompat.checkSelfPermission(this,
-                    Manifest.permission.READ_EXTERNAL_STORAGE)
-                != PackageManager.PERMISSION_GRANTED) {
-                requestLogcatCapture.launch(Manifest.permission.READ_EXTERNAL_STORAGE)
-            } else {
-                captureLogcat()
-            }
+            captureLogcat()
             true
         }
         R.id.donate -> {
@@ -367,10 +357,8 @@ class CoverSettingsActivity : AppCompatActivity() {
                 "-t", "512"
             ))
             val reader = BufferedReader(InputStreamReader(mLogcatProc.inputStream))
-            log.append(separator)
-            log.append("SamSprung Widget Logs")
-            log.append(separator)
-            log.append(separator)
+            log.append(getString(R.string.app_name)).append(" " + BuildConfig.COMMIT)
+            log.append(separator).append(separator)
             while (reader.readLine().also { line = it } != null) {
                 log.append(line)
                 log.append(separator)
@@ -379,17 +367,13 @@ class CoverSettingsActivity : AppCompatActivity() {
         } catch (e: Exception) {
             e.printStackTrace()
         }
-        val contentValues = ContentValues().apply {
-            put(MediaStore.MediaColumns.DISPLAY_NAME, "samsprung_logcat")
-            put(MediaStore.MediaColumns.MIME_TYPE, "text/plain")
-            put(MediaStore.MediaColumns.RELATIVE_PATH, Environment.DIRECTORY_DOWNLOADS)
-        }
-        contentResolver.insert(
-            MediaStore.Downloads.EXTERNAL_CONTENT_URI, contentValues)?.let {
-            contentResolver.openOutputStream(it).use { fos ->
-                fos?.write(log.toString().toByteArray())
-            }
-        }
+        IssueReporterLauncher.forTarget("SamSprung", "SamSprung-Launcher")
+            .theme(R.style.Theme_SecondScreen_NoActionBar)
+            .guestToken("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")
+            .guestEmailRequired(true)
+            .minDescriptionLength(0)
+            .putExtraInfo("logcat", log.toString())
+            .homeAsUpEnabled(false).launch(this)
     }
 
     @Suppress("BlockingMethodInNonBlockingContext")
@@ -437,8 +421,8 @@ class CoverSettingsActivity : AppCompatActivity() {
     }
 
     private fun retrieveUpdate() {
-        RequestLatestCommit(getString(R.string.git_url)).setResultListener(
-            object : RequestLatestCommit.ResultListener {
+        RequestGitHubAPI(getString(R.string.latest_url)).setResultListener(
+            object : RequestGitHubAPI.ResultListener {
             override fun onResults(result: String) {
                 try {
                     val jsonObject = JSONTokener(result).nextValue() as JSONObject

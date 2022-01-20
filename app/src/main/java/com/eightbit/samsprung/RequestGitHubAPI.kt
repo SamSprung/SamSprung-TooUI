@@ -8,7 +8,7 @@ import java.net.URL
 import java.nio.charset.StandardCharsets
 import java.util.concurrent.Executors
 
-class RequestLatestCommit(url: String) {
+class RequestGitHubAPI(url: String) {
     private lateinit var listener: ResultListener
 
     init {
