@@ -64,12 +64,12 @@ import android.hardware.camera2.CameraManager
 import android.media.AudioManager
 import android.net.wifi.WifiManager
 import android.nfc.NfcManager
-import android.os.Build
-import android.os.Bundle
+import android.os.*
 import android.provider.Settings
 import android.service.notification.NotificationListenerService.requestRebind
 import android.view.MenuItem
 import android.view.View
+import android.widget.TextView
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
@@ -91,7 +91,9 @@ class SamSprungDrawer : AppCompatActivity(),
     AppDrawerAdapater.OnAppClickListener,
     NotificationAdapter.OnNoticeClickListener {
 
-    private val mReceiver: BroadcastReceiver = OffBroadcastReceiver()
+    private lateinit var bReceiver: BroadcastReceiver
+    private lateinit var pReceiver: BroadcastReceiver
+    private var mReceiver: BroadcastReceiver? = null
 
     @SuppressLint("InflateParams", "CutPasteId", "ClickableViewAccessibility")
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -123,6 +125,19 @@ class SamSprungDrawer : AppCompatActivity(),
                 .setBlurAlgorithm(RenderScriptBlur(this))
         }
 
+        val batteryLevel = findViewById<TextView>(R.id.battery_status)
+        val bReceiver: BroadcastReceiver = object : BroadcastReceiver() {
+            @SuppressLint("NotifyDataSetChanged")
+            override fun onReceive(context: Context?, intent: Intent) {
+                if (intent.action == Intent.ACTION_BATTERY_CHANGED) {
+                    Handler(Looper.getMainLooper()).post {
+                        batteryLevel.text = String.format("%d%%",
+                            intent.getIntExtra(BatteryManager.EXTRA_LEVEL, 100))
+                    }
+                }
+            }
+        }
+
         val toolbar = findViewById<Toolbar>(R.id.toolbar)
         toolbar.inflateMenu(R.menu.quick_toggles)
         val noticesView = findViewById<RecyclerView>(R.id.notificationList)
@@ -145,6 +160,12 @@ class SamSprungDrawer : AppCompatActivity(),
                 toolbar.menu.findItem(R.id.toggle_nfc).setIcon(R.drawable.ic_baseline_nfc_24)
             else
                 toolbar.menu.findItem(R.id.toggle_nfc).setIcon(R.drawable.ic_baseline_nfc_disabled_24)
+        }
+
+        IntentFilter().apply {
+            addAction(Intent.ACTION_BATTERY_CHANGED)
+        }.also {
+            registerReceiver(bReceiver, it)
         }
 
         val bottomSheetBehavior: BottomSheetBehavior<View> =
@@ -313,7 +334,7 @@ class SamSprungDrawer : AppCompatActivity(),
             launcherView.layoutManager = LinearLayoutManager(this)
         launcherView.adapter = AppDrawerAdapater(packages, this, packageManager)
 
-        val mReceiver: BroadcastReceiver = object : BroadcastReceiver() {
+        val pReceiver: BroadcastReceiver = object : BroadcastReceiver() {
             @SuppressLint("NotifyDataSetChanged")
             override fun onReceive(context: Context?, intent: Intent) {
                 if (intent.action == Intent.ACTION_PACKAGE_FULLY_REMOVED) {
@@ -343,7 +364,7 @@ class SamSprungDrawer : AppCompatActivity(),
             addAction(Intent.ACTION_PACKAGE_REMOVED)
             addDataScheme("package")
         }.also {
-            registerReceiver(mReceiver, it)
+            registerReceiver(pReceiver, it)
         }
 
         val simpleItemTouchCallback: ItemTouchHelper.SimpleCallback = object :
@@ -465,9 +486,10 @@ class SamSprungDrawer : AppCompatActivity(),
             startActivity(Intent(applicationContext, AppLauncherActivity::class.java).putExtras(extras))
         } else {
             IntentFilter(Intent.ACTION_SCREEN_OFF).also {
-                applicationContext.registerReceiver(OffBroadcastReceiver(
+                mReceiver = OffBroadcastReceiver(
                     ComponentName(appInfo.activityInfo.packageName, appInfo.activityInfo.name)
-                ), it)
+                )
+                applicationContext.registerReceiver(mReceiver, it)
             }
             val coverIntent = Intent(Intent.ACTION_MAIN)
             coverIntent.addCategory(Intent.CATEGORY_LAUNCHER)
@@ -503,6 +525,11 @@ class SamSprungDrawer : AppCompatActivity(),
 
     override fun onDestroy() {
         super.onDestroy()
-        unregisterReceiver(mReceiver)
+        unregisterReceiver(bReceiver)
+        unregisterReceiver(pReceiver)
+        try {
+            if (null != mReceiver)
+                unregisterReceiver(mReceiver)
+        } catch (ignored: Exception) { }
     }
 }
