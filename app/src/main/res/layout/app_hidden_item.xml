@@ -19,7 +19,6 @@
         <TextView
             android:id="@+id/hiddenItemText"
             android:layout_width="0dp"
-            android:gravity="center"
             android:layout_weight="1"
             android:textSize="24sp"
             android:textColor="@color/WHITE"

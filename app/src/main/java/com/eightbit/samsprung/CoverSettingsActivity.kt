@@ -166,7 +166,7 @@ class CoverSettingsActivity : AppCompatActivity() {
 
         val listView: ListView = findViewById(R.id.selectionListView)
         listView.adapter = FilteredAppsAdapter(this, packages, unlisted)
-        
+
         startForegroundService(Intent(this, OnBroadcastService::class.java))
     }
 
