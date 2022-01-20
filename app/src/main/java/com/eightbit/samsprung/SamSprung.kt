@@ -102,7 +102,5 @@ class SamSprung : Application() {
         const val prefHidden: String = "prefHidden"
         const val autoRotate: String = "autoRotate"
         const val useAppLauncherActivity: Boolean = false
-        lateinit var floatView: SoftReference<View>
-        val launcher: View? get() = if (this::floatView.isInitialized) floatView.get() else null
     }
 }
