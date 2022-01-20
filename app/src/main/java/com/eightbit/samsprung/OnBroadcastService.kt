@@ -1,19 +1,16 @@
 package com.eightbit.samsprung
 
-import android.accessibilityservice.AccessibilityServiceInfo
 import android.annotation.SuppressLint
 import android.app.*
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
-import android.content.pm.ServiceInfo
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.os.Build
 import android.os.IBinder
 import android.provider.Settings
-import android.view.accessibility.AccessibilityManager
 import androidx.core.app.NotificationCompat
 import androidx.core.content.ContextCompat
 
@@ -39,11 +36,11 @@ class OnBroadcastService : Service() {
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         super.onStartCommand(intent, flags, startId)
 
+        showForegroundNotification(startId)
+
         if (!Settings.canDrawOverlays(applicationContext)
             || SamSprung.removing == intent?.action)
             return dismissOverlayService()
-
-        showForegroundNotification(startId)
 
         val onScreenFilter = IntentFilter(Intent.ACTION_SCREEN_ON)
         onScreenFilter.priority = 999

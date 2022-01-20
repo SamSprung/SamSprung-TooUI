@@ -525,8 +525,10 @@ class SamSprungDrawer : AppCompatActivity(),
 
     override fun onDestroy() {
         super.onDestroy()
-        unregisterReceiver(bReceiver)
-        unregisterReceiver(pReceiver)
+        if (this::bReceiver.isInitialized)
+            unregisterReceiver(bReceiver)
+        if (this::pReceiver.isInitialized)
+            unregisterReceiver(pReceiver)
         try {
             if (null != mReceiver)
                 unregisterReceiver(mReceiver)
