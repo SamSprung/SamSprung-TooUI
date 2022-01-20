@@ -325,12 +325,14 @@ class SamSprungDrawer : AppCompatActivity(),
 
         val mainIntent = Intent(Intent.ACTION_MAIN, null)
         mainIntent.addCategory(Intent.CATEGORY_LAUNCHER)
-        mainIntent.removeCategory(Intent.CATEGORY_HOME)
 
-        var packages: MutableList<ResolveInfo> = packageManager.queryIntentActivities(mainIntent, 0)
-        packages.removeIf { item -> SamSprung.prefs.getStringSet(
-            SamSprung.prefHidden, HashSet())!!.contains(item.activityInfo.packageName
-        ) }
+        var packages: MutableList<ResolveInfo> = packageManager.queryIntentActivities(
+            mainIntent, PackageManager.GET_RESOLVED_FILTER)
+        packages.removeIf { item ->
+            (null != item.filter && item.filter.hasCategory(Intent.CATEGORY_HOME))
+                || SamSprung.prefs.getStringSet(SamSprung.prefHidden,
+                HashSet())!!.contains(item.activityInfo.packageName)
+        }
         Collections.sort(packages, ResolveInfo.DisplayNameComparator(packageManager))
 
         if (SamSprung.prefs.getBoolean(SamSprung.prefLayout, true))
@@ -343,20 +345,25 @@ class SamSprungDrawer : AppCompatActivity(),
             @SuppressLint("NotifyDataSetChanged")
             override fun onReceive(context: Context?, intent: Intent) {
                 if (intent.action == Intent.ACTION_PACKAGE_FULLY_REMOVED) {
-                    packages = packageManager.queryIntentActivities(mainIntent, 0)
-                    packages.removeIf { item -> SamSprung.prefs.getStringSet(
-                        SamSprung.prefHidden, HashSet())!!.contains(item.activityInfo.packageName
-                    ) }
+                    packages = packageManager.queryIntentActivities(
+                        mainIntent, PackageManager.GET_RESOLVED_FILTER)
+                    packages.removeIf { item ->
+                        (null != item.filter && item.filter.hasCategory(Intent.CATEGORY_HOME))
+                            || SamSprung.prefs.getStringSet(SamSprung.prefHidden,
+                        HashSet())!!.contains(item.activityInfo.packageName) }
                     Collections.sort(packages, ResolveInfo.DisplayNameComparator(packageManager))
                     (launcherView.adapter as AppDrawerAdapater).setPackages(packages)
                     (launcherView.adapter as AppDrawerAdapater).notifyDataSetChanged()
                 }
                 if (intent.action == Intent.ACTION_PACKAGE_ADDED) {
                     if (!intent.getBooleanExtra(Intent.EXTRA_REPLACING, false)) {
-                        packages = packageManager.queryIntentActivities(mainIntent, 0)
-                        packages.removeIf { item -> SamSprung.prefs.getStringSet(
-                            SamSprung.prefHidden, HashSet())!!.contains(item.activityInfo.packageName
-                        ) }
+                        packages = packageManager.queryIntentActivities(
+                            mainIntent, PackageManager.GET_RESOLVED_FILTER)
+                        packages.removeIf { item ->
+                            (null != item.filter && item.filter.hasCategory(Intent.CATEGORY_HOME))
+                                    || SamSprung.prefs.getStringSet(SamSprung.prefHidden,
+                                HashSet())!!.contains(item.activityInfo.packageName)
+                        }
                         (launcherView.adapter as AppDrawerAdapater).setPackages(packages)
                         (launcherView.adapter as AppDrawerAdapater).notifyDataSetChanged()
                     }
