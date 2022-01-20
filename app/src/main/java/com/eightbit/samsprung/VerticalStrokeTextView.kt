@@ -5,7 +5,7 @@ import android.graphics.Canvas
 import android.util.AttributeSet
 import android.view.Gravity
 
-class VerticalTextView(
+class VerticalStrokeTextView(
     context: Context?,
     attrs: AttributeSet?
 ) : androidx.appcompat.widget.AppCompatTextView(context!!, attrs) {

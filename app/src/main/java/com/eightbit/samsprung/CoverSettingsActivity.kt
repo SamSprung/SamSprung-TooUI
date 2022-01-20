@@ -108,7 +108,7 @@ class CoverSettingsActivity : AppCompatActivity() {
     @RequiresApi(Build.VERSION_CODES.S)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.step_widget_edit)
+        setContentView(R.layout.app_editor_layout)
 
         val files: Array<File>? = filesDir.listFiles { _, name ->
             name.lowercase(Locale.getDefault()).endsWith(".apk") }
@@ -340,7 +340,7 @@ class CoverSettingsActivity : AppCompatActivity() {
         else
             menu.findItem(R.id.donate).isVisible = false
         val actionSwitch: MenuItem = menu.findItem(R.id.switch_action_bar)
-        actionSwitch.setActionView(R.layout.permission_switch)
+        actionSwitch.setActionView(R.layout.configure_switch)
         switch = menu.findItem(R.id.switch_action_bar).actionView
             .findViewById(R.id.switch2) as SwitchCompat
         switch.isChecked = Settings.canDrawOverlays(applicationContext) && hasAccessibility()

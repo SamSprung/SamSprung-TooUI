@@ -103,7 +103,7 @@ class DisplayListenerService : Service() {
 
         val displayContext: Context = buildDisplayContext(displayManager.getDisplay(1))
         floatView = SoftReference(LayoutInflater.from(displayContext)
-            .inflate(R.layout.navigation_view, null))
+            .inflate(R.layout.navigation_layout, null))
         val params = WindowManager.LayoutParams(
             WindowManager.LayoutParams.WRAP_CONTENT,
             WindowManager.LayoutParams.WRAP_CONTENT,
@@ -112,7 +112,7 @@ class DisplayListenerService : Service() {
             PixelFormat.TRANSLUCENT
         )
         params.gravity = Gravity.START
-        launcher!!.findViewById<VerticalTextView>(R.id.navigationText).setOnClickListener {
+        launcher!!.findViewById<VerticalStrokeTextView>(R.id.navigationText).setOnClickListener {
             (displayContext.getSystemService(WINDOW_SERVICE)
                     as WindowManager).removeView(launcher)
             startActivity(Intent(this, SamSprungDrawer::class.java)

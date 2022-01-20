@@ -4,7 +4,7 @@
     <item
         android:id="@+id/switch_action_bar"
         android:title="@string/app_name"
-        app:actionLayout="@layout/permission_switch"
+        app:actionLayout="@layout/configure_switch"
         app:showAsAction="always" />
     <item
         android:id="@+id/logcat"
