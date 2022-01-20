@@ -6,17 +6,12 @@
     android:orientation="vertical"
     tools:context=".CoverSettingsActivity">
 
-    <Space
+    <View
         android:layout_width="match_parent"
-        android:layout_height="8dp" />
-
-    <ToggleButton
-        android:id="@+id/swapViewType"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:minHeight="@dimen/button_height_min"
-        android:textOff="@string/swap_viewgrid"
-        android:textOn="@string/swap_viewlist" />
+        android:layout_height="1dp"
+        android:background="@android:color/background_light"
+        android:layout_marginTop="4dp"
+        android:layout_marginBottom="8dp"/>
 
     <LinearLayout
         android:id="@+id/accessibility"
@@ -111,9 +106,14 @@
 
     </LinearLayout>
 
-    <Space
+    <ToggleButton
+        android:id="@+id/swapViewType"
         android:layout_width="match_parent"
-        android:layout_height="16dp" />
+        android:layout_height="wrap_content"
+        android:minHeight="@dimen/button_height_min"
+        android:textOff="@string/swap_viewgrid"
+        android:textOn="@string/swap_viewlist"
+        android:layout_marginBottom="8dp"/>
 
     <ListView
         android:id="@+id/selectionListView"
@@ -122,10 +122,7 @@
         android:layout_weight="1"
         android:dividerHeight="1dp"
         android:divider="@color/WHITE"
-        tools:listitem="@layout/app_hidden_item" />
-
-    <Space
-        android:layout_width="match_parent"
-        android:layout_height="16dp" />
+        tools:listitem="@layout/app_hidden_item"
+        android:layout_marginBottom="16dp"/>
 
 </LinearLayout>
