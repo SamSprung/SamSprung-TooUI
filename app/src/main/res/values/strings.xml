@@ -16,7 +16,7 @@
 
     <string name="loading_text">Loading&#8230;</string>
 
-    <string name="capture_logcat">Post Issue (Logcat)</string>
+    <string name="capture_logcat">Report Issue (Logcat)</string>
     <string name="donation_link">Sponsor Development</string>
 
     <string name="notification_drawer">Notifications</string>

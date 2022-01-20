@@ -19,8 +19,7 @@ import java.io.File
 import java.io.FileOutputStream
 import java.net.URL
 
-class CheckUpdatesTask(context: Context) {
-    private var context: Context = context
+class CheckUpdatesTask(private var context: Context) {
 
     @Suppress("BlockingMethodInNonBlockingContext")
     private suspend fun installUpdate(apkUri: Uri) = withContext(Dispatchers.IO) {

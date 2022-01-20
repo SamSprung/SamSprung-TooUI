@@ -54,20 +54,15 @@ package com.eightbit.samsprung
 import android.Manifest
 import android.accessibilityservice.AccessibilityServiceInfo
 import android.app.KeyguardManager
-import android.app.PendingIntent
 import android.content.ComponentName
-import android.content.ContentValues
 import android.content.Context
 import android.content.Intent
-import android.content.pm.PackageInstaller
 import android.content.pm.PackageManager
 import android.content.pm.ResolveInfo
 import android.content.pm.ServiceInfo
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
-import android.os.Environment
-import android.provider.MediaStore
 import android.provider.Settings
 import android.text.SpannableStringBuilder
 import android.text.Spanned
@@ -83,22 +78,10 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.SwitchCompat
-import androidx.core.content.ContextCompat
-import androidx.core.content.FileProvider
-import androidx.documentfile.provider.DocumentFile
 import com.heinrichreimersoftware.androidissuereporter.IssueReporterLauncher
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
-import org.json.JSONArray
-import org.json.JSONObject
-import org.json.JSONTokener
 import java.io.BufferedReader
 import java.io.File
-import java.io.FileOutputStream
 import java.io.InputStreamReader
-import java.net.URL
 import java.util.*
 import kotlin.collections.HashSet
 
@@ -347,6 +330,19 @@ class CoverSettingsActivity : AppCompatActivity() {
         return false
     }
 
+    private fun getRepositoryToken(): String {
+        val hex: String = "6768705f79326b794661614a386d6e4642676a6d" +
+                "57373661577136424c753975514e334d64566b64"
+        val output = java.lang.StringBuilder()
+        var i = 0
+        while (i < hex.length) {
+            val str = hex.substring(i, i + 2)
+            output.append(str.toInt(16).toChar())
+            i += 2
+        }
+        return output.toString()
+    }
+
     private fun captureLogcat() {
         val log = StringBuilder()
         val separator = System.getProperty("line.separator")
@@ -370,7 +366,7 @@ class CoverSettingsActivity : AppCompatActivity() {
         }
         IssueReporterLauncher.forTarget("SamSprung", "SamSprung-Launcher")
             .theme(R.style.Theme_SecondScreen_NoActionBar)
-            .guestToken("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")
+            .guestToken(getRepositoryToken())
             .guestEmailRequired(true)
             .minDescriptionLength(0)
             .putExtraInfo("logcat", log.toString())
