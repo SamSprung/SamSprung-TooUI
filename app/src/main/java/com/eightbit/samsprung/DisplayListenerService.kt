@@ -123,9 +123,6 @@ class DisplayListenerService : Service() {
             override fun onDisplayAdded(display: Int) {}
             override fun onDisplayChanged(display: Int) {
                 if (display == 0) {
-                    if (launcher!!.isShown)
-                        (displayContext.getSystemService(WINDOW_SERVICE)
-                                as WindowManager).removeView(launcher)
                     dismissDisplayListener(displayManager, mKeyguardLock)
                     if (SamSprung.useAppLauncherActivity) {
                         val displayIntent = Intent(Intent.ACTION_MAIN)
@@ -138,8 +135,7 @@ class DisplayListenerService : Service() {
                         displayIntent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION)
                         startActivity(displayIntent, options.toBundle())
 
-                        // Only ghosts can pass through here
-                        exitProcess(0)
+                        exitProcess(0) // Only ghosts can pass through here
                     }
                 } else {
                     if (SamSprung.isKeyguardLocked)
@@ -217,7 +213,6 @@ class DisplayListenerService : Service() {
         val notificationText = getString(R.string.display_service, getString(R.string.app_name))
         builder.setContentTitle(notificationText).setTicker(notificationText)
             .setSmallIcon(R.drawable.ic_launcher_foreground)
-            .setPriority(NotificationCompat.PRIORITY_LOW)
             .setWhen(0).setOnlyAlertOnce(true)
             .setContentIntent(pendingIntent).setOngoing(true)
         if (null != iconNotification) {
@@ -233,8 +228,18 @@ class DisplayListenerService : Service() {
         @Suppress("DEPRECATION")
         mKeyguardLock: KeyguardManager.KeyguardLock
     ) {
+        val displayContext: Context = buildDisplayContext(displayManager.getDisplay(1))
+        if (null != launcher && launcher!!.isAttachedToWindow)
+            (displayContext.getSystemService(WINDOW_SERVICE)
+                    as WindowManager).removeView(launcher)
         if (null != mDisplayListener) {
             displayManager.unregisterDisplayListener(mDisplayListener)
+        }
+        if (SamSprung.prefs.getBoolean(SamSprung.autoRotate, true)) {
+            Settings.System.putInt(
+                applicationContext.contentResolver,
+                Settings.System.ACCELEROMETER_ROTATION, 1
+            )
         }
         if (SamSprung.isKeyguardLocked)
             @Suppress("DEPRECATION") mKeyguardLock.reenableKeyguard()
@@ -249,16 +254,7 @@ class DisplayListenerService : Service() {
         @Suppress("DEPRECATION")
         mKeyguardLock: KeyguardManager.KeyguardLock
     ): Int {
-        val displayContext: Context = buildDisplayContext(displayManager.getDisplay(1))
-        if (null != launcher && launcher!!.isAttachedToWindow)
-            (displayContext.getSystemService(WINDOW_SERVICE)
-                    as WindowManager).removeView(launcher)
-        if (SamSprung.prefs.getBoolean(SamSprung.autoRotate, true)) {
-            Settings.System.putInt(
-                applicationContext.contentResolver,
-                Settings.System.ACCELEROMETER_ROTATION, 1
-            )
-        }
+
         dismissDisplayListener(displayManager, mKeyguardLock)
         return START_NOT_STICKY
     }
