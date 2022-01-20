@@ -55,6 +55,7 @@ import android.app.Application
 import android.app.Notification
 import android.content.Intent
 import android.content.SharedPreferences
+import android.view.View
 import java.lang.ref.SoftReference
 import kotlin.system.exitProcess
 
@@ -101,5 +102,7 @@ class SamSprung : Application() {
         const val prefHidden: String = "prefHidden"
         const val autoRotate: String = "autoRotate"
         const val useAppLauncherActivity: Boolean = false
+        lateinit var floatView: SoftReference<View>
+        val launcher: View? get() = if (this::floatView.isInitialized) floatView.get() else null
     }
 }

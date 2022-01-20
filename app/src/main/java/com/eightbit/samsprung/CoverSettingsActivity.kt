@@ -234,16 +234,19 @@ class CoverSettingsActivity : AppCompatActivity() {
 
     private val notificationLauncher = registerForActivityResult(
         ActivityResultContracts.StartActivityForResult()) {
-        notifications.isChecked = hasNotificationListener()
+        if (this::notifications.isInitialized)
+            notifications.isChecked = hasNotificationListener()
     }
 
     private val settingsLauncher = registerForActivityResult(
         ActivityResultContracts.StartActivityForResult()) {
-        settings.isChecked = Settings.System.canWrite(applicationContext)
+        if (this::settings.isInitialized)
+            settings.isChecked = Settings.System.canWrite(applicationContext)
     }
 
     private val accessibilityLauncher = registerForActivityResult(
         ActivityResultContracts.StartActivityForResult()) {
+        if (this::accessibility.isInitialized)
             accessibility.isChecked = hasAccessibility()
     }
 
