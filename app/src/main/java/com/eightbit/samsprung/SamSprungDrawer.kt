@@ -52,6 +52,7 @@ package com.eightbit.samsprung
  */
 
 import android.Manifest
+import android.accessibilityservice.AccessibilityServiceInfo
 import android.annotation.SuppressLint
 import android.app.*
 import android.bluetooth.BluetoothManager
@@ -59,6 +60,7 @@ import android.content.*
 import android.content.pm.ApplicationInfo
 import android.content.pm.PackageManager
 import android.content.pm.ResolveInfo
+import android.content.pm.ServiceInfo
 import android.graphics.Canvas
 import android.hardware.camera2.CameraManager
 import android.media.AudioManager
@@ -67,8 +69,10 @@ import android.nfc.NfcManager
 import android.os.*
 import android.provider.Settings
 import android.service.notification.NotificationListenerService.requestRebind
+import android.text.TextUtils
 import android.view.MenuItem
 import android.view.View
+import android.view.accessibility.AccessibilityManager
 import android.widget.TextView
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
@@ -174,7 +178,8 @@ class SamSprungDrawer : AppCompatActivity(),
         bottomSheetBehavior.addBottomSheetCallback(object : BottomSheetCallback() {
             override fun onStateChanged(bottomSheet: View, newState: Int) {
                 if (newState == BottomSheetBehavior.STATE_EXPANDED) {
-                    refreshNotifications(noticesView)
+                    if (hasAccessibility() || hasNotificationListener())
+                        refreshNotifications(noticesView)
 
                     val bluetoothAdapter = (getSystemService(Context.BLUETOOTH_SERVICE)
                             as BluetoothManager).adapter
@@ -517,6 +522,32 @@ class SamSprungDrawer : AppCompatActivity(),
     override fun onNoticeClicked(notice: SamSprungNotice, position: Int) {
         startIntentSender(notice.getIntentSender(),
             null, 0, 0, 0)
+    }
+
+    private fun hasAccessibility(): Boolean {
+        val enabledServices = (getSystemService(ACCESSIBILITY_SERVICE) as AccessibilityManager)
+            .getEnabledAccessibilityServiceList(AccessibilityServiceInfo.FEEDBACK_VISUAL)
+        for (enabledService in enabledServices) {
+            val enabledServiceInfo: ServiceInfo = enabledService.resolveInfo.serviceInfo
+            if (enabledServiceInfo.packageName.equals(BuildConfig.APPLICATION_ID)
+                && enabledServiceInfo.name.equals(AccessibilityHandler::class.java.name)
+            ) return true
+        }
+        return false
+    }
+
+    private fun hasNotificationListener(): Boolean {
+        val flat = Settings.Secure.getString(
+            contentResolver, "enabled_notification_listeners"
+        )
+        if (!TextUtils.isEmpty(flat)) {
+            val names = flat.split(":").toTypedArray()
+            for (i in names.indices) {
+                val cn = ComponentName.unflattenFromString(names[i])
+                if (null != cn && TextUtils.equals(packageName, cn.packageName)) return true
+            }
+        }
+        return false
     }
 
     private fun getColumnCount(): Int {
