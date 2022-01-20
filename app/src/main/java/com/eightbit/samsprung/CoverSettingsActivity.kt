@@ -124,14 +124,15 @@ class CoverSettingsActivity : AppCompatActivity() {
         }
 
         if (BuildConfig.FLAVOR != "google") {
+            val updates = CheckUpdatesTask(this)
             if (packageManager.canRequestPackageInstalls()) {
-                retrieveUpdate()
+                updates.retrieveUpdate()
             } else {
                 registerForActivityResult(
                     ActivityResultContracts.StartActivityForResult()
                 ) {
                     if (packageManager.canRequestPackageInstalls())
-                        retrieveUpdate()
+                        updates.retrieveUpdate()
                 }.launch(
                     Intent(Settings.ACTION_MANAGE_UNKNOWN_APP_SOURCES).setData(
                         Uri.parse(String.format("package:%s", packageName))
@@ -374,67 +375,5 @@ class CoverSettingsActivity : AppCompatActivity() {
             .minDescriptionLength(0)
             .putExtraInfo("logcat", log.toString())
             .homeAsUpEnabled(false).launch(this)
-    }
-
-    @Suppress("BlockingMethodInNonBlockingContext")
-    private suspend fun installUpdate(apkUri: Uri) = withContext(Dispatchers.IO) {
-        val installer = applicationContext.packageManager.packageInstaller
-        val resolver = applicationContext.contentResolver
-        resolver.openInputStream(apkUri)?.use { apkStream ->
-            val length = DocumentFile.fromSingleUri(applicationContext, apkUri)?.length() ?: -1
-            val params = PackageInstaller.SessionParams(
-                PackageInstaller.SessionParams.MODE_FULL_INSTALL)
-            val sessionId = installer.createSession(params)
-            val session = installer.openSession(sessionId)
-            session.openWrite("NAME", 0, length).use { sessionStream ->
-                apkStream.copyTo(sessionStream)
-                session.fsync(sessionStream)
-            }
-            val pi = PendingIntent.getBroadcast(
-                applicationContext, SamSprung.request_code, Intent(applicationContext,
-                    GitBroadcastReceiver::class.java).setAction(SamSprung.updating),
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S)
-                    PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_MUTABLE
-                else PendingIntent.FLAG_UPDATE_CURRENT
-            )
-            session.commit(pi.intentSender)
-            session.close()
-        }
-    }
-
-    private fun downloadUpdate(link: String) {
-        val download: String = link.substring(link.lastIndexOf('/') + 1)
-        val apk = File(filesDir, download)
-        CoroutineScope(Dispatchers.IO).launch(Dispatchers.IO) {
-            URL(link).openStream().use { input ->
-                FileOutputStream(apk).use { output ->
-                    input.copyTo(output)
-                    CoroutineScope(Dispatchers.Main).launch(Dispatchers.Main) {
-                        installUpdate(
-                            FileProvider.getUriForFile(
-                                applicationContext, SamSprung.provider, apk
-                        ))
-                    }
-                }
-            }
-        }
-    }
-
-    private fun retrieveUpdate() {
-        RequestGitHubAPI(getString(R.string.latest_url)).setResultListener(
-            object : RequestGitHubAPI.ResultListener {
-            override fun onResults(result: String) {
-                try {
-                    val jsonObject = JSONTokener(result).nextValue() as JSONObject
-                    val lastCommit = (jsonObject["name"] as String).substring(10)
-                    if (BuildConfig.COMMIT != lastCommit) {
-                        val assets = (jsonObject["assets"] as JSONArray)[0] as JSONObject
-                        downloadUpdate(assets["browser_download_url"] as String)
-                    }
-                } catch (e: Exception) {
-                    e.printStackTrace()
-                }
-            }
-        })
     }
 }

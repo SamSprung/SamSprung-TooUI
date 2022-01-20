@@ -64,6 +64,7 @@ import android.content.pm.ServiceInfo
 import android.graphics.Canvas
 import android.hardware.camera2.CameraManager
 import android.media.AudioManager
+import android.net.Uri
 import android.net.wifi.WifiManager
 import android.nfc.NfcManager
 import android.os.*
@@ -88,6 +89,7 @@ import com.eightbitlab.blurview.BlurView
 import com.eightbitlab.blurview.RenderScriptBlur
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetBehavior.BottomSheetCallback
+import java.io.File
 import java.util.*
 
 
@@ -238,6 +240,18 @@ class SamSprungDrawer : AppCompatActivity(),
                         toolbar.menu.findItem(R.id.toggle_dnd).isVisible = false
                     }
 
+                    if (Settings.System.canWrite(applicationContext)) {
+                        if (Settings.System.getInt(applicationContext.contentResolver,
+                                Settings.System.ACCELEROMETER_ROTATION).bool)
+                            toolbar.menu.findItem(R.id.toggle_rotation)
+                                .setIcon(R.drawable.ic_baseline_screen_rotation_24)
+                        else
+                            toolbar.menu.findItem(R.id.toggle_rotation)
+                                .setIcon(R.drawable.ic_baseline_screen_lock_rotation_24)
+                    } else {
+                        toolbar.menu.findItem(R.id.toggle_rotation).isVisible = false
+                    }
+
                     if (packageManager.hasSystemFeature(PackageManager.FEATURE_CAMERA_FLASH)) {
                         camManager.setTorchMode(camManager.cameraIdList[0], isTorchEnabled)
                     } else {
@@ -296,6 +310,12 @@ class SamSprungDrawer : AppCompatActivity(),
                                         .setIcon(R.drawable.ic_baseline_do_not_disturb_off_24)
                                 }
                                 return@setOnMenuItemClickListener true
+                            }
+                            R.id.toggle_rotation -> {
+                                Settings.System.putInt(applicationContext.contentResolver,
+                                    Settings.System.ACCELEROMETER_ROTATION,
+                                    (!Settings.System.getInt(applicationContext.contentResolver,
+                                        Settings.System.ACCELEROMETER_ROTATION).bool).int)
                             }
                             R.id.toggle_torch -> {
                                 if (isTorchEnabled) {
@@ -410,6 +430,32 @@ class SamSprungDrawer : AppCompatActivity(),
             }
         }
         ItemTouchHelper(simpleItemTouchCallback).attachToRecyclerView(launcherView)
+
+        val files: Array<File>? = filesDir.listFiles { _, name ->
+            name.lowercase(Locale.getDefault()).endsWith(".apk") }
+        if (null != files) {
+            for (file in files) {
+                if (!file.isDirectory) file.delete()
+            }
+        }
+
+        if (BuildConfig.FLAVOR != "google") {
+            val updates = CheckUpdatesTask(this)
+            if (packageManager.canRequestPackageInstalls()) {
+                updates.retrieveUpdate()
+            } else {
+                registerForActivityResult(
+                    ActivityResultContracts.StartActivityForResult()
+                ) {
+                    if (packageManager.canRequestPackageInstalls())
+                        updates.retrieveUpdate()
+                }.launch(
+                    Intent(Settings.ACTION_MANAGE_UNKNOWN_APP_SOURCES).setData(
+                        Uri.parse(String.format("package:%s", packageName))
+                    )
+                )
+            }
+        }
     }
 
     @SuppressLint("NotifyDataSetChanged")
@@ -560,6 +606,10 @@ class SamSprungDrawer : AppCompatActivity(),
     private fun getColumnCount(): Int {
         return (windowManager.currentWindowMetrics.bounds.width() / 96 + 0.5).toInt()
     }
+
+    private val Boolean.int get() = if (this) 1 else 0
+    private val Int.bool:Boolean get() = this != 0
+
 
     override fun onDestroy() {
         super.onDestroy()

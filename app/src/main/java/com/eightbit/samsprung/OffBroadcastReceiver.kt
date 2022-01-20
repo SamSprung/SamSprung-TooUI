@@ -58,13 +58,8 @@ import android.content.Context
 import android.content.Intent
 
 
-class OffBroadcastReceiver : BroadcastReceiver {
-    private var componentName : ComponentName? = null
-
-    constructor()
-    constructor(componentName: ComponentName) {
-        this.componentName = componentName
-    }
+class OffBroadcastReceiver(componentName: ComponentName) : BroadcastReceiver() {
+    private var componentName : ComponentName? = componentName
 
     override fun onReceive(context: Context, intent: Intent) {
         if (Intent.ACTION_SCREEN_OFF == intent.action) {

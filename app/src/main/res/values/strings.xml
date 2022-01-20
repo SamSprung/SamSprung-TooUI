@@ -26,5 +26,6 @@
     <string name="toggle_gps">Toggle GPS</string>
     <string name="toggle_sound">Toggle Sound</string>
     <string name="toggle_dnd">Toggle DnD</string>
+    <string name="toggle_rotation">Toggle Rotation</string>
     <string name="toggle_torch">Toggle Torch</string>
 </resources>
