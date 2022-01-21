@@ -84,7 +84,7 @@ class DisplayListenerService : Service() {
         return null
     }
 
-    @SuppressLint("InflateParams")
+    @SuppressLint("InflateParams", "ClickableViewAccessibility")
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         super.onStartCommand(intent, flags, startId)
 
@@ -112,13 +112,23 @@ class DisplayListenerService : Service() {
             PixelFormat.TRANSLUCENT
         )
         params.gravity = Gravity.START
-        launcher!!.findViewById<VerticalStrokeTextView>(
-            R.id.navigationText).setOnClickListener {
+        launcher!!.findViewById<VerticalStrokeTextView>(R.id.navigationText).setOnClickListener {
             dismissDisplayService(displayManager, mKeyguardLock)
             startActivity(Intent(this, SamSprungDrawer::class.java)
                 .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK),
                 ActivityOptions.makeBasic().setLaunchDisplayId(1).toBundle())
         }
+
+        launcher!!.findViewById<VerticalStrokeTextView>(R.id.navigationText)
+            .setOnTouchListener(object: OnSwipeTouchListener(displayContext) {
+            override fun onSwipeLeft() { }
+            override fun onSwipeRight() {
+                dismissDisplayService(displayManager, mKeyguardLock)
+                startActivity(Intent(displayContext, SamSprungDrawer::class.java)
+                    .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK),
+                    ActivityOptions.makeBasic().setLaunchDisplayId(1).toBundle())
+            }
+        })
 
         mDisplayListener = object : DisplayManager.DisplayListener {
             override fun onDisplayAdded(display: Int) {}

@@ -1,6 +1,5 @@
 package com.eightbit.samsprung
 
-import android.annotation.SuppressLint
 import android.content.Context
 import android.view.GestureDetector
 import android.view.GestureDetector.SimpleOnGestureListener
@@ -22,9 +21,14 @@ open class OnSwipeTouchListener(ctx: Context) : OnTouchListener {
         gestureDetector = GestureDetector(ctx, GestureListener())
     }
 
-    @SuppressLint("ClickableViewAccessibility")
     override fun onTouch(v: View, event: MotionEvent): Boolean {
-        return gestureDetector.onTouchEvent(event)
+        if (gestureDetector.onTouchEvent(event)) return true
+        when (event.action) {
+            MotionEvent.ACTION_DOWN -> { }
+            MotionEvent.ACTION_UP -> v.performClick()
+            else -> { }
+        }
+        return false
     }
 
     private inner class GestureListener : SimpleOnGestureListener() {
