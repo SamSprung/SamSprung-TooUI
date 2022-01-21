@@ -368,6 +368,8 @@ class CoverSettingsActivity : AppCompatActivity() {
             .theme(R.style.Theme_SecondScreen_NoActionBar)
             .guestToken(getRepositoryToken())
             .guestEmailRequired(true)
+            .titleTextDefault(getString(R.string.app_name)
+                    + " (" + BuildConfig.COMMIT + ")")
             .minDescriptionLength(0)
             .putExtraInfo("logcat", log.toString())
             .homeAsUpEnabled(false).launch(this)

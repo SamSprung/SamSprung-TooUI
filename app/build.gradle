@@ -89,5 +89,5 @@ dependencies {
     // Includes WindowInfoRepositoryCallbackAdapter
     api 'androidx.window:window:1.0.0-beta03'
     api 'androidx.window:window-java:1.0.0-beta03'
-    implementation 'com.github.SamSprung:android-issue-reporter:a71f499'
+    implementation 'com.github.SamSprung:android-issue-reporter:304542f'
 }
