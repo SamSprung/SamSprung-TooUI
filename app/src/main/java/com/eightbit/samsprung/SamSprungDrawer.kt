@@ -84,6 +84,7 @@ import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.eightbit.content.ScaledContext
 import com.eightbitlab.blurview.BlurView
 import com.eightbitlab.blurview.RenderScriptBlur
 import com.google.android.material.bottomsheet.BottomSheetBehavior
@@ -105,6 +106,7 @@ class SamSprungDrawer : AppCompatActivity(),
         // setTurnScreenOn(true)
 
         super.onCreate(savedInstanceState)
+        // ScaledContext.wrap(this).setTheme(R.style.Theme_SecondScreen)
         supportActionBar?.hide()
         setContentView(R.layout.apps_view_layout)
 

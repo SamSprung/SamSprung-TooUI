@@ -363,7 +363,7 @@ class CoverSettingsActivity : AppCompatActivity() {
         IssueReporterLauncher.forTarget("SamSprung", "SamSprung-Launcher")
             .theme(R.style.Theme_SecondScreen_NoActionBar)
             .guestToken(getRepositoryToken())
-            .guestEmailRequired(true)
+            .guestEmailRequired(false)
             .titleTextDefault(getString(R.string.build_hash, BuildConfig.COMMIT))
             .minDescriptionLength(0)
             .putExtraInfo("logcat", log.toString())
