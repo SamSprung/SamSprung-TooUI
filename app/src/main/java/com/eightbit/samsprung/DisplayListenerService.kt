@@ -53,20 +53,21 @@ package com.eightbit.samsprung
 
 import android.annotation.SuppressLint
 import android.app.*
-import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.PixelFormat
 import android.hardware.display.DisplayManager
-import android.os.*
+import android.os.Build
+import android.os.Handler
+import android.os.IBinder
+import android.os.Looper
 import android.provider.Settings
 import android.view.*
 import androidx.core.app.NotificationCompat
 import androidx.core.content.ContextCompat
 import java.lang.ref.SoftReference
-import kotlin.system.exitProcess
 
 
 class DisplayListenerService : Service() {
@@ -230,5 +231,4 @@ class DisplayListenerService : Service() {
     }
 
     private val Boolean.int get() = if (this) 1 else 0
-    private val Int.bool:Boolean get() = this != 0
 }

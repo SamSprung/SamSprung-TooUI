@@ -500,6 +500,15 @@ class SamSprungDrawer : AppCompatActivity(),
             apply()
         }
 
+        if (Settings.System.canWrite(applicationContext)) {
+            try {
+                Settings.System.putInt(
+                    applicationContext.contentResolver,
+                    Settings.System.ACCELEROMETER_ROTATION, 1
+                )
+            } catch (ignored: Settings.SettingNotFoundException) { }
+        }
+
         val mKeyguardManager = (getSystemService(Context.KEYGUARD_SERVICE) as KeyguardManager)
         @Suppress("DEPRECATION")
         SamSprung.isKeyguardLocked = mKeyguardManager.inKeyguardRestrictedInputMode()
