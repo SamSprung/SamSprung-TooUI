@@ -330,8 +330,8 @@ class CoverSettingsActivity : AppCompatActivity() {
     }
 
     private fun getRepositoryToken(): String {
-        val hex: String = "6768705f79326b794661614a386d6e4642676a6d" +
-                "57373661577136424c753975514e334d64566b64"
+        val hex: String = "206768705f356d783059467a48456f4e314d64697" +
+                "24d486d62454545756a4476746f7a33785558544a"
         val output = java.lang.StringBuilder()
         var i = 0
         while (i < hex.length) {
@@ -345,7 +345,7 @@ class CoverSettingsActivity : AppCompatActivity() {
     private fun captureLogcat() {
         val log = StringBuilder()
         val separator = System.getProperty("line.separator")
-        log.append(getString(R.string.app_name)).append(" " + BuildConfig.COMMIT);
+        log.append(getString(R.string.app_name)).append(" " + BuildConfig.COMMIT)
         try {
             var line: String?
             val mLogcatProc: Process = Runtime.getRuntime().exec(arrayOf(
