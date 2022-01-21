@@ -70,7 +70,6 @@ import android.text.TextUtils
 import android.text.style.ImageSpan
 import android.view.Menu
 import android.view.MenuItem
-import android.view.View
 import android.view.accessibility.AccessibilityManager
 import android.widget.ListView
 import android.widget.Toast
@@ -82,7 +81,6 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.SwitchCompat
 import com.heinrichreimersoftware.androidissuereporter.IssueReporterLauncher
 import java.io.BufferedReader
-import java.io.File
 import java.io.InputStreamReader
 import java.util.*
 import kotlin.collections.HashSet
@@ -151,28 +149,28 @@ class CoverSettingsActivity : AppCompatActivity() {
                         accessibility.isChecked = false
                         dialog.dismiss()
                     }.show()
+            } else {
+                accessibilityLauncher.launch(Intent(
+                    Settings.ACTION_ACCESSIBILITY_SETTINGS,
+                ))
             }
         }
 
         val notifications = findViewById<SwitchCompat>(R.id.notifications_switch)
         notifications.isChecked = hasNotificationListener()
         notifications.setOnClickListener {
-            if (notifications.isChecked) {
-                notificationLauncher.launch(Intent(
-                    Settings.ACTION_NOTIFICATION_LISTENER_SETTINGS
-                ))
-            }
+            notificationLauncher.launch(Intent(
+                Settings.ACTION_NOTIFICATION_LISTENER_SETTINGS
+            ))
         }
 
         val settings = findViewById<SwitchCompat>(R.id.settings_switch)
         settings.isChecked = Settings.System.canWrite(applicationContext)
         settings.setOnClickListener {
-            if (settings.isChecked) {
-                settingsLauncher.launch(Intent(
-                    Settings.ACTION_MANAGE_WRITE_SETTINGS,
-                    Uri.parse("package:$packageName")
-                ))
-            }
+            settingsLauncher.launch(Intent(
+                Settings.ACTION_MANAGE_WRITE_SETTINGS,
+                Uri.parse("package:$packageName")
+            ))
         }
 
         val mainIntent = Intent(Intent.ACTION_MAIN, null)
@@ -242,9 +240,10 @@ class CoverSettingsActivity : AppCompatActivity() {
 
     private val overlayLauncher = registerForActivityResult(
         ActivityResultContracts.StartActivityForResult()) {
-        if (Settings.canDrawOverlays(applicationContext)) {
-            switch.isChecked = true
-            startForegroundService(Intent(this, OnBroadcastService::class.java))
+        if (this::switch.isInitialized) {
+            switch.isChecked = Settings.canDrawOverlays(applicationContext)
+            if (switch.isChecked)
+                startForegroundService(Intent(this, OnBroadcastService::class.java))
         }
     }
 
@@ -287,18 +286,10 @@ class CoverSettingsActivity : AppCompatActivity() {
             .findViewById(R.id.switch2) as SwitchCompat
         switch.isChecked = Settings.canDrawOverlays(applicationContext)
         switch.setOnClickListener {
-            if (switch.isChecked) {
-                if (Settings.canDrawOverlays(applicationContext)) {
-                    switch.isChecked = true
-                    startForegroundService(Intent(this, OnBroadcastService::class.java))
-                } else {
-                    switch.isChecked = false
-                    overlayLauncher.launch(Intent(
-                        Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
-                        Uri.parse("package:$packageName")
-                    ))
-                }
-            }
+            overlayLauncher.launch(Intent(
+                Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
+                Uri.parse("package:$packageName")
+            ))
         }
         return true
     }
