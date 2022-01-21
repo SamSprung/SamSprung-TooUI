@@ -280,6 +280,8 @@ class CoverSettingsActivity : AppCompatActivity() {
             updateMenuWithIcon(menu.findItem(R.id.donate), -1)
         else
             menu.findItem(R.id.donate).isVisible = false
+        menu.findItem(R.id.version).title = (getString(R.string.version_number, BuildConfig.COMMIT))
+        updateMenuWithIcon(menu.findItem(R.id.version), -1)
         val actionSwitch: MenuItem = menu.findItem(R.id.switch_action_bar)
         actionSwitch.setActionView(R.layout.configure_switch)
         switch = menu.findItem(R.id.switch_action_bar).actionView

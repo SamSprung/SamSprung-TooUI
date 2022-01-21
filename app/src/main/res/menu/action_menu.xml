@@ -16,4 +16,9 @@
         android:title="@string/donation_link"
         android:icon="@mipmap/ic_paypal_donation"
         app:showAsAction="never" />
+    <item
+        android:id="@+id/version"
+        android:title="@string/version_number"
+        android:icon="@mipmap/ic_github_white_24dp"
+        app:showAsAction="never" />
 </menu>
