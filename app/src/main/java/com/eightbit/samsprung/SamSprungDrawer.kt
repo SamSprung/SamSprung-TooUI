@@ -573,8 +573,9 @@ class SamSprungDrawer : AppCompatActivity(),
     }
 
     override fun onNoticeClicked(notice: SamSprungNotice, position: Int) {
-        startIntentSender(notice.getIntentSender(),
-            null, 0, 0, 0)
+        if (null != notice.getIntentSender())
+            startIntentSender(notice.getIntentSender(),
+                null, 0, 0, 0)
     }
 
     private fun hasAccessibility(): Boolean {

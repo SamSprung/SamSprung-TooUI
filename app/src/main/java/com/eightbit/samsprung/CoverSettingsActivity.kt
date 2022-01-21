@@ -346,6 +346,7 @@ class CoverSettingsActivity : AppCompatActivity() {
     private fun captureLogcat() {
         val log = StringBuilder()
         val separator = System.getProperty("line.separator")
+        log.append(getString(R.string.app_name)).append(" " + BuildConfig.COMMIT);
         try {
             var line: String?
             val mLogcatProc: Process = Runtime.getRuntime().exec(arrayOf(
@@ -368,8 +369,7 @@ class CoverSettingsActivity : AppCompatActivity() {
             .theme(R.style.Theme_SecondScreen_NoActionBar)
             .guestToken(getRepositoryToken())
             .guestEmailRequired(true)
-            .titleTextDefault(getString(R.string.app_name)
-                    + " (" + BuildConfig.COMMIT + ")")
+            .titleTextDefault(getString(R.string.app_name) + " " + BuildConfig.COMMIT)
             .minDescriptionLength(0)
             .putExtraInfo("logcat", log.toString())
             .homeAsUpEnabled(false).launch(this)
