@@ -488,7 +488,8 @@ class SamSprungDrawer : AppCompatActivity(),
                 } else if (null != notification.tickerText) {
                     notice.setString(notification.tickerText.toString())
                 }
-                notice.setIntentSender(notification.contentIntent.intentSender)
+                if (null != notification.contentIntent)
+                    notice.setIntentSender(notification.contentIntent.intentSender)
                 if (null != notification.group) {
                     groups[notification.group] = notice
                 } else {

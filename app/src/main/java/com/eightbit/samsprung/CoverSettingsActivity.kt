@@ -70,12 +70,14 @@ import android.text.TextUtils
 import android.text.style.ImageSpan
 import android.view.Menu
 import android.view.MenuItem
+import android.view.View
 import android.view.accessibility.AccessibilityManager
 import android.widget.ListView
 import android.widget.Toast
 import android.widget.ToggleButton
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresApi
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.SwitchCompat
 import com.heinrichreimersoftware.androidissuereporter.IssueReporterLauncher
@@ -137,9 +139,18 @@ class CoverSettingsActivity : AppCompatActivity() {
         accessibility.isChecked = hasAccessibility()
         accessibility.setOnClickListener {
             if (accessibility.isChecked) {
-                accessibilityLauncher.launch(Intent(
-                    Settings.ACTION_ACCESSIBILITY_SETTINGS,
-                ))
+                AlertDialog.Builder(this)
+                    .setMessage(getString(R.string.aceessibility_details))
+                    .setPositiveButton(R.string.button_confirm) { dialog, _ ->
+                        accessibilityLauncher.launch(Intent(
+                            Settings.ACTION_ACCESSIBILITY_SETTINGS,
+                        ))
+                        dialog.dismiss()
+                    }
+                    .setNegativeButton(R.string.button_cancel) { dialog, _ ->
+                        accessibility.isChecked = false
+                        dialog.dismiss()
+                    }.show()
             }
         }
 

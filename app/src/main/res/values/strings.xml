@@ -9,6 +9,10 @@
     <string name="permission_notifications">Notifications</string>
     <string name="permission_settings">Write Settings</string>
 
+    <string name="aceessibility_details">Accessibility allows SamSprung to read and display incoming notifications on the cover screen. Clicking continue will open the Accessibility page of Settings. Click the Installed apps option and select SamSprung from the list to enable.</string>
+    <string name="button_confirm">Confirm</string>
+    <string name="button_cancel">Cancel</string>
+
     <string name="overlay_service">%1$s Overlay Service</string>
     <string name="display_service">%1$s Display Service</string>
     <string name="update_service">%1$s Update Service</string>
