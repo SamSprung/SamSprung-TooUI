@@ -124,44 +124,12 @@ class DisplayListenerService : Service() {
             override fun onDisplayChanged(display: Int) {
                 if (display == 0) {
                     dismissDisplayListener(displayManager, mKeyguardLock)
-                    if (SamSprung.useAppLauncherActivity) {
-                        val displayIntent = Intent(Intent.ACTION_MAIN)
-                        displayIntent.addCategory(Intent.CATEGORY_LAUNCHER)
-                        displayIntent.component = ComponentName(launchPackage, launchActivity)
-                        val options = ActivityOptions.makeBasic().setLaunchDisplayId(display)
-                        displayIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                        // displayIntent.addFlags(Intent.FLAG_ACTIVITY_MULTIPLE_TASK)
-                        displayIntent.addFlags(Intent.FLAG_ACTIVITY_FORWARD_RESULT)
-                        displayIntent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION)
-                        startActivity(displayIntent, options.toBundle())
-
-                        exitProcess(0) // Only ghosts can pass through here
-                    }
                 } else {
                     if (SamSprung.isKeyguardLocked)
                         @Suppress("DEPRECATION") mKeyguardLock.disableKeyguard()
                     if (!launcher!!.isShown)
                         (displayContext.getSystemService(WINDOW_SERVICE)
                                 as WindowManager).addView(launcher, params)
-                    if (SamSprung.useAppLauncherActivity) {
-                        val extras = Bundle()
-                        extras.putString("launchPackage", launchPackage)
-                        extras.putString("launchActivity", launchActivity)
-                        startActivity(Intent(applicationContext,
-                            AppLauncherActivity::class.java).addFlags(
-                            Intent.FLAG_ACTIVITY_NEW_TASK).putExtras(extras))
-                    }
-                }
-                if (!SamSprung.useAppLauncherActivity) {
-                    val displayIntent = Intent(Intent.ACTION_MAIN)
-                    displayIntent.addCategory(Intent.CATEGORY_LAUNCHER)
-                    displayIntent.component = ComponentName(launchPackage, launchActivity)
-                    val options = ActivityOptions.makeBasic().setLaunchDisplayId(display)
-                    displayIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                    // displayIntent.addFlags(Intent.FLAG_ACTIVITY_MULTIPLE_TASK)
-                    displayIntent.addFlags(Intent.FLAG_ACTIVITY_FORWARD_RESULT)
-                    displayIntent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION)
-                    startActivity(displayIntent, options.toBundle())
                 }
             }
 
@@ -235,12 +203,11 @@ class DisplayListenerService : Service() {
         if (null != mDisplayListener) {
             displayManager.unregisterDisplayListener(mDisplayListener)
         }
-        if (Settings.System.canWrite(applicationContext)
-            && SamSprung.prefs.getBoolean(SamSprung.autoRotate, false)) {
+        if (Settings.System.canWrite(applicationContext)) {
             try {
-                Settings.System.putInt(
-                    applicationContext.contentResolver,
-                    Settings.System.ACCELEROMETER_ROTATION, 1
+                Settings.System.putInt(applicationContext.contentResolver,
+                    Settings.System.ACCELEROMETER_ROTATION,
+                    SamSprung.prefs.getBoolean(SamSprung.autoRotate, true).int
                 )
             } catch (ignored: Settings.SettingNotFoundException) { }
         }
@@ -261,4 +228,7 @@ class DisplayListenerService : Service() {
         dismissDisplayListener(displayManager, mKeyguardLock)
         return START_NOT_STICKY
     }
+
+    private val Boolean.int get() = if (this) 1 else 0
+    private val Int.bool:Boolean get() = this != 0
 }

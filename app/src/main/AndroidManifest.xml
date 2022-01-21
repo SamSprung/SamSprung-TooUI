@@ -62,11 +62,6 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity
-            android:name=".AppLauncherActivity"
-            android:configChanges="density|orientation|screenLayout|screenSize|smallestScreenSize|uiMode"
-            android:resizeableActivity="true">
-        </activity>
         <receiver android:name=".OffBroadcastReceiver"
             android:exported="false"
             android:permission="intent.redirection.BULLSHIT"/>

@@ -432,24 +432,6 @@ class SamSprungDrawer : AppCompatActivity(),
             }
         }
         ItemTouchHelper(simpleItemTouchCallback).attachToRecyclerView(launcherView)
-
-//        if (BuildConfig.FLAVOR != "google") {
-//            val updates = CheckUpdatesTask(this)
-//            if (packageManager.canRequestPackageInstalls()) {
-//                updates.retrieveUpdate()
-//            } else {
-//                registerForActivityResult(
-//                    ActivityResultContracts.StartActivityForResult()
-//                ) {
-//                    if (packageManager.canRequestPackageInstalls())
-//                        updates.retrieveUpdate()
-//                }.launch(
-//                    Intent(Settings.ACTION_MANAGE_UNKNOWN_APP_SOURCES).setData(
-//                        Uri.parse(String.format("package:%s", packageName))
-//                    )
-//                )
-//            }
-//        }
     }
 
     @SuppressLint("NotifyDataSetChanged")
@@ -513,7 +495,7 @@ class SamSprungDrawer : AppCompatActivity(),
                     Settings.System.ACCELEROMETER_ROTATION) == 1
                 )
             } catch (e: Settings.SettingNotFoundException) {
-                putBoolean(SamSprung.autoRotate, false)
+                putBoolean(SamSprung.autoRotate, true)
             }
             apply()
         }
@@ -533,36 +515,32 @@ class SamSprungDrawer : AppCompatActivity(),
         extras.putString("launchActivity", appInfo.activityInfo.name)
         startForegroundService(serviceIntent.putExtras(extras))
 
-        if (SamSprung.useAppLauncherActivity) {
-            startActivity(Intent(applicationContext, AppLauncherActivity::class.java).putExtras(extras))
-        } else {
-            IntentFilter(Intent.ACTION_SCREEN_OFF).also {
-                mReceiver = OffBroadcastReceiver(
-                    ComponentName(appInfo.activityInfo.packageName, appInfo.activityInfo.name)
-                )
-                applicationContext.registerReceiver(mReceiver, it)
-            }
-            val coverIntent = Intent(Intent.ACTION_MAIN)
-            coverIntent.addCategory(Intent.CATEGORY_LAUNCHER)
-            coverIntent.component = ComponentName(appInfo.activityInfo.packageName, appInfo.activityInfo.name)
-            val options = ActivityOptions.makeBasic().setLaunchDisplayId(1)
-            try {
-                val applicationInfo: ApplicationInfo =
-                    packageManager.getApplicationInfo(
-                        appInfo.activityInfo.packageName, PackageManager.GET_META_DATA
-                    )
-                applicationInfo.metaData.putString(
-                    "com.samsung.android.activity.showWhenLocked", "true"
-                )
-            } catch (e: PackageManager.NameNotFoundException) {
-                e.printStackTrace()
-            }
-            coverIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-            // coverIntent.addFlags(Intent.FLAG_ACTIVITY_MULTIPLE_TASK)
-            coverIntent.addFlags(Intent.FLAG_ACTIVITY_FORWARD_RESULT)
-            coverIntent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION)
-            startActivity(coverIntent.putExtras(extras), options.toBundle())
+        IntentFilter(Intent.ACTION_SCREEN_OFF).also {
+            mReceiver = OffBroadcastReceiver(
+                ComponentName(appInfo.activityInfo.packageName, appInfo.activityInfo.name)
+            )
+            applicationContext.registerReceiver(mReceiver, it)
         }
+        val coverIntent = Intent(Intent.ACTION_MAIN)
+        coverIntent.addCategory(Intent.CATEGORY_LAUNCHER)
+        coverIntent.component = ComponentName(appInfo.activityInfo.packageName, appInfo.activityInfo.name)
+        val options = ActivityOptions.makeBasic().setLaunchDisplayId(1)
+        try {
+            val applicationInfo: ApplicationInfo =
+                packageManager.getApplicationInfo(
+                    appInfo.activityInfo.packageName, PackageManager.GET_META_DATA
+                )
+            applicationInfo.metaData.putString(
+                "com.samsung.android.activity.showWhenLocked", "true"
+            )
+        } catch (e: PackageManager.NameNotFoundException) {
+            e.printStackTrace()
+        }
+        coverIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        // coverIntent.addFlags(Intent.FLAG_ACTIVITY_MULTIPLE_TASK)
+        coverIntent.addFlags(Intent.FLAG_ACTIVITY_FORWARD_RESULT)
+        coverIntent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION)
+        startActivity(coverIntent.putExtras(extras), options.toBundle())
     }
 
     override fun onNoticeClicked(notice: SamSprungNotice, position: Int) {

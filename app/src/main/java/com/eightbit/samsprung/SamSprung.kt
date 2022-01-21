@@ -100,6 +100,5 @@ class SamSprung : Application() {
         const val prefLayout: String = "prefLayout"
         const val prefHidden: String = "prefHidden"
         const val autoRotate: String = "autoRotate"
-        const val useAppLauncherActivity: Boolean = false
     }
 }
