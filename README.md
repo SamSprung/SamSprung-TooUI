@@ -4,31 +4,25 @@
 
 #### Current limitations:
 
-- Does NOT work with OneUI 4 beta or any firmware with verification for Samsung Health.  
-
 - Running apps requires Screen lock type set to None / Swipe in Settings -> Lock screen
-    - Bixby unlock can be used as a workaround for other lock screen types  
-    
+    - Bixby unlock can be used as a workaround for other lock types  
+
 - Keyboards will not open on the cover screen and some app functionality is limited
     - Firmware limitation by Samsung - Secondary IME support is disabled  
-    
-- Switching apps requires tapping power and waiting for a few seconds to exit the app and widget.
-    - The app list, however, can be closed by swiping to another widget or the clock.  
-    
-- Samsung Health must be uninstalled to free up the package name for the whitelisted widgets.
-    - Firmware limitation by Samsung - Widget package name or signature  
 
-[Thanks to CarudiBu for discovering the exploit to load a custom widget](https://forum.xda-developers.com/t/app-subui-browser-browse-the-web-on-the-cover-screen.4325963/)
+- Switching apps requires tapping power and waiting for a few seconds to exit the app.
+    - The app list, however, can be closed by swiping to another widget or the clock.  
+
+#### How to Install
+
+- [Download apk from the latest release Assets](https://github.com/SamSprung/SamSprung/releases/tag/latest)
+- Open the apk with your favorite file manager
+- Follow the system prompts to install the apk
 
 #### How to Activate
 
-###### From Settings
-- Open Settings -> Cover screen -> Widgets
-- Enable SamSprung Launcher
-
-OR
-
-###### From Cover Screen
-- Turn on cover screen
-- Swipe to the +
-- Select SamSprung Launcher
+###### From Home Screen
+- Open SamSprung Launcher from the App Drawer
+- Click the switch in the top right to enable access
+- Make sure to return to the app from any prompts
+- Close device and tap the power button to enable
