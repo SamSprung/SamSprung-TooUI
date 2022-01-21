@@ -55,7 +55,6 @@ import android.app.Application
 import android.app.Notification
 import android.content.Intent
 import android.content.SharedPreferences
-import android.view.View
 import java.lang.ref.SoftReference
 import kotlin.system.exitProcess
 

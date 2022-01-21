@@ -119,11 +119,13 @@ class AppLauncherActivity : AppCompatActivity() {
         wIRCA.addWindowLayoutInfoListener(runOnUiThreadExecutor(), windowWasher)
 
         if (Settings.System.canWrite(applicationContext)
-            && SamSprung.prefs.getBoolean(SamSprung.autoRotate, true)) {
-            Settings.System.putInt(
-                applicationContext.contentResolver,
-                Settings.System.ACCELEROMETER_ROTATION, 0
-            )
+            && SamSprung.prefs.getBoolean(SamSprung.autoRotate, false)) {
+            try {
+                Settings.System.putInt(
+                    applicationContext.contentResolver,
+                    Settings.System.ACCELEROMETER_ROTATION, 0
+                )
+            } catch (ignored: Settings.SettingNotFoundException) { }
         }
         requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_BEHIND
 

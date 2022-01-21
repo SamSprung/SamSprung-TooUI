@@ -64,7 +64,6 @@ import android.content.pm.ServiceInfo
 import android.graphics.Canvas
 import android.hardware.camera2.CameraManager
 import android.media.AudioManager
-import android.net.Uri
 import android.net.wifi.WifiManager
 import android.nfc.NfcManager
 import android.os.*
@@ -89,7 +88,6 @@ import com.eightbitlab.blurview.BlurView
 import com.eightbitlab.blurview.RenderScriptBlur
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetBehavior.BottomSheetCallback
-import java.io.File
 import java.util.*
 
 
@@ -241,13 +239,17 @@ class SamSprungDrawer : AppCompatActivity(),
                     }
 
                     if (Settings.System.canWrite(applicationContext)) {
-                        if (Settings.System.getInt(applicationContext.contentResolver,
-                                Settings.System.ACCELEROMETER_ROTATION).bool)
-                            toolbar.menu.findItem(R.id.toggle_rotation)
-                                .setIcon(R.drawable.ic_baseline_screen_rotation_24)
-                        else
-                            toolbar.menu.findItem(R.id.toggle_rotation)
-                                .setIcon(R.drawable.ic_baseline_screen_lock_rotation_24)
+                        try {
+                            if (Settings.System.getInt(applicationContext.contentResolver,
+                                    Settings.System.ACCELEROMETER_ROTATION).bool)
+                                toolbar.menu.findItem(R.id.toggle_rotation)
+                                    .setIcon(R.drawable.ic_baseline_screen_rotation_24)
+                            else
+                                toolbar.menu.findItem(R.id.toggle_rotation)
+                                    .setIcon(R.drawable.ic_baseline_screen_lock_rotation_24)
+                        } catch (e: Settings.SettingNotFoundException) {
+                            toolbar.menu.findItem(R.id.toggle_rotation).isVisible = false
+                        }
                     } else {
                         toolbar.menu.findItem(R.id.toggle_rotation).isVisible = false
                     }
@@ -504,18 +506,16 @@ class SamSprungDrawer : AppCompatActivity(),
     }
 
     override fun onAppClicked(appInfo: ResolveInfo, position: Int) {
-        if (Settings.System.canWrite(applicationContext))  {
+        with (SamSprung.prefs.edit()) {
             try {
-                with (SamSprung.prefs.edit()) {
-                    putBoolean(SamSprung.autoRotate,  Settings.System.getInt(
-                        applicationContext.contentResolver,
-                        Settings.System.ACCELEROMETER_ROTATION
-                    ) == 1)
-                    apply()
-                }
+                putBoolean(SamSprung.autoRotate,  Settings.System.getInt(
+                    applicationContext.contentResolver,
+                    Settings.System.ACCELEROMETER_ROTATION) == 1
+                )
             } catch (e: Settings.SettingNotFoundException) {
-                e.printStackTrace()
+                putBoolean(SamSprung.autoRotate, false)
             }
+            apply()
         }
 
         val mKeyguardManager = (getSystemService(Context.KEYGUARD_SERVICE) as KeyguardManager)

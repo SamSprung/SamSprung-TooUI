@@ -235,11 +235,14 @@ class DisplayListenerService : Service() {
         if (null != mDisplayListener) {
             displayManager.unregisterDisplayListener(mDisplayListener)
         }
-        if (SamSprung.prefs.getBoolean(SamSprung.autoRotate, true)) {
-            Settings.System.putInt(
-                applicationContext.contentResolver,
-                Settings.System.ACCELEROMETER_ROTATION, 1
-            )
+        if (Settings.System.canWrite(applicationContext)
+            && SamSprung.prefs.getBoolean(SamSprung.autoRotate, false)) {
+            try {
+                Settings.System.putInt(
+                    applicationContext.contentResolver,
+                    Settings.System.ACCELEROMETER_ROTATION, 1
+                )
+            } catch (ignored: Settings.SettingNotFoundException) { }
         }
         if (SamSprung.isKeyguardLocked)
             @Suppress("DEPRECATION") mKeyguardLock.reenableKeyguard()
