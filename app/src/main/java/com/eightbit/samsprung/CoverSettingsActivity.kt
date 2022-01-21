@@ -344,7 +344,7 @@ class CoverSettingsActivity : AppCompatActivity() {
         try {
             var line: String?
             val mLogcatProc: Process = Runtime.getRuntime().exec(arrayOf(
-                "logcat", "-d",
+                "logcat", "AppIconSolution:S", "-d",
                 "com.samsung.android.app.shealth.tracker.pedometer.service.coverwidget",
                 "-t", "512"
             ))
