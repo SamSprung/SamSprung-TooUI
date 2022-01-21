@@ -22,7 +22,7 @@
 
     <string name="capture_logcat">Report Issue (Logcat)</string>
     <string name="donation_link">Sponsor Development</string>
-    <string name="version_number">SamSprung %1$s</string>
+    <string name="build_hash">SamSprung - %1$s</string>
 
     <string name="notification_drawer">Notifications</string>
     <string name="toggle_wifi">Toggle Wifi</string>

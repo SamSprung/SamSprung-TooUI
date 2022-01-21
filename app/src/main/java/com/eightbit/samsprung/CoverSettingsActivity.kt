@@ -280,7 +280,7 @@ class CoverSettingsActivity : AppCompatActivity() {
             updateMenuWithIcon(menu.findItem(R.id.donate), -1)
         else
             menu.findItem(R.id.donate).isVisible = false
-        menu.findItem(R.id.version).title = (getString(R.string.version_number, BuildConfig.COMMIT))
+        menu.findItem(R.id.version).title = (getString(R.string.build_hash, BuildConfig.COMMIT))
         updateMenuWithIcon(menu.findItem(R.id.version), -1)
         val actionSwitch: MenuItem = menu.findItem(R.id.switch_action_bar)
         actionSwitch.setActionView(R.layout.configure_switch)
@@ -342,7 +342,7 @@ class CoverSettingsActivity : AppCompatActivity() {
     private fun captureLogcat() {
         val log = StringBuilder()
         val separator = System.getProperty("line.separator")
-        log.append(getString(R.string.app_name)).append(" " + BuildConfig.COMMIT)
+        log.append(getString(R.string.build_hash, BuildConfig.COMMIT))
         try {
             var line: String?
             val mLogcatProc: Process = Runtime.getRuntime().exec(arrayOf(
@@ -351,7 +351,6 @@ class CoverSettingsActivity : AppCompatActivity() {
                 "-t", "512"
             ))
             val reader = BufferedReader(InputStreamReader(mLogcatProc.inputStream))
-            log.append(getString(R.string.app_name)).append(" " + BuildConfig.COMMIT)
             log.append(separator).append(separator)
             while (reader.readLine().also { line = it } != null) {
                 log.append(line)
@@ -365,7 +364,7 @@ class CoverSettingsActivity : AppCompatActivity() {
             .theme(R.style.Theme_SecondScreen_NoActionBar)
             .guestToken(getRepositoryToken())
             .guestEmailRequired(true)
-            .titleTextDefault(getString(R.string.app_name) + " " + BuildConfig.COMMIT)
+            .titleTextDefault(getString(R.string.build_hash, BuildConfig.COMMIT))
             .minDescriptionLength(0)
             .putExtraInfo("logcat", log.toString())
             .homeAsUpEnabled(false).launch(this)
