@@ -432,13 +432,6 @@ class SamSprungDrawer : AppCompatActivity(),
         ItemTouchHelper(simpleItemTouchCallback).attachToRecyclerView(launcherView)
 
 //        if (BuildConfig.FLAVOR != "google") {
-//            val files: Array<File>? = filesDir.listFiles { _, name ->
-//                name.lowercase(Locale.getDefault()).endsWith(".apk") }
-//            if (null != files) {
-//                for (file in files) {
-//                    if (!file.isDirectory) file.delete()
-//                }
-//            }
 //            val updates = CheckUpdatesTask(this)
 //            if (packageManager.canRequestPackageInstalls()) {
 //                updates.retrieveUpdate()

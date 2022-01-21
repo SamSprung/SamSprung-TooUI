@@ -67,23 +67,21 @@ class OffBroadcastReceiver : BroadcastReceiver {
     }
 
     override fun onReceive(context: Context, intent: Intent) {
-        if (Intent.ACTION_SCREEN_OFF == intent.action) {
-            if (null != componentName) {
-                context.startService(Intent(context, DisplayListenerService::class.java))
+        if (Intent.ACTION_SCREEN_OFF == intent.action && null != componentName) {
+            context.startService(Intent(context, DisplayListenerService::class.java))
 
-                val screenIntent = Intent(Intent.ACTION_MAIN)
-                screenIntent.addCategory(Intent.CATEGORY_LAUNCHER)
-                screenIntent.component = componentName
-                val options = ActivityOptions.makeBasic().setLaunchDisplayId(0)
-                screenIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                // screenIntent.addFlags(Intent.FLAG_ACTIVITY_MULTIPLE_TASK)
-                screenIntent.addFlags(Intent.FLAG_ACTIVITY_FORWARD_RESULT)
-                screenIntent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION)
-                context.startActivity(screenIntent, options.toBundle())
+            val screenIntent = Intent(Intent.ACTION_MAIN)
+            screenIntent.addCategory(Intent.CATEGORY_LAUNCHER)
+            screenIntent.component = componentName
+            val options = ActivityOptions.makeBasic().setLaunchDisplayId(0)
+            screenIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            // screenIntent.addFlags(Intent.FLAG_ACTIVITY_MULTIPLE_TASK)
+            screenIntent.addFlags(Intent.FLAG_ACTIVITY_FORWARD_RESULT)
+            screenIntent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION)
+            context.startActivity(screenIntent, options.toBundle())
 
-                componentName = null
-                context.applicationContext.unregisterReceiver(this)
-            }
+            componentName = null
+            context.applicationContext.unregisterReceiver(this)
         }
     }
 }

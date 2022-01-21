@@ -1,6 +1,7 @@
 package com.eightbit.samsprung
 
 import android.app.PendingIntent
+import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageInstaller
@@ -18,8 +19,19 @@ import org.json.JSONTokener
 import java.io.File
 import java.io.FileOutputStream
 import java.net.URL
+import java.util.*
 
 class CheckUpdatesTask(private var context: Context) {
+
+    init {
+        val files: Array<File>? = context.filesDir.listFiles { _, name ->
+            name.lowercase(Locale.getDefault()).endsWith(".apk") }
+        if (null != files) {
+            for (file in files) {
+                if (!file.isDirectory) file.delete()
+            }
+        }
+    }
 
     @Suppress("BlockingMethodInNonBlockingContext")
     private suspend fun installUpdate(apkUri: Uri) = withContext(Dispatchers.IO) {
