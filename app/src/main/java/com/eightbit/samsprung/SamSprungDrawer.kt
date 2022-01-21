@@ -431,31 +431,30 @@ class SamSprungDrawer : AppCompatActivity(),
         }
         ItemTouchHelper(simpleItemTouchCallback).attachToRecyclerView(launcherView)
 
-        val files: Array<File>? = filesDir.listFiles { _, name ->
-            name.lowercase(Locale.getDefault()).endsWith(".apk") }
-        if (null != files) {
-            for (file in files) {
-                if (!file.isDirectory) file.delete()
-            }
-        }
-
-        if (BuildConfig.FLAVOR != "google") {
-            val updates = CheckUpdatesTask(this)
-            if (packageManager.canRequestPackageInstalls()) {
-                updates.retrieveUpdate()
-            } else {
-                registerForActivityResult(
-                    ActivityResultContracts.StartActivityForResult()
-                ) {
-                    if (packageManager.canRequestPackageInstalls())
-                        updates.retrieveUpdate()
-                }.launch(
-                    Intent(Settings.ACTION_MANAGE_UNKNOWN_APP_SOURCES).setData(
-                        Uri.parse(String.format("package:%s", packageName))
-                    )
-                )
-            }
-        }
+//        if (BuildConfig.FLAVOR != "google") {
+//            val files: Array<File>? = filesDir.listFiles { _, name ->
+//                name.lowercase(Locale.getDefault()).endsWith(".apk") }
+//            if (null != files) {
+//                for (file in files) {
+//                    if (!file.isDirectory) file.delete()
+//                }
+//            }
+//            val updates = CheckUpdatesTask(this)
+//            if (packageManager.canRequestPackageInstalls()) {
+//                updates.retrieveUpdate()
+//            } else {
+//                registerForActivityResult(
+//                    ActivityResultContracts.StartActivityForResult()
+//                ) {
+//                    if (packageManager.canRequestPackageInstalls())
+//                        updates.retrieveUpdate()
+//                }.launch(
+//                    Intent(Settings.ACTION_MANAGE_UNKNOWN_APP_SOURCES).setData(
+//                        Uri.parse(String.format("package:%s", packageName))
+//                    )
+//                )
+//            }
+//        }
     }
 
     @SuppressLint("NotifyDataSetChanged")

@@ -98,15 +98,14 @@ class CoverSettingsActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.app_editor_layout)
 
-        val files: Array<File>? = filesDir.listFiles { _, name ->
-            name.lowercase(Locale.getDefault()).endsWith(".apk") }
-        if (null != files) {
-            for (file in files) {
-                if (!file.isDirectory) file.delete()
-            }
-        }
-
         if (BuildConfig.FLAVOR != "google") {
+            val files: Array<File>? = filesDir.listFiles { _, name ->
+                name.lowercase(Locale.getDefault()).endsWith(".apk") }
+            if (null != files) {
+                for (file in files) {
+                    if (!file.isDirectory) file.delete()
+                }
+            }
             val updates = CheckUpdatesTask(this)
             if (packageManager.canRequestPackageInstalls()) {
                 updates.retrieveUpdate()
