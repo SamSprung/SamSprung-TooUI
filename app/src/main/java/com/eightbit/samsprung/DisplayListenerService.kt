@@ -214,7 +214,6 @@ class DisplayListenerService : Service() {
             coverIntent.component = ComponentName(launchPackage, launchActivity)
             coverIntent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or
                     Intent.FLAG_ACTIVITY_CLEAR_TASK or
-                    Intent.FLAG_ACTIVITY_CLEAR_TOP or
                     Intent.FLAG_ACTIVITY_FORWARD_RESULT or
                     Intent.FLAG_ACTIVITY_NO_ANIMATION
             startActivity(coverIntent, options.toBundle())

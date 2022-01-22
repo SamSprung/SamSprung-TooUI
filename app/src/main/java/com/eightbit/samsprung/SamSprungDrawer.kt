@@ -67,6 +67,7 @@ import android.nfc.NfcManager
 import android.os.*
 import android.provider.Settings
 import android.service.notification.NotificationListenerService.requestRebind
+import android.service.notification.StatusBarNotification
 import android.text.TextUtils
 import android.view.MenuItem
 import android.view.View
@@ -143,8 +144,22 @@ class SamSprungDrawer : AppCompatActivity(),
         val toolbar = findViewById<Toolbar>(R.id.toolbar)
         toolbar.inflateMenu(R.menu.quick_toggles)
         val noticesView = findViewById<RecyclerView>(R.id.notificationList)
-        noticesView.layoutManager = LinearLayoutManager(this)
-        noticesView.adapter = NotificationAdapter(arrayListOf(), this@SamSprungDrawer)
+        if (hasNotificationListener() || hasAccessibility()) {
+            noticesView.layoutManager = LinearLayoutManager(this)
+            noticesView.adapter = NotificationAdapter(this, this@SamSprungDrawer)
+            if (hasNotificationListener()) {
+                NotificationListener.listenerInstance?.setNotificationsChangedListener(
+                    noticesView.adapter as NotificationAdapter
+                )
+            }
+            if (hasAccessibility()) {
+                AccessibilityHandler.accessibilityInstance?.setEventsChangedListener(
+                    noticesView.adapter as NotificationAdapter
+                )
+            }
+        } else {
+            noticesView.visibility = View.GONE
+        }
 
         val wifiManager = getSystemService(WIFI_SERVICE) as WifiManager
         val wifiEnabler = registerForActivityResult(
@@ -176,9 +191,6 @@ class SamSprungDrawer : AppCompatActivity(),
         bottomSheetBehavior.addBottomSheetCallback(object : BottomSheetCallback() {
             override fun onStateChanged(bottomSheet: View, newState: Int) {
                 if (newState == BottomSheetBehavior.STATE_EXPANDED) {
-                    if (hasAccessibility() || hasNotificationListener())
-                        refreshNotifications(noticesView)
-
                     val bluetoothAdapter = (getSystemService(Context.BLUETOOTH_SERVICE)
                             as BluetoothManager).adapter
                     val audioManager = getSystemService(AUDIO_SERVICE) as AudioManager
@@ -430,59 +442,6 @@ class SamSprungDrawer : AppCompatActivity(),
             }
         }
         ItemTouchHelper(simpleItemTouchCallback).attachToRecyclerView(launcherView)
-    }
-
-    @SuppressLint("NotifyDataSetChanged")
-    private fun refreshNotifications(noticesView: RecyclerView) {
-        val groups: HashMap<String, SamSprungNotice> = hashMapOf()
-        for (notification: Notification in SamSprung.notifications) {
-            if (groups.containsKey(notification.group)
-                && null != groups[notification.group]) {
-                val notice : SamSprungNotice = groups[notification.group]!!
-                if (null != notification.extras
-                    && null != notification.extras.getCharSequenceArray(
-                        NotificationCompat.EXTRA_TEXT_LINES)) {
-                    notice.setString(Arrays.toString(
-                        notification.extras.getCharSequenceArray(
-                            NotificationCompat.EXTRA_TEXT_LINES)
-                    ))
-                } else if (null != notification.tickerText) {
-                    notice.setString(notification.tickerText.toString())
-                }
-                groups.replace(notification.group, notice)
-            } else {
-                val notice = SamSprungNotice()
-                when {
-                    null != notification.getLargeIcon() -> notice.setDrawable(
-                        notification.getLargeIcon().loadDrawable(this@SamSprungDrawer)
-                    )
-                    null != notification.smallIcon -> notice.setDrawable(
-                        notification.smallIcon.loadDrawable(this@SamSprungDrawer)
-                    )
-                }
-                if (null != notification.extras
-                    && null != notification.extras.getCharSequenceArray(
-                        NotificationCompat.EXTRA_TEXT_LINES)) {
-                    notice.setString(Arrays.toString(
-                        notification.extras.getCharSequenceArray(
-                            NotificationCompat.EXTRA_TEXT_LINES)
-                    ))
-                } else if (null != notification.tickerText) {
-                    notice.setString(notification.tickerText.toString())
-                }
-                if (null != notification.contentIntent)
-                    notice.setIntentSender(notification.contentIntent.intentSender)
-                if (null != notification.group) {
-                    groups[notification.group] = notice
-                } else {
-                    groups[packageName] = notice
-                }
-
-            }
-        }
-        val notices: ArrayList<SamSprungNotice> = ArrayList<SamSprungNotice>(groups.values)
-        (noticesView.adapter as NotificationAdapter).setNotices(notices)
-        (noticesView.adapter as NotificationAdapter).notifyDataSetChanged()
     }
 
     private fun prepareLockOrientation() {

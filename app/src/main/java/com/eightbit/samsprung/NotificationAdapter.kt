@@ -51,18 +51,31 @@ package com.eightbit.samsprung
  * subject to to the terms and conditions of the Apache License, Version 2.0.
  */
 
+import android.annotation.SuppressLint
+import android.app.Activity
+import android.app.Notification
+import android.service.notification.StatusBarNotification
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.core.app.NotificationCompat
 import androidx.recyclerview.widget.RecyclerView
+import java.util.*
+import java.util.concurrent.Executors
+import kotlin.collections.ArrayList
 
 class NotificationAdapter(
-    private var notices: ArrayList<SamSprungNotice>,
+    private var activity: Activity,
     private var listener: OnNoticeClickListener
-) : RecyclerView.Adapter<NotificationAdapter.NoticeViewHolder>() {
-    fun setNotices(notices: ArrayList<SamSprungNotice>) {
+) : RecyclerView.Adapter<NotificationAdapter.NoticeViewHolder>(),
+    NotificationListener.NotificationsChangedListener,
+    AccessibilityHandler.EventsChangedListener {
+
+    private var notices: ArrayList<SamSprungNotice> = arrayListOf()
+
+    private fun setNotices(notices: ArrayList<SamSprungNotice>) {
         this.notices = notices
     }
 
@@ -119,5 +132,109 @@ class NotificationAdapter(
 
     interface OnNoticeClickListener {
         fun onNoticeClicked(notice: SamSprungNotice, position: Int)
+    }
+
+    private var notifications: ArrayList<Notification> = arrayListOf()
+
+    @SuppressLint("NotifyDataSetChanged")
+    private fun refreshNotifications() {
+        Executors.newSingleThreadExecutor().execute {
+            val groups: HashMap<String, SamSprungNotice> = hashMapOf()
+            for (notification: Notification in notifications) {
+                if (groups.containsKey(notification.group)
+                    && null != groups[notification.group]) {
+                    val notice : SamSprungNotice = groups[notification.group]!!
+                    if (null != notification.extras
+                        && null != notification.extras.getCharSequenceArray(
+                            NotificationCompat.EXTRA_TEXT_LINES)) {
+                        notice.setString(
+                            Arrays.toString(
+                                notification.extras.getCharSequenceArray(
+                                    NotificationCompat.EXTRA_TEXT_LINES)
+                            ))
+                    } else if (null != notification.tickerText) {
+                        notice.setString(notification.tickerText.toString())
+                    }
+                    groups.replace(notification.group, notice)
+                } else {
+                    val notice = SamSprungNotice()
+                    when {
+                        null != notification.getLargeIcon() -> notice.setDrawable(
+                            notification.getLargeIcon().loadDrawable(activity)
+                        )
+                        null != notification.smallIcon -> notice.setDrawable(
+                            notification.smallIcon.loadDrawable(activity)
+                        )
+                    }
+                    if (null != notification.extras
+                        && null != notification.extras.getCharSequenceArray(
+                            NotificationCompat.EXTRA_TEXT_LINES)) {
+                        notice.setString(
+                            Arrays.toString(
+                                notification.extras.getCharSequenceArray(
+                                    NotificationCompat.EXTRA_TEXT_LINES)
+                            ))
+                    } else if (null != notification.tickerText) {
+                        notice.setString(notification.tickerText.toString())
+                    }
+                    if (null != notification.contentIntent)
+                        notice.setIntentSender(notification.contentIntent.intentSender)
+                    if (null != notification.group) {
+                        groups[notification.group] = notice
+                    } else {
+                        groups[activity.packageName] = notice
+                    }
+
+                }
+            }
+            val notices: ArrayList<SamSprungNotice> = ArrayList(groups.values)
+
+            this.setNotices(notices)
+            activity.runOnUiThread { this.notifyDataSetChanged() }
+        }
+    }
+
+    override fun onActiveNotifications(activeNotifications: ArrayList<StatusBarNotification>) {
+        var notification: Notification
+        for (sbn: StatusBarNotification in activeNotifications) {
+            notification = sbn.notification
+            if (!notifications.contains(notification)) {
+                notifications.add(sbn.notification)
+                refreshNotifications()
+            }
+        }
+    }
+    override fun onSnoozedNotifications(snoozedNotifications: ArrayList<StatusBarNotification>) {
+        var notification: Notification
+        for (sbn: StatusBarNotification in snoozedNotifications) {
+            notification = sbn.notification
+            if (notifications.contains(notification)) {
+                notifications.remove(sbn.notification)
+                refreshNotifications()
+            }
+        }
+    }
+    override fun onNotificationPosted(sbn: StatusBarNotification?) {
+        if (null != sbn) {
+            notifications.add(sbn.notification)
+            refreshNotifications()
+        }
+    }
+    override fun onNotificationRemoved(sbn: StatusBarNotification?) {
+        if (null == sbn) return
+        for (notice: Notification in notifications) {
+            if (notice == sbn.notification) {
+                notifications.remove(sbn.notification)
+                refreshNotifications()
+                break
+            }
+        }
+    }
+
+    override fun onEventPosted(notification: Notification) {
+        if (!notifications.contains(notification)) {
+            notifications.add(notification)
+            refreshNotifications()
+        }
     }
 }

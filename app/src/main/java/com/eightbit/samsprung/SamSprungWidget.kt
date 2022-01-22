@@ -51,46 +51,71 @@ package com.eightbit.samsprung
  * subject to to the terms and conditions of the Apache License, Version 2.0.
  */
 
-import android.accessibilityservice.AccessibilityService
-import android.accessibilityservice.AccessibilityServiceInfo
-import android.app.Notification
-import android.view.accessibility.AccessibilityEvent
+import android.Manifest
+import android.annotation.SuppressLint
+import android.app.*
+import android.bluetooth.BluetoothManager
+import android.content.*
+import android.content.pm.ApplicationInfo
+import android.content.pm.PackageManager
+import android.content.pm.ResolveInfo
+import android.graphics.Canvas
+import android.hardware.camera2.CameraManager
+import android.media.AudioManager
+import android.net.wifi.WifiManager
+import android.nfc.NfcManager
+import android.os.*
+import android.provider.Settings
+import android.service.notification.NotificationListenerService.requestRebind
+import android.text.TextUtils
+import android.view.MenuItem
+import android.view.View
+import android.widget.TextView
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.widget.Toolbar
+import androidx.coordinatorlayout.widget.CoordinatorLayout
+import androidx.core.app.NotificationCompat
+import androidx.core.content.ContextCompat
+import androidx.recyclerview.widget.GridLayoutManager
+import androidx.recyclerview.widget.ItemTouchHelper
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
+import com.eightbitlab.blurview.BlurView
+import com.eightbitlab.blurview.RenderScriptBlur
+import com.google.android.material.bottomsheet.BottomSheetBehavior
+import com.google.android.material.bottomsheet.BottomSheetBehavior.BottomSheetCallback
+import java.io.File
+import java.util.*
 
-class AccessibilityHandler : AccessibilityService() {
+class SamSprungWidget : AppCompatActivity() {
 
-    companion object {
-        var accessibilityInstance: AccessibilityHandler? = null
-    }
+    private lateinit var bReceiver: BroadcastReceiver
+    private lateinit var pReceiver: BroadcastReceiver
+    private var mReceiver: BroadcastReceiver? = null
 
-    private var mEventsChangedListener: EventsChangedListener? = null
+    @SuppressLint("InflateParams", "CutPasteId", "ClickableViewAccessibility")
+    override fun onCreate(savedInstanceState: Bundle?) {
+        setShowWhenLocked(true)
+        // setTurnScreenOn(true)
 
-    override fun onServiceConnected() {
-        val info = AccessibilityServiceInfo()
-        info.eventTypes = AccessibilityEvent.TYPE_NOTIFICATION_STATE_CHANGED
-        info.feedbackType = AccessibilityServiceInfo.FEEDBACK_VISUAL
-        info.notificationTimeout = 100
-        serviceInfo = info
-        accessibilityInstance = this
-    }
+        super.onCreate(savedInstanceState)
+        // ScaledContext.wrap(this).setTheme(R.style.Theme_SecondScreen)
+        supportActionBar?.hide()
+        setContentView(R.layout.apps_view_layout)
 
-    override fun onAccessibilityEvent(event: AccessibilityEvent) {
-        if (AccessibilityEvent.TYPE_NOTIFICATION_STATE_CHANGED == event.eventType) {
-            val notification = event.parcelableData
-            if (notification is Notification) {
-                accessibilityInstance?.mEventsChangedListener?.onEventPosted(notification)
-            }
+        val permission = ContextCompat.checkSelfPermission(
+            this, Manifest.permission.BIND_APPWIDGET
+        )
+        if (permission == PackageManager.PERMISSION_GRANTED) {
+            requestPermission.launch(Manifest.permission.BIND_APPWIDGET)
         }
     }
 
-    override fun onInterrupt() {
-        accessibilityInstance = null
-    }
+    private val requestPermission = registerForActivityResult(
+        ActivityResultContracts.RequestPermission()) { }
 
-    fun setEventsChangedListener(listener: EventsChangedListener?) {
-        accessibilityInstance?.mEventsChangedListener = listener
-    }
-
-    interface EventsChangedListener {
-        fun onEventPosted(notification: Notification)
+    override fun onDestroy() {
+        super.onDestroy()
     }
 }

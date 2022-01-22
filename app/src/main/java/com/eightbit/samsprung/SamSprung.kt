@@ -52,7 +52,6 @@ package com.eightbit.samsprung
  */
 
 import android.app.Application
-import android.app.Notification
 import android.content.Intent
 import android.content.SharedPreferences
 import java.lang.ref.SoftReference
@@ -96,7 +95,6 @@ class SamSprung : Application() {
         var isKeyguardLocked: Boolean = true
         private lateinit var mPrefs: SoftReference<SharedPreferences>
         val prefs: SharedPreferences get() = mPrefs.get()!!
-        var notifications: ArrayList<Notification> = arrayListOf()
         const val prefLayout: String = "prefLayout"
         const val prefHidden: String = "prefHidden"
         const val autoRotate: String = "autoRotate"
