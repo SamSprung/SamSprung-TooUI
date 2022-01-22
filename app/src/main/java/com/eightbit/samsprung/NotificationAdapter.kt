@@ -134,8 +134,49 @@ class NotificationAdapter(
         fun onNoticeClicked(notice: SamSprungNotice, position: Int)
     }
 
-    private var notifications: ArrayList<Notification> = arrayListOf()
+    @SuppressLint("NotifyDataSetChanged")
+    private fun createNotice(notification: Notification) : SamSprungNotice {
+        val notice = SamSprungNotice()
+        when {
+            null != notification.getLargeIcon() -> notice.setDrawable(
+                notification.getLargeIcon().loadDrawable(activity)
+            )
+            null != notification.smallIcon -> notice.setDrawable(
+                notification.smallIcon.loadDrawable(activity)
+            )
+        }
+        if (null != notification.extras
+            && null != notification.extras.getCharSequenceArray(
+                NotificationCompat.EXTRA_TEXT_LINES)) {
+            notice.setString(
+                Arrays.toString(
+                    notification.extras.getCharSequenceArray(
+                        NotificationCompat.EXTRA_TEXT_LINES)
+                ))
+        } else if (null != notification.tickerText) {
+            notice.setString(notification.tickerText.toString())
+        }
+        if (null != notification.contentIntent)
+            notice.setIntentSender(notification.contentIntent.intentSender)
+        return notice
+    }
 
+    private fun updateNotice(notice: SamSprungNotice, notification: Notification) : SamSprungNotice {
+        if (null != notification.extras
+            && null != notification.extras.getCharSequenceArray(
+                NotificationCompat.EXTRA_TEXT_LINES)) {
+            notice.setString(
+                Arrays.toString(
+                    notification.extras.getCharSequenceArray(
+                        NotificationCompat.EXTRA_TEXT_LINES)
+                ))
+        } else if (null != notification.tickerText) {
+            notice.setString(notification.tickerText.toString())
+        }
+        return notice
+    }
+
+    private var notifications: ArrayList<Notification> = arrayListOf()
     @SuppressLint("NotifyDataSetChanged")
     private fun refreshNotifications() {
         Executors.newSingleThreadExecutor().execute {
@@ -143,42 +184,10 @@ class NotificationAdapter(
             for (notification: Notification in notifications) {
                 if (groups.containsKey(notification.group)
                     && null != groups[notification.group]) {
-                    val notice : SamSprungNotice = groups[notification.group]!!
-                    if (null != notification.extras
-                        && null != notification.extras.getCharSequenceArray(
-                            NotificationCompat.EXTRA_TEXT_LINES)) {
-                        notice.setString(
-                            Arrays.toString(
-                                notification.extras.getCharSequenceArray(
-                                    NotificationCompat.EXTRA_TEXT_LINES)
-                            ))
-                    } else if (null != notification.tickerText) {
-                        notice.setString(notification.tickerText.toString())
-                    }
-                    groups.replace(notification.group, notice)
+                    groups.replace(notification.group,
+                        updateNotice(groups[notification.group]!!, notification))
                 } else {
-                    val notice = SamSprungNotice()
-                    when {
-                        null != notification.getLargeIcon() -> notice.setDrawable(
-                            notification.getLargeIcon().loadDrawable(activity)
-                        )
-                        null != notification.smallIcon -> notice.setDrawable(
-                            notification.smallIcon.loadDrawable(activity)
-                        )
-                    }
-                    if (null != notification.extras
-                        && null != notification.extras.getCharSequenceArray(
-                            NotificationCompat.EXTRA_TEXT_LINES)) {
-                        notice.setString(
-                            Arrays.toString(
-                                notification.extras.getCharSequenceArray(
-                                    NotificationCompat.EXTRA_TEXT_LINES)
-                            ))
-                    } else if (null != notification.tickerText) {
-                        notice.setString(notification.tickerText.toString())
-                    }
-                    if (null != notification.contentIntent)
-                        notice.setIntentSender(notification.contentIntent.intentSender)
+                    val notice = createNotice(notification)
                     if (null != notification.group) {
                         groups[notification.group] = notice
                     } else {
@@ -194,38 +203,84 @@ class NotificationAdapter(
         }
     }
 
+    private var sbNotifications: ArrayList<StatusBarNotification> = arrayListOf()
+    @SuppressLint("NotifyDataSetChanged")
+    private fun refreshStatusBarNotifications() {
+        Executors.newSingleThreadExecutor().execute {
+            val groups: HashMap<String, SamSprungNotice> = hashMapOf()
+            for (sbn: StatusBarNotification in sbNotifications) {
+                val notification = sbn.notification
+                if (groups.containsKey(notification.group)
+                    && null != groups[notification.group]) {
+                    val notice = updateNotice(groups[notification.group]!!, notification)
+                    notice.setKey(sbn.key)
+                    groups.replace(notification.group, notice)
+                } else {
+                    val notice = createNotice(notification)
+                    notice.setKey(sbn.key)
+                    if (null != notification.group) {
+                        groups[notification.group] = notice
+                    } else {
+                        groups[activity.packageName] = notice
+                    }
+                }
+            }
+            val notices: ArrayList<SamSprungNotice> = ArrayList(groups.values)
+
+            this.setNotices(notices)
+            activity.runOnUiThread { this.notifyDataSetChanged() }
+        }
+    }
+
     override fun onActiveNotifications(activeNotifications: ArrayList<StatusBarNotification>) {
-        var notification: Notification
+//        var notification: Notification
         for (sbn: StatusBarNotification in activeNotifications) {
-            notification = sbn.notification
-            if (!notifications.contains(notification)) {
-                notifications.add(sbn.notification)
-                refreshNotifications()
+//            notification = sbn.notification
+//            if (!notifications.contains(notification)) {
+//                notifications.add(sbn.notification)
+//                refreshNotifications()
+//            }
+            if (!sbNotifications.contains(sbn)) {
+                sbNotifications.add(sbn)
+                refreshStatusBarNotifications()
             }
         }
     }
     override fun onSnoozedNotifications(snoozedNotifications: ArrayList<StatusBarNotification>) {
-        var notification: Notification
+//        var notification: Notification
         for (sbn: StatusBarNotification in snoozedNotifications) {
-            notification = sbn.notification
-            if (notifications.contains(notification)) {
-                notifications.remove(sbn.notification)
-                refreshNotifications()
+//            notification = sbn.notification
+//            if (notifications.contains(notification)) {
+//                notifications.remove(sbn.notification)
+//                refreshNotifications()
+//            }
+            if (sbNotifications.contains(sbn)) {
+                sbNotifications.remove(sbn)
+                refreshStatusBarNotifications()
             }
         }
     }
     override fun onNotificationPosted(sbn: StatusBarNotification?) {
         if (null != sbn) {
-            notifications.add(sbn.notification)
-            refreshNotifications()
+//            notifications.add(sbn.notification)
+//            refreshNotifications()
+            sbNotifications.add(sbn)
+            refreshStatusBarNotifications()
         }
     }
     override fun onNotificationRemoved(sbn: StatusBarNotification?) {
         if (null == sbn) return
-        for (notice: Notification in notifications) {
-            if (notice == sbn.notification) {
-                notifications.remove(sbn.notification)
-                refreshNotifications()
+//        for (notice: Notification in notifications) {
+//            if (notice == sbn.notification) {
+//                notifications.remove(sbn.notification)
+//                refreshNotifications()
+//                break
+//            }
+//        }
+        for (sbNotice: StatusBarNotification in sbNotifications) {
+            if (sbNotice == sbn) {
+                sbNotifications.remove(sbNotice)
+                refreshStatusBarNotifications()
                 break
             }
         }

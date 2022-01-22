@@ -157,6 +157,36 @@ class SamSprungDrawer : AppCompatActivity(),
                     noticesView.adapter as NotificationAdapter
                 )
             }
+            val simpleItemTouchCallback: ItemTouchHelper.SimpleCallback = object :
+                ItemTouchHelper.SimpleCallback(0,
+                    ItemTouchHelper.RIGHT or ItemTouchHelper.LEFT) {
+                override fun onMove(
+                    recyclerView: RecyclerView,
+                    viewHolder: RecyclerView.ViewHolder,
+                    target: RecyclerView.ViewHolder
+                ): Boolean {
+                    return false
+                }
+
+                override fun onChildDraw(
+                    c: Canvas,
+                    recyclerView: RecyclerView,
+                    viewHolder: RecyclerView.ViewHolder,
+                    dX: Float,
+                    dY: Float,
+                    actionState: Int,
+                    isCurrentlyActive: Boolean
+                ) { }
+
+                override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
+                    if (direction == ItemTouchHelper.RIGHT) {
+                        val notice = (viewHolder as NotificationAdapter.NoticeViewHolder).notice
+                        if (null != notice?.getKey())
+                          NotificationListener.listenerInstance?.cancelNotification(notice.getKey())
+                    }
+                }
+            }
+            ItemTouchHelper(simpleItemTouchCallback).attachToRecyclerView(noticesView)
         } else {
             noticesView.visibility = View.GONE
         }

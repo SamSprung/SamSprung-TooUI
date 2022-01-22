@@ -59,6 +59,7 @@ class SamSprungNotice {
     private var text: String = ""
     private var intentSender: IntentSender? = null
     private var drawable: Drawable? = null
+    private var key: String? = null
 
     fun setString(lines: String) {
         text += "\n" + lines
@@ -82,5 +83,13 @@ class SamSprungNotice {
 
     fun getDrawable() : Drawable? {
         return drawable
+    }
+
+    fun setKey(key: String) {
+        this.key = key
+    }
+
+    fun getKey() : String? {
+        return key
     }
 }
