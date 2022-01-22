@@ -9,20 +9,17 @@ jobs:
 
     runs-on: ubuntu-latest
 
-    if: github.ref == 'refs/heads/custom'
     steps:
     - uses: actions/checkout@v2
-    - name: Execute repository dispatch event
-      env:
-        GITHUB_TOKEN: ${{ secrets.ORG_TOKEN }}
-      run: |
-        gh api repos/SamSprung/SamSprung-Widget/dispatches --raw-field event_type=SamSprung
-
-    if: github.ref == 'refs/heads/sideload'
-    steps:
-    - uses: actions/checkout@v2
-    - name: Execute repository dispatch event
+    - name: Execute launcher dispatch event
+      if: contains(github.ref, 'sideload')
       env:
         GITHUB_TOKEN: ${{ secrets.ORG_TOKEN }}
       run: |
         gh api repos/SamSprung/SamSprung-Launcher/dispatches --raw-field event_type=SamSprung
+    - name: Execute widget dispatch event
+      if: contains(github.ref, 'custom')
+      env:
+        GITHUB_TOKEN: ${{ secrets.ORG_TOKEN }}
+      run: |
+        gh api repos/SamSprung/SamSprung-Widget/dispatches --raw-field event_type=SamSprung
