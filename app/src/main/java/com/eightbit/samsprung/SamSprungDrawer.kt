@@ -52,7 +52,6 @@ package com.eightbit.samsprung
  */
 
 import android.Manifest
-import android.accessibilityservice.AccessibilityServiceInfo
 import android.annotation.SuppressLint
 import android.app.*
 import android.bluetooth.BluetoothManager
@@ -60,7 +59,6 @@ import android.content.*
 import android.content.pm.ApplicationInfo
 import android.content.pm.PackageManager
 import android.content.pm.ResolveInfo
-import android.content.pm.ServiceInfo
 import android.graphics.Canvas
 import android.hardware.camera2.CameraManager
 import android.media.AudioManager
@@ -72,7 +70,6 @@ import android.service.notification.NotificationListenerService.requestRebind
 import android.text.TextUtils
 import android.view.MenuItem
 import android.view.View
-import android.view.accessibility.AccessibilityManager
 import android.widget.TextView
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
@@ -84,11 +81,11 @@ import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.eightbit.content.ScaledContext
 import com.eightbitlab.blurview.BlurView
 import com.eightbitlab.blurview.RenderScriptBlur
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetBehavior.BottomSheetCallback
+import java.io.File
 import java.util.*
 
 
@@ -489,7 +486,7 @@ class SamSprungDrawer : AppCompatActivity(),
         (noticesView.adapter as NotificationAdapter).notifyDataSetChanged()
     }
 
-    override fun onAppClicked(appInfo: ResolveInfo, position: Int) {
+    private fun prepareLockOrientation() {
         with (SamSprung.prefs.edit()) {
             try {
                 putBoolean(SamSprung.autoRotate,  Settings.System.getInt(
@@ -519,6 +516,10 @@ class SamSprungDrawer : AppCompatActivity(),
             @Suppress("DEPRECATION")
             mKeyguardManager.newKeyguardLock("cover_lock").disableKeyguard()
         }
+    }
+
+    override fun onAppClicked(appInfo: ResolveInfo, position: Int) {
+        prepareLockOrientation()
 
         val serviceIntent = Intent(this, DisplayListenerService::class.java)
         val extras = Bundle()
@@ -548,28 +549,32 @@ class SamSprungDrawer : AppCompatActivity(),
             e.printStackTrace()
         }
         coverIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-        // coverIntent.addFlags(Intent.FLAG_ACTIVITY_MULTIPLE_TASK)
         coverIntent.addFlags(Intent.FLAG_ACTIVITY_FORWARD_RESULT)
         coverIntent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION)
         startActivity(coverIntent.putExtras(extras), options.toBundle())
     }
 
     override fun onNoticeClicked(notice: SamSprungNotice, position: Int) {
-        if (null != notice.getIntentSender())
+        if (null != notice.getIntentSender()) {
+            prepareLockOrientation()
+
+            startForegroundService(Intent(this, DisplayListenerService::class.java)
+                .putExtra("launchPackage", notice.getIntentSender()!!.creatorPackage))
             startIntentSender(notice.getIntentSender(),
                 null, 0, 0, 0)
+        }
+    }
+
+    private fun getColumnCount(): Int {
+        return (windowManager.currentWindowMetrics.bounds.width() / 96 + 0.5).toInt()
     }
 
     private fun hasAccessibility(): Boolean {
-        val enabledServices = (getSystemService(ACCESSIBILITY_SERVICE) as AccessibilityManager)
-            .getEnabledAccessibilityServiceList(AccessibilityServiceInfo.FEEDBACK_VISUAL)
-        for (enabledService in enabledServices) {
-            val enabledServiceInfo: ServiceInfo = enabledService.resolveInfo.serviceInfo
-            if (enabledServiceInfo.packageName.equals(BuildConfig.APPLICATION_ID)
-                && enabledServiceInfo.name.equals(AccessibilityHandler::class.java.name)
-            ) return true
-        }
-        return false
+        val serviceString = Settings.Secure.getString(contentResolver,
+            Settings.Secure.ENABLED_ACCESSIBILITY_SERVICES
+        )
+        return serviceString != null && serviceString.contains(packageName
+                + File.separator + AccessibilityHandler::class.java.name)
     }
 
     private fun hasNotificationListener(): Boolean {
@@ -584,10 +589,6 @@ class SamSprungDrawer : AppCompatActivity(),
             }
         }
         return false
-    }
-
-    private fun getColumnCount(): Int {
-        return (windowManager.currentWindowMetrics.bounds.width() / 96 + 0.5).toInt()
     }
 
     private val Boolean.int get() = if (this) 1 else 0

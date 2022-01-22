@@ -53,6 +53,7 @@ package com.eightbit.samsprung
 
 import android.annotation.SuppressLint
 import android.app.*
+import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.graphics.Bitmap
@@ -96,7 +97,7 @@ class DisplayListenerService : Service() {
                 as KeyguardManager).newKeyguardLock(coverLock)
         val displayManager = getSystemService(Context.DISPLAY_SERVICE) as DisplayManager
 
-        if (null == launchPackage || null == launchActivity)
+        if (null == launchPackage)
             return dismissDisplayService(displayManager, mKeyguardLock)
 
         showForegroundNotification(startId)
@@ -114,6 +115,7 @@ class DisplayListenerService : Service() {
         params.gravity = Gravity.START
         launcher!!.findViewById<VerticalStrokeTextView>(R.id.navigationText).setOnClickListener {
             dismissDisplayService(displayManager, mKeyguardLock)
+            resetLaunchedApplication(launchPackage, launchActivity)
             startActivity(Intent(this, SamSprungDrawer::class.java)
                 .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK),
                 ActivityOptions.makeBasic().setLaunchDisplayId(1).toBundle())
@@ -124,6 +126,7 @@ class DisplayListenerService : Service() {
             override fun onSwipeLeft() { }
             override fun onSwipeRight() {
                 dismissDisplayService(displayManager, mKeyguardLock)
+                resetLaunchedApplication(launchPackage, launchActivity)
                 startActivity(Intent(displayContext, SamSprungDrawer::class.java)
                     .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK),
                     ActivityOptions.makeBasic().setLaunchDisplayId(1).toBundle())
@@ -135,6 +138,7 @@ class DisplayListenerService : Service() {
             override fun onDisplayChanged(display: Int) {
                 if (display == 0) {
                     dismissDisplayListener(displayManager, mKeyguardLock)
+                    resetLaunchedApplication(launchPackage, launchActivity)
                 } else {
                     if (SamSprung.isKeyguardLocked)
                         @Suppress("DEPRECATION") mKeyguardLock.disableKeyguard()
@@ -200,6 +204,21 @@ class DisplayListenerService : Service() {
         }
         builder.color = ContextCompat.getColor(this, R.color.purple_200)
         startForeground(startId, builder.build())
+    }
+
+    private fun resetLaunchedApplication(launchPackage: String, launchActivity: String?) {
+        if (null != launchActivity) {
+            val coverIntent = Intent(Intent.ACTION_MAIN)
+            coverIntent.addCategory(Intent.CATEGORY_LAUNCHER)
+            coverIntent.component = ComponentName(launchPackage, launchActivity)
+            val options = ActivityOptions.makeBasic().setLaunchDisplayId(0)
+            coverIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            coverIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK)
+            coverIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
+            coverIntent.addFlags(Intent.FLAG_ACTIVITY_FORWARD_RESULT)
+            coverIntent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION)
+            startActivity(coverIntent, options.toBundle())
+        }
     }
 
     private fun dismissDisplayListener(

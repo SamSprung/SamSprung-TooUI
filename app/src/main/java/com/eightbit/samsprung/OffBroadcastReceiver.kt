@@ -70,15 +70,16 @@ class OffBroadcastReceiver : BroadcastReceiver {
         if (Intent.ACTION_SCREEN_OFF == intent.action && null != componentName) {
             context.startService(Intent(context, DisplayListenerService::class.java))
 
-            val screenIntent = Intent(Intent.ACTION_MAIN)
-            screenIntent.addCategory(Intent.CATEGORY_LAUNCHER)
-            screenIntent.component = componentName
+            val coverIntent = Intent(Intent.ACTION_MAIN)
+            coverIntent.addCategory(Intent.CATEGORY_LAUNCHER)
+            coverIntent.component = componentName
             val options = ActivityOptions.makeBasic().setLaunchDisplayId(0)
-            screenIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-            // screenIntent.addFlags(Intent.FLAG_ACTIVITY_MULTIPLE_TASK)
-            screenIntent.addFlags(Intent.FLAG_ACTIVITY_FORWARD_RESULT)
-            screenIntent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION)
-            context.startActivity(screenIntent, options.toBundle())
+            coverIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            coverIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK)
+            coverIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
+            coverIntent.addFlags(Intent.FLAG_ACTIVITY_FORWARD_RESULT)
+            coverIntent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION)
+            context.startActivity(coverIntent, options.toBundle())
 
             componentName = null
             context.applicationContext.unregisterReceiver(this)

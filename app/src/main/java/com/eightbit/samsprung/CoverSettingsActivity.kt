@@ -52,14 +52,12 @@ package com.eightbit.samsprung
  */
 
 import android.Manifest
-import android.accessibilityservice.AccessibilityServiceInfo
 import android.app.KeyguardManager
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.content.pm.ResolveInfo
-import android.content.pm.ServiceInfo
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
@@ -70,7 +68,6 @@ import android.text.TextUtils
 import android.text.style.ImageSpan
 import android.view.Menu
 import android.view.MenuItem
-import android.view.accessibility.AccessibilityManager
 import android.widget.ListView
 import android.widget.Toast
 import android.widget.ToggleButton
@@ -81,6 +78,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.SwitchCompat
 import com.heinrichreimersoftware.androidissuereporter.IssueReporterLauncher
 import java.io.BufferedReader
+import java.io.File
 import java.io.InputStreamReader
 import java.util.*
 import kotlin.collections.HashSet
@@ -133,7 +131,7 @@ class CoverSettingsActivity : AppCompatActivity() {
             }
         }
 
-        val accessibility = findViewById<SwitchCompat>(R.id.accessibility_switch)
+        accessibility = findViewById(R.id.accessibility_switch)
         accessibility.isChecked = hasAccessibility()
         accessibility.setOnClickListener {
             if (accessibility.isChecked) {
@@ -156,7 +154,7 @@ class CoverSettingsActivity : AppCompatActivity() {
             }
         }
 
-        val notifications = findViewById<SwitchCompat>(R.id.notifications_switch)
+        notifications = findViewById(R.id.notifications_switch)
         notifications.isChecked = hasNotificationListener()
         notifications.setOnClickListener {
             notificationLauncher.launch(Intent(
@@ -164,7 +162,7 @@ class CoverSettingsActivity : AppCompatActivity() {
             ))
         }
 
-        val settings = findViewById<SwitchCompat>(R.id.settings_switch)
+        settings = findViewById(R.id.settings_switch)
         settings.isChecked = Settings.System.canWrite(applicationContext)
         settings.setOnClickListener {
             settingsLauncher.launch(Intent(
@@ -301,16 +299,13 @@ class CoverSettingsActivity : AppCompatActivity() {
     }
 
     private fun hasAccessibility(): Boolean {
-        val enabledServices = (getSystemService(ACCESSIBILITY_SERVICE) as AccessibilityManager)
-            .getEnabledAccessibilityServiceList(AccessibilityServiceInfo.FEEDBACK_VISUAL)
-        for (enabledService in enabledServices) {
-            val enabledServiceInfo: ServiceInfo = enabledService.resolveInfo.serviceInfo
-            if (enabledServiceInfo.packageName.equals(BuildConfig.APPLICATION_ID)
-                && enabledServiceInfo.name.equals(AccessibilityHandler::class.java.name)
-            ) return true
-        }
-        return false
+        val serviceString = Settings.Secure.getString(contentResolver,
+            Settings.Secure.ENABLED_ACCESSIBILITY_SERVICES
+        )
+        return serviceString != null && serviceString.contains(packageName
+                + File.separator + AccessibilityHandler::class.java.name)
     }
+
 
     private fun hasNotificationListener(): Boolean {
         val flat = Settings.Secure.getString(

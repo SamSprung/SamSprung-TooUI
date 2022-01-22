@@ -59,7 +59,8 @@ class CheckUpdatesTask(private var context: Context) {
     }
 
     private fun downloadUpdate(link: String) {
-        val download: String = link.substring(link.lastIndexOf('/') + 1)
+        val download: String = link.substring(
+            link.lastIndexOf(File.separator) + 1)
         val apk = File(context.filesDir, download)
         CoroutineScope(Dispatchers.IO).launch(Dispatchers.IO) {
             URL(link).openStream().use { input ->
