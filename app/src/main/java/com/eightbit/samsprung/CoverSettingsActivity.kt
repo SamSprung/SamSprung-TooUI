@@ -83,7 +83,6 @@ import java.io.InputStreamReader
 import java.util.*
 import kotlin.collections.HashSet
 
-
 class CoverSettingsActivity : AppCompatActivity() {
 
     private lateinit var switch: SwitchCompat

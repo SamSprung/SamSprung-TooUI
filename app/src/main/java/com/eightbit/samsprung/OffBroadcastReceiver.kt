@@ -56,7 +56,8 @@ import android.content.BroadcastReceiver
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
-
+import androidx.core.content.ContextCompat
+import androidx.core.content.ContextCompat.startActivity
 
 class OffBroadcastReceiver : BroadcastReceiver {
     private var componentName : ComponentName? = null
@@ -70,16 +71,24 @@ class OffBroadcastReceiver : BroadcastReceiver {
         if (Intent.ACTION_SCREEN_OFF == intent.action && null != componentName) {
             context.startService(Intent(context, DisplayListenerService::class.java))
 
+            val options = ActivityOptions.makeBasic().setLaunchDisplayId(0)
+
             val coverIntent = Intent(Intent.ACTION_MAIN)
             coverIntent.addCategory(Intent.CATEGORY_LAUNCHER)
             coverIntent.component = componentName
-            val options = ActivityOptions.makeBasic().setLaunchDisplayId(0)
-            coverIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-            coverIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK)
-            coverIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
-            coverIntent.addFlags(Intent.FLAG_ACTIVITY_FORWARD_RESULT)
-            coverIntent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION)
+            coverIntent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or
+                    Intent.FLAG_ACTIVITY_CLEAR_TASK or
+                    Intent.FLAG_ACTIVITY_CLEAR_TOP or
+                    Intent.FLAG_ACTIVITY_FORWARD_RESULT or
+                    Intent.FLAG_ACTIVITY_NO_ANIMATION
             context.startActivity(coverIntent, options.toBundle())
+
+            val homeLauncher = Intent(Intent.ACTION_MAIN)
+            homeLauncher.addCategory(Intent.CATEGORY_HOME)
+            homeLauncher.flags = Intent.FLAG_ACTIVITY_NEW_TASK or
+                    Intent.FLAG_ACTIVITY_FORWARD_RESULT or
+                    Intent.FLAG_ACTIVITY_NO_ANIMATION
+            context.startActivity(homeLauncher, options.toBundle())
 
             componentName = null
             context.applicationContext.unregisterReceiver(this)

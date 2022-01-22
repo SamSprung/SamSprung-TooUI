@@ -88,7 +88,6 @@ import com.google.android.material.bottomsheet.BottomSheetBehavior.BottomSheetCa
 import java.io.File
 import java.util.*
 
-
 class SamSprungDrawer : AppCompatActivity(),
     AppDrawerAdapater.OnAppClickListener,
     NotificationAdapter.OnNoticeClickListener {

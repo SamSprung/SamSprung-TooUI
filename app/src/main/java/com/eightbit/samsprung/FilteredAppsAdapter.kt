@@ -66,7 +66,6 @@ import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.appcompat.widget.SwitchCompat
 
-
 class FilteredAppsAdapter(
     private val context: Context,
     private var packages: MutableList<ResolveInfo>,

@@ -9,7 +9,7 @@ class VerticalStrokeTextView(
     context: Context?,
     attrs: AttributeSet?
 ) : androidx.appcompat.widget.AppCompatTextView(context!!, attrs) {
-    var topDown = false
+    private var topDown = false
     override fun onMeasure(
         widthMeasureSpec: Int,
         heightMeasureSpec: Int
