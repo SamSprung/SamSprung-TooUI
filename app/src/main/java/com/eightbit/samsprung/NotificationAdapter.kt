@@ -189,33 +189,6 @@ class NotificationAdapter(
         return notice
     }
 
-    private var notifications: ArrayList<Notification> = arrayListOf()
-    @SuppressLint("NotifyDataSetChanged")
-    private fun refreshNotifications() {
-        Executors.newSingleThreadExecutor().execute {
-            val groups: HashMap<String, SamSprungNotice> = hashMapOf()
-            for (notification: Notification in notifications) {
-                if (groups.containsKey(notification.group)
-                    && null != groups[notification.group]) {
-                    groups.replace(notification.group,
-                        updateNotice(groups[notification.group]!!, notification))
-                } else {
-                    val notice = createNotice(notification)
-                    if (null != notification.group) {
-                        groups[notification.group] = notice
-                    } else {
-                        groups[activity.packageName] = notice
-                    }
-
-                }
-            }
-            val notices: ArrayList<SamSprungNotice> = ArrayList(groups.values)
-
-            this.setNotices(notices)
-            activity.runOnUiThread { this.notifyDataSetChanged() }
-        }
-    }
-
     private var sbNotifications: ArrayList<StatusBarNotification> = arrayListOf()
     @SuppressLint("NotifyDataSetChanged")
     private fun refreshStatusBarNotifications() {
@@ -238,21 +211,13 @@ class NotificationAdapter(
                     }
                 }
             }
-            val notices: ArrayList<SamSprungNotice> = ArrayList(groups.values)
-
-            this.setNotices(notices)
+            this.setNotices(ArrayList(groups.values))
             activity.runOnUiThread { this.notifyDataSetChanged() }
         }
     }
 
     override fun onActiveNotifications(activeNotifications: ArrayList<StatusBarNotification>) {
-//        var notification: Notification
         for (sbn: StatusBarNotification in activeNotifications) {
-//            notification = sbn.notification
-//            if (!notifications.contains(notification)) {
-//                notifications.add(sbn.notification)
-//                refreshNotifications()
-//            }
             if (!sbNotifications.contains(sbn)) {
                 sbNotifications.add(sbn)
                 refreshStatusBarNotifications()
@@ -260,13 +225,7 @@ class NotificationAdapter(
         }
     }
     override fun onSnoozedNotifications(snoozedNotifications: ArrayList<StatusBarNotification>) {
-//        var notification: Notification
         for (sbn: StatusBarNotification in snoozedNotifications) {
-//            notification = sbn.notification
-//            if (notifications.contains(notification)) {
-//                notifications.remove(sbn.notification)
-//                refreshNotifications()
-//            }
             if (sbNotifications.contains(sbn)) {
                 sbNotifications.remove(sbn)
                 refreshStatusBarNotifications()
@@ -274,28 +233,43 @@ class NotificationAdapter(
         }
     }
     override fun onNotificationPosted(sbn: StatusBarNotification?) {
-        if (null != sbn) {
-//            notifications.add(sbn.notification)
-//            refreshNotifications()
-            sbNotifications.add(sbn)
-            refreshStatusBarNotifications()
-        }
+        if (null == sbn) return
+        sbNotifications.add(sbn)
+        refreshStatusBarNotifications()
     }
     override fun onNotificationRemoved(sbn: StatusBarNotification?) {
         if (null == sbn) return
-//        for (notice: Notification in notifications) {
-//            if (notice == sbn.notification) {
-//                notifications.remove(sbn.notification)
-//                refreshNotifications()
-//                break
-//            }
-//        }
         for (sbNotice: StatusBarNotification in sbNotifications) {
             if (sbNotice == sbn) {
                 sbNotifications.remove(sbNotice)
                 refreshStatusBarNotifications()
                 break
             }
+        }
+    }
+
+    private var notifications: ArrayList<Notification> = arrayListOf()
+    @SuppressLint("NotifyDataSetChanged")
+    private fun refreshNotifications() {
+        Executors.newSingleThreadExecutor().execute {
+            val groups: HashMap<String, SamSprungNotice> = hashMapOf()
+            for (notification: Notification in notifications) {
+                if (groups.containsKey(notification.group)
+                    && null != groups[notification.group]) {
+                    groups.replace(notification.group,
+                        updateNotice(groups[notification.group]!!, notification))
+                } else {
+                    val notice = createNotice(notification)
+                    if (null != notification.group) {
+                        groups[notification.group] = notice
+                    } else {
+                        groups[activity.packageName] = notice
+                    }
+
+                }
+            }
+            this.setNotices(ArrayList(groups.values))
+            activity.runOnUiThread { this.notifyDataSetChanged() }
         }
     }
 

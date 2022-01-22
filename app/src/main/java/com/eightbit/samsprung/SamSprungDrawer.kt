@@ -146,12 +146,12 @@ class SamSprungDrawer : AppCompatActivity(),
             noticesView.layoutManager = LinearLayoutManager(this)
             noticesView.adapter = NotificationAdapter(this, this@SamSprungDrawer)
             if (hasNotificationListener()) {
-                NotificationObserver.getObserver?.setNotificationsChangedListener(
+                NotificationObserver.getObserver()?.setNotificationsChangedListener(
                     noticesView.adapter as NotificationAdapter
                 )
             }
             if (hasAccessibility()) {
-                AccessibilityObserver.getObserver?.setEventsChangedListener(
+                AccessibilityObserver.getObserver()?.setEventsChangedListener(
                     noticesView.adapter as NotificationAdapter
                 )
             }
@@ -180,7 +180,7 @@ class SamSprungDrawer : AppCompatActivity(),
                     if (direction == ItemTouchHelper.RIGHT) {
                         val notice = (viewHolder as NotificationAdapter.NoticeViewHolder).notice
                         if (null != notice?.getKey())
-                          NotificationObserver.getObserver?.cancelNotification(notice.getKey())
+                          NotificationObserver.getObserver()?.cancelNotification(notice.getKey())
                     }
                 }
             }

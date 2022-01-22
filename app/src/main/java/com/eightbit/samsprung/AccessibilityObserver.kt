@@ -59,7 +59,15 @@ import android.view.accessibility.AccessibilityEvent
 class AccessibilityObserver : AccessibilityService() {
 
     companion object {
-        var getObserver: AccessibilityObserver? = null
+        private lateinit var observerInstance: AccessibilityObserver
+        private var isConnected: Boolean = false
+        fun getObserver() : AccessibilityObserver? {
+            return if (isConnected) observerInstance else null
+        }
+    }
+
+    init {
+        observerInstance = this
     }
 
     private var mEventsChangedListener: EventsChangedListener? = null
@@ -70,24 +78,24 @@ class AccessibilityObserver : AccessibilityService() {
         info.feedbackType = AccessibilityServiceInfo.FEEDBACK_VISUAL
         info.notificationTimeout = 100
         serviceInfo = info
-        getObserver = this
+        isConnected = true
     }
 
     override fun onAccessibilityEvent(event: AccessibilityEvent) {
         if (AccessibilityEvent.TYPE_NOTIFICATION_STATE_CHANGED == event.eventType) {
             val notification = event.parcelableData
             if (notification is Notification) {
-                getObserver?.mEventsChangedListener?.onEventPosted(notification)
+                getObserver()?.mEventsChangedListener?.onEventPosted(notification)
             }
         }
     }
 
     override fun onInterrupt() {
-        getObserver = null
+        isConnected = false
     }
 
     fun setEventsChangedListener(listener: EventsChangedListener?) {
-        getObserver?.mEventsChangedListener = listener
+        getObserver()?.mEventsChangedListener = listener
     }
 
     interface EventsChangedListener {
