@@ -302,7 +302,7 @@ class CoverSettingsActivity : AppCompatActivity() {
             Settings.Secure.ENABLED_ACCESSIBILITY_SERVICES
         )
         return serviceString != null && serviceString.contains(packageName
-                + File.separator + AccessibilityHandler::class.java.name)
+                + File.separator + AccessibilityObserver::class.java.name)
     }
 
 

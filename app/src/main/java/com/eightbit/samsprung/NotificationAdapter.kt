@@ -70,8 +70,8 @@ class NotificationAdapter(
     private var activity: Activity,
     private var listener: OnNoticeClickListener
 ) : RecyclerView.Adapter<NotificationAdapter.NoticeViewHolder>(),
-    NotificationListener.NotificationsChangedListener,
-    AccessibilityHandler.EventsChangedListener {
+    NotificationObserver.NotificationsChangedListener,
+    AccessibilityObserver.EventsChangedListener {
 
     private var notices: ArrayList<SamSprungNotice> = arrayListOf()
 
@@ -153,6 +153,13 @@ class NotificationAdapter(
                     notification.extras.getCharSequenceArray(
                         NotificationCompat.EXTRA_TEXT_LINES)
                 ))
+        } else if (null != notification.extras && null != notification.extras
+                .getCharSequenceArray(NotificationCompat.EXTRA_TEXT)) {
+            notice.setString(
+                Arrays.toString(
+                    notification.extras.getCharSequenceArray(
+                        NotificationCompat.EXTRA_TEXT)
+                ))
         } else if (null != notification.tickerText) {
             notice.setString(notification.tickerText.toString())
         }
@@ -162,13 +169,19 @@ class NotificationAdapter(
     }
 
     private fun updateNotice(notice: SamSprungNotice, notification: Notification) : SamSprungNotice {
-        if (null != notification.extras
-            && null != notification.extras.getCharSequenceArray(
-                NotificationCompat.EXTRA_TEXT_LINES)) {
+        if (null != notification.extras && null != notification.extras
+                .getCharSequenceArray(NotificationCompat.EXTRA_TEXT_LINES)) {
             notice.setString(
                 Arrays.toString(
                     notification.extras.getCharSequenceArray(
                         NotificationCompat.EXTRA_TEXT_LINES)
+                ))
+        } else if (null != notification.extras && null != notification.extras
+                .getCharSequenceArray(NotificationCompat.EXTRA_TEXT)) {
+            notice.setString(
+                Arrays.toString(
+                    notification.extras.getCharSequenceArray(
+                        NotificationCompat.EXTRA_TEXT)
                 ))
         } else if (null != notification.tickerText) {
             notice.setString(notification.tickerText.toString())

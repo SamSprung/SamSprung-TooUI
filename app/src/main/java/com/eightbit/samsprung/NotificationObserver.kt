@@ -51,46 +51,74 @@ package com.eightbit.samsprung
  * subject to to the terms and conditions of the Apache License, Version 2.0.
  */
 
-import android.accessibilityservice.AccessibilityService
-import android.accessibilityservice.AccessibilityServiceInfo
-import android.app.Notification
-import android.view.accessibility.AccessibilityEvent
+import android.annotation.SuppressLint
+import android.content.Intent
+import android.os.IBinder
+import android.service.notification.NotificationListenerService
+import android.service.notification.StatusBarNotification
 
-class AccessibilityHandler : AccessibilityService() {
+@SuppressLint("NotifyDataSetChanged")
+class NotificationObserver : NotificationListenerService() {
 
     companion object {
-        var accessibilityInstance: AccessibilityHandler? = null
+        var getObserver: NotificationObserver? = null
     }
 
-    private var mEventsChangedListener: EventsChangedListener? = null
+    private var mNotificationsChangedListener: NotificationsChangedListener? = null
 
-    override fun onServiceConnected() {
-        val info = AccessibilityServiceInfo()
-        info.eventTypes = AccessibilityEvent.TYPE_NOTIFICATION_STATE_CHANGED
-        info.feedbackType = AccessibilityServiceInfo.FEEDBACK_VISUAL
-        info.notificationTimeout = 100
-        serviceInfo = info
-        accessibilityInstance = this
+    override fun onBind(intent: Intent?): IBinder? {
+        return super.onBind(intent)
     }
 
-    override fun onAccessibilityEvent(event: AccessibilityEvent) {
-        if (AccessibilityEvent.TYPE_NOTIFICATION_STATE_CHANGED == event.eventType) {
-            val notification = event.parcelableData
-            if (notification is Notification) {
-                accessibilityInstance?.mEventsChangedListener?.onEventPosted(notification)
-            }
-        }
+    override fun onNotificationPosted(sbn: StatusBarNotification?) {
+        super.onNotificationPosted(sbn)
+        getObserver?.mNotificationsChangedListener?.onNotificationPosted(sbn)
     }
 
-    override fun onInterrupt() {
-        accessibilityInstance = null
+    override fun onNotificationPosted (sbn: StatusBarNotification, rankingMap: RankingMap) {
+        super.onNotificationPosted(sbn, rankingMap)
+        getObserver?.mNotificationsChangedListener?.onNotificationPosted(sbn)
     }
 
-    fun setEventsChangedListener(listener: EventsChangedListener?) {
-        accessibilityInstance?.mEventsChangedListener = listener
+    override fun onNotificationRemoved(sbn: StatusBarNotification) {
+        super.onNotificationRemoved(sbn)
+        getObserver?.mNotificationsChangedListener?.onNotificationRemoved(sbn)
     }
 
-    interface EventsChangedListener {
-        fun onEventPosted(notification: Notification)
+    override fun onNotificationRemoved (sbn: StatusBarNotification, rankingMap: RankingMap) {
+        super.onNotificationRemoved(sbn, rankingMap)
+        getObserver?.mNotificationsChangedListener?.onNotificationRemoved(sbn)
+    }
+
+    override fun onNotificationRemoved(sbn: StatusBarNotification, rankingMap: RankingMap, reason: Int) {
+        super.onNotificationRemoved(sbn, rankingMap, reason)
+        getObserver?.mNotificationsChangedListener?.onNotificationRemoved(sbn)
+    }
+
+    override fun onListenerConnected() {
+        super.onListenerConnected()
+        getObserver = this
+    }
+
+    override fun onListenerDisconnected() {
+        super.onListenerDisconnected()
+        getObserver = null
+    }
+
+    fun setNotificationsChangedListener(listener: NotificationsChangedListener?) {
+        getObserver?.mNotificationsChangedListener = listener
+        val notifications: ArrayList<StatusBarNotification> = arrayListOf()
+        notifications.addAll(activeNotifications)
+        getObserver?.mNotificationsChangedListener?.onActiveNotifications(notifications)
+        notifications.clear()
+        notifications.addAll(snoozedNotifications)
+        getObserver?.mNotificationsChangedListener?.onSnoozedNotifications(notifications)
+    }
+
+    interface NotificationsChangedListener {
+        fun onActiveNotifications(activeNotifications: ArrayList<StatusBarNotification>)
+        fun onSnoozedNotifications(snoozedNotifications: ArrayList<StatusBarNotification>)
+        fun onNotificationPosted(sbn: StatusBarNotification?)
+        fun onNotificationRemoved(sbn: StatusBarNotification?)
     }
 }

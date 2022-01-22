@@ -67,7 +67,6 @@ import android.nfc.NfcManager
 import android.os.*
 import android.provider.Settings
 import android.service.notification.NotificationListenerService.requestRebind
-import android.service.notification.StatusBarNotification
 import android.text.TextUtils
 import android.view.MenuItem
 import android.view.View
@@ -76,7 +75,6 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.coordinatorlayout.widget.CoordinatorLayout
-import androidx.core.app.NotificationCompat
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.ItemTouchHelper
@@ -109,7 +107,7 @@ class SamSprungDrawer : AppCompatActivity(),
 
         requestRebind(ComponentName(
             applicationContext,
-            NotificationListener::class.java
+            NotificationObserver::class.java
         ))
 
         val permission = ContextCompat.checkSelfPermission(
@@ -148,12 +146,12 @@ class SamSprungDrawer : AppCompatActivity(),
             noticesView.layoutManager = LinearLayoutManager(this)
             noticesView.adapter = NotificationAdapter(this, this@SamSprungDrawer)
             if (hasNotificationListener()) {
-                NotificationListener.listenerInstance?.setNotificationsChangedListener(
+                NotificationObserver.getObserver?.setNotificationsChangedListener(
                     noticesView.adapter as NotificationAdapter
                 )
             }
             if (hasAccessibility()) {
-                AccessibilityHandler.accessibilityInstance?.setEventsChangedListener(
+                AccessibilityObserver.getObserver?.setEventsChangedListener(
                     noticesView.adapter as NotificationAdapter
                 )
             }
@@ -182,7 +180,7 @@ class SamSprungDrawer : AppCompatActivity(),
                     if (direction == ItemTouchHelper.RIGHT) {
                         val notice = (viewHolder as NotificationAdapter.NoticeViewHolder).notice
                         if (null != notice?.getKey())
-                          NotificationListener.listenerInstance?.cancelNotification(notice.getKey())
+                          NotificationObserver.getObserver?.cancelNotification(notice.getKey())
                     }
                 }
             }
@@ -562,7 +560,7 @@ class SamSprungDrawer : AppCompatActivity(),
             Settings.Secure.ENABLED_ACCESSIBILITY_SERVICES
         )
         return serviceString != null && serviceString.contains(packageName
-                + File.separator + AccessibilityHandler::class.java.name)
+                + File.separator + AccessibilityObserver::class.java.name)
     }
 
     private fun hasNotificationListener(): Boolean {
