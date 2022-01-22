@@ -2,15 +2,23 @@ name: Android CI
 
 on:
   push:
-    branches: [ sideload ]
-  pull_request:
-    branches: [ sideload ]
+    branches: [ custom, sideload ]
 
 jobs:
   build:
 
     runs-on: ubuntu-latest
 
+    if: github.ref == 'refs/heads/custom'
+    steps:
+    - uses: actions/checkout@v2
+    - name: Execute repository dispatch event
+      env:
+        GITHUB_TOKEN: ${{ secrets.ORG_TOKEN }}
+      run: |
+        gh api repos/SamSprung/SamSprung-Widget/dispatches --raw-field event_type=SamSprung
+
+    if: github.ref == 'refs/heads/sideload'
     steps:
     - uses: actions/checkout@v2
     - name: Execute repository dispatch event
