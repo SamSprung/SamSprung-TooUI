@@ -16,7 +16,7 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.ORG_TOKEN }}
       run: |
-        gh api repos/SamSprung/SamSprung-Launcher/dispatches --raw-field event_type=SamSprung
+        gh api repos/SamSprung/SamSprung-TooUI/dispatches --raw-field event_type=SamSprung
     - name: Execute widget dispatch event
       if: contains(github.ref, 'custom')
       env:

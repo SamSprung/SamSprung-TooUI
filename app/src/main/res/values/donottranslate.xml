@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="latest_url">https://api.github.com/repos/SamSprung/SamSprung-Launcher/releases/latest</string>
+    <string name="latest_url">https://api.github.com/repos/SamSprung/SamSprung-TooUI/releases/latest</string>
     <string name="description_icon">Icon</string>
     <string name="description_badge">Badge</string>
 </resources>
