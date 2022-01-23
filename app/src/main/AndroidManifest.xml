@@ -80,9 +80,10 @@
         </activity>
         <receiver android:name=".OffBroadcastReceiver"
             android:exported="false"
-            android:permission="intent.redirection.BULLSHIT"/>
+            android:permission="intent.redirection.BULLSHIT" />
         <receiver android:name=".GitBroadcastReceiver"
-            android:exported="true">
+            android:exported="true"
+            android:permission="intent.redirection.BULLSHIT">
             <intent-filter android:directBootAware="true" android:priority="999">
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
                 <action android:name="android.intent.action.LOCKED_BOOT_COMPLETED" />

@@ -139,16 +139,6 @@ class SamSprungDrawer : AppCompatActivity(),
         if (hasNotificationListener() || hasAccessibility()) {
             noticesView.layoutManager = LinearLayoutManager(this)
             noticesView.adapter = NotificationAdapter(this, this@SamSprungDrawer)
-            if (hasNotificationListener()) {
-                NotificationObserver.getObserver()?.setNotificationsChangedListener(
-                    noticesView.adapter as NotificationAdapter
-                )
-            }
-            if (hasAccessibility()) {
-                AccessibilityObserver.getObserver()?.setEventsChangedListener(
-                    noticesView.adapter as NotificationAdapter
-                )
-            }
             val simpleItemTouchCallback: ItemTouchHelper.SimpleCallback = object :
                 ItemTouchHelper.SimpleCallback(0,
                     ItemTouchHelper.RIGHT or ItemTouchHelper.LEFT) {
@@ -217,6 +207,16 @@ class SamSprungDrawer : AppCompatActivity(),
             override fun onStateChanged(bottomSheet: View, newState: Int) {
                 if (previousState == BottomSheetBehavior.STATE_COLLAPSED
                     && newState == BottomSheetBehavior.STATE_HALF_EXPANDED) {
+                    if (hasNotificationListener()) {
+                        NotificationObserver.getObserver()?.setNotificationsChangedListener(
+                            noticesView.adapter as NotificationAdapter
+                        )
+                    }
+                    if (hasAccessibility()) {
+                        AccessibilityObserver.getObserver()?.setEventsChangedListener(
+                            noticesView.adapter as NotificationAdapter
+                        )
+                    }
                     val bluetoothAdapter = (getSystemService(Context.BLUETOOTH_SERVICE)
                             as BluetoothManager).adapter
                     val audioManager = getSystemService(AUDIO_SERVICE) as AudioManager
