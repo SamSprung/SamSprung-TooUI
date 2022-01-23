@@ -199,22 +199,19 @@ class SamSprungDrawer : AppCompatActivity(),
             registerReceiver(bReceiver, it)
         }
 
-        val bluetoothAdapter = (getSystemService(Context.BLUETOOTH_SERVICE)
-                as BluetoothManager).adapter
-        val audioManager = getSystemService(AUDIO_SERVICE) as AudioManager
-        val notificationManager = getSystemService(NOTIFICATION_SERVICE)
-                as NotificationManager
-        val camManager = getSystemService(CAMERA_SERVICE) as CameraManager
-        var isTorchEnabled = false
-
         val bottomSheetBehavior: BottomSheetBehavior<View> =
             BottomSheetBehavior.from(findViewById(R.id.bottom_sheet))
         bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
-        var previousState: Int = BottomSheetBehavior.STATE_COLLAPSED
         bottomSheetBehavior.addBottomSheetCallback(object : BottomSheetCallback() {
             override fun onStateChanged(bottomSheet: View, newState: Int) {
-                if (previousState == BottomSheetBehavior.STATE_COLLAPSED
-                    && newState == BottomSheetBehavior.STATE_HALF_EXPANDED) {
+                if (newState == BottomSheetBehavior.STATE_EXPANDED) {
+                    val bluetoothAdapter = (getSystemService(Context.BLUETOOTH_SERVICE)
+                            as BluetoothManager).adapter
+                    val audioManager = getSystemService(AUDIO_SERVICE) as AudioManager
+                    val notificationManager = getSystemService(NOTIFICATION_SERVICE)
+                            as NotificationManager
+                    val camManager = getSystemService(CAMERA_SERVICE) as CameraManager
+                    var isTorchEnabled = false
                     if (hasNotificationListener()) {
                         NotificationObserver.getObserver()?.setNotificationsChangedListener(
                             noticesView.adapter as NotificationAdapter
@@ -296,12 +293,10 @@ class SamSprungDrawer : AppCompatActivity(),
                     } else {
                         toolbar.menu.findItem(R.id.toggle_torch).isVisible = isTorchEnabled
                     }
-                }
-                if (newState == BottomSheetBehavior.STATE_EXPANDED) {
                     toolbar.setOnMenuItemClickListener { item: MenuItem ->
                         when (item.itemId) {
                             R.id.toggle_wifi -> {
-                                wifiEnabler.launch(Intent(Settings.Panel.ACTION_WIFI))
+                                wifiEnabler.launch(Intent(Settings.Panel.ACTION_INTERNET_CONNECTIVITY))
                                 return@setOnMenuItemClickListener true
                             }
                             R.id.toggle_bluetooth -> {
@@ -376,7 +371,6 @@ class SamSprungDrawer : AppCompatActivity(),
                         }
                     }
                 }
-                previousState = newState
             }
 
             override fun onSlide(bottomSheet: View, slideOffset: Float) {}
