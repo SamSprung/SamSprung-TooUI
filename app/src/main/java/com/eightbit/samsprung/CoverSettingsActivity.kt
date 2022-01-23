@@ -249,6 +249,10 @@ class CoverSettingsActivity : AppCompatActivity() {
             captureLogcat()
             true
         }
+        R.id.subscribe -> {
+            startActivity(Intent(this, SamSprungDonate::class.java))
+            true
+        }
         R.id.donate -> {
             startActivity(Intent(Intent.ACTION_VIEW,
                 Uri.parse("https://www.paypal.com/donate/?hosted_button_id=Q2LFH2SC8RHRN")))
@@ -273,6 +277,7 @@ class CoverSettingsActivity : AppCompatActivity() {
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         menuInflater.inflate(R.menu.action_menu, menu)
         updateMenuWithIcon(menu.findItem(R.id.logcat), -1)
+        updateMenuWithIcon(menu.findItem(R.id.subscribe), -1)
         if (BuildConfig.FLAVOR == "github")
             updateMenuWithIcon(menu.findItem(R.id.donate), -1)
         else

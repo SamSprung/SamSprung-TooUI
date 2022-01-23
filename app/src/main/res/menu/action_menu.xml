@@ -17,6 +17,11 @@
         android:icon="@mipmap/ic_paypal_donation"
         app:showAsAction="never" />
     <item
+        android:id="@+id/subscribe"
+        android:title="@string/donation_link"
+        android:icon="@drawable/ic_baseline_play_arrow_24"
+        app:showAsAction="never" />
+    <item
         android:id="@+id/version"
         android:title="@string/build_hash"
         android:icon="@mipmap/ic_github_white_24dp"

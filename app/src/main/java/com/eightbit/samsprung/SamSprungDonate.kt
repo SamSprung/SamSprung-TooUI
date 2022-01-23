@@ -144,6 +144,7 @@ class SamSprungDonate : AppCompatActivity(), SkuDetailsResponseListener, Purchas
         if (null != skuDetails) {
             for (skuDetail: SkuDetails in skuDetails) {
                 val button = Button(this)
+                button.text = skuDetail.title
                 button.setOnClickListener {
                     purchase(skuDetail)
                 }
