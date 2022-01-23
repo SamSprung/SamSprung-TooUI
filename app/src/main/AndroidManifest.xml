@@ -36,6 +36,7 @@
         android:name=".SamSprung"
         android:allowBackup="true"
         android:fullBackupContent="@xml/full_backup_content"
+        android:dataExtractionRules="@xml/extraction_content"
         android:extractNativeLibs="true"
         android:icon="@mipmap/sprung_icon"
         android:label="@string/app_name"

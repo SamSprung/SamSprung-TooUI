@@ -27,7 +27,7 @@
             android:layout_width="0dp"
             android:layout_weight="1"
             android:textSize="28sp"
-            android:textColor="@color/WHITE"
+            android:textColor="?android:textColorPrimary"
             android:gravity="center_vertical"
             android:layout_height="wrap_content"
             android:text="@string/permission_accessibility" />
@@ -38,7 +38,7 @@
             android:gravity="center"
             android:layout_weight="1"
             android:textSize="28sp"
-            android:textColor="@color/WHITE"
+            android:textColor="?android:textColorPrimary"
             android:layout_gravity="center_vertical"
             android:layout_height="wrap_content" />
 
@@ -58,7 +58,7 @@
             android:layout_width="0dp"
             android:layout_weight="1"
             android:textSize="28sp"
-            android:textColor="@color/WHITE"
+            android:textColor="?android:textColorPrimary"
             android:gravity="center_vertical"
             android:layout_height="wrap_content"
             android:text="@string/permission_notifications" />
@@ -69,7 +69,7 @@
             android:gravity="center"
             android:layout_weight="1"
             android:textSize="28sp"
-            android:textColor="@color/WHITE"
+            android:textColor="?android:textColorPrimary"
             android:layout_gravity="center_vertical"
             android:layout_height="wrap_content" />
 
@@ -89,7 +89,7 @@
             android:layout_width="0dp"
             android:layout_weight="1"
             android:textSize="28sp"
-            android:textColor="@color/WHITE"
+            android:textColor="?android:textColorPrimary"
             android:gravity="center_vertical"
             android:layout_height="wrap_content"
             android:text="@string/permission_settings" />
@@ -100,7 +100,7 @@
             android:gravity="center"
             android:layout_weight="1"
             android:textSize="28sp"
-            android:textColor="@color/WHITE"
+            android:textColor="?android:textColorPrimary"
             android:layout_gravity="center_vertical"
             android:layout_height="wrap_content" />
 

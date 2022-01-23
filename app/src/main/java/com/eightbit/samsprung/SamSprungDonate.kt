@@ -51,7 +51,6 @@ package com.eightbit.samsprung
  * subject to to the terms and conditions of the Apache License, Version 2.0.
  */
 
-import android.annotation.SuppressLint
 import android.os.Bundle
 import android.widget.Button
 import android.widget.LinearLayout
@@ -61,9 +60,8 @@ import java.util.*
 
 class SamSprungDonate : AppCompatActivity(), SkuDetailsResponseListener, PurchasesUpdatedListener {
 
-    private lateinit var layout: LinearLayout
+    private lateinit var billingClient: BillingClient
 
-    @SuppressLint("InflateParams", "CutPasteId", "ClickableViewAccessibility")
     override fun onCreate(savedInstanceState: Bundle?) {
         setShowWhenLocked(true)
         // setTurnScreenOn(true)
@@ -73,7 +71,10 @@ class SamSprungDonate : AppCompatActivity(), SkuDetailsResponseListener, Purchas
         supportActionBar?.hide()
         setContentView(R.layout.donation_layout)
 
-        layout = findViewById(R.id.purchase_layout)
+        billingClient = BillingClient.newBuilder(this)
+            .setListener(this)
+            .enablePendingPurchases()
+            .build()
 
         billingClient.startConnection(object : BillingClientStateListener {
             override fun onBillingSetupFinished(billingResult: BillingResult) {
@@ -95,11 +96,6 @@ class SamSprungDonate : AppCompatActivity(), SkuDetailsResponseListener, Purchas
         billingClient.launchBillingFlow(this, flowParams)
     }
 
-    private var billingClient = BillingClient.newBuilder(this)
-        .setListener(this)
-        .enablePendingPurchases()
-        .build()
-
     fun querySkuDetails() {
         val skuList = ArrayList<String>()
         skuList.add("subscription_1")
@@ -108,7 +104,7 @@ class SamSprungDonate : AppCompatActivity(), SkuDetailsResponseListener, Purchas
         skuList.add("subscription_25")
         skuList.add("subscription_50")
         val params = SkuDetailsParams.newBuilder()
-        params.setSkusList(skuList).setType(BillingClient.SkuType.INAPP)
+        params.setSkusList(skuList).setType(BillingClient.SkuType.SUBS)
 
         billingClient.querySkuDetailsAsync(params.build(), this)
     }
@@ -142,13 +138,18 @@ class SamSprungDonate : AppCompatActivity(), SkuDetailsResponseListener, Purchas
 
     override fun onSkuDetailsResponse(billingResult: BillingResult, skuDetails: MutableList<SkuDetails>?) {
         if (null != skuDetails) {
+            val layout = findViewById<LinearLayout>(R.id.purchase_layout)
             for (skuDetail: SkuDetails in skuDetails) {
-                val button = Button(this)
+                val button = Button(this.applicationContext)
+                val params: LinearLayout.LayoutParams = LinearLayout.LayoutParams(
+                    LinearLayout.LayoutParams.MATCH_PARENT,
+                    LinearLayout.LayoutParams.WRAP_CONTENT
+                )
                 button.text = skuDetail.title
                 button.setOnClickListener {
                     purchase(skuDetail)
                 }
-                layout.addView(button)
+                layout.addView(button, params)
             }
         }
     }
