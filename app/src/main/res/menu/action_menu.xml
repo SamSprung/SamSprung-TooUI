@@ -19,7 +19,7 @@
     <item
         android:id="@+id/subscribe"
         android:title="@string/donation_link"
-        android:icon="@drawable/ic_baseline_play_arrow_24"
+        android:icon="@drawable/ic_google_play"
         app:showAsAction="never" />
     <item
         android:id="@+id/version"
