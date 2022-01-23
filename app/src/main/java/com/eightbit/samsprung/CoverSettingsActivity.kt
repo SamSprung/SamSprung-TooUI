@@ -310,8 +310,7 @@ class CoverSettingsActivity : AppCompatActivity() {
     }
 
     private fun getRepositoryToken(): String {
-        val hex: String = "206768705f356d783059467a48456f4e314d64697" +
-                "24d486d62454545756a4476746f7a33785558544a"
+        val hex = "6768705f7666375663347a52574b396165634c33703431524c596d39716950617766323150626c47"
         val output = java.lang.StringBuilder()
         var i = 0
         while (i < hex.length) {
@@ -329,7 +328,7 @@ class CoverSettingsActivity : AppCompatActivity() {
         try {
             var line: String?
             val mLogcatProc: Process = Runtime.getRuntime().exec(arrayOf(
-                "logcat", "AppIconSolution:S", "-d",
+                "logcat", "AppIconSolution:S", "IssueReporterActivity:S", "-d",
                 "com.samsung.android.app.shealth.tracker.pedometer.service.coverwidget",
                 "-t", "512"
             ))

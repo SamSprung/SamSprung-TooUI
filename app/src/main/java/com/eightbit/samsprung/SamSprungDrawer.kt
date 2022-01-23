@@ -199,6 +199,14 @@ class SamSprungDrawer : AppCompatActivity(),
             registerReceiver(bReceiver, it)
         }
 
+        val bluetoothAdapter = (getSystemService(Context.BLUETOOTH_SERVICE)
+                as BluetoothManager).adapter
+        val audioManager = getSystemService(AUDIO_SERVICE) as AudioManager
+        val notificationManager = getSystemService(NOTIFICATION_SERVICE)
+                as NotificationManager
+        val camManager = getSystemService(CAMERA_SERVICE) as CameraManager
+        var isTorchEnabled = false
+
         val bottomSheetBehavior: BottomSheetBehavior<View> =
             BottomSheetBehavior.from(findViewById(R.id.bottom_sheet))
         bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
@@ -217,13 +225,6 @@ class SamSprungDrawer : AppCompatActivity(),
                             noticesView.adapter as NotificationAdapter
                         )
                     }
-                    val bluetoothAdapter = (getSystemService(Context.BLUETOOTH_SERVICE)
-                            as BluetoothManager).adapter
-                    val audioManager = getSystemService(AUDIO_SERVICE) as AudioManager
-                    val notificationManager = getSystemService(NOTIFICATION_SERVICE)
-                            as NotificationManager
-                    val camManager = getSystemService(CAMERA_SERVICE) as CameraManager
-                    var isTorchEnabled = false
 
                     if (wifiManager.isWifiEnabled)
                         toolbar.menu.findItem(R.id.toggle_wifi)
@@ -295,7 +296,8 @@ class SamSprungDrawer : AppCompatActivity(),
                     } else {
                         toolbar.menu.findItem(R.id.toggle_torch).isVisible = isTorchEnabled
                     }
-
+                }
+                if (newState == BottomSheetBehavior.STATE_EXPANDED) {
                     toolbar.setOnMenuItemClickListener { item: MenuItem ->
                         when (item.itemId) {
                             R.id.toggle_wifi -> {

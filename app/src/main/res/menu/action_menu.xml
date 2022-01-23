@@ -4,7 +4,7 @@
     <item
         android:id="@+id/logcat"
         android:title="@string/capture_logcat"
-        android:icon="@mipmap/ic_github_white_24dp"
+        android:icon="@drawable/ic_github_octocat_24dp"
         app:showAsAction="always" />
     <item
         android:id="@+id/switch_action_bar"
@@ -19,11 +19,11 @@
     <item
         android:id="@+id/subscribe"
         android:title="@string/donation_link"
-        android:icon="@drawable/ic_google_play"
+        android:icon="@drawable/ic_google_play_24"
         app:showAsAction="never" />
     <item
         android:id="@+id/version"
         android:title="@string/build_hash"
-        android:icon="@mipmap/ic_github_white_24dp"
+        android:icon="@drawable/ic_github_octocat_24dp"
         app:showAsAction="never" />
 </menu>
