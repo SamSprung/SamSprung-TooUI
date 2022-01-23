@@ -60,14 +60,16 @@ import android.widget.Toast
 class GitBroadcastReceiver : BroadcastReceiver() {
 
     override fun onReceive(context: Context, intent: Intent) {
+        intent.removeFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+        intent.removeFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION)
         if (Intent.ACTION_BOOT_COMPLETED == intent.action
             || Intent.ACTION_LOCKED_BOOT_COMPLETED == intent.action
             || Intent.ACTION_REBOOT == intent.action
         ) {
             context.startForegroundService(Intent(context, OnBroadcastService::class.java))
-        } else if (BuildConfig.FLAVOR != "github") {
-            return
-        } else if (Intent.ACTION_MY_PACKAGE_REPLACED == intent.action) {
+        }
+        if (BuildConfig.FLAVOR != "github") return
+        if (Intent.ACTION_MY_PACKAGE_REPLACED == intent.action) {
             context.startActivity(context.packageManager
                 .getLaunchIntentForPackage(BuildConfig.APPLICATION_ID)
                 ?.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
