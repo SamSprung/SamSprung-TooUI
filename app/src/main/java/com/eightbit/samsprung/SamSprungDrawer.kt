@@ -66,7 +66,6 @@ import android.net.wifi.WifiManager
 import android.nfc.NfcManager
 import android.os.*
 import android.provider.Settings
-import android.service.notification.NotificationListenerService.requestRebind
 import android.text.TextUtils
 import android.view.MenuItem
 import android.view.View
@@ -104,11 +103,6 @@ class SamSprungDrawer : AppCompatActivity(),
         // ScaledContext.wrap(this).setTheme(R.style.Theme_SecondScreen)
         supportActionBar?.hide()
         setContentView(R.layout.apps_view_layout)
-
-        requestRebind(ComponentName(
-            applicationContext,
-            NotificationObserver::class.java
-        ))
 
         val permission = ContextCompat.checkSelfPermission(
             this, Manifest.permission.READ_EXTERNAL_STORAGE
@@ -179,8 +173,10 @@ class SamSprungDrawer : AppCompatActivity(),
                 override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
                     if (direction == ItemTouchHelper.RIGHT) {
                         val notice = (viewHolder as NotificationAdapter.NoticeViewHolder).notice
-                        if (null != notice?.getKey())
-                          NotificationObserver.getObserver()?.cancelNotification(notice.getKey())
+                        if (null != notice?.getKey()) {
+                            NotificationObserver.getObserver()
+                                ?.setNotificationsShown(arrayOf(notice.getKey()))
+                        }
                     }
                 }
             }

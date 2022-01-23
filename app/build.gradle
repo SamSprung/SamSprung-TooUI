@@ -10,8 +10,8 @@ android {
         applicationId "com.eightbit.samsprung"
         minSdk 30
         targetSdk 31
-        versionCode 107
-        versionName "1.0.7"
+        versionCode 108
+        versionName "1.0.8"
 
         renderscriptTargetApi 31
         renderscriptSupportModeEnabled true
@@ -89,4 +89,5 @@ dependencies {
     api 'androidx.window:window:1.0.0-beta03'
     api 'androidx.window:window-java:1.0.0-beta03'
     implementation 'com.github.SamSprung:android-issue-reporter:304542f'
+    implementation 'com.android.billingclient:billing:4.0.0'
 }

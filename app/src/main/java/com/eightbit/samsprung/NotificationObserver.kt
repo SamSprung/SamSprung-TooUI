@@ -52,6 +52,7 @@ package com.eightbit.samsprung
  */
 
 import android.annotation.SuppressLint
+import android.content.ComponentName
 import android.content.Intent
 import android.os.IBinder
 import android.service.notification.NotificationListenerService
@@ -86,6 +87,7 @@ class NotificationObserver : NotificationListenerService() {
     override fun onListenerDisconnected() {
         super.onListenerDisconnected()
         isConnected = false
+        requestRebind(ComponentName(applicationContext, NotificationObserver::class.java))
     }
 
     override fun onNotificationPosted(sbn: StatusBarNotification?) {
@@ -93,7 +95,7 @@ class NotificationObserver : NotificationListenerService() {
         getObserver()?.mNotificationsChangedListener?.onNotificationPosted(sbn)
     }
 
-    override fun onNotificationPosted (sbn: StatusBarNotification, rankingMap: RankingMap) {
+    override fun onNotificationPosted(sbn: StatusBarNotification, rankingMap: RankingMap) {
         super.onNotificationPosted(sbn, rankingMap)
         getObserver()?.mNotificationsChangedListener?.onNotificationPosted(sbn)
     }
@@ -103,7 +105,7 @@ class NotificationObserver : NotificationListenerService() {
         getObserver()?.mNotificationsChangedListener?.onNotificationRemoved(sbn)
     }
 
-    override fun onNotificationRemoved (sbn: StatusBarNotification, rankingMap: RankingMap) {
+    override fun onNotificationRemoved(sbn: StatusBarNotification, rankingMap: RankingMap) {
         super.onNotificationRemoved(sbn, rankingMap)
         getObserver()?.mNotificationsChangedListener?.onNotificationRemoved(sbn)
     }
