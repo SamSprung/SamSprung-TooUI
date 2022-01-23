@@ -216,9 +216,11 @@ class SamSprungDrawer : AppCompatActivity(),
         val bottomSheetBehavior: BottomSheetBehavior<View> =
             BottomSheetBehavior.from(findViewById(R.id.bottom_sheet))
         bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
+        var previousState: Int = BottomSheetBehavior.STATE_COLLAPSED
         bottomSheetBehavior.addBottomSheetCallback(object : BottomSheetCallback() {
             override fun onStateChanged(bottomSheet: View, newState: Int) {
-                if (newState == BottomSheetBehavior.STATE_EXPANDED) {
+                if (previousState == BottomSheetBehavior.STATE_COLLAPSED
+                    && newState == BottomSheetBehavior.STATE_HALF_EXPANDED) {
                     val bluetoothAdapter = (getSystemService(Context.BLUETOOTH_SERVICE)
                             as BluetoothManager).adapter
                     val audioManager = getSystemService(AUDIO_SERVICE) as AudioManager
@@ -376,6 +378,7 @@ class SamSprungDrawer : AppCompatActivity(),
                         }
                     }
                 }
+                previousState = newState
             }
 
             override fun onSlide(bottomSheet: View, slideOffset: Float) {}
