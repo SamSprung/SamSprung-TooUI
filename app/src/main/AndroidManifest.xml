@@ -58,26 +58,24 @@
         </activity>
         <activity
             android:name=".SamSprungDrawer"
-            android:exported="false"
+            android:exported="true"
             android:launchMode="singleTop"
             android:showOnLockScreen="true">
             <meta-data android:name="com.samsung.android.activity.showWhenLocked" android:value="true"/>
             <intent-filter>
                 <category android:name="android.intent.category.SECONDARY_HOME" />
-                <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
         <activity
             android:name=".SamSprungWidget"
-            android:exported="false"
             android:launchMode="singleTop"
             android:showOnLockScreen="true">
             <meta-data android:name="com.samsung.android.activity.showWhenLocked" android:value="true"/>
         </activity>
         <activity
             android:name=".SamSprungDonate"
+            android:theme="@style/DialogTheme.NoActionBar"
             android:launchMode="singleTop"
-            android:exported="true"
             android:showOnLockScreen="true">
             <meta-data android:name="com.samsung.android.activity.showWhenLocked" android:value="true"/>
         </activity>
