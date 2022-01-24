@@ -62,6 +62,7 @@ import android.content.pm.ResolveInfo
 import android.graphics.Canvas
 import android.hardware.camera2.CameraManager
 import android.media.AudioManager
+import android.net.Uri
 import android.net.wifi.WifiManager
 import android.nfc.NfcManager
 import android.os.*
@@ -93,6 +94,7 @@ class SamSprungDrawer : AppCompatActivity(),
     private lateinit var bReceiver: BroadcastReceiver
     private lateinit var pReceiver: BroadcastReceiver
     private var mReceiver: BroadcastReceiver? = null
+    private lateinit var noticesView: RecyclerView
 
     @SuppressLint("InflateParams", "CutPasteId", "ClickableViewAccessibility")
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -134,7 +136,7 @@ class SamSprungDrawer : AppCompatActivity(),
 
         val toolbar = findViewById<Toolbar>(R.id.toolbar)
         toolbar.inflateMenu(R.menu.quick_toggles)
-        val noticesView = findViewById<RecyclerView>(R.id.notificationList)
+        noticesView = findViewById<RecyclerView>(R.id.notificationList)
         if (hasNotificationListener() || hasAccessibility()) {
             noticesView.layoutManager = LinearLayoutManager(this)
             noticesView.adapter = NotificationAdapter(this, this@SamSprungDrawer)
@@ -170,6 +172,16 @@ class SamSprungDrawer : AppCompatActivity(),
                 }
             }
             ItemTouchHelper(simpleItemTouchCallback).attachToRecyclerView(noticesView)
+            if (hasNotificationListener()) {
+                NotificationObserver.getObserver()?.setNotificationsChangedListener(
+                    noticesView.adapter as NotificationAdapter
+                )
+            }
+            if (hasAccessibility()) {
+                AccessibilityObserver.getObserver()?.setEventsChangedListener(
+                    noticesView.adapter as NotificationAdapter
+                )
+            }
         } else {
             noticesView.visibility = View.GONE
         }
@@ -211,16 +223,6 @@ class SamSprungDrawer : AppCompatActivity(),
                             as NotificationManager
                     val camManager = getSystemService(CAMERA_SERVICE) as CameraManager
                     var isTorchEnabled = false
-                    if (hasNotificationListener()) {
-                        NotificationObserver.getObserver()?.setNotificationsChangedListener(
-                            noticesView.adapter as NotificationAdapter
-                        )
-                    }
-                    if (hasAccessibility()) {
-                        AccessibilityObserver.getObserver()?.setEventsChangedListener(
-                            noticesView.adapter as NotificationAdapter
-                        )
-                    }
 
                     if (wifiManager.isWifiEnabled)
                         toolbar.menu.findItem(R.id.toggle_wifi)
@@ -573,6 +575,21 @@ class SamSprungDrawer : AppCompatActivity(),
 
     private val Boolean.int get() = if (this) 1 else 0
     private val Int.bool:Boolean get() = this != 0
+
+    override fun onNewIntent(intent: Intent?) {
+        super.onNewIntent(intent)
+        if (!this::noticesView.isInitialized) return
+        if (hasNotificationListener()) {
+            NotificationObserver.getObserver()?.setNotificationsChangedListener(
+                noticesView.adapter as NotificationAdapter
+            )
+        }
+        if (hasAccessibility()) {
+            AccessibilityObserver.getObserver()?.setEventsChangedListener(
+                noticesView.adapter as NotificationAdapter
+            )
+        }
+    }
 
 
     override fun onDestroy() {

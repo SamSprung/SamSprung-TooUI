@@ -73,10 +73,10 @@ class NotificationAdapter(
     NotificationObserver.NotificationsChangedListener,
     AccessibilityObserver.EventsChangedListener {
 
-    private var notices: ArrayList<SamSprungNotice> = arrayListOf()
-
-    private fun setNotices(notices: ArrayList<SamSprungNotice>) {
-        this.notices = notices
+    companion object {
+        private var notices: ArrayList<SamSprungNotice> = arrayListOf()
+        private var sbNotifications: ArrayList<StatusBarNotification> = arrayListOf()
+        private var notifications: ArrayList<Notification> = arrayListOf()
     }
 
     override fun getItemCount(): Int {
@@ -189,7 +189,6 @@ class NotificationAdapter(
         return notice
     }
 
-    private var sbNotifications: ArrayList<StatusBarNotification> = arrayListOf()
     @SuppressLint("NotifyDataSetChanged")
     private fun refreshStatusBarNotifications() {
         Executors.newSingleThreadExecutor().execute {
@@ -211,7 +210,7 @@ class NotificationAdapter(
                     }
                 }
             }
-            this.setNotices(ArrayList(groups.values))
+            notices = ArrayList(groups.values)
             activity.runOnUiThread { this.notifyDataSetChanged() }
         }
     }
@@ -248,7 +247,6 @@ class NotificationAdapter(
         }
     }
 
-    private var notifications: ArrayList<Notification> = arrayListOf()
     @SuppressLint("NotifyDataSetChanged")
     private fun refreshNotifications() {
         Executors.newSingleThreadExecutor().execute {
@@ -268,7 +266,7 @@ class NotificationAdapter(
 
                 }
             }
-            this.setNotices(ArrayList(groups.values))
+            notices = ArrayList(groups.values)
             activity.runOnUiThread { this.notifyDataSetChanged() }
         }
     }
