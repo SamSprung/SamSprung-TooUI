@@ -13,9 +13,9 @@
         android:id="@+id/blurContainer"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        app:blurOverlayColor="@color/backgroundWhite"
+        app:blurOverlayColor="@color/backgroundBlack"
         android:clickable="true"
-        android:focusable="true">
+        android:focusable="true" >
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -142,5 +142,5 @@
                 android:layout_marginBottom="16dp"/>
 
         </LinearLayout>
-    </com.eightbitlab.blurview.BlurView>
+    </com.eightbitlab.blurview.BlurView>>
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

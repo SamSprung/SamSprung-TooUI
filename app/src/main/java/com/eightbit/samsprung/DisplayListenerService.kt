@@ -56,6 +56,7 @@ import android.app.*
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
+import android.content.res.Configuration
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.PixelFormat
@@ -69,6 +70,12 @@ import android.view.*
 import androidx.core.app.NotificationCompat
 import androidx.core.content.ContextCompat
 import java.lang.ref.SoftReference
+import android.content.pm.ActivityInfo
+
+import android.util.DisplayMetrics
+import androidx.window.layout.FoldingFeature
+import com.eightbit.content.ScaledContext
+
 
 class DisplayListenerService : Service() {
 
@@ -108,19 +115,20 @@ class DisplayListenerService : Service() {
             WindowManager.LayoutParams.WRAP_CONTENT,
             WindowManager.LayoutParams.WRAP_CONTENT,
             WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY,
-            WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE,
+            WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or
+                    WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL,
             PixelFormat.TRANSLUCENT
         )
         params.gravity = Gravity.START
-        launcher!!.findViewById<VerticalStrokeTextView>(R.id.navigationText).setOnClickListener {
-            dismissDisplayService(displayManager, mKeyguardLock)
-            resetLaunchedApplication(launchPackage, launchActivity)
-            startActivity(Intent(this, SamSprungDrawer::class.java)
-                .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK),
-                ActivityOptions.makeBasic().setLaunchDisplayId(1).toBundle())
-        }
+//        launcher?.findViewById<VerticalStrokeTextView>(R.id.navigationText)!!.setOnClickListener {
+//            dismissDisplayService(displayManager, mKeyguardLock)
+//            resetLaunchedApplication(launchPackage, launchActivity)
+//            startActivity(Intent(this, SamSprungDrawer::class.java)
+//                .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK),
+//                ActivityOptions.makeBasic().setLaunchDisplayId(1).toBundle())
+//        }
 
-        launcher!!.findViewById<VerticalStrokeTextView>(R.id.navigationText)
+        launcher?.findViewById<VerticalStrokeTextView>(R.id.navigationText)!!
             .setOnTouchListener(object: OnSwipeTouchListener(displayContext) {
             override fun onSwipeLeft() { }
             override fun onSwipeRight() {
@@ -141,7 +149,7 @@ class DisplayListenerService : Service() {
                 } else {
                     if (SamSprung.isKeyguardLocked)
                         @Suppress("DEPRECATION") mKeyguardLock.disableKeyguard()
-                    if (!launcher!!.isShown)
+                    if (null != launcher && !launcher!!.isShown)
                         (displayContext.getSystemService(WINDOW_SERVICE)
                                 as WindowManager).addView(launcher, params)
                 }
@@ -163,9 +171,7 @@ class DisplayListenerService : Service() {
         val wm = displayContext.getSystemService(WINDOW_SERVICE) as WindowManager
         return object : ContextThemeWrapper(displayContext, R.style.Theme_SecondScreen) {
             override fun getSystemService(name: String): Any? {
-                return if (WINDOW_SERVICE == name) {
-                    wm
-                } else super.getSystemService(name)
+                return if (WINDOW_SERVICE == name) wm else super.getSystemService(name)
             }
         }
     }
@@ -266,4 +272,9 @@ class DisplayListenerService : Service() {
     }
 
     private val Boolean.int get() = if (this) 1 else 0
+
+    override fun onConfigurationChanged(newConfig: Configuration) {
+        super.onConfigurationChanged(newConfig)
+        launcher?.invalidate()
+    }
 }

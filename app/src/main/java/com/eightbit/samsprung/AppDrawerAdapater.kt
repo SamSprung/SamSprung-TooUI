@@ -92,13 +92,13 @@ class AppDrawerAdapater(
     override fun onBindViewHolder(holder: AppViewHolder, position: Int) {
         holder.itemView.setOnClickListener {
             if (null != holder.listener) holder.listener.onAppClicked(
-                holder.appInfo!!,
+                holder.appInfo,
                 position
             )
         }
         holder.iconView.setOnClickListener {
             if (null != holder.listener) {
-                holder.listener.onAppClicked(holder.appInfo!!, position)
+                holder.listener.onAppClicked(holder.appInfo, position)
             }
         }
         holder.bind(getItem(position))
@@ -109,7 +109,7 @@ class AppDrawerAdapater(
         private val packageManager: PackageManager
     ) : RecyclerView.ViewHolder(itemView) {
         val iconView: ImageView = itemView.findViewById(R.id.widgetItemImage)
-        var appInfo: ResolveInfo? = null
+        lateinit var appInfo: ResolveInfo
         fun bind(appInfo: ResolveInfo) {
             this.appInfo = appInfo
             val icon = appInfo.loadIcon(packageManager)

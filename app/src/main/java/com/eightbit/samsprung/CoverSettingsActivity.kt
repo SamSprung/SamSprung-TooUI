@@ -52,7 +52,9 @@ package com.eightbit.samsprung
  */
 
 import android.Manifest
+import android.annotation.SuppressLint
 import android.app.KeyguardManager
+import android.app.WallpaperManager
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
@@ -76,6 +78,10 @@ import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.SwitchCompat
+import androidx.coordinatorlayout.widget.CoordinatorLayout
+import androidx.core.content.ContextCompat
+import com.eightbitlab.blurview.BlurView
+import com.eightbitlab.blurview.RenderScriptBlur
 import com.heinrichreimersoftware.androidissuereporter.IssueReporterLauncher
 import java.io.BufferedReader
 import java.io.File
@@ -104,6 +110,21 @@ class CoverSettingsActivity : AppCompatActivity() {
                 Toast.LENGTH_LONG
             ).show()
         }
+
+        if (ContextCompat.checkSelfPermission(this,
+                Manifest.permission.READ_EXTERNAL_STORAGE
+            ) == PackageManager.PERMISSION_GRANTED) {
+            findViewById<CoordinatorLayout>(R.id.rootLayout).background =
+                WallpaperManager.getInstance(this).drawable
+        }
+
+        findViewById<BlurView>(R.id.blurContainer).setupWith(
+            window.decorView.findViewById(R.id.rootLayout))
+            .setFrameClearDrawable(window.decorView.background)
+            .setBlurRadius(10f)
+            .setBlurAutoUpdate(true)
+            .setHasFixedTransformationMatrix(true)
+            .setBlurAlgorithm(RenderScriptBlur(this))
 
         val isGridView = SamSprung.prefs.getBoolean(SamSprung.prefLayout, true)
         findViewById<ToggleButton>(R.id.swapViewType).isChecked = isGridView
@@ -185,18 +206,25 @@ class CoverSettingsActivity : AppCompatActivity() {
                 Manifest.permission.READ_EXTERNAL_STORAGE
             )
 
-    private val requestPermission = registerForActivityResult(
+    private val requestBluetooth = registerForActivityResult(
         ActivityResultContracts.RequestPermission()) { }
+
+    @SuppressLint("MissingPermission")
+    private val requestStorage = registerForActivityResult(
+        ActivityResultContracts.RequestPermission()) {
+        if (it) findViewById<CoordinatorLayout>(R.id.rootLayout).background =
+            WallpaperManager.getInstance(this).drawable
+    }
 
     private val requestPermissions = registerForActivityResult(
         ActivityResultContracts.RequestMultiplePermissions()) { permissions ->
         permissions.entries.forEach {
             if (it.key == Manifest.permission.BLUETOOTH_CONNECT && !it.value) {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-                    requestPermission.launch(Manifest.permission.BLUETOOTH_CONNECT)
+                    requestBluetooth.launch(Manifest.permission.BLUETOOTH_CONNECT)
                 }
             } else if (it.key == Manifest.permission.READ_EXTERNAL_STORAGE && !it.value) {
-                requestPermission.launch(Manifest.permission.READ_EXTERNAL_STORAGE)
+                requestStorage.launch(Manifest.permission.READ_EXTERNAL_STORAGE)
             }
         }
     }

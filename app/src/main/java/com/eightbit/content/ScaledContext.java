@@ -55,7 +55,6 @@ import android.content.ContextWrapper;
 import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.graphics.Rect;
-import android.os.Build;
 import android.util.DisplayMetrics;
 import android.view.WindowManager;
 
@@ -68,11 +67,11 @@ public class ScaledContext extends ContextWrapper {
         super(base);
     }
 
-    public static void setOrientation(int orientation) {
+    public static void setBaseline(int orientation) {
         layout = orientation;
     }
 
-    private static int[] getDisplayParams(Context context) {
+    public static int[] getDisplayParams(Context context) {
         WindowManager mWindowManager = (WindowManager)
                 context.getSystemService(Context.WINDOW_SERVICE);
         Rect metrics = mWindowManager.getCurrentWindowMetrics().getBounds();

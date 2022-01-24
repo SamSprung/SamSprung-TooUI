@@ -98,11 +98,11 @@ class NotificationAdapter(
     override fun onBindViewHolder(holder: NoticeViewHolder, position: Int) {
         holder.itemView.setOnClickListener {
             if (null != holder.listener)
-                holder.listener.onNoticeClicked(holder.notice!!, position)
+                holder.listener.onNoticeClicked(holder.notice, position)
         }
         holder.iconView.setOnClickListener {
             if (null != holder.listener)
-                holder.listener.onNoticeClicked(holder.notice!!, position)
+                holder.listener.onNoticeClicked(holder.notice, position)
         }
         holder.bind(getItem(position))
     }
@@ -112,7 +112,7 @@ class NotificationAdapter(
     ) : RecyclerView.ViewHolder(itemView) {
         val iconView: ImageView = itemView.findViewById(R.id.icon)
         private val linesText: TextView = itemView.findViewById(R.id.lines)
-        var notice: SamSprungNotice? = null
+        lateinit var notice: SamSprungNotice
         fun bind(notice: SamSprungNotice) {
             this.notice = notice
             iconView.setImageDrawable(notice.getDrawable())
