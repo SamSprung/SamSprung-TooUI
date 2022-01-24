@@ -1,18 +1,22 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:paddingStart="0dp"
+    android:paddingEnd="8dp">
 
     <com.eightbit.samsprung.VerticalStrokeTextView
         android:id="@+id/navigationText"
-        style="@style/verticalTextStyle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textColor="@color/navigation_selector"
-        android:shadowColor="@android:color/holo_purple"
         android:alpha="0.2"
-        android:shadowRadius="8"
-        android:text="@string/samsprung" />
+        android:textSize="16sp"
+        android:text="@string/samsprung"
+        android:padding="8dp"
+        app:direction="1"
+        app:stroke_width="2"
+        app:stroke_color="@android:color/holo_purple"/>
 
 </LinearLayout>

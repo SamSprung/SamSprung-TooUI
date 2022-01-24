@@ -70,11 +70,6 @@ import android.view.*
 import androidx.core.app.NotificationCompat
 import androidx.core.content.ContextCompat
 import java.lang.ref.SoftReference
-import android.content.pm.ActivityInfo
-
-import android.util.DisplayMetrics
-import androidx.window.layout.FoldingFeature
-import com.eightbit.content.ScaledContext
 
 
 class DisplayListenerService : Service() {
@@ -119,7 +114,7 @@ class DisplayListenerService : Service() {
                     WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL,
             PixelFormat.TRANSLUCENT
         )
-        params.gravity = Gravity.START
+        params.gravity = Gravity.END
 //        launcher?.findViewById<VerticalStrokeTextView>(R.id.navigationText)!!.setOnClickListener {
 //            dismissDisplayService(displayManager, mKeyguardLock)
 //            resetLaunchedApplication(launchPackage, launchActivity)
@@ -130,14 +125,14 @@ class DisplayListenerService : Service() {
 
         launcher?.findViewById<VerticalStrokeTextView>(R.id.navigationText)!!
             .setOnTouchListener(object: OnSwipeTouchListener(displayContext) {
-            override fun onSwipeLeft() { }
-            override fun onSwipeRight() {
+            override fun onSwipeLeft() {
                 dismissDisplayService(displayManager, mKeyguardLock)
                 resetLaunchedApplication(launchPackage, launchActivity)
                 startActivity(Intent(displayContext, SamSprungDrawer::class.java)
                     .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK),
                     ActivityOptions.makeBasic().setLaunchDisplayId(1).toBundle())
             }
+            override fun onSwipeRight() { }
         })
 
         mDisplayListener = object : DisplayManager.DisplayListener {
