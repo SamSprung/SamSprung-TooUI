@@ -84,7 +84,7 @@ class OnBroadcastService : Service() {
                 Bitmap.createScaledBitmap(
                     iconNotification, 128, 128, false))
         }
-        builder.color = ContextCompat.getColor(this, R.color.purple_200)
+        builder.color = ContextCompat.getColor(this, R.color.primary_light)
         startForeground(startId, builder.build())
     }
 
