@@ -51,53 +51,39 @@ package com.eightbit.samsprung
  * subject to to the terms and conditions of the Apache License, Version 2.0.
  */
 
-import android.app.Application
+import android.app.ActivityOptions
 import android.content.Intent
-import android.content.SharedPreferences
-import java.lang.ref.SoftReference
-import kotlin.system.exitProcess
+import android.graphics.PixelFormat
+import android.os.Bundle
+import android.view.WindowManager
+import androidx.appcompat.app.AppCompatActivity
 
-class SamSprung : Application() {
-    override fun onCreate() {
-        super.onCreate()
-        mPrefs = SoftReference(
-            getSharedPreferences("samsprung.launcher.PREFS", MODE_PRIVATE)
-        )
-        Thread.setDefaultUncaughtExceptionHandler { _: Thread?, error: Throwable ->
-            error.printStackTrace()
-            startService(
-                Intent(this, OnBroadcastService::class.java).setAction(removing)
-            )
-            // Unrecoverable error encountered
-            exitProcess(1)
-        }
-        if (prefs.contains("gridview")) {
-            with(prefs.edit()) {
-                putBoolean(prefLayout, prefs.getBoolean("gridview", true))
-                remove("gridview")
-                apply()
-            }
-        }
-        if (prefs.contains("hidden_packages")) {
-            with(prefs.edit()) {
-                putStringSet(prefHidden, prefs.getStringSet("hidden_packages", setOf<String>()))
-                remove("hidden_packages")
-                apply()
-            }
-        }
-    }
+import android.view.Gravity
 
-    companion object {
-        const val provider: String = "com.eightbit.samsprung.provider"
-        const val updating: String = "com.eightbit.samsprung.UPDATING"
-        const val removing: String = "com.eightbit.samsprung.REMOVING"
-        const val launcher: String = "com.eightbit.samsprung.LAUNCHER"
-        const val request_code = 8675309
-        var isKeyguardLocked: Boolean = true
-        private lateinit var mPrefs: SoftReference<SharedPreferences>
-        val prefs: SharedPreferences get() = mPrefs.get()!!
-        const val prefLayout: String = "prefLayout"
-        const val prefHidden: String = "prefHidden"
-        const val autoRotate: String = "autoRotate"
+class SamSprungOverlay : AppCompatActivity() {
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        setShowWhenLocked(true)
+        // setTurnScreenOn(true)
+
+        window.setFlags(WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE
+                or WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL, PixelFormat.TRANSPARENT)
+
+        val wlp: WindowManager.LayoutParams = window.attributes
+        wlp.gravity = Gravity.START
+        window.attributes = wlp
+
+        super.onCreate(savedInstanceState)
+        // ScaledContext.wrap(this).setTheme(R.style.Theme_SecondScreen)
+        supportActionBar?.hide()
+        setContentView(R.layout.launcher_layout)
+
+        findViewById<VerticalStrokeTextView>(R.id.navigationText)!!.setOnClickListener {
+            finish()
+            startActivity(
+                Intent(this, SamSprungDrawer::class.java)
+                .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK),
+                ActivityOptions.makeBasic().setLaunchDisplayId(1).toBundle())
+        }
     }
 }

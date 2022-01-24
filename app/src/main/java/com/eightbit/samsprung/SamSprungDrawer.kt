@@ -165,7 +165,7 @@ class SamSprungDrawer : AppCompatActivity(),
                 override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
                     if (direction == ItemTouchHelper.RIGHT) {
                         val notice = (viewHolder as NotificationAdapter.NoticeViewHolder).notice
-                        if (null != notice?.getKey()) {
+                        if (null != notice.getKey()) {
                             NotificationObserver.getObserver()
                                 ?.setNotificationsShown(arrayOf(notice.getKey()))
                         }
@@ -460,9 +460,17 @@ class SamSprungDrawer : AppCompatActivity(),
             override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
                 if (direction == ItemTouchHelper.RIGHT) {
                     finish()
+                    startActivity(
+                        Intent(this@SamSprungDrawer, SamSprungOverlay::class.java)
+                            .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK),
+                        ActivityOptions.makeBasic().setLaunchDisplayId(1).toBundle())
                 }
                 if (direction == ItemTouchHelper.LEFT) {
                     finish()
+                    startActivity(
+                        Intent(this@SamSprungDrawer, SamSprungOverlay::class.java)
+                            .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK),
+                        ActivityOptions.makeBasic().setLaunchDisplayId(1).toBundle())
                 }
             }
         }

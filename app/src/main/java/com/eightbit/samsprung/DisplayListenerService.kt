@@ -114,26 +114,7 @@ class DisplayListenerService : Service() {
                     WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL,
             PixelFormat.TRANSLUCENT
         )
-        params.gravity = Gravity.END
-//        launcher?.findViewById<VerticalStrokeTextView>(R.id.navigationText)!!.setOnClickListener {
-//            dismissDisplayService(displayManager, mKeyguardLock)
-//            resetLaunchedApplication(launchPackage, launchActivity)
-//            startActivity(Intent(this, SamSprungDrawer::class.java)
-//                .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK),
-//                ActivityOptions.makeBasic().setLaunchDisplayId(1).toBundle())
-//        }
-
-        launcher?.findViewById<VerticalStrokeTextView>(R.id.navigationText)!!
-            .setOnTouchListener(object: OnSwipeTouchListener(displayContext) {
-            override fun onSwipeLeft() {
-                dismissDisplayService(displayManager, mKeyguardLock)
-                resetLaunchedApplication(launchPackage, launchActivity)
-                startActivity(Intent(displayContext, SamSprungDrawer::class.java)
-                    .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK),
-                    ActivityOptions.makeBasic().setLaunchDisplayId(1).toBundle())
-            }
-            override fun onSwipeRight() { }
-        })
+        params.gravity = Gravity.START
 
         mDisplayListener = object : DisplayManager.DisplayListener {
             override fun onDisplayAdded(display: Int) {}
@@ -155,6 +136,18 @@ class DisplayListenerService : Service() {
         displayManager.registerDisplayListener(
             mDisplayListener, Handler(Looper.getMainLooper())
         )
+
+        launcher?.findViewById<VerticalStrokeTextView>(R.id.navigationText)!!
+            .setOnTouchListener(object: OnSwipeTouchListener(displayContext) {
+            override fun onSwipeLeft() {
+                dismissDisplayService(displayManager, mKeyguardLock)
+                resetLaunchedApplication(launchPackage, launchActivity)
+                startActivity(Intent(displayContext, SamSprungDrawer::class.java)
+                    .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK),
+                    ActivityOptions.makeBasic().setLaunchDisplayId(1).toBundle())
+            }
+            override fun onSwipeRight() { }
+        })
 
         (displayContext.getSystemService(WINDOW_SERVICE)
                 as WindowManager).addView(launcher, params)
