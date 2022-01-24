@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <style name="SlimButton" parent="Widget.AppCompat.Button">
+    <style name="SlimButton" parent="Widget.AppCompat.Button.Small">
         <item name="android:minHeight">@dimen/button_height_min</item>
     </style>
     <style name="verticalTextStyle"

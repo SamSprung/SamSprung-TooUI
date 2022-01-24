@@ -1,5 +1,4 @@
 <resources>
-    <string name="app_name">SamSprung Lanzador</string>
     <string name="caveats_warning">La pantalla de bloqueo debe estar deshabilitada para iniciar aplicaciones</string>
     <string name="description_icon">Icono</string>
 </resources>

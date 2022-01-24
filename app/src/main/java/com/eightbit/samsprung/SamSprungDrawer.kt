@@ -104,21 +104,20 @@ class SamSprungDrawer : AppCompatActivity(),
         supportActionBar?.hide()
         setContentView(R.layout.apps_view_layout)
 
-        val permission = ContextCompat.checkSelfPermission(
-            this, Manifest.permission.READ_EXTERNAL_STORAGE
-        )
-        if (permission == PackageManager.PERMISSION_GRANTED) {
-            val wallpaperManager: WallpaperManager = WallpaperManager.getInstance(this)
-            findViewById<CoordinatorLayout>(R.id.rootLayout).background = wallpaperManager.drawable
-            findViewById<BlurView>(R.id.blurContainer).setupWith(
-                window.decorView.findViewById(R.id.rootLayout)
-            )
-                .setFrameClearDrawable(window.decorView.background)
-                .setBlurRadius(1f)
-                .setBlurAutoUpdate(true)
-                .setHasFixedTransformationMatrix(true)
-                .setBlurAlgorithm(RenderScriptBlur(this))
+        if (ContextCompat.checkSelfPermission(this,
+                Manifest.permission.READ_EXTERNAL_STORAGE
+            ) == PackageManager.PERMISSION_GRANTED) {
+            findViewById<CoordinatorLayout>(R.id.rootLayout).background =
+                WallpaperManager.getInstance(this).drawable
         }
+
+        findViewById<BlurView>(R.id.blurContainer).setupWith(
+            window.decorView.findViewById(R.id.rootLayout))
+            .setFrameClearDrawable(window.decorView.background)
+            .setBlurRadius(1f)
+            .setBlurAutoUpdate(true)
+            .setHasFixedTransformationMatrix(true)
+            .setBlurAlgorithm(RenderScriptBlur(this))
 
         val batteryLevel = findViewById<TextView>(R.id.battery_status)
         val bReceiver: BroadcastReceiver = object : BroadcastReceiver() {

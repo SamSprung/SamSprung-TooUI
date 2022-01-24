@@ -116,11 +116,11 @@ class SamSprungDonate : AppCompatActivity() {
     }
 
     private fun getIAP(amount: Int) : String {
-        return String.format("subscription_%d", amount)
+        return String.format("subscription_%02d", amount)
     }
 
     private fun getSub(amount: Int) : String {
-        return String.format("monthly_%d", amount)
+        return String.format("monthly_%02d", amount)
     }
 
     private val purchasesUpdatedListener = PurchasesUpdatedListener { billingResult, purchases ->
@@ -139,6 +139,7 @@ class SamSprungDonate : AppCompatActivity() {
             val layout: LinearLayout = findViewById(R.id.donation_layout)
             for (skuDetail: SkuDetails in skuDetails.sortedBy { skuDetail -> skuDetail.sku }) {
                 val button = Button(this)
+                button.setBackgroundResource(R.drawable.button_rippled)
                 button.text = skuDetail.title
                 button.setOnClickListener {
                     billingClient.launchBillingFlow(this,
@@ -154,6 +155,7 @@ class SamSprungDonate : AppCompatActivity() {
             val layout: LinearLayout = findViewById(R.id.subscription_layout)
             for (skuDetail: SkuDetails in skuDetails.sortedBy { skuDetail -> skuDetail.sku }) {
                 val button = Button(this)
+                button.setBackgroundResource(R.drawable.button_rippled)
                 button.text = skuDetail.title
                 button.setOnClickListener {
                     billingClient.launchBillingFlow(this,

@@ -52,11 +52,15 @@ package com.eightbit.samsprung
  */
 
 import android.Manifest
+import android.app.WallpaperManager
 import android.content.pm.PackageManager
 import android.os.Bundle
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
+import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.core.content.ContextCompat
+import com.eightbitlab.blurview.BlurView
+import com.eightbitlab.blurview.RenderScriptBlur
 
 class SamSprungWidget : AppCompatActivity() {
 
@@ -75,6 +79,21 @@ class SamSprungWidget : AppCompatActivity() {
         if (permission == PackageManager.PERMISSION_GRANTED) {
             requestPermission.launch(Manifest.permission.BIND_APPWIDGET)
         }
+
+        if (ContextCompat.checkSelfPermission(this,
+                Manifest.permission.READ_EXTERNAL_STORAGE
+            ) == PackageManager.PERMISSION_GRANTED) {
+            findViewById<CoordinatorLayout>(R.id.rootLayout).background =
+                WallpaperManager.getInstance(this).drawable
+        }
+
+        findViewById<BlurView>(R.id.blurContainer).setupWith(
+            window.decorView.findViewById(R.id.rootLayout))
+            .setFrameClearDrawable(window.decorView.background)
+            .setBlurRadius(1f)
+            .setBlurAutoUpdate(true)
+            .setHasFixedTransformationMatrix(true)
+            .setBlurAlgorithm(RenderScriptBlur(this))
     }
 
     private val requestPermission = registerForActivityResult(

@@ -192,7 +192,7 @@ class DisplayListenerService : Service() {
         mNotificationManager.createNotificationChannel(notificationChannel)
         val builder = NotificationCompat.Builder(this, "service_channel")
 
-        val notificationText = getString(R.string.display_service, getString(R.string.app_name))
+        val notificationText = getString(R.string.display_service, getString(R.string.samsprung))
         builder.setContentTitle(notificationText).setTicker(notificationText)
             .setSmallIcon(R.drawable.ic_launcher_foreground)
             .setWhen(0).setOnlyAlertOnce(true)
