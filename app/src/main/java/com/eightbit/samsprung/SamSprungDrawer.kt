@@ -471,19 +471,12 @@ class SamSprungDrawer : AppCompatActivity(),
             ) { }
 
             override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
-                if (direction == ItemTouchHelper.RIGHT) {
+                if (direction == ItemTouchHelper.LEFT || direction == ItemTouchHelper.RIGHT) {
+                    finish()
                     startActivity(
                         Intent(applicationContext, SamSprungOverlay::class.java)
                             .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK),
                         ActivityOptions.makeBasic().setLaunchDisplayId(1).toBundle())
-                    finish()
-                }
-                if (direction == ItemTouchHelper.LEFT) {
-                    startActivity(
-                        Intent(applicationContext, SamSprungOverlay::class.java)
-                            .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK),
-                        ActivityOptions.makeBasic().setLaunchDisplayId(1).toBundle())
-                    finish()
                 }
             }
         }

@@ -67,6 +67,9 @@ class AccessibilityObserver : AccessibilityService() {
         fun executeButtonBack() {
             observerInstance.performGlobalAction(GLOBAL_ACTION_BACK)
         }
+        fun executeButtonHome() {
+            observerInstance.performGlobalAction(GLOBAL_ACTION_HOME)
+        }
     }
 
     init {

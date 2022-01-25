@@ -125,7 +125,7 @@ class DisplayListenerService : Service() {
             override fun onDisplayChanged(display: Int) {
                 if (display == 0) {
                     dismissDisplayListener(displayManager, mKeyguardLock)
-                    resetLaunchedApplication(launchPackage, launchActivity)
+                    resetRecentActivities(launchPackage, launchActivity)
                 } else {
                     if (SamSprung.isKeyguardLocked)
                         @Suppress("DEPRECATION") mKeyguardLock.disableKeyguard()
@@ -154,7 +154,7 @@ class DisplayListenerService : Service() {
                     }
                     launcher?.findViewById<ImageView>(R.id.button_recent)!!.setOnClickListener {
                         dismissDisplayService(displayManager, mKeyguardLock)
-                        resetLaunchedApplication(launchPackage, launchActivity)
+                        resetRecentActivities(launchPackage, launchActivity)
                         startActivity(
                             Intent(displayContext, SamSprungDrawer::class.java)
                                 .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK),
@@ -163,7 +163,7 @@ class DisplayListenerService : Service() {
                     }
                     launcher?.findViewById<ImageView>(R.id.button_home)!!.setOnClickListener {
                         dismissDisplayService(displayManager, mKeyguardLock)
-                        resetLaunchedApplication(launchPackage, launchActivity)
+                        resetRecentActivities(launchPackage, launchActivity)
                         startActivity(
                             Intent(applicationContext, SamSprungOverlay::class.java)
                                 .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
@@ -246,10 +246,10 @@ class DisplayListenerService : Service() {
         startForeground(startId, builder.build())
     }
 
-    private fun resetLaunchedApplication(launchPackage: String, launchActivity: String?) {
-        if (null != launchActivity) {
-            val options = ActivityOptions.makeBasic().setLaunchDisplayId(0)
+    private fun resetRecentActivities(launchPackage: String, launchActivity: String?) {
+        val options = ActivityOptions.makeBasic().setLaunchDisplayId(0)
 
+        if (null != launchActivity) {
             val coverIntent = Intent(Intent.ACTION_MAIN)
             coverIntent.addCategory(Intent.CATEGORY_LAUNCHER)
             coverIntent.component = ComponentName(launchPackage, launchActivity)
@@ -258,7 +258,11 @@ class DisplayListenerService : Service() {
                     Intent.FLAG_ACTIVITY_FORWARD_RESULT or
                     Intent.FLAG_ACTIVITY_NO_ANIMATION
             startActivity(coverIntent, options.toBundle())
+        }
 
+        if (hasAccessibility()) {
+            AccessibilityObserver.executeButtonHome()
+        } else {
             val homeLauncher = Intent(Intent.ACTION_MAIN)
             homeLauncher.addCategory(Intent.CATEGORY_HOME)
             homeLauncher.flags = Intent.FLAG_ACTIVITY_NEW_TASK or
