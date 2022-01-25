@@ -93,12 +93,12 @@ class SamSprungOverlay : AppCompatActivity() {
         window.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
         setContentView(R.layout.navigation_layout)
 
-        val menu = findViewById<LinearLayout>(R.id.button_layout)!!
         val bottomSheetBehavior: BottomSheetBehavior<View> =
             BottomSheetBehavior.from(findViewById(R.id.bottom_sheet))
         bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
         bottomSheetBehavior.addBottomSheetCallback(object : BottomSheetBehavior.BottomSheetCallback() {
             override fun onStateChanged(bottomSheet: View, newState: Int) {
+                val menu = findViewById<LinearLayout>(R.id.button_layout)!!
                 if (newState == BottomSheetBehavior.STATE_EXPANDED) {
                     if (!menu.isVisible) menu.visibility = View.VISIBLE
                     findViewById<VerticalStrokeTextView>(R.id.samsprung_logo)!!.setOnClickListener {

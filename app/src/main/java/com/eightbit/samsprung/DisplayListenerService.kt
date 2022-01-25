@@ -142,12 +142,12 @@ class DisplayListenerService : Service() {
             mDisplayListener, Handler(Looper.getMainLooper())
         )
 
-        val menu = launcher?.findViewById<LinearLayout>(R.id.button_layout)!!
         val bottomSheetBehavior: BottomSheetBehavior<View> =
             BottomSheetBehavior.from(launcher?.findViewById(R.id.bottom_sheet)!!)
         bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
         bottomSheetBehavior.addBottomSheetCallback(object : BottomSheetBehavior.BottomSheetCallback() {
             override fun onStateChanged(bottomSheet: View, newState: Int) {
+                val menu = launcher?.findViewById<LinearLayout>(R.id.button_layout)!!
                 if (newState == BottomSheetBehavior.STATE_EXPANDED) {
                     if (!menu.isVisible) menu.visibility = View.VISIBLE
                     launcher?.findViewById<VerticalStrokeTextView>(R.id.samsprung_logo)!!.setOnClickListener {
