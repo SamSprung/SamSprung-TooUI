@@ -94,7 +94,7 @@ public class ScaledContext extends ContextWrapper {
             }
         }
 
-        metrics.density = 2.3f;
+        metrics.density = 1.5f;
         metrics.densityDpi = 320;
         if (orientation == Configuration.ORIENTATION_PORTRAIT) {
             metrics.heightPixels = fullscreen != 0 ? 2960 : 2560;
@@ -104,7 +104,7 @@ public class ScaledContext extends ContextWrapper {
             metrics.heightPixels = 1440;
             metrics.widthPixels = fullscreen != 0 ? 2960 : 2560;
         }
-        metrics.scaledDensity = 2.3f;
+        metrics.scaledDensity = 1.5f;
         metrics.xdpi = 521.0f;
         metrics.ydpi = 521.0f;
         metrics.setTo(metrics);

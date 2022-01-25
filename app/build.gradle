@@ -13,6 +13,7 @@ android {
         versionCode 109
         versionName "1.0.9"
 
+        vectorDrawables.useSupportLibrary = true
         renderscriptTargetApi 31
         renderscriptSupportModeEnabled true
 

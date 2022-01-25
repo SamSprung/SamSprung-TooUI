@@ -4,29 +4,29 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/widgetListContainer"
     android:layout_width="match_parent"
-    android:layout_height="72dp"
+    android:layout_height="48dp"
     android:layout_gravity="center"
     android:orientation="horizontal"
     tools:context=".CoverSettingsActivity"
     tools:ignore="UseCompoundDrawables">
 
     <FrameLayout
-        android:layout_width="72dp"
-        android:layout_height="72dp"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
         android:layout_gravity="center"
         android:layout_marginStart="4dp">
 
         <ImageView
             android:id="@+id/widgetItemImage"
-            android:layout_width="64dp"
-            android:layout_height="64dp"
-            android:layout_gravity="center_vertical"
+            android:layout_width="42dp"
+            android:layout_height="42dp"
+            android:layout_gravity="center"
             android:contentDescription="@string/description_icon" />
 
         <ImageView
             android:id="@+id/widgetItemBadge"
-            android:layout_width="24dp"
-            android:layout_height="24dp"
+            android:layout_width="12dp"
+            android:layout_height="12dp"
             android:layout_gravity="top|end"
             app:srcCompat="@drawable/notification_badge"
             android:contentDescription="@string/description_badge"

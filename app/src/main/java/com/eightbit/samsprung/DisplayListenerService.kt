@@ -182,7 +182,7 @@ class DisplayListenerService : Service() {
             override fun onSlide(bottomSheet: View, slideOffset: Float) {}
         })
 
-        launcher?.findViewById<View>(R.id.rootLayout)!!.setOnTouchListener(
+        launcher?.findViewById<View>(R.id.bottom_sheet)!!.setOnTouchListener(
             object: OnSwipeTouchListener(this@DisplayListenerService) {
             override fun onSwipeTop() {
                 launcher?.findViewById<LinearLayout>(

@@ -3,24 +3,24 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/widgetItemContainer"
-    android:layout_width="72dp"
-    android:layout_height="72dp"
-    android:layout_marginTop="8dp"
+    android:layout_width="48dp"
+    android:layout_height="48dp"
+    android:layout_marginTop="2dp"
     android:layout_gravity="center"
     tools:context=".CoverSettingsActivity">
 
     <ImageView
         android:id="@+id/widgetItemImage"
         android:contentDescription="@string/description_icon"
-        android:layout_width="64dp"
-        android:layout_height="64dp"
+        android:layout_width="42dp"
+        android:layout_height="42dp"
         android:layout_gravity="center"
         app:srcCompat="@mipmap/sprung_icon" />
 
     <ImageView
         android:id="@+id/widgetGridBadge"
-        android:layout_width="24dp"
-        android:layout_height="24dp"
+        android:layout_width="12dp"
+        android:layout_height="12dp"
         android:layout_gravity="top|end"
         app:srcCompat="@drawable/notification_badge"
         android:contentDescription="@string/description_badge"

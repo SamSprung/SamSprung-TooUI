@@ -79,6 +79,7 @@ import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.eightbit.content.ScaledContext
 import com.eightbitlab.blurview.BlurView
 import com.eightbitlab.blurview.RenderScriptBlur
 import com.google.android.material.bottomsheet.BottomSheetBehavior
@@ -102,9 +103,13 @@ class SamSprungDrawer : AppCompatActivity(),
         // setTurnScreenOn(true)
 
         super.onCreate(savedInstanceState)
-        // ScaledContext.wrap(this).setTheme(R.style.Theme_SecondScreen)
         supportActionBar?.hide()
-        setContentView(R.layout.apps_view_layout)
+        if (SamSprung.prefs.getBoolean(SamSprung.prefScaled, false)) {
+            ScaledContext.wrap(this).setTheme(R.style.Theme_SecondScreen)
+            setContentView(R.layout.scaled_view_layout)
+        } else {
+            setContentView(R.layout.apps_view_layout)
+        }
 
         oReceiver = object : BroadcastReceiver() {
             @SuppressLint("NotifyDataSetChanged")
@@ -558,7 +563,10 @@ class SamSprungDrawer : AppCompatActivity(),
     }
 
     private fun getColumnCount(): Int {
-        return (windowManager.currentWindowMetrics.bounds.width() / 96 + 0.5).toInt()
+        return if (SamSprung.prefs.getBoolean(SamSprung.prefScaled, false))
+            (windowManager.currentWindowMetrics.bounds.width() / 72 + 0.5).toInt()
+        else
+            (windowManager.currentWindowMetrics.bounds.width() / 96 + 0.5).toInt()
     }
 
     private fun hasAccessibility(): Boolean {

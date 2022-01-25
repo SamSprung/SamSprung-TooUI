@@ -65,7 +65,7 @@
                     android:id="@+id/button_recent"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:src="@drawable/ic_baseline_splitscreen_24"
+                    app:srcCompat="@drawable/ic_baseline_splitscreen_24"
                     android:layout_weight="1"
                     android:contentDescription="@string/description_icon"/>
 
@@ -73,7 +73,7 @@
                     android:id="@+id/button_home"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:src="@drawable/ic_baseline_home_24"
+                    app:srcCompat="@drawable/ic_baseline_home_24"
                     android:layout_weight="1"
                     android:contentDescription="@string/description_icon"/>
 
@@ -81,7 +81,7 @@
                     android:id="@+id/button_back"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:src="@drawable/ic_baseline_arrow_back_ios_new_24"
+                    app:srcCompat="@drawable/ic_baseline_arrow_back_ios_new_24"
                     android:layout_weight="1"
                     android:contentDescription="@string/description_icon"/>
 

@@ -53,13 +53,16 @@ package com.eightbit.samsprung
 
 import android.app.ActivityOptions
 import android.content.Intent
+import android.graphics.Color
 import android.graphics.PixelFormat
+import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
 import android.provider.Settings
 import android.view.*
 import android.widget.ImageView
 import android.widget.LinearLayout
 import androidx.appcompat.app.AppCompatActivity
+import com.eightbit.content.ScaledContext
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import java.io.File
 
@@ -76,7 +79,8 @@ class SamSprungOverlay : AppCompatActivity() {
             PixelFormat.TRANSPARENT)
 
         super.onCreate(savedInstanceState)
-        // ScaledContext.wrap(this).setTheme(R.style.Theme_SecondScreen)
+        if (SamSprung.prefs.getBoolean(SamSprung.prefScaled, false))
+            ScaledContext.wrap(this).setTheme(R.style.Theme_SecondScreen)
         supportActionBar?.hide()
         window.setLayout(
             ViewGroup.LayoutParams.MATCH_PARENT,
@@ -85,6 +89,7 @@ class SamSprungOverlay : AppCompatActivity() {
         val wlp: WindowManager.LayoutParams = window.attributes
         wlp.gravity = Gravity.BOTTOM
         window.attributes = wlp
+        window.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
         setContentView(R.layout.navigation_layout)
 
         val bottomSheetBehavior: BottomSheetBehavior<View> =
@@ -120,7 +125,10 @@ class SamSprungOverlay : AppCompatActivity() {
             override fun onSlide(bottomSheet: View, slideOffset: Float) {}
         })
 
-        findViewById<View>(R.id.rootLayout)!!.setOnTouchListener(
+        if (SamSprung.prefs.getBoolean(SamSprung.prefScaled, false))
+            bottomSheetBehavior.peekHeight = 12
+
+        findViewById<View>(R.id.bottom_sheet)!!.setOnTouchListener(
             object: OnSwipeTouchListener(this@SamSprungOverlay) {
             override fun onSwipeTop() {
                 findViewById<LinearLayout>(R.id.button_layout)!!.visibility = View.VISIBLE
