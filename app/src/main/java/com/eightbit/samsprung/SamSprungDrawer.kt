@@ -62,6 +62,7 @@ import android.content.pm.ResolveInfo
 import android.graphics.Canvas
 import android.hardware.camera2.CameraManager
 import android.media.AudioManager
+import android.net.Uri
 import android.net.wifi.WifiManager
 import android.nfc.NfcManager
 import android.os.*
@@ -587,6 +588,21 @@ class SamSprungDrawer : AppCompatActivity(),
             AccessibilityObserver.getObserver()?.setEventsChangedListener(
                 noticesView.adapter as NotificationAdapter
             )
+        }
+        if (BuildConfig.FLAVOR != "google") {
+            val updates = CheckUpdatesTask(this)
+            if (packageManager.canRequestPackageInstalls()) {
+                updates.retrieveUpdate()
+            } else {
+                registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
+                    if (packageManager.canRequestPackageInstalls())
+                        updates.retrieveUpdate()
+                }.launch(
+                    Intent(Settings.ACTION_MANAGE_UNKNOWN_APP_SOURCES).setData(
+                        Uri.parse(String.format("package:%s", packageName))
+                    )
+                )
+            }
         }
     }
 
