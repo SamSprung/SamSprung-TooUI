@@ -88,6 +88,6 @@ dependencies {
     // Includes WindowInfoRepositoryCallbackAdapter
     api 'androidx.window:window:1.0.0-beta03'
     api 'androidx.window:window-java:1.0.0-beta03'
-    implementation 'com.github.SamSprung:android-issue-reporter:304542f'
+    implementation 'com.github.SamSprung:android-issue-reporter:fa8212c'
     implementation 'com.android.billingclient:billing:4.0.0'
 }

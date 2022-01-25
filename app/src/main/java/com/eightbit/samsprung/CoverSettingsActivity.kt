@@ -70,6 +70,7 @@ import android.text.TextUtils
 import android.text.style.ImageSpan
 import android.view.Menu
 import android.view.MenuItem
+import android.view.View
 import android.widget.ListView
 import android.widget.Toast
 import android.widget.ToggleButton
@@ -102,14 +103,6 @@ class CoverSettingsActivity : AppCompatActivity() {
         setContentView(R.layout.app_editor_layout)
 
         onNewIntent(intent)
-
-        if (isDeviceSecure()) {
-            Toast.makeText(
-                applicationContext,
-                R.string.caveats_warning,
-                Toast.LENGTH_LONG
-            ).show()
-        }
 
         if (ContextCompat.checkSelfPermission(this,
                 Manifest.permission.READ_EXTERNAL_STORAGE
@@ -191,7 +184,6 @@ class CoverSettingsActivity : AppCompatActivity() {
         val listView: ListView = findViewById(R.id.selectionListView)
         listView.adapter = FilteredAppsAdapter(this, packages, unlisted)
 
-        requestPermissions.launch(permissions)
         startForegroundService(Intent(this, OnBroadcastService::class.java))
     }
 
@@ -373,7 +365,8 @@ class CoverSettingsActivity : AppCompatActivity() {
         IssueReporterLauncher.forTarget("SamSprung", "SamSprung-TooUI")
             .theme(R.style.Theme_SecondScreen_NoActionBar)
             .guestToken(getRepositoryToken())
-            .guestEmailRequired(false)
+            .guestEmailRequired(true)
+            .guestAllowUsername(true)
             .titleTextDefault(getString(R.string.build_hash, BuildConfig.COMMIT))
             .minDescriptionLength(0)
             .putExtraInfo("logcat", log.toString())
@@ -387,9 +380,7 @@ class CoverSettingsActivity : AppCompatActivity() {
             if (packageManager.canRequestPackageInstalls()) {
                 updates.retrieveUpdate()
             } else {
-                registerForActivityResult(
-                    ActivityResultContracts.StartActivityForResult()
-                ) {
+                registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
                     if (packageManager.canRequestPackageInstalls())
                         updates.retrieveUpdate()
                 }.launch(
@@ -398,6 +389,25 @@ class CoverSettingsActivity : AppCompatActivity() {
                     )
                 )
             }
+        }
+        if (isDeviceSecure() && !SamSprung.prefs.getBoolean(SamSprung.prefSecure, false)) {
+            AlertDialog.Builder(this)
+                .setTitle(R.string.caveats_title)
+                .setMessage(R.string.caveats_warning)
+                .setPositiveButton(R.string.button_confirm) { dialog, _ ->
+                    with (SamSprung.prefs.edit()) {
+                        putBoolean(SamSprung.prefSecure,  true)
+                        apply()
+                    }
+                    requestPermissions.launch(permissions)
+                    dialog.dismiss()
+                }
+                .setNegativeButton(R.string.button_cancel) { dialog, _ ->
+                    dialog.dismiss()
+                    finish()
+                }.show()
+        } else {
+            requestPermissions.launch(permissions)
         }
     }
 }
