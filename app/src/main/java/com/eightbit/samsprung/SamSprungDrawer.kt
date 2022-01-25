@@ -298,7 +298,7 @@ class SamSprungDrawer : AppCompatActivity(),
                     if (Settings.System.canWrite(applicationContext)) {
                         try {
                             if (Settings.System.getInt(applicationContext.contentResolver,
-                                    Settings.System.ACCELEROMETER_ROTATION).bool)
+                                    Settings.System.ACCELEROMETER_ROTATION) == 1)
                                 toolbar.menu.findItem(R.id.toggle_rotation)
                                     .setIcon(R.drawable.ic_baseline_screen_rotation_24)
                             else
@@ -370,10 +370,12 @@ class SamSprungDrawer : AppCompatActivity(),
                                 return@setOnMenuItemClickListener true
                             }
                             R.id.toggle_rotation -> {
+                                var hasRotationEnabled = 0
+                                if (Settings.System.getInt(applicationContext.contentResolver,
+                                        Settings.System.ACCELEROMETER_ROTATION) == 1)
+                                    hasRotationEnabled = 1
                                 Settings.System.putInt(applicationContext.contentResolver,
-                                    Settings.System.ACCELEROMETER_ROTATION,
-                                    (!Settings.System.getInt(applicationContext.contentResolver,
-                                        Settings.System.ACCELEROMETER_ROTATION).bool).int)
+                                    Settings.System.ACCELEROMETER_ROTATION, hasRotationEnabled)
                             }
                             R.id.toggle_torch -> {
                                 if (isTorchEnabled) {
@@ -498,17 +500,9 @@ class SamSprungDrawer : AppCompatActivity(),
     }
 
     private fun prepareConfiguration() {
-        with (SamSprung.prefs.edit()) {
-            try {
-                putBoolean(SamSprung.autoRotate,  Settings.System.getInt(
-                    applicationContext.contentResolver,
-                    Settings.System.ACCELEROMETER_ROTATION) == 1
-                )
-            } catch (e: Settings.SettingNotFoundException) {
-                putBoolean(SamSprung.autoRotate, true)
-            }
-            apply()
-        }
+        SamSprung.hasRotationEnabled = Settings.System.getInt(
+            applicationContext.contentResolver,
+            Settings.System.ACCELEROMETER_ROTATION)
 
         if (Settings.System.canWrite(applicationContext)) {
             try {
@@ -604,9 +598,6 @@ class SamSprungDrawer : AppCompatActivity(),
         }
         return false
     }
-
-    private val Boolean.int get() = if (this) 1 else 0
-    private val Int.bool:Boolean get() = this != 0
 
     override fun onNewIntent(intent: Intent?) {
         super.onNewIntent(intent)

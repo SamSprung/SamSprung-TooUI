@@ -67,7 +67,6 @@ import android.os.IBinder
 import android.os.Looper
 import android.provider.Settings
 import android.view.*
-import android.widget.Button
 import android.widget.ImageView
 import androidx.core.app.NotificationCompat
 import androidx.core.content.ContextCompat
@@ -259,7 +258,7 @@ class DisplayListenerService : Service() {
             try {
                 Settings.System.putInt(applicationContext.contentResolver,
                     Settings.System.ACCELEROMETER_ROTATION,
-                    SamSprung.prefs.getBoolean(SamSprung.autoRotate, true).int
+                    SamSprung.hasRotationEnabled
                 )
             } catch (ignored: Settings.SettingNotFoundException) { }
         }
@@ -280,8 +279,6 @@ class DisplayListenerService : Service() {
         dismissDisplayListener(displayManager, mKeyguardLock)
         return START_NOT_STICKY
     }
-
-    private val Boolean.int get() = if (this) 1 else 0
 
     override fun onConfigurationChanged(newConfig: Configuration) {
         super.onConfigurationChanged(newConfig)
