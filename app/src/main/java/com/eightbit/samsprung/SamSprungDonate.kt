@@ -56,12 +56,19 @@ import android.widget.Button
 import android.widget.LinearLayout
 import androidx.appcompat.app.AppCompatActivity
 import com.android.billingclient.api.*
+import com.google.android.material.snackbar.Snackbar
 import java.util.*
 import java.util.concurrent.Executors
+import com.android.billingclient.api.ConsumeParams
+
+
+
 
 class SamSprungDonate : AppCompatActivity() {
 
     private lateinit var billingClient: BillingClient
+    private val iapList = ArrayList<String>()
+    private val subList = ArrayList<String>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         setShowWhenLocked(true)
@@ -79,30 +86,30 @@ class SamSprungDonate : AppCompatActivity() {
             billingClient.startConnection(object : BillingClientStateListener {
                 override fun onBillingSetupFinished(billingResult: BillingResult) {
                     if (billingResult.responseCode == BillingClient.BillingResponseCode.OK) {
-                        val iapList = ArrayList<String>()
                         iapList.add(getIAP(1))
                         iapList.add(getIAP(5))
                         iapList.add(getIAP(10))
                         iapList.add(getIAP(25))
                         iapList.add(getIAP(50))
+                        iapList.add(getIAP(99))
                         billingClient.querySkuDetailsAsync(
                             SkuDetailsParams.newBuilder()
                                 .setSkusList(iapList)
                                 .setType(BillingClient.SkuType.INAPP)
-                                .build(), iapResponseListener
+                                .build(), responseListenerIAP
                         )
 
-                        val subList = ArrayList<String>()
                         subList.add(getSub(1))
                         subList.add(getSub(5))
                         subList.add(getSub(10))
                         subList.add(getSub(25))
                         subList.add(getSub(50))
+                        subList.add(getSub(99))
                         billingClient.querySkuDetailsAsync(
                             SkuDetailsParams.newBuilder()
                                 .setSkusList(subList)
                                 .setType(BillingClient.SkuType.SUBS)
-                                .build(), subResponseListener
+                                .build(), responseListenerSub
                         )
                     }
                 }
@@ -123,18 +130,7 @@ class SamSprungDonate : AppCompatActivity() {
         return String.format("monthly_%02d", amount)
     }
 
-    private val purchasesUpdatedListener = PurchasesUpdatedListener { billingResult, purchases ->
-        if (billingResult.responseCode == BillingClient.BillingResponseCode.OK && null != purchases) {
-            for (purchase in purchases) {
-                handlePurchase(purchase)
-            }
-        } else {
-            if (billingResult.responseCode == BillingClient.BillingResponseCode.USER_CANCELED)
-                TODO()
-        }
-    }
-
-    private val iapResponseListener = SkuDetailsResponseListener { _, skuDetails ->
+    private val responseListenerIAP = SkuDetailsResponseListener { _, skuDetails ->
         if (null != skuDetails) {
             val layout: LinearLayout = findViewById(R.id.donation_layout)
             for (skuDetail: SkuDetails in skuDetails.sortedBy { skuDetail -> skuDetail.sku }) {
@@ -150,7 +146,7 @@ class SamSprungDonate : AppCompatActivity() {
         }
     }
 
-    private val subResponseListener = SkuDetailsResponseListener { _, skuDetails ->
+    private val responseListenerSub = SkuDetailsResponseListener { _, skuDetails ->
         if (null != skuDetails) {
             val layout: LinearLayout = findViewById(R.id.subscription_layout)
             for (skuDetail: SkuDetails in skuDetails.sortedBy { skuDetail -> skuDetail.sku }) {
@@ -166,18 +162,56 @@ class SamSprungDonate : AppCompatActivity() {
         }
     }
 
-    private var acknowledgePurchaseResponseListener =
-        AcknowledgePurchaseResponseListener { TODO() }
+    private val consumeResponseListener = ConsumeResponseListener { _, _ ->
+        Snackbar.make(
+            findViewById(R.id.donation_wrapper),
+            R.string.donation_thanks, Snackbar.LENGTH_LONG
+        ).show()
+    }
+
+    private fun handlePurchaseIAP(purchase : Purchase) {
+        val consumeParams = ConsumeParams.newBuilder().setPurchaseToken(purchase.purchaseToken)
+        billingClient.consumeAsync(consumeParams.build(), consumeResponseListener
+        )
+    }
+
+    private var acknowledgePurchaseResponseListener = AcknowledgePurchaseResponseListener {
+        Snackbar.make(
+            findViewById(R.id.donation_wrapper),
+            R.string.donation_thanks, Snackbar.LENGTH_LONG
+        ).show()
+    }
+
+    private fun handlePurchaseSub(purchase : Purchase) {
+        val acknowledgePurchaseParams = AcknowledgePurchaseParams.newBuilder()
+            .setPurchaseToken(purchase.purchaseToken)
+        billingClient.acknowledgePurchase(acknowledgePurchaseParams.build(),
+            acknowledgePurchaseResponseListener)
+    }
 
     private fun handlePurchase(purchase : Purchase) {
         if (purchase.purchaseState == Purchase.PurchaseState.PURCHASED) {
             if (!purchase.isAcknowledged) {
-                val acknowledgePurchaseParams = AcknowledgePurchaseParams.newBuilder()
-                    .setPurchaseToken(purchase.purchaseToken)
-                val ackPurchaseResult = billingClient.acknowledgePurchase(
-                    acknowledgePurchaseParams.build(),
-                    acknowledgePurchaseResponseListener)
+                for (iap: String in iapList) {
+                    if (purchase.skus.contains(iap))
+                        handlePurchaseIAP(purchase)
+                }
+                for (sub: String in subList) {
+                    if (purchase.skus.contains(sub))
+                        handlePurchaseSub(purchase)
+                }
             }
+        }
+    }
+
+    private val purchasesUpdatedListener = PurchasesUpdatedListener { billingResult, purchases ->
+        if (billingResult.responseCode == BillingClient.BillingResponseCode.OK && null != purchases) {
+            for (purchase in purchases) {
+                handlePurchase(purchase)
+            }
+        } else {
+            if (billingResult.responseCode == BillingClient.BillingResponseCode.USER_CANCELED)
+                TODO()
         }
     }
 }

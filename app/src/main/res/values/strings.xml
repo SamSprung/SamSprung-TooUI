@@ -38,4 +38,6 @@
     <string name="toggle_dnd">Toggle DnD</string>
     <string name="toggle_rotation">Toggle Rotation</string>
     <string name="toggle_torch">Toggle Torch</string>
+
+    <string name="donation_thanks">Thank you for your support!</string>
 </resources>
