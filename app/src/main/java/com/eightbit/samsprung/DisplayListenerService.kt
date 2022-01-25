@@ -149,6 +149,8 @@ class DisplayListenerService : Service() {
                 if (newState == BottomSheetBehavior.STATE_EXPANDED) {
                     launcher?.findViewById<VerticalStrokeTextView>(R.id.samsprung_logo)!!.setOnClickListener {
                         bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
+                        launcher?.findViewById<LinearLayout>(
+                            R.id.button_layout)!!.visibility = View.GONE
                     }
                     launcher?.findViewById<ImageView>(R.id.button_recent)!!.setOnClickListener {
                         dismissDisplayService(displayManager, mKeyguardLock)

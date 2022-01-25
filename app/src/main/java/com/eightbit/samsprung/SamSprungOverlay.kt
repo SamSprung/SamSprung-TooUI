@@ -95,6 +95,7 @@ class SamSprungOverlay : AppCompatActivity() {
                 if (newState == BottomSheetBehavior.STATE_EXPANDED) {
                     findViewById<VerticalStrokeTextView>(R.id.samsprung_logo)!!.setOnClickListener {
                         bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
+                        findViewById<LinearLayout>(R.id.button_layout)!!.visibility = View.GONE
                     }
                     findViewById<ImageView>(R.id.button_recent)!!.setOnClickListener {
                         startActivity(
@@ -106,6 +107,7 @@ class SamSprungOverlay : AppCompatActivity() {
                     }
                     findViewById<ImageView>(R.id.button_home)!!.setOnClickListener {
                         bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
+                        findViewById<LinearLayout>(R.id.button_layout)!!.visibility = View.GONE
                     }
                     findViewById<ImageView>(R.id.button_back)!!.setOnClickListener {
                         if (hasAccessibility()) {
