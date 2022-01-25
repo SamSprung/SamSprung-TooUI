@@ -62,7 +62,6 @@ import android.content.pm.ResolveInfo
 import android.graphics.Canvas
 import android.hardware.camera2.CameraManager
 import android.media.AudioManager
-import android.net.Uri
 import android.net.wifi.WifiManager
 import android.nfc.NfcManager
 import android.os.*
@@ -70,7 +69,6 @@ import android.provider.Settings
 import android.text.TextUtils
 import android.view.MenuItem
 import android.view.View
-import android.view.WindowManager
 import android.widget.TextView
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
@@ -92,6 +90,7 @@ class SamSprungDrawer : AppCompatActivity(),
     AppDrawerAdapater.OnAppClickListener,
     NotificationAdapter.OnNoticeClickListener {
 
+    private lateinit var oReceiver: BroadcastReceiver
     private lateinit var bReceiver: BroadcastReceiver
     private lateinit var pReceiver: BroadcastReceiver
     private var mReceiver: BroadcastReceiver? = null
@@ -106,6 +105,20 @@ class SamSprungDrawer : AppCompatActivity(),
         // ScaledContext.wrap(this).setTheme(R.style.Theme_SecondScreen)
         supportActionBar?.hide()
         setContentView(R.layout.apps_view_layout)
+
+        oReceiver = object : BroadcastReceiver() {
+            @SuppressLint("NotifyDataSetChanged")
+            override fun onReceive(context: Context?, intent: Intent) {
+                if (intent.action == Intent.ACTION_SCREEN_OFF) {
+                    finish()
+                }
+            }
+        }
+        IntentFilter().apply {
+            addAction(Intent.ACTION_SCREEN_OFF)
+        }.also {
+            registerReceiver(oReceiver, it)
+        }
 
         if (ContextCompat.checkSelfPermission(this,
                 Manifest.permission.READ_EXTERNAL_STORAGE
@@ -123,7 +136,7 @@ class SamSprungDrawer : AppCompatActivity(),
             .setBlurAlgorithm(RenderScriptBlur(this))
 
         val batteryLevel = findViewById<TextView>(R.id.battery_status)
-        val bReceiver: BroadcastReceiver = object : BroadcastReceiver() {
+        bReceiver = object : BroadcastReceiver() {
             @SuppressLint("NotifyDataSetChanged")
             override fun onReceive(context: Context?, intent: Intent) {
                 if (intent.action == Intent.ACTION_BATTERY_CHANGED) {
@@ -133,6 +146,11 @@ class SamSprungDrawer : AppCompatActivity(),
                     }
                 }
             }
+        }
+        IntentFilter().apply {
+            addAction(Intent.ACTION_BATTERY_CHANGED)
+        }.also {
+            registerReceiver(bReceiver, it)
         }
 
         val toolbar = findViewById<Toolbar>(R.id.toolbar)
@@ -203,12 +221,6 @@ class SamSprungDrawer : AppCompatActivity(),
                 toolbar.menu.findItem(R.id.toggle_nfc).setIcon(R.drawable.ic_baseline_nfc_24)
             else
                 toolbar.menu.findItem(R.id.toggle_nfc).setIcon(R.drawable.ic_baseline_nfc_disabled_24)
-        }
-
-        IntentFilter().apply {
-            addAction(Intent.ACTION_BATTERY_CHANGED)
-        }.also {
-            registerReceiver(bReceiver, it)
         }
 
         val bottomSheetBehavior: BottomSheetBehavior<View> =
@@ -398,7 +410,7 @@ class SamSprungDrawer : AppCompatActivity(),
             launcherView.layoutManager = LinearLayoutManager(this)
         launcherView.adapter = AppDrawerAdapater(packages, this, packageManager)
 
-        val pReceiver: BroadcastReceiver = object : BroadcastReceiver() {
+        pReceiver = object : BroadcastReceiver() {
             @SuppressLint("NotifyDataSetChanged")
             override fun onReceive(context: Context?, intent: Intent) {
                 if (intent.action == Intent.ACTION_PACKAGE_FULLY_REMOVED) {
@@ -427,7 +439,6 @@ class SamSprungDrawer : AppCompatActivity(),
                 }
             }
         }
-
         IntentFilter().apply {
             addAction(Intent.ACTION_PACKAGE_ADDED)
             addAction(Intent.ACTION_PACKAGE_REMOVED)
@@ -477,7 +488,7 @@ class SamSprungDrawer : AppCompatActivity(),
         ItemTouchHelper(simpleItemTouchCallback).attachToRecyclerView(launcherView)
     }
 
-    private fun prepareLockOrientation() {
+    private fun prepareConfiguration() {
         with (SamSprung.prefs.edit()) {
             try {
                 putBoolean(SamSprung.autoRotate,  Settings.System.getInt(
@@ -507,16 +518,16 @@ class SamSprungDrawer : AppCompatActivity(),
             @Suppress("DEPRECATION")
             mKeyguardManager.newKeyguardLock("cover_lock").disableKeyguard()
         }
+
+        finish()
     }
 
     override fun onAppClicked(appInfo: ResolveInfo, position: Int) {
-        prepareLockOrientation()
+        prepareConfiguration()
 
-        val serviceIntent = Intent(this, DisplayListenerService::class.java)
         val extras = Bundle()
         extras.putString("launchPackage", appInfo.activityInfo.packageName)
         extras.putString("launchActivity", appInfo.activityInfo.name)
-        startForegroundService(serviceIntent.putExtras(extras))
 
         IntentFilter(Intent.ACTION_SCREEN_OFF).also {
             mReceiver = OffBroadcastReceiver(
@@ -543,16 +554,19 @@ class SamSprungDrawer : AppCompatActivity(),
         coverIntent.addFlags(Intent.FLAG_ACTIVITY_FORWARD_RESULT)
         coverIntent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION)
         startActivity(coverIntent.putExtras(extras), options.toBundle())
+
+        val serviceIntent = Intent(this, DisplayListenerService::class.java)
+        startForegroundService(serviceIntent.putExtras(extras))
     }
 
     override fun onNoticeClicked(notice: SamSprungNotice, position: Int) {
         if (null != notice.getIntentSender()) {
-            prepareLockOrientation()
+            prepareConfiguration()
 
-            startForegroundService(Intent(this, DisplayListenerService::class.java)
-                .putExtra("launchPackage", notice.getIntentSender()!!.creatorPackage))
             startIntentSender(notice.getIntentSender(),
                 null, 0, 0, 0)
+            startForegroundService(Intent(this, DisplayListenerService::class.java)
+                .putExtra("launchPackage", notice.getIntentSender()!!.creatorPackage))
         }
     }
 
@@ -600,13 +614,20 @@ class SamSprungDrawer : AppCompatActivity(),
         }
     }
 
-
     override fun onDestroy() {
         super.onDestroy()
-        if (this::bReceiver.isInitialized)
-            unregisterReceiver(bReceiver)
-        if (this::pReceiver.isInitialized)
-            unregisterReceiver(pReceiver)
+        try {
+            if (this::oReceiver.isInitialized)
+                unregisterReceiver(oReceiver)
+        } catch (ignored: Exception) { }
+        try {
+            if (this::bReceiver.isInitialized)
+                unregisterReceiver(bReceiver)
+        } catch (ignored: Exception) { }
+        try {
+            if (this::pReceiver.isInitialized)
+                unregisterReceiver(pReceiver)
+        } catch (ignored: Exception) { }
         try {
             if (null != mReceiver)
                 unregisterReceiver(mReceiver)

@@ -25,6 +25,10 @@
     <string name="donation_link">Sponsor Development</string>
     <string name="build_hash">SamSprung - %1$s</string>
 
+    <string name="menu_recent">Recent</string>
+    <string name="menu_home">Home</string>
+    <string name="menu_back">Back</string>
+
     <string name="notification_drawer">Notifications</string>
     <string name="toggle_wifi">Toggle Wifi</string>
     <string name="toggle_bluetooth">Toggle Bluetooth</string>

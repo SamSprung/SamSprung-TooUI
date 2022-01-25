@@ -55,10 +55,11 @@ import android.app.ActivityOptions
 import android.content.Intent
 import android.graphics.PixelFormat
 import android.os.Bundle
-import android.view.WindowManager
+import android.view.*
+import android.widget.Button
+import android.widget.ImageView
 import androidx.appcompat.app.AppCompatActivity
-
-import android.view.Gravity
+import com.google.android.material.bottomsheet.BottomSheetBehavior
 
 class SamSprungOverlay : AppCompatActivity() {
 
@@ -69,21 +70,36 @@ class SamSprungOverlay : AppCompatActivity() {
         window.setFlags(WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE
                 or WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL, PixelFormat.TRANSPARENT)
 
-        val wlp: WindowManager.LayoutParams = window.attributes
-        wlp.gravity = Gravity.START
-        window.attributes = wlp
-
         super.onCreate(savedInstanceState)
         // ScaledContext.wrap(this).setTheme(R.style.Theme_SecondScreen)
         supportActionBar?.hide()
-        setContentView(R.layout.launcher_layout)
+        setContentView(R.layout.navigation_layout)
+        window.setLayout(
+            ViewGroup.LayoutParams.MATCH_PARENT,
+            ViewGroup.LayoutParams.WRAP_CONTENT
+        )
+        val wlp: WindowManager.LayoutParams = window.attributes
+        wlp.gravity = Gravity.BOTTOM
+        window.attributes = wlp
 
-        findViewById<VerticalStrokeTextView>(R.id.navigationText)!!.setOnClickListener {
-            finish()
-            startActivity(
-                Intent(this, SamSprungDrawer::class.java)
-                .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK),
-                ActivityOptions.makeBasic().setLaunchDisplayId(1).toBundle())
-        }
+        val bottomSheetBehavior: BottomSheetBehavior<View> =
+            BottomSheetBehavior.from(findViewById(R.id.bottom_sheet))
+        bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
+        bottomSheetBehavior.addBottomSheetCallback(object : BottomSheetBehavior.BottomSheetCallback() {
+            override fun onStateChanged(bottomSheet: View, newState: Int) {
+                if (newState == BottomSheetBehavior.STATE_EXPANDED) {
+                    findViewById<ImageView>(R.id.button_home)!!.setOnClickListener {
+                        finish()
+                        startActivity(
+                            Intent(this@SamSprungOverlay, SamSprungDrawer::class.java)
+                                .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK),
+                            ActivityOptions.makeBasic().setLaunchDisplayId(1).toBundle()
+                        )
+                    }
+                }
+            }
+
+            override fun onSlide(bottomSheet: View, slideOffset: Float) {}
+        })
     }
 }

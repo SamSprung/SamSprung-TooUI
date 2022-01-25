@@ -37,7 +37,7 @@
         <item name="windowNoTitle">true</item>
     </style>
 
-    <style name="LauncherTheme" parent="Theme.AppCompat.DayNight.Dialog">
+    <style name="LauncherTheme" parent="Theme.AppCompat.DayNight.Dialog.MinWidth">
         <item name="buttonStyle">@style/SlimButton</item>
         <item name="android:windowIsTranslucent">true</item>
         <item name="android:windowIsFloating">true</item>

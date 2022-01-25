@@ -67,8 +67,11 @@ import android.os.IBinder
 import android.os.Looper
 import android.provider.Settings
 import android.view.*
+import android.widget.Button
+import android.widget.ImageView
 import androidx.core.app.NotificationCompat
 import androidx.core.content.ContextCompat
+import com.google.android.material.bottomsheet.BottomSheetBehavior
 import java.lang.ref.SoftReference
 
 
@@ -107,14 +110,14 @@ class DisplayListenerService : Service() {
         floatView = SoftReference(LayoutInflater.from(displayContext)
             .inflate(R.layout.navigation_layout, null))
         val params = WindowManager.LayoutParams(
-            WindowManager.LayoutParams.WRAP_CONTENT,
+            WindowManager.LayoutParams.MATCH_PARENT,
             WindowManager.LayoutParams.WRAP_CONTENT,
             WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY,
             WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or
                     WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL,
             PixelFormat.TRANSLUCENT
         )
-        params.gravity = Gravity.START
+        params.gravity = Gravity.BOTTOM
 
         mDisplayListener = object : DisplayManager.DisplayListener {
             override fun onDisplayAdded(display: Int) {}
@@ -137,16 +140,25 @@ class DisplayListenerService : Service() {
             mDisplayListener, Handler(Looper.getMainLooper())
         )
 
-        launcher?.findViewById<VerticalStrokeTextView>(R.id.navigationText)!!
-            .setOnTouchListener(object: OnSwipeTouchListener(displayContext) {
-            override fun onSwipeLeft() {
-                dismissDisplayService(displayManager, mKeyguardLock)
-                resetLaunchedApplication(launchPackage, launchActivity)
-                startActivity(Intent(displayContext, SamSprungDrawer::class.java)
-                    .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK),
-                    ActivityOptions.makeBasic().setLaunchDisplayId(1).toBundle())
+        val bottomSheetBehavior: BottomSheetBehavior<View> =
+            BottomSheetBehavior.from(launcher?.findViewById(R.id.bottom_sheet)!!)
+        bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
+        bottomSheetBehavior.addBottomSheetCallback(object : BottomSheetBehavior.BottomSheetCallback() {
+            override fun onStateChanged(bottomSheet: View, newState: Int) {
+                if (newState == BottomSheetBehavior.STATE_EXPANDED) {
+                    launcher?.findViewById<ImageView>(R.id.button_home)!!.setOnClickListener {
+                        dismissDisplayService(displayManager, mKeyguardLock)
+                        resetLaunchedApplication(launchPackage, launchActivity)
+                        startActivity(
+                            Intent(displayContext, SamSprungDrawer::class.java)
+                                .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK),
+                            ActivityOptions.makeBasic().setLaunchDisplayId(1).toBundle()
+                        )
+                    }
+                }
             }
-            override fun onSwipeRight() { }
+
+            override fun onSlide(bottomSheet: View, slideOffset: Float) {}
         })
 
         (displayContext.getSystemService(WINDOW_SERVICE)
