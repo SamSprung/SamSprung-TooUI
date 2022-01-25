@@ -71,11 +71,11 @@ class OnBroadcastService : Service() {
         override fun onReceive(context: Context, intent: Intent) {
             if (Intent.ACTION_SCREEN_ON == intent.action) {
                 context.startService(Intent(context, DisplayListenerService::class.java))
-//                val coverIntent = Intent(context.applicationContext, SamSprungDrawer::class.java)
-                val coverIntent = Intent(context.applicationContext, SamSprungOverlay::class.java)
-                coverIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                context.startActivity(coverIntent,
-                    ActivityOptions.makeBasic().setLaunchDisplayId(1).toBundle())
+                context.startActivity(
+                    Intent(context.applicationContext, SamSprungOverlay::class.java)
+                    .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK),
+                    ActivityOptions.makeBasic().setLaunchDisplayId(1).toBundle()
+                )
             }
         }
     }

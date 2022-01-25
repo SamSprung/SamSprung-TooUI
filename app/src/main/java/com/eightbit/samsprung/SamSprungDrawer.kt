@@ -101,6 +101,15 @@ class SamSprungDrawer : AppCompatActivity(),
         setShowWhenLocked(true)
         // setTurnScreenOn(true)
 
+        if (null != intent.action && SamSprung.launcher == intent.action) {
+            finish()
+            startActivity(
+                Intent(applicationContext, SamSprungOverlay::class.java)
+                    .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK),
+                ActivityOptions.makeBasic().setLaunchDisplayId(1).toBundle()
+            )
+        }
+
         super.onCreate(savedInstanceState)
         // ScaledContext.wrap(this).setTheme(R.style.Theme_SecondScreen)
         supportActionBar?.hide()

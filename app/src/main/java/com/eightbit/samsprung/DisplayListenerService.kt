@@ -146,6 +146,16 @@ class DisplayListenerService : Service() {
         bottomSheetBehavior.addBottomSheetCallback(object : BottomSheetBehavior.BottomSheetCallback() {
             override fun onStateChanged(bottomSheet: View, newState: Int) {
                 if (newState == BottomSheetBehavior.STATE_EXPANDED) {
+                    launcher?.findViewById<ImageView>(R.id.button_recent)!!.setOnClickListener {
+                        dismissDisplayService(displayManager, mKeyguardLock)
+                        resetLaunchedApplication(launchPackage, launchActivity)
+                        startActivity(
+                            Intent(displayContext, SamSprungDrawer::class.java)
+                                .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                                .setAction(SamSprung.launcher),
+                            ActivityOptions.makeBasic().setLaunchDisplayId(1).toBundle()
+                        )
+                    }
                     launcher?.findViewById<ImageView>(R.id.button_home)!!.setOnClickListener {
                         dismissDisplayService(displayManager, mKeyguardLock)
                         resetLaunchedApplication(launchPackage, launchActivity)

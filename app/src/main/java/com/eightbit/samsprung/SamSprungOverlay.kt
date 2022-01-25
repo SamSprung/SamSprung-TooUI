@@ -88,6 +88,15 @@ class SamSprungOverlay : AppCompatActivity() {
         bottomSheetBehavior.addBottomSheetCallback(object : BottomSheetBehavior.BottomSheetCallback() {
             override fun onStateChanged(bottomSheet: View, newState: Int) {
                 if (newState == BottomSheetBehavior.STATE_EXPANDED) {
+                    findViewById<ImageView>(R.id.button_recent)!!.setOnClickListener {
+                        finish()
+                        startActivity(
+                            Intent(this@SamSprungOverlay, SamSprungDrawer::class.java)
+                                .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                                .setAction(SamSprung.launcher),
+                            ActivityOptions.makeBasic().setLaunchDisplayId(1).toBundle()
+                        )
+                    }
                     findViewById<ImageView>(R.id.button_home)!!.setOnClickListener {
                         finish()
                         startActivity(
