@@ -55,11 +55,14 @@ import android.app.ActivityOptions
 import android.content.Intent
 import android.graphics.PixelFormat
 import android.os.Bundle
+import android.provider.Settings
 import android.view.*
 import android.widget.ImageView
 import android.widget.LinearLayout
 import androidx.appcompat.app.AppCompatActivity
 import com.google.android.material.bottomsheet.BottomSheetBehavior
+import java.io.File
+
 
 class SamSprungOverlay : AppCompatActivity() {
 
@@ -104,6 +107,11 @@ class SamSprungOverlay : AppCompatActivity() {
                     findViewById<ImageView>(R.id.button_home)!!.setOnClickListener {
                         bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
                     }
+                    findViewById<ImageView>(R.id.button_back)!!.setOnClickListener {
+                        if (hasAccessibility()) {
+                            AccessibilityObserver.executeButtonBack()
+                        }
+                    }
                 }
             }
 
@@ -121,5 +129,13 @@ class SamSprungOverlay : AppCompatActivity() {
                 findViewById<LinearLayout>(R.id.button_layout)!!.visibility = View.GONE
             }
         })
+    }
+
+    private fun hasAccessibility(): Boolean {
+        val serviceString = Settings.Secure.getString(contentResolver,
+            Settings.Secure.ENABLED_ACCESSIBILITY_SERVICES
+        )
+        return serviceString != null && serviceString.contains(packageName
+                + File.separator + AccessibilityObserver::class.java.name)
     }
 }

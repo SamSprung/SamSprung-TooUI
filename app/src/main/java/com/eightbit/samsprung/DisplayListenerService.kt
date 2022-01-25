@@ -72,6 +72,7 @@ import android.widget.LinearLayout
 import androidx.core.app.NotificationCompat
 import androidx.core.content.ContextCompat
 import com.google.android.material.bottomsheet.BottomSheetBehavior
+import java.io.File
 import java.lang.ref.SoftReference
 
 
@@ -167,8 +168,11 @@ class DisplayListenerService : Service() {
                                 .setAction(SamSprung.services),
                             ActivityOptions.makeBasic().setLaunchDisplayId(1).toBundle()
                         )
-                        startForegroundService(
-                            Intent(applicationContext, OnBroadcastService::class.java))
+                    }
+                    launcher?.findViewById<ImageView>(R.id.button_back)!!.setOnClickListener {
+                        if (hasAccessibility()) {
+                            AccessibilityObserver.executeButtonBack()
+                        }
                     }
                 }
             }
@@ -303,5 +307,13 @@ class DisplayListenerService : Service() {
     override fun onConfigurationChanged(newConfig: Configuration) {
         super.onConfigurationChanged(newConfig)
         launcher?.invalidate()
+    }
+
+    private fun hasAccessibility(): Boolean {
+        val serviceString = Settings.Secure.getString(contentResolver,
+            Settings.Secure.ENABLED_ACCESSIBILITY_SERVICES
+        )
+        return serviceString != null && serviceString.contains(packageName
+                + File.separator + AccessibilityObserver::class.java.name)
     }
 }
