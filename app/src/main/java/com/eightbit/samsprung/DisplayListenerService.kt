@@ -178,17 +178,17 @@ class DisplayListenerService : Service() {
 
         launcher?.findViewById<View>(R.id.rootLayout)!!.setOnTouchListener(
             object: OnSwipeTouchListener(this@DisplayListenerService) {
-                override fun onSwipeTop() {
-                    launcher?.findViewById<LinearLayout>(
-                        R.id.button_layout)!!.visibility = View.VISIBLE
-                    bottomSheetBehavior.state = BottomSheetBehavior.STATE_EXPANDED
-                }
-                override fun onSwipeBottom() {
-                    bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
-                    launcher?.findViewById<LinearLayout>(
-                        R.id.button_layout)!!.visibility = View.GONE
-                }
-            })
+            override fun onSwipeTop() {
+                launcher?.findViewById<LinearLayout>(
+                    R.id.button_layout)!!.visibility = View.VISIBLE
+                bottomSheetBehavior.state = BottomSheetBehavior.STATE_EXPANDED
+            }
+            override fun onSwipeBottom() {
+                bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
+                launcher?.findViewById<LinearLayout>(
+                    R.id.button_layout)!!.visibility = View.GONE
+            }
+        })
 
         (displayContext.getSystemService(WINDOW_SERVICE)
                 as WindowManager).addView(launcher, params)

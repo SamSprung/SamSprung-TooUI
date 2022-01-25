@@ -75,7 +75,6 @@ class SamSprungOverlay : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         // ScaledContext.wrap(this).setTheme(R.style.Theme_SecondScreen)
         supportActionBar?.hide()
-        setContentView(R.layout.navigation_layout)
         window.setLayout(
             ViewGroup.LayoutParams.MATCH_PARENT,
             ViewGroup.LayoutParams.WRAP_CONTENT
@@ -83,6 +82,7 @@ class SamSprungOverlay : AppCompatActivity() {
         val wlp: WindowManager.LayoutParams = window.attributes
         wlp.gravity = Gravity.BOTTOM
         window.attributes = wlp
+        setContentView(R.layout.navigation_layout)
 
         val bottomSheetBehavior: BottomSheetBehavior<View> =
             BottomSheetBehavior.from(findViewById(R.id.bottom_sheet))
@@ -112,14 +112,14 @@ class SamSprungOverlay : AppCompatActivity() {
 
         findViewById<View>(R.id.rootLayout)!!.setOnTouchListener(
             object: OnSwipeTouchListener(this@SamSprungOverlay) {
-                override fun onSwipeTop() {
-                    findViewById<LinearLayout>(R.id.button_layout)!!.visibility = View.VISIBLE
-                    bottomSheetBehavior.state = BottomSheetBehavior.STATE_EXPANDED
-                }
-                override fun onSwipeBottom() {
-                    bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
-                    findViewById<LinearLayout>(R.id.button_layout)!!.visibility = View.GONE
-                }
-            })
+            override fun onSwipeTop() {
+                findViewById<LinearLayout>(R.id.button_layout)!!.visibility = View.VISIBLE
+                bottomSheetBehavior.state = BottomSheetBehavior.STATE_EXPANDED
+            }
+            override fun onSwipeBottom() {
+                bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
+                findViewById<LinearLayout>(R.id.button_layout)!!.visibility = View.GONE
+            }
+        })
     }
 }

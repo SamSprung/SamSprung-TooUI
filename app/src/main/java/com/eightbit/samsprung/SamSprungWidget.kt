@@ -73,12 +73,7 @@ class SamSprungWidget : AppCompatActivity() {
         supportActionBar?.hide()
         setContentView(R.layout.apps_view_layout)
 
-        val permission = ContextCompat.checkSelfPermission(
-            this, Manifest.permission.BIND_APPWIDGET
-        )
-        if (permission == PackageManager.PERMISSION_GRANTED) {
-            requestPermission.launch(Manifest.permission.BIND_APPWIDGET)
-        }
+        requestPermission.launch(Manifest.permission.BIND_APPWIDGET)
 
         if (ContextCompat.checkSelfPermission(this,
                 Manifest.permission.READ_EXTERNAL_STORAGE
