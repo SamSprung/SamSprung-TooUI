@@ -56,8 +56,6 @@ import android.content.BroadcastReceiver
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
-import androidx.core.content.ContextCompat
-import androidx.core.content.ContextCompat.startActivity
 
 class OffBroadcastReceiver : BroadcastReceiver {
     private var componentName : ComponentName? = null

@@ -97,6 +97,7 @@ class SamSprung : Application() {
         val prefs: SharedPreferences get() = mPrefs.get()!!
         const val prefLayout: String = "prefLayout"
         const val prefHidden: String = "prefHidden"
+        const val autoRotate: String = "autoRotate"
         const val prefSecure: String = "prefSecure"
         const val prefScaled: String = "prefScaled"
         var hasRotationEnabled = 1

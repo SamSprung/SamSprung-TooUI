@@ -291,22 +291,6 @@ class SamSprungDrawer : AppCompatActivity(),
                         toolbar.menu.findItem(R.id.toggle_dnd).isVisible = false
                     }
 
-                    if (Settings.System.canWrite(applicationContext)) {
-                        try {
-                            if (Settings.System.getInt(applicationContext.contentResolver,
-                                    Settings.System.ACCELEROMETER_ROTATION) == 1)
-                                toolbar.menu.findItem(R.id.toggle_rotation)
-                                    .setIcon(R.drawable.ic_baseline_screen_rotation_24)
-                            else
-                                toolbar.menu.findItem(R.id.toggle_rotation)
-                                    .setIcon(R.drawable.ic_baseline_screen_lock_rotation_24)
-                        } catch (e: Settings.SettingNotFoundException) {
-                            toolbar.menu.findItem(R.id.toggle_rotation).isVisible = false
-                        }
-                    } else {
-                        toolbar.menu.findItem(R.id.toggle_rotation).isVisible = false
-                    }
-
                     if (packageManager.hasSystemFeature(PackageManager.FEATURE_CAMERA_FLASH)) {
                         camManager.setTorchMode(camManager.cameraIdList[0], isTorchEnabled)
                     } else {
@@ -364,14 +348,6 @@ class SamSprungDrawer : AppCompatActivity(),
                                         .setIcon(R.drawable.ic_baseline_do_not_disturb_off_24)
                                 }
                                 return@setOnMenuItemClickListener true
-                            }
-                            R.id.toggle_rotation -> {
-                                var hasRotationEnabled = 0
-                                if (Settings.System.getInt(applicationContext.contentResolver,
-                                        Settings.System.ACCELEROMETER_ROTATION) == 1)
-                                    hasRotationEnabled = 1
-                                Settings.System.putInt(applicationContext.contentResolver,
-                                    Settings.System.ACCELEROMETER_ROTATION, hasRotationEnabled)
                             }
                             R.id.toggle_torch -> {
                                 if (isTorchEnabled) {
@@ -489,17 +465,16 @@ class SamSprungDrawer : AppCompatActivity(),
     }
 
     private fun prepareConfiguration() {
-        SamSprung.hasRotationEnabled = Settings.System.getInt(
-            applicationContext.contentResolver,
-            Settings.System.ACCELEROMETER_ROTATION)
-
-        if (Settings.System.canWrite(applicationContext)) {
+        with (SamSprung.prefs.edit()) {
             try {
-                Settings.System.putInt(
+                putInt(SamSprung.autoRotate,  Settings.System.getInt(
                     applicationContext.contentResolver,
-                    Settings.System.ACCELEROMETER_ROTATION, 1
+                    Settings.System.ACCELEROMETER_ROTATION)
                 )
-            } catch (ignored: Settings.SettingNotFoundException) { }
+            } catch (e: Settings.SettingNotFoundException) {
+                putInt(SamSprung.autoRotate, 1)
+            }
+            apply()
         }
 
         val mKeyguardManager = (getSystemService(Context.KEYGUARD_SERVICE) as KeyguardManager)
@@ -512,6 +487,15 @@ class SamSprungDrawer : AppCompatActivity(),
         }
 
         finish()
+
+        if (Settings.System.canWrite(applicationContext)) {
+            try {
+                Settings.System.putInt(
+                    applicationContext.contentResolver,
+                    Settings.System.ACCELEROMETER_ROTATION, 1
+                )
+            } catch (ignored: Settings.SettingNotFoundException) { }
+        }
     }
 
     override fun onAppClicked(appInfo: ResolveInfo, position: Int) {

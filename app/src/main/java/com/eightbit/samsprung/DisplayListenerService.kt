@@ -153,7 +153,7 @@ class DisplayListenerService : Service() {
                             R.id.button_layout)!!.visibility = View.GONE
                     }
                     launcher?.findViewById<ImageView>(R.id.button_recent)!!.setOnClickListener {
-                        dismissDisplayService(displayManager, mKeyguardLock)
+                        dismissDisplayListener(displayManager, mKeyguardLock)
                         resetRecentActivities(launchPackage, launchActivity, false)
                         startActivity(
                             Intent(displayContext, SamSprungDrawer::class.java)
@@ -162,7 +162,7 @@ class DisplayListenerService : Service() {
                         )
                     }
                     launcher?.findViewById<ImageView>(R.id.button_home)!!.setOnClickListener {
-                        dismissDisplayService(displayManager, mKeyguardLock)
+                        dismissDisplayListener(displayManager, mKeyguardLock)
                         resetRecentActivities(launchPackage, launchActivity, true)
                         startActivity(
                             Intent(applicationContext, SamSprungOverlay::class.java)
@@ -289,7 +289,7 @@ class DisplayListenerService : Service() {
             try {
                 Settings.System.putInt(applicationContext.contentResolver,
                     Settings.System.ACCELEROMETER_ROTATION,
-                    SamSprung.hasRotationEnabled
+                    SamSprung.prefs.getInt(SamSprung.autoRotate, 1)
                 )
             } catch (ignored: Settings.SettingNotFoundException) { }
         }
@@ -306,7 +306,6 @@ class DisplayListenerService : Service() {
         @Suppress("DEPRECATION")
         mKeyguardLock: KeyguardManager.KeyguardLock
     ): Int {
-
         dismissDisplayListener(displayManager, mKeyguardLock)
         return START_NOT_STICKY
     }
