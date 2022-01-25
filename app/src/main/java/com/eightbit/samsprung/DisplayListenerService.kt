@@ -71,6 +71,7 @@ import android.widget.ImageView
 import android.widget.LinearLayout
 import androidx.core.app.NotificationCompat
 import androidx.core.content.ContextCompat
+import androidx.core.view.isVisible
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import java.io.File
 import java.lang.ref.SoftReference
@@ -125,7 +126,7 @@ class DisplayListenerService : Service() {
             override fun onDisplayChanged(display: Int) {
                 if (display == 0) {
                     dismissDisplayListener(displayManager, mKeyguardLock)
-                    resetRecentActivities(launchPackage, launchActivity, true)
+                    restoreActivityDisplay(launchPackage, launchActivity)
                 } else {
                     if (SamSprung.isKeyguardLocked)
                         @Suppress("DEPRECATION") mKeyguardLock.disableKeyguard()
@@ -141,16 +142,16 @@ class DisplayListenerService : Service() {
             mDisplayListener, Handler(Looper.getMainLooper())
         )
 
+        val menu = launcher?.findViewById<LinearLayout>(R.id.button_layout)!!
         val bottomSheetBehavior: BottomSheetBehavior<View> =
             BottomSheetBehavior.from(launcher?.findViewById(R.id.bottom_sheet)!!)
         bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
         bottomSheetBehavior.addBottomSheetCallback(object : BottomSheetBehavior.BottomSheetCallback() {
             override fun onStateChanged(bottomSheet: View, newState: Int) {
                 if (newState == BottomSheetBehavior.STATE_EXPANDED) {
+                    if (!menu.isVisible) menu.visibility = View.VISIBLE
                     launcher?.findViewById<VerticalStrokeTextView>(R.id.samsprung_logo)!!.setOnClickListener {
                         bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
-                        launcher?.findViewById<LinearLayout>(
-                            R.id.button_layout)!!.visibility = View.GONE
                     }
                     launcher?.findViewById<ImageView>(R.id.button_recent)!!.setOnClickListener {
                         dismissDisplayListener(displayManager, mKeyguardLock)
@@ -176,23 +177,23 @@ class DisplayListenerService : Service() {
                             AccessibilityObserver.executeButtonBack()
                         }
                     }
+                } else if (newState == BottomSheetBehavior.STATE_COLLAPSED) {
+                    if (menu.isVisible) menu.visibility = View.GONE
                 }
             }
 
             override fun onSlide(bottomSheet: View, slideOffset: Float) {}
         })
 
+        bottomSheetBehavior.isHideable = false
+
         launcher?.findViewById<View>(R.id.bottom_sheet)!!.setOnTouchListener(
             object: OnSwipeTouchListener(this@DisplayListenerService) {
             override fun onSwipeTop() {
-                launcher?.findViewById<LinearLayout>(
-                    R.id.button_layout)!!.visibility = View.VISIBLE
                 bottomSheetBehavior.state = BottomSheetBehavior.STATE_EXPANDED
             }
             override fun onSwipeBottom() {
                 bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
-                launcher?.findViewById<LinearLayout>(
-                    R.id.button_layout)!!.visibility = View.GONE
             }
         })
 
@@ -246,10 +247,7 @@ class DisplayListenerService : Service() {
         startForeground(startId, builder.build())
     }
 
-    private fun resetRecentActivities(
-        launchPackage: String, launchActivity: String?, useAccessibility: Boolean) {
-        val options = ActivityOptions.makeBasic().setLaunchDisplayId(0)
-
+    private fun restoreActivityDisplay(launchPackage: String, launchActivity: String?) {
         if (null != launchActivity) {
             val coverIntent = Intent(Intent.ACTION_MAIN)
             coverIntent.addCategory(Intent.CATEGORY_LAUNCHER)
@@ -258,7 +256,15 @@ class DisplayListenerService : Service() {
                     Intent.FLAG_ACTIVITY_CLEAR_TASK or
                     Intent.FLAG_ACTIVITY_FORWARD_RESULT or
                     Intent.FLAG_ACTIVITY_NO_ANIMATION
-            startActivity(coverIntent, options.toBundle())
+            startActivity(coverIntent, ActivityOptions.makeBasic()
+                .setLaunchDisplayId(0).toBundle())
+        }
+    }
+
+    private fun resetRecentActivities(
+        launchPackage: String, launchActivity: String?, useAccessibility: Boolean) {
+        if (null != launchActivity) {
+            restoreActivityDisplay(launchPackage, launchActivity)
         }
 
         if (useAccessibility && hasAccessibility()) {
@@ -269,7 +275,8 @@ class DisplayListenerService : Service() {
             homeLauncher.flags = Intent.FLAG_ACTIVITY_NEW_TASK or
                     Intent.FLAG_ACTIVITY_FORWARD_RESULT or
                     Intent.FLAG_ACTIVITY_NO_ANIMATION
-            startActivity(homeLauncher, options.toBundle())
+            startActivity(homeLauncher, ActivityOptions.makeBasic()
+                .setLaunchDisplayId(0).toBundle())
         }
     }
 

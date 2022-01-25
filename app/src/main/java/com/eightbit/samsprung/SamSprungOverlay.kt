@@ -62,6 +62,7 @@ import android.view.*
 import android.widget.ImageView
 import android.widget.LinearLayout
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.isVisible
 import com.eightbit.content.ScaledContext
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import java.io.File
@@ -92,15 +93,16 @@ class SamSprungOverlay : AppCompatActivity() {
         window.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
         setContentView(R.layout.navigation_layout)
 
+        val menu = findViewById<LinearLayout>(R.id.button_layout)!!
         val bottomSheetBehavior: BottomSheetBehavior<View> =
             BottomSheetBehavior.from(findViewById(R.id.bottom_sheet))
         bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
         bottomSheetBehavior.addBottomSheetCallback(object : BottomSheetBehavior.BottomSheetCallback() {
             override fun onStateChanged(bottomSheet: View, newState: Int) {
                 if (newState == BottomSheetBehavior.STATE_EXPANDED) {
+                    if (!menu.isVisible) menu.visibility = View.VISIBLE
                     findViewById<VerticalStrokeTextView>(R.id.samsprung_logo)!!.setOnClickListener {
                         bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
-                        findViewById<LinearLayout>(R.id.button_layout)!!.visibility = View.GONE
                     }
                     findViewById<ImageView>(R.id.button_recent)!!.setOnClickListener {
                         startActivity(
@@ -112,31 +114,31 @@ class SamSprungOverlay : AppCompatActivity() {
                     }
                     findViewById<ImageView>(R.id.button_home)!!.setOnClickListener {
                         bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
-                        findViewById<LinearLayout>(R.id.button_layout)!!.visibility = View.GONE
                     }
                     findViewById<ImageView>(R.id.button_back)!!.setOnClickListener {
                         if (hasAccessibility()) {
                             AccessibilityObserver.executeButtonBack()
                         }
                     }
+                } else if (newState == BottomSheetBehavior.STATE_COLLAPSED) {
+                    if (menu.isVisible) menu.visibility = View.GONE
                 }
             }
 
             override fun onSlide(bottomSheet: View, slideOffset: Float) {}
         })
 
+        bottomSheetBehavior.isHideable = false
         if (SamSprung.prefs.getBoolean(SamSprung.prefScaled, false))
             bottomSheetBehavior.peekHeight = 12
 
         findViewById<View>(R.id.bottom_sheet)!!.setOnTouchListener(
             object: OnSwipeTouchListener(this@SamSprungOverlay) {
             override fun onSwipeTop() {
-                findViewById<LinearLayout>(R.id.button_layout)!!.visibility = View.VISIBLE
                 bottomSheetBehavior.state = BottomSheetBehavior.STATE_EXPANDED
             }
             override fun onSwipeBottom() {
                 bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
-                findViewById<LinearLayout>(R.id.button_layout)!!.visibility = View.GONE
             }
         })
     }
