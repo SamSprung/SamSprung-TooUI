@@ -370,7 +370,7 @@ class CoverSettingsActivity : AppCompatActivity() {
         } catch (e: Exception) {
             e.printStackTrace()
         }
-        IssueReporterLauncher.forTarget("SamSprung", "SamSprung-Launcher")
+        IssueReporterLauncher.forTarget("SamSprung", "SamSprung-TooUI")
             .theme(R.style.Theme_SecondScreen_NoActionBar)
             .guestToken(getRepositoryToken())
             .guestEmailRequired(false)
