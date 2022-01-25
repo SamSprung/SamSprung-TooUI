@@ -91,7 +91,7 @@ class OnBroadcastService : Service() {
         showForegroundNotification(startId)
 
         if (!Settings.canDrawOverlays(applicationContext)
-            || SamSprung.removing == intent?.action)
+            || SamSprung.services == intent?.action)
             return dismissOverlayService()
 
         val onScreenFilter = IntentFilter(Intent.ACTION_SCREEN_ON)
@@ -108,7 +108,7 @@ class OnBroadcastService : Service() {
         var mNotificationManager: NotificationManager? = null
         val pendingIntent = PendingIntent.getService(this, 0,
             Intent(this, OnBroadcastService::class.java)
-                .setAction(SamSprung.removing),
+                .setAction(SamSprung.services),
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S)
                 PendingIntent.FLAG_IMMUTABLE else 0)
         val iconNotification = BitmapFactory.decodeResource(resources, R.mipmap.sprung_icon)

@@ -60,7 +60,6 @@
             android:name=".SamSprungOverlay"
             android:theme="@style/LauncherTheme.NoActionBar"
             android:exported="true"
-            android:launchMode="singleTop"
             android:showOnLockScreen="true">
             <meta-data android:name="com.samsung.android.activity.showWhenLocked" android:value="true"/>
         </activity>

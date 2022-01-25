@@ -101,15 +101,6 @@ class SamSprungDrawer : AppCompatActivity(),
         setShowWhenLocked(true)
         // setTurnScreenOn(true)
 
-        if (null != intent.action && SamSprung.launcher == intent.action) {
-            finish()
-            startActivity(
-                Intent(applicationContext, SamSprungOverlay::class.java)
-                    .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK),
-                ActivityOptions.makeBasic().setLaunchDisplayId(1).toBundle()
-            )
-        }
-
         super.onCreate(savedInstanceState)
         // ScaledContext.wrap(this).setTheme(R.style.Theme_SecondScreen)
         supportActionBar?.hide()
@@ -164,7 +155,7 @@ class SamSprungDrawer : AppCompatActivity(),
 
         val toolbar = findViewById<Toolbar>(R.id.toolbar)
         toolbar.inflateMenu(R.menu.quick_toggles)
-        noticesView = findViewById<RecyclerView>(R.id.notificationList)
+        noticesView = findViewById(R.id.notificationList)
         if (hasNotificationListener() || hasAccessibility()) {
             noticesView.layoutManager = LinearLayoutManager(this)
             noticesView.adapter = NotificationAdapter(this, this@SamSprungDrawer)
@@ -481,18 +472,18 @@ class SamSprungDrawer : AppCompatActivity(),
 
             override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
                 if (direction == ItemTouchHelper.RIGHT) {
-                    finish()
                     startActivity(
-                        Intent(this@SamSprungDrawer, SamSprungOverlay::class.java)
+                        Intent(applicationContext, SamSprungOverlay::class.java)
                             .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK),
                         ActivityOptions.makeBasic().setLaunchDisplayId(1).toBundle())
+                    finish()
                 }
                 if (direction == ItemTouchHelper.LEFT) {
-                    finish()
                     startActivity(
-                        Intent(this@SamSprungDrawer, SamSprungOverlay::class.java)
+                        Intent(applicationContext, SamSprungOverlay::class.java)
                             .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK),
                         ActivityOptions.makeBasic().setLaunchDisplayId(1).toBundle())
+                    finish()
                 }
             }
         }

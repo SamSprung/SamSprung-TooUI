@@ -146,17 +146,10 @@ class DisplayListenerService : Service() {
         bottomSheetBehavior.addBottomSheetCallback(object : BottomSheetBehavior.BottomSheetCallback() {
             override fun onStateChanged(bottomSheet: View, newState: Int) {
                 if (newState == BottomSheetBehavior.STATE_EXPANDED) {
-                    launcher?.findViewById<ImageView>(R.id.button_recent)!!.setOnClickListener {
-                        dismissDisplayService(displayManager, mKeyguardLock)
-                        resetLaunchedApplication(launchPackage, launchActivity)
-                        startActivity(
-                            Intent(displayContext, SamSprungDrawer::class.java)
-                                .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                                .setAction(SamSprung.launcher),
-                            ActivityOptions.makeBasic().setLaunchDisplayId(1).toBundle()
-                        )
+                    launcher?.findViewById<VerticalStrokeTextView>(R.id.samsprung_logo)!!.setOnClickListener {
+                        bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
                     }
-                    launcher?.findViewById<ImageView>(R.id.button_home)!!.setOnClickListener {
+                    launcher?.findViewById<ImageView>(R.id.button_recent)!!.setOnClickListener {
                         dismissDisplayService(displayManager, mKeyguardLock)
                         resetLaunchedApplication(launchPackage, launchActivity)
                         startActivity(
@@ -165,28 +158,35 @@ class DisplayListenerService : Service() {
                             ActivityOptions.makeBasic().setLaunchDisplayId(1).toBundle()
                         )
                     }
+                    launcher?.findViewById<ImageView>(R.id.button_home)!!.setOnClickListener {
+                        dismissDisplayService(displayManager, mKeyguardLock)
+                        resetLaunchedApplication(launchPackage, launchActivity)
+                        startActivity(
+                            Intent(applicationContext, SamSprungOverlay::class.java)
+                                .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                                .setAction(SamSprung.services),
+                            ActivityOptions.makeBasic().setLaunchDisplayId(1).toBundle()
+                        )
+                        startForegroundService(
+                            Intent(applicationContext, OnBroadcastService::class.java))
+                    }
                 }
             }
 
             override fun onSlide(bottomSheet: View, slideOffset: Float) {}
         })
 
-        bottomSheetBehavior.isDraggable = false
-        launcher?.findViewById<View>(R.id.bottom_sheet)!!.setOnTouchListener(
+        launcher?.findViewById<View>(R.id.rootLayout)!!.setOnTouchListener(
             object: OnSwipeTouchListener(this@DisplayListenerService) {
                 override fun onSwipeTop() {
-                    if (bottomSheetBehavior.state == BottomSheetBehavior.STATE_COLLAPSED) {
-                        launcher?.findViewById<LinearLayout>(
-                            R.id.button_layout)!!.visibility = View.VISIBLE
-                        bottomSheetBehavior.state = BottomSheetBehavior.STATE_EXPANDED
-                    }
+                    launcher?.findViewById<LinearLayout>(
+                        R.id.button_layout)!!.visibility = View.VISIBLE
+                    bottomSheetBehavior.state = BottomSheetBehavior.STATE_EXPANDED
                 }
                 override fun onSwipeBottom() {
-                    if (bottomSheetBehavior.state == BottomSheetBehavior.STATE_EXPANDED) {
-                        bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
-                        launcher?.findViewById<LinearLayout>(
-                            R.id.button_layout)!!.visibility = View.GONE
-                    }
+                    bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
+                    launcher?.findViewById<LinearLayout>(
+                        R.id.button_layout)!!.visibility = View.GONE
                 }
             })
 

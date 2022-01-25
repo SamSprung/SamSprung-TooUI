@@ -66,7 +66,7 @@ class SamSprung : Application() {
         Thread.setDefaultUncaughtExceptionHandler { _: Thread?, error: Throwable ->
             error.printStackTrace()
             startService(
-                Intent(this, OnBroadcastService::class.java).setAction(removing)
+                Intent(this, OnBroadcastService::class.java).setAction(services)
             )
             // Unrecoverable error encountered
             exitProcess(1)
@@ -90,8 +90,7 @@ class SamSprung : Application() {
     companion object {
         const val provider: String = "com.eightbit.samsprung.provider"
         const val updating: String = "com.eightbit.samsprung.UPDATING"
-        const val removing: String = "com.eightbit.samsprung.REMOVING"
-        const val launcher: String = "com.eightbit.samsprung.LAUNCHER"
+        const val services: String = "com.eightbit.samsprung.SERVICES"
         const val request_code = 8675309
         var isKeyguardLocked: Boolean = true
         private lateinit var mPrefs: SoftReference<SharedPreferences>

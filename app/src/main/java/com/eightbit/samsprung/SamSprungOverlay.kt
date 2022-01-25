@@ -90,22 +90,19 @@ class SamSprungOverlay : AppCompatActivity() {
         bottomSheetBehavior.addBottomSheetCallback(object : BottomSheetBehavior.BottomSheetCallback() {
             override fun onStateChanged(bottomSheet: View, newState: Int) {
                 if (newState == BottomSheetBehavior.STATE_EXPANDED) {
-                    findViewById<ImageView>(R.id.button_recent)!!.setOnClickListener {
-                        finish()
-                        startActivity(
-                            Intent(this@SamSprungOverlay, SamSprungDrawer::class.java)
-                                .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                                .setAction(SamSprung.launcher),
-                            ActivityOptions.makeBasic().setLaunchDisplayId(1).toBundle()
-                        )
+                    findViewById<VerticalStrokeTextView>(R.id.samsprung_logo)!!.setOnClickListener {
+                        bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
                     }
-                    findViewById<ImageView>(R.id.button_home)!!.setOnClickListener {
-                        finish()
+                    findViewById<ImageView>(R.id.button_recent)!!.setOnClickListener {
                         startActivity(
                             Intent(this@SamSprungOverlay, SamSprungDrawer::class.java)
                                 .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK),
                             ActivityOptions.makeBasic().setLaunchDisplayId(1).toBundle()
                         )
+                        finish()
+                    }
+                    findViewById<ImageView>(R.id.button_home)!!.setOnClickListener {
+                        bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
                     }
                 }
             }
@@ -113,20 +110,15 @@ class SamSprungOverlay : AppCompatActivity() {
             override fun onSlide(bottomSheet: View, slideOffset: Float) {}
         })
 
-        bottomSheetBehavior.isDraggable = false
-        findViewById<View>(R.id.bottom_sheet)!!.setOnTouchListener(
+        findViewById<View>(R.id.rootLayout)!!.setOnTouchListener(
             object: OnSwipeTouchListener(this@SamSprungOverlay) {
                 override fun onSwipeTop() {
-                    if (bottomSheetBehavior.state == BottomSheetBehavior.STATE_COLLAPSED) {
-                        findViewById<LinearLayout>(R.id.button_layout)!!.visibility = View.VISIBLE
-                        bottomSheetBehavior.state = BottomSheetBehavior.STATE_EXPANDED
-                    }
+                    findViewById<LinearLayout>(R.id.button_layout)!!.visibility = View.VISIBLE
+                    bottomSheetBehavior.state = BottomSheetBehavior.STATE_EXPANDED
                 }
                 override fun onSwipeBottom() {
-                    if (bottomSheetBehavior.state == BottomSheetBehavior.STATE_EXPANDED) {
-                        bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
-                        findViewById<LinearLayout>(R.id.button_layout)!!.visibility = View.GONE
-                    }
+                    bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
+                    findViewById<LinearLayout>(R.id.button_layout)!!.visibility = View.GONE
                 }
             })
     }
