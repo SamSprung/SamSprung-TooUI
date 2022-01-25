@@ -56,8 +56,8 @@ import android.content.Intent
 import android.graphics.PixelFormat
 import android.os.Bundle
 import android.view.*
-import android.widget.Button
 import android.widget.ImageView
+import android.widget.LinearLayout
 import androidx.appcompat.app.AppCompatActivity
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 
@@ -67,8 +67,10 @@ class SamSprungOverlay : AppCompatActivity() {
         setShowWhenLocked(true)
         // setTurnScreenOn(true)
 
-        window.setFlags(WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE
-                or WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL, PixelFormat.TRANSPARENT)
+        window.setFlags(
+            WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or
+                    WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL,
+            PixelFormat.TRANSPARENT)
 
         super.onCreate(savedInstanceState)
         // ScaledContext.wrap(this).setTheme(R.style.Theme_SecondScreen)
@@ -110,5 +112,22 @@ class SamSprungOverlay : AppCompatActivity() {
 
             override fun onSlide(bottomSheet: View, slideOffset: Float) {}
         })
+
+        bottomSheetBehavior.isDraggable = false
+        findViewById<View>(R.id.bottom_sheet)!!.setOnTouchListener(
+            object: OnSwipeTouchListener(this@SamSprungOverlay) {
+                override fun onSwipeTop() {
+                    if (bottomSheetBehavior.state == BottomSheetBehavior.STATE_COLLAPSED) {
+                        findViewById<LinearLayout>(R.id.button_layout)!!.visibility = View.VISIBLE
+                        bottomSheetBehavior.state = BottomSheetBehavior.STATE_EXPANDED
+                    }
+                }
+                override fun onSwipeBottom() {
+                    if (bottomSheetBehavior.state == BottomSheetBehavior.STATE_EXPANDED) {
+                        bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
+                        findViewById<LinearLayout>(R.id.button_layout)!!.visibility = View.GONE
+                    }
+                }
+            })
     }
 }

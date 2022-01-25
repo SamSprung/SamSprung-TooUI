@@ -12,39 +12,44 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="@android:color/transparent"
-        android:clickable="true"
-        android:focusable="true"
         android:orientation="vertical"
-        app:behavior_peekHeight="@dimen/button_height_min"
+        app:behavior_peekHeight="12dp"
         app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior">
 
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="@dimen/button_height_min"
+            android:layout_height="wrap_content"
             android:gravity="bottom|center_horizontal"
             android:orientation="horizontal">
 
-            <com.eightbit.samsprung.VerticalStrokeTextView
+            <View
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:padding="3dp"
-                android:singleLine="true"
-                android:ellipsize="middle"
-                android:textColor="@color/primary_light"
-                android:text="@string/samsprung"
-                android:textSize="12sp"
-                android:alpha="0.1"
-                app:direction="2"
-                app:stroke_width="2dp"
-                app:stroke_color="@color/secondary_dark" />
+                android:layout_height="12dp" />
         </LinearLayout>
 
+        <com.eightbit.samsprung.VerticalStrokeTextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:padding="2dp"
+            android:singleLine="true"
+            android:ellipsize="middle"
+            android:textColor="@color/primary_light"
+            android:text="@string/samsprung"
+            android:textSize="18sp"
+            app:direction="2"
+            app:stroke_width="2dp"
+            app:stroke_color="@color/secondary_dark"
+            android:layout_marginBottom="-2dp"/>
+
         <LinearLayout
+            android:id="@+id/button_layout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:padding="10dp"
             android:gravity="center"
-            android:orientation="horizontal">
+            android:orientation="horizontal"
+            android:visibility="gone">
 
             <ImageView
                 android:id="@+id/button_recent"

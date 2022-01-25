@@ -68,6 +68,7 @@ import android.os.Looper
 import android.provider.Settings
 import android.view.*
 import android.widget.ImageView
+import android.widget.LinearLayout
 import androidx.core.app.NotificationCompat
 import androidx.core.content.ContextCompat
 import com.google.android.material.bottomsheet.BottomSheetBehavior
@@ -169,6 +170,25 @@ class DisplayListenerService : Service() {
 
             override fun onSlide(bottomSheet: View, slideOffset: Float) {}
         })
+
+        bottomSheetBehavior.isDraggable = false
+        launcher?.findViewById<View>(R.id.bottom_sheet)!!.setOnTouchListener(
+            object: OnSwipeTouchListener(this@DisplayListenerService) {
+                override fun onSwipeTop() {
+                    if (bottomSheetBehavior.state == BottomSheetBehavior.STATE_COLLAPSED) {
+                        launcher?.findViewById<LinearLayout>(
+                            R.id.button_layout)!!.visibility = View.VISIBLE
+                        bottomSheetBehavior.state = BottomSheetBehavior.STATE_EXPANDED
+                    }
+                }
+                override fun onSwipeBottom() {
+                    if (bottomSheetBehavior.state == BottomSheetBehavior.STATE_EXPANDED) {
+                        bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
+                        launcher?.findViewById<LinearLayout>(
+                            R.id.button_layout)!!.visibility = View.GONE
+                    }
+                }
+            })
 
         (displayContext.getSystemService(WINDOW_SERVICE)
                 as WindowManager).addView(launcher, params)
