@@ -25,7 +25,24 @@
             <View
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
-                android:background="@android:color/background_light"
+                android:background="@android:color/background_dark"
+                android:paddingTop="4dp"
+                android:layout_marginBottom="8dp"/>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textSize="16sp"
+                android:layout_marginStart="14dp"
+                android:textColor="?android:textColorPrimary"
+                android:gravity="center_vertical"
+                android:layout_gravity="center_vertical"
+                android:text="@string/permission_options" />
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="@android:color/background_dark"
                 android:layout_marginTop="4dp"
                 android:layout_marginBottom="8dp"/>
 
@@ -46,6 +63,7 @@
                     android:textColor="?android:textColorPrimary"
                     android:gravity="center_vertical"
                     android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical"
                     android:text="@string/permission_accessibility" />
 
                 <androidx.appcompat.widget.SwitchCompat
@@ -76,6 +94,7 @@
                     android:textSize="28sp"
                     android:textColor="?android:textColorPrimary"
                     android:gravity="center_vertical"
+                    android:layout_gravity="center_vertical"
                     android:layout_height="wrap_content"
                     android:text="@string/permission_notifications" />
 
@@ -107,6 +126,7 @@
                     android:textSize="28sp"
                     android:textColor="?android:textColorPrimary"
                     android:gravity="center_vertical"
+                    android:layout_gravity="center_vertical"
                     android:layout_height="wrap_content"
                     android:text="@string/permission_settings" />
 
@@ -122,6 +142,13 @@
 
             </LinearLayout>
 
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="@android:color/background_dark"
+                android:layout_marginTop="4dp"
+                android:layout_marginBottom="8dp"/>
+
             <ToggleButton
                 android:id="@+id/swapViewType"
                 android:layout_width="match_parent"
@@ -129,69 +156,88 @@
                 android:minHeight="@dimen/button_height_min"
                 android:textOff="@string/swap_viewgrid"
                 android:textOn="@string/swap_viewlist"
-                android:layout_marginBottom="8dp"/>
+                android:layout_marginStart="2dp"
+                android:layout_marginEnd="2dp"/>
 
             <LinearLayout
-                android:id="@+id/scaling_gen"
+                android:id="@+id/scaling"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:layout_marginStart="8dp"
-                android:layout_marginEnd="4dp"
-                android:layout_gravity="center_vertical"
-                tools:ignore="UseCompoundDrawables">
+                android:orientation="horizontal">
 
-                <TextView
-                    android:layout_width="0dp"
-                    android:layout_weight="1"
-                    android:textSize="28sp"
-                    android:textColor="?android:textColorPrimary"
-                    android:gravity="center_vertical"
+                <LinearLayout
+                    android:id="@+id/scaling_gen"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="@string/scaling_gen" />
-
-                <androidx.appcompat.widget.SwitchCompat
-                    android:id="@+id/scaling_gen_switch"
-                    android:layout_width="0dp"
-                    android:gravity="center"
                     android:layout_weight="1"
-                    android:textSize="28sp"
-                    android:textColor="?android:textColorPrimary"
+                    android:orientation="horizontal"
+                    android:layout_marginStart="8dp"
+                    android:layout_marginEnd="4dp"
                     android:layout_gravity="center_vertical"
-                    android:layout_height="wrap_content" />
+                    tools:ignore="UseCompoundDrawables">
 
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_weight="1"
+                        android:textSize="18sp"
+                        android:textColor="?android:textColorPrimary"
+                        android:gravity="center_vertical"
+                        android:layout_gravity="center_vertical"
+                        android:layout_height="wrap_content"
+                        android:text="@string/scaling_gen" />
+
+                    <androidx.appcompat.widget.SwitchCompat
+                        android:id="@+id/scaling_gen_switch"
+                        android:layout_width="0dp"
+                        android:gravity="center"
+                        android:layout_weight="1"
+                        android:textSize="28sp"
+                        android:textColor="?android:textColorPrimary"
+                        android:layout_gravity="center_vertical"
+                        android:layout_height="wrap_content" />
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/scaling_nav"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="horizontal"
+                    android:layout_marginStart="8dp"
+                    android:layout_marginEnd="4dp"
+                    android:layout_gravity="center_vertical"
+                    tools:ignore="UseCompoundDrawables">
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_weight="1"
+                        android:textSize="18sp"
+                        android:textColor="?android:textColorPrimary"
+                        android:gravity="center_vertical"
+                        android:layout_gravity="center_vertical"
+                        android:layout_height="wrap_content"
+                        android:text="@string/scaling_nav" />
+
+                    <androidx.appcompat.widget.SwitchCompat
+                        android:id="@+id/scaling_nav_switch"
+                        android:layout_width="0dp"
+                        android:gravity="center"
+                        android:layout_weight="1"
+                        android:textSize="28sp"
+                        android:textColor="?android:textColorPrimary"
+                        android:layout_gravity="center_vertical"
+                        android:layout_height="wrap_content" />
+
+                </LinearLayout>
             </LinearLayout>
 
-            <LinearLayout
-                android:id="@+id/scaling_nav"
+            <View
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:layout_marginStart="8dp"
-                android:layout_marginEnd="4dp"
-                android:layout_gravity="center_vertical"
-                tools:ignore="UseCompoundDrawables">
-
-                <TextView
-                    android:layout_width="0dp"
-                    android:layout_weight="1"
-                    android:textSize="28sp"
-                    android:textColor="?android:textColorPrimary"
-                    android:gravity="center_vertical"
-                    android:layout_height="wrap_content"
-                    android:text="@string/scaling_nav" />
-
-                <androidx.appcompat.widget.SwitchCompat
-                    android:id="@+id/scaling_nav_switch"
-                    android:layout_width="0dp"
-                    android:gravity="center"
-                    android:layout_weight="1"
-                    android:textSize="28sp"
-                    android:textColor="?android:textColorPrimary"
-                    android:layout_gravity="center_vertical"
-                    android:layout_height="wrap_content" />
-
-            </LinearLayout>
+                android:layout_height="1dp"
+                android:background="@android:color/background_dark"
+                android:layout_marginTop="4dp"
+                android:layout_marginBottom="16dp"/>
 
             <ListView
                 android:id="@+id/selectionListView"
@@ -206,5 +252,5 @@
                 android:layout_marginBottom="16dp"/>
 
         </LinearLayout>
-    </com.eightbitlab.blurview.BlurView>
+    </com.eightbitlab.blurview.BlurView>>
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

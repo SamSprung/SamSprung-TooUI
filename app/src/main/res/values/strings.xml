@@ -7,6 +7,7 @@
     <string name="swap_viewgrid">Display as ListView Widget Style</string>
     <string name="swap_viewlist">Display as GridView Widget Style</string>
 
+    <string name="permission_options">Permissions</string>
     <string name="permission_accessibility">Accessibility</string>
     <string name="permission_notifications">Notifications</string>
     <string name="permission_settings">Write Settings</string>
@@ -15,8 +16,8 @@
     <string name="button_confirm">Confirm</string>
     <string name="button_cancel">Cancel</string>
 
-    <string name="scaling_gen">Cover Scaling</string>
-    <string name="scaling_nav">Navigation Only</string>
+    <string name="scaling_gen">Scale Cover</string>
+    <string name="scaling_nav">Nav Only</string>
 
     <string name="overlay_service">%1$s Overlay Service</string>
     <string name="display_service">%1$s Display Service</string>
