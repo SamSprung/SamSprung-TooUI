@@ -90,6 +90,7 @@ import kotlin.collections.HashSet
 
 class CoverSettingsActivity : AppCompatActivity() {
 
+    private lateinit var updates : CheckUpdatesTask
     private lateinit var switch: SwitchCompat
     private lateinit var accessibility: SwitchCompat
     private lateinit var notifications: SwitchCompat
@@ -389,20 +390,20 @@ class CoverSettingsActivity : AppCompatActivity() {
             .homeAsUpEnabled(false).launch(this)
     }
 
+    private val updateLauncher = registerForActivityResult(
+        ActivityResultContracts.StartActivityForResult()) {
+        if (packageManager.canRequestPackageInstalls())
+            updates.retrieveUpdate()
+    }
+
     private fun checkApplicationUpdates() {
+        updates = CheckUpdatesTask(applicationContext)
         if (BuildConfig.FLAVOR != "google") {
-            val updates = CheckUpdatesTask(this)
             if (packageManager.canRequestPackageInstalls()) {
                 updates.retrieveUpdate()
             } else {
-                registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
-                    if (packageManager.canRequestPackageInstalls())
-                        updates.retrieveUpdate()
-                }.launch(
-                    Intent(Settings.ACTION_MANAGE_UNKNOWN_APP_SOURCES).setData(
-                        Uri.parse(String.format("package:%s", packageName))
-                    )
-                )
+                updateLauncher.launch(Intent(Settings.ACTION_MANAGE_UNKNOWN_APP_SOURCES)
+                    .setData(Uri.parse(String.format("package:%s", packageName))))
             }
         }
     }
