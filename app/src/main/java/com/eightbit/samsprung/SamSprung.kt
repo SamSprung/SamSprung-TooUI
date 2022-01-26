@@ -87,10 +87,6 @@ class SamSprung : Application() {
                 apply()
             }
         }
-            with(prefs.edit()) {
-                putBoolean(prefScaled, false)
-                apply()
-            }
     }
 
     companion object {

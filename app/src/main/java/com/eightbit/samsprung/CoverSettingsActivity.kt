@@ -188,6 +188,15 @@ class CoverSettingsActivity : AppCompatActivity() {
         val listView: ListView = findViewById(R.id.selectionListView)
         listView.adapter = FilteredAppsAdapter(this, packages, unlisted)
 
+        val scaling : SwitchCompat = findViewById(R.id.scaling_switch)
+        scaling.isChecked = SamSprung.prefs.getBoolean(SamSprung.prefScaled, false)
+        scaling.setOnClickListener {
+            with(SamSprung.prefs.edit()) {
+                putBoolean(SamSprung.prefScaled, scaling.isChecked)
+                apply()
+            }
+        }
+
         startForegroundService(Intent(this, OnBroadcastService::class.java))
     }
 
