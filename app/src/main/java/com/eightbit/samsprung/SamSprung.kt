@@ -104,6 +104,5 @@ class SamSprung : Application() {
         const val autoRotate: String = "autoRotate"
         const val prefSecure: String = "prefSecure"
         const val prefScaled: String = "prefScaled"
-        const val prefExtend: String = "prefExtend"
     }
 }

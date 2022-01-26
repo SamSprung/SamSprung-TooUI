@@ -105,12 +105,10 @@ class SamSprungDrawer : AppCompatActivity(),
 
         super.onCreate(savedInstanceState)
         supportActionBar?.hide()
-        if (SamSprung.prefs.getBoolean(SamSprung.prefExtend, false)) {
+        if (SamSprung.prefs.getBoolean(SamSprung.prefScaled, false)) {
             ScaledContext.wrap(this).setTheme(R.style.Theme_SecondScreen_NoActionBar)
             setContentView(R.layout.scaled_view_layout)
         } else {
-            ScaledContext.restore(buildDisplayContext(1))
-                .setTheme(R.style.Theme_SecondScreen_NoActionBar)
             setContentView(R.layout.apps_view_layout)
         }
 
@@ -542,17 +540,6 @@ class SamSprungDrawer : AppCompatActivity(),
                 null, 0, 0, 0)
             startForegroundService(Intent(this, DisplayListenerService::class.java)
                 .putExtra("launchPackage", notice.getIntentSender()!!.creatorPackage))
-        }
-    }
-
-    private fun buildDisplayContext(display: Int): Context {
-        val displayManager = getSystemService(Context.DISPLAY_SERVICE) as DisplayManager
-        val displayContext = createDisplayContext(displayManager.getDisplay(display))
-        val wm = displayContext.getSystemService(WINDOW_SERVICE) as WindowManager
-        return object : ContextThemeWrapper(displayContext, R.style.Theme_SecondScreen) {
-            override fun getSystemService(name: String): Any? {
-                return if (WINDOW_SERVICE == name) wm else super.getSystemService(name)
-            }
         }
     }
 

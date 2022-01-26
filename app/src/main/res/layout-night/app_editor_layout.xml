@@ -164,72 +164,30 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
-                android:baselineAligned="false">
+                android:layout_marginStart="8dp"
+                android:layout_marginEnd="4dp"
+                android:layout_gravity="center_vertical"
+                tools:ignore="UseCompoundDrawables">
 
-                <LinearLayout
-                    android:id="@+id/scaling_full"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
+                <TextView
+                    android:layout_width="0dp"
                     android:layout_weight="1"
-                    android:orientation="horizontal"
-                    android:layout_marginStart="8dp"
-                    android:layout_marginEnd="4dp"
+                    android:textSize="20sp"
+                    android:textColor="?android:textColorPrimary"
+                    android:gravity="center_vertical"
                     android:layout_gravity="center_vertical"
-                    tools:ignore="UseCompoundDrawables">
-
-                    <TextView
-                        android:layout_width="0dp"
-                        android:layout_weight="1"
-                        android:textSize="18sp"
-                        android:textColor="?android:textColorPrimary"
-                        android:gravity="center_vertical"
-                        android:layout_gravity="center_vertical"
-                        android:layout_height="wrap_content"
-                        android:text="@string/scaling_full" />
-
-                    <androidx.appcompat.widget.SwitchCompat
-                        android:id="@+id/scaling_full_switch"
-                        android:layout_width="0dp"
-                        android:gravity="center"
-                        android:layout_weight="1"
-                        android:textSize="28sp"
-                        android:textColor="?android:textColorPrimary"
-                        android:layout_gravity="center_vertical"
-                        android:layout_height="wrap_content" />
-                </LinearLayout>
-
-                <LinearLayout
-                    android:id="@+id/scaling_menu"
-                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:text="@string/scaling_mode" />
+
+                <androidx.appcompat.widget.SwitchCompat
+                    android:id="@+id/scaling_switch"
+                    android:layout_width="0dp"
+                    android:gravity="center"
                     android:layout_weight="1"
-                    android:orientation="horizontal"
-                    android:layout_marginStart="8dp"
-                    android:layout_marginEnd="4dp"
+                    android:textSize="28sp"
+                    android:textColor="?android:textColorPrimary"
                     android:layout_gravity="center_vertical"
-                    tools:ignore="UseCompoundDrawables">
-
-                    <TextView
-                        android:layout_width="0dp"
-                        android:layout_weight="1"
-                        android:textSize="18sp"
-                        android:textColor="?android:textColorPrimary"
-                        android:gravity="center_vertical"
-                        android:layout_gravity="center_vertical"
-                        android:layout_height="wrap_content"
-                        android:text="@string/scaling_menu" />
-
-                    <androidx.appcompat.widget.SwitchCompat
-                        android:id="@+id/scaling_menu_switch"
-                        android:layout_width="0dp"
-                        android:gravity="center"
-                        android:layout_weight="1"
-                        android:textSize="28sp"
-                        android:textColor="?android:textColorPrimary"
-                        android:layout_gravity="center_vertical"
-                        android:layout_height="wrap_content" />
-
-                </LinearLayout>
+                    android:layout_height="wrap_content" />
             </LinearLayout>
 
             <View

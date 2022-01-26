@@ -202,25 +202,13 @@ class CoverSettingsActivity : AppCompatActivity() {
         val listView: ListView = findViewById(R.id.selectionListView)
         listView.adapter = FilteredAppsAdapter(this, packages, unlisted)
 
-        val scalingFullGroup = findViewById<LinearLayout>(R.id.scaling_full)
-        val scalingFull : SwitchCompat = findViewById(R.id.scaling_full_switch)
-        scalingFull.isChecked = !SamSprung.prefs.getBoolean(SamSprung.prefExtend, false)
-        scalingFull.setOnClickListener {
+        val scaling : SwitchCompat = findViewById(R.id.scaling_switch)
+        scaling.isChecked = SamSprung.prefs.getBoolean(SamSprung.prefScaled, false)
+        scaling.setOnClickListener {
             with(SamSprung.prefs.edit()) {
-                putBoolean(SamSprung.prefExtend, !scalingFull.isChecked)
+                putBoolean(SamSprung.prefScaled, scaling.isChecked)
                 apply()
             }
-        }
-
-        val scalingMenu : SwitchCompat = findViewById(R.id.scaling_menu_switch)
-        scalingMenu.isChecked = SamSprung.prefs.getBoolean(SamSprung.prefScaled, false)
-        scalingFullGroup.visibility = if (scalingMenu.isChecked) View.VISIBLE else View.GONE
-        scalingMenu.setOnClickListener {
-            with(SamSprung.prefs.edit()) {
-                putBoolean(SamSprung.prefScaled, scalingMenu.isChecked)
-                apply()
-            }
-            scalingFullGroup.visibility = if (scalingMenu.isChecked) View.VISIBLE else View.GONE
         }
 
         startForegroundService(Intent(this, OnBroadcastService::class.java))

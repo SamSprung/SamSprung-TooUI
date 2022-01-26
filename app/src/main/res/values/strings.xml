@@ -16,8 +16,7 @@
     <string name="button_confirm">Confirm</string>
     <string name="button_cancel">Cancel</string>
 
-    <string name="scaling_menu">Scale Cover</string>
-    <string name="scaling_full">Menus Only</string>
+    <string name="scaling_mode">SamSprung Scaling</string>
 
     <string name="overlay_service">%1$s Overlay Service</string>
     <string name="display_service">%1$s Display Service</string>

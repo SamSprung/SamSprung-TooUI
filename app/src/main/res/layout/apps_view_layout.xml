@@ -24,7 +24,7 @@
         android:clipToPadding="false"
         android:paddingStart="24dp"
         android:paddingEnd="0dp"
-        android:layout_marginBottom="8dp"
+        android:layout_marginBottom="24dp"
         android:scrollbars="vertical" />
 
     </com.eightbitlab.blurview.BlurView>
