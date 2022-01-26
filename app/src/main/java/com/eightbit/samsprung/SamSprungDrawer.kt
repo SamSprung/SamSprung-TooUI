@@ -104,12 +104,13 @@ class SamSprungDrawer : AppCompatActivity(),
         // setTurnScreenOn(true)
 
         super.onCreate(savedInstanceState)
-        buildDisplayContext(1).setTheme(R.style.Theme_SecondScreen_NoActionBar)
         supportActionBar?.hide()
         if (SamSprung.prefs.getBoolean(SamSprung.prefExtend, false)) {
             ScaledContext.wrap(this).setTheme(R.style.Theme_SecondScreen_NoActionBar)
             setContentView(R.layout.scaled_view_layout)
         } else {
+            ScaledContext.restore(buildDisplayContext(1))
+                .setTheme(R.style.Theme_SecondScreen_NoActionBar)
             setContentView(R.layout.apps_view_layout)
         }
 
