@@ -270,17 +270,13 @@ class DisplayListenerService : Service() {
             restoreActivityDisplay(launchPackage, launchActivity)
         }
 
-        if (useAccessibility && hasAccessibility()) {
-            AccessibilityObserver.executeButtonHome()
-        } else {
-            val homeLauncher = Intent(Intent.ACTION_MAIN)
-            homeLauncher.addCategory(Intent.CATEGORY_HOME)
-            homeLauncher.flags = Intent.FLAG_ACTIVITY_NEW_TASK or
-                    Intent.FLAG_ACTIVITY_FORWARD_RESULT or
-                    Intent.FLAG_ACTIVITY_NO_ANIMATION
-            startActivity(homeLauncher, ActivityOptions.makeBasic()
-                .setLaunchDisplayId(0).toBundle())
-        }
+        val homeLauncher = Intent(Intent.ACTION_MAIN)
+        homeLauncher.addCategory(Intent.CATEGORY_HOME)
+        homeLauncher.flags = Intent.FLAG_ACTIVITY_NEW_TASK or
+                Intent.FLAG_ACTIVITY_FORWARD_RESULT or
+                Intent.FLAG_ACTIVITY_NO_ANIMATION
+        startActivity(homeLauncher, ActivityOptions.makeBasic()
+            .setLaunchDisplayId(0).toBundle())
     }
 
     private fun dismissDisplayListener(
