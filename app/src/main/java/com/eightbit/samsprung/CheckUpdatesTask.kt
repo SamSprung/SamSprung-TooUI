@@ -70,15 +70,19 @@ import java.io.File
 import java.io.FileOutputStream
 import java.net.URL
 import java.util.*
+import java.util.concurrent.Executors
 
 class CheckUpdatesTask(private var context: Context) {
 
     init {
-        val files: Array<File>? = context.filesDir.listFiles { _, name ->
-            name.lowercase(Locale.getDefault()).endsWith(".apk") }
-        if (null != files) {
-            for (file in files) {
-                if (!file.isDirectory) file.delete()
+        Executors.newSingleThreadExecutor().execute {
+            val files: Array<File>? = context.filesDir.listFiles { _, name ->
+                name.lowercase(Locale.getDefault()).endsWith(".apk")
+            }
+            if (null != files) {
+                for (file in files) {
+                    if (!file.isDirectory) file.delete()
+                }
             }
         }
     }

@@ -54,9 +54,8 @@ package com.eightbit.samsprung
 import android.content.Context
 import android.content.pm.PackageManager
 import android.content.pm.ResolveInfo
-import android.graphics.Bitmap
-import android.graphics.Canvas
-import android.graphics.drawable.Drawable
+import android.os.Handler
+import android.os.Looper
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -65,6 +64,7 @@ import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.appcompat.widget.AppCompatImageView
 import androidx.appcompat.widget.SwitchCompat
+import java.util.concurrent.Executors
 
 class FilteredAppsAdapter(
     private val context: Context,
@@ -93,19 +93,21 @@ class FilteredAppsAdapter(
         }
 
         val application = packages[position]
-
-        val appName: CharSequence? = try {
-            application.loadLabel(pacMan)
-        } catch (e: Exception) {
-            application.nonLocalizedLabel
-        }
-
         val detailView = convertView!!.findViewById<LinearLayout>(R.id.hiddenItemContainer)
 
-        detailView.findViewById<AppCompatImageView>(R.id.hiddenItemImage).setImageBitmap(
-            getBitmapFromDrawable(application.loadIcon(pacMan)))
+        Executors.newSingleThreadExecutor().execute {
+            val appName: CharSequence? = try {
+                application.loadLabel(pacMan)
+            } catch (e: Exception) {
+                application.nonLocalizedLabel
+            }
+            val icon = application.loadIcon(pacMan)
 
-        detailView.findViewById<TextView>(R.id.hiddenItemText).text = appName
+            Handler(Looper.getMainLooper()).post {
+                detailView.findViewById<AppCompatImageView>(R.id.hiddenItemImage).setImageDrawable(icon)
+                detailView.findViewById<TextView>(R.id.hiddenItemText).text = appName
+            }
+        }
 
         val hideSwitch = detailView.findViewById<SwitchCompat>(R.id.hiddenItemSwitch)
         hideSwitch.isChecked = !hide.contains(application.activityInfo.packageName)
@@ -128,16 +130,5 @@ class FilteredAppsAdapter(
         }
 
         return convertView
-    }
-
-    private fun getBitmapFromDrawable(drawable: Drawable): Bitmap {
-        val bitmapDrawable = Bitmap.createBitmap(
-            drawable.intrinsicWidth,
-            drawable.intrinsicHeight, Bitmap.Config.ARGB_8888
-        )
-        val canvas = Canvas(bitmapDrawable)
-        drawable.setBounds(0, 0, canvas.width, canvas.height)
-        drawable.draw(canvas)
-        return bitmapDrawable
     }
 }

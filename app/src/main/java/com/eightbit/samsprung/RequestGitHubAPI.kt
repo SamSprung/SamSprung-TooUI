@@ -70,10 +70,14 @@ class RequestGitHubAPI(url: String) {
                 conn.useCaches = false
                 conn.defaultUseCaches = false
                 val responseCode = conn.responseCode
-                if (responseCode == HttpURLConnection.HTTP_MOVED_PERM) conn = URL(
-                    conn.getHeaderField("Location")
-                ).openConnection() as HttpURLConnection
-                else if (200 != responseCode) return@execute
+                if (responseCode == HttpURLConnection.HTTP_MOVED_PERM) {
+                    conn.disconnect()
+                    conn = URL(conn.getHeaderField("Location"))
+                        .openConnection() as HttpURLConnection
+                } else if (200 != responseCode) {
+                    conn.disconnect()
+                    return@execute
+                }
                 val `in` = conn.inputStream
                 val streamReader = BufferedReader(
                     InputStreamReader(`in`, StandardCharsets.UTF_8)
@@ -83,6 +87,9 @@ class RequestGitHubAPI(url: String) {
                 while (streamReader.readLine().also { inputStr = it } != null
                 ) responseStrBuilder.append(inputStr)
                 listener.onResults(responseStrBuilder.toString())
+                streamReader.close()
+                `in`.close()
+                conn.disconnect()
             } catch (e: IOException) {
                 e.printStackTrace()
             }

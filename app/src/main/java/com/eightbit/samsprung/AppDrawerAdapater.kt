@@ -53,6 +53,8 @@ package com.eightbit.samsprung
 
 import android.content.pm.PackageManager
 import android.content.pm.ResolveInfo
+import android.os.Handler
+import android.os.Looper
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -60,6 +62,7 @@ import android.widget.TextView
 import androidx.appcompat.widget.AppCompatImageView
 import androidx.recyclerview.widget.RecyclerView
 import com.eightbit.samsprung.AppDrawerAdapater.AppViewHolder
+import java.util.concurrent.Executors
 
 class AppDrawerAdapater(
     private var packages: MutableList<ResolveInfo>,
@@ -112,18 +115,24 @@ class AppDrawerAdapater(
         lateinit var appInfo: ResolveInfo
         fun bind(appInfo: ResolveInfo) {
             this.appInfo = appInfo
-            val icon = appInfo.loadIcon(packageManager)
-            if (null != icon) {
-                iconView.setImageDrawable(icon)
-            }
-            if (!SamSprung.prefs.getBoolean(SamSprung.prefLayout, true)) {
-                val label: CharSequence? = try {
-                    appInfo.loadLabel(packageManager)
-                } catch (e: Exception) {
-                    appInfo.nonLocalizedLabel
+            Executors.newSingleThreadExecutor().execute {
+                val icon = appInfo.loadIcon(packageManager)
+                if (null != icon) {
+                    Handler(Looper.getMainLooper()).post {
+                        iconView.setImageDrawable(icon)
+                    }
                 }
-                if (null != label) {
-                    itemView.findViewById<TextView>(R.id.widgetItemText).text = label
+                if (!SamSprung.prefs.getBoolean(SamSprung.prefLayout, true)) {
+                    val label: CharSequence? = try {
+                        appInfo.loadLabel(packageManager)
+                    } catch (e: Exception) {
+                        appInfo.nonLocalizedLabel
+                    }
+                    if (null != label) {
+                        Handler(Looper.getMainLooper()).post {
+                            itemView.findViewById<TextView>(R.id.widgetItemText).text = label
+                        }
+                    }
                 }
             }
         }

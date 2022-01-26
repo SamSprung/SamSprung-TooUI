@@ -54,6 +54,7 @@ package com.eightbit.samsprung
 import android.app.Application
 import android.content.Intent
 import android.content.SharedPreferences
+import android.os.StrictMode
 import androidx.appcompat.app.AppCompatDelegate
 import java.lang.ref.SoftReference
 import kotlin.system.exitProcess
@@ -61,7 +62,8 @@ import kotlin.system.exitProcess
 class SamSprung : Application() {
     override fun onCreate() {
         super.onCreate()
-        AppCompatDelegate.setCompatVectorFromResourcesEnabled(true);
+        AppCompatDelegate.setCompatVectorFromResourcesEnabled(true)
+        if (BuildConfig.DEBUG) StrictMode.enableDefaults()
         mPrefs = SoftReference(
             getSharedPreferences("samsprung.launcher.PREFS", MODE_PRIVATE)
         )
