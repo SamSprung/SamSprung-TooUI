@@ -163,7 +163,40 @@
                 android:id="@+id/scaling"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal">
+                android:orientation="horizontal"
+                android:baselineAligned="false">
+
+                <LinearLayout
+                    android:id="@+id/scaling_nav"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="horizontal"
+                    android:layout_marginStart="8dp"
+                    android:layout_marginEnd="4dp"
+                    android:layout_gravity="center_vertical"
+                    tools:ignore="UseCompoundDrawables">
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_weight="1"
+                        android:textSize="18sp"
+                        android:textColor="?android:textColorPrimary"
+                        android:gravity="center_vertical"
+                        android:layout_gravity="center_vertical"
+                        android:layout_height="wrap_content"
+                        android:text="@string/scaling_nav" />
+
+                    <androidx.appcompat.widget.SwitchCompat
+                        android:id="@+id/scaling_nav_switch"
+                        android:layout_width="0dp"
+                        android:gravity="center"
+                        android:layout_weight="1"
+                        android:textSize="28sp"
+                        android:textColor="?android:textColorPrimary"
+                        android:layout_gravity="center_vertical"
+                        android:layout_height="wrap_content" />
+                </LinearLayout>
 
                 <LinearLayout
                     android:id="@+id/scaling_gen"
@@ -197,39 +230,6 @@
                         android:layout_height="wrap_content" />
 
                 </LinearLayout>
-
-                <LinearLayout
-                    android:id="@+id/scaling_nav"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:orientation="horizontal"
-                    android:layout_marginStart="8dp"
-                    android:layout_marginEnd="4dp"
-                    android:layout_gravity="center_vertical"
-                    tools:ignore="UseCompoundDrawables">
-
-                    <TextView
-                        android:layout_width="0dp"
-                        android:layout_weight="1"
-                        android:textSize="18sp"
-                        android:textColor="?android:textColorPrimary"
-                        android:gravity="center_vertical"
-                        android:layout_gravity="center_vertical"
-                        android:layout_height="wrap_content"
-                        android:text="@string/scaling_nav" />
-
-                    <androidx.appcompat.widget.SwitchCompat
-                        android:id="@+id/scaling_nav_switch"
-                        android:layout_width="0dp"
-                        android:gravity="center"
-                        android:layout_weight="1"
-                        android:textSize="28sp"
-                        android:textColor="?android:textColorPrimary"
-                        android:layout_gravity="center_vertical"
-                        android:layout_height="wrap_content" />
-
-                </LinearLayout>
             </LinearLayout>
 
             <View
@@ -252,5 +252,5 @@
                 android:layout_marginBottom="16dp"/>
 
         </LinearLayout>
-    </com.eightbitlab.blurview.BlurView>>
+    </com.eightbitlab.blurview.BlurView>
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

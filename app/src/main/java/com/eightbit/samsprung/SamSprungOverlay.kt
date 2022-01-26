@@ -65,8 +65,9 @@ import androidx.core.view.isVisible
 import com.eightbit.content.ScaledContext
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 
-
 class SamSprungOverlay : AppCompatActivity() {
+
+    private lateinit var bottomSheetBehavior: BottomSheetBehavior<View>
 
     override fun onCreate(savedInstanceState: Bundle?) {
         setShowWhenLocked(true)
@@ -87,39 +88,20 @@ class SamSprungOverlay : AppCompatActivity() {
         wlp.gravity = Gravity.BOTTOM
         window.attributes = wlp
         window.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
-        if (SamSprung.prefs.getBoolean(SamSprung.prefScaled, false)
-            || SamSprung.prefs.getBoolean(SamSprung.prefReader, false)) {
+        if (SamSprung.prefs.getBoolean(SamSprung.prefScaled, false)) {
             ScaledContext.wrap(this).setTheme(R.style.Theme_SecondScreen)
             setContentView(R.layout.scaled_navigation)
         } else {
             setContentView(R.layout.navigation_layout)
         }
 
-        val bottomSheetBehavior: BottomSheetBehavior<View> =
-            BottomSheetBehavior.from(findViewById(R.id.bottom_sheet))
+        bottomSheetBehavior = BottomSheetBehavior.from(findViewById(R.id.bottom_sheet))
         bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
         bottomSheetBehavior.addBottomSheetCallback(object : BottomSheetBehavior.BottomSheetCallback() {
             override fun onStateChanged(bottomSheet: View, newState: Int) {
                 val menu = findViewById<LinearLayout>(R.id.button_layout)!!
                 if (newState == BottomSheetBehavior.STATE_EXPANDED) {
-                    if (!menu.isVisible) menu.visibility = View.VISIBLE
-                    menu.findViewById<VerticalStrokeTextView>(R.id.samsprung_logo)!!.setOnClickListener {
-                        bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
-                    }
-                    menu.findViewById<AppCompatImageView>(R.id.button_recent)!!.setOnClickListener {
-                        startActivity(
-                            Intent(this@SamSprungOverlay, SamSprungDrawer::class.java)
-                                .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK),
-                            ActivityOptions.makeBasic().setLaunchDisplayId(1).toBundle()
-                        )
-                        finish()
-                    }
-                    menu.findViewById<AppCompatImageView>(R.id.button_home)!!.setOnClickListener {
-                        bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
-                    }
-                    menu.findViewById<AppCompatImageView>(R.id.button_back)!!.setOnClickListener {
-                        bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
-                    }
+                    configureBottomSheet(menu)
                 } else if (newState == BottomSheetBehavior.STATE_COLLAPSED) {
                     if (menu.isVisible) menu.visibility = View.GONE
                 }
@@ -137,5 +119,26 @@ class SamSprungOverlay : AppCompatActivity() {
                 bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
             }
         })
+    }
+
+    private fun configureBottomSheet(menu: View) {
+        if (!menu.isVisible) menu.visibility = View.VISIBLE
+        menu.findViewById<VerticalStrokeTextView>(R.id.samsprung_logo)!!.setOnClickListener {
+            bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
+        }
+        menu.findViewById<AppCompatImageView>(R.id.button_recent)!!.setOnClickListener {
+            startActivity(
+                Intent(ScaledContext.restore(this@SamSprungOverlay),
+                    SamSprungDrawer::class.java).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK),
+                ActivityOptions.makeBasic().setLaunchDisplayId(1).toBundle()
+            )
+            finish()
+        }
+        menu.findViewById<AppCompatImageView>(R.id.button_home)!!.setOnClickListener {
+            bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
+        }
+        menu.findViewById<AppCompatImageView>(R.id.button_back)!!.setOnClickListener {
+            bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
+        }
     }
 }

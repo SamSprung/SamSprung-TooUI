@@ -210,12 +210,6 @@ class CoverSettingsActivity : AppCompatActivity() {
                 apply()
             }
             scalingNavGroup.visibility = if (scalingGen.isChecked) View.VISIBLE else View.GONE
-            if (!scalingGen.isChecked) {
-                with(SamSprung.prefs.edit()) {
-                    putBoolean(SamSprung.prefReader, false)
-                    apply()
-                }
-            }
         }
 
         startForegroundService(Intent(this, OnBroadcastService::class.java))
