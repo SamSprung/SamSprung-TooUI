@@ -10,8 +10,8 @@ android {
         applicationId "com.eightbit.samsprung"
         minSdk 30
         targetSdk 31
-        versionCode 109
-        versionName "1.0.9"
+        versionCode 110
+        versionName "1.1.0"
 
         vectorDrawables {
             useSupportLibrary = true
@@ -91,6 +91,6 @@ dependencies {
     // Includes WindowInfoRepositoryCallbackAdapter
     api 'androidx.window:window:1.0.0-beta03'
     api 'androidx.window:window-java:1.0.0-beta03'
-    implementation 'com.github.SamSprung:android-issue-reporter:1ff18af'
+    implementation 'com.github.SamSprung:android-issue-reporter:ce3838f'
     implementation 'com.android.billingclient:billing:4.0.0'
 }

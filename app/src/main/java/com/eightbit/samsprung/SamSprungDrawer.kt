@@ -61,6 +61,7 @@ import android.content.pm.PackageManager
 import android.content.pm.ResolveInfo
 import android.graphics.Canvas
 import android.hardware.camera2.CameraManager
+import android.hardware.display.DisplayManager
 import android.media.AudioManager
 import android.net.Uri
 import android.net.wifi.WifiManager
@@ -68,8 +69,7 @@ import android.nfc.NfcManager
 import android.os.*
 import android.provider.Settings
 import android.text.TextUtils
-import android.view.MenuItem
-import android.view.View
+import android.view.*
 import android.widget.TextView
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
@@ -104,9 +104,9 @@ class SamSprungDrawer : AppCompatActivity(),
         // setTurnScreenOn(true)
 
         super.onCreate(savedInstanceState)
+        buildDisplayContext(1).setTheme(R.style.Theme_SecondScreen_NoActionBar)
         supportActionBar?.hide()
-        if (SamSprung.prefs.getBoolean(SamSprung.prefScaled, false)
-            && !SamSprung.prefs.getBoolean(SamSprung.prefReader, false)) {
+        if (SamSprung.prefs.getBoolean(SamSprung.prefExtend, false)) {
             ScaledContext.wrap(this).setTheme(R.style.Theme_SecondScreen_NoActionBar)
             setContentView(R.layout.scaled_view_layout)
         } else {
@@ -454,6 +454,7 @@ class SamSprungDrawer : AppCompatActivity(),
                         Intent(applicationContext, SamSprungOverlay::class.java)
                             .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK),
                         ActivityOptions.makeBasic().setLaunchDisplayId(1).toBundle())
+
                 }
             }
         }
@@ -522,10 +523,10 @@ class SamSprungDrawer : AppCompatActivity(),
         } catch (e: PackageManager.NameNotFoundException) {
             e.printStackTrace()
         }
-        coverIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-        coverIntent.addFlags(Intent.FLAG_ACTIVITY_MULTIPLE_TASK)
-        coverIntent.addFlags(Intent.FLAG_ACTIVITY_FORWARD_RESULT)
-        coverIntent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION)
+        coverIntent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or
+                Intent.FLAG_ACTIVITY_CLEAR_TASK or
+                Intent.FLAG_ACTIVITY_FORWARD_RESULT or
+                Intent.FLAG_ACTIVITY_NO_ANIMATION
         startActivity(coverIntent.putExtras(extras), options.toBundle())
 
         val serviceIntent = Intent(this, DisplayListenerService::class.java)
@@ -540,6 +541,17 @@ class SamSprungDrawer : AppCompatActivity(),
                 null, 0, 0, 0)
             startForegroundService(Intent(this, DisplayListenerService::class.java)
                 .putExtra("launchPackage", notice.getIntentSender()!!.creatorPackage))
+        }
+    }
+
+    private fun buildDisplayContext(display: Int): Context {
+        val displayManager = getSystemService(Context.DISPLAY_SERVICE) as DisplayManager
+        val displayContext = createDisplayContext(displayManager.getDisplay(display))
+        val wm = displayContext.getSystemService(WINDOW_SERVICE) as WindowManager
+        return object : ContextThemeWrapper(displayContext, R.style.Theme_SecondScreen) {
+            override fun getSystemService(name: String): Any? {
+                return if (WINDOW_SERVICE == name) wm else super.getSystemService(name)
+            }
         }
     }
 

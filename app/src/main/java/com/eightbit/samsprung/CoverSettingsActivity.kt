@@ -202,25 +202,25 @@ class CoverSettingsActivity : AppCompatActivity() {
         val listView: ListView = findViewById(R.id.selectionListView)
         listView.adapter = FilteredAppsAdapter(this, packages, unlisted)
 
-        val scalingNavGroup = findViewById<LinearLayout>(R.id.scaling_nav)
-        val scalingNav : SwitchCompat = findViewById(R.id.scaling_nav_switch)
-        scalingNav.isChecked = SamSprung.prefs.getBoolean(SamSprung.prefReader, false)
-        scalingNav.setOnClickListener {
+        val scalingFullGroup = findViewById<LinearLayout>(R.id.scaling_full)
+        val scalingFull : SwitchCompat = findViewById(R.id.scaling_full_switch)
+        scalingFull.isChecked = !SamSprung.prefs.getBoolean(SamSprung.prefExtend, false)
+        scalingFull.setOnClickListener {
             with(SamSprung.prefs.edit()) {
-                putBoolean(SamSprung.prefReader, scalingNav.isChecked)
+                putBoolean(SamSprung.prefExtend, !scalingFull.isChecked)
                 apply()
             }
         }
 
-        val scalingGen : SwitchCompat = findViewById(R.id.scaling_gen_switch)
-        scalingGen.isChecked = SamSprung.prefs.getBoolean(SamSprung.prefScaled, false)
-        scalingNavGroup.visibility = if (scalingGen.isChecked) View.VISIBLE else View.GONE
-        scalingGen.setOnClickListener {
+        val scalingMenu : SwitchCompat = findViewById(R.id.scaling_menu_switch)
+        scalingMenu.isChecked = SamSprung.prefs.getBoolean(SamSprung.prefScaled, false)
+        scalingFullGroup.visibility = if (scalingMenu.isChecked) View.VISIBLE else View.GONE
+        scalingMenu.setOnClickListener {
             with(SamSprung.prefs.edit()) {
-                putBoolean(SamSprung.prefScaled, scalingGen.isChecked)
+                putBoolean(SamSprung.prefScaled, scalingMenu.isChecked)
                 apply()
             }
-            scalingNavGroup.visibility = if (scalingGen.isChecked) View.VISIBLE else View.GONE
+            scalingFullGroup.visibility = if (scalingMenu.isChecked) View.VISIBLE else View.GONE
         }
 
         startForegroundService(Intent(this, OnBroadcastService::class.java))

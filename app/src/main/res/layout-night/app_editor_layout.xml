@@ -167,7 +167,7 @@
                 android:baselineAligned="false">
 
                 <LinearLayout
-                    android:id="@+id/scaling_nav"
+                    android:id="@+id/scaling_full"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
@@ -185,10 +185,10 @@
                         android:gravity="center_vertical"
                         android:layout_gravity="center_vertical"
                         android:layout_height="wrap_content"
-                        android:text="@string/scaling_nav" />
+                        android:text="@string/scaling_full" />
 
                     <androidx.appcompat.widget.SwitchCompat
-                        android:id="@+id/scaling_nav_switch"
+                        android:id="@+id/scaling_full_switch"
                         android:layout_width="0dp"
                         android:gravity="center"
                         android:layout_weight="1"
@@ -199,7 +199,7 @@
                 </LinearLayout>
 
                 <LinearLayout
-                    android:id="@+id/scaling_gen"
+                    android:id="@+id/scaling_menu"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
@@ -217,10 +217,10 @@
                         android:gravity="center_vertical"
                         android:layout_gravity="center_vertical"
                         android:layout_height="wrap_content"
-                        android:text="@string/scaling_gen" />
+                        android:text="@string/scaling_menu" />
 
                     <androidx.appcompat.widget.SwitchCompat
-                        android:id="@+id/scaling_gen_switch"
+                        android:id="@+id/scaling_menu_switch"
                         android:layout_width="0dp"
                         android:gravity="center"
                         android:layout_weight="1"

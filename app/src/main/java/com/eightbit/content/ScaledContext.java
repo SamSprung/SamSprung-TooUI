@@ -113,10 +113,7 @@ public class ScaledContext extends ContextWrapper {
     }
 
     public static Context restore(Context context) {
-        Resources resources = context.getResources();
-        DisplayMetrics metrics = resources.getDisplayMetrics();
-
-        metrics.setToDefaults();
+        context.getResources().getDisplayMetrics().setToDefaults();
         return context;
     }
 }
