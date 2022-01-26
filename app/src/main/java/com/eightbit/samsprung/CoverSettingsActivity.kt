@@ -405,7 +405,7 @@ class CoverSettingsActivity : AppCompatActivity() {
             .guestEmailRequired(true)
             .guestAllowUsername(true)
             .titleTextDefault(getString(R.string.build_hash, BuildConfig.COMMIT))
-            .minDescriptionLength(0)
+            .minDescriptionLength(50)
             .putExtraInfo("logcat", log.toString())
             .homeAsUpEnabled(false).launch(this)
     }
