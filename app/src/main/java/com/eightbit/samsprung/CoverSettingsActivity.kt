@@ -53,6 +53,7 @@ package com.eightbit.samsprung
 
 import android.Manifest
 import android.annotation.SuppressLint
+import android.app.Dialog
 import android.app.KeyguardManager
 import android.app.WallpaperManager
 import android.content.ComponentName
@@ -71,32 +72,42 @@ import android.text.style.ImageSpan
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
-import android.widget.LinearLayout
-import android.widget.ListView
-import android.widget.ToggleButton
+import android.widget.*
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.view.ContextThemeWrapper
 import androidx.appcompat.widget.SwitchCompat
 import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.core.content.ContextCompat
+import com.android.billingclient.api.*
+import com.eightbit.material.IconifiedSnackbar
 import com.eightbitlab.blurview.BlurView
 import com.eightbitlab.blurview.RenderScriptBlur
+import com.google.android.material.snackbar.Snackbar
 import com.heinrichreimersoftware.androidissuereporter.IssueReporterLauncher
 import java.io.BufferedReader
 import java.io.File
 import java.io.InputStreamReader
 import java.util.*
+import java.util.concurrent.Executors
 import kotlin.collections.HashSet
 
 class CoverSettingsActivity : AppCompatActivity() {
 
     private lateinit var updates : CheckUpdatesTask
+
     private lateinit var switch: SwitchCompat
     private lateinit var accessibility: SwitchCompat
     private lateinit var notifications: SwitchCompat
     private lateinit var settings: SwitchCompat
+
+    private lateinit var billingClient: BillingClient
+    private val iapList = ArrayList<String>()
+    private val subList = ArrayList<String>()
+    private val buttonsIAP = ArrayList<Button>()
+    private val buttonsSub = ArrayList<Button>()
 
     @RequiresApi(Build.VERSION_CODES.S)
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -114,12 +125,12 @@ class CoverSettingsActivity : AppCompatActivity() {
         if (ContextCompat.checkSelfPermission(this,
                 Manifest.permission.READ_EXTERNAL_STORAGE
             ) == PackageManager.PERMISSION_GRANTED) {
-            findViewById<CoordinatorLayout>(R.id.rootLayout).background =
+            findViewById<CoordinatorLayout>(R.id.coordinator).background =
                 WallpaperManager.getInstance(this).drawable
         }
 
         findViewById<BlurView>(R.id.blurContainer).setupWith(
-            window.decorView.findViewById(R.id.rootLayout))
+            window.decorView.findViewById(R.id.coordinator))
             .setFrameClearDrawable(window.decorView.background)
             .setBlurRadius(10f)
             .setBlurAutoUpdate(true)
@@ -213,6 +224,48 @@ class CoverSettingsActivity : AppCompatActivity() {
         }
 
         startForegroundService(Intent(this, OnBroadcastService::class.java))
+
+        billingClient = BillingClient.newBuilder(this)
+            .setListener(purchasesUpdatedListener).enablePendingPurchases().build()
+
+        Executors.newSingleThreadExecutor().execute {
+            billingClient.startConnection(object : BillingClientStateListener {
+                override fun onBillingSetupFinished(billingResult: BillingResult) {
+                    if (billingResult.responseCode == BillingClient.BillingResponseCode.OK) {
+                        iapList.add(getIAP(1))
+                        iapList.add(getIAP(5))
+                        iapList.add(getIAP(10))
+                        iapList.add(getIAP(25))
+                        iapList.add(getIAP(50))
+                        iapList.add(getIAP(99))
+                        billingClient.querySkuDetailsAsync(
+                            SkuDetailsParams.newBuilder()
+                                .setSkusList(iapList)
+                                .setType(BillingClient.SkuType.INAPP)
+                                .build(), responseListenerIAP
+                        )
+
+                        subList.add(getSub(1))
+                        subList.add(getSub(5))
+                        subList.add(getSub(10))
+                        subList.add(getSub(25))
+                        subList.add(getSub(50))
+                        subList.add(getSub(99))
+                        billingClient.querySkuDetailsAsync(
+                            SkuDetailsParams.newBuilder()
+                                .setSkusList(subList)
+                                .setType(BillingClient.SkuType.SUBS)
+                                .build(), responseListenerSub
+                        )
+                    }
+                }
+
+                override fun onBillingServiceDisconnected() {
+                    // Try to restart the connection on the next request to
+                    // Google Play by calling the startConnection() method.
+                }
+            })
+        }
     }
 
     private val permissions =
@@ -232,7 +285,7 @@ class CoverSettingsActivity : AppCompatActivity() {
     @SuppressLint("MissingPermission")
     private val requestStorage = registerForActivityResult(
         ActivityResultContracts.RequestPermission()) {
-        if (it) findViewById<CoordinatorLayout>(R.id.rootLayout).background =
+        if (it) findViewById<CoordinatorLayout>(R.id.coordinator).background =
             WallpaperManager.getInstance(this).drawable
         checkApplicationUpdates()
     }
@@ -286,7 +339,22 @@ class CoverSettingsActivity : AppCompatActivity() {
             true
         }
         R.id.subscribe -> {
-            startActivity(Intent(this, SamSprungDonate::class.java))
+            val view: View = layoutInflater.inflate(R.layout.donation_layout, null)
+            val dialog = AlertDialog.Builder(
+                ContextThemeWrapper(this, R.style.DialogTheme_NoActionBar)
+            )
+            val donations = view.findViewById<LinearLayout>(R.id.donation_layout)
+            for (button: Button in buttonsIAP)
+                donations.addView(button)
+            val subscriptions = view.findViewById<LinearLayout>(R.id.subscription_layout)
+            for (button: Button in buttonsSub)
+                subscriptions.addView(button)
+            dialog.setOnCancelListener {
+                donations.removeAllViewsInLayout()
+                subscriptions.removeAllViewsInLayout()
+            }
+            val donateDialog: Dialog = dialog.setView(view).show()
+            donateDialog.window?.setBackgroundDrawableResource(R.drawable.rounded_view)
             true
         }
         R.id.donate -> {
@@ -419,6 +487,93 @@ class CoverSettingsActivity : AppCompatActivity() {
                 updateLauncher.launch(Intent(Settings.ACTION_MANAGE_UNKNOWN_APP_SOURCES)
                     .setData(Uri.parse(String.format("package:%s", packageName))))
             }
+        }
+    }
+
+    private fun getIAP(amount: Int) : String {
+        return String.format("subscription_%02d", amount)
+    }
+
+    private fun getSub(amount: Int) : String {
+        return String.format("monthly_%02d", amount)
+    }
+
+    private val responseListenerIAP = SkuDetailsResponseListener { _, skuDetails ->
+        if (null != skuDetails) {
+            for (skuDetail: SkuDetails in skuDetails.sortedBy { skuDetail -> skuDetail.sku }) {
+                val button = Button(this)
+                button.setBackgroundResource(R.drawable.button_rippled)
+                button.text = skuDetail.title
+                button.setOnClickListener {
+                    billingClient.launchBillingFlow(this,
+                        BillingFlowParams.newBuilder().setSkuDetails(skuDetail).build())
+                }
+                buttonsIAP.add(button)
+            }
+        }
+    }
+
+    private val responseListenerSub = SkuDetailsResponseListener { _, skuDetails ->
+        if (null != skuDetails) {
+            for (skuDetail: SkuDetails in skuDetails.sortedBy { skuDetail -> skuDetail.sku }) {
+                val button = Button(this)
+                button.setBackgroundResource(R.drawable.button_rippled)
+                button.text = skuDetail.title
+                button.setOnClickListener {
+                    billingClient.launchBillingFlow(this,
+                        BillingFlowParams.newBuilder().setSkuDetails(skuDetail).build())
+                }
+                buttonsSub.add(button)
+            }
+        }
+    }
+
+    private val consumeResponseListener = ConsumeResponseListener { _, _ ->
+        Snackbar.make(
+            findViewById(R.id.donation_wrapper),
+            R.string.donation_thanks, Snackbar.LENGTH_LONG
+        ).show()
+    }
+
+    private fun handlePurchaseIAP(purchase : Purchase) {
+        val consumeParams = ConsumeParams.newBuilder().setPurchaseToken(purchase.purchaseToken)
+        billingClient.consumeAsync(consumeParams.build(), consumeResponseListener
+        )
+    }
+
+    private var acknowledgePurchaseResponseListener = AcknowledgePurchaseResponseListener {
+        IconifiedSnackbar(this).buildTickerBar(getString(R.string.donation_thanks)).show()
+    }
+
+    private fun handlePurchaseSub(purchase : Purchase) {
+        val acknowledgePurchaseParams = AcknowledgePurchaseParams.newBuilder()
+            .setPurchaseToken(purchase.purchaseToken)
+        billingClient.acknowledgePurchase(acknowledgePurchaseParams.build(),
+            acknowledgePurchaseResponseListener)
+    }
+
+    private fun handlePurchase(purchase : Purchase) {
+        if (purchase.purchaseState == Purchase.PurchaseState.PURCHASED) {
+            if (!purchase.isAcknowledged) {
+                for (iap: String in iapList) {
+                    if (purchase.skus.contains(iap))
+                        handlePurchaseIAP(purchase)
+                }
+                for (sub: String in subList) {
+                    if (purchase.skus.contains(sub))
+                        handlePurchaseSub(purchase)
+                }
+            }
+        }
+    }
+
+    private val purchasesUpdatedListener = PurchasesUpdatedListener { billingResult, purchases ->
+        if (billingResult.responseCode == BillingClient.BillingResponseCode.OK && null != purchases) {
+            for (purchase in purchases) {
+                handlePurchase(purchase)
+            }
+        } else if (billingResult.responseCode == BillingClient.BillingResponseCode.USER_CANCELED) {
+            
         }
     }
 

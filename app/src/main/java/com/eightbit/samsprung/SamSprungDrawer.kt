@@ -107,7 +107,7 @@ class SamSprungDrawer : AppCompatActivity(),
         supportActionBar?.hide()
         if (SamSprung.prefs.getBoolean(SamSprung.prefScaled, false)
             && !SamSprung.prefs.getBoolean(SamSprung.prefReader, false)) {
-            ScaledContext.wrap(this).setTheme(R.style.Theme_SecondScreen)
+            ScaledContext.wrap(this).setTheme(R.style.Theme_SecondScreen_NoActionBar)
             setContentView(R.layout.scaled_view_layout)
         } else {
             setContentView(R.layout.apps_view_layout)
@@ -130,12 +130,12 @@ class SamSprungDrawer : AppCompatActivity(),
         if (ContextCompat.checkSelfPermission(this,
                 Manifest.permission.READ_EXTERNAL_STORAGE
             ) == PackageManager.PERMISSION_GRANTED) {
-            findViewById<CoordinatorLayout>(R.id.rootLayout).background =
+            findViewById<CoordinatorLayout>(R.id.coordinator).background =
                 WallpaperManager.getInstance(this).drawable
         }
 
         findViewById<BlurView>(R.id.blurContainer).setupWith(
-            window.decorView.findViewById(R.id.rootLayout))
+            window.decorView.findViewById(R.id.coordinator))
             .setFrameClearDrawable(window.decorView.background)
             .setBlurRadius(1f)
             .setBlurAutoUpdate(true)

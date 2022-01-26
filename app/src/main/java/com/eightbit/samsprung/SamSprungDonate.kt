@@ -63,9 +63,7 @@ import java.util.concurrent.Executors
 
 class SamSprungDonate : AppCompatActivity() {
 
-    private lateinit var billingClient: BillingClient
-    private val iapList = ArrayList<String>()
-    private val subList = ArrayList<String>()
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         setShowWhenLocked(true)
@@ -76,139 +74,8 @@ class SamSprungDonate : AppCompatActivity() {
         supportActionBar?.hide()
         setContentView(R.layout.donation_layout)
 
-        billingClient = BillingClient.newBuilder(this)
-            .setListener(purchasesUpdatedListener).enablePendingPurchases().build()
 
-        Executors.newSingleThreadExecutor().execute {
-            billingClient.startConnection(object : BillingClientStateListener {
-                override fun onBillingSetupFinished(billingResult: BillingResult) {
-                    if (billingResult.responseCode == BillingClient.BillingResponseCode.OK) {
-                        iapList.add(getIAP(1))
-                        iapList.add(getIAP(5))
-                        iapList.add(getIAP(10))
-                        iapList.add(getIAP(25))
-                        iapList.add(getIAP(50))
-                        iapList.add(getIAP(99))
-                        billingClient.querySkuDetailsAsync(
-                            SkuDetailsParams.newBuilder()
-                                .setSkusList(iapList)
-                                .setType(BillingClient.SkuType.INAPP)
-                                .build(), responseListenerIAP
-                        )
-
-                        subList.add(getSub(1))
-                        subList.add(getSub(5))
-                        subList.add(getSub(10))
-                        subList.add(getSub(25))
-                        subList.add(getSub(50))
-                        subList.add(getSub(99))
-                        billingClient.querySkuDetailsAsync(
-                            SkuDetailsParams.newBuilder()
-                                .setSkusList(subList)
-                                .setType(BillingClient.SkuType.SUBS)
-                                .build(), responseListenerSub
-                        )
-                    }
-                }
-
-                override fun onBillingServiceDisconnected() {
-                    // Try to restart the connection on the next request to
-                    // Google Play by calling the startConnection() method.
-                }
-            })
-        }
     }
 
-    private fun getIAP(amount: Int) : String {
-        return String.format("subscription_%02d", amount)
-    }
 
-    private fun getSub(amount: Int) : String {
-        return String.format("monthly_%02d", amount)
-    }
-
-    private val responseListenerIAP = SkuDetailsResponseListener { _, skuDetails ->
-        if (null != skuDetails) {
-            val layout: LinearLayout = findViewById(R.id.donation_layout)
-            for (skuDetail: SkuDetails in skuDetails.sortedBy { skuDetail -> skuDetail.sku }) {
-                val button = Button(this)
-                button.setBackgroundResource(R.drawable.button_rippled)
-                button.text = skuDetail.title
-                button.setOnClickListener {
-                    billingClient.launchBillingFlow(this,
-                        BillingFlowParams.newBuilder().setSkuDetails(skuDetail).build())
-                }
-                runOnUiThread { layout.addView(button) }
-            }
-        }
-    }
-
-    private val responseListenerSub = SkuDetailsResponseListener { _, skuDetails ->
-        if (null != skuDetails) {
-            val layout: LinearLayout = findViewById(R.id.subscription_layout)
-            for (skuDetail: SkuDetails in skuDetails.sortedBy { skuDetail -> skuDetail.sku }) {
-                val button = Button(this)
-                button.setBackgroundResource(R.drawable.button_rippled)
-                button.text = skuDetail.title
-                button.setOnClickListener {
-                    billingClient.launchBillingFlow(this,
-                        BillingFlowParams.newBuilder().setSkuDetails(skuDetail).build())
-                }
-                runOnUiThread { layout.addView(button) }
-            }
-        }
-    }
-
-    private val consumeResponseListener = ConsumeResponseListener { _, _ ->
-        Snackbar.make(
-            findViewById(R.id.donation_wrapper),
-            R.string.donation_thanks, Snackbar.LENGTH_LONG
-        ).show()
-    }
-
-    private fun handlePurchaseIAP(purchase : Purchase) {
-        val consumeParams = ConsumeParams.newBuilder().setPurchaseToken(purchase.purchaseToken)
-        billingClient.consumeAsync(consumeParams.build(), consumeResponseListener
-        )
-    }
-
-    private var acknowledgePurchaseResponseListener = AcknowledgePurchaseResponseListener {
-        Snackbar.make(
-            findViewById(R.id.donation_wrapper),
-            R.string.donation_thanks, Snackbar.LENGTH_LONG
-        ).show()
-    }
-
-    private fun handlePurchaseSub(purchase : Purchase) {
-        val acknowledgePurchaseParams = AcknowledgePurchaseParams.newBuilder()
-            .setPurchaseToken(purchase.purchaseToken)
-        billingClient.acknowledgePurchase(acknowledgePurchaseParams.build(),
-            acknowledgePurchaseResponseListener)
-    }
-
-    private fun handlePurchase(purchase : Purchase) {
-        if (purchase.purchaseState == Purchase.PurchaseState.PURCHASED) {
-            if (!purchase.isAcknowledged) {
-                for (iap: String in iapList) {
-                    if (purchase.skus.contains(iap))
-                        handlePurchaseIAP(purchase)
-                }
-                for (sub: String in subList) {
-                    if (purchase.skus.contains(sub))
-                        handlePurchaseSub(purchase)
-                }
-            }
-        }
-    }
-
-    private val purchasesUpdatedListener = PurchasesUpdatedListener { billingResult, purchases ->
-        if (billingResult.responseCode == BillingClient.BillingResponseCode.OK && null != purchases) {
-            for (purchase in purchases) {
-                handlePurchase(purchase)
-            }
-        } else {
-            if (billingResult.responseCode == BillingClient.BillingResponseCode.USER_CANCELED)
-                TODO()
-        }
-    }
 }

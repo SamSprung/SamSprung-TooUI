@@ -89,7 +89,7 @@ class SamSprungOverlay : AppCompatActivity() {
         window.attributes = wlp
         window.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
         if (SamSprung.prefs.getBoolean(SamSprung.prefScaled, false)) {
-            ScaledContext.wrap(this).setTheme(R.style.Theme_SecondScreen)
+            ScaledContext.wrap(this).setTheme(R.style.Theme_SecondScreen_NoActionBar)
             setContentView(R.layout.scaled_navigation)
         } else {
             setContentView(R.layout.navigation_layout)
@@ -110,7 +110,7 @@ class SamSprungOverlay : AppCompatActivity() {
             override fun onSlide(bottomSheet: View, slideOffset: Float) {}
         })
 
-        findViewById<View>(R.id.rootLayout)!!.setOnTouchListener(
+        findViewById<View>(R.id.coordinator)!!.setOnTouchListener(
             object: OnSwipeTouchListener(this@SamSprungOverlay) {
             override fun onSwipeTop() {
                 bottomSheetBehavior.state = BottomSheetBehavior.STATE_EXPANDED

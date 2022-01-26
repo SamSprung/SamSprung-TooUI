@@ -77,12 +77,12 @@ class SamSprungWidget : AppCompatActivity() {
         if (ContextCompat.checkSelfPermission(this,
                 Manifest.permission.READ_EXTERNAL_STORAGE
             ) == PackageManager.PERMISSION_GRANTED) {
-            findViewById<CoordinatorLayout>(R.id.rootLayout).background =
+            findViewById<CoordinatorLayout>(R.id.coordinator).background =
                 WallpaperManager.getInstance(this).drawable
         }
 
         findViewById<BlurView>(R.id.blurContainer).setupWith(
-            window.decorView.findViewById(R.id.rootLayout))
+            window.decorView.findViewById(R.id.coordinator))
             .setFrameClearDrawable(window.decorView.background)
             .setBlurRadius(1f)
             .setBlurAutoUpdate(true)
