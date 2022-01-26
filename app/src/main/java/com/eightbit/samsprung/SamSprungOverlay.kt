@@ -78,8 +78,6 @@ class SamSprungOverlay : AppCompatActivity() {
             PixelFormat.TRANSPARENT)
 
         super.onCreate(savedInstanceState)
-        if (SamSprung.prefs.getBoolean(SamSprung.prefScaled, false))
-            ScaledContext.wrap(this).setTheme(R.style.Theme_SecondScreen)
         supportActionBar?.hide()
         window.setLayout(
             ViewGroup.LayoutParams.MATCH_PARENT,
@@ -89,7 +87,12 @@ class SamSprungOverlay : AppCompatActivity() {
         wlp.gravity = Gravity.BOTTOM
         window.attributes = wlp
         window.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
-        setContentView(R.layout.navigation_layout)
+        if (SamSprung.prefs.getBoolean(SamSprung.prefScaled, false)) {
+            ScaledContext.wrap(this).setTheme(R.style.Theme_SecondScreen)
+            setContentView(R.layout.scaled_navigation)
+        } else {
+            setContentView(R.layout.navigation_layout)
+        }
 
         val bottomSheetBehavior: BottomSheetBehavior<View> =
             BottomSheetBehavior.from(findViewById(R.id.bottom_sheet))
@@ -124,7 +127,7 @@ class SamSprungOverlay : AppCompatActivity() {
             override fun onSlide(bottomSheet: View, slideOffset: Float) {}
         })
 
-        findViewById<View>(R.id.bottom_sheet)!!.setOnTouchListener(
+        findViewById<View>(R.id.rootLayout)!!.setOnTouchListener(
             object: OnSwipeTouchListener(this@SamSprungOverlay) {
             override fun onSwipeTop() {
                 bottomSheetBehavior.state = BottomSheetBehavior.STATE_EXPANDED
