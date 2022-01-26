@@ -272,8 +272,6 @@ class SamSprungDrawer : AppCompatActivity(),
                         toolbar.menu.findItem(R.id.toggle_nfc)
                             .setIcon(R.drawable.ic_baseline_nfc_disabled_24)
 
-                    toolbar.menu.findItem(R.id.toggle_gps).isVisible = false
-
                     if (audioManager.ringerMode == AudioManager.RINGER_MODE_NORMAL)
                         toolbar.menu.findItem(R.id.toggle_sound)
                             .setIcon(R.drawable.ic_baseline_hearing_24)
@@ -318,10 +316,6 @@ class SamSprungDrawer : AppCompatActivity(),
                             }
                             R.id.toggle_nfc -> {
                                 nfcEnabler.launch(Intent(Settings.Panel.ACTION_NFC))
-                                return@setOnMenuItemClickListener true
-                            }
-                            R.id.toggle_gps -> {
-
                                 return@setOnMenuItemClickListener true
                             }
                             R.id.toggle_sound -> {
