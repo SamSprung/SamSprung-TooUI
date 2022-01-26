@@ -57,15 +57,13 @@ import android.graphics.Color
 import android.graphics.PixelFormat
 import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
-import android.provider.Settings
 import android.view.*
-import android.widget.ImageView
 import android.widget.LinearLayout
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.widget.AppCompatImageView
 import androidx.core.view.isVisible
 import com.eightbit.content.ScaledContext
 import com.google.android.material.bottomsheet.BottomSheetBehavior
-import java.io.File
 
 
 class SamSprungOverlay : AppCompatActivity() {
@@ -101,10 +99,10 @@ class SamSprungOverlay : AppCompatActivity() {
                 val menu = findViewById<LinearLayout>(R.id.button_layout)!!
                 if (newState == BottomSheetBehavior.STATE_EXPANDED) {
                     if (!menu.isVisible) menu.visibility = View.VISIBLE
-                    findViewById<VerticalStrokeTextView>(R.id.samsprung_logo)!!.setOnClickListener {
+                    menu.findViewById<VerticalStrokeTextView>(R.id.samsprung_logo)!!.setOnClickListener {
                         bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
                     }
-                    findViewById<ImageView>(R.id.button_recent)!!.setOnClickListener {
+                    menu.findViewById<AppCompatImageView>(R.id.button_recent)!!.setOnClickListener {
                         startActivity(
                             Intent(this@SamSprungOverlay, SamSprungDrawer::class.java)
                                 .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK),
@@ -112,13 +110,11 @@ class SamSprungOverlay : AppCompatActivity() {
                         )
                         finish()
                     }
-                    findViewById<ImageView>(R.id.button_home)!!.setOnClickListener {
+                    menu.findViewById<AppCompatImageView>(R.id.button_home)!!.setOnClickListener {
                         bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
                     }
-                    findViewById<ImageView>(R.id.button_back)!!.setOnClickListener {
-                        if (hasAccessibility()) {
-                            AccessibilityObserver.executeButtonBack()
-                        }
+                    menu.findViewById<AppCompatImageView>(R.id.button_back)!!.setOnClickListener {
+                        bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
                     }
                 } else if (newState == BottomSheetBehavior.STATE_COLLAPSED) {
                     if (menu.isVisible) menu.visibility = View.GONE
@@ -127,10 +123,6 @@ class SamSprungOverlay : AppCompatActivity() {
 
             override fun onSlide(bottomSheet: View, slideOffset: Float) {}
         })
-
-        bottomSheetBehavior.isHideable = false
-        if (SamSprung.prefs.getBoolean(SamSprung.prefScaled, false))
-            bottomSheetBehavior.peekHeight = 12
 
         findViewById<View>(R.id.bottom_sheet)!!.setOnTouchListener(
             object: OnSwipeTouchListener(this@SamSprungOverlay) {
@@ -141,13 +133,5 @@ class SamSprungOverlay : AppCompatActivity() {
                 bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
             }
         })
-    }
-
-    private fun hasAccessibility(): Boolean {
-        val serviceString = Settings.Secure.getString(contentResolver,
-            Settings.Secure.ENABLED_ACCESSIBILITY_SERVICES
-        )
-        return serviceString != null && serviceString.contains(packageName
-                + File.separator + AccessibilityObserver::class.java.name)
     }
 }

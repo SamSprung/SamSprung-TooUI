@@ -70,9 +70,7 @@ import android.text.TextUtils
 import android.text.style.ImageSpan
 import android.view.Menu
 import android.view.MenuItem
-import android.view.View
 import android.widget.ListView
-import android.widget.Toast
 import android.widget.ToggleButton
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresApi
@@ -212,6 +210,7 @@ class CoverSettingsActivity : AppCompatActivity() {
         ActivityResultContracts.RequestPermission()) {
         if (it) findViewById<CoordinatorLayout>(R.id.rootLayout).background =
             WallpaperManager.getInstance(this).drawable
+        checkApplicationUpdates()
     }
 
     private val requestPermissions = registerForActivityResult(
@@ -223,8 +222,11 @@ class CoverSettingsActivity : AppCompatActivity() {
                 }
             } else if (it.key == Manifest.permission.READ_EXTERNAL_STORAGE && !it.value) {
                 requestStorage.launch(Manifest.permission.READ_EXTERNAL_STORAGE)
+            } else {
+                checkApplicationUpdates()
             }
         }
+
     }
 
     private val notificationLauncher = registerForActivityResult(
@@ -378,8 +380,7 @@ class CoverSettingsActivity : AppCompatActivity() {
             .homeAsUpEnabled(false).launch(this)
     }
 
-    override fun onNewIntent(intent: Intent?) {
-        super.onNewIntent(intent)
+    private fun checkApplicationUpdates() {
         if (BuildConfig.FLAVOR != "google") {
             val updates = CheckUpdatesTask(this)
             if (packageManager.canRequestPackageInstalls()) {
@@ -395,6 +396,11 @@ class CoverSettingsActivity : AppCompatActivity() {
                 )
             }
         }
+    }
+
+    override fun onNewIntent(intent: Intent?) {
+        super.onNewIntent(intent)
+        requestPermissions.launch(permissions)
         if (isDeviceSecure() && !SamSprung.prefs.getBoolean(SamSprung.prefSecure, false)) {
             AlertDialog.Builder(this)
                 .setTitle(R.string.caveats_title)
@@ -404,15 +410,12 @@ class CoverSettingsActivity : AppCompatActivity() {
                         putBoolean(SamSprung.prefSecure,  true)
                         apply()
                     }
-                    requestPermissions.launch(permissions)
                     dialog.dismiss()
                 }
                 .setNegativeButton(R.string.button_cancel) { dialog, _ ->
                     dialog.dismiss()
                     finish()
                 }.show()
-        } else {
-            requestPermissions.launch(permissions)
         }
     }
 }

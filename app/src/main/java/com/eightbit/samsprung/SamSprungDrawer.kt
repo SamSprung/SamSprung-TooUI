@@ -549,7 +549,7 @@ class SamSprungDrawer : AppCompatActivity(),
 
     private fun getColumnCount(): Int {
         return if (SamSprung.prefs.getBoolean(SamSprung.prefScaled, false))
-            (windowManager.currentWindowMetrics.bounds.width() / 72 + 0.5).toInt()
+            (windowManager.currentWindowMetrics.bounds.width() / 84 + 0.5).toInt()
         else
             (windowManager.currentWindowMetrics.bounds.width() / 96 + 0.5).toInt()
     }

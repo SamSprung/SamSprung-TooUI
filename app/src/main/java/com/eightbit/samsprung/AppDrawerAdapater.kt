@@ -56,8 +56,8 @@ import android.content.pm.ResolveInfo
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ImageView
 import android.widget.TextView
+import androidx.appcompat.widget.AppCompatImageView
 import androidx.recyclerview.widget.RecyclerView
 import com.eightbit.samsprung.AppDrawerAdapater.AppViewHolder
 
@@ -108,7 +108,7 @@ class AppDrawerAdapater(
         itemView: View, val listener: OnAppClickListener?,
         private val packageManager: PackageManager
     ) : RecyclerView.ViewHolder(itemView) {
-        val iconView: ImageView = itemView.findViewById(R.id.widgetItemImage)
+        val iconView: AppCompatImageView = itemView.findViewById(R.id.widgetItemImage)
         lateinit var appInfo: ResolveInfo
         fun bind(appInfo: ResolveInfo) {
             this.appInfo = appInfo

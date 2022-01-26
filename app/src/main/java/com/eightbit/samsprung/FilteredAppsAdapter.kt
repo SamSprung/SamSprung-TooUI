@@ -61,9 +61,9 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.BaseAdapter
-import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
+import androidx.appcompat.widget.AppCompatImageView
 import androidx.appcompat.widget.SwitchCompat
 
 class FilteredAppsAdapter(
@@ -102,7 +102,7 @@ class FilteredAppsAdapter(
 
         val detailView = convertView!!.findViewById<LinearLayout>(R.id.hiddenItemContainer)
 
-        detailView.findViewById<ImageView>(R.id.hiddenItemImage).setImageBitmap(
+        detailView.findViewById<AppCompatImageView>(R.id.hiddenItemImage).setImageBitmap(
             getBitmapFromDrawable(application.loadIcon(pacMan)))
 
         detailView.findViewById<TextView>(R.id.hiddenItemText).text = appName

@@ -58,8 +58,8 @@ import android.service.notification.StatusBarNotification
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ImageView
 import android.widget.TextView
+import androidx.appcompat.widget.AppCompatImageView
 import androidx.core.app.NotificationCompat
 import androidx.recyclerview.widget.RecyclerView
 import java.util.*
@@ -110,7 +110,7 @@ class NotificationAdapter(
     abstract class NoticeViewHolder(
         itemView: View, val listener: OnNoticeClickListener?
     ) : RecyclerView.ViewHolder(itemView) {
-        val iconView: ImageView = itemView.findViewById(R.id.icon)
+        val iconView: AppCompatImageView = itemView.findViewById(R.id.icon)
         private val linesText: TextView = itemView.findViewById(R.id.lines)
         lateinit var notice: SamSprungNotice
         fun bind(notice: SamSprungNotice) {

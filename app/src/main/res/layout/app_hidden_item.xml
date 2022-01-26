@@ -8,7 +8,7 @@
     tools:context=".CoverSettingsActivity"
     tools:ignore="UseCompoundDrawables">
 
-        <ImageView
+        <androidx.appcompat.widget.AppCompatImageView
             android:id="@+id/hiddenItemImage"
             android:layout_width="48dp"
             android:layout_height="48dp"

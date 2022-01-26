@@ -72,6 +72,7 @@ import android.widget.LinearLayout
 import androidx.core.app.NotificationCompat
 import androidx.core.content.ContextCompat
 import androidx.core.view.isVisible
+import com.eightbit.content.ScaledContext
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import java.io.File
 import java.lang.ref.SoftReference
@@ -108,7 +109,9 @@ class DisplayListenerService : Service() {
 
         showForegroundNotification(startId)
 
-        val displayContext: Context = buildDisplayContext(displayManager.getDisplay(1))
+        var displayContext: Context = buildDisplayContext(displayManager.getDisplay(1))
+        if (SamSprung.prefs.getBoolean(SamSprung.prefScaled, false))
+            displayContext = ScaledContext.wrap(displayContext)
         floatView = SoftReference(LayoutInflater.from(displayContext)
             .inflate(R.layout.navigation_layout, null))
         val params = WindowManager.LayoutParams(
@@ -150,10 +153,10 @@ class DisplayListenerService : Service() {
                 val menu = launcher?.findViewById<LinearLayout>(R.id.button_layout)!!
                 if (newState == BottomSheetBehavior.STATE_EXPANDED) {
                     if (!menu.isVisible) menu.visibility = View.VISIBLE
-                    launcher?.findViewById<VerticalStrokeTextView>(R.id.samsprung_logo)!!.setOnClickListener {
+                    menu.findViewById<VerticalStrokeTextView>(R.id.samsprung_logo)!!.setOnClickListener {
                         bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
                     }
-                    launcher?.findViewById<ImageView>(R.id.button_recent)!!.setOnClickListener {
+                    menu.findViewById<ImageView>(R.id.button_recent)!!.setOnClickListener {
                         dismissDisplayListener(displayManager, mKeyguardLock)
                         resetRecentActivities(launchPackage, launchActivity, false)
                         startActivity(
@@ -162,7 +165,7 @@ class DisplayListenerService : Service() {
                             ActivityOptions.makeBasic().setLaunchDisplayId(1).toBundle()
                         )
                     }
-                    launcher?.findViewById<ImageView>(R.id.button_home)!!.setOnClickListener {
+                    menu.findViewById<ImageView>(R.id.button_home)!!.setOnClickListener {
                         dismissDisplayListener(displayManager, mKeyguardLock)
                         resetRecentActivities(launchPackage, launchActivity, true)
                         startActivity(
@@ -172,7 +175,7 @@ class DisplayListenerService : Service() {
                             ActivityOptions.makeBasic().setLaunchDisplayId(1).toBundle()
                         )
                     }
-                    launcher?.findViewById<ImageView>(R.id.button_back)!!.setOnClickListener {
+                    menu.findViewById<ImageView>(R.id.button_back)!!.setOnClickListener {
                         if (hasAccessibility()) {
                             AccessibilityObserver.executeButtonBack()
                         }

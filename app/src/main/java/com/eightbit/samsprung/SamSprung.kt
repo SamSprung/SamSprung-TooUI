@@ -54,12 +54,14 @@ package com.eightbit.samsprung
 import android.app.Application
 import android.content.Intent
 import android.content.SharedPreferences
+import androidx.appcompat.app.AppCompatDelegate
 import java.lang.ref.SoftReference
 import kotlin.system.exitProcess
 
 class SamSprung : Application() {
     override fun onCreate() {
         super.onCreate()
+        AppCompatDelegate.setCompatVectorFromResourcesEnabled(true);
         mPrefs = SoftReference(
             getSharedPreferences("samsprung.launcher.PREFS", MODE_PRIVATE)
         )
@@ -85,6 +87,10 @@ class SamSprung : Application() {
                 apply()
             }
         }
+            with(prefs.edit()) {
+                putBoolean(prefScaled, false)
+                apply()
+            }
     }
 
     companion object {
@@ -100,6 +106,5 @@ class SamSprung : Application() {
         const val autoRotate: String = "autoRotate"
         const val prefSecure: String = "prefSecure"
         const val prefScaled: String = "prefScaled"
-        var hasRotationEnabled = 1
     }
 }

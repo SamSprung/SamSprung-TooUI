@@ -9,7 +9,7 @@
     android:layout_gravity="center"
     tools:context=".CoverSettingsActivity">
 
-    <ImageView
+    <androidx.appcompat.widget.AppCompatImageView
         android:id="@+id/widgetItemImage"
         android:contentDescription="@string/description_icon"
         android:layout_width="64dp"
@@ -17,7 +17,7 @@
         android:layout_gravity="center"
         app:srcCompat="@mipmap/sprung_icon" />
 
-    <ImageView
+    <androidx.appcompat.widget.AppCompatImageView
         android:id="@+id/widgetGridBadge"
         android:layout_width="24dp"
         android:layout_height="24dp"

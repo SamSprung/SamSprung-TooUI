@@ -59,9 +59,6 @@ import com.android.billingclient.api.*
 import com.google.android.material.snackbar.Snackbar
 import java.util.*
 import java.util.concurrent.Executors
-import com.android.billingclient.api.ConsumeParams
-
-
 
 
 class SamSprungDonate : AppCompatActivity() {
