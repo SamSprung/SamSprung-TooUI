@@ -70,8 +70,6 @@ class SamSprungWidget : AppCompatActivity() {
 
         super.onCreate(savedInstanceState)
         supportActionBar?.hide()
-//        if (SamSprung.prefs.getBoolean(SamSprung.prefScaled, true))
-//            ScaledContext.wrap(this).setTheme(R.style.Theme_SecondScreen)
         setContentView(R.layout.apps_view_layout)
 
         requestPermission.launch(Manifest.permission.BIND_APPWIDGET)

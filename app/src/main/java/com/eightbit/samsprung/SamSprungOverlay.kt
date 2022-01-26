@@ -87,7 +87,8 @@ class SamSprungOverlay : AppCompatActivity() {
         wlp.gravity = Gravity.BOTTOM
         window.attributes = wlp
         window.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
-        if (SamSprung.prefs.getBoolean(SamSprung.prefScaled, false)) {
+        if (SamSprung.prefs.getBoolean(SamSprung.prefScaled, false)
+            || SamSprung.prefs.getBoolean(SamSprung.prefReader, false)) {
             ScaledContext.wrap(this).setTheme(R.style.Theme_SecondScreen)
             setContentView(R.layout.scaled_navigation)
         } else {

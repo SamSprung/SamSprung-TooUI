@@ -110,7 +110,8 @@ class DisplayListenerService : Service() {
         showForegroundNotification(startId)
 
         var displayContext: Context = buildDisplayContext(displayManager.getDisplay(1))
-        if (SamSprung.prefs.getBoolean(SamSprung.prefScaled, false))
+        if (SamSprung.prefs.getBoolean(SamSprung.prefScaled, false)
+            || SamSprung.prefs.getBoolean(SamSprung.prefReader, false))
             displayContext = ScaledContext.wrap(displayContext)
         floatView = SoftReference(LayoutInflater.from(displayContext)
             .inflate(R.layout.navigation_layout, null))

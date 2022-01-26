@@ -105,7 +105,8 @@ class SamSprungDrawer : AppCompatActivity(),
 
         super.onCreate(savedInstanceState)
         supportActionBar?.hide()
-        if (SamSprung.prefs.getBoolean(SamSprung.prefScaled, false)) {
+        if (SamSprung.prefs.getBoolean(SamSprung.prefScaled, false)
+            && !SamSprung.prefs.getBoolean(SamSprung.prefReader, false)) {
             ScaledContext.wrap(this).setTheme(R.style.Theme_SecondScreen)
             setContentView(R.layout.scaled_view_layout)
         } else {

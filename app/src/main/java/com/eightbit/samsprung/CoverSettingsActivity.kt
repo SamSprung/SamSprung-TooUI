@@ -70,6 +70,8 @@ import android.text.TextUtils
 import android.text.style.ImageSpan
 import android.view.Menu
 import android.view.MenuItem
+import android.view.View
+import android.widget.LinearLayout
 import android.widget.ListView
 import android.widget.ToggleButton
 import androidx.activity.result.contract.ActivityResultContracts
@@ -189,12 +191,30 @@ class CoverSettingsActivity : AppCompatActivity() {
         val listView: ListView = findViewById(R.id.selectionListView)
         listView.adapter = FilteredAppsAdapter(this, packages, unlisted)
 
-        val scaling : SwitchCompat = findViewById(R.id.scaling_switch)
-        scaling.isChecked = SamSprung.prefs.getBoolean(SamSprung.prefScaled, false)
-        scaling.setOnClickListener {
+        val scalingNavGroup = findViewById<LinearLayout>(R.id.scaling_nav)
+        val scalingNav : SwitchCompat = findViewById(R.id.scaling_nav_switch)
+        scalingNav.isChecked = SamSprung.prefs.getBoolean(SamSprung.prefReader, false)
+        scalingNav.setOnClickListener {
             with(SamSprung.prefs.edit()) {
-                putBoolean(SamSprung.prefScaled, scaling.isChecked)
+                putBoolean(SamSprung.prefReader, scalingNav.isChecked)
                 apply()
+            }
+        }
+
+        val scalingGen : SwitchCompat = findViewById(R.id.scaling_gen_switch)
+        scalingGen.isChecked = SamSprung.prefs.getBoolean(SamSprung.prefScaled, false)
+        scalingNavGroup.visibility = if (scalingGen.isChecked) View.VISIBLE else View.GONE
+        scalingGen.setOnClickListener {
+            with(SamSprung.prefs.edit()) {
+                putBoolean(SamSprung.prefScaled, scalingGen.isChecked)
+                apply()
+            }
+            scalingNavGroup.visibility = if (scalingGen.isChecked) View.VISIBLE else View.GONE
+            if (!scalingGen.isChecked) {
+                with(SamSprung.prefs.edit()) {
+                    putBoolean(SamSprung.prefReader, false)
+                    apply()
+                }
             }
         }
 
