@@ -162,54 +162,42 @@ class SamSprungDrawer : AppCompatActivity(),
         val toolbar = findViewById<Toolbar>(R.id.toolbar)
         toolbar.inflateMenu(R.menu.cover_quick_toggles)
         noticesView = findViewById(R.id.notificationList)
-        if (hasNotificationListener() || hasAccessibility()) {
-            noticesView.layoutManager = LinearLayoutManager(this)
-            noticesView.adapter = NotificationAdapter(this, this@SamSprungDrawer)
-            val simpleItemTouchCallback: ItemTouchHelper.SimpleCallback = object :
-                ItemTouchHelper.SimpleCallback(0,
-                    ItemTouchHelper.RIGHT or ItemTouchHelper.LEFT) {
-                override fun onMove(
-                    recyclerView: RecyclerView,
-                    viewHolder: RecyclerView.ViewHolder,
-                    target: RecyclerView.ViewHolder
-                ): Boolean {
-                    return false
-                }
 
-                override fun onChildDraw(
-                    c: Canvas,
-                    recyclerView: RecyclerView,
-                    viewHolder: RecyclerView.ViewHolder,
-                    dX: Float,
-                    dY: Float,
-                    actionState: Int,
-                    isCurrentlyActive: Boolean
-                ) { }
+        noticesView.layoutManager = LinearLayoutManager(this)
+        noticesView.adapter = NotificationAdapter(this, this@SamSprungDrawer)
+        val noticeTouchCallback: ItemTouchHelper.SimpleCallback = object :
+            ItemTouchHelper.SimpleCallback(0,
+                ItemTouchHelper.RIGHT or ItemTouchHelper.LEFT) {
+            override fun onMove(
+                recyclerView: RecyclerView,
+                viewHolder: RecyclerView.ViewHolder,
+                target: RecyclerView.ViewHolder
+            ): Boolean {
+                return false
+            }
 
-                override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
-                    if (direction == ItemTouchHelper.RIGHT) {
-                        val notice = (viewHolder as NotificationAdapter.NoticeViewHolder).notice
-                        if (null != notice.getKey()) {
-                            NotificationObserver.getObserver()
-                                ?.setNotificationsShown(arrayOf(notice.getKey()))
-                        }
+            override fun onChildDraw(
+                c: Canvas,
+                recyclerView: RecyclerView,
+                viewHolder: RecyclerView.ViewHolder,
+                dX: Float,
+                dY: Float,
+                actionState: Int,
+                isCurrentlyActive: Boolean
+            ) { }
+
+            override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
+                if (direction == ItemTouchHelper.RIGHT) {
+                    val notice = (viewHolder as NotificationAdapter.NoticeViewHolder).notice
+                    if (null != notice.getKey()) {
+                        NotificationObserver.getObserver()
+                            ?.setNotificationsShown(arrayOf(notice.getKey()))
                     }
                 }
             }
-            ItemTouchHelper(simpleItemTouchCallback).attachToRecyclerView(noticesView)
-            if (hasNotificationListener()) {
-                NotificationObserver.getObserver()?.setNotificationsChangedListener(
-                    noticesView.adapter as NotificationAdapter
-                )
-            }
-            if (hasAccessibility()) {
-                AccessibilityObserver.getObserver()?.setEventsChangedListener(
-                    noticesView.adapter as NotificationAdapter
-                )
-            }
-        } else {
-            noticesView.visibility = View.GONE
         }
+        ItemTouchHelper(noticeTouchCallback).attachToRecyclerView(noticesView)
+        onNewIntent(intent)
 
         val wifiManager = getSystemService(WIFI_SERVICE) as WifiManager
         val wifiEnabler = registerForActivityResult(
@@ -439,7 +427,7 @@ class SamSprungDrawer : AppCompatActivity(),
             registerReceiver(pReceiver, it)
         }
 
-        val simpleItemTouchCallback: ItemTouchHelper.SimpleCallback = object :
+        val drawerTouchCallback: ItemTouchHelper.SimpleCallback = object :
             ItemTouchHelper.SimpleCallback(0,
                 ItemTouchHelper.RIGHT or ItemTouchHelper.LEFT) {
             override fun onMove(
@@ -469,7 +457,7 @@ class SamSprungDrawer : AppCompatActivity(),
                 }
             }
         }
-        ItemTouchHelper(simpleItemTouchCallback).attachToRecyclerView(launcherView)
+        ItemTouchHelper(drawerTouchCallback).attachToRecyclerView(launcherView)
     }
 
     private fun prepareConfiguration() {
@@ -583,17 +571,6 @@ class SamSprungDrawer : AppCompatActivity(),
 
     override fun onNewIntent(intent: Intent?) {
         super.onNewIntent(intent)
-        if (!this::noticesView.isInitialized) return
-        if (hasNotificationListener()) {
-            NotificationObserver.getObserver()?.setNotificationsChangedListener(
-                noticesView.adapter as NotificationAdapter
-            )
-        }
-        if (hasAccessibility()) {
-            AccessibilityObserver.getObserver()?.setEventsChangedListener(
-                noticesView.adapter as NotificationAdapter
-            )
-        }
         if (BuildConfig.FLAVOR != "google") {
             val updates = CheckUpdatesTask(this)
             if (packageManager.canRequestPackageInstalls()) {
@@ -608,6 +585,17 @@ class SamSprungDrawer : AppCompatActivity(),
                     )
                 )
             }
+        }
+        if (!this::noticesView.isInitialized) return
+        if (hasNotificationListener()) {
+            NotificationObserver.getObserver()?.setNotificationsChangedListener(
+                noticesView.adapter as NotificationAdapter
+            )
+        }
+        if (hasAccessibility()) {
+            AccessibilityObserver.getObserver()?.setEventsChangedListener(
+                noticesView.adapter as NotificationAdapter
+            )
         }
     }
 

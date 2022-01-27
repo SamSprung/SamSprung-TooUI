@@ -122,13 +122,6 @@ class CoverSettingsActivity : AppCompatActivity() {
 
         onNewIntent(intent)
 
-        if (ContextCompat.checkSelfPermission(this,
-                Manifest.permission.READ_EXTERNAL_STORAGE
-            ) == PackageManager.PERMISSION_GRANTED) {
-            findViewById<CoordinatorLayout>(R.id.coordinator).background =
-                WallpaperManager.getInstance(this).drawable
-        }
-
         permissionList = findViewById(R.id.permissions)
 
         findViewById<BlurView>(R.id.blurContainer).setupWith(
@@ -670,6 +663,12 @@ class CoverSettingsActivity : AppCompatActivity() {
     override fun onNewIntent(intent: Intent?) {
         super.onNewIntent(intent)
         requestPermissions.launch(permissions)
+        if (ContextCompat.checkSelfPermission(this,
+                Manifest.permission.READ_EXTERNAL_STORAGE
+            ) == PackageManager.PERMISSION_GRANTED) {
+            findViewById<CoordinatorLayout>(R.id.coordinator).background =
+                WallpaperManager.getInstance(this).drawable
+        }
         if (isDeviceSecure() && !SamSprung.prefs.getBoolean(SamSprung.prefSecure, false)) {
             AlertDialog.Builder(this)
                 .setTitle(R.string.caveats_title)
