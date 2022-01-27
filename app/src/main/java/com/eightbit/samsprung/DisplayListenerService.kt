@@ -144,24 +144,29 @@ class DisplayListenerService : Service() {
             mDisplayListener, Handler(Looper.getMainLooper())
         )
 
+        val menu = floatView.findViewById<LinearLayout>(R.id.button_layout)
+        val menuScreenshot = menu.findViewById<ImageView>(R.id.button_screenshot)
+        val menuLogo = menu.findViewById<VerticalStrokeTextView>(R.id.samsprung_logo)
+        val menuRecent = menu.findViewById<ImageView>(R.id.button_recent)
+        val menuHome = menu.findViewById<ImageView>(R.id.button_home)
+        val menuBack = menu.findViewById<ImageView>(R.id.button_back)
         bottomSheetBehavior = BottomSheetBehavior.from(floatView.findViewById(R.id.bottom_sheet)!!)
         bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
         bottomSheetBehavior.addBottomSheetCallback(object : BottomSheetBehavior.BottomSheetCallback() {
             override fun onStateChanged(bottomSheet: View, newState: Int) {
-                val menu = floatView.findViewById<LinearLayout>(R.id.button_layout)!!
                 if (newState == BottomSheetBehavior.STATE_EXPANDED) {
                     if (!menu.isVisible) menu.visibility = View.VISIBLE
                     if (hasAccessibility()) {
-                        menu.findViewById<ImageView>(R.id.button_screenshot)!!.setOnClickListener {
+                        menuScreenshot.setOnClickListener {
                             AccessibilityObserver.executeScreenshot()
                         }
                     } else {
-                        menu.findViewById<ImageView>(R.id.button_screenshot)!!.visibility = View.GONE
+                        menuScreenshot.visibility = View.GONE
                     }
-                    menu.findViewById<VerticalStrokeTextView>(R.id.samsprung_logo)!!.setOnClickListener {
+                    menuLogo.setOnClickListener {
                         bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
                     }
-                    menu.findViewById<ImageView>(R.id.button_recent)!!.setOnClickListener {
+                    menuRecent.setOnClickListener {
                         resetRecentActivities(launchPackage, launchActivity)
                         dismissDisplayListener(displayManager, mKeyguardLock)
                         startActivity(
@@ -170,7 +175,7 @@ class DisplayListenerService : Service() {
                             ActivityOptions.makeBasic().setLaunchDisplayId(1).toBundle()
                         )
                     }
-                    menu.findViewById<ImageView>(R.id.button_home)!!.setOnClickListener {
+                    menuHome.setOnClickListener {
                         resetRecentActivities(launchPackage, launchActivity)
                         dismissDisplayListener(displayManager, mKeyguardLock)
                         bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
@@ -180,7 +185,7 @@ class DisplayListenerService : Service() {
                             ActivityOptions.makeBasic().setLaunchDisplayId(1).toBundle()
                         )
                     }
-                    menu.findViewById<ImageView>(R.id.button_back)!!.setOnClickListener {
+                    menuBack.setOnClickListener {
                         if (hasAccessibility()) {
                             AccessibilityObserver.executeButtonBack()
                         } else {
@@ -192,7 +197,7 @@ class DisplayListenerService : Service() {
                 }
             }
 
-            override fun onSlide(bottomSheet: View, slideOffset: Float) {}
+            override fun onSlide(bottomSheet: View, slideOffset: Float) { }
         })
 
         bottomSheetBehavior.isHideable = false

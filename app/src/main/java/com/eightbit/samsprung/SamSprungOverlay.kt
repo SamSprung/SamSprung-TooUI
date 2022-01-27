@@ -67,6 +67,7 @@ import androidx.core.view.isVisible
 import com.eightbit.content.ScaledContext
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import java.io.File
+import java.lang.ref.SoftReference
 
 class SamSprungOverlay : AppCompatActivity() {
 
@@ -98,24 +99,29 @@ class SamSprungOverlay : AppCompatActivity() {
             setContentView(R.layout.navigation_layout)
         }
 
+        val menu = findViewById<LinearLayout>(R.id.button_layout)
+        val menuScreenshot = menu.findViewById<ImageView>(R.id.button_screenshot)
+        val menuLogo = menu.findViewById<VerticalStrokeTextView>(R.id.samsprung_logo)
+        val menuRecent = menu.findViewById<ImageView>(R.id.button_recent)
+        val menuHome = menu.findViewById<ImageView>(R.id.button_home)
+        val menuBack = menu.findViewById<ImageView>(R.id.button_back)
         bottomSheetBehavior = BottomSheetBehavior.from(findViewById(R.id.bottom_sheet))
         bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
         bottomSheetBehavior.addBottomSheetCallback(object : BottomSheetBehavior.BottomSheetCallback() {
             override fun onStateChanged(bottomSheet: View, newState: Int) {
-                val menu = findViewById<LinearLayout>(R.id.button_layout)!!
                 if (newState == BottomSheetBehavior.STATE_EXPANDED) {
                     if (!menu.isVisible) menu.visibility = View.VISIBLE
                     if (hasAccessibility()) {
-                        menu.findViewById<ImageView>(R.id.button_screenshot)!!.setOnClickListener {
+                        menuScreenshot.setOnClickListener {
                             AccessibilityObserver.executeScreenshot()
                         }
                     } else {
-                        menu.findViewById<ImageView>(R.id.button_screenshot)!!.visibility = View.GONE
+                        menuScreenshot.visibility = View.GONE
                     }
-                    menu.findViewById<VerticalStrokeTextView>(R.id.samsprung_logo)!!.setOnClickListener {
+                    menuLogo.setOnClickListener {
                         bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
                     }
-                    menu.findViewById<AppCompatImageView>(R.id.button_recent)!!.setOnClickListener {
+                    menuRecent.setOnClickListener {
                         finish()
                         startActivity(
                             Intent(this@SamSprungOverlay, SamSprungDrawer::class.java)
@@ -123,18 +129,10 @@ class SamSprungOverlay : AppCompatActivity() {
                             ActivityOptions.makeBasic().setLaunchDisplayId(1).toBundle()
                         )
                     }
-                    menu.findViewById<AppCompatImageView>(R.id.button_recent)!!.setOnClickListener {
-                        finish()
-                        startActivity(
-                            Intent(this@SamSprungOverlay, SamSprungDrawer::class.java)
-                                .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK),
-                            ActivityOptions.makeBasic().setLaunchDisplayId(1).toBundle()
-                        )
-                    }
-                    menu.findViewById<AppCompatImageView>(R.id.button_home)!!.setOnClickListener {
+                    menuHome.setOnClickListener {
                         bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
                     }
-                    menu.findViewById<AppCompatImageView>(R.id.button_back)!!.setOnClickListener {
+                    menuBack.setOnClickListener {
                         bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
                     }
                 } else if (newState == BottomSheetBehavior.STATE_COLLAPSED) {
@@ -142,7 +140,7 @@ class SamSprungOverlay : AppCompatActivity() {
                 }
             }
 
-            override fun onSlide(bottomSheet: View, slideOffset: Float) {}
+            override fun onSlide(bottomSheet: View, slideOffset: Float) { }
         })
 
         findViewById<View>(R.id.coordinator)!!.setOnTouchListener(

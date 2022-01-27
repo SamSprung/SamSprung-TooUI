@@ -70,6 +70,7 @@ import android.os.*
 import android.provider.Settings
 import android.text.TextUtils
 import android.view.*
+import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
@@ -233,68 +234,16 @@ class SamSprungDrawer : AppCompatActivity(),
             BottomSheetBehavior.from(findViewById(R.id.bottom_sheet))
         bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
         bottomSheetBehavior.addBottomSheetCallback(object : BottomSheetCallback() {
+            val bluetoothAdapter = (getSystemService(Context.BLUETOOTH_SERVICE)
+                    as BluetoothManager).adapter
+            val audioManager = getSystemService(AUDIO_SERVICE) as AudioManager
+            val notificationManager = getSystemService(NOTIFICATION_SERVICE)
+                    as NotificationManager
+            val camManager = getSystemService(CAMERA_SERVICE) as CameraManager
+            var isTorchEnabled = false
+            var hasConfigured = false
             override fun onStateChanged(bottomSheet: View, newState: Int) {
                 if (newState == BottomSheetBehavior.STATE_EXPANDED) {
-                    val bluetoothAdapter = (getSystemService(Context.BLUETOOTH_SERVICE)
-                            as BluetoothManager).adapter
-                    val audioManager = getSystemService(AUDIO_SERVICE) as AudioManager
-                    val notificationManager = getSystemService(NOTIFICATION_SERVICE)
-                            as NotificationManager
-                    val camManager = getSystemService(CAMERA_SERVICE) as CameraManager
-                    var isTorchEnabled = false
-
-                    if (wifiManager.isWifiEnabled)
-                        toolbar.menu.findItem(R.id.toggle_wifi)
-                            .setIcon(R.drawable.ic_baseline_wifi_24)
-                    else
-                        toolbar.menu.findItem(R.id.toggle_wifi)
-                            .setIcon(R.drawable.ic_baseline_wifi_off_24)
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S &&
-                        ContextCompat.checkSelfPermission(
-                            this@SamSprungDrawer,
-                            Manifest.permission.BLUETOOTH_CONNECT,
-                        ) == PackageManager.PERMISSION_GRANTED) {
-                        if (bluetoothAdapter.isEnabled)
-                            toolbar.menu.findItem(R.id.toggle_bluetooth)
-                                .setIcon(R.drawable.ic_baseline_bluetooth_24)
-                        else
-                            toolbar.menu.findItem(R.id.toggle_bluetooth)
-                                .setIcon(R.drawable.ic_baseline_bluetooth_disabled_24)
-                    } else {
-                        toolbar.menu.findItem(R.id.toggle_bluetooth).isVisible = false
-                    }
-
-                    if (nfcAdapter.isEnabled)
-                        toolbar.menu.findItem(R.id.toggle_nfc)
-                            .setIcon(R.drawable.ic_baseline_nfc_24)
-                    else
-                        toolbar.menu.findItem(R.id.toggle_nfc)
-                            .setIcon(R.drawable.ic_baseline_nfc_disabled_24)
-
-                    if (audioManager.ringerMode == AudioManager.RINGER_MODE_NORMAL)
-                        toolbar.menu.findItem(R.id.toggle_sound)
-                            .setIcon(R.drawable.ic_baseline_hearing_24)
-                    else
-                        toolbar.menu.findItem(R.id.toggle_sound)
-                            .setIcon(R.drawable.ic_baseline_hearing_disabled_24)
-
-                    if (notificationManager.isNotificationPolicyAccessGranted) {
-                        if (notificationManager.currentInterruptionFilter ==
-                            NotificationManager.INTERRUPTION_FILTER_ALL)
-                            toolbar.menu.findItem(R.id.toggle_dnd)
-                                .setIcon(R.drawable.ic_baseline_do_not_disturb_off_24)
-                        else
-                            toolbar.menu.findItem(R.id.toggle_dnd)
-                                .setIcon(R.drawable.ic_baseline_do_not_disturb_on_24)
-                    } else {
-                        toolbar.menu.findItem(R.id.toggle_dnd).isVisible = false
-                    }
-
-                    if (packageManager.hasSystemFeature(PackageManager.FEATURE_CAMERA_FLASH)) {
-                        camManager.setTorchMode(camManager.cameraIdList[0], isTorchEnabled)
-                    } else {
-                        toolbar.menu.findItem(R.id.toggle_torch).isVisible = isTorchEnabled
-                    }
                     toolbar.setOnMenuItemClickListener { item: MenuItem ->
                         when (item.itemId) {
                             R.id.toggle_wifi -> {
@@ -362,10 +311,76 @@ class SamSprungDrawer : AppCompatActivity(),
                             }
                         }
                     }
+                } else if (newState == BottomSheetBehavior.STATE_COLLAPSED) {
+                    hasConfigured = false
                 }
             }
 
-            override fun onSlide(bottomSheet: View, slideOffset: Float) {}
+            override fun onSlide(bottomSheet: View, slideOffset: Float) {
+                val info = findViewById<LinearLayout>(R.id.bottom_info)
+                if (slideOffset > 0.75) {
+                    info.visibility = View.GONE
+                    if (!hasConfigured) {
+                        hasConfigured = true
+                        if (wifiManager.isWifiEnabled)
+                            toolbar.menu.findItem(R.id.toggle_wifi)
+                                .setIcon(R.drawable.ic_baseline_wifi_24)
+                        else
+                            toolbar.menu.findItem(R.id.toggle_wifi)
+                                .setIcon(R.drawable.ic_baseline_wifi_off_24)
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S &&
+                            ContextCompat.checkSelfPermission(
+                                this@SamSprungDrawer,
+                                Manifest.permission.BLUETOOTH_CONNECT,
+                            ) == PackageManager.PERMISSION_GRANTED
+                        ) {
+                            if (bluetoothAdapter.isEnabled)
+                                toolbar.menu.findItem(R.id.toggle_bluetooth)
+                                    .setIcon(R.drawable.ic_baseline_bluetooth_24)
+                            else
+                                toolbar.menu.findItem(R.id.toggle_bluetooth)
+                                    .setIcon(R.drawable.ic_baseline_bluetooth_disabled_24)
+                        } else {
+                            toolbar.menu.findItem(R.id.toggle_bluetooth).isVisible = false
+                        }
+
+                        if (nfcAdapter.isEnabled)
+                            toolbar.menu.findItem(R.id.toggle_nfc)
+                                .setIcon(R.drawable.ic_baseline_nfc_24)
+                        else
+                            toolbar.menu.findItem(R.id.toggle_nfc)
+                                .setIcon(R.drawable.ic_baseline_nfc_disabled_24)
+
+                        if (audioManager.ringerMode == AudioManager.RINGER_MODE_NORMAL)
+                            toolbar.menu.findItem(R.id.toggle_sound)
+                                .setIcon(R.drawable.ic_baseline_hearing_24)
+                        else
+                            toolbar.menu.findItem(R.id.toggle_sound)
+                                .setIcon(R.drawable.ic_baseline_hearing_disabled_24)
+
+                        if (notificationManager.isNotificationPolicyAccessGranted) {
+                            if (notificationManager.currentInterruptionFilter ==
+                                NotificationManager.INTERRUPTION_FILTER_ALL
+                            )
+                                toolbar.menu.findItem(R.id.toggle_dnd)
+                                    .setIcon(R.drawable.ic_baseline_do_not_disturb_off_24)
+                            else
+                                toolbar.menu.findItem(R.id.toggle_dnd)
+                                    .setIcon(R.drawable.ic_baseline_do_not_disturb_on_24)
+                        } else {
+                            toolbar.menu.findItem(R.id.toggle_dnd).isVisible = false
+                        }
+
+                        if (packageManager.hasSystemFeature(PackageManager.FEATURE_CAMERA_FLASH)) {
+                            camManager.setTorchMode(camManager.cameraIdList[0], isTorchEnabled)
+                        } else {
+                            toolbar.menu.findItem(R.id.toggle_torch).isVisible = isTorchEnabled
+                        }
+                    }
+                } else {
+                    info.visibility = View.VISIBLE
+                }
+            }
         })
 
         val launcherView = findViewById<RecyclerView>(R.id.appsList)
@@ -448,12 +463,11 @@ class SamSprungDrawer : AppCompatActivity(),
 
             override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
                 if (direction == ItemTouchHelper.LEFT || direction == ItemTouchHelper.RIGHT) {
-                    finish()
+                    finishAffinity()
                     startActivity(
                         Intent(applicationContext, SamSprungOverlay::class.java)
                             .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK),
                         ActivityOptions.makeBasic().setLaunchDisplayId(1).toBundle())
-
                 }
             }
         }
