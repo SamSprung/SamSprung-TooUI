@@ -129,7 +129,7 @@ class DisplayListenerService : Service() {
             override fun onDisplayChanged(display: Int) {
                 if (display == 0) {
                     dismissDisplayListener(displayManager, mKeyguardLock)
-                    restoreActivityDisplay(launchPackage, launchActivity)
+                    restoreActivityDisplay(launchPackage, launchActivity, display)
                 } else {
                     if (SamSprung.isKeyguardLocked)
                         @Suppress("DEPRECATION") mKeyguardLock.disableKeyguard()
@@ -164,6 +164,13 @@ class DisplayListenerService : Service() {
                             ActivityOptions.makeBasic().setLaunchDisplayId(1).toBundle()
                         )
                     }
+                    if (hasAccessibility()) {
+                        menu.findViewById<ImageView>(R.id.button_screenshot)!!.setOnClickListener {
+                            AccessibilityObserver.executeScreenshot()
+                        }
+                    } else {
+                        menu.findViewById<ImageView>(R.id.button_screenshot)!!.visibility = View.GONE
+                    }
                     menu.findViewById<ImageView>(R.id.button_home)!!.setOnClickListener {
                         resetRecentActivities(launchPackage, launchActivity)
                         dismissDisplayListener(displayManager, mKeyguardLock)
@@ -175,7 +182,11 @@ class DisplayListenerService : Service() {
                         )
                     }
                     menu.findViewById<ImageView>(R.id.button_back)!!.setOnClickListener {
-                        if (hasAccessibility()) AccessibilityObserver.executeButtonBack()
+                        if (hasAccessibility()) {
+                            AccessibilityObserver.executeButtonBack()
+                        } else {
+                            restoreActivityDisplay(launchPackage, launchActivity, 1)
+                        }
                     }
                 } else if (newState == BottomSheetBehavior.STATE_COLLAPSED) {
                     if (menu.isVisible) menu.visibility = View.GONE
@@ -202,7 +213,7 @@ class DisplayListenerService : Service() {
         return START_STICKY
     }
 
-    private fun restoreActivityDisplay(launchPackage: String, launchActivity: String?) {
+    private fun restoreActivityDisplay(launchPackage: String, launchActivity: String?, display: Int) {
         if (null != launchActivity) {
             val coverIntent = Intent(Intent.ACTION_MAIN)
             coverIntent.addCategory(Intent.CATEGORY_LAUNCHER)
@@ -212,12 +223,12 @@ class DisplayListenerService : Service() {
                     Intent.FLAG_ACTIVITY_FORWARD_RESULT or
                     Intent.FLAG_ACTIVITY_NO_ANIMATION
             startActivity(coverIntent, ActivityOptions.makeBasic()
-                .setLaunchDisplayId(0).toBundle())
+                .setLaunchDisplayId(display).toBundle())
         }
     }
 
     private fun resetRecentActivities(launchPackage: String, launchActivity: String?) {
-        restoreActivityDisplay(launchPackage, launchActivity)
+        restoreActivityDisplay(launchPackage, launchActivity, 0)
 
         val homeLauncher = Intent(Intent.ACTION_MAIN)
         homeLauncher.addCategory(Intent.CATEGORY_HOME)

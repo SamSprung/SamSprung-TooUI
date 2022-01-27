@@ -57,13 +57,16 @@ import android.graphics.Color
 import android.graphics.PixelFormat
 import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
+import android.provider.Settings
 import android.view.*
+import android.widget.ImageView
 import android.widget.LinearLayout
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.AppCompatImageView
 import androidx.core.view.isVisible
 import com.eightbit.content.ScaledContext
 import com.google.android.material.bottomsheet.BottomSheetBehavior
+import java.io.File
 
 class SamSprungOverlay : AppCompatActivity() {
 
@@ -113,6 +116,21 @@ class SamSprungOverlay : AppCompatActivity() {
                             ActivityOptions.makeBasic().setLaunchDisplayId(1).toBundle()
                         )
                     }
+                    if (hasAccessibility()) {
+                        menu.findViewById<ImageView>(R.id.button_screenshot)!!.setOnClickListener {
+                            AccessibilityObserver.executeScreenshot()
+                        }
+                    } else {
+                        menu.findViewById<ImageView>(R.id.button_screenshot)!!.visibility = View.GONE
+                    }
+                    menu.findViewById<AppCompatImageView>(R.id.button_recent)!!.setOnClickListener {
+                        finish()
+                        startActivity(
+                            Intent(this@SamSprungOverlay, SamSprungDrawer::class.java)
+                                .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK),
+                            ActivityOptions.makeBasic().setLaunchDisplayId(1).toBundle()
+                        )
+                    }
                     menu.findViewById<AppCompatImageView>(R.id.button_home)!!.setOnClickListener {
                         bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
                     }
@@ -136,5 +154,13 @@ class SamSprungOverlay : AppCompatActivity() {
                 bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
             }
         })
+    }
+
+    private fun hasAccessibility(): Boolean {
+        val serviceString = Settings.Secure.getString(contentResolver,
+            Settings.Secure.ENABLED_ACCESSIBILITY_SERVICES
+        )
+        return serviceString != null && serviceString.contains(packageName
+                + File.separator + AccessibilityObserver::class.java.name)
     }
 }
