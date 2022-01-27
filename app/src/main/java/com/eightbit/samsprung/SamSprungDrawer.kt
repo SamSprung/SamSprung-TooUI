@@ -120,9 +120,7 @@ class SamSprungDrawer : AppCompatActivity(),
                 }
             }
         }
-        IntentFilter().apply {
-            addAction(Intent.ACTION_SCREEN_OFF)
-        }.also {
+        IntentFilter(Intent.ACTION_SCREEN_OFF).also {
             registerReceiver(oReceiver, it)
         }
 
@@ -153,9 +151,8 @@ class SamSprungDrawer : AppCompatActivity(),
                 }
             }
         }
-        IntentFilter().apply {
-            addAction(Intent.ACTION_BATTERY_CHANGED)
-        }.also {
+
+        IntentFilter(Intent.ACTION_BATTERY_CHANGED).also {
             registerReceiver(bReceiver, it)
         }
 
@@ -502,11 +499,35 @@ class SamSprungDrawer : AppCompatActivity(),
         extras.putString("launchPackage", appInfo.activityInfo.packageName)
         extras.putString("launchActivity", appInfo.activityInfo.name)
 
+        val aReceiver = object : BroadcastReceiver() {
+            @SuppressLint("NotifyDataSetChanged")
+            override fun onReceive(context: Context?, intent: Intent) {
+                context?.startService(Intent(context, DisplayListenerService::class.java))
+
+                val options = ActivityOptions.makeBasic().setLaunchDisplayId(0)
+
+                val coverIntent = Intent(Intent.ACTION_MAIN)
+                coverIntent.addCategory(Intent.CATEGORY_LAUNCHER)
+                coverIntent.component = componentName
+                coverIntent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or
+                        Intent.FLAG_ACTIVITY_CLEAR_TASK or
+                        Intent.FLAG_ACTIVITY_FORWARD_RESULT or
+                        Intent.FLAG_ACTIVITY_NO_ANIMATION
+                context?.startActivity(coverIntent, options.toBundle())
+
+                val homeLauncher = Intent(Intent.ACTION_MAIN)
+                homeLauncher.addCategory(Intent.CATEGORY_HOME)
+                homeLauncher.flags = Intent.FLAG_ACTIVITY_NEW_TASK or
+                        Intent.FLAG_ACTIVITY_FORWARD_RESULT or
+                        Intent.FLAG_ACTIVITY_NO_ANIMATION
+                context?.startActivity(homeLauncher, options.toBundle())
+
+                context?.applicationContext!!.unregisterReceiver(this)
+            }
+        }
+
         IntentFilter(Intent.ACTION_SCREEN_OFF).also {
-            mReceiver = OffBroadcastReceiver(
-                ComponentName(appInfo.activityInfo.packageName, appInfo.activityInfo.name)
-            )
-            applicationContext.registerReceiver(mReceiver, it)
+            applicationContext.registerReceiver(aReceiver, it)
         }
         val coverIntent = Intent(Intent.ACTION_MAIN)
         coverIntent.addCategory(Intent.CATEGORY_LAUNCHER)

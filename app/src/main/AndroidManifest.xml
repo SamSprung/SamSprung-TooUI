@@ -80,9 +80,6 @@
             android:showOnLockScreen="true">
             <meta-data android:name="com.samsung.android.activity.showWhenLocked" android:value="true"/>
         </activity>
-        <receiver android:name=".OffBroadcastReceiver"
-            android:exported="false"
-            android:permission="intent.redirection.BULLSHIT" />
         <receiver android:name=".GitBroadcastReceiver"
             android:exported="true"
             android:permission="intent.redirection.BULLSHIT">
