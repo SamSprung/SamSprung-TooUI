@@ -85,6 +85,7 @@ import androidx.core.content.ContextCompat
 import androidx.core.graphics.blue
 import androidx.core.graphics.green
 import androidx.core.graphics.red
+import androidx.core.view.isVisible
 import com.android.billingclient.api.*
 import com.eightbit.material.IconifiedSnackbar
 import com.eightbitlab.blurview.BlurView
@@ -213,14 +214,38 @@ class CoverSettingsActivity : AppCompatActivity() {
         }
 
         val color = SamSprung.prefs.getInt(SamSprung.prefColors, Color.rgb(255, 255, 255))
-        val colorComposite = findViewById<View>(R.id.color_composite)
-        colorComposite.setBackgroundColor(color)
+
+        val textRed = findViewById<TextView>(R.id.color_red_text)
         val colorRedBar = findViewById<SeekBar>(R.id.color_red_bar)
         colorRedBar.setProgress(color.red, true)
+
+        val textGreen = findViewById<TextView>(R.id.color_green_text)
         val colorGreenBar = findViewById<SeekBar>(R.id.color_green_bar)
         colorGreenBar.setProgress(color.green, true)
+
+        val textBlue = findViewById<TextView>(R.id.color_blue_text)
         val colorBlueBar = findViewById<SeekBar>(R.id.color_blue_bar)
         colorBlueBar.setProgress(color.blue, true)
+
+        val colorComposite = findViewById<View>(R.id.color_composite)
+        colorComposite.setBackgroundColor(color)
+        colorComposite.setOnClickListener {
+            if (colorRedBar.isVisible && colorGreenBar.isVisible && colorBlueBar.isVisible) {
+                textRed.visibility = View.GONE
+                colorRedBar.visibility = View.GONE
+                textGreen.visibility = View.GONE
+                colorGreenBar.visibility = View.GONE
+                textBlue.visibility = View.GONE
+                colorBlueBar.visibility = View.GONE
+            } else {
+                colorBlueBar.visibility = View.VISIBLE
+                textBlue.visibility = View.VISIBLE
+                colorGreenBar.visibility = View.VISIBLE
+                textGreen.visibility = View.VISIBLE
+                colorRedBar.visibility = View.VISIBLE
+                textRed.visibility = View.VISIBLE
+            }
+        }
 
         colorRedBar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
             override fun onProgressChanged(seek: SeekBar, progress: Int, fromUser: Boolean) {
@@ -240,6 +265,7 @@ class CoverSettingsActivity : AppCompatActivity() {
 
             override fun onStopTrackingTouch(seek: SeekBar) { }
         })
+
         colorGreenBar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
             override fun onProgressChanged(seek: SeekBar, progress: Int, fromUser: Boolean) {
                 val newColor = Color.rgb(
@@ -258,6 +284,7 @@ class CoverSettingsActivity : AppCompatActivity() {
 
             override fun onStopTrackingTouch(seek: SeekBar) { }
         })
+
         colorBlueBar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
             override fun onProgressChanged(seek: SeekBar, progress: Int, fromUser: Boolean) {
                 val newColor = Color.rgb(
@@ -276,6 +303,13 @@ class CoverSettingsActivity : AppCompatActivity() {
 
             override fun onStopTrackingTouch(seek: SeekBar) { }
         })
+
+        textRed.visibility = View.GONE
+        colorRedBar.visibility = View.GONE
+        textGreen.visibility = View.GONE
+        colorGreenBar.visibility = View.GONE
+        textBlue.visibility = View.GONE
+        colorBlueBar.visibility = View.GONE
 
         startForegroundService(Intent(this, OnBroadcastService::class.java))
 
