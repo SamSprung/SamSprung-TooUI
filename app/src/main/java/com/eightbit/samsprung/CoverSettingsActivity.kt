@@ -102,7 +102,8 @@ class CoverSettingsActivity : AppCompatActivity() {
 
     private lateinit var updates : CheckUpdatesTask
 
-    private lateinit var switch: SwitchCompat
+    private lateinit var mainSwitch: SwitchCompat
+    private lateinit var permissionList: LinearLayout
     private lateinit var accessibility: SwitchCompat
     private lateinit var notifications: SwitchCompat
     private lateinit var settings: SwitchCompat
@@ -126,6 +127,8 @@ class CoverSettingsActivity : AppCompatActivity() {
             findViewById<CoordinatorLayout>(R.id.coordinator).background =
                 WallpaperManager.getInstance(this).drawable
         }
+
+        permissionList = findViewById(R.id.permissions)
 
         findViewById<BlurView>(R.id.blurContainer).setupWith(
             window.decorView.findViewById(R.id.coordinator))
@@ -377,9 +380,9 @@ class CoverSettingsActivity : AppCompatActivity() {
 
     private val overlayLauncher = registerForActivityResult(
         ActivityResultContracts.StartActivityForResult()) {
-        if (this::switch.isInitialized) {
-            switch.isChecked = Settings.canDrawOverlays(applicationContext)
-            if (switch.isChecked)
+        if (this::mainSwitch.isInitialized) {
+            mainSwitch.isChecked = Settings.canDrawOverlays(applicationContext)
+            if (mainSwitch.isChecked)
                 startForegroundService(Intent(this, OnBroadcastService::class.java))
         }
     }
@@ -528,10 +531,13 @@ class CoverSettingsActivity : AppCompatActivity() {
         updateMenuWithIcon(menu.findItem(R.id.version), -1)
         val actionSwitch: MenuItem = menu.findItem(R.id.switch_action_bar)
         actionSwitch.setActionView(R.layout.configure_switch)
-        switch = menu.findItem(R.id.switch_action_bar).actionView
+        mainSwitch = menu.findItem(R.id.switch_action_bar).actionView
             .findViewById(R.id.switch2) as SwitchCompat
-        switch.isChecked = Settings.canDrawOverlays(applicationContext)
-        switch.setOnClickListener {
+        mainSwitch.setOnCheckedChangeListener { _, isChecked ->
+            permissionList.visibility = if (isChecked) View.VISIBLE else View.GONE
+        }
+        mainSwitch.isChecked = Settings.canDrawOverlays(applicationContext)
+        mainSwitch.setOnClickListener {
             overlayLauncher.launch(Intent(
                 Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
                 Uri.parse("package:$packageName")
