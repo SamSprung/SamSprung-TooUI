@@ -297,7 +297,8 @@ class DisplayListenerService : Service() {
         if (null != mDisplayListener) {
             displayManager.unregisterDisplayListener(mDisplayListener)
         }
-        if (Settings.System.canWrite(applicationContext)) {
+        if (SamSprung.prefs.getInt(SamSprung.autoRotate, 0) == 1
+            && Settings.System.canWrite(applicationContext)) {
             try {
                 Settings.System.putInt(applicationContext.contentResolver,
                     Settings.System.ACCELEROMETER_ROTATION,

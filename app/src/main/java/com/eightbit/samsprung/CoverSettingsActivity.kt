@@ -117,12 +117,6 @@ class CoverSettingsActivity : AppCompatActivity() {
 
         onNewIntent(intent)
 
-        if (SamSprung.prefs.contains(SamSprung.autoRotate))
-            with(SamSprung.prefs.edit()) {
-                remove(SamSprung.autoRotate)
-                apply()
-            }
-
         if (ContextCompat.checkSelfPermission(this,
                 Manifest.permission.READ_EXTERNAL_STORAGE
             ) == PackageManager.PERMISSION_GRANTED) {
