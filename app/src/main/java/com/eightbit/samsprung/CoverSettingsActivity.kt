@@ -113,7 +113,7 @@ class CoverSettingsActivity : AppCompatActivity() {
     @RequiresApi(Build.VERSION_CODES.S)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.app_editor_layout)
+        setContentView(R.layout.cover_settings_layout)
 
         onNewIntent(intent)
 
@@ -486,7 +486,7 @@ class CoverSettingsActivity : AppCompatActivity() {
                 subscriptions.removeAllViewsInLayout()
             }
             val donateDialog: Dialog = dialog.setView(view).show()
-            donateDialog.window?.setBackgroundDrawableResource(R.drawable.rounded_view)
+            donateDialog.window?.setBackgroundDrawableResource(R.drawable.rounded_layout)
             true
         }
         R.id.donate -> {
@@ -511,7 +511,7 @@ class CoverSettingsActivity : AppCompatActivity() {
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
-        menuInflater.inflate(R.menu.action_menu, menu)
+        menuInflater.inflate(R.menu.cover_settings_menu, menu)
         updateMenuWithIcon(menu.findItem(R.id.logcat), -1)
         updateMenuWithIcon(menu.findItem(R.id.subscribe), -1)
         if (BuildConfig.FLAVOR == "github")

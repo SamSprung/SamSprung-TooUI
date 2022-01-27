@@ -61,7 +61,6 @@ import android.content.pm.PackageManager
 import android.content.pm.ResolveInfo
 import android.graphics.Canvas
 import android.hardware.camera2.CameraManager
-import android.hardware.display.DisplayManager
 import android.media.AudioManager
 import android.net.Uri
 import android.net.wifi.WifiManager
@@ -90,7 +89,7 @@ import java.io.File
 import java.util.*
 
 class SamSprungDrawer : AppCompatActivity(),
-    AppDrawerAdapater.OnAppClickListener,
+    DrawerAppsAdapater.OnAppClickListener,
     NotificationAdapter.OnNoticeClickListener {
 
     private lateinit var oReceiver: BroadcastReceiver
@@ -108,9 +107,9 @@ class SamSprungDrawer : AppCompatActivity(),
         supportActionBar?.hide()
         if (SamSprung.prefs.getBoolean(SamSprung.prefScaled, false)) {
             ScaledContext.wrap(this).setTheme(R.style.Theme_SecondScreen_NoActionBar)
-            setContentView(R.layout.scaled_view_layout)
+            setContentView(R.layout.drawer_layout_scaled)
         } else {
-            setContentView(R.layout.apps_view_layout)
+            setContentView(R.layout.drawer_layout)
         }
 
         oReceiver = object : BroadcastReceiver() {
@@ -161,7 +160,7 @@ class SamSprungDrawer : AppCompatActivity(),
         }
 
         val toolbar = findViewById<Toolbar>(R.id.toolbar)
-        toolbar.inflateMenu(R.menu.quick_toggles)
+        toolbar.inflateMenu(R.menu.cover_quick_toggles)
         noticesView = findViewById(R.id.notificationList)
         if (hasNotificationListener() || hasAccessibility()) {
             noticesView.layoutManager = LinearLayoutManager(this)
@@ -216,7 +215,7 @@ class SamSprungDrawer : AppCompatActivity(),
         val wifiEnabler = registerForActivityResult(
             ActivityResultContracts.StartActivityForResult()) {
             if (wifiManager.isWifiEnabled)
-                toolbar.menu.findItem(R.id.toggle_wifi).setIcon(R.drawable.ic_baseline_wifi_24)
+                toolbar.menu.findItem(R.id.toggle_wifi).setIcon(R.drawable.ic_baseline_wifi_on_24)
             else
                 toolbar.menu.findItem(R.id.toggle_wifi).setIcon(R.drawable.ic_baseline_wifi_off_24)
         }
@@ -225,9 +224,9 @@ class SamSprungDrawer : AppCompatActivity(),
         val nfcEnabler = registerForActivityResult(
             ActivityResultContracts.StartActivityForResult()) {
             if (nfcAdapter.isEnabled)
-                toolbar.menu.findItem(R.id.toggle_nfc).setIcon(R.drawable.ic_baseline_nfc_24)
+                toolbar.menu.findItem(R.id.toggle_nfc).setIcon(R.drawable.ic_baseline_nfc_on_24)
             else
-                toolbar.menu.findItem(R.id.toggle_nfc).setIcon(R.drawable.ic_baseline_nfc_disabled_24)
+                toolbar.menu.findItem(R.id.toggle_nfc).setIcon(R.drawable.ic_baseline_nfc_off_24)
         }
 
         val bottomSheetBehavior: BottomSheetBehavior<View> =
@@ -254,11 +253,11 @@ class SamSprungDrawer : AppCompatActivity(),
                                 if (bluetoothAdapter.isEnabled) {
                                     bluetoothAdapter.disable()
                                     toolbar.menu.findItem(R.id.toggle_bluetooth)
-                                        .setIcon(R.drawable.ic_baseline_bluetooth_disabled_24)
+                                        .setIcon(R.drawable.ic_baseline_bluetooth_off_24)
                                 } else {
                                     bluetoothAdapter.enable()
                                     toolbar.menu.findItem(R.id.toggle_bluetooth)
-                                        .setIcon(R.drawable.ic_baseline_bluetooth_24)
+                                        .setIcon(R.drawable.ic_baseline_bluetooth_on_24)
                                 }
                                 return@setOnMenuItemClickListener true
                             }
@@ -270,11 +269,11 @@ class SamSprungDrawer : AppCompatActivity(),
                                 if (audioManager.ringerMode == AudioManager.RINGER_MODE_NORMAL) {
                                     audioManager.ringerMode = AudioManager.RINGER_MODE_SILENT
                                     toolbar.menu.findItem(R.id.toggle_sound)
-                                        .setIcon(R.drawable.ic_baseline_hearing_disabled_24)
+                                        .setIcon(R.drawable.ic_baseline_sound_off_24)
                                 } else {
                                     audioManager.ringerMode = AudioManager.RINGER_MODE_NORMAL
                                     toolbar.menu.findItem(R.id.toggle_sound)
-                                        .setIcon(R.drawable.ic_baseline_hearing_24)
+                                        .setIcon(R.drawable.ic_baseline_sound_on_24)
                                 }
                                 return@setOnMenuItemClickListener true
                             }
@@ -324,7 +323,7 @@ class SamSprungDrawer : AppCompatActivity(),
                         hasConfigured = true
                         if (wifiManager.isWifiEnabled)
                             toolbar.menu.findItem(R.id.toggle_wifi)
-                                .setIcon(R.drawable.ic_baseline_wifi_24)
+                                .setIcon(R.drawable.ic_baseline_wifi_on_24)
                         else
                             toolbar.menu.findItem(R.id.toggle_wifi)
                                 .setIcon(R.drawable.ic_baseline_wifi_off_24)
@@ -336,27 +335,27 @@ class SamSprungDrawer : AppCompatActivity(),
                         ) {
                             if (bluetoothAdapter.isEnabled)
                                 toolbar.menu.findItem(R.id.toggle_bluetooth)
-                                    .setIcon(R.drawable.ic_baseline_bluetooth_24)
+                                    .setIcon(R.drawable.ic_baseline_bluetooth_on_24)
                             else
                                 toolbar.menu.findItem(R.id.toggle_bluetooth)
-                                    .setIcon(R.drawable.ic_baseline_bluetooth_disabled_24)
+                                    .setIcon(R.drawable.ic_baseline_bluetooth_off_24)
                         } else {
                             toolbar.menu.findItem(R.id.toggle_bluetooth).isVisible = false
                         }
 
                         if (nfcAdapter.isEnabled)
                             toolbar.menu.findItem(R.id.toggle_nfc)
-                                .setIcon(R.drawable.ic_baseline_nfc_24)
+                                .setIcon(R.drawable.ic_baseline_nfc_on_24)
                         else
                             toolbar.menu.findItem(R.id.toggle_nfc)
-                                .setIcon(R.drawable.ic_baseline_nfc_disabled_24)
+                                .setIcon(R.drawable.ic_baseline_nfc_off_24)
 
                         if (audioManager.ringerMode == AudioManager.RINGER_MODE_NORMAL)
                             toolbar.menu.findItem(R.id.toggle_sound)
-                                .setIcon(R.drawable.ic_baseline_hearing_24)
+                                .setIcon(R.drawable.ic_baseline_sound_on_24)
                         else
                             toolbar.menu.findItem(R.id.toggle_sound)
-                                .setIcon(R.drawable.ic_baseline_hearing_disabled_24)
+                                .setIcon(R.drawable.ic_baseline_sound_off_24)
 
                         if (notificationManager.isNotificationPolicyAccessGranted) {
                             if (notificationManager.currentInterruptionFilter ==
@@ -401,7 +400,7 @@ class SamSprungDrawer : AppCompatActivity(),
             launcherView.layoutManager = GridLayoutManager(this, getColumnCount())
         else
             launcherView.layoutManager = LinearLayoutManager(this)
-        launcherView.adapter = AppDrawerAdapater(packages, this, packageManager)
+        launcherView.adapter = DrawerAppsAdapater(packages, this, packageManager)
 
         pReceiver = object : BroadcastReceiver() {
             @SuppressLint("NotifyDataSetChanged")
@@ -414,8 +413,8 @@ class SamSprungDrawer : AppCompatActivity(),
                             || SamSprung.prefs.getStringSet(SamSprung.prefHidden,
                         HashSet())!!.contains(item.activityInfo.packageName) }
                     Collections.sort(packages, ResolveInfo.DisplayNameComparator(packageManager))
-                    (launcherView.adapter as AppDrawerAdapater).setPackages(packages)
-                    (launcherView.adapter as AppDrawerAdapater).notifyDataSetChanged()
+                    (launcherView.adapter as DrawerAppsAdapater).setPackages(packages)
+                    (launcherView.adapter as DrawerAppsAdapater).notifyDataSetChanged()
                 }
                 if (intent.action == Intent.ACTION_PACKAGE_ADDED) {
                     if (!intent.getBooleanExtra(Intent.EXTRA_REPLACING, false)) {
@@ -426,8 +425,8 @@ class SamSprungDrawer : AppCompatActivity(),
                                     || SamSprung.prefs.getStringSet(SamSprung.prefHidden,
                                 HashSet())!!.contains(item.activityInfo.packageName)
                         }
-                        (launcherView.adapter as AppDrawerAdapater).setPackages(packages)
-                        (launcherView.adapter as AppDrawerAdapater).notifyDataSetChanged()
+                        (launcherView.adapter as DrawerAppsAdapater).setPackages(packages)
+                        (launcherView.adapter as DrawerAppsAdapater).notifyDataSetChanged()
                     }
                 }
             }

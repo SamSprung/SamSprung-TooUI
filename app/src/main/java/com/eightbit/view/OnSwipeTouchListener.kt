@@ -1,4 +1,4 @@
-package com.eightbit.samsprung
+package com.eightbit.view
 
 import android.content.Context
 import android.view.GestureDetector

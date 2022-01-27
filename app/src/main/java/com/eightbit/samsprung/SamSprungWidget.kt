@@ -70,7 +70,7 @@ class SamSprungWidget : AppCompatActivity() {
 
         super.onCreate(savedInstanceState)
         supportActionBar?.hide()
-        setContentView(R.layout.apps_view_layout)
+        setContentView(R.layout.drawer_layout)
 
         requestPermission.launch(Manifest.permission.BIND_APPWIDGET)
 

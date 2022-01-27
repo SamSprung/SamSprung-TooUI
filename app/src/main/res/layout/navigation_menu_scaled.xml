@@ -34,7 +34,7 @@
             android:orientation="vertical"
             android:visibility="gone">
 
-            <com.eightbit.samsprung.VerticalStrokeTextView
+            <com.eightbit.widget.VerticalStrokeTextView
                 android:id="@+id/samsprung_logo"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -45,7 +45,7 @@
                 android:paddingEnd="2dp"
                 android:singleLine="true"
                 android:ellipsize="middle"
-                android:textColor="@color/primary_light"
+                android:textColor="?colorPrimary"
                 android:text="@string/samsprung"
                 android:textSize="18sp"
                 app:direction="2"
@@ -74,7 +74,7 @@
                     android:id="@+id/button_screenshot"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    app:srcCompat="@drawable/ic_baseline_fit_screen_24"
+                    app:srcCompat="@drawable/ic_baseline_screenshot_24"
                     android:layout_weight="1"
                     android:contentDescription="@string/description_icon"/>
 
@@ -90,7 +90,7 @@
                     android:id="@+id/button_back"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    app:srcCompat="@drawable/ic_baseline_arrow_back_ios_new_24"
+                    app:srcCompat="@drawable/ic_baseline_arrow_back_24"
                     android:layout_weight="1"
                     android:contentDescription="@string/description_icon"/>
 

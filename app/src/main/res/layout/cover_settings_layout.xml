@@ -13,7 +13,7 @@
         android:id="@+id/blurContainer"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        app:blurOverlayColor="@color/backgroundBlack"
+        app:blurOverlayColor="@color/backgroundWhite"
         android:clickable="true"
         android:focusable="true">
 
@@ -25,7 +25,7 @@
             <View
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
-                android:background="@android:color/background_light"
+                android:background="@android:color/background_dark"
                 android:paddingTop="4dp"
                 android:layout_marginBottom="8dp"/>
 
@@ -42,7 +42,7 @@
             <View
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
-                android:background="@android:color/background_light"
+                android:background="@android:color/background_dark"
                 android:layout_marginTop="4dp"
                 android:layout_marginBottom="8dp"/>
 
@@ -145,7 +145,7 @@
             <View
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
-                android:background="@android:color/background_light"
+                android:background="@android:color/background_dark"
                 android:layout_marginTop="4dp"
                 android:layout_marginBottom="8dp"/>
 
@@ -265,9 +265,9 @@
                 android:layout_weight="1"
                 android:dividerHeight="1dp"
                 android:divider="?android:textColorPrimary"
-                tools:listitem="@layout/app_hidden_item"
+                tools:listitem="@layout/filtered_apps_item"
                 android:layout_marginBottom="16dp"/>
 
         </LinearLayout>
-    </com.eightbitlab.blurview.BlurView>
+    </com.eightbitlab.blurview.BlurView>>
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

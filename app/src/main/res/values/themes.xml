@@ -27,7 +27,7 @@
         <item name="android:windowIsTranslucent">true</item>
         <item name="android:windowIsFloating">true</item>
         <item name="android:backgroundDimEnabled">true</item>
-        <item name="android:windowBackground">@drawable/rounded_view</item>
+        <item name="android:windowBackground">@drawable/rounded_layout</item>
     </style>
 
     <style name="DialogTheme.NoActionBar">

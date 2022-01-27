@@ -4,22 +4,22 @@
     <item
         android:id="@+id/toggle_wifi"
         android:title="@string/toggle_wifi"
-        android:icon="@drawable/ic_baseline_wifi_24"
+        android:icon="@drawable/ic_baseline_wifi_on_24"
         app:showAsAction="always" />
     <item
         android:id="@+id/toggle_bluetooth"
         android:title="@string/toggle_bluetooth"
-        android:icon="@drawable/ic_baseline_bluetooth_24"
+        android:icon="@drawable/ic_baseline_bluetooth_on_24"
         app:showAsAction="always" />
     <item
         android:id="@+id/toggle_nfc"
         android:title="@string/toggle_nfc"
-        android:icon="@drawable/ic_baseline_nfc_24"
+        android:icon="@drawable/ic_baseline_nfc_on_24"
         app:showAsAction="always" />
     <item
         android:id="@+id/toggle_sound"
         android:title="@string/toggle_sound"
-        android:icon="@drawable/ic_baseline_hearing_24"
+        android:icon="@drawable/ic_baseline_sound_on_24"
         app:showAsAction="always" />
     <item
         android:id="@+id/toggle_dnd"

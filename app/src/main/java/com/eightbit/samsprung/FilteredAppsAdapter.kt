@@ -89,7 +89,7 @@ class FilteredAppsAdapter(
         var convertView = view
         if (null == convertView) {
             convertView = LayoutInflater.from(context)
-                .inflate(R.layout.app_hidden_item, parent, false)
+                .inflate(R.layout.filtered_apps_item, parent, false)
         }
 
         val application = packages[position]

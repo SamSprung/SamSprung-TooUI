@@ -1,4 +1,4 @@
-package com.eightbit.samsprung
+package com.eightbit.widget
 
 
 /* ====================================================================
@@ -59,6 +59,7 @@ import android.graphics.Path
 import android.graphics.Rect
 import android.util.AttributeSet
 import androidx.appcompat.widget.AppCompatTextView
+import com.eightbit.samsprung.R
 import kotlin.math.min
 
 class VerticalStrokeTextView : AppCompatTextView {

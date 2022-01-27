@@ -51,7 +51,6 @@ package com.eightbit.samsprung
  * subject to to the terms and conditions of the Apache License, Version 2.0.
  */
 
-import android.app.Activity
 import android.app.ActivityOptions
 import android.content.Intent
 import android.graphics.Color
@@ -67,16 +66,10 @@ import androidx.core.view.isVisible
 import com.eightbit.content.ScaledContext
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import java.io.File
-import androidx.appcompat.view.menu.ActionMenuItemView
 
-import android.widget.ImageButton
-
-import android.graphics.PorterDuff
-
-import android.graphics.PorterDuffColorFilter
-import androidx.appcompat.widget.ActionMenuView
 import androidx.appcompat.widget.AppCompatImageView
-import androidx.appcompat.widget.Toolbar
+import com.eightbit.view.OnSwipeTouchListener
+import com.eightbit.widget.VerticalStrokeTextView
 
 
 class SamSprungOverlay : AppCompatActivity() {
@@ -104,9 +97,9 @@ class SamSprungOverlay : AppCompatActivity() {
         window.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
         if (SamSprung.prefs.getBoolean(SamSprung.prefScaled, false)) {
             ScaledContext.wrap(this).setTheme(R.style.Theme_SecondScreen_NoActionBar)
-            setContentView(R.layout.scaled_navigation)
+            setContentView(R.layout.navigation_menu_scaled)
         } else {
-            setContentView(R.layout.navigation_layout)
+            setContentView(R.layout.navigation_menu)
         }
 
         val menu = findViewById<LinearLayout>(R.id.button_layout)

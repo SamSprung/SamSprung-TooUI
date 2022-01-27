@@ -75,6 +75,8 @@ import androidx.core.app.NotificationCompat
 import androidx.core.content.ContextCompat
 import androidx.core.view.isVisible
 import com.eightbit.content.ScaledContext
+import com.eightbit.view.OnSwipeTouchListener
+import com.eightbit.widget.VerticalStrokeTextView
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import java.io.File
 
@@ -114,7 +116,7 @@ class DisplayListenerService : Service() {
         var displayContext = buildDisplayContext(1)
         if (SamSprung.prefs.getBoolean(SamSprung.prefScaled, false))
             displayContext = ScaledContext.wrap(displayContext)
-        floatView = LayoutInflater.from(displayContext).inflate(R.layout.navigation_layout, null)
+        floatView = LayoutInflater.from(displayContext).inflate(R.layout.navigation_menu, null)
         val params = WindowManager.LayoutParams(
             WindowManager.LayoutParams.MATCH_PARENT,
             WindowManager.LayoutParams.WRAP_CONTENT,

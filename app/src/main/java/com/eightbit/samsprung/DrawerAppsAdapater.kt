@@ -61,10 +61,10 @@ import android.view.ViewGroup
 import android.widget.TextView
 import androidx.appcompat.widget.AppCompatImageView
 import androidx.recyclerview.widget.RecyclerView
-import com.eightbit.samsprung.AppDrawerAdapater.AppViewHolder
+import com.eightbit.samsprung.DrawerAppsAdapater.AppViewHolder
 import java.util.concurrent.Executors
 
-class AppDrawerAdapater(
+class DrawerAppsAdapater(
     private var packages: MutableList<ResolveInfo>,
     private val listener: OnAppClickListener,
     private val packageManager: PackageManager
@@ -145,7 +145,7 @@ class AppDrawerAdapater(
     ) : AppViewHolder(
         LayoutInflater.from(parent.context).inflate(
             if (SamSprung.prefs.getBoolean(SamSprung.prefScaled, false))
-                R.layout.scaled_drawer_item else R.layout.app_drawer_item,
+                R.layout.drawer_apps_card_scaled else R.layout.drawer_apps_card,
             parent, false
         ), listener, packageManager
     )
@@ -157,7 +157,7 @@ class AppDrawerAdapater(
     ) : AppViewHolder(
         LayoutInflater.from(parent.context).inflate(
             if (SamSprung.prefs.getBoolean(SamSprung.prefScaled, false))
-                R.layout.scaled_drawer_icon else R.layout.app_drawer_icon,
+                R.layout.drawer_apps_icon_scaled else R.layout.drawer_apps_icon,
             parent, false
         ), listener, packageManager
     )
