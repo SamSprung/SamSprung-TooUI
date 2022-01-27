@@ -120,6 +120,17 @@ class CoverSettingsActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.cover_settings_layout)
 
+        if (SamSprung.prefs.contains(SamSprung.autoRotate)) {
+            try {
+                SamSprung.prefs.getBoolean(SamSprung.autoRotate, false)
+            } catch (cast: ClassCastException) {
+                with(SamSprung.prefs.edit()) {
+                    remove(SamSprung.autoRotate)
+                    apply()
+                }
+            }
+        }
+
         onNewIntent(intent)
 
         permissionList = findViewById(R.id.permissions)
