@@ -61,6 +61,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.content.pm.ResolveInfo
+import android.graphics.Color
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
@@ -211,6 +212,68 @@ class CoverSettingsActivity : AppCompatActivity() {
             }
         }
 
+        val colorComposite = findViewById<View>(R.id.color_composite)
+        colorComposite.setBackgroundColor(SamSprung.prefs
+            .getInt(SamSprung.prefColors, Color.rgb(255, 255, 255)))
+        val colorRedBar = findViewById<SeekBar>(R.id.color_red_bar)
+        val colorGreenBar = findViewById<SeekBar>(R.id.color_green_bar)
+        val colorBlueBar = findViewById<SeekBar>(R.id.color_blue_bar)
+
+        colorRedBar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
+            override fun onProgressChanged(seek: SeekBar, progress: Int, fromUser: Boolean) {
+                val color = Color.rgb(
+                    progress - 1,
+                    colorGreenBar.progress - 1,
+                    colorBlueBar.progress - 1
+                )
+                with(SamSprung.prefs.edit()) {
+                    putInt(SamSprung.prefColors, color)
+                    apply()
+                }
+                colorComposite.setBackgroundColor(color)
+            }
+
+            override fun onStartTrackingTouch(seek: SeekBar) { }
+
+            override fun onStopTrackingTouch(seek: SeekBar) { }
+        })
+        colorGreenBar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
+            override fun onProgressChanged(seek: SeekBar, progress: Int, fromUser: Boolean) {
+                val color = Color.rgb(
+                    colorRedBar.progress - 1,
+                    progress - 1,
+                    colorBlueBar.progress - 1
+                )
+                with(SamSprung.prefs.edit()) {
+                    putInt(SamSprung.prefColors, color)
+                    apply()
+                }
+                colorComposite.setBackgroundColor(color)
+            }
+
+            override fun onStartTrackingTouch(seek: SeekBar) { }
+
+            override fun onStopTrackingTouch(seek: SeekBar) { }
+        })
+        colorBlueBar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
+            override fun onProgressChanged(seek: SeekBar, progress: Int, fromUser: Boolean) {
+                val color = Color.rgb(
+                    colorRedBar.progress - 1,
+                    colorGreenBar.progress - 1,
+                    progress - 1
+                )
+                with(SamSprung.prefs.edit()) {
+                    putInt(SamSprung.prefColors, color)
+                    apply()
+                }
+                colorComposite.setBackgroundColor(color)
+            }
+
+            override fun onStartTrackingTouch(seek: SeekBar) { }
+
+            override fun onStopTrackingTouch(seek: SeekBar) { }
+        })
+
         startForegroundService(Intent(this, OnBroadcastService::class.java))
 
         billingClient = BillingClient.newBuilder(this)
@@ -321,75 +384,6 @@ class CoverSettingsActivity : AppCompatActivity() {
         }
     }
 
-    override fun onOptionsItemSelected(item: MenuItem) = when (item.itemId) {
-        R.id.logcat -> {
-            captureLogcat()
-            true
-        }
-        R.id.subscribe -> {
-            val view: View = layoutInflater.inflate(R.layout.donation_layout, null)
-            val dialog = AlertDialog.Builder(
-                ContextThemeWrapper(this, R.style.DialogTheme_NoActionBar)
-            )
-            val donations = view.findViewById<LinearLayout>(R.id.donation_layout)
-            for (button: Button in buttonsIAP)
-                donations.addView(button)
-            val subscriptions = view.findViewById<LinearLayout>(R.id.subscription_layout)
-            for (button: Button in buttonsSub)
-                subscriptions.addView(button)
-            dialog.setOnCancelListener {
-                donations.removeAllViewsInLayout()
-                subscriptions.removeAllViewsInLayout()
-            }
-            val donateDialog: Dialog = dialog.setView(view).show()
-            donateDialog.window?.setBackgroundDrawableResource(R.drawable.rounded_view)
-            true
-        }
-        R.id.donate -> {
-            startActivity(Intent(Intent.ACTION_VIEW,
-                Uri.parse("https://www.paypal.com/donate/?hosted_button_id=Q2LFH2SC8RHRN")))
-            true
-        } else -> {
-            super.onOptionsItemSelected(item)
-        }
-    }
-
-    private fun updateMenuWithIcon(item: MenuItem, color: Int) {
-        val builder = SpannableStringBuilder().append("*").append("    ").append(item.title)
-        if (item.icon != null && item.icon.constantState != null) {
-            val drawable = item.icon.constantState!!.newDrawable()
-            if (-1 != color) drawable.mutate().setTint(color)
-            drawable.setBounds(0, 0, drawable.intrinsicWidth, drawable.intrinsicHeight)
-            val imageSpan = ImageSpan(drawable)
-            builder.setSpan(imageSpan, 0, 1, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
-            item.title = builder
-        }
-    }
-
-    override fun onCreateOptionsMenu(menu: Menu): Boolean {
-        menuInflater.inflate(R.menu.action_menu, menu)
-        updateMenuWithIcon(menu.findItem(R.id.logcat), -1)
-        updateMenuWithIcon(menu.findItem(R.id.subscribe), -1)
-        if (BuildConfig.FLAVOR == "github")
-            updateMenuWithIcon(menu.findItem(R.id.donate), -1)
-        else
-            menu.findItem(R.id.donate).isVisible = false
-        menu.findItem(R.id.version).title = (getString(R.string.build_hash, BuildConfig.COMMIT))
-        updateMenuWithIcon(menu.findItem(R.id.version), -1)
-        val actionSwitch: MenuItem = menu.findItem(R.id.switch_action_bar)
-        actionSwitch.setActionView(R.layout.configure_switch)
-        switch = menu.findItem(R.id.switch_action_bar).actionView
-            .findViewById(R.id.switch2) as SwitchCompat
-        switch.isChecked = Settings.canDrawOverlays(applicationContext)
-        switch.setOnClickListener {
-            overlayLauncher.launch(Intent(
-                Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
-                Uri.parse("package:$packageName")
-            ))
-        }
-        return true
-    }
-
     private fun isDeviceSecure(): Boolean {
         return (getSystemService(Context.KEYGUARD_SERVICE) as KeyguardManager).isDeviceSecure
     }
@@ -401,7 +395,6 @@ class CoverSettingsActivity : AppCompatActivity() {
         return serviceString != null && serviceString.contains(packageName
                 + File.separator + AccessibilityObserver::class.java.name)
     }
-
 
     private fun hasNotificationListener(): Boolean {
         val flat = Settings.Secure.getString(
@@ -476,6 +469,75 @@ class CoverSettingsActivity : AppCompatActivity() {
                     .setData(Uri.parse(String.format("package:%s", packageName))))
             }
         }
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem) = when (item.itemId) {
+        R.id.logcat -> {
+            captureLogcat()
+            true
+        }
+        R.id.subscribe -> {
+            val view: View = layoutInflater.inflate(R.layout.donation_layout, null)
+            val dialog = AlertDialog.Builder(
+                ContextThemeWrapper(this, R.style.DialogTheme_NoActionBar)
+            )
+            val donations = view.findViewById<LinearLayout>(R.id.donation_layout)
+            for (button: Button in buttonsIAP)
+                donations.addView(button)
+            val subscriptions = view.findViewById<LinearLayout>(R.id.subscription_layout)
+            for (button: Button in buttonsSub)
+                subscriptions.addView(button)
+            dialog.setOnCancelListener {
+                donations.removeAllViewsInLayout()
+                subscriptions.removeAllViewsInLayout()
+            }
+            val donateDialog: Dialog = dialog.setView(view).show()
+            donateDialog.window?.setBackgroundDrawableResource(R.drawable.rounded_view)
+            true
+        }
+        R.id.donate -> {
+            startActivity(Intent(Intent.ACTION_VIEW,
+                Uri.parse("https://www.paypal.com/donate/?hosted_button_id=Q2LFH2SC8RHRN")))
+            true
+        } else -> {
+            super.onOptionsItemSelected(item)
+        }
+    }
+
+    private fun updateMenuWithIcon(item: MenuItem, color: Int) {
+        val builder = SpannableStringBuilder().append("*").append("    ").append(item.title)
+        if (item.icon != null && item.icon.constantState != null) {
+            val drawable = item.icon.constantState!!.newDrawable()
+            if (-1 != color) drawable.mutate().setTint(color)
+            drawable.setBounds(0, 0, drawable.intrinsicWidth, drawable.intrinsicHeight)
+            val imageSpan = ImageSpan(drawable)
+            builder.setSpan(imageSpan, 0, 1, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+            item.title = builder
+        }
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu): Boolean {
+        menuInflater.inflate(R.menu.action_menu, menu)
+        updateMenuWithIcon(menu.findItem(R.id.logcat), -1)
+        updateMenuWithIcon(menu.findItem(R.id.subscribe), -1)
+        if (BuildConfig.FLAVOR == "github")
+            updateMenuWithIcon(menu.findItem(R.id.donate), -1)
+        else
+            menu.findItem(R.id.donate).isVisible = false
+        menu.findItem(R.id.version).title = (getString(R.string.build_hash, BuildConfig.COMMIT))
+        updateMenuWithIcon(menu.findItem(R.id.version), -1)
+        val actionSwitch: MenuItem = menu.findItem(R.id.switch_action_bar)
+        actionSwitch.setActionView(R.layout.configure_switch)
+        switch = menu.findItem(R.id.switch_action_bar).actionView
+            .findViewById(R.id.switch2) as SwitchCompat
+        switch.isChecked = Settings.canDrawOverlays(applicationContext)
+        switch.setOnClickListener {
+            overlayLauncher.launch(Intent(
+                Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
+                Uri.parse("package:$packageName")
+            ))
+        }
+        return true
     }
 
     private fun getIAP(amount: Int) : String {

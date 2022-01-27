@@ -51,6 +51,7 @@ package com.eightbit.samsprung
  * subject to to the terms and conditions of the Apache License, Version 2.0.
  */
 
+import android.app.Activity
 import android.app.ActivityOptions
 import android.content.Intent
 import android.graphics.Color
@@ -62,12 +63,21 @@ import android.view.*
 import android.widget.ImageView
 import android.widget.LinearLayout
 import androidx.appcompat.app.AppCompatActivity
-import androidx.appcompat.widget.AppCompatImageView
 import androidx.core.view.isVisible
 import com.eightbit.content.ScaledContext
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import java.io.File
-import java.lang.ref.SoftReference
+import androidx.appcompat.view.menu.ActionMenuItemView
+
+import android.widget.ImageButton
+
+import android.graphics.PorterDuff
+
+import android.graphics.PorterDuffColorFilter
+import androidx.appcompat.widget.ActionMenuView
+import androidx.appcompat.widget.AppCompatImageView
+import androidx.appcompat.widget.Toolbar
+
 
 class SamSprungOverlay : AppCompatActivity() {
 
@@ -100,6 +110,11 @@ class SamSprungOverlay : AppCompatActivity() {
         }
 
         val menu = findViewById<LinearLayout>(R.id.button_layout)
+        val icons = menu.findViewById<LinearLayout>(R.id.icons_layout)
+        for (i in 0 until icons.childCount) {
+            (icons.getChildAt(i) as AppCompatImageView).setColorFilter(SamSprung.prefs
+                .getInt(SamSprung.prefColors, Color.rgb(255, 255, 255)))
+        }
         val menuScreenshot = menu.findViewById<ImageView>(R.id.button_screenshot)
         val menuLogo = menu.findViewById<VerticalStrokeTextView>(R.id.samsprung_logo)
         val menuRecent = menu.findViewById<ImageView>(R.id.button_recent)
@@ -124,8 +139,7 @@ class SamSprungOverlay : AppCompatActivity() {
                     menuRecent.setOnClickListener {
                         finish()
                         startActivity(
-                            Intent(this@SamSprungOverlay, SamSprungDrawer::class.java)
-                                .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK),
+                            Intent(this@SamSprungOverlay, SamSprungDrawer::class.java),
                             ActivityOptions.makeBasic().setLaunchDisplayId(1).toBundle()
                         )
                     }

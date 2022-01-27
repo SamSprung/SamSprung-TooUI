@@ -463,10 +463,9 @@ class SamSprungDrawer : AppCompatActivity(),
 
             override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
                 if (direction == ItemTouchHelper.LEFT || direction == ItemTouchHelper.RIGHT) {
-                    finishAffinity()
+                    finish()
                     startActivity(
-                        Intent(applicationContext, SamSprungOverlay::class.java)
-                            .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK),
+                        Intent(applicationContext, SamSprungOverlay::class.java),
                         ActivityOptions.makeBasic().setLaunchDisplayId(1).toBundle())
                 }
             }

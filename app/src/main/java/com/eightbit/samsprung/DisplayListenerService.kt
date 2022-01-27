@@ -59,6 +59,7 @@ import android.content.Intent
 import android.content.res.Configuration
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.graphics.Color
 import android.graphics.PixelFormat
 import android.hardware.display.DisplayManager
 import android.os.Build
@@ -69,6 +70,7 @@ import android.provider.Settings
 import android.view.*
 import android.widget.ImageView
 import android.widget.LinearLayout
+import androidx.appcompat.widget.AppCompatImageView
 import androidx.core.app.NotificationCompat
 import androidx.core.content.ContextCompat
 import androidx.core.view.isVisible
@@ -145,6 +147,11 @@ class DisplayListenerService : Service() {
         )
 
         val menu = floatView.findViewById<LinearLayout>(R.id.button_layout)
+        val icons = menu.findViewById<LinearLayout>(R.id.icons_layout)
+        for (i in 0 until icons.childCount) {
+            (icons.getChildAt(i) as AppCompatImageView).setColorFilter(SamSprung.prefs
+                .getInt(SamSprung.prefColors, Color.rgb(255, 255, 255)))
+        }
         val menuScreenshot = menu.findViewById<ImageView>(R.id.button_screenshot)
         val menuLogo = menu.findViewById<VerticalStrokeTextView>(R.id.samsprung_logo)
         val menuRecent = menu.findViewById<ImageView>(R.id.button_recent)

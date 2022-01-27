@@ -18,6 +18,10 @@
 
     <string name="scaling_mode">SamSprung Scaling</string>
 
+    <string name="color_red">Red</string>
+    <string name="color_green">Green</string>
+    <string name="color_blue">Blue</string>
+
     <string name="overlay_service">%1$s Overlay Service</string>
     <string name="display_service">%1$s Display Service</string>
     <string name="update_service">%1$s Update Service</string>
