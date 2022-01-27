@@ -222,9 +222,9 @@ class CoverSettingsActivity : AppCompatActivity() {
         colorRedBar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
             override fun onProgressChanged(seek: SeekBar, progress: Int, fromUser: Boolean) {
                 val color = Color.rgb(
-                    progress - 1,
-                    colorGreenBar.progress - 1,
-                    colorBlueBar.progress - 1
+                    progress,
+                    colorGreenBar.progress,
+                    colorBlueBar.progress
                 )
                 with(SamSprung.prefs.edit()) {
                     putInt(SamSprung.prefColors, color)
@@ -240,9 +240,9 @@ class CoverSettingsActivity : AppCompatActivity() {
         colorGreenBar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
             override fun onProgressChanged(seek: SeekBar, progress: Int, fromUser: Boolean) {
                 val color = Color.rgb(
-                    colorRedBar.progress - 1,
-                    progress - 1,
-                    colorBlueBar.progress - 1
+                    colorRedBar.progress,
+                    progress,
+                    colorBlueBar.progress
                 )
                 with(SamSprung.prefs.edit()) {
                     putInt(SamSprung.prefColors, color)
@@ -258,9 +258,9 @@ class CoverSettingsActivity : AppCompatActivity() {
         colorBlueBar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
             override fun onProgressChanged(seek: SeekBar, progress: Int, fromUser: Boolean) {
                 val color = Color.rgb(
-                    colorRedBar.progress - 1,
-                    colorGreenBar.progress - 1,
-                    progress - 1
+                    colorRedBar.progress,
+                    colorGreenBar.progress,
+                    progress
                 )
                 with(SamSprung.prefs.edit()) {
                     putInt(SamSprung.prefColors, color)

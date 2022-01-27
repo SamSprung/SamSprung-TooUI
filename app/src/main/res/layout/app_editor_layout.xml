@@ -164,7 +164,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
-                android:layout_marginStart="8dp"
+                android:layout_marginStart="10dp"
                 android:layout_marginEnd="4dp"
                 android:layout_gravity="center_vertical"
                 tools:ignore="UseCompoundDrawables">
@@ -210,7 +210,7 @@
 
             <SeekBar
                 android:id="@+id/color_red_bar"
-                android:max="256"
+                android:max="255"
                 android:progress="1"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"/>
@@ -227,7 +227,7 @@
 
             <SeekBar
                 android:id="@+id/color_green_bar"
-                android:max="256"
+                android:max="255"
                 android:progress="1"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"/>
@@ -244,7 +244,7 @@
 
             <SeekBar
                 android:id="@+id/color_blue_bar"
-                android:max="256"
+                android:max="255"
                 android:progress="1"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"/>

@@ -50,7 +50,7 @@
                 android:textSize="18sp"
                 app:direction="2"
                 app:stroke_width="2dp"
-                app:stroke_color="@color/secondary_dark" />
+                app:stroke_color="@android:color/white" />
 
             <LinearLayout
                 android:id="@+id/icons_layout"

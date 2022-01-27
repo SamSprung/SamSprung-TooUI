@@ -147,11 +147,6 @@ class DisplayListenerService : Service() {
         )
 
         val menu = floatView.findViewById<LinearLayout>(R.id.button_layout)
-        val icons = menu.findViewById<LinearLayout>(R.id.icons_layout)
-        for (i in 0 until icons.childCount) {
-            (icons.getChildAt(i) as AppCompatImageView).setColorFilter(SamSprung.prefs
-                .getInt(SamSprung.prefColors, Color.rgb(255, 255, 255)))
-        }
         val menuScreenshot = menu.findViewById<ImageView>(R.id.button_screenshot)
         val menuLogo = menu.findViewById<VerticalStrokeTextView>(R.id.samsprung_logo)
         val menuRecent = menu.findViewById<ImageView>(R.id.button_recent)
@@ -162,7 +157,14 @@ class DisplayListenerService : Service() {
         bottomSheetBehavior.addBottomSheetCallback(object : BottomSheetBehavior.BottomSheetCallback() {
             override fun onStateChanged(bottomSheet: View, newState: Int) {
                 if (newState == BottomSheetBehavior.STATE_EXPANDED) {
+                    val color = SamSprung.prefs.getInt(SamSprung.prefColors,
+                        Color.rgb(255, 255, 255))
                     if (!menu.isVisible) menu.visibility = View.VISIBLE
+                    val icons = menu.findViewById<LinearLayout>(R.id.icons_layout)
+                    for (i in 0 until icons.childCount) {
+                        (icons.getChildAt(i) as AppCompatImageView).setColorFilter(color)
+                    }
+                    menuLogo.setTextColor(color)
                     if (hasAccessibility()) {
                         menuScreenshot.setOnClickListener {
                             AccessibilityObserver.executeScreenshot()
