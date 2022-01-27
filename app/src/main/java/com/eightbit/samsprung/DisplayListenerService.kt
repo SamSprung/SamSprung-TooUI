@@ -75,7 +75,6 @@ import androidx.core.view.isVisible
 import com.eightbit.content.ScaledContext
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import java.io.File
-import java.lang.ref.SoftReference
 
 
 class DisplayListenerService : Service() {
@@ -152,6 +151,13 @@ class DisplayListenerService : Service() {
                 val menu = floatView.findViewById<LinearLayout>(R.id.button_layout)!!
                 if (newState == BottomSheetBehavior.STATE_EXPANDED) {
                     if (!menu.isVisible) menu.visibility = View.VISIBLE
+                    if (hasAccessibility()) {
+                        menu.findViewById<ImageView>(R.id.button_screenshot)!!.setOnClickListener {
+                            AccessibilityObserver.executeScreenshot()
+                        }
+                    } else {
+                        menu.findViewById<ImageView>(R.id.button_screenshot)!!.visibility = View.GONE
+                    }
                     menu.findViewById<VerticalStrokeTextView>(R.id.samsprung_logo)!!.setOnClickListener {
                         bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
                     }
@@ -163,13 +169,6 @@ class DisplayListenerService : Service() {
                                 .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK),
                             ActivityOptions.makeBasic().setLaunchDisplayId(1).toBundle()
                         )
-                    }
-                    if (hasAccessibility()) {
-                        menu.findViewById<ImageView>(R.id.button_screenshot)!!.setOnClickListener {
-                            AccessibilityObserver.executeScreenshot()
-                        }
-                    } else {
-                        menu.findViewById<ImageView>(R.id.button_screenshot)!!.visibility = View.GONE
                     }
                     menu.findViewById<ImageView>(R.id.button_home)!!.setOnClickListener {
                         resetRecentActivities(launchPackage, launchActivity)
@@ -262,7 +261,7 @@ class DisplayListenerService : Service() {
 
         val notificationText = getString(R.string.display_service, getString(R.string.samsprung))
         builder.setContentTitle(notificationText).setTicker(notificationText)
-            .setSmallIcon(R.drawable.ic_launcher_foreground)
+            .setSmallIcon(R.drawable.ic_baseline_samsprung_24)
             .setWhen(0).setOnlyAlertOnce(true)
             .setContentIntent(pendingIntent).setOngoing(true)
         if (null != iconNotification) {

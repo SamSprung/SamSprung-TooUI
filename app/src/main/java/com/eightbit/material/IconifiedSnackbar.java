@@ -86,7 +86,7 @@ public class IconifiedSnackbar {
         TextView textView = snackbarLayout.findViewById(
                 com.google.android.material.R.id.snackbar_text);
         textView.setCompoundDrawablesRelativeWithIntrinsicBounds(
-                R.drawable.ic_google_play_24, 0, 0, 0);
+                R.drawable.ic_baseline_samsprung_24, 0, 0, 0);
         textView.setGravity(Gravity.CENTER_VERTICAL);
         textView.setCompoundDrawablePadding(textView.getResources()
                 .getDimensionPixelOffset(R.dimen.snackbar_icon_padding));

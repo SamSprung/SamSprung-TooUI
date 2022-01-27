@@ -105,6 +105,13 @@ class SamSprungOverlay : AppCompatActivity() {
                 val menu = findViewById<LinearLayout>(R.id.button_layout)!!
                 if (newState == BottomSheetBehavior.STATE_EXPANDED) {
                     if (!menu.isVisible) menu.visibility = View.VISIBLE
+                    if (hasAccessibility()) {
+                        menu.findViewById<ImageView>(R.id.button_screenshot)!!.setOnClickListener {
+                            AccessibilityObserver.executeScreenshot()
+                        }
+                    } else {
+                        menu.findViewById<ImageView>(R.id.button_screenshot)!!.visibility = View.GONE
+                    }
                     menu.findViewById<VerticalStrokeTextView>(R.id.samsprung_logo)!!.setOnClickListener {
                         bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
                     }
@@ -115,13 +122,6 @@ class SamSprungOverlay : AppCompatActivity() {
                                 .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK),
                             ActivityOptions.makeBasic().setLaunchDisplayId(1).toBundle()
                         )
-                    }
-                    if (hasAccessibility()) {
-                        menu.findViewById<ImageView>(R.id.button_screenshot)!!.setOnClickListener {
-                            AccessibilityObserver.executeScreenshot()
-                        }
-                    } else {
-                        menu.findViewById<ImageView>(R.id.button_screenshot)!!.visibility = View.GONE
                     }
                     menu.findViewById<AppCompatImageView>(R.id.button_recent)!!.setOnClickListener {
                         finish()
