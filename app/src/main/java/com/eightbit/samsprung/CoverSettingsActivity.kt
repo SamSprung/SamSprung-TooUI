@@ -82,6 +82,9 @@ import androidx.appcompat.view.ContextThemeWrapper
 import androidx.appcompat.widget.SwitchCompat
 import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.core.content.ContextCompat
+import androidx.core.graphics.blue
+import androidx.core.graphics.green
+import androidx.core.graphics.red
 import com.android.billingclient.api.*
 import com.eightbit.material.IconifiedSnackbar
 import com.eightbitlab.blurview.BlurView
@@ -206,25 +209,28 @@ class CoverSettingsActivity : AppCompatActivity() {
             }
         }
 
+        val color = SamSprung.prefs.getInt(SamSprung.prefColors, Color.rgb(255, 255, 255))
         val colorComposite = findViewById<View>(R.id.color_composite)
-        colorComposite.setBackgroundColor(SamSprung.prefs
-            .getInt(SamSprung.prefColors, Color.rgb(255, 255, 255)))
+        colorComposite.setBackgroundColor(color)
         val colorRedBar = findViewById<SeekBar>(R.id.color_red_bar)
+        colorRedBar.setProgress(color.red, true)
         val colorGreenBar = findViewById<SeekBar>(R.id.color_green_bar)
+        colorGreenBar.setProgress(color.green, true)
         val colorBlueBar = findViewById<SeekBar>(R.id.color_blue_bar)
+        colorBlueBar.setProgress(color.blue, true)
 
         colorRedBar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
             override fun onProgressChanged(seek: SeekBar, progress: Int, fromUser: Boolean) {
-                val color = Color.rgb(
+                val newColor = Color.rgb(
                     progress,
                     colorGreenBar.progress,
                     colorBlueBar.progress
                 )
                 with(SamSprung.prefs.edit()) {
-                    putInt(SamSprung.prefColors, color)
+                    putInt(SamSprung.prefColors, newColor)
                     apply()
                 }
-                colorComposite.setBackgroundColor(color)
+                colorComposite.setBackgroundColor(newColor)
             }
 
             override fun onStartTrackingTouch(seek: SeekBar) { }
@@ -233,16 +239,16 @@ class CoverSettingsActivity : AppCompatActivity() {
         })
         colorGreenBar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
             override fun onProgressChanged(seek: SeekBar, progress: Int, fromUser: Boolean) {
-                val color = Color.rgb(
+                val newColor = Color.rgb(
                     colorRedBar.progress,
                     progress,
                     colorBlueBar.progress
                 )
                 with(SamSprung.prefs.edit()) {
-                    putInt(SamSprung.prefColors, color)
+                    putInt(SamSprung.prefColors, newColor)
                     apply()
                 }
-                colorComposite.setBackgroundColor(color)
+                colorComposite.setBackgroundColor(newColor)
             }
 
             override fun onStartTrackingTouch(seek: SeekBar) { }
@@ -251,16 +257,16 @@ class CoverSettingsActivity : AppCompatActivity() {
         })
         colorBlueBar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
             override fun onProgressChanged(seek: SeekBar, progress: Int, fromUser: Boolean) {
-                val color = Color.rgb(
+                val newColor = Color.rgb(
                     colorRedBar.progress,
                     colorGreenBar.progress,
                     progress
                 )
                 with(SamSprung.prefs.edit()) {
-                    putInt(SamSprung.prefColors, color)
+                    putInt(SamSprung.prefColors, newColor)
                     apply()
                 }
-                colorComposite.setBackgroundColor(color)
+                colorComposite.setBackgroundColor(newColor)
             }
 
             override fun onStartTrackingTouch(seek: SeekBar) { }
