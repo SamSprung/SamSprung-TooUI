@@ -448,8 +448,7 @@ class SamSprungDrawer : AppCompatActivity(),
                 if (direction == ItemTouchHelper.LEFT || direction == ItemTouchHelper.RIGHT) {
                     finish()
                     startActivity(
-                        Intent(applicationContext, SamSprungOverlay::class.java).addFlags(
-                            Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK),
+                        Intent(applicationContext, SamSprungOverlay::class.java),
                         ActivityOptions.makeBasic().setLaunchDisplayId(1).toBundle())
                 }
             }
