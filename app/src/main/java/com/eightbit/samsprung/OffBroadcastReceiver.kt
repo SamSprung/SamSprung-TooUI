@@ -67,7 +67,7 @@ class OffBroadcastReceiver : BroadcastReceiver {
 
     override fun onReceive(context: Context, intent: Intent) {
         if (Intent.ACTION_SCREEN_OFF == intent.action && null != componentName) {
-            context.startService(Intent(context, DisplayListenerService::class.java))
+            context.startService(Intent(context, DisplayListener::class.java))
 
             val options = ActivityOptions.makeBasic().setLaunchDisplayId(0)
 

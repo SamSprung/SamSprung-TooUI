@@ -10,7 +10,7 @@
     android:layout_marginTop="4dp"
     android:layout_gravity="center"
     android:orientation="horizontal"
-    tools:context=".CoverSettingsActivity"
+    tools:context=".CoverPreferences"
     tools:ignore="UseCompoundDrawables">
 
     <FrameLayout

@@ -89,7 +89,7 @@ import java.io.File
 import java.util.*
 
 class SamSprungDrawer : AppCompatActivity(),
-    DrawerAppsAdapater.OnAppClickListener,
+    DrawerAdapater.OnAppClickListener,
     NotificationAdapter.OnNoticeClickListener {
 
     private lateinit var oReceiver: BroadcastReceiver
@@ -384,7 +384,7 @@ class SamSprungDrawer : AppCompatActivity(),
             launcherView.layoutManager = GridLayoutManager(this, getColumnCount())
         else
             launcherView.layoutManager = LinearLayoutManager(this)
-        launcherView.adapter = DrawerAppsAdapater(packages, this, packageManager)
+        launcherView.adapter = DrawerAdapater(packages, this, packageManager)
 
         pReceiver = object : BroadcastReceiver() {
             @SuppressLint("NotifyDataSetChanged")
@@ -397,8 +397,8 @@ class SamSprungDrawer : AppCompatActivity(),
                             || SamSprung.prefs.getStringSet(SamSprung.prefHidden,
                         HashSet())!!.contains(item.activityInfo.packageName) }
                     Collections.sort(packages, ResolveInfo.DisplayNameComparator(packageManager))
-                    (launcherView.adapter as DrawerAppsAdapater).setPackages(packages)
-                    (launcherView.adapter as DrawerAppsAdapater).notifyDataSetChanged()
+                    (launcherView.adapter as DrawerAdapater).setPackages(packages)
+                    (launcherView.adapter as DrawerAdapater).notifyDataSetChanged()
                 }
                 if (intent.action == Intent.ACTION_PACKAGE_ADDED) {
                     if (!intent.getBooleanExtra(Intent.EXTRA_REPLACING, false)) {
@@ -409,8 +409,8 @@ class SamSprungDrawer : AppCompatActivity(),
                                     || SamSprung.prefs.getStringSet(SamSprung.prefHidden,
                                 HashSet())!!.contains(item.activityInfo.packageName)
                         }
-                        (launcherView.adapter as DrawerAppsAdapater).setPackages(packages)
-                        (launcherView.adapter as DrawerAppsAdapater).notifyDataSetChanged()
+                        (launcherView.adapter as DrawerAdapater).setPackages(packages)
+                        (launcherView.adapter as DrawerAdapater).notifyDataSetChanged()
                     }
                 }
             }
@@ -500,7 +500,7 @@ class SamSprungDrawer : AppCompatActivity(),
         val aReceiver = object : BroadcastReceiver() {
             @SuppressLint("NotifyDataSetChanged")
             override fun onReceive(context: Context, intent: Intent) {
-                context.startService(Intent(context, DisplayListenerService::class.java))
+                context.startService(Intent(context, DisplayListener::class.java))
 
                 val options = ActivityOptions.makeBasic().setLaunchDisplayId(0)
 
@@ -553,7 +553,7 @@ class SamSprungDrawer : AppCompatActivity(),
                 Intent.FLAG_ACTIVITY_NO_ANIMATION
         startActivity(coverIntent.putExtras(extras), options.toBundle())
 
-        val serviceIntent = Intent(this, DisplayListenerService::class.java)
+        val serviceIntent = Intent(this, DisplayListener::class.java)
         startForegroundService(serviceIntent.putExtras(extras))
     }
 
@@ -563,7 +563,7 @@ class SamSprungDrawer : AppCompatActivity(),
 
             startIntentSender(notice.getIntentSender(),
                 null, 0, 0, 0)
-            startForegroundService(Intent(this, DisplayListenerService::class.java)
+            startForegroundService(Intent(this, DisplayListener::class.java)
                 .putExtra("launchPackage", notice.getIntentSender()!!.creatorPackage))
         }
     }
