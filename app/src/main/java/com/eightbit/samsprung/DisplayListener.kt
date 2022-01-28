@@ -315,7 +315,7 @@ class DisplayListener : Service() {
         @Suppress("DEPRECATION")
         mKeyguardLock: KeyguardManager.KeyguardLock
     ) {
-        if (hasAccessibility()) AccessibilityObserver.disableKeyboard()
+        if (hasAccessibility()) AccessibilityObserver.disableKeyboard(applicationContext)
         if (this::floatView.isInitialized && floatView.isAttachedToWindow)
             (buildDisplayContext(1).getSystemService(WINDOW_SERVICE)
                     as WindowManager).removeView(floatView)

@@ -107,7 +107,7 @@ class CoverPreferences : AppCompatActivity() {
 
     private lateinit var mainSwitch: SwitchCompat
     private lateinit var permissionList: LinearLayout
-    private lateinit var keyboard: AppCompatButton
+    private lateinit var keyboard: LinearLayout
     private lateinit var accessibility: SwitchCompat
     private lateinit var notifications: SwitchCompat
     private lateinit var settings: SwitchCompat
@@ -154,7 +154,7 @@ class CoverPreferences : AppCompatActivity() {
             }
         }
 
-        keyboard = findViewById(R.id.keyboard_button)
+        keyboard = findViewById(R.id.keyboard_layout)
         keyboard.setOnClickListener {
             startActivity(Intent(Settings.ACTION_INPUT_METHOD_SETTINGS)
                 .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))

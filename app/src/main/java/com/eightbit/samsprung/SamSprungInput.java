@@ -22,11 +22,6 @@ public class SamSprungInput extends InputMethodService
     private boolean caps = false;
 
     @Override
-    public void onBindInput() {
-        super.onBindInput();
-    }
-
-    @Override
     public void onInitializeInterface() {
         mKeyboardView.get().setOnKeyboardActionListener(this);
         super.onInitializeInterface();

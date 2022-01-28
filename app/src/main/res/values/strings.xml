@@ -11,7 +11,7 @@
 
     <string name="permission_options">Permissions</string>
     <string name="permission_accessibility">Accessibility</string>
-    <string name="permission_keyboard">Enable Keyboard</string>
+    <string name="permission_keyboard">Keyboard (IME)</string>
     <string name="permission_notifications">Notifications</string>
     <string name="permission_settings">Write Settings</string>
 
