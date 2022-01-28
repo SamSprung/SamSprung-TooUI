@@ -76,7 +76,8 @@ class AccessibilityObserver : AccessibilityService() {
                 Settings.Secure.DEFAULT_INPUT_METHOD)
         }
         fun enableKeyboard(context: Context) {
-            if (!getInputMethod(context).contains(BuildConfig.APPLICATION_ID))
+            if (!this::inputMethod.isInitialized
+                && !getInputMethod(context).contains(BuildConfig.APPLICATION_ID))
                 inputMethod = Settings.Secure.getString(context.contentResolver,
                     Settings.Secure.DEFAULT_INPUT_METHOD)
             val mInputMethodProperties = (context.getSystemService(INPUT_METHOD_SERVICE)

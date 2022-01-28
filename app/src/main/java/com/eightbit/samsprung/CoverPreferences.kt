@@ -315,7 +315,8 @@ class CoverPreferences : AppCompatActivity() {
         textBlue.visibility = View.GONE
         colorBlueBar.visibility = View.GONE
 
-        startForegroundService(Intent(this, OnBroadcastService::class.java))
+        startForegroundService(Intent(this, OnBroadcastService::class.java)
+            .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK))
 
         billingClient = BillingClient.newBuilder(this)
             .setListener(purchasesUpdatedListener).enablePendingPurchases().build()
@@ -422,7 +423,8 @@ class CoverPreferences : AppCompatActivity() {
         if (this::mainSwitch.isInitialized) {
             mainSwitch.isChecked = Settings.canDrawOverlays(applicationContext)
             if (mainSwitch.isChecked)
-                startForegroundService(Intent(this, OnBroadcastService::class.java))
+                startForegroundService(Intent(this, OnBroadcastService::class.java)
+                    .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK))
         }
     }
 

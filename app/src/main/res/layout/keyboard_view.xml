@@ -6,5 +6,5 @@
     android:layout_height="wrap_content"
     android:layout_alignParentBottom="true"
     android:paddingBottom="4dp"
-    android:keyTextSize="16sp"
+    android:keyTextSize="14sp"
     android:keyPreviewLayout ="@layout/key_preview" />
