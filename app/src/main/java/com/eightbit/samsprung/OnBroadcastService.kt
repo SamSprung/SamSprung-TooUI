@@ -67,13 +67,14 @@ import androidx.core.content.ContextCompat
 
 class OnBroadcastService : Service() {
 
-    inner class OnBroadcastReceiver : BroadcastReceiver() {
+    private val onReceiver = object : BroadcastReceiver() {
+        @SuppressLint("NotifyDataSetChanged")
         override fun onReceive(context: Context, intent: Intent) {
             if (Intent.ACTION_SCREEN_ON == intent.action) {
                 context.startService(Intent(context, DisplayListenerService::class.java))
                 context.startActivity(
                     Intent(context.applicationContext, SamSprungOverlay::class.java)
-                    .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK),
+                        .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK),
                     ActivityOptions.makeBasic().setLaunchDisplayId(1).toBundle()
                 )
             }
@@ -97,7 +98,7 @@ class OnBroadcastService : Service() {
         val onScreenFilter = IntentFilter(Intent.ACTION_SCREEN_ON)
         onScreenFilter.priority = 999
         onScreenFilter.also {
-            applicationContext.registerReceiver(OnBroadcastReceiver(), it)
+            applicationContext.registerReceiver(onReceiver, it)
         }
 
         return START_STICKY

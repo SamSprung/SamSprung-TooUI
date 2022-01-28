@@ -95,7 +95,6 @@ class SamSprungDrawer : AppCompatActivity(),
     private lateinit var oReceiver: BroadcastReceiver
     private lateinit var bReceiver: BroadcastReceiver
     private lateinit var pReceiver: BroadcastReceiver
-    private var mReceiver: BroadcastReceiver? = null
     private lateinit var noticesView: RecyclerView
 
     @SuppressLint("InflateParams", "CutPasteId", "ClickableViewAccessibility")
@@ -501,33 +500,38 @@ class SamSprungDrawer : AppCompatActivity(),
 
         val aReceiver = object : BroadcastReceiver() {
             @SuppressLint("NotifyDataSetChanged")
-            override fun onReceive(context: Context?, intent: Intent) {
-                context?.startService(Intent(context, DisplayListenerService::class.java))
+            override fun onReceive(context: Context, intent: Intent) {
+                context.startService(Intent(context, DisplayListenerService::class.java))
 
                 val options = ActivityOptions.makeBasic().setLaunchDisplayId(0)
 
                 val coverIntent = Intent(Intent.ACTION_MAIN)
                 coverIntent.addCategory(Intent.CATEGORY_LAUNCHER)
-                coverIntent.component = componentName
+                coverIntent.component = ComponentName(
+                    appInfo.activityInfo.packageName,
+                    appInfo.activityInfo.name
+                )
                 coverIntent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or
                         Intent.FLAG_ACTIVITY_CLEAR_TASK or
                         Intent.FLAG_ACTIVITY_FORWARD_RESULT or
                         Intent.FLAG_ACTIVITY_NO_ANIMATION
-                context?.startActivity(coverIntent, options.toBundle())
+                context.startActivity(coverIntent, options.toBundle())
 
                 val homeLauncher = Intent(Intent.ACTION_MAIN)
                 homeLauncher.addCategory(Intent.CATEGORY_HOME)
                 homeLauncher.flags = Intent.FLAG_ACTIVITY_NEW_TASK or
                         Intent.FLAG_ACTIVITY_FORWARD_RESULT or
                         Intent.FLAG_ACTIVITY_NO_ANIMATION
-                context?.startActivity(homeLauncher, options.toBundle())
+                context.startActivity(homeLauncher, options.toBundle())
 
-                context?.applicationContext!!.unregisterReceiver(this)
+                context.applicationContext.unregisterReceiver(this)
             }
         }
 
         IntentFilter(Intent.ACTION_SCREEN_OFF).also {
-            applicationContext.registerReceiver(aReceiver, it)
+            applicationContext.registerReceiver(OffBroadcastReceiver(
+                ComponentName(appInfo.activityInfo.packageName, appInfo.activityInfo.name)
+            ), it)
         }
         val coverIntent = Intent(Intent.ACTION_MAIN)
         coverIntent.addCategory(Intent.CATEGORY_LAUNCHER)
@@ -634,10 +638,6 @@ class SamSprungDrawer : AppCompatActivity(),
         try {
             if (this::pReceiver.isInitialized)
                 unregisterReceiver(pReceiver)
-        } catch (ignored: Exception) { }
-        try {
-            if (null != mReceiver)
-                unregisterReceiver(mReceiver)
         } catch (ignored: Exception) { }
     }
 }

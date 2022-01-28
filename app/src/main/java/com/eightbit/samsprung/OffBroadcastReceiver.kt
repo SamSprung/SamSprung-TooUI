@@ -51,45 +51,44 @@ package com.eightbit.samsprung
  * subject to to the terms and conditions of the Apache License, Version 2.0.
  */
 
+import android.app.ActivityOptions
 import android.content.BroadcastReceiver
+import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
-import android.content.pm.PackageInstaller
-import android.widget.Toast
 
-class GitBroadcastReceiver : BroadcastReceiver() {
+class OffBroadcastReceiver : BroadcastReceiver {
+    private var componentName : ComponentName? = null
+
+    @Suppress("UNUSED") constructor()
+    constructor(componentName: ComponentName) {
+        this.componentName = componentName
+    }
 
     override fun onReceive(context: Context, intent: Intent) {
-        intent.flags = 0
-        if (Intent.ACTION_BOOT_COMPLETED == intent.action
-            || Intent.ACTION_LOCKED_BOOT_COMPLETED == intent.action
-            || Intent.ACTION_REBOOT == intent.action
-        ) {
-            context.startForegroundService(Intent(context, OnBroadcastService::class.java))
-        }
-        if (BuildConfig.FLAVOR != "github") return
-        if (Intent.ACTION_MY_PACKAGE_REPLACED == intent.action) {
-            context.startActivity(context.packageManager
-                .getLaunchIntentForPackage(BuildConfig.APPLICATION_ID)
-                ?.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
-        } else if (SamSprung.updating == intent.action) {
-            when (intent.getIntExtra(PackageInstaller.EXTRA_STATUS, -1)) {
-                PackageInstaller.STATUS_PENDING_USER_ACTION -> {
-                    val activityIntent = intent.getParcelableExtra<Intent>(Intent.EXTRA_INTENT)
-                    if (null != activityIntent)
-                        context.startActivity(activityIntent.addFlags(
-                            Intent.FLAG_ACTIVITY_NEW_TASK))
-                }
-                PackageInstaller.STATUS_SUCCESS -> {
-                    // Installation was successful
-                } else -> {
-                    Toast.makeText(
-                        context.applicationContext,
-                        intent.getStringExtra(PackageInstaller.EXTRA_STATUS_MESSAGE),
-                        Toast.LENGTH_LONG
-                    ).show()
-                }
-            }
+        if (Intent.ACTION_SCREEN_OFF == intent.action && null != componentName) {
+            context.startService(Intent(context, DisplayListenerService::class.java))
+
+            val options = ActivityOptions.makeBasic().setLaunchDisplayId(0)
+
+            val coverIntent = Intent(Intent.ACTION_MAIN)
+            coverIntent.addCategory(Intent.CATEGORY_LAUNCHER)
+            coverIntent.component = componentName
+            coverIntent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or
+                    Intent.FLAG_ACTIVITY_CLEAR_TASK or
+                    Intent.FLAG_ACTIVITY_FORWARD_RESULT or
+                    Intent.FLAG_ACTIVITY_NO_ANIMATION
+            context.startActivity(coverIntent, options.toBundle())
+
+            val homeLauncher = Intent(Intent.ACTION_MAIN)
+            homeLauncher.addCategory(Intent.CATEGORY_HOME)
+            homeLauncher.flags = Intent.FLAG_ACTIVITY_NEW_TASK or
+                    Intent.FLAG_ACTIVITY_FORWARD_RESULT or
+                    Intent.FLAG_ACTIVITY_NO_ANIMATION
+            context.startActivity(homeLauncher, options.toBundle())
+
+            componentName = null
+            context.applicationContext.unregisterReceiver(this)
         }
     }
 }
