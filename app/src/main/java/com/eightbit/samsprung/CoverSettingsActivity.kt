@@ -73,6 +73,7 @@ import android.text.style.ImageSpan
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
+import android.view.ViewGroup
 import android.widget.*
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresApi
@@ -119,6 +120,7 @@ class CoverSettingsActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.cover_settings_layout)
+        permissionList = findViewById(R.id.permissions)
 
         if (SamSprung.prefs.contains(SamSprung.autoRotate)) {
             try {
@@ -132,8 +134,6 @@ class CoverSettingsActivity : AppCompatActivity() {
         }
 
         onNewIntent(intent)
-
-        permissionList = findViewById(R.id.permissions)
 
         findViewById<BlurView>(R.id.blurContainer).setupWith(
             window.decorView.findViewById(R.id.coordinator))
@@ -679,6 +679,25 @@ class CoverSettingsActivity : AppCompatActivity() {
             ) == PackageManager.PERMISSION_GRANTED) {
             findViewById<CoordinatorLayout>(R.id.coordinator).background =
                 WallpaperManager.getInstance(this).drawable
+        }
+        if (!SamSprung.prefs.getBoolean(SamSprung.prefSetups, false)) {
+            val view: View = layoutInflater.inflate(R.layout.setup_notice_layout, null)
+            val dialog = AlertDialog.Builder(
+                ContextThemeWrapper(this, R.style.DialogTheme_NoActionBar)
+            )
+                .setPositiveButton(R.string.button_confirm) { dialog, _ ->
+                    with(SamSprung.prefs.edit()) {
+                        putBoolean(SamSprung.prefSetups, true)
+                        apply()
+                    }
+                    dialog.dismiss()
+                }
+            val setupDialog: Dialog = dialog.setView(view).show()
+            setupDialog.window?.setBackgroundDrawableResource(R.drawable.rounded_layout)
+            setupDialog.window?.setLayout(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT
+            )
         }
         if (isDeviceSecure() && !SamSprung.prefs.getBoolean(SamSprung.prefSecure, false)) {
             AlertDialog.Builder(this)
