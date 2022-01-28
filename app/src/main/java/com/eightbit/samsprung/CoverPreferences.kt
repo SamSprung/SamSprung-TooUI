@@ -156,6 +156,11 @@ class CoverPreferences : AppCompatActivity() {
 
         keyboard = findViewById(R.id.keyboard_layout)
         keyboard.setOnClickListener {
+            with(SamSprung.prefs.edit()) {
+                putString(SamSprung.prefInputs, Settings.Secure.getString(
+                    contentResolver, Settings.Secure.DEFAULT_INPUT_METHOD))
+                apply()
+            }
             startActivity(Intent(Settings.ACTION_INPUT_METHOD_SETTINGS)
                 .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
         }

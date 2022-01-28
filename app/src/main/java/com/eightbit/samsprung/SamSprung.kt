@@ -105,5 +105,6 @@ class SamSprung : Application() {
         const val prefSecure: String = "prefSecure"
         const val prefColors: String = "prefColors"
         const val prefSetups: String = "prefSetups"
+        const val prefInputs: String = "prefInputs"
     }
 }

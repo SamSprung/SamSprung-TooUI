@@ -62,7 +62,6 @@ import android.content.pm.ResolveInfo
 import android.graphics.Canvas
 import android.hardware.camera2.CameraManager
 import android.media.AudioManager
-import android.net.Uri
 import android.net.wifi.WifiManager
 import android.nfc.NfcManager
 import android.os.*

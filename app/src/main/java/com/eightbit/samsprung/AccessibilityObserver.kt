@@ -71,15 +71,11 @@ class AccessibilityObserver : AccessibilityService() {
             observerInstance.performGlobalAction(GLOBAL_ACTION_BACK)
         }
         private lateinit var inputMethod: String
-        fun getInputMethod(context: Context): String {
+        private fun getInputMethod(context: Context): String {
             return Settings.Secure.getString(context.contentResolver,
                 Settings.Secure.DEFAULT_INPUT_METHOD)
         }
         fun enableKeyboard(context: Context) {
-            if (!this::inputMethod.isInitialized
-                && !getInputMethod(context).contains(BuildConfig.APPLICATION_ID))
-                inputMethod = Settings.Secure.getString(context.contentResolver,
-                    Settings.Secure.DEFAULT_INPUT_METHOD)
             val mInputMethodProperties = (context.getSystemService(INPUT_METHOD_SERVICE)
                     as InputMethodManager).enabledInputMethodList
             for (i in 0 until mInputMethodProperties.size) {
@@ -90,9 +86,11 @@ class AccessibilityObserver : AccessibilityService() {
             }
         }
         fun disableKeyboard(context: Context) {
-            if (this::inputMethod.isInitialized && getInputMethod(context)
-                    .contains(BuildConfig.APPLICATION_ID))
-                observerInstance.softKeyboardController.switchToInputMethod(inputMethod)
+            if (getInputMethod(context).contains(BuildConfig.APPLICATION_ID)) {
+                val setOrSammy = SamSprung.prefs.getString(SamSprung.prefInputs,
+                    "com.samsung.android.honeyboard/.service.HoneyBoardService")
+                observerInstance.softKeyboardController.switchToInputMethod(setOrSammy!!)
+            }
         }
     }
 
