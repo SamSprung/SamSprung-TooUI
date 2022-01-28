@@ -592,21 +592,21 @@ class SamSprungDrawer : AppCompatActivity(),
 
     override fun onNewIntent(intent: Intent?) {
         super.onNewIntent(intent)
-        if (BuildConfig.FLAVOR != "google") {
-            val updates = CheckUpdatesTask(this)
-            if (packageManager.canRequestPackageInstalls()) {
-                updates.retrieveUpdate()
-            } else {
-                registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
-                    if (packageManager.canRequestPackageInstalls())
-                        updates.retrieveUpdate()
-                }.launch(
-                    Intent(Settings.ACTION_MANAGE_UNKNOWN_APP_SOURCES).setData(
-                        Uri.parse(String.format("package:%s", packageName))
-                    )
-                )
-            }
-        }
+//        if (BuildConfig.FLAVOR != "google") {
+//            val updates = CheckUpdatesTask(this)
+//            if (packageManager.canRequestPackageInstalls()) {
+//                updates.retrieveUpdate()
+//            } else {
+//                registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
+//                    if (packageManager.canRequestPackageInstalls())
+//                        updates.retrieveUpdate()
+//                }.launch(
+//                    Intent(Settings.ACTION_MANAGE_UNKNOWN_APP_SOURCES).setData(
+//                        Uri.parse(String.format("package:%s", packageName))
+//                    )
+//                )
+//            }
+//        }
         if (!this::noticesView.isInitialized) return
         if (hasNotificationListener()) {
             NotificationObserver.getObserver()?.setNotificationsChangedListener(
