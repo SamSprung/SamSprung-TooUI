@@ -1,0 +1,50 @@
+name: Android CI
+
+on:
+  push:
+    branches: [ custom ]
+  pull_request:
+    branches: [ custom ]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: set up JDK 11
+      uses: actions/setup-java@v2
+      with:
+        java-version: '11'
+        distribution: 'adopt'
+
+    - name: Grant execute permission for gradlew
+      run: chmod +x gradlew
+    - name: Build with Gradle
+      run: ./gradlew build
+
+    - uses: r0adkll/sign-android-release@v1
+      name: Sign app APK
+      # ID used to access action output
+      id: sign_app
+      with:
+        releaseDirectory: app/build/outputs/apk/release
+        signingKeyBase64: ${{ secrets.KEYSTORE }}
+        alias: ${{ secrets.KEY_ALIAS }}
+        keyStorePassword: ${{ secrets.STOREPASS }}
+        keyPassword: ${{ secrets.KEYPASS }}
+      env:
+        # override default build-tools version (29.0.3) -- optional
+        BUILD_TOOLS_VERSION: "30.0.2"
+        
+    - name: Retrieve commit short hash
+      run: |
+         GIT_HASH=$(git rev-parse --short HEAD)
+         echo "GIT_HASH=${GIT_HASH}" >> $GITHUB_ENV
+
+    # Example use of `signedReleaseFile` output -- not needed
+    - uses: actions/upload-artifact@v2
+      with:
+        name: ZFlip-Launcher-${{ env.GIT_HASH }}
+        path: ${{steps.sign_app.outputs.signedReleaseFile}}
