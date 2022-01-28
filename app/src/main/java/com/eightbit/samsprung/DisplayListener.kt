@@ -62,15 +62,19 @@ import android.graphics.BitmapFactory
 import android.graphics.Color
 import android.graphics.PixelFormat
 import android.hardware.display.DisplayManager
+import android.inputmethodservice.Keyboard
+import android.inputmethodservice.KeyboardView
 import android.os.Build
 import android.os.Handler
 import android.os.IBinder
 import android.os.Looper
 import android.provider.Settings
 import android.view.*
+import android.view.LayoutInflater
 import android.widget.ImageView
 import android.widget.LinearLayout
 import androidx.appcompat.widget.AppCompatImageView
+import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.core.app.NotificationCompat
 import androidx.core.content.ContextCompat
 import androidx.core.view.isVisible
@@ -148,8 +152,11 @@ class DisplayListener : Service() {
             mDisplayListener, Handler(Looper.getMainLooper())
         )
 
+        val coordinator = floatView.findViewById<CoordinatorLayout>(R.id.coordinator)
+        val mKeyboardView = getKeyboard(coordinator, this)
+
         val menu = floatView.findViewById<LinearLayout>(R.id.button_layout)
-        val menuScreenshot = menu.findViewById<ImageView>(R.id.button_screenshot)
+        val menuKeys = menu.findViewById<ImageView>(R.id.button_input)
         val menuLogo = menu.findViewById<VerticalStrokeTextView>(R.id.samsprung_logo)
         val menuRecent = menu.findViewById<ImageView>(R.id.button_recent)
         val menuHome = menu.findViewById<ImageView>(R.id.button_home)
@@ -168,11 +175,13 @@ class DisplayListener : Service() {
                     }
                     menuLogo.setTextColor(color)
                     if (hasAccessibility()) {
-                        menuScreenshot.setOnClickListener {
-                            AccessibilityObserver.executeScreenshot()
+                        menuKeys.visibility = View.VISIBLE
+                        menuKeys.setOnClickListener {
+                            bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
+                            coordinator.addView(mKeyboardView, 0)
                         }
                     } else {
-                        menuScreenshot.visibility = View.GONE
+                        menuKeys.visibility = View.GONE
                     }
                     menuLogo.setOnClickListener {
                         bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
@@ -226,6 +235,22 @@ class DisplayListener : Service() {
         (displayContext.getSystemService(WINDOW_SERVICE)
                 as WindowManager).addView(floatView, params)
         return START_STICKY
+    }
+
+    @SuppressLint("InflateParams")
+    @Suppress("DEPRECATION")
+    private fun getKeyboard (parent: CoordinatorLayout, displayContext: Context) : KeyboardView {
+        val isScaled = SamSprung.mPrefs.get()!!.getBoolean(SamSprung.prefScaled, false)
+        val keyboardLayout = if (isScaled)
+            R.xml.keyboard_qwerty_scaled else R.xml.keyboard_qwerty
+        val mKeyboard = Keyboard(applicationContext, keyboardLayout)
+        val mKeyboardView = LayoutInflater.from(displayContext)
+            .inflate(R.layout.keyboard_view, null) as KeyboardView
+        mKeyboardView.isPreviewEnabled = false
+        mKeyboardView.keyboard = mKeyboard
+        SamSprungInput.setKeyboard(mKeyboard, mKeyboardView, parent)
+        AccessibilityObserver.enableKeyboard(applicationContext)
+        return mKeyboardView
     }
 
     private fun restoreActivityDisplay(launchPackage: String, launchActivity: String?, display: Int) {
@@ -293,6 +318,7 @@ class DisplayListener : Service() {
         @Suppress("DEPRECATION")
         mKeyguardLock: KeyguardManager.KeyguardLock
     ) {
+        if (hasAccessibility()) AccessibilityObserver.disableKeyboard()
         if (this::floatView.isInitialized && floatView.isAttachedToWindow)
             (buildDisplayContext(1).getSystemService(WINDOW_SERVICE)
                     as WindowManager).removeView(floatView)

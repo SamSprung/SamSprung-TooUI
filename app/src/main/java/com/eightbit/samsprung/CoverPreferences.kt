@@ -107,6 +107,7 @@ class CoverPreferences : AppCompatActivity() {
 
     private lateinit var mainSwitch: SwitchCompat
     private lateinit var permissionList: LinearLayout
+    private lateinit var keyboard: AppCompatButton
     private lateinit var accessibility: SwitchCompat
     private lateinit var notifications: SwitchCompat
     private lateinit var settings: SwitchCompat
@@ -152,6 +153,13 @@ class CoverPreferences : AppCompatActivity() {
                 apply()
             }
         }
+
+        keyboard = findViewById(R.id.keyboard_button)
+        keyboard.setOnClickListener {
+            startActivity(Intent(Settings.ACTION_INPUT_METHOD_SETTINGS)
+                .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
+        }
+        keyboard.visibility = if (hasAccessibility()) View.VISIBLE else View.GONE
 
         accessibility = findViewById(R.id.accessibility_switch)
         accessibility.isChecked = hasAccessibility()
@@ -415,6 +423,7 @@ class CoverPreferences : AppCompatActivity() {
         ActivityResultContracts.StartActivityForResult()) {
         if (this::accessibility.isInitialized)
             accessibility.isChecked = hasAccessibility()
+         keyboard.visibility = if (hasAccessibility()) View.VISIBLE else View.GONE
     }
 
     private val overlayLauncher = registerForActivityResult(

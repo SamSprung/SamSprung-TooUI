@@ -54,7 +54,11 @@ package com.eightbit.samsprung
 import android.accessibilityservice.AccessibilityService
 import android.accessibilityservice.AccessibilityServiceInfo
 import android.app.Notification
+import android.content.Context
+import android.provider.Settings
 import android.view.accessibility.AccessibilityEvent
+import android.view.inputmethod.InputMethodInfo
+import android.view.inputmethod.InputMethodManager
 
 class AccessibilityObserver : AccessibilityService() {
 
@@ -67,8 +71,23 @@ class AccessibilityObserver : AccessibilityService() {
         fun executeButtonBack() {
             observerInstance.performGlobalAction(GLOBAL_ACTION_BACK)
         }
-        fun executeScreenshot() {
-            observerInstance.performGlobalAction(GLOBAL_ACTION_TAKE_SCREENSHOT)
+        private lateinit var inputMethod: String
+        fun enableKeyboard(context: Context) {
+            inputMethod = Settings.Secure.getString(context.contentResolver,
+                Settings.Secure.DEFAULT_INPUT_METHOD)
+            val mInputMethodProperties = (context.getSystemService(INPUT_METHOD_SERVICE)
+                    as InputMethodManager).enabledInputMethodList
+            for (i in 0 until mInputMethodProperties.size) {
+                val imi = mInputMethodProperties[i]
+                if (imi.id.contains(BuildConfig.APPLICATION_ID)) {
+                    observerInstance.softKeyboardController.switchToInputMethod(imi.id)
+                }
+            }
+        }
+        @JvmStatic
+        fun disableKeyboard() {
+            if (this::inputMethod.isInitialized)
+                observerInstance.softKeyboardController.switchToInputMethod(inputMethod)
         }
     }
 

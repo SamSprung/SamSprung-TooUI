@@ -1,6 +1,8 @@
 <resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="MissingTranslation">
     <string name="samsprung">SamSprung</string>
 
+    <string name="samsprung_ime">SamSprung Keyboard</string>
+
     <string name="caveats_title">Incompatibility Detected!</string>
     <string name="caveats_warning">Lock screen must be bypassed to launch apps. This requires using an insecure method, fingerprint button, or Bixby.</string>
 
@@ -9,6 +11,7 @@
 
     <string name="permission_options">Permissions</string>
     <string name="permission_accessibility">Accessibility</string>
+    <string name="permission_keyboard">Enable Keyboard</string>
     <string name="permission_notifications">Notifications</string>
     <string name="permission_settings">Write Settings</string>
 

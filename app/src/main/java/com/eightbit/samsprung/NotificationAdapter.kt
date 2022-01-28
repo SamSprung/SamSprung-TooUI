@@ -148,18 +148,14 @@ class NotificationAdapter(
         if (null != notification.extras
             && null != notification.extras.getCharSequenceArray(
                 NotificationCompat.EXTRA_TEXT_LINES)) {
-            notice.setString(
-                Arrays.toString(
-                    notification.extras.getCharSequenceArray(
-                        NotificationCompat.EXTRA_TEXT_LINES)
-                ))
+            notice.setString(Arrays.toString(
+                notification.extras.getCharSequenceArray(
+                    NotificationCompat.EXTRA_TEXT_LINES)
+            ))
         } else if (null != notification.extras && null != notification.extras
-                .getCharSequenceArray(NotificationCompat.EXTRA_TEXT)) {
-            notice.setString(
-                Arrays.toString(
-                    notification.extras.getCharSequenceArray(
-                        NotificationCompat.EXTRA_TEXT)
-                ))
+                .getCharSequence(NotificationCompat.EXTRA_TEXT)) {
+            notice.setString(notification.extras.getCharSequence(
+                    NotificationCompat.EXTRA_TEXT).toString())
         } else if (null != notification.tickerText) {
             notice.setString(notification.tickerText.toString())
         }
@@ -171,23 +167,20 @@ class NotificationAdapter(
     private fun updateNotice(notice: SamSprungNotice, notification: Notification) : SamSprungNotice {
         if (null != notification.extras && null != notification.extras
                 .getCharSequenceArray(NotificationCompat.EXTRA_TEXT_LINES)) {
-            notice.setString(
-                Arrays.toString(
-                    notification.extras.getCharSequenceArray(
-                        NotificationCompat.EXTRA_TEXT_LINES)
-                ))
+            notice.setString(Arrays.toString(
+                notification.extras.getCharSequenceArray(
+                    NotificationCompat.EXTRA_TEXT_LINES)
+            ))
         } else if (null != notification.extras && null != notification.extras
-                .getCharSequenceArray(NotificationCompat.EXTRA_TEXT)) {
-            notice.setString(
-                Arrays.toString(
-                    notification.extras.getCharSequenceArray(
-                        NotificationCompat.EXTRA_TEXT)
-                ))
+                .getCharSequence(NotificationCompat.EXTRA_TEXT)) {
+            notice.setString(notification.extras.getCharSequence(
+                NotificationCompat.EXTRA_TEXT).toString())
         } else if (null != notification.tickerText) {
             notice.setString(notification.tickerText.toString())
         }
         return notice
     }
+
 
     @SuppressLint("NotifyDataSetChanged")
     private fun refreshStatusBarNotifications() {

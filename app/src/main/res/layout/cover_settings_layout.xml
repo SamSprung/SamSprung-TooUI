@@ -84,6 +84,12 @@
 
                 </LinearLayout>
 
+                <androidx.appcompat.widget.AppCompatButton
+                    android:id="@+id/keyboard_button"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/permission_keyboard" />
+
                 <LinearLayout
                     android:id="@+id/notifications"
                     android:layout_width="match_parent"

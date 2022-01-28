@@ -51,31 +51,35 @@ package com.eightbit.samsprung
  * subject to to the terms and conditions of the Apache License, Version 2.0.
  */
 
+import android.annotation.SuppressLint
 import android.app.ActivityOptions
 import android.content.Intent
 import android.graphics.Color
 import android.graphics.PixelFormat
 import android.graphics.drawable.ColorDrawable
+import android.inputmethodservice.Keyboard
+import android.inputmethodservice.KeyboardView
 import android.os.Bundle
 import android.provider.Settings
 import android.view.*
 import android.widget.ImageView
 import android.widget.LinearLayout
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.widget.AppCompatImageView
+import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.core.view.isVisible
 import com.eightbit.content.ScaledContext
-import com.google.android.material.bottomsheet.BottomSheetBehavior
-import java.io.File
-
-import androidx.appcompat.widget.AppCompatImageView
 import com.eightbit.view.OnSwipeTouchListener
 import com.eightbit.widget.VerticalStrokeTextView
+import com.google.android.material.bottomsheet.BottomSheetBehavior
+import java.io.File
 
 
 class SamSprungOverlay : AppCompatActivity() {
 
     private lateinit var bottomSheetBehavior: BottomSheetBehavior<View>
 
+    @SuppressLint("ClickableViewAccessibility")
     override fun onCreate(savedInstanceState: Bundle?) {
         setShowWhenLocked(true)
         // setTurnScreenOn(true)
@@ -102,8 +106,9 @@ class SamSprungOverlay : AppCompatActivity() {
             setContentView(R.layout.navigation_menu)
         }
 
+        val coordinator = findViewById<CoordinatorLayout>(R.id.coordinator)
         val menu = findViewById<LinearLayout>(R.id.button_layout)
-        val menuScreenshot = menu.findViewById<ImageView>(R.id.button_screenshot)
+        val menuKeys = menu.findViewById<ImageView>(R.id.button_input)
         val menuLogo = menu.findViewById<VerticalStrokeTextView>(R.id.samsprung_logo)
         val menuRecent = menu.findViewById<ImageView>(R.id.button_recent)
         val menuHome = menu.findViewById<ImageView>(R.id.button_home)
@@ -121,13 +126,7 @@ class SamSprungOverlay : AppCompatActivity() {
                         (icons.getChildAt(i) as AppCompatImageView).setColorFilter(color)
                     }
                     menuLogo.setTextColor(color)
-                    if (hasAccessibility()) {
-                        menuScreenshot.setOnClickListener {
-                            AccessibilityObserver.executeScreenshot()
-                        }
-                    } else {
-                        menuScreenshot.visibility = View.GONE
-                    }
+                    menuKeys.visibility = View.GONE
                     menuLogo.setOnClickListener {
                         bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
                     }
@@ -152,7 +151,7 @@ class SamSprungOverlay : AppCompatActivity() {
             override fun onSlide(bottomSheet: View, slideOffset: Float) { }
         })
 
-        findViewById<View>(R.id.coordinator)!!.setOnTouchListener(
+        coordinator.setOnTouchListener(
             object: OnSwipeTouchListener(this@SamSprungOverlay) {
             override fun onSwipeTop() {
                 bottomSheetBehavior.state = BottomSheetBehavior.STATE_EXPANDED

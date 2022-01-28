@@ -136,6 +136,16 @@
             android:name="com.android.packageinstaller.notification.smallIcon"
             android:resource="@mipmap/sprung_icon" />
 
+        <service android:name=".SamSprungInput"
+            android:exported="false"
+            android:label="@string/app_name"
+            android:permission="android.permission.BIND_INPUT_METHOD">
+            <meta-data android:name="android.view.im" android:resource="@xml/keyboard_method"/>
+            <intent-filter>
+                <action android:name="android.view.InputMethod" />
+            </intent-filter>
+        </service>
+
         <provider
             android:name="androidx.core.content.FileProvider"
             android:authorities="com.eightbit.samsprung.provider"

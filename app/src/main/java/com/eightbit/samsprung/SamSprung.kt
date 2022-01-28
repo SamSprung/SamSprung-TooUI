@@ -97,7 +97,7 @@ class SamSprung : Application() {
         const val services: String = "com.eightbit.samsprung.SERVICES"
         const val request_code = 8675309
         var isKeyguardLocked: Boolean = true
-        private lateinit var mPrefs: SoftReference<SharedPreferences>
+        lateinit var mPrefs: SoftReference<SharedPreferences>
         val prefs: SharedPreferences get() = mPrefs.get()!!
         const val prefLayout: String = "prefLayout"
         const val prefHidden: String = "prefHidden"
