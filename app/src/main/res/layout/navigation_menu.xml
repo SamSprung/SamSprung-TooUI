@@ -13,7 +13,7 @@
         android:layout_height="wrap_content"
         android:background="@android:color/transparent"
         android:orientation="vertical"
-        app:behavior_peekHeight="18dp"
+        app:behavior_peekHeight="8dp"
         app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior">
 
         <LinearLayout
@@ -24,7 +24,7 @@
 
             <View
                 android:layout_width="wrap_content"
-                android:layout_height="18dp" />
+                android:layout_height="8dp" />
         </LinearLayout>
 
         <LinearLayout
@@ -57,8 +57,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:background="@color/bottomSheetTint"
-                android:paddingTop="8dp"
-                android:paddingBottom="8dp"
+                android:paddingTop="6dp"
+                android:paddingBottom="6dp"
                 android:gravity="center"
                 android:orientation="horizontal">
 

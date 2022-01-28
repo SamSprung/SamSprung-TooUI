@@ -9,11 +9,13 @@ import android.view.inputmethod.InputConnection;
 
 import androidx.coordinatorlayout.widget.CoordinatorLayout;
 
+import java.lang.ref.SoftReference;
+
 @SuppressWarnings("deprecation")
 public class SamSprungInput extends InputMethodService
         implements KeyboardView.OnKeyboardActionListener {
 
-    private static KeyboardView mKeyboardView;
+    private static SoftReference<KeyboardView> mKeyboardView;
     private static Keyboard mKeyboard;
     private static CoordinatorLayout parent;
 
@@ -26,7 +28,7 @@ public class SamSprungInput extends InputMethodService
 
     @Override
     public void onInitializeInterface() {
-        mKeyboardView.setOnKeyboardActionListener(this);
+        mKeyboardView.get().setOnKeyboardActionListener(this);
         super.onInitializeInterface();
     }
 
@@ -37,13 +39,12 @@ public class SamSprungInput extends InputMethodService
 
     public static void setKeyboard(Keyboard keyboard, KeyboardView keyBoardView, CoordinatorLayout coordinator) {
         mKeyboard = keyboard;
-        mKeyboardView = keyBoardView;
+        mKeyboardView = new SoftReference<>(keyBoardView);
         parent = coordinator;
     }
 
     @Override
     public View onCreateInputView() {
-        // mKeyboardView.setOnKeyboardActionListener(this);
         return null;
     }
 
@@ -57,11 +58,11 @@ public class SamSprungInput extends InputMethodService
             case Keyboard.KEYCODE_SHIFT:
                 caps = !caps;
                 mKeyboard.setShifted(caps);
-                mKeyboardView.invalidateAllKeys();
+                mKeyboardView.get().invalidateAllKeys();
                 break;
             case Keyboard.KEYCODE_DONE:
                 ic.sendKeyEvent(new KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_ENTER));
-                parent.removeView(mKeyboardView);
+                parent.removeView(mKeyboardView.get());
                 break;
             default:
                 char code = (char)primaryCode;
@@ -86,12 +87,12 @@ public class SamSprungInput extends InputMethodService
 
     @Override
     public void swipeLeft() {
-        parent.removeView(mKeyboardView);
+        parent.removeView(mKeyboardView.get());
     }
 
     @Override
     public void swipeRight() {
-        parent.removeView(mKeyboardView);
+        parent.removeView(mKeyboardView.get());
     }
 
     @Override

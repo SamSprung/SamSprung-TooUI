@@ -104,12 +104,8 @@ class SamSprungDrawer : AppCompatActivity(),
 
         super.onCreate(savedInstanceState)
         supportActionBar?.hide()
-        if (SamSprung.prefs.getBoolean(SamSprung.prefScaled, false)) {
-            ScaledContext.wrap(this).setTheme(R.style.Theme_SecondScreen_NoActionBar)
-            setContentView(R.layout.drawer_layout_scaled)
-        } else {
-            setContentView(R.layout.drawer_layout)
-        }
+        ScaledContext.wrap(this).setTheme(R.style.Theme_SecondScreen_NoActionBar)
+        setContentView(R.layout.drawer_layout)
 
         oReceiver = object : BroadcastReceiver() {
             @SuppressLint("NotifyDataSetChanged")

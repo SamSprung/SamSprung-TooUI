@@ -117,9 +117,7 @@ class DisplayListener : Service() {
 
         showForegroundNotification(startId)
 
-        var displayContext = buildDisplayContext(1)
-        if (SamSprung.prefs.getBoolean(SamSprung.prefScaled, false))
-            displayContext = ScaledContext.wrap(displayContext)
+        var displayContext = ScaledContext.wrap(buildDisplayContext(1))
         floatView = LayoutInflater.from(displayContext).inflate(R.layout.navigation_menu, null)
         val params = WindowManager.LayoutParams(
             WindowManager.LayoutParams.MATCH_PARENT,
@@ -153,7 +151,8 @@ class DisplayListener : Service() {
         )
 
         val coordinator = floatView.findViewById<CoordinatorLayout>(R.id.coordinator)
-        val mKeyboardView = getKeyboard(coordinator, this)
+        val mKeyboardView = if (hasAccessibility())
+            getKeyboard(coordinator, this) else null
 
         val menu = floatView.findViewById<LinearLayout>(R.id.button_layout)
         val menuKeys = menu.findViewById<ImageView>(R.id.button_input)
@@ -178,7 +177,8 @@ class DisplayListener : Service() {
                         menuKeys.visibility = View.VISIBLE
                         menuKeys.setOnClickListener {
                             bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
-                            coordinator.addView(mKeyboardView, 0)
+                            if (!mKeyboardView!!.isShown)
+                                coordinator.addView(mKeyboardView, 0)
                         }
                     } else {
                         menuKeys.visibility = View.GONE
@@ -240,10 +240,7 @@ class DisplayListener : Service() {
     @SuppressLint("InflateParams")
     @Suppress("DEPRECATION")
     private fun getKeyboard (parent: CoordinatorLayout, displayContext: Context) : KeyboardView {
-        val isScaled = SamSprung.mPrefs.get()!!.getBoolean(SamSprung.prefScaled, false)
-        val keyboardLayout = if (isScaled)
-            R.xml.keyboard_qwerty_scaled else R.xml.keyboard_qwerty
-        val mKeyboard = Keyboard(applicationContext, keyboardLayout)
+        val mKeyboard = Keyboard(applicationContext, R.xml.keyboard_qwerty)
         val mKeyboardView = LayoutInflater.from(displayContext)
             .inflate(R.layout.keyboard_view, null) as KeyboardView
         mKeyboardView.isPreviewEnabled = false

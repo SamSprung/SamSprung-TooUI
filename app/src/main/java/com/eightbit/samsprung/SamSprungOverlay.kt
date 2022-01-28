@@ -57,8 +57,6 @@ import android.content.Intent
 import android.graphics.Color
 import android.graphics.PixelFormat
 import android.graphics.drawable.ColorDrawable
-import android.inputmethodservice.Keyboard
-import android.inputmethodservice.KeyboardView
 import android.os.Bundle
 import android.provider.Settings
 import android.view.*
@@ -99,12 +97,8 @@ class SamSprungOverlay : AppCompatActivity() {
         wlp.gravity = Gravity.BOTTOM
         window.attributes = wlp
         window.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
-        if (SamSprung.prefs.getBoolean(SamSprung.prefScaled, false)) {
-            ScaledContext.wrap(this).setTheme(R.style.Theme_SecondScreen_NoActionBar)
-            setContentView(R.layout.navigation_menu_scaled)
-        } else {
-            setContentView(R.layout.navigation_menu)
-        }
+        ScaledContext.wrap(this).setTheme(R.style.Theme_SecondScreen_NoActionBar)
+        setContentView(R.layout.navigation_menu)
 
         val coordinator = findViewById<CoordinatorLayout>(R.id.coordinator)
         val menu = findViewById<LinearLayout>(R.id.button_layout)

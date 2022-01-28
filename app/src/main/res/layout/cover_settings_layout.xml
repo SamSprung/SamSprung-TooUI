@@ -151,9 +151,7 @@
                         android:textColor="?android:textColorPrimary"
                         android:layout_gravity="center_vertical"
                         android:layout_height="wrap_content" />
-
                 </LinearLayout>
-
             </LinearLayout>
 
             <View
@@ -173,44 +171,14 @@
                 android:layout_marginStart="2dp"
                 android:layout_marginEnd="2dp"/>
 
-            <LinearLayout
-                android:id="@+id/scaling"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:layout_marginStart="10dp"
-                android:layout_marginEnd="4dp"
-                android:layout_gravity="center_vertical"
-                tools:ignore="UseCompoundDrawables">
-
-                <TextView
-                    android:layout_width="0dp"
-                    android:layout_weight="1"
-                    android:textSize="20sp"
-                    android:textColor="?android:textColorPrimary"
-                    android:gravity="center_vertical"
-                    android:layout_gravity="center_vertical"
-                    android:layout_height="wrap_content"
-                    android:text="@string/scaling_mode" />
-
-                <androidx.appcompat.widget.SwitchCompat
-                    android:id="@+id/scaling_switch"
-                    android:layout_width="0dp"
-                    android:gravity="center"
-                    android:layout_weight="1"
-                    android:textSize="28sp"
-                    android:textColor="?android:textColorPrimary"
-                    android:layout_gravity="center_vertical"
-                    android:layout_height="wrap_content" />
-            </LinearLayout>
-
             <View
                 android:id="@+id/color_composite"
                 android:layout_width="match_parent"
+                android:layout_height="6dp"
+                android:layout_marginTop="12dp"
                 android:layout_marginBottom="8dp"
-                android:layout_marginStart="10dp"
-                android:layout_marginEnd="10dp"
-                android:layout_height="6dp" />
+                android:layout_marginStart="8dp"
+                android:layout_marginEnd="10dp" />
 
             <TextView
                 android:id="@+id/color_red_text"

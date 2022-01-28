@@ -144,9 +144,7 @@ class DrawerAdapater(
         packageManager: PackageManager
     ) : AppViewHolder(
         LayoutInflater.from(parent.context).inflate(
-            if (SamSprung.prefs.getBoolean(SamSprung.prefScaled, false))
-                R.layout.drawer_apps_card_scaled else R.layout.drawer_apps_card,
-            parent, false
+            R.layout.drawer_apps_card, parent, false
         ), listener, packageManager
     )
 
@@ -156,9 +154,7 @@ class DrawerAdapater(
         packageManager: PackageManager
     ) : AppViewHolder(
         LayoutInflater.from(parent.context).inflate(
-            if (SamSprung.prefs.getBoolean(SamSprung.prefScaled, false))
-                R.layout.drawer_apps_icon_scaled else R.layout.drawer_apps_icon,
-            parent, false
+            R.layout.drawer_apps_icon, parent, false
         ), listener, packageManager
     )
 
