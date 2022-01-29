@@ -578,6 +578,7 @@ class SamSprungDrawer : AppCompatActivity(),
 
     override fun onNewIntent(intent: Intent?) {
         super.onNewIntent(intent)
+        CheckUpdatesTask(this)
         if (!this::noticesView.isInitialized) return
         if (hasNotificationListener()) {
             NotificationObserver.getObserver()?.setNotificationsChangedListener(

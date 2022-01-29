@@ -51,13 +51,18 @@ package com.eightbit.samsprung
  * subject to to the terms and conditions of the Apache License, Version 2.0.
  */
 
-import android.app.PendingIntent
+import android.app.*
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageInstaller
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.net.Uri
 import android.os.Build
 import android.provider.Settings
+import androidx.appcompat.app.AppCompatActivity
+import androidx.core.app.NotificationCompat
+import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
 import androidx.documentfile.provider.DocumentFile
 import kotlinx.coroutines.CoroutineScope
@@ -73,9 +78,23 @@ import java.net.URL
 import java.util.*
 import java.util.concurrent.Executors
 
-class CheckUpdatesTask(private var activity: CoverPreferences) {
+class CheckUpdatesTask {
+
+    private lateinit var activity: Activity
+
+    constructor(activity: CoverPreferences) {
+        this.activity = activity
+    }
+
+    constructor(activity: SamSprungDrawer) {
+        this.activity = activity
+    }
 
     init {
+        try {
+            (activity.getSystemService(AppCompatActivity.NOTIFICATION_SERVICE)
+                    as NotificationManager).cancel(SamSprung.request_code)
+        } catch (ignored: Exception) { }
         Executors.newSingleThreadExecutor().execute {
             val files: Array<File>? = activity.filesDir.listFiles { _, name ->
                 name.lowercase(Locale.getDefault()).endsWith(".apk")
@@ -87,11 +106,17 @@ class CheckUpdatesTask(private var activity: CoverPreferences) {
             }
         }
         if (BuildConfig.FLAVOR != "google") {
-            if (activity.packageManager.canRequestPackageInstalls()) {
-                retrieveUpdate()
-            } else {
-                activity.updateLauncher.launch(Intent(Settings.ACTION_MANAGE_UNKNOWN_APP_SOURCES)
-                    .setData(Uri.parse(String.format("package:%s", activity.packageName))))
+            if (activity is CoverPreferences) {
+                if (activity.packageManager.canRequestPackageInstalls()) {
+                    retrieveUpdate()
+                } else {
+                    (activity as CoverPreferences).updateLauncher
+                        .launch(Intent(Settings.ACTION_MANAGE_UNKNOWN_APP_SOURCES)
+                            .setData(Uri.parse(String.format("package:%s", activity.packageName))))
+                }
+            } else if (activity is SamSprungDrawer) {
+                if (activity.packageManager.canRequestPackageInstalls())
+                    retrieveUpdate()
             }
         }
     }
@@ -104,7 +129,8 @@ class CheckUpdatesTask(private var activity: CoverPreferences) {
             installer.abandonSession(session.sessionId)
         }
         resolver.openInputStream(apkUri)?.use { apkStream ->
-            val length = DocumentFile.fromSingleUri(activity.applicationContext, apkUri)?.length() ?: -1
+            val length = DocumentFile.fromSingleUri(
+                activity.applicationContext, apkUri)?.length() ?: -1
             val params = PackageInstaller.SessionParams(
                 PackageInstaller.SessionParams.MODE_FULL_INSTALL)
             val sessionId = installer.createSession(params)
@@ -114,8 +140,9 @@ class CheckUpdatesTask(private var activity: CoverPreferences) {
                 session.fsync(sessionStream)
             }
             val pi = PendingIntent.getBroadcast(
-                activity.applicationContext, SamSprung.request_code, Intent(activity.applicationContext,
-                    GitBroadcastReceiver::class.java).setAction(SamSprung.updating),
+                activity.applicationContext, SamSprung.request_code,
+                Intent(activity.applicationContext, GitBroadcastReceiver::class.java)
+                    .setAction(SamSprung.updating),
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S)
                     PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_MUTABLE
                 else PendingIntent.FLAG_UPDATE_CURRENT
@@ -144,6 +171,51 @@ class CheckUpdatesTask(private var activity: CoverPreferences) {
         }
     }
 
+    private fun showUpdateNotification() {
+        var mNotificationManager: NotificationManager? = null
+
+        val pendingIntent = PendingIntent.getActivity(activity, 0,
+            Intent(activity, CoverPreferences::class.java),
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S)
+                PendingIntent.FLAG_ONE_SHOT or PendingIntent.FLAG_MUTABLE
+            else PendingIntent.FLAG_ONE_SHOT)
+        val iconNotification = BitmapFactory.decodeResource(
+            activity.resources, R.drawable.ic_baseline_samsprung_24)
+        if (null == mNotificationManager) {
+            mNotificationManager = activity.getSystemService(
+                Context.NOTIFICATION_SERVICE) as NotificationManager
+        }
+        mNotificationManager.createNotificationChannelGroup(
+            NotificationChannelGroup("services_group", "Services")
+        )
+        val notificationChannel = NotificationChannel("update_channel",
+            "Update Notification", NotificationManager.IMPORTANCE_LOW)
+        notificationChannel.enableLights(false)
+        notificationChannel.lockscreenVisibility = Notification.VISIBILITY_PRIVATE
+        mNotificationManager.createNotificationChannel(notificationChannel)
+        val builder = NotificationCompat.Builder(
+            activity, "update_channel")
+
+        val notificationText = activity.getString(
+            R.string.update_service, activity.getString(R.string.app_name))
+        builder.setContentTitle(notificationText).setTicker(notificationText)
+            .setContentText(activity.getString(R.string.click_update_app))
+            .setSmallIcon(R.drawable.ic_launcher_foreground)
+            .setPriority(NotificationCompat.PRIORITY_LOW)
+            .setWhen(0).setOnlyAlertOnce(true)
+            .setContentIntent(pendingIntent).setOngoing(false)
+        if (null != iconNotification) {
+            builder.setLargeIcon(
+                Bitmap.createScaledBitmap(
+                    iconNotification, 128, 128, false))
+        }
+        builder.color = ContextCompat.getColor(activity, R.color.secondary_light)
+
+        val notification: Notification = builder.build()
+        notification.flags = notification.flags or Notification.FLAG_AUTO_CANCEL
+        mNotificationManager.notify(SamSprung.request_code, notification)
+    }
+
     fun retrieveUpdate() {
         RequestGitHubAPI(activity.getString(R.string.latest_url)).setResultListener(
             object : RequestGitHubAPI.ResultListener {
@@ -152,8 +224,12 @@ class CheckUpdatesTask(private var activity: CoverPreferences) {
                     val jsonObject = JSONTokener(result).nextValue() as JSONObject
                     val lastCommit = (jsonObject["name"] as String).substring(10)
                     if (BuildConfig.COMMIT != lastCommit) {
-                        val assets = (jsonObject["assets"] as JSONArray)[0] as JSONObject
-                        downloadUpdate(assets["browser_download_url"] as String)
+                        if (activity is CoverPreferences) {
+                            val assets = (jsonObject["assets"] as JSONArray)[0] as JSONObject
+                            downloadUpdate(assets["browser_download_url"] as String)
+                        } else if (activity is SamSprungDrawer) {
+                            showUpdateNotification()
+                        }
                     }
                 } catch (e: Exception) {
                     e.printStackTrace()
