@@ -57,6 +57,7 @@ import android.content.Intent
 import android.content.pm.PackageInstaller
 import android.net.Uri
 import android.os.Build
+import android.provider.Settings
 import androidx.core.content.FileProvider
 import androidx.documentfile.provider.DocumentFile
 import kotlinx.coroutines.CoroutineScope
@@ -72,11 +73,11 @@ import java.net.URL
 import java.util.*
 import java.util.concurrent.Executors
 
-class CheckUpdatesTask(private var context: Context) {
+class CheckUpdatesTask(private var activity: CoverPreferences) {
 
     init {
         Executors.newSingleThreadExecutor().execute {
-            val files: Array<File>? = context.filesDir.listFiles { _, name ->
+            val files: Array<File>? = activity.filesDir.listFiles { _, name ->
                 name.lowercase(Locale.getDefault()).endsWith(".apk")
             }
             if (null != files) {
@@ -85,17 +86,25 @@ class CheckUpdatesTask(private var context: Context) {
                 }
             }
         }
+        if (BuildConfig.FLAVOR != "google") {
+            if (activity.packageManager.canRequestPackageInstalls()) {
+                retrieveUpdate()
+            } else {
+                activity.updateLauncher.launch(Intent(Settings.ACTION_MANAGE_UNKNOWN_APP_SOURCES)
+                    .setData(Uri.parse(String.format("package:%s", activity.packageName))))
+            }
+        }
     }
 
     @Suppress("BlockingMethodInNonBlockingContext")
     private suspend fun installUpdate(apkUri: Uri) = withContext(Dispatchers.IO) {
-        val installer = context.applicationContext.packageManager.packageInstaller
-        val resolver = context.applicationContext.contentResolver
+        val installer = activity.applicationContext.packageManager.packageInstaller
+        val resolver = activity.applicationContext.contentResolver
         for (session: PackageInstaller.SessionInfo in installer.mySessions) {
             installer.abandonSession(session.sessionId)
         }
         resolver.openInputStream(apkUri)?.use { apkStream ->
-            val length = DocumentFile.fromSingleUri(context.applicationContext, apkUri)?.length() ?: -1
+            val length = DocumentFile.fromSingleUri(activity.applicationContext, apkUri)?.length() ?: -1
             val params = PackageInstaller.SessionParams(
                 PackageInstaller.SessionParams.MODE_FULL_INSTALL)
             val sessionId = installer.createSession(params)
@@ -105,7 +114,7 @@ class CheckUpdatesTask(private var context: Context) {
                 session.fsync(sessionStream)
             }
             val pi = PendingIntent.getBroadcast(
-                context.applicationContext, SamSprung.request_code, Intent(context.applicationContext,
+                activity.applicationContext, SamSprung.request_code, Intent(activity.applicationContext,
                     GitBroadcastReceiver::class.java).setAction(SamSprung.updating),
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S)
                     PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_MUTABLE
@@ -119,7 +128,7 @@ class CheckUpdatesTask(private var context: Context) {
     private fun downloadUpdate(link: String) {
         val download: String = link.substring(
             link.lastIndexOf(File.separator) + 1)
-        val apk = File(context.filesDir, download)
+        val apk = File(activity.filesDir, download)
         CoroutineScope(Dispatchers.IO).launch(Dispatchers.IO) {
             URL(link).openStream().use { input ->
                 FileOutputStream(apk).use { output ->
@@ -127,7 +136,7 @@ class CheckUpdatesTask(private var context: Context) {
                     CoroutineScope(Dispatchers.Main).launch(Dispatchers.Main) {
                         installUpdate(
                             FileProvider.getUriForFile(
-                                context.applicationContext, SamSprung.provider, apk
+                                activity.applicationContext, SamSprung.provider, apk
                             ))
                     }
                 }
@@ -136,7 +145,7 @@ class CheckUpdatesTask(private var context: Context) {
     }
 
     fun retrieveUpdate() {
-        RequestGitHubAPI(context.getString(R.string.latest_url)).setResultListener(
+        RequestGitHubAPI(activity.getString(R.string.latest_url)).setResultListener(
             object : RequestGitHubAPI.ResultListener {
             override fun onResults(result: String) {
                 try {
