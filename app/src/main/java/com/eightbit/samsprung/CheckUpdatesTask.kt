@@ -80,17 +80,41 @@ import java.util.concurrent.Executors
 
 class CheckUpdatesTask {
 
-    private lateinit var activity: Activity
+    private var activity: Activity
 
     constructor(activity: CoverPreferences) {
         this.activity = activity
+        Executors.newSingleThreadExecutor().execute {
+            val files: Array<File>? = activity.filesDir.listFiles { _, name ->
+                name.lowercase(Locale.getDefault()).endsWith(".apk")
+            }
+            if (null != files) {
+                for (file in files) {
+                    if (!file.isDirectory) file.delete()
+                }
+            }
+        }
+        if (BuildConfig.FLAVOR != "google") {
+            clearPastUpdates()
+            if (activity.packageManager.canRequestPackageInstalls()) {
+                retrieveUpdate()
+            } else {
+                activity.updateLauncher.launch(Intent(Settings.ACTION_MANAGE_UNKNOWN_APP_SOURCES)
+                    .setData(Uri.parse(String.format("package:%s", activity.packageName))))
+            }
+        }
     }
 
     constructor(activity: SamSprungDrawer) {
         this.activity = activity
+        if (BuildConfig.FLAVOR != "google") {
+            clearPastUpdates()
+            if (activity.packageManager.canRequestPackageInstalls())
+                retrieveUpdate()
+        }
     }
 
-    init {
+    private fun clearPastUpdates() {
         try {
             (activity.getSystemService(AppCompatActivity.NOTIFICATION_SERVICE)
                     as NotificationManager).cancel(SamSprung.request_code)
@@ -103,20 +127,6 @@ class CheckUpdatesTask {
                 for (file in files) {
                     if (!file.isDirectory) file.delete()
                 }
-            }
-        }
-        if (BuildConfig.FLAVOR != "google") {
-            if (activity is CoverPreferences) {
-                if (activity.packageManager.canRequestPackageInstalls()) {
-                    retrieveUpdate()
-                } else {
-                    (activity as CoverPreferences).updateLauncher
-                        .launch(Intent(Settings.ACTION_MANAGE_UNKNOWN_APP_SOURCES)
-                            .setData(Uri.parse(String.format("package:%s", activity.packageName))))
-                }
-            } else if (activity is SamSprungDrawer) {
-                if (activity.packageManager.canRequestPackageInstalls())
-                    retrieveUpdate()
             }
         }
     }
