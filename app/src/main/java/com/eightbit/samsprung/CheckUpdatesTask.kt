@@ -91,6 +91,9 @@ class CheckUpdatesTask(private var context: Context) {
     private suspend fun installUpdate(apkUri: Uri) = withContext(Dispatchers.IO) {
         val installer = context.applicationContext.packageManager.packageInstaller
         val resolver = context.applicationContext.contentResolver
+        for (session: PackageInstaller.SessionInfo in installer.mySessions) {
+            installer.abandonSession(session.sessionId)
+        }
         resolver.openInputStream(apkUri)?.use { apkStream ->
             val length = DocumentFile.fromSingleUri(context.applicationContext, apkUri)?.length() ?: -1
             val params = PackageInstaller.SessionParams(
