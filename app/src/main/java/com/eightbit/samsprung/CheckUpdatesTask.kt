@@ -78,55 +78,34 @@ import java.net.URL
 import java.util.*
 import java.util.concurrent.Executors
 
-class CheckUpdatesTask {
+class CheckUpdatesTask(private var activity: Activity) {
 
-    private var activity: Activity
-
-    constructor(activity: CoverPreferences) {
-        this.activity = activity
-        Executors.newSingleThreadExecutor().execute {
-            val files: Array<File>? = activity.filesDir.listFiles { _, name ->
-                name.lowercase(Locale.getDefault()).endsWith(".apk")
+    init {
+        if (BuildConfig.FLAVOR != "google") {
+            val installer = activity.applicationContext.packageManager.packageInstaller
+            for (session: PackageInstaller.SessionInfo in installer.mySessions) {
+                installer.abandonSession(session.sessionId)
             }
-            if (null != files) {
-                for (file in files) {
-                    if (!file.isDirectory) file.delete()
+            try {
+                (activity.getSystemService(AppCompatActivity.NOTIFICATION_SERVICE)
+                        as NotificationManager).cancel(SamSprung.request_code)
+            } catch (ignored: Exception) { }
+            Executors.newSingleThreadExecutor().execute {
+                val files: Array<File>? = activity.filesDir.listFiles { _, name ->
+                    name.lowercase(Locale.getDefault()).endsWith(".apk")
+                }
+                if (null != files) {
+                    for (file in files) {
+                        if (!file.isDirectory) file.delete()
+                    }
                 }
             }
-        }
-        if (BuildConfig.FLAVOR != "google") {
-            clearPastUpdates()
             if (activity.packageManager.canRequestPackageInstalls()) {
                 retrieveUpdate()
-            } else {
-                activity.updateLauncher.launch(Intent(Settings.ACTION_MANAGE_UNKNOWN_APP_SOURCES)
-                    .setData(Uri.parse(String.format("package:%s", activity.packageName))))
-            }
-        }
-    }
-
-    constructor(activity: SamSprungDrawer) {
-        this.activity = activity
-        if (BuildConfig.FLAVOR != "google") {
-            clearPastUpdates()
-            if (activity.packageManager.canRequestPackageInstalls())
-                retrieveUpdate()
-        }
-    }
-
-    private fun clearPastUpdates() {
-        try {
-            (activity.getSystemService(AppCompatActivity.NOTIFICATION_SERVICE)
-                    as NotificationManager).cancel(SamSprung.request_code)
-        } catch (ignored: Exception) { }
-        Executors.newSingleThreadExecutor().execute {
-            val files: Array<File>? = activity.filesDir.listFiles { _, name ->
-                name.lowercase(Locale.getDefault()).endsWith(".apk")
-            }
-            if (null != files) {
-                for (file in files) {
-                    if (!file.isDirectory) file.delete()
-                }
+            } else if (activity is CoverPreferences) {
+                (activity as CoverPreferences).updateLauncher
+                    .launch(Intent(Settings.ACTION_MANAGE_UNKNOWN_APP_SOURCES)
+                        .setData(Uri.parse(String.format("package:%s", activity.packageName))))
             }
         }
     }
@@ -135,9 +114,6 @@ class CheckUpdatesTask {
     private suspend fun installUpdate(apkUri: Uri) = withContext(Dispatchers.IO) {
         val installer = activity.applicationContext.packageManager.packageInstaller
         val resolver = activity.applicationContext.contentResolver
-        for (session: PackageInstaller.SessionInfo in installer.mySessions) {
-            installer.abandonSession(session.sessionId)
-        }
         resolver.openInputStream(apkUri)?.use { apkStream ->
             val length = DocumentFile.fromSingleUri(
                 activity.applicationContext, apkUri)?.length() ?: -1
@@ -171,10 +147,9 @@ class CheckUpdatesTask {
                 FileOutputStream(apk).use { output ->
                     input.copyTo(output)
                     CoroutineScope(Dispatchers.Main).launch(Dispatchers.Main) {
-                        installUpdate(
-                            FileProvider.getUriForFile(
-                                activity.applicationContext, SamSprung.provider, apk
-                            ))
+                        installUpdate(FileProvider.getUriForFile(
+                            activity.applicationContext, SamSprung.provider, apk
+                        ))
                     }
                 }
             }
