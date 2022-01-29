@@ -117,7 +117,7 @@ class DisplayListener : Service() {
 
         showForegroundNotification(startId)
 
-        var displayContext = ScaledContext.wrap(buildDisplayContext(1))
+        val displayContext = ScaledContext.wrap(buildDisplayContext(1))
         floatView = LayoutInflater.from(displayContext).inflate(R.layout.navigation_menu, null)
         val params = WindowManager.LayoutParams(
             WindowManager.LayoutParams.MATCH_PARENT,
@@ -240,12 +240,12 @@ class DisplayListener : Service() {
     @SuppressLint("InflateParams")
     @Suppress("DEPRECATION")
     private fun getKeyboard (parent: CoordinatorLayout, displayContext: Context) : KeyboardView {
-        val mKeyboard = Keyboard(applicationContext, R.xml.keyboard_qwerty)
+        val mKeyboard = Keyboard(parent.context, R.xml.keyboard_qwerty)
         val mKeyboardView = LayoutInflater.from(displayContext)
             .inflate(R.layout.keyboard_view, null) as KeyboardView
         mKeyboardView.isPreviewEnabled = false
         mKeyboardView.keyboard = mKeyboard
-        SamSprungInput.setKeyboard(mKeyboard, mKeyboardView, parent)
+        SamSprungInput.setInputMethod(mKeyboard, mKeyboardView, parent)
         AccessibilityObserver.enableKeyboard(applicationContext)
         return mKeyboardView
     }

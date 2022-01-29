@@ -70,7 +70,6 @@ class AccessibilityObserver : AccessibilityService() {
         fun executeButtonBack() {
             observerInstance.performGlobalAction(GLOBAL_ACTION_BACK)
         }
-        private lateinit var inputMethod: String
         private fun getInputMethod(context: Context): String {
             return Settings.Secure.getString(context.contentResolver,
                 Settings.Secure.DEFAULT_INPUT_METHOD)

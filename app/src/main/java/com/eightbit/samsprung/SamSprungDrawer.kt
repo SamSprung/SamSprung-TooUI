@@ -88,7 +88,7 @@ import java.io.File
 import java.util.*
 
 class SamSprungDrawer : AppCompatActivity(),
-    DrawerAdapater.OnAppClickListener,
+    DrawerAppAdapater.OnAppClickListener,
     NotificationAdapter.OnNoticeClickListener {
 
     private lateinit var oReceiver: BroadcastReceiver
@@ -379,7 +379,7 @@ class SamSprungDrawer : AppCompatActivity(),
             launcherView.layoutManager = GridLayoutManager(this, getColumnCount())
         else
             launcherView.layoutManager = LinearLayoutManager(this)
-        launcherView.adapter = DrawerAdapater(packages, this, packageManager)
+        launcherView.adapter = DrawerAppAdapater(packages, this, packageManager)
 
         pReceiver = object : BroadcastReceiver() {
             @SuppressLint("NotifyDataSetChanged")
@@ -392,8 +392,8 @@ class SamSprungDrawer : AppCompatActivity(),
                             || SamSprung.prefs.getStringSet(SamSprung.prefHidden,
                         HashSet())!!.contains(item.activityInfo.packageName) }
                     Collections.sort(packages, ResolveInfo.DisplayNameComparator(packageManager))
-                    (launcherView.adapter as DrawerAdapater).setPackages(packages)
-                    (launcherView.adapter as DrawerAdapater).notifyDataSetChanged()
+                    (launcherView.adapter as DrawerAppAdapater).setPackages(packages)
+                    (launcherView.adapter as DrawerAppAdapater).notifyDataSetChanged()
                 }
                 if (intent.action == Intent.ACTION_PACKAGE_ADDED) {
                     if (!intent.getBooleanExtra(Intent.EXTRA_REPLACING, false)) {
@@ -404,8 +404,8 @@ class SamSprungDrawer : AppCompatActivity(),
                                     || SamSprung.prefs.getStringSet(SamSprung.prefHidden,
                                 HashSet())!!.contains(item.activityInfo.packageName)
                         }
-                        (launcherView.adapter as DrawerAdapater).setPackages(packages)
-                        (launcherView.adapter as DrawerAdapater).notifyDataSetChanged()
+                        (launcherView.adapter as DrawerAppAdapater).setPackages(packages)
+                        (launcherView.adapter as DrawerAppAdapater).notifyDataSetChanged()
                     }
                 }
             }

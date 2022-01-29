@@ -32,7 +32,7 @@ public class SamSprungInput extends InputMethodService
         return true;
     }
 
-    public static void setKeyboard(Keyboard keyboard, KeyboardView keyBoardView, CoordinatorLayout coordinator) {
+    public static void setInputMethod(Keyboard keyboard, KeyboardView keyBoardView, CoordinatorLayout coordinator) {
         mKeyboard = keyboard;
         mKeyboardView = new SoftReference<>(keyBoardView);
         parent = coordinator;
@@ -46,6 +46,7 @@ public class SamSprungInput extends InputMethodService
     @Override
     public void onKey(int primaryCode, int[] keyCodes) {
         InputConnection ic = getCurrentInputConnection();
+        if (keyCodes[0] == -999) return;
         switch(primaryCode){
             case Keyboard.KEYCODE_DELETE :
                 ic.deleteSurroundingText(1, 0);
@@ -78,16 +79,20 @@ public class SamSprungInput extends InputMethodService
     public void onText(CharSequence text) { }
 
     @Override
-    public void swipeDown() { }
-
-    @Override
-    public void swipeLeft() {
+    public void swipeDown() {
         parent.removeView(mKeyboardView.get());
     }
 
     @Override
+    public void swipeLeft() {
+        mKeyboard = new Keyboard(parent.getContext(), R.xml.keyboard_numpad);
+        mKeyboardView.get().setKeyboard(mKeyboard);
+    }
+
+    @Override
     public void swipeRight() {
-        parent.removeView(mKeyboardView.get());
+        mKeyboard = new Keyboard(parent.getContext(), R.xml.keyboard_qwerty);
+        mKeyboardView.get().setKeyboard(mKeyboard);
     }
 
     @Override

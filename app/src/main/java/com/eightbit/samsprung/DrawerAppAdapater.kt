@@ -61,10 +61,10 @@ import android.view.ViewGroup
 import android.widget.TextView
 import androidx.appcompat.widget.AppCompatImageView
 import androidx.recyclerview.widget.RecyclerView
-import com.eightbit.samsprung.DrawerAdapater.AppViewHolder
+import com.eightbit.samsprung.DrawerAppAdapater.AppViewHolder
 import java.util.concurrent.Executors
 
-class DrawerAdapater(
+class DrawerAppAdapater(
     private var packages: MutableList<ResolveInfo>,
     private val listener: OnAppClickListener,
     private val packageManager: PackageManager
