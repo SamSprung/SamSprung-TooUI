@@ -23,7 +23,8 @@ public class SamSprungInput extends InputMethodService
 
     @Override
     public void onInitializeInterface() {
-        mKeyboardView.get().setOnKeyboardActionListener(this);
+        if (null != mKeyboardView.get())
+            mKeyboardView.get().setOnKeyboardActionListener(this);
         super.onInitializeInterface();
     }
 
