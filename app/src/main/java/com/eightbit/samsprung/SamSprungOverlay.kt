@@ -80,7 +80,6 @@ class SamSprungOverlay : AppCompatActivity() {
     @SuppressLint("ClickableViewAccessibility")
     override fun onCreate(savedInstanceState: Bundle?) {
         setShowWhenLocked(true)
-        // setTurnScreenOn(true)
 
         window.setFlags(
             WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or

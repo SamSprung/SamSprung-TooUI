@@ -61,14 +61,16 @@
             android:name=".SamSprungOverlay"
             android:theme="@style/LauncherTheme.NoActionBar"
             android:exported="true"
-            android:showOnLockScreen="true">
+            android:showOnLockScreen="true"
+            android:showWhenLocked="true">
             <meta-data android:name="com.samsung.android.activity.showWhenLocked" android:value="true"/>
         </activity>
         <activity
             android:name=".SamSprungDrawer"
             android:exported="true"
             android:launchMode="singleTop"
-            android:showOnLockScreen="true">
+            android:showOnLockScreen="true"
+            android:showWhenLocked="true">
             <meta-data android:name="com.samsung.android.activity.showWhenLocked" android:value="true"/>
             <intent-filter>
                 <category android:name="android.intent.category.SECONDARY_HOME" />
@@ -77,7 +79,8 @@
         <activity
             android:name=".SamSprungWidget"
             android:launchMode="singleTop"
-            android:showOnLockScreen="true">
+            android:showOnLockScreen="true"
+            android:showWhenLocked="true">
             <meta-data android:name="com.samsung.android.activity.showWhenLocked" android:value="true"/>
         </activity>
         <receiver android:name=".OffBroadcastReceiver"

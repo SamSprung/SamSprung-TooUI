@@ -86,6 +86,9 @@ import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetBehavior.BottomSheetCallback
 import java.io.File
 import java.util.*
+import android.app.KeyguardManager
+import android.app.KeyguardManager.KeyguardDismissCallback
+
 
 class SamSprungDrawer : AppCompatActivity(),
     DrawerAppAdapater.OnAppClickListener,
@@ -99,7 +102,6 @@ class SamSprungDrawer : AppCompatActivity(),
     @SuppressLint("InflateParams", "CutPasteId", "ClickableViewAccessibility")
     override fun onCreate(savedInstanceState: Bundle?) {
         setShowWhenLocked(true)
-        // setTurnScreenOn(true)
 
         super.onCreate(savedInstanceState)
         supportActionBar?.hide()
@@ -473,7 +475,20 @@ class SamSprungDrawer : AppCompatActivity(),
             mKeyguardManager.newKeyguardLock("cover_lock").disableKeyguard()
         }
 
-        finish()
+        mKeyguardManager.requestDismissKeyguard(this,
+            object : KeyguardDismissCallback() {
+            override fun onDismissError() {
+                super.onDismissError()
+            }
+
+            override fun onDismissSucceeded() {
+                super.onDismissSucceeded()
+            }
+
+            override fun onDismissCancelled() {
+                super.onDismissCancelled()
+            }
+        })
 
         if (Settings.System.canWrite(applicationContext)) {
             try {
@@ -483,6 +498,8 @@ class SamSprungDrawer : AppCompatActivity(),
                 )
             } catch (ignored: Settings.SettingNotFoundException) { }
         }
+
+        finish()
     }
 
     override fun onAppClicked(appInfo: ResolveInfo, position: Int) {
@@ -491,36 +508,6 @@ class SamSprungDrawer : AppCompatActivity(),
         val extras = Bundle()
         extras.putString("launchPackage", appInfo.activityInfo.packageName)
         extras.putString("launchActivity", appInfo.activityInfo.name)
-
-        val aReceiver = object : BroadcastReceiver() {
-            @SuppressLint("NotifyDataSetChanged")
-            override fun onReceive(context: Context, intent: Intent) {
-                context.startService(Intent(context, DisplayListener::class.java))
-
-                val options = ActivityOptions.makeBasic().setLaunchDisplayId(0)
-
-                val coverIntent = Intent(Intent.ACTION_MAIN)
-                coverIntent.addCategory(Intent.CATEGORY_LAUNCHER)
-                coverIntent.component = ComponentName(
-                    appInfo.activityInfo.packageName,
-                    appInfo.activityInfo.name
-                )
-                coverIntent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or
-                        Intent.FLAG_ACTIVITY_CLEAR_TASK or
-                        Intent.FLAG_ACTIVITY_FORWARD_RESULT or
-                        Intent.FLAG_ACTIVITY_NO_ANIMATION
-                context.startActivity(coverIntent, options.toBundle())
-
-                val homeLauncher = Intent(Intent.ACTION_MAIN)
-                homeLauncher.addCategory(Intent.CATEGORY_HOME)
-                homeLauncher.flags = Intent.FLAG_ACTIVITY_NEW_TASK or
-                        Intent.FLAG_ACTIVITY_FORWARD_RESULT or
-                        Intent.FLAG_ACTIVITY_NO_ANIMATION
-                context.startActivity(homeLauncher, options.toBundle())
-
-                context.applicationContext.unregisterReceiver(this)
-            }
-        }
 
         IntentFilter(Intent.ACTION_SCREEN_OFF).also {
             applicationContext.registerReceiver(OffBroadcastReceiver(

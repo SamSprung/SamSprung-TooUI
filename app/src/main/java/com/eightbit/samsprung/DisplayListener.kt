@@ -237,19 +237,6 @@ class DisplayListener : Service() {
         return START_STICKY
     }
 
-    @SuppressLint("InflateParams")
-    @Suppress("DEPRECATION")
-    private fun getKeyboard (parent: CoordinatorLayout, displayContext: Context) : KeyboardView {
-        val mKeyboard = Keyboard(parent.context, R.xml.keyboard_qwerty)
-        val mKeyboardView = LayoutInflater.from(displayContext)
-            .inflate(R.layout.keyboard_view, null) as KeyboardView
-        mKeyboardView.isPreviewEnabled = false
-        mKeyboardView.keyboard = mKeyboard
-        SamSprungInput.setInputMethod(mKeyboard, mKeyboardView, parent)
-        AccessibilityObserver.enableKeyboard(applicationContext)
-        return mKeyboardView
-    }
-
     private fun restoreActivityDisplay(launchPackage: String, launchActivity: String?, display: Int) {
         if (null != launchActivity) {
             val coverIntent = Intent(Intent.ACTION_MAIN)
@@ -273,6 +260,19 @@ class DisplayListener : Service() {
                 Intent.FLAG_ACTIVITY_FORWARD_RESULT or
                 Intent.FLAG_ACTIVITY_NO_ANIMATION
         startActivity(homeLauncher, ActivityOptions.makeBasic().setLaunchDisplayId(0).toBundle())
+    }
+
+    @SuppressLint("InflateParams")
+    @Suppress("DEPRECATION")
+    private fun getKeyboard (parent: CoordinatorLayout, displayContext: Context) : KeyboardView {
+        val mKeyboard = Keyboard(parent.context, R.xml.keyboard_qwerty)
+        val mKeyboardView = LayoutInflater.from(displayContext)
+            .inflate(R.layout.keyboard_view, null) as KeyboardView
+        mKeyboardView.isPreviewEnabled = false
+        mKeyboardView.keyboard = mKeyboard
+        SamSprungInput.setInputMethod(mKeyboard, mKeyboardView, parent)
+        AccessibilityObserver.enableKeyboard(applicationContext)
+        return mKeyboardView
     }
 
     @SuppressLint("LaunchActivityFromNotification")
