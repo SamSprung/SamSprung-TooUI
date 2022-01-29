@@ -82,9 +82,11 @@ class CheckUpdatesTask(private var activity: Activity) {
 
     init {
         if (BuildConfig.FLAVOR != "google") {
-            val installer = activity.applicationContext.packageManager.packageInstaller
-            for (session: PackageInstaller.SessionInfo in installer.mySessions) {
-                installer.abandonSession(session.sessionId)
+            if (activity is CoverPreferences) {
+                val installer = activity.applicationContext.packageManager.packageInstaller
+                for (session: PackageInstaller.SessionInfo in installer.mySessions) {
+                    installer.abandonSession(session.sessionId)
+                }
             }
             try {
                 (activity.getSystemService(AppCompatActivity.NOTIFICATION_SERVICE)
