@@ -99,7 +99,7 @@ class SamSprungDrawer : AppCompatActivity(),
     private lateinit var pReceiver: BroadcastReceiver
     private lateinit var noticesView: RecyclerView
 
-    @SuppressLint("InflateParams", "CutPasteId", "ClickableViewAccessibility")
+    @SuppressLint("InflateParams", "ClickableViewAccessibility")
     override fun onCreate(savedInstanceState: Bundle?) {
         setShowWhenLocked(true)
 
@@ -442,11 +442,19 @@ class SamSprungDrawer : AppCompatActivity(),
             ) { }
 
             override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
-                if (direction == ItemTouchHelper.LEFT || direction == ItemTouchHelper.RIGHT) {
+                if (direction == ItemTouchHelper.LEFT) {
                     finish()
                     startActivity(
-                        Intent(applicationContext, SamSprungOverlay::class.java),
+                        Intent(applicationContext, SamSprungOverlay::class.java)
+                            .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK),
                         ActivityOptions.makeBasic().setLaunchDisplayId(1).toBundle())
+                }
+                if (direction == ItemTouchHelper.RIGHT) {
+                    finish()
+                    startActivity(
+                        Intent(this@SamSprungDrawer, SamSprungWidget::class.java),
+                        ActivityOptions.makeBasic().setLaunchDisplayId(1).toBundle()
+                    )
                 }
             }
         }

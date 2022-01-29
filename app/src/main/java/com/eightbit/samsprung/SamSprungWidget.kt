@@ -52,24 +52,34 @@ package com.eightbit.samsprung
  */
 
 import android.Manifest
+import android.annotation.SuppressLint
+import android.app.ActivityOptions
 import android.app.WallpaperManager
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Bundle
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.core.content.ContextCompat
+import com.eightbit.view.OnSwipeTouchListener
 import com.eightbitlab.blurview.BlurView
 import com.eightbitlab.blurview.RenderScriptBlur
 
 class SamSprungWidget : AppCompatActivity() {
 
+    companion object {
+        @kotlin.jvm.JvmField
+        public val APPWIDGET_HOST_ID: Int = 8675309
+    }
+
+    @SuppressLint("ClickableViewAccessibility")
     override fun onCreate(savedInstanceState: Bundle?) {
         setShowWhenLocked(true)
 
         super.onCreate(savedInstanceState)
         supportActionBar?.hide()
-        setContentView(R.layout.drawer_layout)
+        setContentView(R.layout.widget_layout)
 
         requestPermission.launch(Manifest.permission.BIND_APPWIDGET)
 
@@ -87,6 +97,23 @@ class SamSprungWidget : AppCompatActivity() {
             .setBlurAutoUpdate(true)
             .setHasFixedTransformationMatrix(true)
             .setBlurAlgorithm(RenderScriptBlur(this))
+
+        findViewById<BlurView>(R.id.blurContainer).setOnTouchListener(
+            object: OnSwipeTouchListener(this@SamSprungWidget) {
+                override fun onSwipeLeft() {
+                    finish()
+                    startActivity(
+                        Intent(this@SamSprungWidget, SamSprungDrawer::class.java),
+                        ActivityOptions.makeBasic().setLaunchDisplayId(1).toBundle())
+                }
+                override fun onSwipeRight() {
+                    finish()
+                    startActivity(
+                        Intent(applicationContext, SamSprungOverlay::class.java)
+                            .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK),
+                        ActivityOptions.makeBasic().setLaunchDisplayId(1).toBundle())
+                }
+            })
     }
 
     private val requestPermission = registerForActivityResult(

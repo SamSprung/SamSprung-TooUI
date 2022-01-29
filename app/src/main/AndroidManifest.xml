@@ -45,7 +45,8 @@
         android:roundIcon="@mipmap/sprung_icon_round"
         android:supportsRtl="true"
         android:resizeableActivity="false"
-        android:theme="@style/Theme.SecondScreen">
+        android:theme="@style/Theme.SecondScreen"
+        tools:targetApi="s">
         <meta-data
             android:name="android.supports_size_changes" android:value="true" />
         <activity
@@ -78,7 +79,6 @@
         </activity>
         <activity
             android:name=".SamSprungWidget"
-            android:launchMode="singleTop"
             android:showOnLockScreen="true"
             android:showWhenLocked="true">
             <meta-data android:name="com.samsung.android.activity.showWhenLocked" android:value="true"/>
@@ -134,11 +134,6 @@
                 android:name="android.accessibilityservice"
                 android:resource="@xml/accessibility_service" />
         </service>
-
-        <meta-data
-            android:name="com.android.packageinstaller.notification.smallIcon"
-            android:resource="@mipmap/sprung_icon" />
-
         <service android:name=".SamSprungInput"
             android:exported="false"
             android:label="@string/app_name"
@@ -148,6 +143,10 @@
                 <action android:name="android.view.InputMethod" />
             </intent-filter>
         </service>
+
+        <meta-data
+            android:name="com.android.packageinstaller.notification.smallIcon"
+            android:resource="@mipmap/sprung_icon" />
 
         <provider
             android:name="androidx.core.content.FileProvider"

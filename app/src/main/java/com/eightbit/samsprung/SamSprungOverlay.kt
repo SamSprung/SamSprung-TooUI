@@ -154,12 +154,4 @@ class SamSprungOverlay : AppCompatActivity() {
             }
         })
     }
-
-    private fun hasAccessibility(): Boolean {
-        val serviceString = Settings.Secure.getString(contentResolver,
-            Settings.Secure.ENABLED_ACCESSIBILITY_SERVICES
-        )
-        return serviceString != null && serviceString.contains(packageName
-                + File.separator + AccessibilityObserver::class.java.name)
-    }
 }

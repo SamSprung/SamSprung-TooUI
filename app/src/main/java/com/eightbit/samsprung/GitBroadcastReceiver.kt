@@ -83,10 +83,10 @@ class GitBroadcastReceiver : BroadcastReceiver() {
                 PackageInstaller.STATUS_SUCCESS -> {
                     // Installation was successful
                 } else -> {
+                val error = intent.getStringExtra(PackageInstaller.EXTRA_STATUS_MESSAGE)
+                if (error!!.contains("Session was abandoned", true))
                     Toast.makeText(
-                        context.applicationContext,
-                        intent.getStringExtra(PackageInstaller.EXTRA_STATUS_MESSAGE),
-                        Toast.LENGTH_LONG
+                        context.applicationContext, error, Toast.LENGTH_LONG
                     ).show()
                 }
             }
