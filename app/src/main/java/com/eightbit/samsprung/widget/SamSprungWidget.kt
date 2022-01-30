@@ -140,13 +140,13 @@ class SamSprungWidget : AppCompatActivity(), View.OnClickListener, OnLongClickLi
 
         findViewById<View>(R.id.exit_zone)
             .setOnTouchListener(object : OnSwipeTouchListener(this@SamSprungWidget) {
-            override fun onSwipeTop() {
-                super.onSwipeTop()
+            override fun onSwipeTop() : Boolean {
                 finish()
                 startActivity(
                     Intent(this@SamSprungWidget, SamSprungDrawer::class.java),
                     ActivityOptions.makeBasic().setLaunchDisplayId(1).toBundle()
                 )
+                return true
             }
         })
         setupViews()

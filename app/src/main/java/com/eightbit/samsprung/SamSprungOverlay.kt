@@ -67,6 +67,7 @@ import androidx.appcompat.widget.AppCompatImageView
 import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.core.view.isVisible
 import com.eightbit.content.ScaledContext
+import com.eightbit.samsprung.widget.SamSprungWidget
 import com.eightbit.view.OnSwipeTouchListener
 import com.eightbit.widget.VerticalStrokeTextView
 import com.google.android.material.bottomsheet.BottomSheetBehavior
@@ -126,7 +127,7 @@ class SamSprungOverlay : AppCompatActivity() {
                     menuRecent.setOnClickListener {
                         finish()
                         startActivity(
-                            Intent(this@SamSprungOverlay, SamSprungDrawer::class.java),
+                            Intent(this@SamSprungOverlay, SamSprungWidget::class.java),
                             ActivityOptions.makeBasic().setLaunchDisplayId(1).toBundle()
                         )
                     }
@@ -146,11 +147,13 @@ class SamSprungOverlay : AppCompatActivity() {
 
         coordinator.setOnTouchListener(
             object: OnSwipeTouchListener(this@SamSprungOverlay) {
-            override fun onSwipeTop() {
+            override fun onSwipeTop() : Boolean {
                 bottomSheetBehavior.state = BottomSheetBehavior.STATE_EXPANDED
+                return true
             }
-            override fun onSwipeBottom() {
+            override fun onSwipeBottom() : Boolean {
                 bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
+                return true
             }
         })
     }

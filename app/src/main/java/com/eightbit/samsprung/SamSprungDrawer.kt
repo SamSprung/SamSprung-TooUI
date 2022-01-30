@@ -82,6 +82,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.eightbit.content.ScaledContext
 import com.eightbit.samsprung.widget.SamSprungWidget
+import com.eightbit.view.OnSwipeTouchListener
 import com.eightbitlab.blurview.BlurView
 import com.eightbitlab.blurview.RenderScriptBlur
 import com.google.android.material.bottomsheet.BottomSheetBehavior
@@ -442,23 +443,44 @@ class SamSprungDrawer : AppCompatActivity(),
             ) { }
 
             override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
-                if (direction == ItemTouchHelper.LEFT) {
+                if (direction == ItemTouchHelper.LEFT || direction == ItemTouchHelper.RIGHT) {
                     finish()
                     startActivity(
-                        Intent(applicationContext, SamSprungOverlay::class.java)
-                            .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK),
+                        Intent(applicationContext, SamSprungOverlay::class.java),
                         ActivityOptions.makeBasic().setLaunchDisplayId(1).toBundle())
-                }
-                if (direction == ItemTouchHelper.RIGHT) {
-                    finish()
-                    startActivity(
-                        Intent(this@SamSprungDrawer, SamSprungWidget::class.java),
-                        ActivityOptions.makeBasic().setLaunchDisplayId(1).toBundle()
-                    )
                 }
             }
         }
         ItemTouchHelper(drawerTouchCallback).attachToRecyclerView(launcherView)
+        launcherView.setOnTouchListener(object : OnSwipeTouchListener(this@SamSprungDrawer) {
+            override fun onSwipeBottom() : Boolean {
+                if (launcherView.isAnimating || bottomSheetBehavior.state
+                    == BottomSheetBehavior.STATE_EXPANDED) return false
+                if (launcherView.layoutManager is LinearLayoutManager) {
+                    if ((launcherView.layoutManager as LinearLayoutManager)
+                            .findFirstCompletelyVisibleItemPosition() == 0) {
+                        finish()
+                        startActivity(
+                            Intent(this@SamSprungDrawer, SamSprungWidget::class.java),
+                            ActivityOptions.makeBasic().setLaunchDisplayId(1).toBundle()
+                        )
+                        return true
+                    }
+                }
+                if (launcherView.layoutManager is GridLayoutManager) {
+                    if ((launcherView.layoutManager as GridLayoutManager)
+                            .findFirstCompletelyVisibleItemPosition() == 0) {
+                        finish()
+                        startActivity(
+                            Intent(this@SamSprungDrawer, SamSprungWidget::class.java),
+                            ActivityOptions.makeBasic().setLaunchDisplayId(1).toBundle()
+                        )
+                        return true
+                    }
+                }
+                return false
+            }
+        })
     }
 
     private fun prepareConfiguration() {
