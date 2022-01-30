@@ -37,6 +37,7 @@ import androidx.activity.result.ActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
+import com.eightbit.content.ScaledContext
 import com.eightbit.samsprung.WidgetSettings.Favorites
 import com.eightbit.view.OnSwipeTouchListener
 import com.eightbitlab.blurview.BlurView
@@ -107,7 +108,7 @@ class SamSprungWidget : AppCompatActivity(), View.OnClickListener, OnLongClickLi
         setShowWhenLocked(true)
         supportActionBar?.hide()
         super.onCreate(savedInstanceState)
-//        ScaledContext.wrap(this).setTheme(R.style.Theme_AppCompat)
+        ScaledContext.restore(this).setTheme(R.style.Theme_AppCompat)
         mAppWidgetManager = AppWidgetManager.getInstance(applicationContext)
         appWidgetHost = CoverAppWidgetHost(
             applicationContext,
