@@ -78,7 +78,7 @@ import java.net.URL
 import java.util.*
 import java.util.concurrent.Executors
 
-class CheckUpdatesTask(private var activity: Activity) {
+class CheckUpdatesTask(private var activity: AppCompatActivity) {
 
     init {
         if (BuildConfig.FLAVOR != "google") {

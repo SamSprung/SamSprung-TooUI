@@ -54,6 +54,7 @@ package com.eightbit.samsprung
 import android.Manifest
 import android.annotation.SuppressLint
 import android.app.*
+import android.app.KeyguardManager.KeyguardDismissCallback
 import android.bluetooth.BluetoothManager
 import android.content.*
 import android.content.pm.ApplicationInfo
@@ -80,14 +81,13 @@ import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.eightbit.content.ScaledContext
+import com.eightbit.samsprung.widget.SamSprungWidget
 import com.eightbitlab.blurview.BlurView
 import com.eightbitlab.blurview.RenderScriptBlur
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetBehavior.BottomSheetCallback
 import java.io.File
 import java.util.*
-import android.app.KeyguardManager
-import android.app.KeyguardManager.KeyguardDismissCallback
 
 
 class SamSprungDrawer : AppCompatActivity(),

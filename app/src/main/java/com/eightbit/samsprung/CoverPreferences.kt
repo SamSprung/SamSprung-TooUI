@@ -370,11 +370,13 @@ class CoverPreferences : AppCompatActivity() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S)
             arrayOf(
                 Manifest.permission.BLUETOOTH_CONNECT,
-                Manifest.permission.READ_EXTERNAL_STORAGE
+                Manifest.permission.READ_EXTERNAL_STORAGE,
+                Manifest.permission.BIND_APPWIDGET
             )
         else
             arrayOf(
-                Manifest.permission.READ_EXTERNAL_STORAGE
+                Manifest.permission.READ_EXTERNAL_STORAGE,
+                Manifest.permission.BIND_APPWIDGET
             )
 
     private val requestBluetooth = registerForActivityResult(

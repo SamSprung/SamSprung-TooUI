@@ -50,13 +50,12 @@
 
 package com.eightbit.material;
 
-import android.app.Activity;
-import android.os.Build;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import androidx.transition.TransitionManager;
 
@@ -67,15 +66,15 @@ import java.lang.ref.WeakReference;
 
 public class IconifiedSnackbar {
 
-    private final WeakReference<Activity> mActivity;
+    private final WeakReference<AppCompatActivity> mActivity;
     private final ViewGroup layout;
 
-    public IconifiedSnackbar(Activity activity, ViewGroup layout) {
+    public IconifiedSnackbar(AppCompatActivity activity, ViewGroup layout) {
         mActivity = new WeakReference<>(activity);
         this.layout = layout;
     }
 
-    public IconifiedSnackbar(Activity activity) {
+    public IconifiedSnackbar(AppCompatActivity activity) {
         this(activity, null);
     }
 

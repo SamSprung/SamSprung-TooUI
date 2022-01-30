@@ -1,8 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.coordinatorlayout.widget.CoordinatorLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:launcher="http://schemas.android.com/apk/res-auto"
     android:id="@+id/coordinator"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -13,11 +12,51 @@
         android:id="@+id/blurContainer"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        app:blurOverlayColor="@color/bottomSheetTint"
+        launcher:blurOverlayColor="@color/bottomSheetTint"
         android:clickable="true"
         android:focusable="true">
 
+        <com.eightbit.samsprung.widget.DragLayer
+            android:id="@+id/drag_layer"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
 
+            <!-- The workspace contains 3 screens of cells -->
+            <com.eightbit.samsprung.widget.Workspace
+                android:id="@+id/workspace"
+                android:layout_width="fill_parent"
+                android:layout_height="fill_parent"
+
+                launcher:defaultScreen="1">
+
+                <include android:id="@+id/cell1" layout="@layout/workspace_screen" />
+                <include android:id="@+id/cell2" layout="@layout/workspace_screen" />
+                <include android:id="@+id/cell3" layout="@layout/workspace_screen" />
+            </com.eightbit.samsprung.widget.Workspace>
+
+            <com.eightbit.samsprung.widget.DeleteZone
+                android:id="@+id/delete_zone"
+                android:layout_width="49dip"
+                android:layout_height="wrap_content"
+
+                android:scaleType="center"
+                android:src="@drawable/ic_delete"
+                android:background="@drawable/delete_zone_selector"
+
+                android:layout_marginBottom="-25dip"
+                android:layout_gravity="end|center_vertical"
+                android:visibility="invisible"
+
+                launcher:direction="1" />
+
+            <LinearLayout
+                android:id="@+id/exit_zone"
+                android:layout_width="match_parent"
+                android:layout_height="8dp"
+                android:layout_gravity="bottom|center_horizontal"
+                android:orientation="vertical" />
+
+        </com.eightbit.samsprung.widget.DragLayer>
 
     </com.eightbitlab.blurview.BlurView>
 

@@ -3,12 +3,4 @@
     <style name="SlimButton" parent="Widget.AppCompat.Button.Small">
         <item name="android:minHeight">@dimen/button_height_min</item>
     </style>
-    <declare-styleable name="VerticalStrokeTextView" parent="android:Widget.TextView">
-        <attr name="direction" format="integer"/>
-        <attr name="stroke_width" format="dimension"/>
-        <attr name="stroke_color" format="integer"/>
-    </declare-styleable >
-    <declare-styleable name="BlurView">
-        <attr name="blurOverlayColor" format="color"/>
-    </declare-styleable>
 </resources>

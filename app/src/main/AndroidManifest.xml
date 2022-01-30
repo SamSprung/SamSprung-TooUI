@@ -19,6 +19,7 @@
     <uses-permission android:name="android.permission.WRITE_SETTINGS"
         tools:ignore="ProtectedPermissions" />
     <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW"/>
+    <uses-permission android:name="android.permission.VIBRATE"/>
     <uses-permission android:name="android.permission.BIND_APPWIDGET"
         tools:ignore="ProtectedPermissions" />
     <!-- System Toggles -->
@@ -32,6 +33,8 @@
     <uses-permission android:name="android.permission.FLASHLIGHT"/>
     <!-- Google Play BS -->
     <permission android:name="intent.redirection.BULLSHIT" />
+    <uses-permission android:name="samsprung.permission.WRITE_SETTINGS" />
+    <uses-permission android:name="samsprung.permission.READ_SETTINGS" />
 
     <application
         android:process=":SamSprung"
@@ -78,7 +81,8 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".SamSprungWidget"
+            android:name=".widget.SamSprungWidget"
+            android:theme="@style/Theme.AppCompat"
             android:showOnLockScreen="true"
             android:showWhenLocked="true">
             <meta-data android:name="com.samsung.android.activity.showWhenLocked" android:value="true"/>
@@ -157,6 +161,13 @@
                 android:name="android.support.FILE_PROVIDER_PATHS"
                 android:resource="@xml/file_provider_paths"/>
         </provider>
+
+        <!-- The settings provider contains Home's data, like the workspace favorites -->
+        <provider
+            android:name=".widget.LauncherProvider"
+            android:authorities="com.eightbit.samsprung.widget"
+            android:writePermission="samsprung.permission.WRITE_SETTINGS"
+            android:readPermission="samsprung.permission.READ_SETTINGS" />
     </application>
 
 </manifest>

@@ -52,7 +52,7 @@ package com.eightbit.samsprung
  */
 
 import android.annotation.SuppressLint
-import android.app.Activity
+import androidx.appcompat.app.AppCompatActivity
 import android.app.Notification
 import android.service.notification.StatusBarNotification
 import android.view.LayoutInflater
@@ -67,7 +67,7 @@ import java.util.concurrent.Executors
 import kotlin.collections.ArrayList
 
 class NotificationAdapter(
-    private var activity: Activity,
+    private var activity: AppCompatActivity,
     private var listener: OnNoticeClickListener
 ) : RecyclerView.Adapter<NotificationAdapter.NoticeViewHolder>(),
     NotificationObserver.NotificationsChangedListener,
