@@ -14,11 +14,13 @@
  * limitations under the License.
  */
 
-package com.eightbit.samsprung;
+package com.eightbit.samsprung.widget;
 
 import android.content.ContentValues;
 import android.graphics.Bitmap;
 import android.util.Log;
+
+import com.eightbit.samsprung.WidgetSettings;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -26,7 +28,7 @@ import java.io.IOException;
 /**
  * Represents an item in the launcher.
  */
-public class ItemInfo {
+public class WidgetInfo {
     
     static final int NO_ID = -1;
     
@@ -40,7 +42,7 @@ public class ItemInfo {
      * {@link WidgetSettings.Favorites#ITEM_TYPE_SHORTCUT}, or
      * {@link WidgetSettings.Favorites#ITEM_TYPE_APPWIDGET}.
      */
-    int itemType;
+    public int itemType;
     
     /**
      * The id of the container that holds this item. For the desktop, this will be 
@@ -48,42 +50,41 @@ public class ItemInfo {
      * will be {@link #NO_ID} (since it is not stored in the settings DB). For user folders
      * it will be the id of the folder.
      */
-    long container = NO_ID;
+    public long container = NO_ID;
     
     /**
      * Iindicates the screen in which the shortcut appears.
      */
-    int screen = -1;
+    public int screen = -1;
     
     /**
      * Indicates the X position of the associated cell.
      */
-    int cellX = -1;
+    public int cellX = -1;
 
     /**
      * Indicates the Y position of the associated cell.
      */
-    int cellY = -1;
+    public int cellY = -1;
 
     /**
      * Indicates the X cell span.
      */
-    int spanX = 1;
+    public int spanX = 1;
 
     /**
      * Indicates the Y cell span.
      */
-    int spanY = 1;
+    public int spanY = 1;
 
     /**
      * Indicates whether the item is a gesture.
      */
-    boolean isGesture = false;
+    public boolean isGesture = false;
 
-    ItemInfo() {
-    }
+    WidgetInfo() { }
 
-    ItemInfo(ItemInfo info) {
+    WidgetInfo(WidgetInfo info) {
         id = info.id;
         cellX = info.cellX;
         cellY = info.cellY;
@@ -99,7 +100,7 @@ public class ItemInfo {
      * 
      * @param values
      */
-    void onAddToDatabase(ContentValues values) { 
+    public void onAddToDatabase(ContentValues values) {
         values.put(WidgetSettings.BaseLauncherColumns.ITEM_TYPE, itemType);
         if (!isGesture) {
             values.put(WidgetSettings.Favorites.CONTAINER, container);

@@ -16,13 +16,13 @@
         android:clickable="true"
         android:focusable="true">
 
-        <com.eightbit.samsprung.DragLayer
+        <com.eightbit.samsprung.widget.DragLayer
             android:id="@+id/drag_layer"
             android:layout_width="match_parent"
             android:layout_height="match_parent">
 
             <!-- The workspace contains 3 screens of cells -->
-            <com.eightbit.samsprung.Workspace
+            <com.eightbit.samsprung.widget.Workspace
                 android:id="@+id/workspace"
                 android:layout_width="fill_parent"
                 android:layout_height="fill_parent"
@@ -31,9 +31,9 @@
                 <include android:id="@+id/cell1" layout="@layout/workspace_screen" />
                 <include android:id="@+id/cell2" layout="@layout/workspace_screen" />
                 <include android:id="@+id/cell3" layout="@layout/workspace_screen" />
-            </com.eightbit.samsprung.Workspace>
+            </com.eightbit.samsprung.widget.Workspace>
 
-            <com.eightbit.samsprung.DeleteZone
+            <com.eightbit.samsprung.widget.DeleteZone
                 android:id="@+id/delete_zone"
                 android:layout_width="30dip"
                 android:layout_height="wrap_content"
@@ -45,7 +45,7 @@
                 android:visibility="gone"
                 launcher:direction="1" />
 
-        </com.eightbit.samsprung.DragLayer>
+        </com.eightbit.samsprung.widget.DragLayer>
 
     </com.eightbitlab.blurview.BlurView>
 

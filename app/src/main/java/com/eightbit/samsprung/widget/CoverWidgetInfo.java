@@ -15,36 +15,38 @@
  */
 
 
-package com.eightbit.samsprung;
+package com.eightbit.samsprung.widget;
 
 import android.appwidget.AppWidgetHostView;
 import android.content.ContentValues;
 
 import androidx.annotation.NonNull;
 
+import com.eightbit.samsprung.WidgetSettings;
+
 /**
  * Represents a widget, which just contains an identifier.
  */
-public class CoverAppWidgetInfo extends ItemInfo {
+public class CoverWidgetInfo extends WidgetInfo {
 
     /**
      * Identifier for this widget when talking with {@link android.appwidget.AppWidgetManager} for updates.
      */
-    int appWidgetId;
+    public int appWidgetId;
     
     /**
      * View that holds this widget after it's been created.  This view isn't created
      * until Launcher knows it's needed.
      */
-    AppWidgetHostView hostView = null;
+    public AppWidgetHostView hostView = null;
 
-    CoverAppWidgetInfo(int appWidgetId) {
+    public CoverWidgetInfo(int appWidgetId) {
         itemType = WidgetSettings.Favorites.ITEM_TYPE_APPWIDGET;
         this.appWidgetId = appWidgetId;
     }
     
     @Override
-    void onAddToDatabase(ContentValues values) {
+    public void onAddToDatabase(ContentValues values) {
         super.onAddToDatabase(values);
         values.put(WidgetSettings.Favorites.APPWIDGET_ID, appWidgetId);
     }

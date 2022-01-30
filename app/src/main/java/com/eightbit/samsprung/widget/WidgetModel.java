@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.eightbit.samsprung;
+package com.eightbit.samsprung.widget;
 
 import static android.util.Log.d;
 import static android.util.Log.e;
@@ -27,21 +27,18 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
-import android.content.pm.ResolveInfo;
-import android.content.res.Resources;
 import android.database.Cursor;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Process;
+
+import com.eightbit.samsprung.SamSprungWidget;
+import com.eightbit.samsprung.WidgetSettings;
 
 import java.lang.ref.WeakReference;
 import java.net.URISyntaxException;
 import java.text.Collator;
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.HashMap;
-import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -50,8 +47,8 @@ import java.util.concurrent.atomic.AtomicInteger;
  * for the Launcher.
  */
 public class WidgetModel {
-    static final boolean DEBUG_LOADERS = true;
-    static final String LOG_TAG = "HomeLoaders";
+    public static final boolean DEBUG_LOADERS = true;
+    public static final String LOG_TAG = WidgetModel.class.getName();
 
     private static final long APPLICATION_NOT_RESPONDING_TIMEOUT = 5000;
     private static final int INITIAL_ICON_CACHE_CAPACITY = 50;
@@ -60,8 +57,8 @@ public class WidgetModel {
 
     private boolean mDesktopItemsLoaded;
 
-    private ArrayList<ItemInfo> mDesktopItems;
-    private ArrayList<CoverAppWidgetInfo> mDesktopAppWidgets;
+    private ArrayList<WidgetInfo> mDesktopItems;
+    private ArrayList<CoverWidgetInfo> mDesktopAppWidgets;
 
     private ApplicationsLoader mApplicationsLoader;
     private DesktopItemsLoader mDesktopItemsLoader;
@@ -74,7 +71,7 @@ public class WidgetModel {
     public WidgetModel() {
     }
 
-    synchronized void abortLoaders() {
+    public synchronized void abortLoaders() {
         if (DEBUG_LOADERS) d(LOG_TAG, "aborting loaders");
 
         if (mApplicationsLoader != null && mApplicationsLoader.isRunning()) {
@@ -104,7 +101,7 @@ public class WidgetModel {
      * @return true if the applications loader must be started
      *         (see startApplicationsLoader()), false otherwise.
      */
-    synchronized boolean loadApplications(boolean isLaunching, SamSprungWidget launcher,
+    public synchronized boolean loadApplications(boolean isLaunching, SamSprungWidget launcher,
             boolean localeChanged) {
 
         if (DEBUG_LOADERS) d(LOG_TAG, "load applications");
@@ -155,40 +152,6 @@ public class WidgetModel {
         mApplicationsLoaderThread.start();
     }
 
-    private void updateAndCacheApplicationInfo(PackageManager packageManager, ResolveInfo info,
-            ApplicationInfo applicationInfo, Context context) {
-
-        updateApplicationInfoTitleAndIcon(packageManager, info, applicationInfo, context);
-
-        ComponentName componentName = new ComponentName(
-                info.activityInfo.applicationInfo.packageName, info.activityInfo.name);
-        mAppInfoCache.put(componentName, applicationInfo);
-    }
-
-    private static boolean findIntent(List<ResolveInfo> apps, ComponentName component) {
-        final String className = component.getClassName();
-        for (ResolveInfo info : apps) {
-            final ActivityInfo activityInfo = info.activityInfo;
-            if (activityInfo.name.equals(className)) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    private static void updateApplicationInfoTitleAndIcon(PackageManager manager, ResolveInfo info,
-            ApplicationInfo application, Context context) {
-
-        application.title = info.loadLabel(manager);
-        if (application.title == null) {
-            application.title = info.activityInfo.name;
-        }
-
-        application.icon =
-                Utilities.createIconThumbnail(info.activityInfo.loadIcon(manager), context);
-        application.filtered = false;
-    }
-
     private static final AtomicInteger sAppsLoaderCount = new AtomicInteger(1);
     private static final AtomicInteger sWorkspaceLoaderCount = new AtomicInteger(1);
 
@@ -202,7 +165,7 @@ public class WidgetModel {
 
         ApplicationsLoader(SamSprungWidget launcher, boolean isLaunching) {
             mIsLaunching = isLaunching;
-            mLauncher = new WeakReference<SamSprungWidget>(launcher);
+            mLauncher = new WeakReference<>(launcher);
             mRunning = true;
             mId = sAppsLoaderCount.getAndIncrement();
         }
@@ -227,7 +190,6 @@ public class WidgetModel {
             mainIntent.addCategory(Intent.CATEGORY_LAUNCHER);
 
             final SamSprungWidget launcher = mLauncher.get();
-            final PackageManager manager = launcher.getPackageManager();
 
             if (mStopped) {
                 if (DEBUG_LOADERS) d(LOG_TAG, "  ----> applications loader stopped (" + mId + ")");
@@ -236,13 +198,7 @@ public class WidgetModel {
         }
     }
 
-    static class ApplicationInfoComparator implements Comparator<ApplicationInfo> {
-        public final int compare(ApplicationInfo a, ApplicationInfo b) {
-            return sCollator.compare(a.title.toString(), b.title.toString());
-        }
-    }
-
-    boolean isDesktopLoaded() {
+    public boolean isDesktopLoaded() {
         return mDesktopItems != null && mDesktopAppWidgets != null && mDesktopItemsLoaded;
     }
 
@@ -250,7 +206,7 @@ public class WidgetModel {
      * Loads all of the items on the desktop, in folders, or in the dock.
      * These can be apps, shortcuts or widgets
      */
-    void loadUserItems(boolean isLaunching, SamSprungWidget launcher, boolean localeChanged,
+    public void loadUserItems(boolean isLaunching, SamSprungWidget launcher, boolean localeChanged,
                        boolean loadApplications) {
         if (DEBUG_LOADERS) d(LOG_TAG, "loading user items");
 
@@ -290,19 +246,14 @@ public class WidgetModel {
     }
 
     private static void updateShortcutLabels(ContentResolver resolver, PackageManager manager) {
-        final Cursor c = resolver.query(WidgetSettings.Favorites.CONTENT_URI,
+        try (Cursor c = resolver.query(WidgetSettings.Favorites.CONTENT_URI,
                 new String[] { WidgetSettings.Favorites._ID, WidgetSettings.Favorites.TITLE,
                         WidgetSettings.Favorites.INTENT, WidgetSettings.Favorites.ITEM_TYPE },
-                null, null, null);
-
-        final int idIndex = c.getColumnIndexOrThrow(WidgetSettings.Favorites._ID);
-        final int intentIndex = c.getColumnIndexOrThrow(WidgetSettings.Favorites.INTENT);
-        final int itemTypeIndex = c.getColumnIndexOrThrow(WidgetSettings.Favorites.ITEM_TYPE);
-        final int titleIndex = c.getColumnIndexOrThrow(WidgetSettings.Favorites.TITLE);
-
-        // boolean changed = false;
-
-        try {
+                null, null, null)) {
+            final int idIndex = c.getColumnIndexOrThrow(WidgetSettings.Favorites._ID);
+            final int intentIndex = c.getColumnIndexOrThrow(WidgetSettings.Favorites.INTENT);
+            final int itemTypeIndex = c.getColumnIndexOrThrow(WidgetSettings.Favorites.ITEM_TYPE);
+            final int titleIndex = c.getColumnIndexOrThrow(WidgetSettings.Favorites.TITLE);
             while (c.moveToNext()) {
                 try {
                     if (c.getInt(itemTypeIndex) !=
@@ -327,15 +278,14 @@ public class WidgetModel {
                                     resolver.update(
                                             WidgetSettings.Favorites.CONTENT_URI_NO_NOTIFICATION,
                                             values, "_id=?",
-                                            new String[] { String.valueOf(c.getLong(idIndex)) });
+                                            new String[]{String.valueOf(c.getLong(idIndex))});
                                 }
                             }
                         }
                     }
-                } catch (URISyntaxException | PackageManager.NameNotFoundException ignored) { }
+                } catch (URISyntaxException | PackageManager.NameNotFoundException ignored) {
+                }
             }
-        } finally {
-            c.close();
         }
     }
 
@@ -357,7 +307,7 @@ public class WidgetModel {
                            boolean isLaunching) {
             mLoadApplications = loadApplications;
             mIsLaunching = isLaunching;
-            mLauncher = new WeakReference<SamSprungWidget>(launcher);
+            mLauncher = new WeakReference<>(launcher);
             mLocaleChanged = localeChanged;
             mId = sWorkspaceLoaderCount.getAndIncrement();
         }
@@ -385,23 +335,19 @@ public class WidgetModel {
                 updateShortcutLabels(contentResolver, manager);
             }
 
-            mDesktopItems = new ArrayList<ItemInfo>();
-            mDesktopAppWidgets = new ArrayList<CoverAppWidgetInfo>();
+            mDesktopItems = new ArrayList<>();
+            mDesktopAppWidgets = new ArrayList<>();
 
-            final ArrayList<ItemInfo> desktopItems = mDesktopItems;
-            final ArrayList<CoverAppWidgetInfo> desktopAppWidgets = mDesktopAppWidgets;
+            final ArrayList<WidgetInfo> desktopItems = mDesktopItems;
+            final ArrayList<CoverWidgetInfo> desktopAppWidgets = mDesktopAppWidgets;
 
-            final Cursor c = contentResolver.query(
-                    WidgetSettings.Favorites.CONTENT_URI, null, null, null, null);
-
-            try {
+            try (Cursor c = contentResolver.query(WidgetSettings.Favorites.CONTENT_URI,
+                    null, null, null, null)) {
                 final int idIndex = c.getColumnIndexOrThrow(WidgetSettings.Favorites._ID);
                 final int intentIndex = c.getColumnIndexOrThrow(WidgetSettings.Favorites.INTENT);
                 final int titleIndex = c.getColumnIndexOrThrow(WidgetSettings.Favorites.TITLE);
                 final int iconTypeIndex = c.getColumnIndexOrThrow(WidgetSettings.Favorites.ICON_TYPE);
                 final int iconIndex = c.getColumnIndexOrThrow(WidgetSettings.Favorites.ICON);
-                final int iconPackageIndex = c.getColumnIndexOrThrow(WidgetSettings.Favorites.ICON_PACKAGE);
-                final int iconResourceIndex = c.getColumnIndexOrThrow(WidgetSettings.Favorites.ICON_RESOURCE);
                 final int containerIndex = c.getColumnIndexOrThrow(WidgetSettings.Favorites.CONTAINER);
                 final int itemTypeIndex = c.getColumnIndexOrThrow(WidgetSettings.Favorites.ITEM_TYPE);
                 final int appWidgetIdIndex = c.getColumnIndexOrThrow(WidgetSettings.Favorites.APPWIDGET_ID);
@@ -411,9 +357,8 @@ public class WidgetModel {
                 final int spanXIndex = c.getColumnIndexOrThrow(WidgetSettings.Favorites.SPANX);
                 final int spanYIndex = c.getColumnIndexOrThrow(WidgetSettings.Favorites.SPANY);
                 final int uriIndex = c.getColumnIndexOrThrow(WidgetSettings.Favorites.URI);
-                final int displayModeIndex = c.getColumnIndexOrThrow(WidgetSettings.Favorites.DISPLAY_MODE);
 
-                CoverAppWidgetInfo appWidgetInfo;
+                CoverWidgetInfo appWidgetInfo;
                 int container;
 
                 while (!mStopped && c.moveToNext()) {
@@ -422,7 +367,7 @@ public class WidgetModel {
 
                         if (itemType == WidgetSettings.Favorites.ITEM_TYPE_APPWIDGET) {// Read all Launcher-specific widget details
                             int appWidgetId = c.getInt(appWidgetIdIndex);
-                            appWidgetInfo = new CoverAppWidgetInfo(appWidgetId);
+                            appWidgetInfo = new CoverWidgetInfo(appWidgetId);
                             appWidgetInfo.id = c.getLong(idIndex);
                             appWidgetInfo.screen = c.getInt(screenIndex);
                             appWidgetInfo.cellX = c.getInt(cellXIndex);
@@ -444,8 +389,6 @@ public class WidgetModel {
                         w(SamSprungWidget.Companion.getLogTag(), "Desktop items loading interrupted:", e);
                     }
                 }
-            } finally {
-                c.close();
             }
 
             if (!mStopped) {
@@ -457,18 +400,16 @@ public class WidgetModel {
 
                 // Create a copy of the lists in case the workspace loader is restarted
                 // and the list are cleared before the UI can go through them
-                final ArrayList<ItemInfo> uiDesktopItems =
-                        new ArrayList<ItemInfo>(desktopItems);
-                final ArrayList<CoverAppWidgetInfo> uiDesktopWidgets =
-                        new ArrayList<CoverAppWidgetInfo>(desktopAppWidgets);
+                final ArrayList<WidgetInfo> uiDesktopItems =
+                        new ArrayList<>(desktopItems);
+                final ArrayList<CoverWidgetInfo> uiDesktopWidgets =
+                        new ArrayList<>(desktopAppWidgets);
 
                 if (!mStopped) {
                     d(LOG_TAG, "  ----> items cloned, ready to refresh UI");                
-                    launcher.runOnUiThread(new Runnable() {
-                        public void run() {
-                            if (DEBUG_LOADERS) d(LOG_TAG, "  ----> onDesktopItemsLoaded()");
-                            launcher.onDesktopItemsLoaded(uiDesktopItems, uiDesktopWidgets);
-                        }
+                    launcher.runOnUiThread(() -> {
+                        if (DEBUG_LOADERS) d(LOG_TAG, "  ----> onDesktopItemsLoaded()");
+                        launcher.onDesktopItemsLoaded(uiDesktopItems, uiDesktopWidgets);
                     });
                 }
 
@@ -491,7 +432,7 @@ public class WidgetModel {
      * Remove the callback for the cached drawables or we leak the previous
      * Home screen on orientation change.
      */
-    void unbind() {
+    public void unbind() {
         // Interrupt the applications loader before setting the adapter to null
         stopAndWaitForApplicationsLoader();
         unbindDrawables(mDesktopItems);
@@ -503,11 +444,11 @@ public class WidgetModel {
      * Remove the callback for the cached drawables or we leak the previous
      * Home screen on orientation change.
      */
-    private void unbindDrawables(ArrayList<ItemInfo> desktopItems) {
+    private void unbindDrawables(ArrayList<WidgetInfo> desktopItems) {
         if (desktopItems != null) {
             final int count = desktopItems.size();
             for (int i = 0; i < count; i++) {
-                ItemInfo item = desktopItems.get(i);
+                WidgetInfo item = desktopItems.get(i);
                 switch (item.itemType) {
                 case WidgetSettings.Favorites.ITEM_TYPE_APPLICATION:
                 case WidgetSettings.Favorites.ITEM_TYPE_SHORTCUT:
@@ -519,13 +460,13 @@ public class WidgetModel {
     }
 
     /**
-     * Remove any {@link CoverAppWidgetHostView} references in our widgets.
+     * Remove any {@link CoverWidgetHostView} references in our widgets.
      */
-    private void unbindAppWidgetHostViews(ArrayList<CoverAppWidgetInfo> appWidgets) {
+    private void unbindAppWidgetHostViews(ArrayList<CoverWidgetInfo> appWidgets) {
         if (appWidgets != null) {
             final int count = appWidgets.size();
             for (int i = 0; i < count; i++) {
-                CoverAppWidgetInfo launcherInfo = appWidgets.get(i);
+                CoverWidgetInfo launcherInfo = appWidgets.get(i);
                 launcherInfo.hostView = null;
             }
         }
@@ -542,33 +483,10 @@ public class WidgetModel {
     }
 
     /**
-     * @return The current list of desktop items
-     */
-    ArrayList<ItemInfo> getDesktopItems() {
-        return mDesktopItems;
-    }
-
-    /**
-     * @return The current list of desktop items
-     */
-    ArrayList<CoverAppWidgetInfo> getDesktopAppWidgets() {
-        return mDesktopAppWidgets;
-    }
-
-    /**
-     * Add an item to the desktop
-     * @param info
-     */
-    void addDesktopItem(ItemInfo info) {
-        // TODO: write to DB; also check that folder has been added to folders list
-        mDesktopItems.add(info);
-    }
-
-    /**
      * Remove an item from the desktop
      * @param info
      */
-    void removeDesktopItem(ItemInfo info) {
+    public void removeDesktopItem(WidgetInfo info) {
         // TODO: write to DB; figure out if we should remove folder from folders list
         mDesktopItems.remove(info);
     }
@@ -576,109 +494,22 @@ public class WidgetModel {
     /**
      * Add a widget to the desktop
      */
-    void addDesktopAppWidget(CoverAppWidgetInfo info) {
+    public void addDesktopAppWidget(CoverWidgetInfo info) {
         mDesktopAppWidgets.add(info);
     }
 
     /**
      * Remove a widget from the desktop
      */
-    void removeDesktopAppWidget(CoverAppWidgetInfo info) {
+    public void removeDesktopAppWidget(CoverWidgetInfo info) {
         mDesktopAppWidgets.remove(info);
-    }
-
-    /**
-     * Make an ApplicationInfo object for an application
-     */
-    private static ApplicationInfo getApplicationInfo(PackageManager manager, Intent intent,
-                                                      Context context) {
-        final ResolveInfo resolveInfo = manager.resolveActivity(intent, 0);
-
-        if (resolveInfo == null) {
-            return null;
-        }
-
-        final ApplicationInfo info = new ApplicationInfo();
-        final ActivityInfo activityInfo = resolveInfo.activityInfo;
-        info.icon = Utilities.createIconThumbnail(activityInfo.loadIcon(manager), context);
-        if (info.title == null || info.title.length() == 0) {
-            info.title = activityInfo.loadLabel(manager);
-        }
-        if (info.title == null) {
-            info.title = "";
-        }
-        info.itemType = WidgetSettings.Favorites.ITEM_TYPE_APPLICATION;
-        return info;
-    }
-
-    /**
-     * Make an ApplicationInfo object for a sortcut
-     */
-    private ApplicationInfo getApplicationInfoShortcut(Cursor c, Context context,
-            int iconTypeIndex, int iconPackageIndex, int iconResourceIndex, int iconIndex) {
-
-        final ApplicationInfo info = new ApplicationInfo();
-        info.itemType = WidgetSettings.Favorites.ITEM_TYPE_SHORTCUT;
-
-        int iconType = c.getInt(iconTypeIndex);
-        switch (iconType) {
-            case WidgetSettings.Favorites.ICON_TYPE_RESOURCE:
-                String packageName = c.getString(iconPackageIndex);
-                String resourceName = c.getString(iconResourceIndex);
-                PackageManager packageManager = context.getPackageManager();
-                try {
-                    Resources resources = packageManager.getResourcesForApplication(packageName);
-                    final int id = resources.getIdentifier(resourceName, null, null);
-                    info.icon = Utilities.createIconThumbnail(resources.getDrawable(id), context);
-                } catch (Exception e) {
-                    info.icon = packageManager.getDefaultActivityIcon();
-                }
-                info.iconResource = new Intent.ShortcutIconResource();
-                info.iconResource.packageName = packageName;
-                info.iconResource.resourceName = resourceName;
-                info.customIcon = false;
-                break;
-            case WidgetSettings.Favorites.ICON_TYPE_BITMAP:
-                byte[] data = c.getBlob(iconIndex);
-                try {
-                    Bitmap bitmap = BitmapFactory.decodeByteArray(data, 0, data.length);
-                    info.icon = new FastBitmapDrawable(
-                            Utilities.createBitmapThumbnail(bitmap, context));
-                } catch (Exception e) {
-                    packageManager = context.getPackageManager();
-                    info.icon = packageManager.getDefaultActivityIcon();
-                }
-                info.filtered = true;
-                info.customIcon = true;
-                break;
-            default:
-                info.icon = context.getPackageManager().getDefaultActivityIcon();
-                info.customIcon = false;
-                break;
-        }
-        return info;
-    }
-
-    /**
-     * Adds an item to the DB if it was not created previously, or move it to a new
-     * <container, screen, cellX, cellY>
-     */
-    static void addOrMoveItemInDatabase(Context context, ItemInfo item, int container,
-            int screen, int cellX, int cellY) {
-        if (item.container == ItemInfo.NO_ID) {
-            // From all apps
-            addItemToDatabase(context, item, container, screen, cellX, cellY, false);
-        } else {
-            // From somewhere else
-            moveItemInDatabase(context, item, container, screen, cellX, cellY);
-        }
     }
 
     /**
      * Move an item in the DB to a new <container, screen, cellX, cellY>
      */
-    static void moveItemInDatabase(Context context, ItemInfo item, long container, int screen,
-            int cellX, int cellY) {
+    static void moveItemInDatabase(Context context, WidgetInfo item, long container, int screen,
+                                   int cellX, int cellY) {
         item.container = container;
         item.screen = screen;
         item.cellX = cellX;
@@ -699,8 +530,8 @@ public class WidgetModel {
      * Add an item to the database in a specified container. Sets the container, screen, cellX and
      * cellY fields of the item. Also assigns an ID to the item.
      */
-    static void addItemToDatabase(Context context, ItemInfo item, int container,
-            int screen, int cellX, int cellY, boolean notify) {
+    public static void addItemToDatabase(Context context, WidgetInfo item, int container,
+                                         int screen, int cellX, int cellY, boolean notify) {
         item.container = container;
         item.screen = screen;
         item.cellX = cellX;
@@ -720,105 +551,13 @@ public class WidgetModel {
     }
 
     /**
-     * Update an item to the database in a specified container.
-     */
-    static void updateItemInDatabase(Context context, ItemInfo item) {
-        final ContentValues values = new ContentValues();
-        final ContentResolver cr = context.getContentResolver();
-
-        item.onAddToDatabase(values);
-
-        cr.update(WidgetSettings.Favorites.getContentUri(item.id, false), values, null, null);
-    }
-
-    /**
      * Removes the specified item from the database
      * @param context
      * @param item
      */
-    static void deleteItemFromDatabase(Context context, ItemInfo item) {
+    public static void deleteItemFromDatabase(Context context, WidgetInfo item) {
         final ContentResolver cr = context.getContentResolver();
 
         cr.delete(WidgetSettings.Favorites.getContentUri(item.id, false), null, null);
-    }
-
-    static void deleteGestureFromDatabase(Context context, ItemInfo item) {
-        final ContentResolver cr = context.getContentResolver();
-
-        cr.delete(WidgetSettings.Gestures.getContentUri(item.id, false), null, null);
-    }
-
-    static void updateGestureInDatabase(Context context, ItemInfo item) {
-        final ContentValues values = new ContentValues();
-        final ContentResolver cr = context.getContentResolver();
-
-        item.onAddToDatabase(values);
-
-        cr.update(WidgetSettings.Gestures.getContentUri(item.id, false), values, null, null);
-    }
-
-
-    ApplicationInfo queryGesture(Context context, String id) {
-        final ContentResolver contentResolver = context.getContentResolver();
-        final PackageManager manager = context.getPackageManager();
-        final Cursor c = contentResolver.query(
-                WidgetSettings.Gestures.CONTENT_URI, null, WidgetSettings.Gestures._ID + "=?",
-                new String[] { id }, null);
-
-        ApplicationInfo info = null;
-
-        try {
-            final int idIndex = c.getColumnIndexOrThrow(WidgetSettings.Gestures._ID);
-            final int intentIndex = c.getColumnIndexOrThrow(WidgetSettings.Gestures.INTENT);
-            final int titleIndex = c.getColumnIndexOrThrow(WidgetSettings.Gestures.TITLE);
-            final int iconTypeIndex = c.getColumnIndexOrThrow(WidgetSettings.Gestures.ICON_TYPE);
-            final int iconIndex = c.getColumnIndexOrThrow(WidgetSettings.Gestures.ICON);
-            final int iconPackageIndex = c.getColumnIndexOrThrow(WidgetSettings.Gestures.ICON_PACKAGE);
-            final int iconResourceIndex = c.getColumnIndexOrThrow(WidgetSettings.Gestures.ICON_RESOURCE);
-            final int itemTypeIndex = c.getColumnIndexOrThrow(WidgetSettings.Gestures.ITEM_TYPE);
-
-            String intentDescription;
-            Intent intent;
-
-            if (c.moveToNext()) {
-                int itemType = c.getInt(itemTypeIndex);
-
-                switch (itemType) {
-                    case WidgetSettings.Favorites.ITEM_TYPE_APPLICATION:
-                    case WidgetSettings.Favorites.ITEM_TYPE_SHORTCUT:
-                        intentDescription = c.getString(intentIndex);
-                        try {
-                            intent = Intent.parseUri(intentDescription, 0);
-                        } catch (java.net.URISyntaxException e) {
-                            return null;
-                        }
-
-                        if (itemType == WidgetSettings.Favorites.ITEM_TYPE_APPLICATION) {
-                            info = getApplicationInfo(manager, intent, context);
-                        } else {
-                            info = getApplicationInfoShortcut(c, context, iconTypeIndex,
-                                    iconPackageIndex, iconResourceIndex, iconIndex);
-                        }
-
-                        if (info == null) {
-                            info = new ApplicationInfo();
-                            info.icon = manager.getDefaultActivityIcon();
-                        }
-
-                        info.isGesture = true;
-                        info.title = c.getString(titleIndex);
-                        info.intent = intent;
-                        info.id = c.getLong(idIndex);
-
-                        break;
-                }
-            }
-        } catch (Exception e) {
-            w(LOG_TAG, "Could not load gesture with name " + id);
-        } finally {
-            c.close();
-        }
-
-        return info;
     }
 }

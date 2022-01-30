@@ -22,8 +22,8 @@ import android.provider.BaseColumns;
 /**
  * Settings related utilities.
  */
-class WidgetSettings {
-    interface BaseLauncherColumns extends BaseColumns {
+public class WidgetSettings {
+    public interface BaseLauncherColumns extends BaseColumns {
         /**
          * Descriptive name of the gesture that can be displayed to the user.
          * <P>Type: TEXT</P>
@@ -72,64 +72,21 @@ class WidgetSettings {
         int ICON_TYPE_BITMAP = 1;
 
         /**
-         * The icon package name, if icon type is ICON_TYPE_RESOURCE.
-         * <P>Type: TEXT</P>
-         */
-        static final String ICON_PACKAGE = "iconPackage";
-
-        /**
-         * The icon resource id, if icon type is ICON_TYPE_RESOURCE.
-         * <P>Type: TEXT</P>
-         */
-        static final String ICON_RESOURCE = "iconResource";
-
-        /**
          * The custom icon bitmap, if icon type is ICON_TYPE_BITMAP.
          * <P>Type: BLOB</P>
          */
         String ICON = "icon";
     }
 
-    static final class Gestures implements BaseLauncherColumns {
-                /**
-         * The content:// style URL for this table
-         */
-        static final Uri CONTENT_URI = Uri.parse("content://" +
-                WidgetProvider.AUTHORITY + "/" + WidgetProvider.TABLE_GESTURES +
-                "?" + WidgetProvider.PARAMETER_NOTIFY + "=true");
-
-        /**
-         * The content:// style URL for this table. When this Uri is used, no notification is
-         * sent if the content changes.
-         */
-        static final Uri CONTENT_URI_NO_NOTIFICATION = Uri.parse("content://" +
-                WidgetProvider.AUTHORITY + "/" + WidgetProvider.TABLE_GESTURES +
-                "?" + WidgetProvider.PARAMETER_NOTIFY + "=false");
-
-        /**
-         * The content:// style URL for a given row, identified by its id.
-         *
-         * @param id The row id.
-         * @param notify True to send a notification is the content changes.
-         *
-         * @return The unique content URL for the specified row.
-         */
-        static Uri getContentUri(long id, boolean notify) {
-            return Uri.parse("content://" + WidgetProvider.AUTHORITY +
-                    "/" + WidgetProvider.TABLE_GESTURES + "/" + id + "?" +
-                    WidgetProvider.PARAMETER_NOTIFY + "=" + notify);
-        }
-    }
-
     /**
      * Favorites. When changing these values, be sure to update
      * LauncherAppWidgetBinder as needed.
      */
-    static final class Favorites implements BaseLauncherColumns {
+    public static final class Favorites implements BaseLauncherColumns {
         /**
          * The content:// style URL for this table
          */
-        static final Uri CONTENT_URI = Uri.parse("content://" +
+        public static final Uri CONTENT_URI = Uri.parse("content://" +
                 WidgetProvider.AUTHORITY + "/" + WidgetProvider.TABLE_FAVORITES +
                 "?" + WidgetProvider.PARAMETER_NOTIFY + "=true");
 
@@ -137,7 +94,7 @@ class WidgetSettings {
          * The content:// style URL for this table. When this Uri is used, no notification is
          * sent if the content changes.
          */
-        static final Uri CONTENT_URI_NO_NOTIFICATION = Uri.parse("content://" +
+        public static final Uri CONTENT_URI_NO_NOTIFICATION = Uri.parse("content://" +
                 WidgetProvider.AUTHORITY + "/" + WidgetProvider.TABLE_FAVORITES +
                 "?" + WidgetProvider.PARAMETER_NOTIFY + "=false");
 
@@ -149,7 +106,7 @@ class WidgetSettings {
          *
          * @return The unique content URL for the specified row.
          */
-        static Uri getContentUri(long id, boolean notify) {
+        public static Uri getContentUri(long id, boolean notify) {
             return Uri.parse("content://" + WidgetProvider.AUTHORITY +
                     "/" + WidgetProvider.TABLE_FAVORITES + "/" + id + "?" +
                     WidgetProvider.PARAMETER_NOTIFY + "=" + notify);
@@ -159,90 +116,72 @@ class WidgetSettings {
          * The container holding the favorite
          * <P>Type: INTEGER</P>
          */
-        static final String CONTAINER = "container";
+        public static final String CONTAINER = "container";
 
         /**
          * The icon is a resource identified by a package name and an integer id.
          */
-        static final int CONTAINER_DESKTOP = -100;
+        public static final int CONTAINER_DESKTOP = -100;
 
         /**
          * The screen holding the favorite (if container is CONTAINER_DESKTOP)
          * <P>Type: INTEGER</P>
          */
-        static final String SCREEN = "screen";
+        public static final String SCREEN = "screen";
 
         /**
          * The X coordinate of the cell holding the favorite
          * (if container is CONTAINER_DESKTOP or CONTAINER_DOCK)
          * <P>Type: INTEGER</P>
          */
-        static final String CELLX = "cellX";
+        public static final String CELLX = "cellX";
 
         /**
          * The Y coordinate of the cell holding the favorite
          * (if container is CONTAINER_DESKTOP)
          * <P>Type: INTEGER</P>
          */
-        static final String CELLY = "cellY";
+        public static final String CELLY = "cellY";
 
         /**
          * The X span of the cell holding the favorite
          * <P>Type: INTEGER</P>
          */
-        static final String SPANX = "spanX";
+        public static final String SPANX = "spanX";
 
         /**
          * The Y span of the cell holding the favorite
          * <P>Type: INTEGER</P>
          */
-        static final String SPANY = "spanY";
+        public static final String SPANY = "spanY";
 
         /**
          * The favorite is a widget
          */
-        static final int ITEM_TYPE_APPWIDGET = 4;
+        public static final int ITEM_TYPE_APPWIDGET = 4;
 
         /**
          * The favorite is a clock
          */
-        static final int ITEM_TYPE_WIDGET_CLOCK = 1000;
+        public static final int ITEM_TYPE_WIDGET_CLOCK = 1000;
 
         /**
          * The favorite is a photo frame
          */
-        static final int ITEM_TYPE_WIDGET_PHOTO_FRAME = 1002;
+        public static final int ITEM_TYPE_WIDGET_PHOTO_FRAME = 1002;
 
         /**
          * The appWidgetId of the widget
          *
          * <P>Type: INTEGER</P>
          */
-        static final String APPWIDGET_ID = "appWidgetId";
-        
-        /**
-         * Indicates whether this favorite is an application-created shortcut or not.
-         * If the value is 0, the favorite is not an application-created shortcut, if the
-         * value is 1, it is an application-created shortcut.
-         * <P>Type: INTEGER</P>
-         */
-        @Deprecated
-        static final String IS_SHORTCUT = "isShortcut";
+        public static final String APPWIDGET_ID = "appWidgetId";
 
         /**
          * The URI associated with the favorite. It is used, for instance, by
          * live folders to find the content provider.
          * <P>Type: TEXT</P>
          */
-        static final String URI = "uri";
-
-        /**
-         * The display mode if the item is a live folder.
-         * <P>Type: INTEGER</P>
-         *
-         * @see android.provider.LiveFolders#DISPLAY_MODE_GRID
-         * @see android.provider.LiveFolders#DISPLAY_MODE_LIST
-         */
-        static final String DISPLAY_MODE = "displayMode";
+        public static final String URI = "uri";
     }
 }

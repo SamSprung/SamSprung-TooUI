@@ -24,9 +24,6 @@ import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
-import android.content.pm.ActivityInfo;
-import android.content.pm.PackageManager;
-import android.content.res.TypedArray;
 import android.database.Cursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
@@ -46,16 +43,15 @@ public class WidgetProvider extends ContentProvider {
     private static final String LOG_TAG = WidgetProvider.class.getName();
     private static final boolean LOGD = true;
 
-    private static final String DATABASE_NAME = "widget.db";
+    private static final String DATABASE_NAME = "widgets.db";
     
-    private static final int DATABASE_VERSION = 6;
+    private static final int DATABASE_VERSION = 7;
 
     static final String AUTHORITY = "com.eightbit.samsprung.widget";
     static final String EXTRA_BIND_SOURCES = AUTHORITY + ".bindsources";
     static final String EXTRA_BIND_TARGETS = AUTHORITY + ".bindtargets";
     
     static final String TABLE_FAVORITES = "favorites";
-    static final String TABLE_GESTURES = "gestures";
     static final String PARAMETER_NOTIFY = "notify";
 
     /**
@@ -162,9 +158,6 @@ public class WidgetProvider extends ContentProvider {
     }
 
     private static class DatabaseHelper extends SQLiteOpenHelper {
-        private static final String TAG_FAVORITES = "favorites";
-        private static final String TAG_FAVORITE = "favorite";
-        private static final String TAG_CLOCK = "clock";
 
         private final Context mContext;
         private final AppWidgetHost mAppWidgetHost;
@@ -209,17 +202,6 @@ public class WidgetProvider extends ContentProvider {
                     "icon BLOB," +
                     "uri TEXT," +
                     "displayMode INTEGER" +
-                    ");");
-
-            db.execSQL("CREATE TABLE gestures (" +
-                    "_id INTEGER PRIMARY KEY," +
-                    "title TEXT," +
-                    "intent TEXT," +
-                    "itemType INTEGER," +
-                    "iconType INTEGER," +
-                    "iconPackage TEXT," +
-                    "iconResource TEXT," +
-                    "icon BLOB" +
                     ");");
 
             // Database was just created, so wipe any previous widgets
@@ -273,15 +255,12 @@ public class WidgetProvider extends ContentProvider {
             final int titleIndex = c.getColumnIndexOrThrow(WidgetSettings.Favorites.TITLE);
             final int iconTypeIndex = c.getColumnIndexOrThrow(WidgetSettings.Favorites.ICON_TYPE);
             final int iconIndex = c.getColumnIndexOrThrow(WidgetSettings.Favorites.ICON);
-            final int iconPackageIndex = c.getColumnIndexOrThrow(WidgetSettings.Favorites.ICON_PACKAGE);
-            final int iconResourceIndex = c.getColumnIndexOrThrow(WidgetSettings.Favorites.ICON_RESOURCE);
             final int containerIndex = c.getColumnIndexOrThrow(WidgetSettings.Favorites.CONTAINER);
             final int itemTypeIndex = c.getColumnIndexOrThrow(WidgetSettings.Favorites.ITEM_TYPE);
             final int screenIndex = c.getColumnIndexOrThrow(WidgetSettings.Favorites.SCREEN);
             final int cellXIndex = c.getColumnIndexOrThrow(WidgetSettings.Favorites.CELLX);
             final int cellYIndex = c.getColumnIndexOrThrow(WidgetSettings.Favorites.CELLY);
             final int uriIndex = c.getColumnIndexOrThrow(WidgetSettings.Favorites.URI);
-            final int displayModeIndex = c.getColumnIndexOrThrow(WidgetSettings.Favorites.DISPLAY_MODE);
 
             ContentValues[] rows = new ContentValues[c.getCount()];
             int i = 0;
@@ -292,8 +271,6 @@ public class WidgetProvider extends ContentProvider {
                 values.put(WidgetSettings.Favorites.TITLE, c.getString(titleIndex));
                 values.put(WidgetSettings.Favorites.ICON_TYPE, c.getInt(iconTypeIndex));
                 values.put(WidgetSettings.Favorites.ICON, c.getBlob(iconIndex));
-                values.put(WidgetSettings.Favorites.ICON_PACKAGE, c.getString(iconPackageIndex));
-                values.put(WidgetSettings.Favorites.ICON_RESOURCE, c.getString(iconResourceIndex));
                 values.put(WidgetSettings.Favorites.CONTAINER, c.getInt(containerIndex));
                 values.put(WidgetSettings.Favorites.ITEM_TYPE, c.getInt(itemTypeIndex));
                 values.put(WidgetSettings.Favorites.APPWIDGET_ID, -1);
@@ -301,7 +278,6 @@ public class WidgetProvider extends ContentProvider {
                 values.put(WidgetSettings.Favorites.CELLX, c.getInt(cellXIndex));
                 values.put(WidgetSettings.Favorites.CELLY, c.getInt(cellYIndex));
                 values.put(WidgetSettings.Favorites.URI, c.getString(uriIndex));
-                values.put(WidgetSettings.Favorites.DISPLAY_MODE, c.getInt(displayModeIndex));
                 rows[i++] = values;
             }
 
@@ -350,34 +326,10 @@ public class WidgetProvider extends ContentProvider {
                     convertWidgets(db);
                 }
             }
-
-            if (version < 4) {
-                db.beginTransaction();
-                try {
-                    db.execSQL("CREATE TABLE gestures (" +
-                        "_id INTEGER PRIMARY KEY," +
-                        "title TEXT," +
-                        "intent TEXT," +
-                        "itemType INTEGER," +
-                        "iconType INTEGER," +
-                        "iconPackage TEXT," +
-                        "iconResource TEXT," +
-                        "icon BLOB" +
-                        ");");
-                    db.setTransactionSuccessful();
-                    version = 4;
-                } catch (SQLException ex) {
-                    // Old version remains, which means we wipe old data
-                    Log.e(LOG_TAG, ex.getMessage(), ex);
-                } finally {
-                    db.endTransaction();
-                }
-            }
             
             if (version != DATABASE_VERSION) {
                 Log.w(LOG_TAG, "Destroying all old data.");
                 db.execSQL("DROP TABLE IF EXISTS " + TABLE_FAVORITES);
-                db.execSQL("DROP TABLE IF EXISTS " + TABLE_GESTURES);
                 onCreate(db);
             }
         }
@@ -474,65 +426,6 @@ public class WidgetProvider extends ContentProvider {
             mContext.startActivity(intent);
         }
 
-        private boolean addShortcut(SQLiteDatabase db, ContentValues values, TypedArray a,
-                PackageManager packageManager, Intent intent) {
-
-            ActivityInfo info;
-            String packageName = a.getString(R.styleable.Favorite_packageName);
-            String className = a.getString(R.styleable.Favorite_className);
-            try {
-                ComponentName cn = new ComponentName(packageName, className);
-                info = packageManager.getActivityInfo(cn, 0);
-                intent.setComponent(cn);
-                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK
-                        | Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED);
-                values.put(Favorites.INTENT, intent.toUri(0));
-                values.put(Favorites.TITLE, info.loadLabel(packageManager).toString());
-                values.put(Favorites.ITEM_TYPE, Favorites.ITEM_TYPE_APPLICATION);
-                values.put(Favorites.SPANX, 1);
-                values.put(Favorites.SPANY, 1);
-                db.insert(TABLE_FAVORITES, null, values);
-            } catch (PackageManager.NameNotFoundException e) {
-                Log.w(LOG_TAG, "Unable to add favorite: " + packageName +
-                        "/" + className, e);
-                return false;
-            }
-            return true;
-        }
-
-        private boolean addClockWidget(SQLiteDatabase db, ContentValues values) {
-            final int[] bindSources = new int[] {
-                    Favorites.ITEM_TYPE_WIDGET_CLOCK,
-            };
-
-            final ArrayList<ComponentName> bindTargets = new ArrayList<>();
-            bindTargets.add(new ComponentName("com.android.alarmclock",
-                    "com.android.alarmclock.AnalogAppWidgetProvider"));
-
-            boolean allocatedAppWidgets = false;
-
-            // Try binding to an analog clock widget
-            try {
-                int appWidgetId = mAppWidgetHost.allocateAppWidgetId();
-
-                values.put(Favorites.ITEM_TYPE, Favorites.ITEM_TYPE_WIDGET_CLOCK);
-                values.put(Favorites.SPANX, 2);
-                values.put(Favorites.SPANY, 2);
-                values.put(Favorites.APPWIDGET_ID, appWidgetId);
-                db.insert(TABLE_FAVORITES, null, values);
-
-                allocatedAppWidgets = true;
-            } catch (RuntimeException ex) {
-                Log.e(LOG_TAG, "Problem allocating appWidgetId", ex);
-            }
-
-            // If any appWidgetIds allocated, then launch over to binder
-            if (allocatedAppWidgets) {
-                launchAppWidgetBinder(bindSources, bindTargets);
-            }
-
-            return allocatedAppWidgets;
-        }
     }
 
     /**

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.eightbit.samsprung;
+package com.eightbit.samsprung.widget;
 
 import android.content.ContentValues;
 import android.content.Intent;
@@ -23,11 +23,13 @@ import android.graphics.drawable.Drawable;
 
 import androidx.annotation.NonNull;
 
+import com.eightbit.samsprung.WidgetSettings;
+
 /**
  * Represents a launchable application. An application is made of a name (or title),
  * an intent and an icon.
  */
-class ApplicationInfo extends ItemInfo {
+class ApplicationInfo extends WidgetInfo {
 
     /**
      * The application name.
@@ -66,7 +68,7 @@ class ApplicationInfo extends ItemInfo {
     }
 
     @Override
-    void onAddToDatabase(ContentValues values) {
+    public void onAddToDatabase(ContentValues values) {
         super.onAddToDatabase(values);
 
         String titleStr = title != null ? title.toString() : null;
@@ -83,12 +85,6 @@ class ApplicationInfo extends ItemInfo {
         } else {
             values.put(WidgetSettings.BaseLauncherColumns.ICON_TYPE,
                     WidgetSettings.BaseLauncherColumns.ICON_TYPE_RESOURCE);
-            if (iconResource != null) {
-                values.put(WidgetSettings.BaseLauncherColumns.ICON_PACKAGE,
-                        iconResource.packageName);
-                values.put(WidgetSettings.BaseLauncherColumns.ICON_RESOURCE,
-                        iconResource.resourceName);
-            }
         }
     }
 

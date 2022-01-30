@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.eightbit.samsprung;
+package com.eightbit.samsprung.widget;
 
 import android.appwidget.AppWidgetHostView;
 import android.content.Context;
@@ -24,17 +24,19 @@ import android.view.View;
 import android.view.ViewConfiguration;
 import android.view.ViewParent;
 
+import com.eightbit.samsprung.R;
+
 /**
  * {@inheritDoc}
  */
-public class CoverAppWidgetHostView extends AppWidgetHostView {
+public class CoverWidgetHostView extends AppWidgetHostView {
     private boolean mHasPerformedLongPress;
     
     private CheckForLongPress mPendingCheckForLongPress;
     
     private final LayoutInflater mInflater;
     
-    public CoverAppWidgetHostView(Context context) {
+    public CoverWidgetHostView(Context context) {
         super(context);
         mInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
     }

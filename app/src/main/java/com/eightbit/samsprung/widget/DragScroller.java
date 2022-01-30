@@ -14,15 +14,13 @@
  * limitations under the License.
  */
 
-package com.eightbit.samsprung;
-
-import android.view.View;
+package com.eightbit.samsprung.widget;
 
 /**
- * Interface defining an object that can originate a drag.
+ * Handles scrolling while dragging
  *
  */
-public interface DragSource {
-    void setDragger(DragController dragger);
-    void onDropCompleted(View target, boolean success);
+public interface DragScroller {
+    void scrollLeft();
+    void scrollRight();
 }

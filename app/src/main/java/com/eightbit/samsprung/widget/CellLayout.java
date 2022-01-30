@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.eightbit.samsprung;
+package com.eightbit.samsprung.widget;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
@@ -27,6 +27,8 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewDebug;
 import android.view.ViewGroup;
+
+import com.eightbit.samsprung.R;
 
 import java.util.ArrayList;
 
@@ -111,11 +113,11 @@ public class CellLayout extends ViewGroup {
         }
     }
 
-    int getCountX() {
+    public int getCountX() {
         return mPortrait ? mShortAxisCells : mLongAxisCells;
     }
 
-    int getCountY() {
+    public int getCountY() {
         return mPortrait ? mLongAxisCells : mShortAxisCells;
     }
 
@@ -743,7 +745,7 @@ out:            for (int i = x; i < x + spanX - 1 && x < xCount; i++) {
         return false;
     }
 
-    boolean[] getOccupiedCells() {
+    public boolean[] getOccupiedCells() {
         final boolean portrait = mPortrait;
         final int xCount = portrait ? mShortAxisCells : mLongAxisCells;
         final int yCount = portrait ? mLongAxisCells : mShortAxisCells;
@@ -849,7 +851,7 @@ out:            for (int i = x; i < x + spanX - 1 && x < xCount; i++) {
         }
         
         public LayoutParams(int cellX, int cellY, int cellHSpan, int cellVSpan) {
-            super(LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT);
+            super(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT);
             this.cellX = cellX;
             this.cellY = cellY;
             this.cellHSpan = cellHSpan;
@@ -874,7 +876,7 @@ out:            for (int i = x; i < x + spanX - 1 && x < xCount; i++) {
         }
     }
 
-    static final class CellInfo implements ContextMenu.ContextMenuInfo {
+    public static final class CellInfo implements ContextMenu.ContextMenuInfo {
         /**
          * See View.AttachInfo.InvalidateInfo for futher explanations about
          * the recycling mechanism. In this case, we recycle the vacant cells
@@ -930,13 +932,13 @@ out:            for (int i = x; i < x + spanX - 1 && x < xCount; i++) {
             }
         }
 
-        View cell;
-        int cellX;
-        int cellY;
-        int spanX;
-        int spanY;
-        int screen;
-        boolean valid;
+        public View cell;
+        public int cellX;
+        public int cellY;
+        public int spanX;
+        public int spanY;
+        public int screen;
+        public boolean valid;
 
         final ArrayList<VacantCell> vacantCells = new ArrayList<>(VacantCell.POOL_LIMIT);
         int maxVacantSpanX;
@@ -954,7 +956,7 @@ out:            for (int i = x; i < x + spanX - 1 && x < xCount; i++) {
             list.clear();
         }
 
-        void findVacantCellsFromOccupied(boolean[] occupied, int xCount, int yCount) {
+        public void findVacantCellsFromOccupied(boolean[] occupied, int xCount, int yCount) {
             if (cellX < 0 || cellY < 0) {
                 maxVacantSpanX = maxVacantSpanXSpanY = Integer.MIN_VALUE;
                 maxVacantSpanY = maxVacantSpanYSpanX = Integer.MIN_VALUE;
@@ -985,7 +987,7 @@ out:            for (int i = x; i < x + spanX - 1 && x < xCount; i++) {
          *
          * @return True if a vacant cell of the specified dimension was found, false otherwise.
          */
-        boolean findCellForSpan(int[] cellXY, int spanX, int spanY) {
+        public boolean findCellForSpan(int[] cellXY, int spanX, int spanY) {
             return findCellForSpan(cellXY, spanX, spanY, true);
         }
 

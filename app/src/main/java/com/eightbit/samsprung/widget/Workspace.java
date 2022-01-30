@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.eightbit.samsprung;
+package com.eightbit.samsprung.widget;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
@@ -33,6 +33,10 @@ import android.view.ViewConfiguration;
 import android.view.ViewGroup;
 import android.view.ViewParent;
 import android.widget.Scroller;
+
+import com.eightbit.samsprung.R;
+import com.eightbit.samsprung.SamSprungWidget;
+import com.eightbit.samsprung.WidgetSettings;
 
 /**
  * The workspace is a wide area with a wallpaper and a finite number of screens. Each
@@ -93,11 +97,8 @@ public class Workspace extends ViewGroup implements DropTarget, DragSource, Drag
     private int mTouchSlop;
     private int mMaximumVelocity;
 
-    final Rect mDrawerBounds = new Rect();
     final Rect mClipBounds = new Rect();
-    int mDrawerContentHeight;
-    int mDrawerContentWidth;
-    
+
     /**
      * Used to inflate the Workspace from XML.
      *
@@ -181,7 +182,7 @@ public class Workspace extends ViewGroup implements DropTarget, DragSource, Drag
         super.addView(child, params);
     }
 
-    boolean isDefaultScreenShowing() {
+    public boolean isDefaultScreenShowing() {
         return mCurrentScreen == mDefaultScreen;
     }
 
@@ -190,7 +191,7 @@ public class Workspace extends ViewGroup implements DropTarget, DragSource, Drag
      *
      * @return The index of the currently displayed screen.
      */
-    int getCurrentScreen() {
+    public int getCurrentScreen() {
         return mCurrentScreen;
     }
 
@@ -213,7 +214,7 @@ public class Workspace extends ViewGroup implements DropTarget, DragSource, Drag
      *
      * @param currentScreen
      */
-    void setCurrentScreen(int currentScreen) {
+    public void setCurrentScreen(int currentScreen) {
         clearVacantCache();
         mCurrentScreen = Math.max(0, Math.min(currentScreen, getChildCount() - 1));
         scrollTo(mCurrentScreen * getWidth(), 0);
@@ -252,7 +253,7 @@ public class Workspace extends ViewGroup implements DropTarget, DragSource, Drag
      * @param spanY The number of cells spanned vertically by the child.
      * @param insert When true, the child is inserted at the beginning of the children list.
      */
-    void addInCurrentScreen(View child, int x, int y, int spanX, int spanY, boolean insert) {
+    public void addInCurrentScreen(View child, int x, int y, int spanX, int spanY, boolean insert) {
         addInScreen(child, mCurrentScreen, x, y, spanX, spanY, insert);
     }
 
@@ -283,7 +284,7 @@ public class Workspace extends ViewGroup implements DropTarget, DragSource, Drag
      * @param spanY The number of cells spanned vertically by the child.
      * @param insert When true, the child is inserted at the beginning of the children list.
      */
-    void addInScreen(View child, int screen, int x, int y, int spanX, int spanY, boolean insert) {
+    public void addInScreen(View child, int screen, int x, int y, int spanX, int spanY, boolean insert) {
         if (screen < 0 || screen >= getChildCount()) {
             throw new IllegalStateException("The screen must be >= 0 and < " + getChildCount());
         }
@@ -304,17 +305,17 @@ public class Workspace extends ViewGroup implements DropTarget, DragSource, Drag
             child.setOnLongClickListener(mLongClickListener);
     }
 
-    void addWidget(View view, Widget widget) {
+    void addWidget(View view, WidgetInfo widget) {
         addInScreen(view, widget.screen, widget.cellX, widget.cellY, widget.spanX,
                 widget.spanY, false);
     }
 
-    void addWidget(View view, Widget widget, boolean insert) {
+    public void addWidget(View view, WidgetInfo widget, boolean insert) {
         addInScreen(view, widget.screen, widget.cellX, widget.cellY, widget.spanX,
                 widget.spanY, insert);
     }
 
-    CellLayout.CellInfo findAllVacantCells(boolean[] occupied) {
+    public CellLayout.CellInfo findAllVacantCells(boolean[] occupied) {
         CellLayout group = (CellLayout) getChildAt(mCurrentScreen);
         if (group != null) {
             return group.findAllVacantCells(occupied, null);
@@ -425,7 +426,6 @@ public class Workspace extends ViewGroup implements DropTarget, DragSource, Drag
     @Override
     protected void dispatchDraw(Canvas canvas) {
 
-// === added    
     	int mLeft = getLeft();
     	int mRight = getRight();
     	int mTop = getTop();
@@ -778,7 +778,7 @@ public class Workspace extends ViewGroup implements DropTarget, DragSource, Drag
         invalidate();
     }
 
-    void startDrag(CellLayout.CellInfo cellInfo) {
+    public void startDrag(CellLayout.CellInfo cellInfo) {
         View child = cellInfo.cell;
         
         // Make sure the drag was started by a long press as opposed to a long click.
@@ -828,7 +828,7 @@ public class Workspace extends ViewGroup implements DropTarget, DragSource, Drag
                         mDragInfo.spanX, mDragInfo.spanY, cell, cellLayout, mTargetCell);
                 cellLayout.onDropChild(cell, mTargetCell);
 
-                final ItemInfo info = (ItemInfo)cell.getTag();
+                final WidgetInfo info = (WidgetInfo)cell.getTag();
                 CellLayout.LayoutParams lp = (CellLayout.LayoutParams) cell.getLayoutParams();
                 WidgetModel.moveItemInDatabase(mLauncher, info,
                         WidgetSettings.Favorites.CONTAINER_DESKTOP, mCurrentScreen, lp.cellX, lp.cellY);
@@ -923,8 +923,8 @@ public class Workspace extends ViewGroup implements DropTarget, DragSource, Drag
         return layout.findNearestVacantArea(pixelX, pixelY,
                 spanX, spanY, mVacantCache, recycle);
     }
-    
-    void setLauncher(SamSprungWidget launcher) {
+
+    public void setLauncher(SamSprungWidget launcher) {
         mLauncher = launcher;
     }
 
@@ -938,7 +938,7 @@ public class Workspace extends ViewGroup implements DropTarget, DragSource, Drag
                 final CellLayout cellLayout = (CellLayout) getChildAt(mDragInfo.screen);
                 cellLayout.removeView(mDragInfo.cell);
                 final Object tag = mDragInfo.cell.getTag();
-                SamSprungWidget.Companion.getModel().removeDesktopItem((ItemInfo) tag);
+                SamSprungWidget.Companion.getModel().removeDesktopItem((WidgetInfo) tag);
             }
         } else {
             if (mDragInfo != null) {
@@ -1027,7 +1027,7 @@ public class Workspace extends ViewGroup implements DropTarget, DragSource, Drag
         mAllowLongPress = allowLongPress;
     }
 
-    void moveToDefaultScreen() {
+    public void moveToDefaultScreen() {
         snapToScreen(mDefaultScreen);
         getChildAt(mDefaultScreen).requestFocus();
     }

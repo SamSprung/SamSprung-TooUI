@@ -39,6 +39,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import com.eightbit.content.ScaledContext
 import com.eightbit.samsprung.WidgetSettings.Favorites
+import com.eightbit.samsprung.widget.*
 import com.eightbit.view.OnSwipeTouchListener
 import com.eightbitlab.blurview.BlurView
 import com.eightbitlab.blurview.RenderScriptBlur
@@ -48,6 +49,7 @@ import java.io.FileNotFoundException
 import java.io.IOException
 import java.lang.ref.SoftReference
 import java.util.*
+import java.util.concurrent.Executors
 
 /**
  * Default launcher application.
@@ -58,7 +60,7 @@ class SamSprungWidget : AppCompatActivity(), View.OnClickListener, OnLongClickLi
     var workspace: Workspace? = null
         private set
     private var mAppWidgetManager: AppWidgetManager? = null
-    var appWidgetHost: CoverAppWidgetHost? = null
+    var appWidgetHost: CoverWidgetHost? = null
         private set
     private var mAddItemCellInfo: CellLayout.CellInfo? = null
     private val mCellCoordinates = IntArray(2)
@@ -82,7 +84,7 @@ class SamSprungWidget : AppCompatActivity(), View.OnClickListener, OnLongClickLi
     private var mBinder: DesktopBinder? = null
     private val requestPickAppWidget = registerForActivityResult(
         ActivityResultContracts.StartActivityForResult()) { result: ActivityResult ->
-        mWaitingForResult = false;
+        mWaitingForResult = false
         if (result.resultCode == RESULT_CANCELED && result.data != null) {
             // Clean up the appWidgetId if we canceled
             val appWidgetId = result.data!!.getIntExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, -1)
@@ -95,7 +97,7 @@ class SamSprungWidget : AppCompatActivity(), View.OnClickListener, OnLongClickLi
     }
     private val requestCreateAppWidget = registerForActivityResult(
         ActivityResultContracts.StartActivityForResult()) { result: ActivityResult ->
-        mWaitingForResult = false;
+        mWaitingForResult = false
         completeAddAppWidget(
             result.data,
             mAddItemCellInfo,
@@ -110,7 +112,7 @@ class SamSprungWidget : AppCompatActivity(), View.OnClickListener, OnLongClickLi
         super.onCreate(savedInstanceState)
         ScaledContext.restore(this).setTheme(R.style.Theme_AppCompat)
         mAppWidgetManager = AppWidgetManager.getInstance(applicationContext)
-        appWidgetHost = CoverAppWidgetHost(
+        appWidgetHost = CoverWidgetHost(
             applicationContext,
             APPWIDGET_HOST_ID
         )
@@ -198,6 +200,14 @@ class SamSprungWidget : AppCompatActivity(), View.OnClickListener, OnLongClickLi
         mIsNewIntent = false
     }
 
+    override fun onRetainCustomNonConfigurationInstance(): Any? {
+        if (mBinder != null) {
+            mBinder!!.mTerminate = true
+        }
+//        return lastNonConfigurationInstance
+        return null
+    }
+
     private fun acceptFilter(): Boolean {
         val inputManager = getSystemService(INPUT_METHOD_SERVICE) as InputMethodManager
         return !inputManager.isFullscreenMode
@@ -221,15 +231,6 @@ class SamSprungWidget : AppCompatActivity(), View.OnClickListener, OnLongClickLi
             }
         }
         return handled
-    }
-
-    private val typedText: String
-        get() = mDefaultKeySsb.toString()
-
-    private fun clearTypedText() {
-        mDefaultKeySsb!!.clear()
-        mDefaultKeySsb!!.clearSpans()
-        Selection.setSelection(mDefaultKeySsb, 0)
     }
 
     /**
@@ -307,14 +308,17 @@ class SamSprungWidget : AppCompatActivity(), View.OnClickListener, OnLongClickLi
         if (!findSlot(cellInfo, xy, spans!![0], spans[1])) return
 
         // Build Launcher-specific widget info and save to database
-        val launcherInfo = CoverAppWidgetInfo(appWidgetId)
+        val launcherInfo =
+            CoverWidgetInfo(appWidgetId)
         launcherInfo.spanX = spans[0]
         launcherInfo.spanY = spans[1]
-        WidgetModel.addItemToDatabase(
-            applicationContext, launcherInfo,
-            Favorites.CONTAINER_DESKTOP,
-            workspace!!.currentScreen, xy[0], xy[1], false
-        )
+        Executors.newSingleThreadExecutor().execute {
+            WidgetModel.addItemToDatabase(
+                applicationContext, launcherInfo,
+                Favorites.CONTAINER_DESKTOP,
+                workspace!!.currentScreen, xy[0], xy[1], false
+            )
+        }
         if (!mRestoring) {
             model.addDesktopAppWidget(launcherInfo)
 
@@ -368,7 +372,6 @@ class SamSprungWidget : AppCompatActivity(), View.OnClickListener, OnLongClickLi
     override fun onSaveInstanceState(outState: Bundle) {
         outState.putInt(RUNTIME_STATE_CURRENT_SCREEN, workspace!!.currentScreen)
         super.onSaveInstanceState(outState)
-        val isConfigurationChange = changingConfigurations != 0
         if (mAddItemCellInfo != null && mAddItemCellInfo!!.valid && mWaitingForResult) {
             val addItemCellInfo: CellLayout.CellInfo = mAddItemCellInfo as CellLayout.CellInfo
             val layout = workspace!!.getChildAt(addItemCellInfo.screen) as CellLayout
@@ -400,10 +403,9 @@ class SamSprungWidget : AppCompatActivity(), View.OnClickListener, OnLongClickLi
         contentResolver.unregisterContentObserver(mObserver)
     }
 
-    fun addAppWidget(data: Intent?) {
+    private fun addAppWidget(data: Intent?) {
         mWaitingForResult = true
         val appWidgetId = data!!.getIntExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, -1)
-        val customWidget = data.getStringExtra(EXTRA_CUSTOM_WIDGET)
         val appWidget = mAppWidgetManager!!.getAppWidgetInfo(appWidgetId) ?: return
         if (null != appWidget.configure) {
             // Launch over to configure widget, if needed
@@ -478,8 +480,8 @@ class SamSprungWidget : AppCompatActivity(), View.OnClickListener, OnLongClickLi
     }
 
     fun onDesktopItemsLoaded(
-        shortcuts: ArrayList<ItemInfo?>?,
-        appWidgets: ArrayList<CoverAppWidgetInfo>?
+        shortcuts: ArrayList<WidgetInfo?>?,
+        appWidgets: ArrayList<CoverWidgetInfo>?
     ) {
         if (mDestroyed) {
             if (WidgetModel.DEBUG_LOADERS) {
@@ -497,8 +499,8 @@ class SamSprungWidget : AppCompatActivity(), View.OnClickListener, OnLongClickLi
      * Refreshes the shortcuts shown on the workspace.
      */
     private fun bindDesktopItems(
-        shortcuts: ArrayList<ItemInfo?>?,
-        appWidgets: ArrayList<CoverAppWidgetInfo>?
+        shortcuts: ArrayList<WidgetInfo?>?,
+        appWidgets: ArrayList<CoverWidgetInfo>?
     ) {
         val workspace = workspace
         val count = workspace!!.childCount
@@ -516,20 +518,18 @@ class SamSprungWidget : AppCompatActivity(), View.OnClickListener, OnLongClickLi
 
     private fun bindItems(
         binder: DesktopBinder,
-        shortcuts: ArrayList<ItemInfo?>?, start: Int, count: Int
+        shortcuts: ArrayList<WidgetInfo?>?, start: Int, count: Int
     ) {
-        val workspace = workspace
-        val desktopLocked = isWorkspaceLocked
         val end = (start + DesktopBinder.ITEMS_COUNT).coerceAtMost(count)
         var i = start
         while (i < end) {
-            val item = shortcuts!![i]
+            shortcuts!![i]
             i++
         }
         workspace!!.requestLayout()
         if (end >= count) {
             finishBindDesktopItems()
-            binder.startBindingDrawer()
+            binder.startBindingAppWidgetsWhenIdle()
         } else {
             binder.obtainMessage(DesktopBinder.MESSAGE_BIND_ITEMS, i, count).sendToTarget()
         }
@@ -551,7 +551,7 @@ class SamSprungWidget : AppCompatActivity(), View.OnClickListener, OnLongClickLi
 
     private fun bindAppWidgets(
         binder: DesktopBinder,
-        appWidgets: LinkedList<CoverAppWidgetInfo>
+        appWidgets: LinkedList<CoverWidgetInfo>
     ) {
         val workspace = workspace
         val desktopLocked = isWorkspaceLocked
@@ -642,20 +642,16 @@ class SamSprungWidget : AppCompatActivity(), View.OnClickListener, OnLongClickLi
     }
 
     private class DesktopBinder(
-        launcher: SamSprungWidget, shortcuts: ArrayList<ItemInfo?>?,
-        appWidgets: ArrayList<CoverAppWidgetInfo>?
+        launcher: SamSprungWidget, shortcuts: ArrayList<WidgetInfo?>?,
+        appWidgets: ArrayList<CoverWidgetInfo>?
     ) : Handler(Looper.getMainLooper()), IdleHandler {
-        private val mShortcuts: ArrayList<ItemInfo?>? = shortcuts
-        private val mAppWidgets: LinkedList<CoverAppWidgetInfo>
+        private val mShortcuts: ArrayList<WidgetInfo?>? = shortcuts
+        private val mAppWidgets: LinkedList<CoverWidgetInfo>
         private val mLauncher: SoftReference<SamSprungWidget> = SoftReference(launcher)
         var mTerminate = false
         fun startBindingItems() {
             if (WidgetModel.DEBUG_LOADERS) Log.d(LogTag, "------> start binding items")
             obtainMessage(MESSAGE_BIND_ITEMS, 0, mShortcuts!!.size).sendToTarget()
-        }
-
-        fun startBindingDrawer() {
-            obtainMessage(MESSAGE_BIND_DRAWER).sendToTarget()
         }
 
         fun startBindingAppWidgetsWhenIdle() {
@@ -692,7 +688,6 @@ class SamSprungWidget : AppCompatActivity(), View.OnClickListener, OnLongClickLi
         companion object {
             const val MESSAGE_BIND_ITEMS = 0x1
             const val MESSAGE_BIND_APPWIDGETS = 0x2
-            const val MESSAGE_BIND_DRAWER = 0x3
 
             // Number of items to bind in every pass
             const val ITEMS_COUNT = 6
@@ -722,9 +717,7 @@ class SamSprungWidget : AppCompatActivity(), View.OnClickListener, OnLongClickLi
     companion object {
         val LogTag: String = SamSprungWidget::class.java.javaClass.name
         const val LOGD = false
-        private const val PROFILE_STARTUP = false
         private const val PROFILE_ROTATE = false
-        const val EXTRA_CUSTOM_WIDGET = "custom_widget"
         const val SCREEN_COUNT = 3
         private const val DEFAULT_SCREEN = 1
         private const val PREFERENCES = "widget.preferences"

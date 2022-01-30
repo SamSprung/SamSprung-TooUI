@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.eightbit.samsprung;
+package com.eightbit.samsprung.widget;
 
 import android.content.Context;
 import android.content.res.Resources;
@@ -27,6 +27,10 @@ import android.graphics.Rect;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.PaintDrawable;
+
+import androidx.core.content.ContextCompat;
+
+import com.eightbit.samsprung.R;
 
 /**
  * Various utilities shared amongst the Launcher's classes.
@@ -50,7 +54,8 @@ final class Utilities {
         final int bitmapHeight = bitmap.getHeight();
 
         if (bitmapWidth < width || bitmapHeight < height) {
-            int color = context.getResources().getColor(R.color.window_background);
+
+            int color = ContextCompat.getColor(context, R.color.window_background);
 
             Bitmap centered = Bitmap.createBitmap(Math.max(bitmapWidth, width),
                     Math.max(bitmapHeight, height), Bitmap.Config.RGB_565);

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.eightbit.samsprung;
+package com.eightbit.samsprung.widget;
 
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
@@ -22,8 +22,8 @@ import android.graphics.ColorFilter;
 import android.graphics.PixelFormat;
 import android.graphics.drawable.Drawable;
 
-class FastBitmapDrawable extends Drawable {
-    private Bitmap mBitmap;
+public class FastBitmapDrawable extends Drawable {
+    private final Bitmap mBitmap;
 
     FastBitmapDrawable(Bitmap b) {
         mBitmap = b;
