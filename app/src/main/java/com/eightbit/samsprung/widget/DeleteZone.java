@@ -125,8 +125,7 @@ public class DeleteZone extends AppCompatImageView implements DropTarget, DragCo
     }
 
     public void onDragStart(View v, DragSource source, Object info, int dragAction) {
-    
-// === added
+
     	int mLeft = getLeft();
     	int mRight = getRight();
     	int mTop = getTop();

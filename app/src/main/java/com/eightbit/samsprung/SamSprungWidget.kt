@@ -110,7 +110,7 @@ class SamSprungWidget : AppCompatActivity(), View.OnClickListener, OnLongClickLi
         setShowWhenLocked(true)
         supportActionBar?.hide()
         super.onCreate(savedInstanceState)
-        ScaledContext.restore(this).setTheme(R.style.Theme_AppCompat)
+        ScaledContext.unwrap(this).setTheme(R.style.Theme_AppCompat)
         mAppWidgetManager = AppWidgetManager.getInstance(applicationContext)
         appWidgetHost = CoverWidgetHost(
             applicationContext,
@@ -611,6 +611,16 @@ class SamSprungWidget : AppCompatActivity(), View.OnClickListener, OnLongClickLi
         if (workspace!!.allowLongPress()) {
             if (cellInfo.cell == null) {
                 if (cellInfo.valid) {
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                        (getSystemService(Context.VIBRATOR_MANAGER_SERVICE) as VibratorManager)
+                                .defaultVibrator.vibrate(VibrationEffect.createOneShot(
+                                30, VibrationEffect.DEFAULT_AMPLITUDE))
+                    } else {
+                        (getSystemService(Context.VIBRATOR_SERVICE) as Vibrator)
+                            .vibrate(VibrationEffect.createOneShot(
+                            30, VibrationEffect.DEFAULT_AMPLITUDE))
+                    }
+
                     // User long pressed on empty space
                     workspace!!.setAllowLongPress(false)
                     showAddDialog(cellInfo)

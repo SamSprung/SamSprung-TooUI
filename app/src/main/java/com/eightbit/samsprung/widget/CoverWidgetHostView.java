@@ -22,7 +22,6 @@ import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewConfiguration;
-import android.view.ViewParent;
 
 import com.eightbit.samsprung.R;
 
@@ -78,11 +77,8 @@ public class CoverWidgetHostView extends AppWidgetHostView {
         private int mOriginalWindowAttachCount;
 
         public void run() {
-
-// === added        
-        final ViewParent mParent = getParent();
         
-            if ((mParent != null) && hasWindowFocus()
+            if ((getParent() != null) && hasWindowFocus()
                     && mOriginalWindowAttachCount == getWindowAttachCount()
                     && !mHasPerformedLongPress) {
                 if (performLongClick()) {

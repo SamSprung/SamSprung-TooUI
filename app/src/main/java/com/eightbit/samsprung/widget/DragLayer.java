@@ -26,9 +26,11 @@ import android.graphics.PorterDuff;
 import android.graphics.PorterDuffColorFilter;
 import android.graphics.Rect;
 import android.graphics.RectF;
+import android.os.Build;
 import android.os.SystemClock;
 import android.os.VibrationEffect;
 import android.os.Vibrator;
+import android.os.VibratorManager;
 import android.util.AttributeSet;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
@@ -173,8 +175,12 @@ public class DragLayer extends FrameLayout implements DragController {
         mEstimatedPaint.setStrokeWidth(3);
         mEstimatedPaint.setAntiAlias(true);
 
-// === added
-        mVibrator = (Vibrator) context.getSystemService(Context.VIBRATOR_SERVICE);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            mVibrator = ((VibratorManager) context.getSystemService(
+                    Context.VIBRATOR_MANAGER_SERVICE)).getDefaultVibrator();
+        } else {
+            mVibrator = (Vibrator) context.getSystemService(Context.VIBRATOR_SERVICE);
+        }
 
     }
 
@@ -254,7 +260,8 @@ public class DragLayer extends FrameLayout implements DragController {
         mDragSource = source;
         mDragInfo = dragInfo;
 
-        mVibrator.vibrate(VibrationEffect.createOneShot(VIBRATE_DURATION,10));
+        mVibrator.vibrate(VibrationEffect.createOneShot(
+                VIBRATE_DURATION, VibrationEffect.DEFAULT_AMPLITUDE));
 
         mEnteredRegion = false;
 
@@ -269,7 +276,6 @@ public class DragLayer extends FrameLayout implements DragController {
     @Override
     protected void dispatchDraw(Canvas canvas) {
 
-// === added
 		int mScrollX = getScrollX();
 		int mScrollY = getScrollY();    
         

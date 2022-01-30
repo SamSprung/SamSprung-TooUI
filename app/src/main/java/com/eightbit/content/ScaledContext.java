@@ -54,64 +54,65 @@ import android.content.Context;
 import android.content.ContextWrapper;
 import android.content.res.Configuration;
 import android.content.res.Resources;
-import android.graphics.Rect;
 import android.util.DisplayMetrics;
-import android.view.WindowManager;
 
 public class ScaledContext extends ContextWrapper {
-
-    private static int fullscreen = -1;
-    private static int layout;
 
     public ScaledContext(Context base) {
         super(base);
     }
 
-    public static void setBaseline(int orientation) {
-        layout = orientation;
-    }
-
-    public static int[] getDisplayParams(Context context) {
-        WindowManager mWindowManager = (WindowManager)
-                context.getSystemService(Context.WINDOW_SERVICE);
-        Rect metrics = mWindowManager.getCurrentWindowMetrics().getBounds();
-        return new int[] { metrics.width(), metrics.height() };
-    }
-
+    @SuppressWarnings("unused")
     public static ScaledContext wrap(Context context) {
         Resources resources = context.getResources();
         DisplayMetrics metrics = resources.getDisplayMetrics();
-        int[] displayParams = getDisplayParams(context);
 
-        int orientation = layout != -1 ? layout : resources.getConfiguration().orientation;
-
-        if (fullscreen == -1) {
-            if (orientation == Configuration.ORIENTATION_PORTRAIT) {
-                fullscreen = (float) displayParams[1] / displayParams[0] > 2.05 ? 1 : 0;
-            }
-            if (orientation == Configuration.ORIENTATION_LANDSCAPE) {
-                fullscreen = (float) displayParams[0] / displayParams[1] > 2.05 ? 1 : 0;
-            }
-        }
+        int orientation = resources.getConfiguration().orientation;
 
         metrics.density = 1.5f;
-        metrics.densityDpi = 320;
+        metrics.densityDpi = 360; // 480
         if (orientation == Configuration.ORIENTATION_PORTRAIT) {
-            metrics.heightPixels = fullscreen != 0 ? 2960 : 2560;
-            metrics.widthPixels = 1440;
+            metrics.heightPixels = 2640;
+            metrics.widthPixels = 1080;
         }
         if (orientation == Configuration.ORIENTATION_LANDSCAPE) {
-            metrics.heightPixels = 1440;
-            metrics.widthPixels = fullscreen != 0 ? 2960 : 2560;
+            metrics.heightPixels = 1080;
+            metrics.widthPixels = 2640;
         }
         metrics.scaledDensity = 1.5f;
-        metrics.xdpi = 521.0f;
-        metrics.ydpi = 521.0f;
+        metrics.xdpi = 425.0f;
+        metrics.ydpi = 425.0f;
         metrics.setTo(metrics);
 
         return new ScaledContext(context);
     }
 
+    @SuppressWarnings("unused")
+    public static ScaledContext unwrap(Context context) {
+        Resources resources = context.getResources();
+        DisplayMetrics metrics = resources.getDisplayMetrics();
+
+        int orientation = resources.getConfiguration().orientation;
+
+        metrics.density = 2f;
+        metrics.densityDpi = 160;
+        if (orientation == Configuration.ORIENTATION_PORTRAIT) {
+            metrics.heightPixels = 1024; // 512
+            metrics.widthPixels = 520; // 260
+        }
+        if (orientation == Configuration.ORIENTATION_LANDSCAPE) {
+            metrics.heightPixels = 520; // 260
+            metrics.widthPixels = 1024; // 512
+        }
+        metrics.scaledDensity = 2f;
+        metrics.xdpi = 604.0f; // 302
+        metrics.ydpi = 604.0f; // 302
+        metrics.setTo(metrics);
+
+        return new ScaledContext(context);
+    }
+
+    @SuppressWarnings("unused")
     public static Context restore(Context context) {
         context.getResources().getDisplayMetrics().setToDefaults();
         return context;
