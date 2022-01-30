@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.eightbit.samsprung.widget;
+package com.eightbit.samsprung;
 
 import android.appwidget.AppWidgetHost;
 import android.content.ComponentName;
@@ -27,7 +27,6 @@ import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
 import android.content.res.TypedArray;
-import android.content.res.XmlResourceParser;
 import android.database.Cursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
@@ -37,27 +36,19 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.text.TextUtils;
-import android.util.AttributeSet;
 import android.util.Log;
-import android.util.Xml;
 
-import com.android.internal.util.XmlUtils;
-import com.eightbit.samsprung.R;
-import com.eightbit.samsprung.widget.LauncherSettings.Favorites;
+import com.eightbit.samsprung.WidgetSettings.Favorites;
 
-import org.xmlpull.v1.XmlPullParser;
-import org.xmlpull.v1.XmlPullParserException;
-
-import java.io.IOException;
 import java.util.ArrayList;
 
-public class LauncherProvider extends ContentProvider {
-    private static final String LOG_TAG = "LauncherProvider";
+public class WidgetProvider extends ContentProvider {
+    private static final String LOG_TAG = WidgetProvider.class.getName();
     private static final boolean LOGD = true;
 
-    private static final String DATABASE_NAME = "launcher.db";
+    private static final String DATABASE_NAME = "widget.db";
     
-    private static final int DATABASE_VERSION = 5;
+    private static final int DATABASE_VERSION = 6;
 
     static final String AUTHORITY = "com.eightbit.samsprung.widget";
     static final String EXTRA_BIND_SOURCES = AUTHORITY + ".bindsources";
@@ -129,9 +120,8 @@ public class LauncherProvider extends ContentProvider {
         SQLiteDatabase db = mOpenHelper.getWritableDatabase();
         db.beginTransaction();
         try {
-            int numValues = values.length;
-            for (int i = 0; i < numValues; i++) {
-                if (db.insert(args.table, null, values[i]) < 0) return 0;
+            for (ContentValues value : values) {
+                if (db.insert(args.table, null, value) < 0) return 0;
             }
             db.setTransactionSuccessful();
         } finally {
@@ -175,7 +165,6 @@ public class LauncherProvider extends ContentProvider {
         private static final String TAG_FAVORITES = "favorites";
         private static final String TAG_FAVORITE = "favorite";
         private static final String TAG_CLOCK = "clock";
-        private static final String TAG_SEARCH = "search";
 
         private final Context mContext;
         private final AppWidgetHost mAppWidgetHost;
@@ -238,14 +227,11 @@ public class LauncherProvider extends ContentProvider {
                 mAppWidgetHost.deleteHost();
                 sendAppWidgetResetNotify();
             }
-            
-            if (!convertDatabase(db)) {
-                // Populate favorites table with initial favorites
-                loadFavorites(db);
-            }
+
+            convertDatabase(db);
         }
 
-        private boolean convertDatabase(SQLiteDatabase db) {
+        private void convertDatabase(SQLiteDatabase db) {
             if (LOGD) Log.d(LOG_TAG, "converting database from an older format, but not onUpgrade");
             boolean converted = false;
 
@@ -279,44 +265,43 @@ public class LauncherProvider extends ContentProvider {
                 convertWidgets(db);
             }
 
-            return converted;
         }
 
         private int copyFromCursor(SQLiteDatabase db, Cursor c) {
-            final int idIndex = c.getColumnIndexOrThrow(LauncherSettings.Favorites._ID);
-            final int intentIndex = c.getColumnIndexOrThrow(LauncherSettings.Favorites.INTENT);
-            final int titleIndex = c.getColumnIndexOrThrow(LauncherSettings.Favorites.TITLE);
-            final int iconTypeIndex = c.getColumnIndexOrThrow(LauncherSettings.Favorites.ICON_TYPE);
-            final int iconIndex = c.getColumnIndexOrThrow(LauncherSettings.Favorites.ICON);
-            final int iconPackageIndex = c.getColumnIndexOrThrow(LauncherSettings.Favorites.ICON_PACKAGE);
-            final int iconResourceIndex = c.getColumnIndexOrThrow(LauncherSettings.Favorites.ICON_RESOURCE);
-            final int containerIndex = c.getColumnIndexOrThrow(LauncherSettings.Favorites.CONTAINER);
-            final int itemTypeIndex = c.getColumnIndexOrThrow(LauncherSettings.Favorites.ITEM_TYPE);
-            final int screenIndex = c.getColumnIndexOrThrow(LauncherSettings.Favorites.SCREEN);
-            final int cellXIndex = c.getColumnIndexOrThrow(LauncherSettings.Favorites.CELLX);
-            final int cellYIndex = c.getColumnIndexOrThrow(LauncherSettings.Favorites.CELLY);
-            final int uriIndex = c.getColumnIndexOrThrow(LauncherSettings.Favorites.URI);
-            final int displayModeIndex = c.getColumnIndexOrThrow(LauncherSettings.Favorites.DISPLAY_MODE);
+            final int idIndex = c.getColumnIndexOrThrow(WidgetSettings.Favorites._ID);
+            final int intentIndex = c.getColumnIndexOrThrow(WidgetSettings.Favorites.INTENT);
+            final int titleIndex = c.getColumnIndexOrThrow(WidgetSettings.Favorites.TITLE);
+            final int iconTypeIndex = c.getColumnIndexOrThrow(WidgetSettings.Favorites.ICON_TYPE);
+            final int iconIndex = c.getColumnIndexOrThrow(WidgetSettings.Favorites.ICON);
+            final int iconPackageIndex = c.getColumnIndexOrThrow(WidgetSettings.Favorites.ICON_PACKAGE);
+            final int iconResourceIndex = c.getColumnIndexOrThrow(WidgetSettings.Favorites.ICON_RESOURCE);
+            final int containerIndex = c.getColumnIndexOrThrow(WidgetSettings.Favorites.CONTAINER);
+            final int itemTypeIndex = c.getColumnIndexOrThrow(WidgetSettings.Favorites.ITEM_TYPE);
+            final int screenIndex = c.getColumnIndexOrThrow(WidgetSettings.Favorites.SCREEN);
+            final int cellXIndex = c.getColumnIndexOrThrow(WidgetSettings.Favorites.CELLX);
+            final int cellYIndex = c.getColumnIndexOrThrow(WidgetSettings.Favorites.CELLY);
+            final int uriIndex = c.getColumnIndexOrThrow(WidgetSettings.Favorites.URI);
+            final int displayModeIndex = c.getColumnIndexOrThrow(WidgetSettings.Favorites.DISPLAY_MODE);
 
             ContentValues[] rows = new ContentValues[c.getCount()];
             int i = 0;
             while (c.moveToNext()) {
                 ContentValues values = new ContentValues(c.getColumnCount());
-                values.put(LauncherSettings.Favorites._ID, c.getLong(idIndex));
-                values.put(LauncherSettings.Favorites.INTENT, c.getString(intentIndex));
-                values.put(LauncherSettings.Favorites.TITLE, c.getString(titleIndex));
-                values.put(LauncherSettings.Favorites.ICON_TYPE, c.getInt(iconTypeIndex));
-                values.put(LauncherSettings.Favorites.ICON, c.getBlob(iconIndex));
-                values.put(LauncherSettings.Favorites.ICON_PACKAGE, c.getString(iconPackageIndex));
-                values.put(LauncherSettings.Favorites.ICON_RESOURCE, c.getString(iconResourceIndex));
-                values.put(LauncherSettings.Favorites.CONTAINER, c.getInt(containerIndex));
-                values.put(LauncherSettings.Favorites.ITEM_TYPE, c.getInt(itemTypeIndex));
-                values.put(LauncherSettings.Favorites.APPWIDGET_ID, -1);
-                values.put(LauncherSettings.Favorites.SCREEN, c.getInt(screenIndex));
-                values.put(LauncherSettings.Favorites.CELLX, c.getInt(cellXIndex));
-                values.put(LauncherSettings.Favorites.CELLY, c.getInt(cellYIndex));
-                values.put(LauncherSettings.Favorites.URI, c.getString(uriIndex));
-                values.put(LauncherSettings.Favorites.DISPLAY_MODE, c.getInt(displayModeIndex));
+                values.put(WidgetSettings.Favorites._ID, c.getLong(idIndex));
+                values.put(WidgetSettings.Favorites.INTENT, c.getString(intentIndex));
+                values.put(WidgetSettings.Favorites.TITLE, c.getString(titleIndex));
+                values.put(WidgetSettings.Favorites.ICON_TYPE, c.getInt(iconTypeIndex));
+                values.put(WidgetSettings.Favorites.ICON, c.getBlob(iconIndex));
+                values.put(WidgetSettings.Favorites.ICON_PACKAGE, c.getString(iconPackageIndex));
+                values.put(WidgetSettings.Favorites.ICON_RESOURCE, c.getString(iconResourceIndex));
+                values.put(WidgetSettings.Favorites.CONTAINER, c.getInt(containerIndex));
+                values.put(WidgetSettings.Favorites.ITEM_TYPE, c.getInt(itemTypeIndex));
+                values.put(WidgetSettings.Favorites.APPWIDGET_ID, -1);
+                values.put(WidgetSettings.Favorites.SCREEN, c.getInt(screenIndex));
+                values.put(WidgetSettings.Favorites.CELLX, c.getInt(cellXIndex));
+                values.put(WidgetSettings.Favorites.CELLY, c.getInt(cellYIndex));
+                values.put(WidgetSettings.Favorites.URI, c.getString(uriIndex));
+                values.put(WidgetSettings.Favorites.DISPLAY_MODE, c.getInt(displayModeIndex));
                 rows[i++] = values;
             }
 
@@ -408,7 +393,7 @@ public class LauncherProvider extends ContentProvider {
                     Favorites.ITEM_TYPE_WIDGET_PHOTO_FRAME,
             };
             
-            final ArrayList<ComponentName> bindTargets = new ArrayList<ComponentName>();
+            final ArrayList<ComponentName> bindTargets = new ArrayList<>();
             bindTargets.add(new ComponentName("com.android.alarmclock",
                     "com.android.alarmclock.AnalogAppWidgetProvider"));
             bindTargets.add(new ComponentName("com.android.camera",
@@ -438,11 +423,11 @@ public class LauncherProvider extends ContentProvider {
                         if (LOGD) Log.d(LOG_TAG, "allocated appWidgetId="+appWidgetId+" for favoriteId="+favoriteId);
                         
                         values.clear();
-                        values.put(LauncherSettings.Favorites.APPWIDGET_ID, appWidgetId);
+                        values.put(WidgetSettings.Favorites.APPWIDGET_ID, appWidgetId);
                         
                         // Original widgets might not have valid spans when upgrading
-                        values.put(LauncherSettings.Favorites.SPANX, 2);
-                        values.put(LauncherSettings.Favorites.SPANY, 2);
+                        values.put(WidgetSettings.Favorites.SPANX, 2);
+                        values.put(WidgetSettings.Favorites.SPANY, 2);
 
                         String updateWhere = Favorites._ID + "=" + favoriteId;
                         db.update(TABLE_FAVORITES, values, updateWhere, null);
@@ -488,69 +473,6 @@ public class LauncherProvider extends ContentProvider {
             
             mContext.startActivity(intent);
         }
-        
-        /**
-         * Loads the default set of favorite packages from an xml file.
-         *
-         * @param db The database to write the values into
-         */
-        private int loadFavorites(SQLiteDatabase db) {
-            Intent intent = new Intent(Intent.ACTION_MAIN, null);
-            intent.addCategory(Intent.CATEGORY_LAUNCHER);
-            ContentValues values = new ContentValues();
-
-            PackageManager packageManager = mContext.getPackageManager();
-            int i = 0;
-            try {
-                XmlResourceParser parser = mContext.getResources().getXml(R.xml.default_workspace);
-                AttributeSet attrs = Xml.asAttributeSet(parser);
-                XmlUtils.beginDocument(parser, TAG_FAVORITES);
-
-                final int depth = parser.getDepth();
-
-                int type;
-                while (((type = parser.next()) != XmlPullParser.END_TAG ||
-                        parser.getDepth() > depth) && type != XmlPullParser.END_DOCUMENT) {
-
-                    if (type != XmlPullParser.START_TAG) {
-                        continue;
-                    }
-
-                    boolean added = false;
-                    final String name = parser.getName();
-
-                    TypedArray a = mContext.obtainStyledAttributes(attrs, R.styleable.Favorite);
-
-                    values.clear();                    
-                    values.put(LauncherSettings.Favorites.CONTAINER,
-                            LauncherSettings.Favorites.CONTAINER_DESKTOP);
-                    values.put(LauncherSettings.Favorites.SCREEN,
-                            a.getString(R.styleable.Favorite_screen));
-                    values.put(LauncherSettings.Favorites.CELLX,
-                            a.getString(R.styleable.Favorite_x));
-                    values.put(LauncherSettings.Favorites.CELLY,
-                            a.getString(R.styleable.Favorite_y));
-
-                    if (TAG_FAVORITE.equals(name)) {
-                        added = addShortcut(db, values, a, packageManager, intent);
-                    } else if (TAG_SEARCH.equals(name)) {
-                        added = addSearchWidget(db, values);
-                    } else if (TAG_CLOCK.equals(name)) {
-                        added = addClockWidget(db, values);
-                    }
-
-                    if (added) i++;
-
-                    a.recycle();
-                }
-            } catch (XmlPullParserException e) {
-                Log.w(LOG_TAG, "Got exception parsing favorites.", e);
-            } catch (IOException e) {
-                Log.w(LOG_TAG, "Got exception parsing favorites.", e);
-            }
-
-            return i;
-        }
 
         private boolean addShortcut(SQLiteDatabase db, ContentValues values, TypedArray a,
                 PackageManager packageManager, Intent intent) {
@@ -578,22 +500,12 @@ public class LauncherProvider extends ContentProvider {
             return true;
         }
 
-        private boolean addSearchWidget(SQLiteDatabase db, ContentValues values) {
-            // Add a search box
-            values.put(Favorites.ITEM_TYPE, Favorites.ITEM_TYPE_WIDGET_SEARCH);
-            values.put(Favorites.SPANX, 4);
-            values.put(Favorites.SPANY, 1);
-            db.insert(TABLE_FAVORITES, null, values);
-
-            return true;
-        }
-
         private boolean addClockWidget(SQLiteDatabase db, ContentValues values) {
             final int[] bindSources = new int[] {
                     Favorites.ITEM_TYPE_WIDGET_CLOCK,
             };
 
-            final ArrayList<ComponentName> bindTargets = new ArrayList<ComponentName>();
+            final ArrayList<ComponentName> bindTargets = new ArrayList<>();
             bindTargets.add(new ComponentName("com.android.alarmclock",
                     "com.android.alarmclock.AnalogAppWidgetProvider"));
 

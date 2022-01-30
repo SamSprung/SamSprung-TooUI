@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.eightbit.samsprung.widget;
+package com.eightbit.samsprung;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
@@ -27,8 +27,6 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewDebug;
 import android.view.ViewGroup;
-
-import com.eightbit.samsprung.R;
 
 import java.util.ArrayList;
 
@@ -57,7 +55,7 @@ public class CellLayout extends ViewGroup {
     
     boolean[][] mOccupied;
 
-    private RectF mDragRect = new RectF();
+    private final RectF mDragRect = new RectF();
 
     private boolean mDirtyTag;
     
@@ -186,7 +184,7 @@ public class CellLayout extends ViewGroup {
             }
 
             if (!found) {
-                int cellXY[] = mCellXY;
+                int[] cellXY = mCellXY;
                 pointToCellExact(x, y, cellXY);
 
                 final boolean portrait = mPortrait;
@@ -940,7 +938,7 @@ out:            for (int i = x; i < x + spanX - 1 && x < xCount; i++) {
         int screen;
         boolean valid;
 
-        final ArrayList<VacantCell> vacantCells = new ArrayList<VacantCell>(VacantCell.POOL_LIMIT);
+        final ArrayList<VacantCell> vacantCells = new ArrayList<>(VacantCell.POOL_LIMIT);
         int maxVacantSpanX;
         int maxVacantSpanXSpanY;
         int maxVacantSpanY;

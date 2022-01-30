@@ -16,47 +16,36 @@
         android:clickable="true"
         android:focusable="true">
 
-        <com.eightbit.samsprung.widget.DragLayer
+        <com.eightbit.samsprung.DragLayer
             android:id="@+id/drag_layer"
             android:layout_width="match_parent"
             android:layout_height="match_parent">
 
             <!-- The workspace contains 3 screens of cells -->
-            <com.eightbit.samsprung.widget.Workspace
+            <com.eightbit.samsprung.Workspace
                 android:id="@+id/workspace"
                 android:layout_width="fill_parent"
                 android:layout_height="fill_parent"
-
-                launcher:defaultScreen="1">
+                launcher:defaultScreen="2">
 
                 <include android:id="@+id/cell1" layout="@layout/workspace_screen" />
                 <include android:id="@+id/cell2" layout="@layout/workspace_screen" />
                 <include android:id="@+id/cell3" layout="@layout/workspace_screen" />
-            </com.eightbit.samsprung.widget.Workspace>
+            </com.eightbit.samsprung.Workspace>
 
-            <com.eightbit.samsprung.widget.DeleteZone
+            <com.eightbit.samsprung.DeleteZone
                 android:id="@+id/delete_zone"
-                android:layout_width="49dip"
+                android:layout_width="30dip"
                 android:layout_height="wrap_content"
-
                 android:scaleType="center"
                 android:src="@drawable/ic_delete"
                 android:background="@drawable/delete_zone_selector"
-
-                android:layout_marginBottom="-25dip"
-                android:layout_gravity="end|center_vertical"
-                android:visibility="invisible"
-
+                android:layout_marginBottom="10dip"
+                android:layout_gravity="end|bottom"
+                android:visibility="gone"
                 launcher:direction="1" />
 
-            <LinearLayout
-                android:id="@+id/exit_zone"
-                android:layout_width="match_parent"
-                android:layout_height="8dp"
-                android:layout_gravity="bottom|center_horizontal"
-                android:orientation="vertical" />
-
-        </com.eightbit.samsprung.widget.DragLayer>
+        </com.eightbit.samsprung.DragLayer>
 
     </com.eightbitlab.blurview.BlurView>
 

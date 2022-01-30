@@ -52,13 +52,7 @@ package com.eightbit.samsprung
  */
 
 import android.os.Bundle
-import android.widget.Button
-import android.widget.LinearLayout
 import androidx.appcompat.app.AppCompatActivity
-import com.android.billingclient.api.*
-import com.google.android.material.snackbar.Snackbar
-import java.util.*
-import java.util.concurrent.Executors
 
 
 class SamSprungDonate : AppCompatActivity() {

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.eightbit.samsprung.widget;
+package com.eightbit.samsprung;
 
 import android.content.ContentValues;
 import android.graphics.Bitmap;
@@ -36,16 +36,15 @@ public class ItemInfo {
     long id = NO_ID;
     
     /**
-     * One of {@link LauncherSettings.Favorites#ITEM_TYPE_APPLICATION},
-     * {@link LauncherSettings.Favorites#ITEM_TYPE_SHORTCUT},
-     * {@link LauncherSettings.Favorites#ITEM_TYPE_USER_FOLDER}, or
-     * {@link LauncherSettings.Favorites#ITEM_TYPE_APPWIDGET}.
+     * One of {@link WidgetSettings.Favorites#ITEM_TYPE_APPLICATION},
+     * {@link WidgetSettings.Favorites#ITEM_TYPE_SHORTCUT}, or
+     * {@link WidgetSettings.Favorites#ITEM_TYPE_APPWIDGET}.
      */
     int itemType;
     
     /**
      * The id of the container that holds this item. For the desktop, this will be 
-     * {@link LauncherSettings.Favorites#CONTAINER_DESKTOP}. For the all applications folder it
+     * {@link WidgetSettings.Favorites#CONTAINER_DESKTOP}. For the all applications folder it
      * will be {@link #NO_ID} (since it is not stored in the settings DB). For user folders
      * it will be the id of the folder.
      */
@@ -101,14 +100,14 @@ public class ItemInfo {
      * @param values
      */
     void onAddToDatabase(ContentValues values) { 
-        values.put(LauncherSettings.BaseLauncherColumns.ITEM_TYPE, itemType);
+        values.put(WidgetSettings.BaseLauncherColumns.ITEM_TYPE, itemType);
         if (!isGesture) {
-            values.put(LauncherSettings.Favorites.CONTAINER, container);
-            values.put(LauncherSettings.Favorites.SCREEN, screen);
-            values.put(LauncherSettings.Favorites.CELLX, cellX);
-            values.put(LauncherSettings.Favorites.CELLY, cellY);
-            values.put(LauncherSettings.Favorites.SPANX, spanX);
-            values.put(LauncherSettings.Favorites.SPANY, spanY);
+            values.put(WidgetSettings.Favorites.CONTAINER, container);
+            values.put(WidgetSettings.Favorites.SCREEN, screen);
+            values.put(WidgetSettings.Favorites.CELLX, cellX);
+            values.put(WidgetSettings.Favorites.CELLY, cellY);
+            values.put(WidgetSettings.Favorites.SPANX, spanX);
+            values.put(WidgetSettings.Favorites.SPANY, spanY);
         }
     }
 
@@ -123,7 +122,7 @@ public class ItemInfo {
                 out.flush();
                 out.close();
 
-                values.put(LauncherSettings.Favorites.ICON, out.toByteArray());
+                values.put(WidgetSettings.Favorites.ICON, out.toByteArray());
             } catch (IOException e) {
                 Log.w("Favorite", "Could not write icon");
             }

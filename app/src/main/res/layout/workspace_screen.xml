@@ -14,18 +14,16 @@
      limitations under the License.
 -->
 
-<com.eightbit.samsprung.widget.CellLayout
+<com.eightbit.samsprung.CellLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:launcher="http://schemas.android.com/apk/res-auto"
-
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
-
-    launcher:cellWidth="106dip"
-    launcher:cellHeight="73dip"
+    launcher:cellWidth="102dip"
+    launcher:cellHeight="65dip"
     launcher:longAxisStartPadding="0dip"
-    launcher:longAxisEndPadding="55dip"
+    launcher:longAxisEndPadding="0dip"
     launcher:shortAxisStartPadding="0dip"
     launcher:shortAxisEndPadding="0dip"
     launcher:shortAxisCells="4"
-    launcher:longAxisCells="4" />
+    launcher:longAxisCells="5" />

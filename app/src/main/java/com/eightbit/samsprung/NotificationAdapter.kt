@@ -52,13 +52,13 @@ package com.eightbit.samsprung
  */
 
 import android.annotation.SuppressLint
-import androidx.appcompat.app.AppCompatActivity
 import android.app.Notification
 import android.service.notification.StatusBarNotification
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
+import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.AppCompatImageView
 import androidx.core.app.NotificationCompat
 import androidx.recyclerview.widget.RecyclerView

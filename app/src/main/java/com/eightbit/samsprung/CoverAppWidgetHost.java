@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.eightbit.samsprung.widget;
+package com.eightbit.samsprung;
 
 import android.appwidget.AppWidgetHost;
 import android.appwidget.AppWidgetHostView;
@@ -22,18 +22,18 @@ import android.appwidget.AppWidgetProviderInfo;
 import android.content.Context;
 
 /**
- * Specific {@link AppWidgetHost} that creates our {@link LauncherAppWidgetHostView}
+ * Specific {@link AppWidgetHost} that creates our {@link CoverAppWidgetHostView}
  * which correctly captures all long-press events. This ensures that users can
  * always pick up and move widgets.
  */
-public class LauncherAppWidgetHost extends AppWidgetHost {
-    public LauncherAppWidgetHost(Context context, int hostId) {
+public class CoverAppWidgetHost extends AppWidgetHost {
+    public CoverAppWidgetHost(Context context, int hostId) {
         super(context, hostId);
     }
     
     @Override
     protected AppWidgetHostView onCreateView(Context context, int appWidgetId,
             AppWidgetProviderInfo appWidget) {
-        return new LauncherAppWidgetHostView(context);
+        return new CoverAppWidgetHostView(context);
     }
 }

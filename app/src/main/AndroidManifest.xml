@@ -81,7 +81,7 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".widget.SamSprungWidget"
+            android:name=".SamSprungWidget"
             android:theme="@style/Theme.AppCompat"
             android:showOnLockScreen="true"
             android:showWhenLocked="true">
@@ -162,9 +162,8 @@
                 android:resource="@xml/file_provider_paths"/>
         </provider>
 
-        <!-- The settings provider contains Home's data, like the workspace favorites -->
         <provider
-            android:name=".widget.LauncherProvider"
+            android:name=".WidgetProvider"
             android:authorities="com.eightbit.samsprung.widget"
             android:writePermission="samsprung.permission.WRITE_SETTINGS"
             android:readPermission="samsprung.permission.READ_SETTINGS" />

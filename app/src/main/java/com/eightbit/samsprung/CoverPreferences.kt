@@ -423,6 +423,12 @@ class CoverPreferences : AppCompatActivity() {
         if (this::accessibility.isInitialized)
             accessibility.isChecked = hasAccessibility()
          keyboard.visibility = if (hasAccessibility()) View.VISIBLE else View.GONE
+
+        with(SamSprung.prefs.edit()) {
+            putString(SamSprung.prefInputs, Settings.Secure.getString(
+                contentResolver, Settings.Secure.DEFAULT_INPUT_METHOD))
+            apply()
+        }
     }
 
     private val overlayLauncher = registerForActivityResult(

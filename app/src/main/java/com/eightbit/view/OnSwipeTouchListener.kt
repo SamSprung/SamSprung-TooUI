@@ -51,6 +51,7 @@ package com.eightbit.view
  * subject to to the terms and conditions of the Apache License, Version 2.0.
  */
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.view.GestureDetector
 import android.view.GestureDetector.SimpleOnGestureListener
@@ -64,22 +65,17 @@ open class OnSwipeTouchListener(ctx: Context) : OnTouchListener {
     private val gestureDetector: GestureDetector
 
     companion object {
-        private const val SWIPE_THRESHOLD = 100
-        private const val SWIPE_VELOCITY_THRESHOLD = 100
+        private const val SWIPE_THRESHOLD = 80
+        private const val SWIPE_VELOCITY_THRESHOLD = 80
     }
 
     init {
         gestureDetector = GestureDetector(ctx, GestureListener())
     }
 
+    @SuppressLint("ClickableViewAccessibility")
     override fun onTouch(v: View, event: MotionEvent): Boolean {
-        if (gestureDetector.onTouchEvent(event)) return true
-        when (event.action) {
-            MotionEvent.ACTION_DOWN -> { }
-            MotionEvent.ACTION_UP -> v.performClick()
-            else -> { }
-        }
-        return false
+        return gestureDetector.onTouchEvent(event)
     }
 
     private inner class GestureListener : SimpleOnGestureListener() {
@@ -88,8 +84,9 @@ open class OnSwipeTouchListener(ctx: Context) : OnTouchListener {
             return true
         }
 
-        override fun onFling(e1: MotionEvent, e2: MotionEvent, velocityX: Float, velocityY: Float): Boolean {
+        override fun onFling(e1: MotionEvent?, e2: MotionEvent, velocityX: Float, velocityY: Float): Boolean {
             try {
+                if (null == e1) return false
                 val diffY = e2.y - e1.y
                 val diffX = e2.x - e1.x
                 if (abs(diffX) > abs(diffY)) {

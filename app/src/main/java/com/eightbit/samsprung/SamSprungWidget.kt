@@ -13,15 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.eightbit.samsprung.widget
+package com.eightbit.samsprung
 
 import android.Manifest
 import android.annotation.SuppressLint
 import android.app.ActivityOptions
-import android.app.Dialog
 import android.app.WallpaperManager
 import android.appwidget.AppWidgetManager
-import android.appwidget.AppWidgetProviderInfo
 import android.content.*
 import android.content.pm.PackageManager
 import android.database.ContentObserver
@@ -36,15 +34,10 @@ import android.view.View.OnLongClickListener
 import android.view.inputmethod.InputMethodManager
 import android.widget.*
 import androidx.activity.result.ActivityResult
-import androidx.activity.result.contract.ActivityResultContracts.StartActivityForResult
-import androidx.appcompat.app.AlertDialog
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
-import com.eightbit.content.ScaledContext
-import com.eightbit.samsprung.R
-import com.eightbit.samsprung.SamSprung
-import com.eightbit.samsprung.SamSprungDrawer
-import com.eightbit.samsprung.widget.LauncherSettings.Favorites
+import com.eightbit.samsprung.WidgetSettings.Favorites
 import com.eightbit.view.OnSwipeTouchListener
 import com.eightbitlab.blurview.BlurView
 import com.eightbitlab.blurview.RenderScriptBlur
@@ -64,7 +57,7 @@ class SamSprungWidget : AppCompatActivity(), View.OnClickListener, OnLongClickLi
     var workspace: Workspace? = null
         private set
     private var mAppWidgetManager: AppWidgetManager? = null
-    var appWidgetHost: LauncherAppWidgetHost? = null
+    var appWidgetHost: CoverAppWidgetHost? = null
         private set
     private var mAddItemCellInfo: CellLayout.CellInfo? = null
     private val mCellCoordinates = IntArray(2)
@@ -86,9 +79,9 @@ class SamSprungWidget : AppCompatActivity(), View.OnClickListener, OnLongClickLi
     private var mLocaleChanged = false
     private var mSavedInstanceState: Bundle? = null
     private var mBinder: DesktopBinder? = null
-    private val REQUEST_PICK_APPWIDGET = registerForActivityResult(
-        StartActivityForResult()
-    ) { result: ActivityResult ->
+    private val requestPickAppWidget = registerForActivityResult(
+        ActivityResultContracts.StartActivityForResult()) { result: ActivityResult ->
+        mWaitingForResult = false;
         if (result.resultCode == RESULT_CANCELED && result.data != null) {
             // Clean up the appWidgetId if we canceled
             val appWidgetId = result.data!!.getIntExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, -1)
@@ -99,9 +92,9 @@ class SamSprungWidget : AppCompatActivity(), View.OnClickListener, OnLongClickLi
             addAppWidget(result.data)
         }
     }
-    private val REQUEST_CREATE_APPWIDGET = registerForActivityResult(
-        StartActivityForResult()
-    ) { result: ActivityResult ->
+    private val requestCreateAppWidget = registerForActivityResult(
+        ActivityResultContracts.StartActivityForResult()) { result: ActivityResult ->
+        mWaitingForResult = false;
         completeAddAppWidget(
             result.data,
             mAddItemCellInfo,
@@ -114,9 +107,12 @@ class SamSprungWidget : AppCompatActivity(), View.OnClickListener, OnLongClickLi
         setShowWhenLocked(true)
         supportActionBar?.hide()
         super.onCreate(savedInstanceState)
-        ScaledContext.wrap(this).setTheme(R.style.Theme_AppCompat)
-        mAppWidgetManager = AppWidgetManager.getInstance(this)
-        appWidgetHost = LauncherAppWidgetHost(this, APPWIDGET_HOST_ID)
+//        ScaledContext.wrap(this).setTheme(R.style.Theme_AppCompat)
+        mAppWidgetManager = AppWidgetManager.getInstance(applicationContext)
+        appWidgetHost = CoverAppWidgetHost(
+            applicationContext,
+            APPWIDGET_HOST_ID
+        )
         appWidgetHost!!.startListening()
         checkForLocaleChange()
         setContentView(R.layout.widget_layout)
@@ -138,8 +134,8 @@ class SamSprungWidget : AppCompatActivity(), View.OnClickListener, OnLongClickLi
             .setHasFixedTransformationMatrix(true)
             .setBlurAlgorithm(RenderScriptBlur(this))
 
-        findViewById<View>(R.id.exit_zone)
-            .setOnTouchListener(object : OnSwipeTouchListener(this@SamSprungWidget) {
+        findViewById<Workspace>(R.id.workspace).setOnTouchListener(
+            object : OnSwipeTouchListener(this@SamSprungWidget) {
             override fun onSwipeTop() : Boolean {
                 finish()
                 startActivity(
@@ -164,10 +160,10 @@ class SamSprungWidget : AppCompatActivity(), View.OnClickListener, OnLongClickLi
 
     private fun checkForLocaleChange() {
         val localeConfiguration = LocaleConfiguration()
-        readConfiguration(this, localeConfiguration)
+        readConfiguration(applicationContext, localeConfiguration)
         val configuration = resources.configuration
         val previousLocale = localeConfiguration.locale
-        val locale = configuration.locale.toString()
+        val locale = configuration.locales[0].toString()
         val previousMcc = localeConfiguration.mcc
         val mcc = configuration.mcc
         val previousMnc = localeConfiguration.mnc
@@ -177,7 +173,7 @@ class SamSprungWidget : AppCompatActivity(), View.OnClickListener, OnLongClickLi
             localeConfiguration.locale = locale
             localeConfiguration.mcc = mcc
             localeConfiguration.mnc = mnc
-            writeConfiguration(this, localeConfiguration)
+            writeConfiguration(applicationContext, localeConfiguration)
         }
     }
 
@@ -201,10 +197,6 @@ class SamSprungWidget : AppCompatActivity(), View.OnClickListener, OnLongClickLi
         mIsNewIntent = false
     }
 
-    override fun onPause() {
-        super.onPause()
-    }
-
     private fun acceptFilter(): Boolean {
         val inputManager = getSystemService(INPUT_METHOD_SERVICE) as InputMethodManager
         return !inputManager.isFullscreenMode
@@ -217,7 +209,7 @@ class SamSprungWidget : AppCompatActivity(), View.OnClickListener, OnLongClickLi
                 workspace, mDefaultKeySsb,
                 keyCode, event
             )
-            if (gotKey && mDefaultKeySsb != null && mDefaultKeySsb!!.length > 0) {
+            if (gotKey && mDefaultKeySsb != null && mDefaultKeySsb!!.isNotEmpty()) {
                 // something usable has been typed - start a search
                 // the typed text will be retrieved and cleared by
                 // showSearchDialog()
@@ -231,7 +223,7 @@ class SamSprungWidget : AppCompatActivity(), View.OnClickListener, OnLongClickLi
     }
 
     private val typedText: String
-        private get() = mDefaultKeySsb.toString()
+        get() = mDefaultKeySsb.toString()
 
     private fun clearTypedText() {
         mDefaultKeySsb!!.clear()
@@ -299,9 +291,10 @@ class SamSprungWidget : AppCompatActivity(), View.OnClickListener, OnLongClickLi
         data: Intent?, cellInfo: CellLayout.CellInfo?,
         insertAtFirst: Boolean
     ) {
+        mWaitingForResult = false
         val extras = data!!.extras
         val appWidgetId = extras!!.getInt(AppWidgetManager.EXTRA_APPWIDGET_ID, -1)
-        Log.d(LOG_TAG, "dumping extras content=$extras")
+        Log.d(LogTag, "dumping extras content=$extras")
         val appWidgetInfo = mAppWidgetManager!!.getAppWidgetInfo(appWidgetId)
 
         // Calculate the grid spans needed to fit this widget
@@ -313,19 +306,19 @@ class SamSprungWidget : AppCompatActivity(), View.OnClickListener, OnLongClickLi
         if (!findSlot(cellInfo, xy, spans!![0], spans[1])) return
 
         // Build Launcher-specific widget info and save to database
-        val launcherInfo = LauncherAppWidgetInfo(appWidgetId)
+        val launcherInfo = CoverAppWidgetInfo(appWidgetId)
         launcherInfo.spanX = spans[0]
         launcherInfo.spanY = spans[1]
-        LauncherModel.addItemToDatabase(
-            this, launcherInfo,
-            Favorites.CONTAINER_DESKTOP.toLong(),
+        WidgetModel.addItemToDatabase(
+            applicationContext, launcherInfo,
+            Favorites.CONTAINER_DESKTOP,
             workspace!!.currentScreen, xy[0], xy[1], false
         )
         if (!mRestoring) {
             model.addDesktopAppWidget(launcherInfo)
 
             // Perform actual inflation because we're live
-            launcherInfo.hostView = appWidgetHost!!.createView(this, appWidgetId, appWidgetInfo)
+            launcherInfo.hostView = appWidgetHost!!.createView(applicationContext, appWidgetId, appWidgetInfo)
             launcherInfo.hostView!!.setAppWidget(appWidgetId, appWidgetInfo)
             launcherInfo.hostView!!.tag = launcherInfo
             workspace!!.addInCurrentScreen(
@@ -348,20 +341,7 @@ class SamSprungWidget : AppCompatActivity(), View.OnClickListener, OnLongClickLi
             // because this was a new intent (thus a press of 'home' or some such) rather than
             // for example onResume being called when the user pressed the 'back' button.
             mIsNewIntent = true
-            try {
-                dismissDialog(DIALOG_CREATE_SHORTCUT)
-                // Unlock the workspace if the dialog was showing
-                workspace!!.unlock()
-            } catch (e: Exception) {
-                // An exception is thrown if the dialog is not visible, which is fine
-            }
-            try {
-                dismissDialog(DIALOG_RENAME_FOLDER)
-                // Unlock the workspace if the dialog was showing
-                workspace!!.unlock()
-            } catch (e: Exception) {
-                // An exception is thrown if the dialog is not visible, which is fine
-            }
+            workspace!!.unlock()
             if (intent.flags and Intent.FLAG_ACTIVITY_BROUGHT_TO_FRONT !=
                 Intent.FLAG_ACTIVITY_BROUGHT_TO_FRONT
             ) {
@@ -411,7 +391,7 @@ class SamSprungWidget : AppCompatActivity(), View.OnClickListener, OnLongClickLi
         try {
             appWidgetHost!!.stopListening()
         } catch (ex: NullPointerException) {
-            Log.w(LOG_TAG, "problem while stopping AppWidgetHost during Launcher destruction", ex)
+            Log.w(LogTag, "problem while stopping AppWidgetHost during Launcher destruction", ex)
         }
         TextKeyListener.getInstance().release()
         model.unbind()
@@ -419,22 +399,17 @@ class SamSprungWidget : AppCompatActivity(), View.OnClickListener, OnLongClickLi
         contentResolver.unregisterContentObserver(mObserver)
     }
 
-    override fun startActivityForResult(intent: Intent, requestCode: Int) {
-        if (requestCode >= 0) mWaitingForResult = true
-        super.startActivityForResult(intent, requestCode)
-    }
-
     fun addAppWidget(data: Intent?) {
-        // TODO: catch bad widget exception when sent
+        mWaitingForResult = true
         val appWidgetId = data!!.getIntExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, -1)
         val customWidget = data.getStringExtra(EXTRA_CUSTOM_WIDGET)
-        val appWidget = mAppWidgetManager!!.getAppWidgetInfo(appWidgetId)
-        if (appWidget.configure != null) {
+        val appWidget = mAppWidgetManager!!.getAppWidgetInfo(appWidgetId) ?: return
+        if (null != appWidget.configure) {
             // Launch over to configure widget, if needed
             val intent = Intent(AppWidgetManager.ACTION_APPWIDGET_CONFIGURE)
             intent.component = appWidget.configure
             intent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId)
-            REQUEST_CREATE_APPWIDGET.launch(intent)
+            requestCreateAppWidget.launch(intent)
         } else {
             completeAddAppWidget(data, mAddItemCellInfo, !isWorkspaceLocked)
         }
@@ -451,12 +426,12 @@ class SamSprungWidget : AppCompatActivity(), View.OnClickListener, OnLongClickLi
     }
 
     private fun findSlot(
-        cellInfo: CellLayout.CellInfo?,
+        info: CellLayout.CellInfo?,
         xy: IntArray,
         spanX: Int,
         spanY: Int
     ): Boolean {
-        var cellInfo = cellInfo
+        var cellInfo = info
         if (!cellInfo!!.findCellForSpan(xy, spanX, spanY)) {
             val occupied = if (mSavedState != null) mSavedState!!.getBooleanArray(
                 RUNTIME_STATE_PENDING_ADD_OCCUPIED_CELLS
@@ -503,12 +478,12 @@ class SamSprungWidget : AppCompatActivity(), View.OnClickListener, OnLongClickLi
 
     fun onDesktopItemsLoaded(
         shortcuts: ArrayList<ItemInfo?>?,
-        appWidgets: ArrayList<LauncherAppWidgetInfo>?
+        appWidgets: ArrayList<CoverAppWidgetInfo>?
     ) {
         if (mDestroyed) {
-            if (LauncherModel.DEBUG_LOADERS) {
+            if (WidgetModel.DEBUG_LOADERS) {
                 Log.d(
-                    LauncherModel.LOG_TAG,
+                    WidgetModel.LOG_TAG,
                     "  ------> destroyed, ignoring desktop items"
                 )
             }
@@ -522,18 +497,12 @@ class SamSprungWidget : AppCompatActivity(), View.OnClickListener, OnLongClickLi
      */
     private fun bindDesktopItems(
         shortcuts: ArrayList<ItemInfo?>?,
-        appWidgets: ArrayList<LauncherAppWidgetInfo>?
+        appWidgets: ArrayList<CoverAppWidgetInfo>?
     ) {
         val workspace = workspace
         val count = workspace!!.childCount
         for (i in 0 until count) {
             (workspace.getChildAt(i) as ViewGroup).removeAllViewsInLayout()
-        }
-        if (DEBUG_USER_INTERFACE) {
-            val finishButton = Button(this)
-            finishButton.text = "Finish"
-            workspace.addInScreen(finishButton, 1, 0, 0, 1, 1)
-            finishButton.setOnClickListener { finish() }
         }
 
         // Flag any old binder to terminate early
@@ -550,7 +519,7 @@ class SamSprungWidget : AppCompatActivity(), View.OnClickListener, OnLongClickLi
     ) {
         val workspace = workspace
         val desktopLocked = isWorkspaceLocked
-        val end = Math.min(start + DesktopBinder.ITEMS_COUNT, count)
+        val end = (start + DesktopBinder.ITEMS_COUNT).coerceAtMost(count)
         var i = start
         while (i < end) {
             val item = shortcuts!![i]
@@ -581,7 +550,7 @@ class SamSprungWidget : AppCompatActivity(), View.OnClickListener, OnLongClickLi
 
     private fun bindAppWidgets(
         binder: DesktopBinder,
-        appWidgets: LinkedList<LauncherAppWidgetInfo>
+        appWidgets: LinkedList<CoverAppWidgetInfo>
     ) {
         val workspace = workspace
         val desktopLocked = isWorkspaceLocked
@@ -589,10 +558,10 @@ class SamSprungWidget : AppCompatActivity(), View.OnClickListener, OnLongClickLi
             val item = appWidgets.removeFirst()
             val appWidgetId = item.appWidgetId
             val appWidgetInfo = mAppWidgetManager!!.getAppWidgetInfo(appWidgetId)
-            item.hostView = appWidgetHost!!.createView(this, appWidgetId, appWidgetInfo)
+            item.hostView = appWidgetHost!!.createView(applicationContext, appWidgetId, appWidgetInfo)
             if (LOGD) {
                 Log.d(
-                    LOG_TAG, String.format(
+                    LogTag, String.format(
                         "about to setAppWidget for id=%d, info=%s",
                         appWidgetId, appWidgetInfo
                     )
@@ -624,7 +593,7 @@ class SamSprungWidget : AppCompatActivity(), View.OnClickListener, OnLongClickLi
      * @param v The view representing the clicked shortcut.
      */
     override fun onClick(v: View) {
-        val tag = v.tag
+        v.tag
     }
 
     override fun onLongClick(v: View): Boolean {
@@ -636,7 +605,6 @@ class SamSprungWidget : AppCompatActivity(), View.OnClickListener, OnLongClickLi
             view = view.parent as View
         }
         val cellInfo = view.tag as CellLayout.CellInfo
-            ?: return true
 
         // This happens when long clicking an item with the dpad/trackball
         if (workspace!!.allowLongPress()) {
@@ -654,54 +622,34 @@ class SamSprungWidget : AppCompatActivity(), View.OnClickListener, OnLongClickLi
     }
 
     private fun showAddDialog(cellInfo: CellLayout.CellInfo) {
-        mAddItemCellInfo = cellInfo
         mWaitingForResult = true
+        mAddItemCellInfo = cellInfo
+        workspace?.unlock()
         val appWidgetId = appWidgetHost!!.allocateAppWidgetId()
         val pickIntent = Intent(AppWidgetManager.ACTION_APPWIDGET_PICK)
         pickIntent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId)
-        // add the search widget
-        val customInfo = ArrayList<AppWidgetProviderInfo>()
-        val info = AppWidgetProviderInfo()
-        info.provider = ComponentName(packageName, "XXX.YYY")
-        info.label = getString(R.string.group_widgets)
-        info.icon = R.drawable.ic_baseline_widgets_24
-        customInfo.add(info)
-        pickIntent.putParcelableArrayListExtra(
-            AppWidgetManager.EXTRA_CUSTOM_INFO, customInfo
-        )
-        val customExtras = ArrayList<Bundle>()
-        val b = Bundle()
-        b.putString(EXTRA_CUSTOM_WIDGET, SEARCH_WIDGET)
-        customExtras.add(b)
-        pickIntent.putParcelableArrayListExtra(
-            AppWidgetManager.EXTRA_CUSTOM_EXTRAS, customExtras
-        )
-        // start the pick activity
-        REQUEST_PICK_APPWIDGET.launch(pickIntent)
-
-        // === added        
-        workspace!!.lock()
+        requestPickAppWidget.launch(pickIntent)
     }
 
     /**
      * Receives notifications whenever the user favorites have changed.
      */
-    private inner class FavoritesChangeObserver : ContentObserver(Handler()) {
+    private inner class FavoritesChangeObserver : ContentObserver(Handler(Looper.getMainLooper())) {
         override fun onChange(selfChange: Boolean) {
             onFavoritesChanged()
         }
     }
 
-    private class DesktopBinder internal constructor(
+    private class DesktopBinder(
         launcher: SamSprungWidget, shortcuts: ArrayList<ItemInfo?>?,
-        appWidgets: ArrayList<LauncherAppWidgetInfo>?
-    ) : Handler(), IdleHandler {
-        private val mShortcuts: ArrayList<ItemInfo?>?
-        private val mAppWidgets: LinkedList<LauncherAppWidgetInfo>
-        private val mLauncher: SoftReference<SamSprungWidget>
+        appWidgets: ArrayList<CoverAppWidgetInfo>?
+    ) : Handler(Looper.getMainLooper()), IdleHandler {
+        private val mShortcuts: ArrayList<ItemInfo?>? = shortcuts
+        private val mAppWidgets: LinkedList<CoverAppWidgetInfo>
+        private val mLauncher: SoftReference<SamSprungWidget> = SoftReference(launcher)
         var mTerminate = false
         fun startBindingItems() {
-            if (LauncherModel.DEBUG_LOADERS) Log.d(LOG_TAG, "------> start binding items")
+            if (WidgetModel.DEBUG_LOADERS) Log.d(LogTag, "------> start binding items")
             obtainMessage(MESSAGE_BIND_ITEMS, 0, mShortcuts!!.size).sendToTarget()
         }
 
@@ -750,8 +698,6 @@ class SamSprungWidget : AppCompatActivity(), View.OnClickListener, OnLongClickLi
         }
 
         init {
-            mLauncher = SoftReference(launcher)
-            mShortcuts = shortcuts
 
             // Sort widgets so active workspace is bound first
             val currentScreen = launcher.workspace!!.currentScreen
@@ -765,61 +711,50 @@ class SamSprungWidget : AppCompatActivity(), View.OnClickListener, OnLongClickLi
                     mAppWidgets.addLast(appWidgetInfo)
                 }
             }
-            if (LauncherModel.DEBUG_LOADERS) {
-                Log.d(LOG_TAG, "------> binding " + shortcuts!!.size + " items")
-                Log.d(LOG_TAG, "------> binding " + appWidgets.size + " widgets")
+            if (WidgetModel.DEBUG_LOADERS) {
+                Log.d(LogTag, "------> binding " + shortcuts!!.size + " items")
+                Log.d(LogTag, "------> binding " + appWidgets.size + " widgets")
             }
         }
     }
 
     companion object {
-        const val LOG_TAG = "Launcher"
+        val LogTag: String = SamSprungWidget::class.java.javaClass.name
         const val LOGD = false
         private const val PROFILE_STARTUP = false
         private const val PROFILE_ROTATE = false
-        private const val DEBUG_USER_INTERFACE = false
-        private const val MENU_GROUP_ADD = 1
-        private const val MENU_ADD = Menu.FIRST + 1
-        private const val MENU_WALLPAPER_SETTINGS = MENU_ADD + 1
-        private const val MENU_SEARCH = MENU_WALLPAPER_SETTINGS + 1
-        private const val MENU_NOTIFICATIONS = MENU_SEARCH + 1
         const val EXTRA_CUSTOM_WIDGET = "custom_widget"
-        const val SEARCH_WIDGET = "search_widget"
         const val SCREEN_COUNT = 3
-        const val DEFAULT_SCREEN = 1
-        const val NUMBER_CELLS_X = 4
-        const val NUMBER_CELLS_Y = 4
-        private const val DIALOG_CREATE_SHORTCUT = 1
-        const val DIALOG_RENAME_FOLDER = 2
-        private const val PREFERENCES = "launcher.preferences"
+        private const val DEFAULT_SCREEN = 1
+        private const val PREFERENCES = "widget.preferences"
 
         // Type: int
-        private const val RUNTIME_STATE_CURRENT_SCREEN = "launcher.current_screen"
+        private const val RUNTIME_STATE_CURRENT_SCREEN = "widget.current_screen"
 
         // Type: int
-        private const val RUNTIME_STATE_PENDING_ADD_SCREEN = "launcher.add_screen"
+        private const val RUNTIME_STATE_PENDING_ADD_SCREEN = "widget.add_screen"
 
         // Type: int
-        private const val RUNTIME_STATE_PENDING_ADD_CELL_X = "launcher.add_cellX"
+        private const val RUNTIME_STATE_PENDING_ADD_CELL_X = "widget.add_cellX"
 
         // Type: int
-        private const val RUNTIME_STATE_PENDING_ADD_CELL_Y = "launcher.add_cellY"
+        private const val RUNTIME_STATE_PENDING_ADD_CELL_Y = "widget.add_cellY"
 
         // Type: int
-        private const val RUNTIME_STATE_PENDING_ADD_SPAN_X = "launcher.add_spanX"
+        private const val RUNTIME_STATE_PENDING_ADD_SPAN_X = "widget.add_spanX"
 
         // Type: int
-        private const val RUNTIME_STATE_PENDING_ADD_SPAN_Y = "launcher.add_spanY"
+        private const val RUNTIME_STATE_PENDING_ADD_SPAN_Y = "widget.add_spanY"
 
         // Type: int
-        private const val RUNTIME_STATE_PENDING_ADD_COUNT_X = "launcher.add_countX"
+        private const val RUNTIME_STATE_PENDING_ADD_COUNT_X = "widget.add_countX"
 
         // Type: int
-        private const val RUNTIME_STATE_PENDING_ADD_COUNT_Y = "launcher.add_countY"
+        private const val RUNTIME_STATE_PENDING_ADD_COUNT_Y = "widget.add_countY"
 
         // Type: int[]
-        private const val RUNTIME_STATE_PENDING_ADD_OCCUPIED_CELLS = "launcher.add_occupied_cells"
-        val model = LauncherModel()
+        private const val RUNTIME_STATE_PENDING_ADD_OCCUPIED_CELLS = "widget.add_occupied_cells"
+        val model = WidgetModel()
         private val sLock = Any()
         private var sScreen = DEFAULT_SCREEN
         const val APPWIDGET_HOST_ID = SamSprung.request_code

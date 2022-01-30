@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.eightbit.samsprung.widget;
+package com.eightbit.samsprung;
 
 import android.content.Context;
 import android.content.res.TypedArray;
@@ -30,8 +30,6 @@ import android.view.animation.AnimationSet;
 import android.view.animation.TranslateAnimation;
 
 import androidx.appcompat.widget.AppCompatImageView;
-
-import com.eightbit.samsprung.R;
 
 public class DeleteZone extends AppCompatImageView implements DropTarget, DragController.DragListener {
     private static final int ORIENTATION_HORIZONTAL = 1;
@@ -53,8 +51,7 @@ public class DeleteZone extends AppCompatImageView implements DropTarget, DragCo
 
     private final RectF mRegion = new RectF();
     private TransitionDrawable mTransition;
-    private View mHandle;
-    
+
     public DeleteZone(Context context) {
         super(context);
     }
@@ -91,22 +88,22 @@ public class DeleteZone extends AppCompatImageView implements DropTarget, DragCo
 
         if (item.container == -1) return;
 
-        final LauncherModel model = SamSprungWidget.Companion.getModel();
-        if (item.container == LauncherSettings.Favorites.CONTAINER_DESKTOP) {
-            if (item instanceof LauncherAppWidgetInfo) {
-                model.removeDesktopAppWidget((LauncherAppWidgetInfo) item);
+        final WidgetModel model = SamSprungWidget.Companion.getModel();
+        if (item.container == WidgetSettings.Favorites.CONTAINER_DESKTOP) {
+            if (item instanceof CoverAppWidgetInfo) {
+                model.removeDesktopAppWidget((CoverAppWidgetInfo) item);
             } else {
                 model.removeDesktopItem(item);
             }
         }
-        if (item instanceof LauncherAppWidgetInfo) {
-            final LauncherAppWidgetInfo launcherAppWidgetInfo = (LauncherAppWidgetInfo) item;
-            final LauncherAppWidgetHost appWidgetHost = mLauncher.getAppWidgetHost();
+        if (item instanceof CoverAppWidgetInfo) {
+            final CoverAppWidgetInfo coverAppWidgetInfo = (CoverAppWidgetInfo) item;
+            final CoverAppWidgetHost appWidgetHost = mLauncher.getAppWidgetHost();
             if (appWidgetHost != null) {
-                appWidgetHost.deleteAppWidgetId(launcherAppWidgetInfo.appWidgetId);
+                appWidgetHost.deleteAppWidgetId(coverAppWidgetInfo.appWidgetId);
             }
         }
-        LauncherModel.deleteItemFromDatabase(mLauncher, item);
+        WidgetModel.deleteItemFromDatabase(mLauncher, item);
     }
 
     public void onDragEnter(DragSource source, int x, int y, int xOffset, int yOffset,
@@ -221,10 +218,6 @@ public class DeleteZone extends AppCompatImageView implements DropTarget, DragCo
 
     void setDragController(DragLayer dragLayer) {
         mDragLayer = dragLayer;
-    }
-
-    void setHandle(View view) {
-        mHandle = view;
     }
 
     private static class FastTranslateAnimation extends TranslateAnimation {

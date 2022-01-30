@@ -5,5 +5,5 @@
     android:gravity="center"
     android:background="#ffff00"
     android:textStyle="bold"
-    android:textSize="30sp">
+    android:textSize="14sp">
 </TextView>

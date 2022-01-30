@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.eightbit.samsprung.widget;
+package com.eightbit.samsprung;
 
 import android.content.Context;
 import android.content.res.Resources;
@@ -28,8 +28,6 @@ import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.PaintDrawable;
 
-import com.eightbit.samsprung.R;
-
 /**
  * Various utilities shared amongst the Launcher's classes.
  */
@@ -40,7 +38,7 @@ final class Utilities {
     private static final Paint sPaint = new Paint();
     private static final Rect sBounds = new Rect();
     private static final Rect sOldBounds = new Rect();
-    private static Canvas sCanvas = new Canvas();
+    private static final Canvas sCanvas = new Canvas();
 
     static {
         sCanvas.setDrawFilter(new PaintFlagsDrawFilter(Paint.DITHER_FLAG,
@@ -54,8 +52,8 @@ final class Utilities {
         if (bitmapWidth < width || bitmapHeight < height) {
             int color = context.getResources().getColor(R.color.window_background);
 
-            Bitmap centered = Bitmap.createBitmap(bitmapWidth < width ? width : bitmapWidth,
-                    bitmapHeight < height ? height : bitmapHeight, Bitmap.Config.RGB_565);
+            Bitmap centered = Bitmap.createBitmap(Math.max(bitmapWidth, width),
+                    Math.max(bitmapHeight, height), Bitmap.Config.RGB_565);
             centered.setDensity(bitmap.getDensity());
             Canvas canvas = new Canvas(centered);
             canvas.drawColor(color);

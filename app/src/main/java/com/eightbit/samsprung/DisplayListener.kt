@@ -224,11 +224,13 @@ class DisplayListener : Service() {
 
         floatView.findViewById<View>(R.id.bottom_sheet)!!.setOnTouchListener(
             object: OnSwipeTouchListener(this@DisplayListener) {
-            override fun onSwipeTop() {
+            override fun onSwipeTop() : Boolean {
                 bottomSheetBehavior.state = BottomSheetBehavior.STATE_EXPANDED
+                return true
             }
-            override fun onSwipeBottom() {
+            override fun onSwipeBottom() : Boolean {
                 bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
+                return true
             }
         })
 

@@ -81,7 +81,6 @@ import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.eightbit.content.ScaledContext
-import com.eightbit.samsprung.widget.SamSprungWidget
 import com.eightbit.view.OnSwipeTouchListener
 import com.eightbitlab.blurview.BlurView
 import com.eightbitlab.blurview.RenderScriptBlur
@@ -454,8 +453,7 @@ class SamSprungDrawer : AppCompatActivity(),
         ItemTouchHelper(drawerTouchCallback).attachToRecyclerView(launcherView)
         launcherView.setOnTouchListener(object : OnSwipeTouchListener(this@SamSprungDrawer) {
             override fun onSwipeBottom() : Boolean {
-                if (launcherView.isAnimating || bottomSheetBehavior.state
-                    == BottomSheetBehavior.STATE_EXPANDED) return false
+                if (bottomSheetBehavior.state == BottomSheetBehavior.STATE_EXPANDED) return false
                 if (launcherView.layoutManager is LinearLayoutManager) {
                     if ((launcherView.layoutManager as LinearLayoutManager)
                             .findFirstCompletelyVisibleItemPosition() == 0) {
@@ -608,7 +606,7 @@ class SamSprungDrawer : AppCompatActivity(),
 
     override fun onNewIntent(intent: Intent?) {
         super.onNewIntent(intent)
-        CheckUpdatesTask(this)
+//        CheckUpdatesTask(this)
         if (!this::noticesView.isInitialized) return
         if (hasNotificationListener()) {
             NotificationObserver.getObserver()?.setNotificationsChangedListener(

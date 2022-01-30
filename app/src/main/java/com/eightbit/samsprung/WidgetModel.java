@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.eightbit.samsprung.widget;
+package com.eightbit.samsprung;
 
 import static android.util.Log.d;
 import static android.util.Log.e;
@@ -32,7 +32,6 @@ import android.content.res.Resources;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Process;
 
@@ -50,7 +49,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  * LauncherModel object held in a static. Also provide APIs for updating the database state
  * for the Launcher.
  */
-public class LauncherModel {
+public class WidgetModel {
     static final boolean DEBUG_LOADERS = true;
     static final String LOG_TAG = "HomeLoaders";
 
@@ -62,7 +61,7 @@ public class LauncherModel {
     private boolean mDesktopItemsLoaded;
 
     private ArrayList<ItemInfo> mDesktopItems;
-    private ArrayList<LauncherAppWidgetInfo> mDesktopAppWidgets;
+    private ArrayList<CoverAppWidgetInfo> mDesktopAppWidgets;
 
     private ApplicationsLoader mApplicationsLoader;
     private DesktopItemsLoader mDesktopItemsLoader;
@@ -72,7 +71,7 @@ public class LauncherModel {
     private final HashMap<ComponentName, ApplicationInfo> mAppInfoCache =
             new HashMap<>(INITIAL_ICON_CACHE_CAPACITY);
 
-    public LauncherModel() {
+    public WidgetModel() {
     }
 
     synchronized void abortLoaders() {
@@ -166,30 +165,6 @@ public class LauncherModel {
         mAppInfoCache.put(componentName, applicationInfo);
     }
 
-    private static List<ResolveInfo> findActivitiesForPackage(PackageManager packageManager,
-            String packageName) {
-
-        final Intent mainIntent = new Intent(Intent.ACTION_MAIN, null);
-        mainIntent.addCategory(Intent.CATEGORY_LAUNCHER);
-
-        final List<ResolveInfo> apps = packageManager.queryIntentActivities(mainIntent, 0);
-        final List<ResolveInfo> matches = new ArrayList<ResolveInfo>();
-
-        if (apps != null) {
-            // Find all activities that match the packageName
-            int count = apps.size();
-            for (int i = 0; i < count; i++) {
-                final ResolveInfo info = apps.get(i);
-                final ActivityInfo activityInfo = info.activityInfo;
-                if (packageName.equals(activityInfo.packageName)) {
-                    matches.add(info);
-                }
-            }
-        }
-
-        return matches;
-    }
-
     private static boolean findIntent(List<ResolveInfo> apps, ComponentName component) {
         final String className = component.getClassName();
         for (ResolveInfo info : apps) {
@@ -199,48 +174,6 @@ public class LauncherModel {
             }
         }
         return false;
-    }
-
-    Drawable getApplicationInfoIcon(PackageManager manager, ApplicationInfo info) {
-        final ResolveInfo resolveInfo = manager.resolveActivity(info.intent, 0);
-        if (resolveInfo == null) {
-            return null;
-        }
-
-        ComponentName componentName = new ComponentName(
-                resolveInfo.activityInfo.applicationInfo.packageName,
-                resolveInfo.activityInfo.name);
-        ApplicationInfo application = mAppInfoCache.get(componentName);
-
-        if (application == null) {
-            return resolveInfo.activityInfo.loadIcon(manager);
-        }
-
-        return application.icon;
-    }
-
-    private static ApplicationInfo makeAndCacheApplicationInfo(PackageManager manager,
-            HashMap<ComponentName, ApplicationInfo> appInfoCache, ResolveInfo info,
-            Context context) {
-
-        ComponentName componentName = new ComponentName(
-                info.activityInfo.applicationInfo.packageName,
-                info.activityInfo.name);
-        ApplicationInfo application = appInfoCache.get(componentName);
-
-        if (application == null) {
-            application = new ApplicationInfo();
-            application.container = ItemInfo.NO_ID;
-
-            updateApplicationInfoTitleAndIcon(manager, info, application, context);
-
-            application.setActivity(componentName,
-                    Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED);
-
-            appInfoCache.put(componentName, application);
-        }
-
-        return application;
     }
 
     private static void updateApplicationInfoTitleAndIcon(PackageManager manager, ResolveInfo info,
@@ -357,15 +290,15 @@ public class LauncherModel {
     }
 
     private static void updateShortcutLabels(ContentResolver resolver, PackageManager manager) {
-        final Cursor c = resolver.query(LauncherSettings.Favorites.CONTENT_URI,
-                new String[] { LauncherSettings.Favorites._ID, LauncherSettings.Favorites.TITLE,
-                        LauncherSettings.Favorites.INTENT, LauncherSettings.Favorites.ITEM_TYPE },
+        final Cursor c = resolver.query(WidgetSettings.Favorites.CONTENT_URI,
+                new String[] { WidgetSettings.Favorites._ID, WidgetSettings.Favorites.TITLE,
+                        WidgetSettings.Favorites.INTENT, WidgetSettings.Favorites.ITEM_TYPE },
                 null, null, null);
 
-        final int idIndex = c.getColumnIndexOrThrow(LauncherSettings.Favorites._ID);
-        final int intentIndex = c.getColumnIndexOrThrow(LauncherSettings.Favorites.INTENT);
-        final int itemTypeIndex = c.getColumnIndexOrThrow(LauncherSettings.Favorites.ITEM_TYPE);
-        final int titleIndex = c.getColumnIndexOrThrow(LauncherSettings.Favorites.TITLE);
+        final int idIndex = c.getColumnIndexOrThrow(WidgetSettings.Favorites._ID);
+        final int intentIndex = c.getColumnIndexOrThrow(WidgetSettings.Favorites.INTENT);
+        final int itemTypeIndex = c.getColumnIndexOrThrow(WidgetSettings.Favorites.ITEM_TYPE);
+        final int titleIndex = c.getColumnIndexOrThrow(WidgetSettings.Favorites.TITLE);
 
         // boolean changed = false;
 
@@ -373,7 +306,7 @@ public class LauncherModel {
             while (c.moveToNext()) {
                 try {
                     if (c.getInt(itemTypeIndex) !=
-                            LauncherSettings.Favorites.ITEM_TYPE_APPLICATION) {
+                            WidgetSettings.Favorites.ITEM_TYPE_APPLICATION) {
                         continue;
                     }
 
@@ -389,10 +322,10 @@ public class LauncherModel {
 
                                 if (title == null || !title.equals(label)) {
                                     final ContentValues values = new ContentValues();
-                                    values.put(LauncherSettings.Favorites.TITLE, label);
+                                    values.put(WidgetSettings.Favorites.TITLE, label);
 
                                     resolver.update(
-                                            LauncherSettings.Favorites.CONTENT_URI_NO_NOTIFICATION,
+                                            WidgetSettings.Favorites.CONTENT_URI_NO_NOTIFICATION,
                                             values, "_id=?",
                                             new String[] { String.valueOf(c.getLong(idIndex)) });
                                 }
@@ -453,43 +386,43 @@ public class LauncherModel {
             }
 
             mDesktopItems = new ArrayList<ItemInfo>();
-            mDesktopAppWidgets = new ArrayList<LauncherAppWidgetInfo>();
+            mDesktopAppWidgets = new ArrayList<CoverAppWidgetInfo>();
 
             final ArrayList<ItemInfo> desktopItems = mDesktopItems;
-            final ArrayList<LauncherAppWidgetInfo> desktopAppWidgets = mDesktopAppWidgets;
+            final ArrayList<CoverAppWidgetInfo> desktopAppWidgets = mDesktopAppWidgets;
 
             final Cursor c = contentResolver.query(
-                    LauncherSettings.Favorites.CONTENT_URI, null, null, null, null);
+                    WidgetSettings.Favorites.CONTENT_URI, null, null, null, null);
 
             try {
-                final int idIndex = c.getColumnIndexOrThrow(LauncherSettings.Favorites._ID);
-                final int intentIndex = c.getColumnIndexOrThrow(LauncherSettings.Favorites.INTENT);
-                final int titleIndex = c.getColumnIndexOrThrow(LauncherSettings.Favorites.TITLE);
-                final int iconTypeIndex = c.getColumnIndexOrThrow(LauncherSettings.Favorites.ICON_TYPE);
-                final int iconIndex = c.getColumnIndexOrThrow(LauncherSettings.Favorites.ICON);
-                final int iconPackageIndex = c.getColumnIndexOrThrow(LauncherSettings.Favorites.ICON_PACKAGE);
-                final int iconResourceIndex = c.getColumnIndexOrThrow(LauncherSettings.Favorites.ICON_RESOURCE);
-                final int containerIndex = c.getColumnIndexOrThrow(LauncherSettings.Favorites.CONTAINER);
-                final int itemTypeIndex = c.getColumnIndexOrThrow(LauncherSettings.Favorites.ITEM_TYPE);
-                final int appWidgetIdIndex = c.getColumnIndexOrThrow(LauncherSettings.Favorites.APPWIDGET_ID);
-                final int screenIndex = c.getColumnIndexOrThrow(LauncherSettings.Favorites.SCREEN);
-                final int cellXIndex = c.getColumnIndexOrThrow(LauncherSettings.Favorites.CELLX);
-                final int cellYIndex = c.getColumnIndexOrThrow(LauncherSettings.Favorites.CELLY);
-                final int spanXIndex = c.getColumnIndexOrThrow(LauncherSettings.Favorites.SPANX);
-                final int spanYIndex = c.getColumnIndexOrThrow(LauncherSettings.Favorites.SPANY);
-                final int uriIndex = c.getColumnIndexOrThrow(LauncherSettings.Favorites.URI);
-                final int displayModeIndex = c.getColumnIndexOrThrow(LauncherSettings.Favorites.DISPLAY_MODE);
+                final int idIndex = c.getColumnIndexOrThrow(WidgetSettings.Favorites._ID);
+                final int intentIndex = c.getColumnIndexOrThrow(WidgetSettings.Favorites.INTENT);
+                final int titleIndex = c.getColumnIndexOrThrow(WidgetSettings.Favorites.TITLE);
+                final int iconTypeIndex = c.getColumnIndexOrThrow(WidgetSettings.Favorites.ICON_TYPE);
+                final int iconIndex = c.getColumnIndexOrThrow(WidgetSettings.Favorites.ICON);
+                final int iconPackageIndex = c.getColumnIndexOrThrow(WidgetSettings.Favorites.ICON_PACKAGE);
+                final int iconResourceIndex = c.getColumnIndexOrThrow(WidgetSettings.Favorites.ICON_RESOURCE);
+                final int containerIndex = c.getColumnIndexOrThrow(WidgetSettings.Favorites.CONTAINER);
+                final int itemTypeIndex = c.getColumnIndexOrThrow(WidgetSettings.Favorites.ITEM_TYPE);
+                final int appWidgetIdIndex = c.getColumnIndexOrThrow(WidgetSettings.Favorites.APPWIDGET_ID);
+                final int screenIndex = c.getColumnIndexOrThrow(WidgetSettings.Favorites.SCREEN);
+                final int cellXIndex = c.getColumnIndexOrThrow(WidgetSettings.Favorites.CELLX);
+                final int cellYIndex = c.getColumnIndexOrThrow(WidgetSettings.Favorites.CELLY);
+                final int spanXIndex = c.getColumnIndexOrThrow(WidgetSettings.Favorites.SPANX);
+                final int spanYIndex = c.getColumnIndexOrThrow(WidgetSettings.Favorites.SPANY);
+                final int uriIndex = c.getColumnIndexOrThrow(WidgetSettings.Favorites.URI);
+                final int displayModeIndex = c.getColumnIndexOrThrow(WidgetSettings.Favorites.DISPLAY_MODE);
 
-                LauncherAppWidgetInfo appWidgetInfo;
+                CoverAppWidgetInfo appWidgetInfo;
                 int container;
 
                 while (!mStopped && c.moveToNext()) {
                     try {
                         int itemType = c.getInt(itemTypeIndex);
 
-                        if (itemType == LauncherSettings.Favorites.ITEM_TYPE_APPWIDGET) {// Read all Launcher-specific widget details
+                        if (itemType == WidgetSettings.Favorites.ITEM_TYPE_APPWIDGET) {// Read all Launcher-specific widget details
                             int appWidgetId = c.getInt(appWidgetIdIndex);
-                            appWidgetInfo = new LauncherAppWidgetInfo(appWidgetId);
+                            appWidgetInfo = new CoverAppWidgetInfo(appWidgetId);
                             appWidgetInfo.id = c.getLong(idIndex);
                             appWidgetInfo.screen = c.getInt(screenIndex);
                             appWidgetInfo.cellX = c.getInt(cellXIndex);
@@ -498,8 +431,8 @@ public class LauncherModel {
                             appWidgetInfo.spanY = c.getInt(spanYIndex);
 
                             container = c.getInt(containerIndex);
-                            if (container != LauncherSettings.Favorites.CONTAINER_DESKTOP) {
-                                e(SamSprungWidget.LOG_TAG, "Widget found where container "
+                            if (container != WidgetSettings.Favorites.CONTAINER_DESKTOP) {
+                                e(SamSprungWidget.Companion.getLogTag(), "Widget found where container "
                                         + "!= CONTAINER_DESKTOP -- ignoring!");
                                 continue;
                             }
@@ -508,7 +441,7 @@ public class LauncherModel {
                             desktopAppWidgets.add(appWidgetInfo);
                         }
                     } catch (Exception e) {
-                        w(SamSprungWidget.LOG_TAG, "Desktop items loading interrupted:", e);
+                        w(SamSprungWidget.Companion.getLogTag(), "Desktop items loading interrupted:", e);
                     }
                 }
             } finally {
@@ -526,8 +459,8 @@ public class LauncherModel {
                 // and the list are cleared before the UI can go through them
                 final ArrayList<ItemInfo> uiDesktopItems =
                         new ArrayList<ItemInfo>(desktopItems);
-                final ArrayList<LauncherAppWidgetInfo> uiDesktopWidgets =
-                        new ArrayList<LauncherAppWidgetInfo>(desktopAppWidgets);
+                final ArrayList<CoverAppWidgetInfo> uiDesktopWidgets =
+                        new ArrayList<CoverAppWidgetInfo>(desktopAppWidgets);
 
                 if (!mStopped) {
                     d(LOG_TAG, "  ----> items cloned, ready to refresh UI");                
@@ -576,8 +509,8 @@ public class LauncherModel {
             for (int i = 0; i < count; i++) {
                 ItemInfo item = desktopItems.get(i);
                 switch (item.itemType) {
-                case LauncherSettings.Favorites.ITEM_TYPE_APPLICATION:
-                case LauncherSettings.Favorites.ITEM_TYPE_SHORTCUT:
+                case WidgetSettings.Favorites.ITEM_TYPE_APPLICATION:
+                case WidgetSettings.Favorites.ITEM_TYPE_SHORTCUT:
                     ((ApplicationInfo)item).icon.setCallback(null);
                     break;
                 }
@@ -586,13 +519,13 @@ public class LauncherModel {
     }
 
     /**
-     * Remove any {@link LauncherAppWidgetHostView} references in our widgets.
+     * Remove any {@link CoverAppWidgetHostView} references in our widgets.
      */
-    private void unbindAppWidgetHostViews(ArrayList<LauncherAppWidgetInfo> appWidgets) {
+    private void unbindAppWidgetHostViews(ArrayList<CoverAppWidgetInfo> appWidgets) {
         if (appWidgets != null) {
             final int count = appWidgets.size();
             for (int i = 0; i < count; i++) {
-                LauncherAppWidgetInfo launcherInfo = appWidgets.get(i);
+                CoverAppWidgetInfo launcherInfo = appWidgets.get(i);
                 launcherInfo.hostView = null;
             }
         }
@@ -618,7 +551,7 @@ public class LauncherModel {
     /**
      * @return The current list of desktop items
      */
-    ArrayList<LauncherAppWidgetInfo> getDesktopAppWidgets() {
+    ArrayList<CoverAppWidgetInfo> getDesktopAppWidgets() {
         return mDesktopAppWidgets;
     }
 
@@ -643,14 +576,14 @@ public class LauncherModel {
     /**
      * Add a widget to the desktop
      */
-    void addDesktopAppWidget(LauncherAppWidgetInfo info) {
+    void addDesktopAppWidget(CoverAppWidgetInfo info) {
         mDesktopAppWidgets.add(info);
     }
 
     /**
      * Remove a widget from the desktop
      */
-    void removeDesktopAppWidget(LauncherAppWidgetInfo info) {
+    void removeDesktopAppWidget(CoverAppWidgetInfo info) {
         mDesktopAppWidgets.remove(info);
     }
 
@@ -674,7 +607,7 @@ public class LauncherModel {
         if (info.title == null) {
             info.title = "";
         }
-        info.itemType = LauncherSettings.Favorites.ITEM_TYPE_APPLICATION;
+        info.itemType = WidgetSettings.Favorites.ITEM_TYPE_APPLICATION;
         return info;
     }
 
@@ -685,11 +618,11 @@ public class LauncherModel {
             int iconTypeIndex, int iconPackageIndex, int iconResourceIndex, int iconIndex) {
 
         final ApplicationInfo info = new ApplicationInfo();
-        info.itemType = LauncherSettings.Favorites.ITEM_TYPE_SHORTCUT;
+        info.itemType = WidgetSettings.Favorites.ITEM_TYPE_SHORTCUT;
 
         int iconType = c.getInt(iconTypeIndex);
         switch (iconType) {
-            case LauncherSettings.Favorites.ICON_TYPE_RESOURCE:
+            case WidgetSettings.Favorites.ICON_TYPE_RESOURCE:
                 String packageName = c.getString(iconPackageIndex);
                 String resourceName = c.getString(iconResourceIndex);
                 PackageManager packageManager = context.getPackageManager();
@@ -705,7 +638,7 @@ public class LauncherModel {
                 info.iconResource.resourceName = resourceName;
                 info.customIcon = false;
                 break;
-            case LauncherSettings.Favorites.ICON_TYPE_BITMAP:
+            case WidgetSettings.Favorites.ICON_TYPE_BITMAP:
                 byte[] data = c.getBlob(iconIndex);
                 try {
                     Bitmap bitmap = BitmapFactory.decodeByteArray(data, 0, data.length);
@@ -730,7 +663,7 @@ public class LauncherModel {
      * Adds an item to the DB if it was not created previously, or move it to a new
      * <container, screen, cellX, cellY>
      */
-    static void addOrMoveItemInDatabase(Context context, ItemInfo item, long container,
+    static void addOrMoveItemInDatabase(Context context, ItemInfo item, int container,
             int screen, int cellX, int cellY) {
         if (item.container == ItemInfo.NO_ID) {
             // From all apps
@@ -754,19 +687,19 @@ public class LauncherModel {
         final ContentValues values = new ContentValues();
         final ContentResolver cr = context.getContentResolver();
 
-        values.put(LauncherSettings.Favorites.CONTAINER, item.container);
-        values.put(LauncherSettings.Favorites.CELLX, item.cellX);
-        values.put(LauncherSettings.Favorites.CELLY, item.cellY);
-        values.put(LauncherSettings.Favorites.SCREEN, item.screen);
+        values.put(WidgetSettings.Favorites.CONTAINER, item.container);
+        values.put(WidgetSettings.Favorites.CELLX, item.cellX);
+        values.put(WidgetSettings.Favorites.CELLY, item.cellY);
+        values.put(WidgetSettings.Favorites.SCREEN, item.screen);
 
-        cr.update(LauncherSettings.Favorites.getContentUri(item.id, false), values, null, null);
+        cr.update(WidgetSettings.Favorites.getContentUri(item.id, false), values, null, null);
     }
 
     /**
      * Add an item to the database in a specified container. Sets the container, screen, cellX and
      * cellY fields of the item. Also assigns an ID to the item.
      */
-    static void addItemToDatabase(Context context, ItemInfo item, long container,
+    static void addItemToDatabase(Context context, ItemInfo item, int container,
             int screen, int cellX, int cellY, boolean notify) {
         item.container = container;
         item.screen = screen;
@@ -778,32 +711,12 @@ public class LauncherModel {
 
         item.onAddToDatabase(values);
 
-        Uri result = cr.insert(notify ? LauncherSettings.Favorites.CONTENT_URI :
-                LauncherSettings.Favorites.CONTENT_URI_NO_NOTIFICATION, values);
+        Uri result = cr.insert(notify ? WidgetSettings.Favorites.CONTENT_URI :
+                WidgetSettings.Favorites.CONTENT_URI_NO_NOTIFICATION, values);
 
         if (result != null) {
             item.id = Integer.parseInt(result.getPathSegments().get(1));
         }
-    }
-
-    /**
-     * Add an item to the database in a specified container. Sets the container, screen, cellX and
-     * cellY fields of the item. Also assigns an ID to the item.
-     */
-    static boolean addGestureToDatabase(Context context, ItemInfo item, boolean notify) {
-        final ContentValues values = new ContentValues();
-        final ContentResolver cr = context.getContentResolver();
-
-        item.onAddToDatabase(values);
-
-        Uri result = cr.insert(notify ? LauncherSettings.Gestures.CONTENT_URI :
-                LauncherSettings.Gestures.CONTENT_URI_NO_NOTIFICATION, values);
-
-        if (result != null) {
-            item.id = Integer.parseInt(result.getPathSegments().get(1));
-        }
-
-        return result != null;
     }
 
     /**
@@ -815,7 +728,7 @@ public class LauncherModel {
 
         item.onAddToDatabase(values);
 
-        cr.update(LauncherSettings.Favorites.getContentUri(item.id, false), values, null, null);
+        cr.update(WidgetSettings.Favorites.getContentUri(item.id, false), values, null, null);
     }
 
     /**
@@ -826,13 +739,13 @@ public class LauncherModel {
     static void deleteItemFromDatabase(Context context, ItemInfo item) {
         final ContentResolver cr = context.getContentResolver();
 
-        cr.delete(LauncherSettings.Favorites.getContentUri(item.id, false), null, null);
+        cr.delete(WidgetSettings.Favorites.getContentUri(item.id, false), null, null);
     }
 
     static void deleteGestureFromDatabase(Context context, ItemInfo item) {
         final ContentResolver cr = context.getContentResolver();
 
-        cr.delete(LauncherSettings.Gestures.getContentUri(item.id, false), null, null);
+        cr.delete(WidgetSettings.Gestures.getContentUri(item.id, false), null, null);
     }
 
     static void updateGestureInDatabase(Context context, ItemInfo item) {
@@ -841,7 +754,7 @@ public class LauncherModel {
 
         item.onAddToDatabase(values);
 
-        cr.update(LauncherSettings.Gestures.getContentUri(item.id, false), values, null, null);
+        cr.update(WidgetSettings.Gestures.getContentUri(item.id, false), values, null, null);
     }
 
 
@@ -849,20 +762,20 @@ public class LauncherModel {
         final ContentResolver contentResolver = context.getContentResolver();
         final PackageManager manager = context.getPackageManager();
         final Cursor c = contentResolver.query(
-                LauncherSettings.Gestures.CONTENT_URI, null, LauncherSettings.Gestures._ID + "=?",
+                WidgetSettings.Gestures.CONTENT_URI, null, WidgetSettings.Gestures._ID + "=?",
                 new String[] { id }, null);
 
         ApplicationInfo info = null;
 
         try {
-            final int idIndex = c.getColumnIndexOrThrow(LauncherSettings.Gestures._ID);
-            final int intentIndex = c.getColumnIndexOrThrow(LauncherSettings.Gestures.INTENT);
-            final int titleIndex = c.getColumnIndexOrThrow(LauncherSettings.Gestures.TITLE);
-            final int iconTypeIndex = c.getColumnIndexOrThrow(LauncherSettings.Gestures.ICON_TYPE);
-            final int iconIndex = c.getColumnIndexOrThrow(LauncherSettings.Gestures.ICON);
-            final int iconPackageIndex = c.getColumnIndexOrThrow(LauncherSettings.Gestures.ICON_PACKAGE);
-            final int iconResourceIndex = c.getColumnIndexOrThrow(LauncherSettings.Gestures.ICON_RESOURCE);
-            final int itemTypeIndex = c.getColumnIndexOrThrow(LauncherSettings.Gestures.ITEM_TYPE);
+            final int idIndex = c.getColumnIndexOrThrow(WidgetSettings.Gestures._ID);
+            final int intentIndex = c.getColumnIndexOrThrow(WidgetSettings.Gestures.INTENT);
+            final int titleIndex = c.getColumnIndexOrThrow(WidgetSettings.Gestures.TITLE);
+            final int iconTypeIndex = c.getColumnIndexOrThrow(WidgetSettings.Gestures.ICON_TYPE);
+            final int iconIndex = c.getColumnIndexOrThrow(WidgetSettings.Gestures.ICON);
+            final int iconPackageIndex = c.getColumnIndexOrThrow(WidgetSettings.Gestures.ICON_PACKAGE);
+            final int iconResourceIndex = c.getColumnIndexOrThrow(WidgetSettings.Gestures.ICON_RESOURCE);
+            final int itemTypeIndex = c.getColumnIndexOrThrow(WidgetSettings.Gestures.ITEM_TYPE);
 
             String intentDescription;
             Intent intent;
@@ -871,8 +784,8 @@ public class LauncherModel {
                 int itemType = c.getInt(itemTypeIndex);
 
                 switch (itemType) {
-                    case LauncherSettings.Favorites.ITEM_TYPE_APPLICATION:
-                    case LauncherSettings.Favorites.ITEM_TYPE_SHORTCUT:
+                    case WidgetSettings.Favorites.ITEM_TYPE_APPLICATION:
+                    case WidgetSettings.Favorites.ITEM_TYPE_SHORTCUT:
                         intentDescription = c.getString(intentIndex);
                         try {
                             intent = Intent.parseUri(intentDescription, 0);
@@ -880,7 +793,7 @@ public class LauncherModel {
                             return null;
                         }
 
-                        if (itemType == LauncherSettings.Favorites.ITEM_TYPE_APPLICATION) {
+                        if (itemType == WidgetSettings.Favorites.ITEM_TYPE_APPLICATION) {
                             info = getApplicationInfo(manager, intent, context);
                         } else {
                             info = getApplicationInfoShortcut(c, context, iconTypeIndex,

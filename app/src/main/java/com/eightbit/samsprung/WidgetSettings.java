@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.eightbit.samsprung.widget;
+package com.eightbit.samsprung;
 
 import android.net.Uri;
 import android.provider.BaseColumns;
@@ -22,13 +22,13 @@ import android.provider.BaseColumns;
 /**
  * Settings related utilities.
  */
-class LauncherSettings {
-    static interface BaseLauncherColumns extends BaseColumns {
+class WidgetSettings {
+    interface BaseLauncherColumns extends BaseColumns {
         /**
          * Descriptive name of the gesture that can be displayed to the user.
          * <P>Type: TEXT</P>
          */
-        static final String TITLE = "title";
+        String TITLE = "title";
 
         /**
          * The Intent URL of the gesture, describing what it points to. This
@@ -36,40 +36,40 @@ class LauncherSettings {
          * an Intent that can be launched.
          * <P>Type: TEXT</P>
          */
-        static final String INTENT = "intent";
+        String INTENT = "intent";
 
         /**
          * The type of the gesture
          *
          * <P>Type: INTEGER</P>
          */
-        static final String ITEM_TYPE = "itemType";
+        String ITEM_TYPE = "itemType";
 
         /**
          * The gesture is an application
          */
-        static final int ITEM_TYPE_APPLICATION = 0;
+        int ITEM_TYPE_APPLICATION = 0;
 
         /**
          * The gesture is an application created shortcut
          */
-        static final int ITEM_TYPE_SHORTCUT = 1;
+        int ITEM_TYPE_SHORTCUT = 1;
 
         /**
          * The icon type.
          * <P>Type: INTEGER</P>
          */
-        static final String ICON_TYPE = "iconType";
+        String ICON_TYPE = "iconType";
 
         /**
          * The icon is a resource identified by a package name and an integer id.
          */
-        static final int ICON_TYPE_RESOURCE = 0;
+        int ICON_TYPE_RESOURCE = 0;
 
         /**
          * The icon is a bitmap.
          */
-        static final int ICON_TYPE_BITMAP = 1;
+        int ICON_TYPE_BITMAP = 1;
 
         /**
          * The icon package name, if icon type is ICON_TYPE_RESOURCE.
@@ -87,7 +87,7 @@ class LauncherSettings {
          * The custom icon bitmap, if icon type is ICON_TYPE_BITMAP.
          * <P>Type: BLOB</P>
          */
-        static final String ICON = "icon";
+        String ICON = "icon";
     }
 
     static final class Gestures implements BaseLauncherColumns {
@@ -95,16 +95,16 @@ class LauncherSettings {
          * The content:// style URL for this table
          */
         static final Uri CONTENT_URI = Uri.parse("content://" +
-                LauncherProvider.AUTHORITY + "/" + LauncherProvider.TABLE_GESTURES +
-                "?" + LauncherProvider.PARAMETER_NOTIFY + "=true");
+                WidgetProvider.AUTHORITY + "/" + WidgetProvider.TABLE_GESTURES +
+                "?" + WidgetProvider.PARAMETER_NOTIFY + "=true");
 
         /**
          * The content:// style URL for this table. When this Uri is used, no notification is
          * sent if the content changes.
          */
         static final Uri CONTENT_URI_NO_NOTIFICATION = Uri.parse("content://" +
-                LauncherProvider.AUTHORITY + "/" + LauncherProvider.TABLE_GESTURES +
-                "?" + LauncherProvider.PARAMETER_NOTIFY + "=false");
+                WidgetProvider.AUTHORITY + "/" + WidgetProvider.TABLE_GESTURES +
+                "?" + WidgetProvider.PARAMETER_NOTIFY + "=false");
 
         /**
          * The content:// style URL for a given row, identified by its id.
@@ -115,9 +115,9 @@ class LauncherSettings {
          * @return The unique content URL for the specified row.
          */
         static Uri getContentUri(long id, boolean notify) {
-            return Uri.parse("content://" + LauncherProvider.AUTHORITY +
-                    "/" + LauncherProvider.TABLE_GESTURES + "/" + id + "?" +
-                    LauncherProvider.PARAMETER_NOTIFY + "=" + notify);
+            return Uri.parse("content://" + WidgetProvider.AUTHORITY +
+                    "/" + WidgetProvider.TABLE_GESTURES + "/" + id + "?" +
+                    WidgetProvider.PARAMETER_NOTIFY + "=" + notify);
         }
     }
 
@@ -130,16 +130,16 @@ class LauncherSettings {
          * The content:// style URL for this table
          */
         static final Uri CONTENT_URI = Uri.parse("content://" +
-                LauncherProvider.AUTHORITY + "/" + LauncherProvider.TABLE_FAVORITES +
-                "?" + LauncherProvider.PARAMETER_NOTIFY + "=true");
+                WidgetProvider.AUTHORITY + "/" + WidgetProvider.TABLE_FAVORITES +
+                "?" + WidgetProvider.PARAMETER_NOTIFY + "=true");
 
         /**
          * The content:// style URL for this table. When this Uri is used, no notification is
          * sent if the content changes.
          */
         static final Uri CONTENT_URI_NO_NOTIFICATION = Uri.parse("content://" +
-                LauncherProvider.AUTHORITY + "/" + LauncherProvider.TABLE_FAVORITES +
-                "?" + LauncherProvider.PARAMETER_NOTIFY + "=false");
+                WidgetProvider.AUTHORITY + "/" + WidgetProvider.TABLE_FAVORITES +
+                "?" + WidgetProvider.PARAMETER_NOTIFY + "=false");
 
         /**
          * The content:// style URL for a given row, identified by its id.
@@ -150,9 +150,9 @@ class LauncherSettings {
          * @return The unique content URL for the specified row.
          */
         static Uri getContentUri(long id, boolean notify) {
-            return Uri.parse("content://" + LauncherProvider.AUTHORITY +
-                    "/" + LauncherProvider.TABLE_FAVORITES + "/" + id + "?" +
-                    LauncherProvider.PARAMETER_NOTIFY + "=" + notify);
+            return Uri.parse("content://" + WidgetProvider.AUTHORITY +
+                    "/" + WidgetProvider.TABLE_FAVORITES + "/" + id + "?" +
+                    WidgetProvider.PARAMETER_NOTIFY + "=" + notify);
         }
 
         /**
@@ -199,16 +199,6 @@ class LauncherSettings {
         static final String SPANY = "spanY";
 
         /**
-         * The favorite is a user created folder
-         */
-        static final int ITEM_TYPE_USER_FOLDER = 2;
-
-        /**
-         * The favorite is a live folder
-         */
-        static final int ITEM_TYPE_LIVE_FOLDER = 3;
-
-        /**
          * The favorite is a widget
          */
         static final int ITEM_TYPE_APPWIDGET = 4;
@@ -217,11 +207,6 @@ class LauncherSettings {
          * The favorite is a clock
          */
         static final int ITEM_TYPE_WIDGET_CLOCK = 1000;
-
-        /**
-         * The favorite is a search widget
-         */
-        static final int ITEM_TYPE_WIDGET_SEARCH = 1001;
 
         /**
          * The favorite is a photo frame

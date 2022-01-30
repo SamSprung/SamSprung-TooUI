@@ -14,9 +14,8 @@
  * limitations under the License.
  */
 
-package com.eightbit.samsprung.widget;
+package com.eightbit.samsprung;
 
-import android.content.ComponentName;
 import android.content.ContentValues;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -63,36 +62,7 @@ class ApplicationInfo extends ItemInfo {
     Intent.ShortcutIconResource iconResource;
 
     ApplicationInfo() {
-        itemType = LauncherSettings.BaseLauncherColumns.ITEM_TYPE_SHORTCUT;
-    }
-    
-    public ApplicationInfo(ApplicationInfo info) {
-        super(info);
-        title = info.title.toString();
-        intent = new Intent(info.intent);
-        if (info.iconResource != null) {
-            iconResource = new Intent.ShortcutIconResource();
-            iconResource.packageName = info.iconResource.packageName;
-            iconResource.resourceName = info.iconResource.resourceName;
-        }
-        icon = info.icon;
-        filtered = info.filtered;
-        customIcon = info.customIcon;
-    }
-
-    /**
-     * Creates the application intent based on a component name and various launch flags.
-     * Sets {@link #itemType} to {@link LauncherSettings.BaseLauncherColumns#ITEM_TYPE_APPLICATION}.
-     *
-     * @param className the class name of the component representing the intent
-     * @param launchFlags the launch flags
-     */
-    final void setActivity(ComponentName className, int launchFlags) {
-        intent = new Intent(Intent.ACTION_MAIN);
-        intent.addCategory(Intent.CATEGORY_LAUNCHER);
-        intent.setComponent(className);
-        intent.setFlags(launchFlags);
-        itemType = LauncherSettings.BaseLauncherColumns.ITEM_TYPE_APPLICATION;
+        itemType = WidgetSettings.BaseLauncherColumns.ITEM_TYPE_SHORTCUT;
     }
 
     @Override
@@ -100,23 +70,23 @@ class ApplicationInfo extends ItemInfo {
         super.onAddToDatabase(values);
 
         String titleStr = title != null ? title.toString() : null;
-        values.put(LauncherSettings.BaseLauncherColumns.TITLE, titleStr);
+        values.put(WidgetSettings.BaseLauncherColumns.TITLE, titleStr);
 
         String uri = intent != null ? intent.toUri(0) : null;
-        values.put(LauncherSettings.BaseLauncherColumns.INTENT, uri);
+        values.put(WidgetSettings.BaseLauncherColumns.INTENT, uri);
 
         if (customIcon) {
-            values.put(LauncherSettings.BaseLauncherColumns.ICON_TYPE,
-                    LauncherSettings.BaseLauncherColumns.ICON_TYPE_BITMAP);
+            values.put(WidgetSettings.BaseLauncherColumns.ICON_TYPE,
+                    WidgetSettings.BaseLauncherColumns.ICON_TYPE_BITMAP);
             Bitmap bitmap = ((FastBitmapDrawable) icon).getBitmap();
             writeBitmap(values, bitmap);
         } else {
-            values.put(LauncherSettings.BaseLauncherColumns.ICON_TYPE,
-                    LauncherSettings.BaseLauncherColumns.ICON_TYPE_RESOURCE);
+            values.put(WidgetSettings.BaseLauncherColumns.ICON_TYPE,
+                    WidgetSettings.BaseLauncherColumns.ICON_TYPE_RESOURCE);
             if (iconResource != null) {
-                values.put(LauncherSettings.BaseLauncherColumns.ICON_PACKAGE,
+                values.put(WidgetSettings.BaseLauncherColumns.ICON_PACKAGE,
                         iconResource.packageName);
-                values.put(LauncherSettings.BaseLauncherColumns.ICON_RESOURCE,
+                values.put(WidgetSettings.BaseLauncherColumns.ICON_RESOURCE,
                         iconResource.resourceName);
             }
         }

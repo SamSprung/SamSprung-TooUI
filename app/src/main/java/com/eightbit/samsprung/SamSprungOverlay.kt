@@ -58,7 +58,6 @@ import android.graphics.Color
 import android.graphics.PixelFormat
 import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
-import android.provider.Settings
 import android.view.*
 import android.widget.ImageView
 import android.widget.LinearLayout
@@ -67,11 +66,9 @@ import androidx.appcompat.widget.AppCompatImageView
 import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.core.view.isVisible
 import com.eightbit.content.ScaledContext
-import com.eightbit.samsprung.widget.SamSprungWidget
 import com.eightbit.view.OnSwipeTouchListener
 import com.eightbit.widget.VerticalStrokeTextView
 import com.google.android.material.bottomsheet.BottomSheetBehavior
-import java.io.File
 
 
 class SamSprungOverlay : AppCompatActivity() {
@@ -127,7 +124,7 @@ class SamSprungOverlay : AppCompatActivity() {
                     menuRecent.setOnClickListener {
                         finish()
                         startActivity(
-                            Intent(this@SamSprungOverlay, SamSprungWidget::class.java),
+                            Intent(this@SamSprungOverlay, SamSprungDrawer::class.java),
                             ActivityOptions.makeBasic().setLaunchDisplayId(1).toBundle()
                         )
                     }

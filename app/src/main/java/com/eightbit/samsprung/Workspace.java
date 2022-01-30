@@ -14,18 +14,15 @@
  * limitations under the License.
  */
 
-package com.eightbit.samsprung.widget;
+package com.eightbit.samsprung;
 
-import android.app.ActivityOptions;
-import android.content.ComponentName;
+import android.annotation.SuppressLint;
 import android.content.Context;
-import android.content.Intent;
 import android.content.res.TypedArray;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.Rect;
 import android.graphics.RectF;
-import android.graphics.drawable.Drawable;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.util.AttributeSet;
@@ -36,12 +33,6 @@ import android.view.ViewConfiguration;
 import android.view.ViewGroup;
 import android.view.ViewParent;
 import android.widget.Scroller;
-import android.widget.TextView;
-
-import com.eightbit.samsprung.R;
-import com.eightbit.samsprung.SamSprungDrawer;
-
-import java.util.ArrayList;
 
 /**
  * The workspace is a wide area with a wallpaper and a finite number of screens. Each
@@ -56,9 +47,7 @@ public class Workspace extends ViewGroup implements DropTarget, DragSource, Drag
      */
     private static final int SNAP_VELOCITY = 1000;
 
-    private int mDefaultScreen;
-
-    private Paint mPaint;
+    private final int mDefaultScreen;
 
     private boolean mFirstLayout = true;
 
@@ -95,8 +84,8 @@ public class Workspace extends ViewGroup implements DropTarget, DragSource, Drag
      */
     private CellLayout.CellInfo mVacantCache = null;
     
-    private int[] mTempCell = new int[2];
-    private int[] mTempEstimate = new int[2];
+    private final int[] mTempCell = new int[2];
+    private final int[] mTempEstimate = new int[2];
 
     private boolean mAllowLongPress;
     private boolean mLocked;
@@ -144,7 +133,7 @@ public class Workspace extends ViewGroup implements DropTarget, DragSource, Drag
         mCurrentScreen = mDefaultScreen;
         SamSprungWidget.Companion.setScreen(mCurrentScreen);
 
-        mPaint = new Paint();
+        Paint mPaint = new Paint();
         mPaint.setDither(false);
 
         final ViewConfiguration configuration = ViewConfiguration.get(getContext());
@@ -667,11 +656,12 @@ public class Workspace extends ViewGroup implements DropTarget, DragSource, Drag
         }
     }
 
+    @SuppressLint("ClickableViewAccessibility")
     @Override
     public boolean onTouchEvent(MotionEvent ev) {
 
-// === added    	
     	int mScrollX = getScrollX();
+//    	int mScrollY = getScrollY();
     	
         if (mLocked) {
             return true;
@@ -684,6 +674,7 @@ public class Workspace extends ViewGroup implements DropTarget, DragSource, Drag
 
         final int action = ev.getAction();
         final float x = ev.getX();
+        final float y = ev.getY();
 
         switch (action) {
         case MotionEvent.ACTION_DOWN:
@@ -697,20 +688,25 @@ public class Workspace extends ViewGroup implements DropTarget, DragSource, Drag
 
             // Remember where the motion event started
             mLastMotionX = x;
+            mLastMotionY = y;
             break;
         case MotionEvent.ACTION_MOVE:
             if (mTouchState == TOUCH_STATE_SCROLLING) {
                 // Scroll to follow the motion event
+                final int deltaY = (int) (mLastMotionY - y);
                 final int deltaX = (int) (mLastMotionX - x);
+                mLastMotionY = y;
                 mLastMotionX = x;
 
+                if (Math.abs(deltaY) > Math.abs(deltaX))
+                    break;
                 if (deltaX < 0) {
                     if (mScrollX > 0) {
                         scrollBy(Math.max(-mScrollX, deltaX), 0);
                     }
                 } else if (deltaX > 0) {
-                    final int availableToScroll = getChildAt(getChildCount() - 1).getRight() -
-                            mScrollX - getWidth();
+                    final int availableToScroll = getChildAt(getChildCount() - 1)
+                            .getRight() - mScrollX - getWidth();
                     if (availableToScroll > 0) {
                         scrollBy(Math.min(availableToScroll, deltaX), 0);
                     }
@@ -749,7 +745,6 @@ public class Workspace extends ViewGroup implements DropTarget, DragSource, Drag
 
     private void snapToDestination() {
 
-// === added    	
     	int mScrollX = getScrollX();
     	
         final int screenWidth = getWidth();
@@ -760,7 +755,6 @@ public class Workspace extends ViewGroup implements DropTarget, DragSource, Drag
 
     void snapToScreen(int whichScreen) {
 
-// === added    	
     	int mScrollX = getScrollX();
     	
         if (!mScroller.isFinished()) return;
@@ -836,8 +830,8 @@ public class Workspace extends ViewGroup implements DropTarget, DragSource, Drag
 
                 final ItemInfo info = (ItemInfo)cell.getTag();
                 CellLayout.LayoutParams lp = (CellLayout.LayoutParams) cell.getLayoutParams();
-                LauncherModel.moveItemInDatabase(mLauncher, info,
-                        LauncherSettings.Favorites.CONTAINER_DESKTOP, mCurrentScreen, lp.cellX, lp.cellY);
+                WidgetModel.moveItemInDatabase(mLauncher, info,
+                        WidgetSettings.Favorites.CONTAINER_DESKTOP, mCurrentScreen, lp.cellX, lp.cellY);
             }
     }
 
@@ -971,14 +965,6 @@ public class Workspace extends ViewGroup implements DropTarget, DragSource, Drag
         }
     }
 
-    public void scrollVertical() {
-        clearVacantCache();
-        mLauncher.finish();
-        mLauncher.startActivity(
-                new Intent(mLauncher, SamSprungDrawer.class),
-                ActivityOptions.makeBasic().setLaunchDisplayId(1).toBundle());
-    }
-
     public int getScreenForView(View v) {
         int result = -1;
         if (v != null) {
@@ -1032,79 +1018,13 @@ public class Workspace extends ViewGroup implements DropTarget, DragSource, Drag
     public boolean allowLongPress() {
         return mAllowLongPress;
     }
-    
+
     /**
      * Set true to allow long-press events to be triggered, usually checked by
      * {@link SamSprungWidget} to accept or block dpad-initiated long-presses.
      */
     public void setAllowLongPress(boolean allowLongPress) {
         mAllowLongPress = allowLongPress;
-    }
-
-    void removeShortcutsForPackage(String packageName) {
-        final ArrayList<View> childrenToRemove = new ArrayList<View>();
-        final LauncherModel model = SamSprungWidget.Companion.getModel();
-        final int count = getChildCount();
-
-        for (int i = 0; i < count; i++) {
-            final CellLayout layout = (CellLayout) getChildAt(i);
-            int childCount = layout.getChildCount();
-
-            childrenToRemove.clear();
-
-            for (int j = 0; j < childCount; j++) {
-                final View view = layout.getChildAt(j);
-                Object tag = view.getTag();
-            }
-
-            childCount = childrenToRemove.size();
-            for (int j = 0; j < childCount; j++) {
-                layout.removeViewInLayout(childrenToRemove.get(j));
-            }
-
-            if (childCount > 0) {
-                layout.requestLayout();
-                layout.invalidate();
-            }
-        }
-    }
-
-    void updateShortcutsForPackage(String packageName) {
-
-// === added
-    	Context mContext = getContext();
-    	
-        final int count = getChildCount();
-        for (int i = 0; i < count; i++) {
-            final CellLayout layout = (CellLayout) getChildAt(i);
-            int childCount = layout.getChildCount();
-            for (int j = 0; j < childCount; j++) {
-                final View view = layout.getChildAt(j);
-                Object tag = view.getTag();
-                if (tag instanceof ApplicationInfo) {
-                    ApplicationInfo info = (ApplicationInfo) tag;
-                    // We need to check for ACTION_MAIN otherwise getComponent() might
-                    // return null for some shortcuts (for instance, for shortcuts to
-                    // web pages.)
-                    final Intent intent = info.intent;
-                    final ComponentName name = intent.getComponent();
-                    if (info.itemType == LauncherSettings.Favorites.ITEM_TYPE_APPLICATION &&
-                            Intent.ACTION_MAIN.equals(intent.getAction()) && name != null &&
-                            packageName.equals(name.getPackageName())) {
-
-                        final Drawable icon = SamSprungWidget.Companion.getModel().getApplicationInfoIcon(
-                                mLauncher.getPackageManager(), info);
-                        if (icon != null && icon != info.icon) {
-                            info.icon.setCallback(null);
-                            info.icon = Utilities.createIconThumbnail(icon, mContext);
-                            info.filtered = true;
-                            ((TextView) view).setCompoundDrawablesWithIntrinsicBounds(null,
-                                    info.icon, null, null);
-                        }
-                    }
-                }
-            }
-        }
     }
 
     void moveToDefaultScreen() {
@@ -1131,14 +1051,14 @@ public class Workspace extends ViewGroup implements DropTarget, DragSource, Drag
         }
 
         public static final Parcelable.Creator<SavedState> CREATOR =
-                new Parcelable.Creator<SavedState>() {
-            public SavedState createFromParcel(Parcel in) {
-                return new SavedState(in);
-            }
+                new Parcelable.Creator<>() {
+                    public SavedState createFromParcel(Parcel in) {
+                        return new SavedState(in);
+                    }
 
-            public SavedState[] newArray(int size) {
-                return new SavedState[size];
-            }
-        };
+                    public SavedState[] newArray(int size) {
+                        return new SavedState[size];
+                    }
+                };
     }
 }

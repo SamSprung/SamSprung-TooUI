@@ -15,15 +15,17 @@
  */
 
 
-package com.eightbit.samsprung.widget;
+package com.eightbit.samsprung;
 
 import android.appwidget.AppWidgetHostView;
 import android.content.ContentValues;
 
+import androidx.annotation.NonNull;
+
 /**
  * Represents a widget, which just contains an identifier.
  */
-public class LauncherAppWidgetInfo extends ItemInfo {
+public class CoverAppWidgetInfo extends ItemInfo {
 
     /**
      * Identifier for this widget when talking with {@link android.appwidget.AppWidgetManager} for updates.
@@ -36,17 +38,18 @@ public class LauncherAppWidgetInfo extends ItemInfo {
      */
     AppWidgetHostView hostView = null;
 
-    LauncherAppWidgetInfo(int appWidgetId) {
-        itemType = LauncherSettings.Favorites.ITEM_TYPE_APPWIDGET;
+    CoverAppWidgetInfo(int appWidgetId) {
+        itemType = WidgetSettings.Favorites.ITEM_TYPE_APPWIDGET;
         this.appWidgetId = appWidgetId;
     }
     
     @Override
     void onAddToDatabase(ContentValues values) {
         super.onAddToDatabase(values);
-        values.put(LauncherSettings.Favorites.APPWIDGET_ID, appWidgetId);
+        values.put(WidgetSettings.Favorites.APPWIDGET_ID, appWidgetId);
     }
 
+    @NonNull
     @Override
     public String toString() {
         return Integer.toString(appWidgetId);

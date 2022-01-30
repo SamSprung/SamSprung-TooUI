@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.eightbit.samsprung.widget;
+package com.eightbit.samsprung;
 
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -34,8 +34,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.FrameLayout;
-
-import com.eightbit.samsprung.R;
 
 /**
  * A ViewGroup that coordinated dragging across its dscendants
@@ -78,7 +76,7 @@ public class DragLayer extends FrameLayout implements DragController {
     /**
      * Utility rectangle
      */
-    private Rect mDragRect = new Rect();
+    private final Rect mDragRect = new Rect();
 
     /**
      * Where the drag originated
@@ -109,7 +107,7 @@ public class DragLayer extends FrameLayout implements DragController {
 
     private int mScrollState = SCROLL_OUTSIDE_ZONE;
 
-    private ScrollRunnable mScrollRunnable = new ScrollRunnable();
+    private final ScrollRunnable mScrollRunnable = new ScrollRunnable();
     private View mIgnoredDropTarget;
 
     private RectF mDragRegion;
@@ -126,9 +124,9 @@ public class DragLayer extends FrameLayout implements DragController {
      */
     private static final boolean DRAW_TARGET_SNAG = false;
 
-    private Rect mEstimatedRect = new Rect();
-    private float[] mDragCenter = new float[2];
-    private float[] mEstimatedCenter = new float[2];
+    private final Rect mEstimatedRect = new Rect();
+    private final float[] mDragCenter = new float[2];
+    private final float[] mEstimatedCenter = new float[2];
     private boolean mDrawEstimated = false;
 
     private int mTriggerWidth = -1;
@@ -286,18 +284,16 @@ public class DragLayer extends FrameLayout implements DragController {
                 normalized = Math.min(normalized, 1.0f);
                 final float value = mAnimationFrom  + (mAnimationTo - mAnimationFrom) * normalized;
 
-                switch (mAnimationType) {
-                    case ANIMATION_TYPE_SCALE:
-                        final Bitmap dragBitmap = mDragBitmap;
-                        canvas.save();
-                        canvas.translate(mScrollX + mLastMotionX - mTouchOffsetX - mBitmapOffsetX,
-                                mScrollY + mLastMotionY - mTouchOffsetY - mBitmapOffsetY);
-                        canvas.translate((dragBitmap.getWidth() * (1.0f - value)) / 2,
-                                (dragBitmap.getHeight() * (1.0f - value)) / 2);
-                        canvas.scale(value, value);
-                        canvas.drawBitmap(dragBitmap, 0.0f, 0.0f, mDragPaint);
-                        canvas.restore();
-                        break;
+                if (mAnimationType == ANIMATION_TYPE_SCALE) {
+                    final Bitmap dragBitmap = mDragBitmap;
+                    canvas.save();
+                    canvas.translate(mScrollX + mLastMotionX - mTouchOffsetX - mBitmapOffsetX,
+                            mScrollY + mLastMotionY - mTouchOffsetY - mBitmapOffsetY);
+                    canvas.translate((dragBitmap.getWidth() * (1.0f - value)) / 2,
+                            (dragBitmap.getHeight() * (1.0f - value)) / 2);
+                    canvas.scale(value, value);
+                    canvas.drawBitmap(dragBitmap, 0.0f, 0.0f, mDragPaint);
+                    canvas.restore();
                 }
             } else {
                 // Only draw estimate drop "snag" when requested
@@ -361,8 +357,7 @@ public class DragLayer extends FrameLayout implements DragController {
 
     @Override
     public boolean onTouchEvent(MotionEvent ev) {
-    
-// === added
+
 		int mScrollX = getScrollX();
 		int mScrollY = getScrollY();
 		    

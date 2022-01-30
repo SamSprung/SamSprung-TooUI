@@ -14,15 +14,11 @@
  * limitations under the License.
  */
 
-package com.eightbit.samsprung.widget;
-
-import android.view.View;
+package com.eightbit.samsprung;
 
 /**
- * Interface defining an object that can originate a drag.
- *
+ * Represents one instance of a Launcher widget, such as search.
  */
-public interface DragSource {
-    void setDragger(DragController dragger);
-    void onDropCompleted(View target, boolean success);
+class Widget extends ItemInfo {
+    int layoutResource;
 }
