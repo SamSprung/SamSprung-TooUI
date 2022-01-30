@@ -7,4 +7,5 @@
     android:layout_alignParentBottom="true"
     android:paddingBottom="4dp"
     android:keyTextSize="12sp"
+    android:alpha="0.8"
     android:keyPreviewLayout ="@layout/key_preview" />

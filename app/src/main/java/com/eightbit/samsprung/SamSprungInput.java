@@ -11,9 +11,15 @@ import androidx.coordinatorlayout.widget.CoordinatorLayout;
 
 import java.lang.ref.SoftReference;
 
+interface InputListener {
+    public void onInputRequested(SamSprungInput instance);
+}
+
 @SuppressWarnings("deprecation")
 public class SamSprungInput extends InputMethodService
         implements KeyboardView.OnKeyboardActionListener {
+
+    private static InputListener listener;
 
     private static SoftReference<KeyboardView> mKeyboardView;
     private static Keyboard mKeyboard;
@@ -30,7 +36,13 @@ public class SamSprungInput extends InputMethodService
 
     @Override
     public boolean onShowInputRequested(int flags, boolean configChange) {
+        if (null != listener)
+            listener.onInputRequested(this);
         return true;
+    }
+
+    public static void setInputListener(InputListener inputListener) {
+        listener = inputListener;
     }
 
     public static void setInputMethod(Keyboard keyboard, KeyboardView keyBoardView, CoordinatorLayout coordinator) {

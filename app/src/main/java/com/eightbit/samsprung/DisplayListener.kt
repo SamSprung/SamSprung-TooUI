@@ -154,6 +154,11 @@ class DisplayListener : Service() {
         val mKeyboardView = if (hasAccessibility())
             getKeyboard(coordinator, this) else null
 
+        SamSprungInput.setInputListener {
+            if (!mKeyboardView!!.isShown)
+                coordinator.addView(mKeyboardView, 0)
+        }
+
         val menu = floatView.findViewById<LinearLayout>(R.id.button_layout)
         val menuKeys = menu.findViewById<ImageView>(R.id.button_input)
         val menuLogo = menu.findViewById<VerticalStrokeTextView>(R.id.samsprung_logo)
