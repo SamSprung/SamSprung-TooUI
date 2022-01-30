@@ -127,12 +127,11 @@ class CoverPreferences : AppCompatActivity() {
         if (SamSprung.prefs.contains(SamSprung.autoRotate)) {
             try {
                 SamSprung.prefs.getBoolean(SamSprung.autoRotate, false)
-            } catch (cast: ClassCastException) {
                 with(SamSprung.prefs.edit()) {
                     remove(SamSprung.autoRotate)
                     apply()
                 }
-            }
+            } catch (ignored: ClassCastException) { }
         }
 
         onNewIntent(intent)

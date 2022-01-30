@@ -324,12 +324,12 @@ class DisplayListener : Service() {
         if (null != mDisplayListener) {
             displayManager.unregisterDisplayListener(mDisplayListener)
         }
-        if (SamSprung.prefs.getInt(SamSprung.autoRotate, 0) == 1
+        if (SamSprung.prefs.getInt(SamSprung.autoRotate, 1) == 0
             && Settings.System.canWrite(applicationContext)) {
             try {
                 Settings.System.putInt(applicationContext.contentResolver,
                     Settings.System.ACCELEROMETER_ROTATION,
-                    SamSprung.prefs.getInt(SamSprung.autoRotate, 1)
+                    SamSprung.prefs.getInt(SamSprung.autoRotate, 0)
                 )
             } catch (ignored: Settings.SettingNotFoundException) { }
         }
