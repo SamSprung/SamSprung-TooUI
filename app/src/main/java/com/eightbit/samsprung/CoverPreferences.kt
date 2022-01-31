@@ -483,7 +483,7 @@ class CoverPreferences : AppCompatActivity() {
         try {
             var line: String?
             val mLogcatProc: Process = Runtime.getRuntime().exec(arrayOf(
-                "logcat", "-d", "-t", "128", BuildConfig.APPLICATION_ID, "AndroidRuntime",
+                "logcat", "-d", "-t", "256", BuildConfig.APPLICATION_ID, "AndroidRuntime",
                 "AppIconSolution:S", "ViewRootImpl:S", "IssueReporterActivity:S",
             ))
             val reader = BufferedReader(InputStreamReader(mLogcatProc.inputStream))
@@ -672,34 +672,8 @@ class CoverPreferences : AppCompatActivity() {
         }
     }
 
-    override fun onNewIntent(intent: Intent?) {
-        super.onNewIntent(intent)
+    private fun verifyCompatibility() {
         requestPermissions.launch(permissions)
-        if (ContextCompat.checkSelfPermission(this,
-                Manifest.permission.READ_EXTERNAL_STORAGE
-            ) == PackageManager.PERMISSION_GRANTED) {
-            findViewById<CoordinatorLayout>(R.id.coordinator).background =
-                WallpaperManager.getInstance(this).drawable
-        }
-        if (!SamSprung.prefs.getBoolean(SamSprung.prefSetups, false)) {
-            val view: View = layoutInflater.inflate(R.layout.setup_notice_layout, null)
-            val dialog = AlertDialog.Builder(
-                ContextThemeWrapper(this, R.style.DialogTheme_NoActionBar)
-            )
-            val setupDialog: Dialog = dialog.setView(view).show()
-            view.findViewById<AppCompatButton>(R.id.setup_confirm).setOnClickListener {
-                with(SamSprung.prefs.edit()) {
-                    putBoolean(SamSprung.prefSetups, true)
-                    apply()
-                }
-                setupDialog.dismiss()
-            }
-            setupDialog.window?.setBackgroundDrawableResource(R.drawable.rounded_layout)
-            setupDialog.window?.setLayout(
-                ViewGroup.LayoutParams.MATCH_PARENT,
-                ViewGroup.LayoutParams.WRAP_CONTENT
-            )
-        }
         if (isDeviceSecure() && !SamSprung.prefs.getBoolean(SamSprung.prefSecure, false)) {
             AlertDialog.Builder(this)
                 .setTitle(R.string.caveats_title)
@@ -716,5 +690,36 @@ class CoverPreferences : AppCompatActivity() {
                     finish()
                 }.show()
         }
+    }
+
+    override fun onNewIntent(intent: Intent?) {
+        super.onNewIntent(intent)
+        if (ContextCompat.checkSelfPermission(this,
+                Manifest.permission.READ_EXTERNAL_STORAGE
+            ) == PackageManager.PERMISSION_GRANTED) {
+            findViewById<CoordinatorLayout>(R.id.coordinator).background =
+                WallpaperManager.getInstance(this).drawable
+        }
+        if (!SamSprung.prefs.getBoolean(SamSprung.prefStarts, false)) {
+            val view: View = layoutInflater.inflate(R.layout.setup_notice_view, null)
+            val dialog = AlertDialog.Builder(
+                ContextThemeWrapper(this, R.style.DialogTheme_NoActionBar)
+            )
+            val setupDialog: Dialog = dialog.setView(view).show()
+            view.findViewById<AppCompatButton>(R.id.setup_confirm).setOnClickListener {
+                with(SamSprung.prefs.edit()) {
+                    putBoolean(SamSprung.prefStarts, true)
+                    apply()
+                }
+                verifyCompatibility()
+                setupDialog.dismiss()
+            }
+            setupDialog.window?.setBackgroundDrawableResource(R.drawable.rounded_layout)
+            setupDialog.window?.setLayout(
+                ViewGroup.LayoutParams.WRAP_CONTENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT
+            )
+        }
+
     }
 }

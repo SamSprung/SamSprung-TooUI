@@ -43,7 +43,6 @@
         android:layout_weight="1"
         android:textSize="28sp"
         android:textColor="@android:color/white"
-        android:layout_gravity="center_vertical"
         android:layout_height="wrap_content" />
 
 </LinearLayout>

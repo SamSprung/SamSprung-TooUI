@@ -3,8 +3,10 @@
 
     <string name="samsprung_ime">SamSprung Keyboard</string>
 
+    <string name="setup_notice">This app will NOT appear in the widget list.\n\nEnabling the switch(es) and approving permission(s) will complete the activation process.\n\nFrom the cover screen, swipe up from the bottom to reveal the navigation bar and begin using SamSprung.</string>
+
     <string name="caveats_title">Incompatibility Detected!</string>
-    <string name="caveats_warning">Lock screen must be bypassed to launch apps. This requires using an insecure method, fingerprint button, or Bixby.</string>
+    <string name="caveats_warning">Lock screen must be bypassed or disabled to launch apps. Bixby unlock can be used as a workaround.</string>
 
     <string name="swap_viewgrid">Display as ListView Widget Style</string>
     <string name="swap_viewlist">Display as GridView Widget Style</string>

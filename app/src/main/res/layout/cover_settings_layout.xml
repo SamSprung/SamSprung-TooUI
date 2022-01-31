@@ -42,7 +42,6 @@
                     android:layout_marginStart="14dp"
                     android:textColor="?android:textColorPrimary"
                     android:gravity="center_vertical"
-                    android:layout_gravity="center_vertical"
                     android:text="@string/permission_options" />
 
                 <View
@@ -69,7 +68,6 @@
                         android:textColor="?android:textColorPrimary"
                         android:gravity="center_vertical"
                         android:layout_height="wrap_content"
-                        android:layout_gravity="center_vertical"
                         android:text="@string/permission_accessibility" />
 
                     <androidx.appcompat.widget.SwitchCompat
@@ -79,7 +77,6 @@
                         android:layout_weight="1"
                         android:textSize="28sp"
                         android:textColor="?android:textColorPrimary"
-                        android:layout_gravity="center_vertical"
                         android:layout_height="wrap_content" />
 
                 </LinearLayout>
@@ -101,7 +98,6 @@
                         android:textColor="?android:textColorPrimary"
                         android:gravity="center_vertical"
                         android:layout_height="wrap_content"
-                        android:layout_gravity="center_vertical"
                         android:text="@string/permission_keyboard" />
 
                     <androidx.appcompat.widget.AppCompatImageView
@@ -111,7 +107,6 @@
                         app:srcCompat="@drawable/ic_baseline_keyboard_24"
                         android:paddingStart="0dp"
                         android:paddingEnd="4dp"
-                        android:layout_gravity="center_vertical"
                         android:layout_height="wrap_content"
                         android:contentDescription="@string/description_icon"/>
 
@@ -133,7 +128,6 @@
                         android:textSize="28sp"
                         android:textColor="?android:textColorPrimary"
                         android:gravity="center_vertical"
-                        android:layout_gravity="center_vertical"
                         android:layout_height="wrap_content"
                         android:text="@string/permission_notifications" />
 
@@ -144,7 +138,6 @@
                         android:layout_weight="1"
                         android:textSize="28sp"
                         android:textColor="?android:textColorPrimary"
-                        android:layout_gravity="center_vertical"
                         android:layout_height="wrap_content" />
 
                 </LinearLayout>
@@ -165,7 +158,6 @@
                         android:textSize="28sp"
                         android:textColor="?android:textColorPrimary"
                         android:gravity="center_vertical"
-                        android:layout_gravity="center_vertical"
                         android:layout_height="wrap_content"
                         android:text="@string/permission_settings" />
 
@@ -176,7 +168,6 @@
                         android:layout_weight="1"
                         android:textSize="28sp"
                         android:textColor="?android:textColorPrimary"
-                        android:layout_gravity="center_vertical"
                         android:layout_height="wrap_content" />
                 </LinearLayout>
             </LinearLayout>
@@ -215,7 +206,6 @@
                 android:layout_marginStart="12dp"
                 android:textColor="?android:textColorPrimary"
                 android:gravity="center_vertical"
-                android:layout_gravity="center_vertical"
                 android:text="@string/color_red" />
 
             <SeekBar
@@ -233,7 +223,6 @@
                 android:layout_marginStart="12dp"
                 android:textColor="?android:textColorPrimary"
                 android:gravity="center_vertical"
-                android:layout_gravity="center_vertical"
                 android:text="@string/color_green" />
 
             <SeekBar
@@ -251,7 +240,6 @@
                 android:layout_marginStart="12dp"
                 android:textColor="?android:textColorPrimary"
                 android:gravity="center_vertical"
-                android:layout_gravity="center_vertical"
                 android:text="@string/color_blue" />
 
             <SeekBar
