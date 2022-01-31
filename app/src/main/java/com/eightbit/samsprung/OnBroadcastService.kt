@@ -144,6 +144,8 @@ class OnBroadcastService : Service() {
     private fun dismissOverlayService(): Int {
         try {
             stopForeground(true)
+        } catch (ignored: Exception) { }
+        try {
             stopSelf()
         } catch (ignored: Exception) { }
         return START_NOT_STICKY

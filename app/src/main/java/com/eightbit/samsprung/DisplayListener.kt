@@ -64,10 +64,7 @@ import android.graphics.PixelFormat
 import android.hardware.display.DisplayManager
 import android.inputmethodservice.Keyboard
 import android.inputmethodservice.KeyboardView
-import android.os.Build
-import android.os.Handler
-import android.os.IBinder
-import android.os.Looper
+import android.os.*
 import android.provider.Settings
 import android.view.*
 import android.view.LayoutInflater
@@ -93,7 +90,7 @@ class DisplayListener : Service() {
     @Suppress("DEPRECATION")
     private lateinit var mKeyguardLock: KeyguardManager.KeyguardLock
     private lateinit var displayManager: DisplayManager
-    
+
     private lateinit var bottomSheetBehavior: BottomSheetBehavior<View>
 
     override fun onBind(intent: Intent?): IBinder? {
@@ -134,7 +131,7 @@ class DisplayListener : Service() {
             override fun onDisplayChanged(display: Int) {
                 if (display == 0) {
                     dismissDisplayListener(displayManager, mKeyguardLock)
-                    restoreActivityDisplay(launchPackage, launchActivity, display)
+                    restoreActivityDisplay(launchPackage, launchActivity, display, false)
                 } else {
                     if (SamSprung.isKeyguardLocked)
                         @Suppress("DEPRECATION") mKeyguardLock.disableKeyguard()
@@ -192,7 +189,6 @@ class DisplayListener : Service() {
                     menuHome.setOnClickListener {
                         resetRecentActivities(launchPackage, launchActivity)
                         dismissDisplayListener(displayManager, mKeyguardLock)
-                        bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
                         startActivity(
                             Intent(buildDisplayContext(1), SamSprungOverlay::class.java)
                                 .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK),
@@ -203,7 +199,7 @@ class DisplayListener : Service() {
                         if (hasAccessibility()) {
                             AccessibilityObserver.executeButtonBack()
                         } else {
-                            restoreActivityDisplay(launchPackage, launchActivity, 1)
+                            restoreActivityDisplay(launchPackage, launchActivity, 1, false)
                         }
                     }
                 } else if (newState == BottomSheetBehavior.STATE_COLLAPSED) {
@@ -233,29 +229,36 @@ class DisplayListener : Service() {
         return START_STICKY
     }
 
-    private fun restoreActivityDisplay(launchPackage: String, launchActivity: String?, display: Int) {
-        if (null != launchActivity) {
+    private fun restoreActivityDisplay(
+        pkg: String, cls: String?, display: Int, backStack: Boolean) {
+        if (null != cls) {
             val coverIntent = Intent(Intent.ACTION_MAIN)
             coverIntent.addCategory(Intent.CATEGORY_LAUNCHER)
-            coverIntent.component = ComponentName(launchPackage, launchActivity)
+            coverIntent.component = ComponentName(pkg, cls)
             coverIntent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or
                     Intent.FLAG_ACTIVITY_CLEAR_TASK or
                     Intent.FLAG_ACTIVITY_FORWARD_RESULT or
                     Intent.FLAG_ACTIVITY_NO_ANIMATION
-            startActivity(coverIntent, ActivityOptions.makeBasic()
-                .setLaunchDisplayId(display).toBundle())
+            if (backStack) {
+                startActivity(coverIntent, ActivityOptions.makeTaskLaunchBehind()
+                    .setLaunchDisplayId(display).toBundle())
+            } else {
+                startActivity(coverIntent, ActivityOptions.makeBasic()
+                    .setLaunchDisplayId(display).toBundle())
+            }
         }
     }
 
-    private fun resetRecentActivities(launchPackage: String, launchActivity: String?) {
-        restoreActivityDisplay(launchPackage, launchActivity, 0)
+    private fun resetRecentActivities(pkg: String, cls: String?,) {
+        restoreActivityDisplay(pkg, cls, 0, true)
 
         val homeLauncher = Intent(Intent.ACTION_MAIN)
         homeLauncher.addCategory(Intent.CATEGORY_HOME)
         homeLauncher.flags = Intent.FLAG_ACTIVITY_NEW_TASK or
                 Intent.FLAG_ACTIVITY_FORWARD_RESULT or
                 Intent.FLAG_ACTIVITY_NO_ANIMATION
-        startActivity(homeLauncher, ActivityOptions.makeBasic().setLaunchDisplayId(0).toBundle())
+        startActivity(homeLauncher, ActivityOptions
+            .makeBasic().setLaunchDisplayId(0).toBundle())
     }
 
     @SuppressLint("InflateParams")
@@ -311,7 +314,8 @@ class DisplayListener : Service() {
         @Suppress("DEPRECATION")
         mKeyguardLock: KeyguardManager.KeyguardLock
     ) {
-        if (hasAccessibility()) AccessibilityObserver.disableKeyboard(applicationContext)
+        if (hasAccessibility())
+            AccessibilityObserver.disableKeyboard(applicationContext)
         if (this::floatView.isInitialized && floatView.isAttachedToWindow)
             (buildDisplayContext(1).getSystemService(WINDOW_SERVICE)
                     as WindowManager).removeView(floatView)
@@ -331,6 +335,8 @@ class DisplayListener : Service() {
             @Suppress("DEPRECATION") mKeyguardLock.reenableKeyguard()
         try {
             stopForeground(true)
+        } catch (ignored: Exception) { }
+        try {
             stopSelf()
         } catch (ignored: Exception) { }
     }

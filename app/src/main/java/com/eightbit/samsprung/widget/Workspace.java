@@ -415,6 +415,7 @@ public class Workspace extends ViewGroup implements DropTarget, DragSource, Drag
         } else if (mNextScreen != INVALID_SCREEN) {
             mCurrentScreen = Math.max(0, Math.min(mNextScreen, getChildCount() - 1));
             SamSprungWidget.Companion.setScreen(mCurrentScreen);
+            mLauncher.onScreenChanged(this, mCurrentScreen);
             mNextScreen = INVALID_SCREEN;
             clearChildrenCache();
         }

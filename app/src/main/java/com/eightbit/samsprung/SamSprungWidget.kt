@@ -20,6 +20,7 @@ import android.annotation.SuppressLint
 import android.app.ActivityOptions
 import android.app.WallpaperManager
 import android.appwidget.AppWidgetManager
+import android.appwidget.AppWidgetProviderInfo
 import android.content.*
 import android.content.pm.PackageManager
 import android.database.ContentObserver
@@ -54,6 +55,7 @@ import java.util.concurrent.Executors
 /**
  * Default launcher application.
  */
+@SuppressLint("ClickableViewAccessibility")
 class SamSprungWidget : AppCompatActivity(), View.OnClickListener, OnLongClickListener {
     private val mObserver: ContentObserver = FavoritesChangeObserver()
     private var mDragLayer: DragLayer? = null
@@ -137,17 +139,6 @@ class SamSprungWidget : AppCompatActivity(), View.OnClickListener, OnLongClickLi
             .setHasFixedTransformationMatrix(true)
             .setBlurAlgorithm(RenderScriptBlur(this))
 
-        findViewById<Workspace>(R.id.workspace).setOnTouchListener(
-            object : OnSwipeTouchListener(this@SamSprungWidget) {
-            override fun onSwipeTop() : Boolean {
-                finish()
-                startActivity(
-                    Intent(this@SamSprungWidget, SamSprungDrawer::class.java),
-                    ActivityOptions.makeBasic().setLaunchDisplayId(1).toBundle()
-                )
-                return true
-            }
-        })
         setupViews()
         registerContentObservers()
         if (!mRestoring) {
@@ -281,6 +272,32 @@ class SamSprungWidget : AppCompatActivity(), View.OnClickListener, OnLongClickLi
         deleteZone.setDragController(dragLayer)
         dragLayer.setDragScoller(workspace)
         dragLayer.setDragListener(deleteZone)
+
+        workspace.setOnTouchListener(
+            object : OnSwipeTouchListener(this@SamSprungWidget) {
+            override fun onSwipeTop() : Boolean {
+                finish()
+                startActivity(
+                    Intent(this@SamSprungWidget, SamSprungDrawer::class.java),
+                    ActivityOptions.makeBasic().setLaunchDisplayId(1).toBundle()
+                )
+                return true
+            }
+        })
+    }
+
+    fun onScreenChanged(workspace: Workspace, mCurrentScreen: Int) {
+        workspace.setOnTouchListener(
+            object : OnSwipeTouchListener(this@SamSprungWidget) {
+            override fun onSwipeTop() : Boolean {
+                finish()
+                startActivity(
+                    Intent(this@SamSprungWidget, SamSprungDrawer::class.java),
+                    ActivityOptions.makeBasic().setLaunchDisplayId(1).toBundle()
+                )
+                return true
+            }
+        })
     }
 
     /**
@@ -603,7 +620,6 @@ class SamSprungWidget : AppCompatActivity(), View.OnClickListener, OnLongClickLi
         }
         val cellInfo = view.tag as CellLayout.CellInfo
 
-        // This happens when long clicking an item with the dpad/trackball
         if (workspace!!.allowLongPress()) {
             if (cellInfo.cell == null) {
                 if (cellInfo.valid) {
@@ -635,6 +651,22 @@ class SamSprungWidget : AppCompatActivity(), View.OnClickListener, OnLongClickLi
         val appWidgetId = appWidgetHost!!.allocateAppWidgetId()
         val pickIntent = Intent(AppWidgetManager.ACTION_APPWIDGET_PICK)
         pickIntent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId)
+        // add a custom widget item
+//        val customInfo = ArrayList<AppWidgetProviderInfo>()
+//        val info = AppWidgetProviderInfo()
+//        info.provider = ComponentName("XXX", "YYY.ZZZ")
+//        info.label = getString(R.string.exit_widgets)
+//        info.icon = R.drawable.ic_baseline_widgets_24
+//        info.configure = ComponentName("XXX", "YYY.ZZZ")
+//        customInfo.add(info)
+//        pickIntent.putParcelableArrayListExtra(
+//            AppWidgetManager.EXTRA_CUSTOM_INFO, customInfo
+//        )
+//        val customExtras = ArrayList<Bundle>()
+//        customExtras.add(Bundle())
+//        pickIntent.putParcelableArrayListExtra(
+//            AppWidgetManager.EXTRA_CUSTOM_EXTRAS, customExtras
+//        )
         requestPickAppWidget.launch(pickIntent)
     }
 
@@ -721,7 +753,7 @@ class SamSprungWidget : AppCompatActivity(), View.OnClickListener, OnLongClickLi
     }
 
     companion object {
-        val LogTag: String = SamSprungWidget::class.java.javaClass.name
+        val LogTag: String = SamSprungWidget::class.java.name
         const val LOGD = false
         const val SCREEN_COUNT = 3
         private const val DEFAULT_SCREEN = 1
