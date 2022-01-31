@@ -205,6 +205,12 @@ class CoverPreferences : AppCompatActivity() {
             ))
         }
 
+        findViewById<LinearLayout>(R.id.usage_layout).setOnClickListener {
+            startActivity(Intent(
+                Settings.ACTION_USAGE_ACCESS_SETTINGS
+            ))
+        }
+
         val mainIntent = Intent(Intent.ACTION_MAIN, null)
         mainIntent.addCategory(Intent.CATEGORY_LAUNCHER)
         val packages = packageManager.queryIntentActivities(
@@ -700,26 +706,26 @@ class CoverPreferences : AppCompatActivity() {
             findViewById<CoordinatorLayout>(R.id.coordinator).background =
                 WallpaperManager.getInstance(this).drawable
         }
-        if (!SamSprung.prefs.getBoolean(SamSprung.prefStarts, false)) {
-            val view: View = layoutInflater.inflate(R.layout.setup_notice_view, null)
-            val dialog = AlertDialog.Builder(
-                ContextThemeWrapper(this, R.style.DialogTheme_NoActionBar)
-            )
-            val setupDialog: Dialog = dialog.setView(view).show()
-            view.findViewById<AppCompatButton>(R.id.setup_confirm).setOnClickListener {
-                with(SamSprung.prefs.edit()) {
-                    putBoolean(SamSprung.prefStarts, true)
-                    apply()
-                }
-                verifyCompatibility()
-                setupDialog.dismiss()
-            }
-            setupDialog.window?.setBackgroundDrawableResource(R.drawable.rounded_layout)
-            setupDialog.window?.setLayout(
-                ViewGroup.LayoutParams.WRAP_CONTENT,
-                ViewGroup.LayoutParams.WRAP_CONTENT
-            )
+        val view: View = layoutInflater.inflate(R.layout.setup_notice_view, null)
+        val dialog = AlertDialog.Builder(
+            ContextThemeWrapper(this, R.style.DialogTheme_NoActionBar)
+        )
+        val setupDialog: Dialog = dialog.setView(view).show()
+        view.findViewById<AppCompatButton>(R.id.setup_confirm).setOnClickListener {
+            startActivity(Intent(Intent.ACTION_VIEW,
+                Uri.parse("https://github.com/SamSprung/SamSprung-TooUI/wiki")))
         }
-
+        view.findViewById<AppCompatButton>(R.id.setup_confirm).setOnClickListener {
+            verifyCompatibility()
+            setupDialog.dismiss()
+        }
+        setupDialog.setOnCancelListener {
+            verifyCompatibility()
+        }
+        setupDialog.window?.setBackgroundDrawableResource(R.drawable.rounded_layout)
+        setupDialog.window?.setLayout(
+            ViewGroup.LayoutParams.WRAP_CONTENT,
+            ViewGroup.LayoutParams.WRAP_CONTENT
+        )
     }
 }

@@ -89,6 +89,18 @@ import com.google.android.material.bottomsheet.BottomSheetBehavior.BottomSheetCa
 import java.io.File
 import java.util.*
 
+import android.content.Intent
+import android.app.usage.UsageStatsManager
+import android.app.usage.UsageEvents
+
+
+
+
+
+
+
+
+
 
 class SamSprungDrawer : AppCompatActivity(),
     DrawerAppAdapater.OnAppClickListener,
@@ -98,6 +110,8 @@ class SamSprungDrawer : AppCompatActivity(),
     private lateinit var bReceiver: BroadcastReceiver
     private lateinit var pReceiver: BroadcastReceiver
     private lateinit var noticesView: RecyclerView
+
+    private val SCREW_YOU_JAGAN2 = "SCREW YOU JAGAN2 ;)"
 
     @SuppressLint("InflateParams", "ClickableViewAccessibility")
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -376,6 +390,24 @@ class SamSprungDrawer : AppCompatActivity(),
                 HashSet())!!.contains(item.activityInfo.packageName)
         }
         Collections.sort(packages, ResolveInfo.DisplayNameComparator(packageManager))
+        val statsPackages = packages
+        val statsManager = getSystemService(Context.USAGE_STATS_SERVICE) as UsageStatsManager
+        try {
+            val endTime = System.currentTimeMillis()
+            val startTime = endTime - 28800000 // 8 hours
+            val usageEvents: UsageEvents = statsManager.queryEvents(startTime, endTime)
+            while (usageEvents.hasNextEvent()) {
+                val event = UsageEvents.Event()
+                usageEvents.getNextEvent(event)
+                for (item: ResolveInfo in packages) {
+                    if (item.activityInfo.packageName == event.packageName) {
+                        statsPackages.remove(item)
+                        statsPackages.add(0, item)
+                    }
+                }
+            }
+        } catch (ignored: Exception) {}
+
 
         if (SamSprung.prefs.getBoolean(SamSprung.prefLayout, true))
             launcherView.layoutManager = GridLayoutManager(this, getColumnCount())

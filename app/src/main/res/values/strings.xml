@@ -3,7 +3,7 @@
 
     <string name="samsprung_ime">SamSprung Keyboard</string>
 
-    <string name="setup_notice">This app will NOT appear in the widget list.\n\nEnabling the switch(es) and approving permission(s) will complete the activation process.\n\nFrom the cover screen, swipe up from the bottom to reveal the navigation bar and begin using SamSprung.</string>
+    <string name="setup_notice">This app will NOT appear in the widget list.\n\nEnabling the switch(es) and approving permission(s) will complete the activation process.\n\nFrom the cover screen, swipe up from the bottom to reveal the navigation bar and begin using SamSprung.\n\nThis app is EXPERIMENTAL.\n\nUpdates are posted regularly. Features may be added, removed, or changed at any time. See the Wiki.</string>
 
     <string name="caveats_title">Incompatibility Detected!</string>
     <string name="caveats_warning">Lock screen must be bypassed or disabled to launch apps. Bixby unlock can be used as a workaround.</string>
@@ -16,10 +16,12 @@
     <string name="permission_keyboard">Keyboard (IME)</string>
     <string name="permission_notifications">Notifications</string>
     <string name="permission_settings">Write Settings</string>
+    <string name="permission_usage">Usage Statistics</string>
 
     <string name="aceessibility_details">Accessibility allows SamSprung to display incoming notifications, simulate the back button, and set the active system keyboard.\n\nClick continue to open Settings -> Accessibility.\nClick Installed apps -> SamSprung\n&#160;&#160;&#160;&#160;Toggle switch on -> Allow to enable.</string>
     <string name="button_confirm">Confirm</string>
     <string name="button_cancel">Cancel</string>
+    <string name="button_wiki">Visit Wiki</string>
 
     <string name="color_red">Red</string>
     <string name="color_green">Green</string>

@@ -104,6 +104,7 @@
                         android:id="@+id/keyboard_button"
                         android:layout_width="wrap_content"
                         android:gravity="center"
+                        android:layout_gravity="center"
                         android:paddingStart="0dp"
                         android:paddingEnd="4dp"
                         app:srcCompat="@drawable/ic_baseline_keyboard_24"
@@ -169,6 +170,38 @@
                         android:textSize="28sp"
                         android:textColor="?android:textColorPrimary"
                         android:layout_height="wrap_content" />
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/usage_layout"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:layout_marginStart="16dp"
+                    android:layout_marginEnd="8dp"
+                    android:layout_gravity="center_vertical"
+                    tools:ignore="UseCompoundDrawables">
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_weight="1"
+                        android:textSize="28sp"
+                        android:textColor="?android:textColorPrimary"
+                        android:gravity="center_vertical"
+                        android:layout_height="wrap_content"
+                        android:text="@string/permission_usage" />
+
+                    <androidx.appcompat.widget.AppCompatImageView
+                        android:id="@+id/usage_button"
+                        android:layout_width="wrap_content"
+                        android:gravity="center"
+                        android:layout_gravity="center"
+                        android:paddingStart="0dp"
+                        android:paddingEnd="4dp"
+                        app:srcCompat="@drawable/ic_baseline_data_usage_24"
+                        android:layout_height="wrap_content"
+                        android:contentDescription="@string/description_icon"/>
 
                 </LinearLayout>
             </LinearLayout>
