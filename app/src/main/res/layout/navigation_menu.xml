@@ -20,11 +20,22 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:gravity="bottom|center_horizontal"
-            android:orientation="horizontal">
+            android:orientation="vertical">
 
             <View
                 android:layout_width="wrap_content"
-                android:layout_height="16dp" />
+                android:layout_height="6dp"/>
+            <View
+                android:id="@+id/bottom_handle"
+                android:layout_width="wrap_content"
+                android:layout_height="2dp"
+                android:background="@color/primary_dark"
+                android:visibility="invisible"/>
+
+            <View
+                android:layout_width="wrap_content"
+                android:layout_height="8dp" />
+
         </LinearLayout>
 
         <LinearLayout
@@ -40,7 +51,8 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
                 android:paddingTop="2dp"
-                android:paddingBottom="10dp"
+                android:paddingBottom="8dp"
+                android:layout_marginBottom="-2dp"
                 android:paddingStart="2dp"
                 android:paddingEnd="2dp"
                 android:singleLine="true"
@@ -48,6 +60,7 @@
                 android:textColor="?colorPrimary"
                 android:text="@string/samsprung"
                 android:textSize="18sp"
+                android:scaleY="0.75"
                 app:direction="2"
                 app:stroke_width="2dp"
                 app:stroke_color="@android:color/white" />
@@ -57,8 +70,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:background="@color/bottomSheetTint"
-                android:paddingTop="6dp"
-                android:paddingBottom="6dp"
+                android:paddingTop="5dp"
+                android:paddingBottom="5dp"
                 android:gravity="center"
                 android:orientation="horizontal">
 

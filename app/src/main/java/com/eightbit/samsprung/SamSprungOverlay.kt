@@ -58,13 +58,14 @@ import android.graphics.Color
 import android.graphics.PixelFormat
 import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.view.*
 import android.widget.ImageView
 import android.widget.LinearLayout
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.AppCompatImageView
 import androidx.coordinatorlayout.widget.CoordinatorLayout
-import androidx.core.view.isVisible
 import com.eightbit.content.ScaledContext
 import com.eightbit.view.OnSwipeTouchListener
 import com.eightbit.widget.VerticalStrokeTextView
@@ -97,6 +98,12 @@ class SamSprungOverlay : AppCompatActivity() {
         ScaledContext.wrap(this).setTheme(R.style.Theme_SecondScreen_NoActionBar)
         setContentView(R.layout.navigation_menu)
 
+        val bottomHandle = findViewById<View>(R.id.bottom_handle)
+        bottomHandle.setBackgroundColor(SamSprung.prefs.getInt(SamSprung.prefColors,
+            Color.rgb(255, 255, 255)))
+        bottomHandle.visibility = View.VISIBLE
+        val handler = Handler(Looper.getMainLooper())
+
         val coordinator = findViewById<CoordinatorLayout>(R.id.coordinator)
         val menu = findViewById<LinearLayout>(R.id.button_layout)
         val menuLogo = menu.findViewById<VerticalStrokeTextView>(R.id.samsprung_logo)
@@ -108,14 +115,7 @@ class SamSprungOverlay : AppCompatActivity() {
         bottomSheetBehavior.addBottomSheetCallback(object : BottomSheetBehavior.BottomSheetCallback() {
             override fun onStateChanged(bottomSheet: View, newState: Int) {
                 if (newState == BottomSheetBehavior.STATE_EXPANDED) {
-                    val color = SamSprung.prefs.getInt(SamSprung.prefColors,
-                        Color.rgb(255, 255, 255))
-                    if (!menu.isVisible) menu.visibility = View.VISIBLE
-                    val icons = menu.findViewById<LinearLayout>(R.id.icons_layout)
-                    for (i in 0 until icons.childCount) {
-                        (icons.getChildAt(i) as AppCompatImageView).setColorFilter(color)
-                    }
-                    menuLogo.setTextColor(color)
+                    menu.visibility = View.VISIBLE
                     menuRecent.setOnClickListener {
                         finish()
                         startActivity(
@@ -130,11 +130,32 @@ class SamSprungOverlay : AppCompatActivity() {
                         bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
                     }
                 } else if (newState == BottomSheetBehavior.STATE_COLLAPSED) {
-                    if (menu.isVisible) menu.visibility = View.GONE
+                    menu.visibility = View.GONE
                 }
             }
 
-            override fun onSlide(bottomSheet: View, slideOffset: Float) { }
+            override fun onSlide(bottomSheet: View, slideOffset: Float) {
+                val color = SamSprung.prefs.getInt(SamSprung.prefColors,
+                    Color.rgb(255, 255, 255))
+                if (slideOffset > 0) {
+                    if (bottomHandle.visibility != View.INVISIBLE) {
+                        val icons = menu.findViewById<LinearLayout>(R.id.icons_layout)
+                        for (i in 0 until icons.childCount) {
+                            (icons.getChildAt(i) as AppCompatImageView).setColorFilter(color)
+                        }
+                        menuLogo.setTextColor(color)
+                        handler.removeCallbacksAndMessages(null)
+                        bottomHandle.visibility = View.INVISIBLE
+                    }
+                } else {
+                    bottomHandle.setBackgroundColor(color)
+                    if (bottomHandle.visibility != View.VISIBLE) {
+                        handler.postDelayed({
+                            runOnUiThread { bottomHandle.visibility = View.VISIBLE }
+                        }, 500)
+                    }
+                }
+            }
         })
 
         coordinator.setOnTouchListener(

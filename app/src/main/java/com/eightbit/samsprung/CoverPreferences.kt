@@ -163,7 +163,7 @@ class CoverPreferences : AppCompatActivity() {
             startActivity(Intent(Settings.ACTION_INPUT_METHOD_SETTINGS)
                 .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
         }
-        setKeyboardVisibility()
+        keyboard.visibility = if (hasAccessibility()) View.VISIBLE else View.GONE
 
         accessibility = findViewById(R.id.accessibility_switch)
         accessibility.isChecked = hasAccessibility()
@@ -402,7 +402,6 @@ class CoverPreferences : AppCompatActivity() {
                 updates = CheckUpdatesTask(this@CoverPreferences)
             }
         }
-
     }
 
     private val notificationLauncher = registerForActivityResult(
@@ -417,20 +416,16 @@ class CoverPreferences : AppCompatActivity() {
             settings.isChecked = Settings.System.canWrite(applicationContext)
     }
 
-    private fun setKeyboardVisibility() {
+    private val accessibilityLauncher = registerForActivityResult(
+        ActivityResultContracts.StartActivityForResult()) {
+        if (this::accessibility.isInitialized)
+            accessibility.isChecked = hasAccessibility()
         keyboard.visibility = if (hasAccessibility()) View.VISIBLE else View.GONE
         with(SamSprung.prefs.edit()) {
             putString(SamSprung.prefInputs, Settings.Secure.getString(
                 contentResolver, Settings.Secure.DEFAULT_INPUT_METHOD))
             apply()
         }
-    }
-
-    private val accessibilityLauncher = registerForActivityResult(
-        ActivityResultContracts.StartActivityForResult()) {
-        if (this::accessibility.isInitialized)
-            accessibility.isChecked = hasAccessibility()
-         setKeyboardVisibility()
     }
 
     private val overlayLauncher = registerForActivityResult(
