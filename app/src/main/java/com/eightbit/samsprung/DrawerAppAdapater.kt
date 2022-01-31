@@ -51,6 +51,7 @@ package com.eightbit.samsprung
  * subject to to the terms and conditions of the Apache License, Version 2.0.
  */
 
+import android.annotation.SuppressLint
 import android.content.pm.PackageManager
 import android.content.pm.ResolveInfo
 import android.os.Handler
@@ -69,8 +70,10 @@ class DrawerAppAdapater(
     private val listener: OnAppClickListener,
     private val packageManager: PackageManager
 ) : RecyclerView.Adapter<AppViewHolder>() {
+    @SuppressLint("NotifyDataSetChanged")
     fun setPackages(packages: MutableList<ResolveInfo>) {
         this.packages = packages
+        notifyDataSetChanged()
     }
 
     override fun getItemCount(): Int {

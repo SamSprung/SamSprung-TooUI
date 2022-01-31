@@ -72,6 +72,11 @@ class FilteredAppsAdapter(
     private var hide: HashSet<String>
 ) : BaseAdapter() {
     private var pacMan: PackageManager = context.packageManager
+    fun setPackages(packages: MutableList<ResolveInfo>, hide: HashSet<String>) {
+        this.packages = packages
+        this.hide = hide
+        notifyDataSetChanged()
+    }
 
     override fun getCount(): Int {
         return packages.size //returns total of items in the list

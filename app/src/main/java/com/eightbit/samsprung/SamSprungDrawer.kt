@@ -88,18 +88,7 @@ import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetBehavior.BottomSheetCallback
 import java.io.File
 import java.util.*
-
-import android.content.Intent
-import android.app.usage.UsageStatsManager
-import android.app.usage.UsageEvents
-
-
-
-
-
-
-
-
+import java.util.concurrent.Executors
 
 
 class SamSprungDrawer : AppCompatActivity(),
@@ -123,7 +112,6 @@ class SamSprungDrawer : AppCompatActivity(),
         setContentView(R.layout.drawer_layout)
 
         oReceiver = object : BroadcastReceiver() {
-            @SuppressLint("NotifyDataSetChanged")
             override fun onReceive(context: Context?, intent: Intent) {
                 if (intent.action == Intent.ACTION_SCREEN_OFF) {
                     finish()
@@ -151,7 +139,6 @@ class SamSprungDrawer : AppCompatActivity(),
 
         val batteryLevel = findViewById<TextView>(R.id.battery_status)
         bReceiver = object : BroadcastReceiver() {
-            @SuppressLint("NotifyDataSetChanged")
             override fun onReceive(context: Context?, intent: Intent) {
                 if (intent.action == Intent.ACTION_BATTERY_CHANGED) {
                     Handler(Looper.getMainLooper()).post {
@@ -380,8 +367,7 @@ class SamSprungDrawer : AppCompatActivity(),
         val launcherView = findViewById<RecyclerView>(R.id.appsList)
 
         val packageRetriever = PackageRetriever(this)
-        var packages = packageRetriever.getPackageList()
-
+        var packages = packageRetriever.getFilteredPackageList()
 
         if (SamSprung.prefs.getBoolean(SamSprung.prefLayout, true))
             launcherView.layoutManager = GridLayoutManager(this, getColumnCount())
@@ -390,18 +376,21 @@ class SamSprungDrawer : AppCompatActivity(),
         launcherView.adapter = DrawerAppAdapater(packages, this, packageManager)
 
         pReceiver = object : BroadcastReceiver() {
-            @SuppressLint("NotifyDataSetChanged")
             override fun onReceive(context: Context?, intent: Intent) {
                 if (intent.action == Intent.ACTION_PACKAGE_FULLY_REMOVED) {
-                    packages = packageRetriever.getPackageList()
-                    (launcherView.adapter as DrawerAppAdapater).setPackages(packages)
-                    (launcherView.adapter as DrawerAppAdapater).notifyDataSetChanged()
+                    Executors.newSingleThreadExecutor().execute {
+                        packages = packageRetriever.getFilteredPackageList()
+                        runOnUiThread { (launcherView.adapter as DrawerAppAdapater)
+                            .setPackages(packages) }
+                    }
                 }
                 if (intent.action == Intent.ACTION_PACKAGE_ADDED) {
                     if (!intent.getBooleanExtra(Intent.EXTRA_REPLACING, false)) {
-                        packages = packageRetriever.getPackageList()
-                        (launcherView.adapter as DrawerAppAdapater).setPackages(packages)
-                        (launcherView.adapter as DrawerAppAdapater).notifyDataSetChanged()
+                        Executors.newSingleThreadExecutor().execute {
+                            packages = packageRetriever.getFilteredPackageList()
+                            runOnUiThread { (launcherView.adapter as DrawerAppAdapater)
+                                .setPackages(packages) }
+                        }
                     }
                 }
             }

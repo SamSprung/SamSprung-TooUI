@@ -62,34 +62,66 @@ import java.util.*
 
 class PackageRetriever(val context: Context) {
 
-    fun getPackageList(): MutableList<ResolveInfo> {
+    private fun getPackageList() : MutableList<ResolveInfo> {
         val mainIntent = Intent(Intent.ACTION_MAIN, null)
         mainIntent.addCategory(Intent.CATEGORY_LAUNCHER)
         val packages: MutableList<ResolveInfo> = context.packageManager.queryIntentActivities(
             mainIntent, PackageManager.GET_RESOLVED_FILTER
         )
         packages.removeIf { item ->
-            (null != item.filter && item.filter.hasCategory(Intent.CATEGORY_HOME))
-                    || SamSprung.prefs.getStringSet(SamSprung.prefHidden, HashSet()
-            )!!.contains(item.activityInfo.packageName)
+            null != item.filter && item.filter.hasCategory(Intent.CATEGORY_HOME)
         }
         Collections.sort(packages, ResolveInfo.DisplayNameComparator(context.packageManager))
-        val statsManager = context.getSystemService(Context.USAGE_STATS_SERVICE) as UsageStatsManager
+        return packages
+    }
+
+    fun getRecentPackageList(recentFirst: Boolean) : MutableList<ResolveInfo> {
+        val packages = getPackageList()
+        val statsManager =
+            context.getSystemService(Context.USAGE_STATS_SERVICE) as UsageStatsManager
         try {
-            val endTime = System.currentTimeMillis()
-            val startTime = endTime - 28800000 // 8 hours
-            val usageEvents: UsageEvents = statsManager.queryEvents(startTime, endTime)
-            while (usageEvents.hasNextEvent()) {
-                val event = UsageEvents.Event()
-                usageEvents.getNextEvent(event)
-                for (item: ResolveInfo in packages) {
-                    if (item.activityInfo.packageName == event.packageName) {
-                        packages.remove(item)
-                        packages.add(0, item)
+            statsManager.isAppInactive(context.packageName)
+        } catch (ignored: Exception) {
+            return packages
+        }
+        val recent: HashSet<ResolveInfo> = HashSet()
+        val endTime = System.currentTimeMillis()
+        val startTime = endTime - 60 * 60 * 1000
+        val usageEvents: UsageEvents = statsManager.queryEvents(startTime, endTime)
+        while (usageEvents.hasNextEvent()) {
+            val event = UsageEvents.Event()
+            usageEvents.getNextEvent(event)
+            if (UsageEvents.Event.ACTIVITY_RESUMED == event.eventType) {
+                val iterator: MutableIterator<ResolveInfo> = packages.iterator()
+                while (iterator.hasNext()) {
+                    val info = iterator.next()
+                    if (event.packageName == info.activityInfo.packageName) {
+                        iterator.remove()
+                        recent.add(info)
                     }
                 }
             }
-        } catch (ignored: Exception) {
+        }
+        if (recentFirst)
+            packages.addAll(0, recent)
+        else
+            packages.addAll(recent.reversed())
+        return packages
+    }
+
+    fun getHiddenPackages() : HashSet<String> {
+        val unlisted: HashSet<String> = HashSet()
+        val hide: Set<String> = SamSprung.prefs.getStringSet(
+            SamSprung.prefHidden, setOf<String>()) as Set<String>
+        unlisted.addAll(hide)
+        return unlisted
+    }
+
+    fun getFilteredPackageList(): MutableList<ResolveInfo> {
+        val packages = getRecentPackageList(true)
+        packages.removeIf { item ->
+            SamSprung.prefs.getStringSet(SamSprung.prefHidden, HashSet())!!
+                .contains(item.activityInfo.packageName)
         }
         return packages
     }

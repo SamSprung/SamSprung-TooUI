@@ -60,7 +60,6 @@ import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
-import android.content.pm.ResolveInfo
 import android.graphics.Color
 import android.net.Uri
 import android.os.Build
@@ -99,7 +98,6 @@ import java.io.File
 import java.io.InputStreamReader
 import java.util.*
 import java.util.concurrent.Executors
-import kotlin.collections.HashSet
 
 class CoverPreferences : AppCompatActivity() {
 
@@ -111,6 +109,8 @@ class CoverPreferences : AppCompatActivity() {
     private lateinit var accessibility: SwitchCompat
     private lateinit var notifications: SwitchCompat
     private lateinit var settings: SwitchCompat
+
+    private lateinit var hiddenList: ListView
 
     private lateinit var billingClient: BillingClient
     private val iapList = ArrayList<String>()
@@ -206,26 +206,17 @@ class CoverPreferences : AppCompatActivity() {
         }
 
         findViewById<LinearLayout>(R.id.usage_layout).setOnClickListener {
-            startActivity(Intent(
+            usageLauncher.launch(Intent(
                 Settings.ACTION_USAGE_ACCESS_SETTINGS
             ))
         }
 
-        val mainIntent = Intent(Intent.ACTION_MAIN, null)
-        mainIntent.addCategory(Intent.CATEGORY_LAUNCHER)
-        val packages = packageManager.queryIntentActivities(
-            mainIntent, PackageManager.GET_RESOLVED_FILTER)
-        packages.removeIf { item -> null != item.filter
-                && item.filter.hasCategory(Intent.CATEGORY_HOME) }
-        Collections.sort(packages, ResolveInfo.DisplayNameComparator(packageManager))
+        val packageRetriever = PackageRetriever(this)
+        val packages = packageRetriever.getRecentPackageList(false)
+        val unlisted = packageRetriever.getHiddenPackages()
 
-        val unlisted: HashSet<String> = HashSet()
-        val hide: Set<String> = SamSprung.prefs.getStringSet(
-            SamSprung.prefHidden, setOf<String>()) as Set<String>
-        unlisted.addAll(hide)
-
-        val listView: ListView = findViewById(R.id.selectionListView)
-        listView.adapter = FilteredAppsAdapter(this, packages, unlisted)
+        hiddenList = findViewById(R.id.selectionListView)
+        hiddenList.adapter = FilteredAppsAdapter(this, packages, unlisted)
 
         val color = SamSprung.prefs.getInt(SamSprung.prefColors, Color.rgb(255, 255, 255))
 
@@ -420,6 +411,17 @@ class CoverPreferences : AppCompatActivity() {
         ActivityResultContracts.StartActivityForResult()) {
         if (this::settings.isInitialized)
             settings.isChecked = Settings.System.canWrite(applicationContext)
+    }
+
+    private val usageLauncher = registerForActivityResult(
+        ActivityResultContracts.StartActivityForResult()) {
+        Executors.newSingleThreadExecutor().execute {
+            val packageRetriever = PackageRetriever(this)
+            val packages = packageRetriever.getRecentPackageList(false)
+            val unlisted = packageRetriever.getHiddenPackages()
+            runOnUiThread {  (hiddenList.adapter as FilteredAppsAdapter)
+                .setPackages(packages, unlisted) }
+        }
     }
 
     private val accessibilityLauncher = registerForActivityResult(
