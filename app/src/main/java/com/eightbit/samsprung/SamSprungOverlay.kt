@@ -99,7 +99,6 @@ class SamSprungOverlay : AppCompatActivity() {
 
         val coordinator = findViewById<CoordinatorLayout>(R.id.coordinator)
         val menu = findViewById<LinearLayout>(R.id.button_layout)
-        val menuKeys = menu.findViewById<ImageView>(R.id.button_input)
         val menuLogo = menu.findViewById<VerticalStrokeTextView>(R.id.samsprung_logo)
         val menuRecent = menu.findViewById<ImageView>(R.id.button_recent)
         val menuHome = menu.findViewById<ImageView>(R.id.button_home)
@@ -117,10 +116,6 @@ class SamSprungOverlay : AppCompatActivity() {
                         (icons.getChildAt(i) as AppCompatImageView).setColorFilter(color)
                     }
                     menuLogo.setTextColor(color)
-                    menuKeys.visibility = View.GONE
-                    menuLogo.setOnClickListener {
-                        bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
-                    }
                     menuRecent.setOnClickListener {
                         finish()
                         startActivity(

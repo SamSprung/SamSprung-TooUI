@@ -160,7 +160,6 @@ class DisplayListener : Service() {
         }
 
         val menu = floatView.findViewById<LinearLayout>(R.id.button_layout)
-        val menuKeys = menu.findViewById<ImageView>(R.id.button_input)
         val menuLogo = menu.findViewById<VerticalStrokeTextView>(R.id.samsprung_logo)
         val menuRecent = menu.findViewById<ImageView>(R.id.button_recent)
         val menuHome = menu.findViewById<ImageView>(R.id.button_home)
@@ -178,16 +177,6 @@ class DisplayListener : Service() {
                         (icons.getChildAt(i) as AppCompatImageView).setColorFilter(color)
                     }
                     menuLogo.setTextColor(color)
-                    if (hasAccessibility()) {
-                        menuKeys.visibility = View.VISIBLE
-                        menuKeys.setOnClickListener {
-                            bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
-                            if (!mKeyboardView!!.isShown)
-                                coordinator.addView(mKeyboardView, 0)
-                        }
-                    } else {
-                        menuKeys.visibility = View.GONE
-                    }
                     menuLogo.setOnClickListener {
                         bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
                     }

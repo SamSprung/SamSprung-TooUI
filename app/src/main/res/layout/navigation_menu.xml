@@ -71,14 +71,6 @@
                     android:contentDescription="@string/description_icon"/>
 
                 <androidx.appcompat.widget.AppCompatImageView
-                    android:id="@+id/button_input"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    app:srcCompat="@drawable/ic_baseline_keyboard_24"
-                    android:layout_weight="1"
-                    android:contentDescription="@string/description_icon"/>
-
-                <androidx.appcompat.widget.AppCompatImageView
                     android:id="@+id/button_home"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
