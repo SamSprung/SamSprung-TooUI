@@ -63,7 +63,8 @@ class SamSprung : Application() {
     override fun onCreate() {
         super.onCreate()
         AppCompatDelegate.setCompatVectorFromResourcesEnabled(true)
-        if (BuildConfig.DEBUG) StrictMode.enableDefaults()
+        if (BuildConfig.FLAVOR == "gooogle"
+            && BuildConfig.DEBUG) StrictMode.enableDefaults()
         mPrefs = SoftReference(
             getSharedPreferences("samsprung.launcher.PREFS", MODE_PRIVATE)
         )

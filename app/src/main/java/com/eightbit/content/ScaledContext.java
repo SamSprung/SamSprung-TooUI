@@ -88,25 +88,25 @@ public class ScaledContext extends ContextWrapper {
     }
 
     @SuppressWarnings("unused")
-    public static ScaledContext unwrap(Context context) {
+    public static ScaledContext cover(Context context) {
         Resources resources = context.getResources();
         DisplayMetrics metrics = resources.getDisplayMetrics();
 
         int orientation = resources.getConfiguration().orientation;
 
-        metrics.density = 2f;
-        metrics.densityDpi = 160;
+        metrics.density = 1.5f;
+        metrics.densityDpi = 160; // 160
         if (orientation == Configuration.ORIENTATION_PORTRAIT) {
-            metrics.heightPixels = 1024; // 512
-            metrics.widthPixels = 520; // 260
+            metrics.heightPixels = 2048; // 512
+            metrics.widthPixels = 1040; // 260
         }
         if (orientation == Configuration.ORIENTATION_LANDSCAPE) {
-            metrics.heightPixels = 520; // 260
-            metrics.widthPixels = 1024; // 512
+            metrics.heightPixels = 1040; // 260
+            metrics.widthPixels = 2048; // 512
         }
-        metrics.scaledDensity = 2f;
-        metrics.xdpi = 604.0f; // 302
-        metrics.ydpi = 604.0f; // 302
+        metrics.scaledDensity = 1.5f;
+        metrics.xdpi = 302.0f; // 302
+        metrics.ydpi = 302.0f; // 302
         metrics.setTo(metrics);
 
         return new ScaledContext(context);

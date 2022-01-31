@@ -110,7 +110,7 @@ class SamSprungWidget : AppCompatActivity(), View.OnClickListener, OnLongClickLi
         setShowWhenLocked(true)
         supportActionBar?.hide()
         super.onCreate(savedInstanceState)
-        ScaledContext.unwrap(this).setTheme(R.style.Theme_AppCompat)
+        ScaledContext.cover(this).setTheme(R.style.Theme_AppCompat)
         mAppWidgetManager = AppWidgetManager.getInstance(applicationContext)
         appWidgetHost = CoverWidgetHost(
             applicationContext,
@@ -441,7 +441,7 @@ class SamSprungWidget : AppCompatActivity(), View.OnClickListener, OnLongClickLi
             ) else null
             cellInfo = workspace!!.findAllVacantCells(occupied)
             if (!cellInfo!!.findCellForSpan(xy, spanX, spanY)) {
-                Toast.makeText(this, getString(R.string.out_of_space), Toast.LENGTH_SHORT).show()
+                Toast.makeText(ScaledContext.cover(this), getString(R.string.out_of_space), Toast.LENGTH_SHORT).show()
                 return false
             }
         }
@@ -576,9 +576,7 @@ class SamSprungWidget : AppCompatActivity(), View.OnClickListener, OnLongClickLi
             )
             workspace.requestLayout()
         }
-        if (appWidgets.isEmpty()) {
-            showAddDialog(CellLayout.CellInfo())
-        } else {
+        if (!appWidgets.isEmpty()) {
             binder.obtainMessage(DesktopBinder.MESSAGE_BIND_APPWIDGETS).sendToTarget()
         }
     }

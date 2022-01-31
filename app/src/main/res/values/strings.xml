@@ -49,11 +49,11 @@
     <string name="donation_thanks">Thank you for your support!</string>
 
     <!-- Title of dialog box -->
-    <string name="menu_item_add_item">Add to Home screen</string>
+    <string name="menu_item_add_item">Add to Panel</string>
     <!-- Options in "Add to Home" dialog box; Title of the group containing the list of all widgets/gadgets -->
     <string name="group_widgets">Widgets</string>
     <!-- Error message when user has filled a home screen, possibly not used -->
-    <string name="out_of_space">No more room on this Home screen.</string>
+    <string name="out_of_space">Cancelled adding widget</string>
     <!-- Text to show user in place of a gadget when we can't display it properly -->
     <string name="gadget_error_text">Problem loading widget</string>
 </resources>
