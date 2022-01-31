@@ -379,34 +379,8 @@ class SamSprungDrawer : AppCompatActivity(),
 
         val launcherView = findViewById<RecyclerView>(R.id.appsList)
 
-        val mainIntent = Intent(Intent.ACTION_MAIN, null)
-        mainIntent.addCategory(Intent.CATEGORY_LAUNCHER)
-
-        var packages: MutableList<ResolveInfo> = packageManager.queryIntentActivities(
-            mainIntent, PackageManager.GET_RESOLVED_FILTER)
-        packages.removeIf { item ->
-            (null != item.filter && item.filter.hasCategory(Intent.CATEGORY_HOME))
-                || SamSprung.prefs.getStringSet(SamSprung.prefHidden,
-                HashSet())!!.contains(item.activityInfo.packageName)
-        }
-        Collections.sort(packages, ResolveInfo.DisplayNameComparator(packageManager))
-        val statsPackages = packages
-        val statsManager = getSystemService(Context.USAGE_STATS_SERVICE) as UsageStatsManager
-        try {
-            val endTime = System.currentTimeMillis()
-            val startTime = endTime - 28800000 // 8 hours
-            val usageEvents: UsageEvents = statsManager.queryEvents(startTime, endTime)
-            while (usageEvents.hasNextEvent()) {
-                val event = UsageEvents.Event()
-                usageEvents.getNextEvent(event)
-                for (item: ResolveInfo in packages) {
-                    if (item.activityInfo.packageName == event.packageName) {
-                        statsPackages.remove(item)
-                        statsPackages.add(0, item)
-                    }
-                }
-            }
-        } catch (ignored: Exception) {}
+        val packageRetriever = PackageRetriever(this)
+        var packages = packageRetriever.getPackageList()
 
 
         if (SamSprung.prefs.getBoolean(SamSprung.prefLayout, true))
@@ -419,25 +393,13 @@ class SamSprungDrawer : AppCompatActivity(),
             @SuppressLint("NotifyDataSetChanged")
             override fun onReceive(context: Context?, intent: Intent) {
                 if (intent.action == Intent.ACTION_PACKAGE_FULLY_REMOVED) {
-                    packages = packageManager.queryIntentActivities(
-                        mainIntent, PackageManager.GET_RESOLVED_FILTER)
-                    packages.removeIf { item ->
-                        (null != item.filter && item.filter.hasCategory(Intent.CATEGORY_HOME))
-                            || SamSprung.prefs.getStringSet(SamSprung.prefHidden,
-                        HashSet())!!.contains(item.activityInfo.packageName) }
-                    Collections.sort(packages, ResolveInfo.DisplayNameComparator(packageManager))
+                    packages = packageRetriever.getPackageList()
                     (launcherView.adapter as DrawerAppAdapater).setPackages(packages)
                     (launcherView.adapter as DrawerAppAdapater).notifyDataSetChanged()
                 }
                 if (intent.action == Intent.ACTION_PACKAGE_ADDED) {
                     if (!intent.getBooleanExtra(Intent.EXTRA_REPLACING, false)) {
-                        packages = packageManager.queryIntentActivities(
-                            mainIntent, PackageManager.GET_RESOLVED_FILTER)
-                        packages.removeIf { item ->
-                            (null != item.filter && item.filter.hasCategory(Intent.CATEGORY_HOME))
-                                    || SamSprung.prefs.getStringSet(SamSprung.prefHidden,
-                                HashSet())!!.contains(item.activityInfo.packageName)
-                        }
+                        packages = packageRetriever.getPackageList()
                         (launcherView.adapter as DrawerAppAdapater).setPackages(packages)
                         (launcherView.adapter as DrawerAppAdapater).notifyDataSetChanged()
                     }
