@@ -52,6 +52,7 @@ package com.eightbit.samsprung
  */
 
 import android.annotation.SuppressLint
+import android.content.SharedPreferences
 import android.content.pm.PackageManager
 import android.content.pm.ResolveInfo
 import android.os.Handler
@@ -60,6 +61,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
+import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.AppCompatImageView
 import androidx.recyclerview.widget.RecyclerView
 import com.eightbit.samsprung.DrawerAppAdapater.AppViewHolder
@@ -68,7 +70,8 @@ import java.util.concurrent.Executors
 class DrawerAppAdapater(
     private var packages: MutableList<ResolveInfo>,
     private val listener: OnAppClickListener,
-    private val packageManager: PackageManager
+    private val packageManager: PackageManager,
+    private val prefs: SharedPreferences
 ) : RecyclerView.Adapter<AppViewHolder>() {
     @SuppressLint("NotifyDataSetChanged")
     fun setPackages(packages: MutableList<ResolveInfo>) {
@@ -89,10 +92,10 @@ class DrawerAppAdapater(
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): AppViewHolder {
-        return if (SamSprung.prefs.getBoolean(SamSprung.prefLayout, true))
-            SimpleGridHolder(parent, listener, packageManager)
+        return if (prefs.getBoolean(SamSprung.prefLayout, true))
+            SimpleGridHolder(parent, listener, packageManager, prefs)
         else
-        return SimpleViewHolder(parent, listener, packageManager)
+        return SimpleViewHolder(parent, listener, packageManager, prefs)
     }
 
     override fun onBindViewHolder(holder: AppViewHolder, position: Int) {
@@ -112,7 +115,8 @@ class DrawerAppAdapater(
 
     abstract class AppViewHolder(
         itemView: View, val listener: OnAppClickListener?,
-        private val packageManager: PackageManager
+        private val packageManager: PackageManager,
+        private val prefs: SharedPreferences
     ) : RecyclerView.ViewHolder(itemView) {
         val iconView: AppCompatImageView = itemView.findViewById(R.id.widgetItemImage)
         lateinit var appInfo: ResolveInfo
@@ -125,7 +129,7 @@ class DrawerAppAdapater(
                         iconView.setImageDrawable(icon)
                     }
                 }
-                if (!SamSprung.prefs.getBoolean(SamSprung.prefLayout, true)) {
+                if (!prefs.getBoolean(SamSprung.prefLayout, true)) {
                     val label: CharSequence? = try {
                         appInfo.loadLabel(packageManager)
                     } catch (e: Exception) {
@@ -144,21 +148,23 @@ class DrawerAppAdapater(
     internal class SimpleViewHolder(
         parent: ViewGroup,
         listener: OnAppClickListener?,
-        packageManager: PackageManager
+        packageManager: PackageManager,
+        prefs: SharedPreferences
     ) : AppViewHolder(
         LayoutInflater.from(parent.context).inflate(
             R.layout.drawer_apps_card, parent, false
-        ), listener, packageManager
+        ), listener, packageManager, prefs
     )
 
     internal class SimpleGridHolder(
         parent: ViewGroup,
         listener: OnAppClickListener?,
-        packageManager: PackageManager
+        packageManager: PackageManager,
+        prefs: SharedPreferences
     ) : AppViewHolder(
         LayoutInflater.from(parent.context).inflate(
             R.layout.drawer_apps_icon, parent, false
-        ), listener, packageManager
+        ), listener, packageManager, prefs
     )
 
     interface OnAppClickListener {

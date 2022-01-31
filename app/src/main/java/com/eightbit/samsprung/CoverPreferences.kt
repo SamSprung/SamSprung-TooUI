@@ -59,6 +59,7 @@ import android.app.WallpaperManager
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
+import android.content.SharedPreferences
 import android.content.pm.PackageManager
 import android.graphics.Color
 import android.net.Uri
@@ -101,6 +102,8 @@ import java.util.concurrent.Executors
 
 class CoverPreferences : AppCompatActivity() {
 
+    private lateinit var prefs: SharedPreferences
+
     private lateinit var updates : CheckUpdatesTask
 
     private lateinit var mainSwitch: SwitchCompat
@@ -121,13 +124,14 @@ class CoverPreferences : AppCompatActivity() {
     @RequiresApi(Build.VERSION_CODES.S)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        prefs = getSharedPreferences(SamSprung.prefsValue, MODE_PRIVATE)
         setContentView(R.layout.cover_settings_layout)
         permissionList = findViewById(R.id.permissions)
 
-        if (SamSprung.prefs.contains(SamSprung.autoRotate)) {
+        if (prefs.contains(SamSprung.autoRotate)) {
             try {
-                SamSprung.prefs.getBoolean(SamSprung.autoRotate, false)
-                with(SamSprung.prefs.edit()) {
+                prefs.getBoolean(SamSprung.autoRotate, false)
+                with(prefs.edit()) {
                     remove(SamSprung.autoRotate)
                     apply()
                 }
@@ -144,10 +148,10 @@ class CoverPreferences : AppCompatActivity() {
             .setHasFixedTransformationMatrix(true)
             .setBlurAlgorithm(RenderScriptBlur(this))
 
-        val isGridView = SamSprung.prefs.getBoolean(SamSprung.prefLayout, true)
+        val isGridView = prefs.getBoolean(SamSprung.prefLayout, true)
         findViewById<ToggleButton>(R.id.swapViewType).isChecked = isGridView
         findViewById<ToggleButton>(R.id.swapViewType).setOnCheckedChangeListener { _, isChecked ->
-            with (SamSprung.prefs.edit()) {
+            with (prefs.edit()) {
                 putBoolean(SamSprung.prefLayout, isChecked)
                 apply()
             }
@@ -155,13 +159,7 @@ class CoverPreferences : AppCompatActivity() {
 
         keyboard = findViewById(R.id.keyboard_layout)
         keyboard.setOnClickListener {
-            with(SamSprung.prefs.edit()) {
-                putString(SamSprung.prefInputs, Settings.Secure.getString(
-                    contentResolver, Settings.Secure.DEFAULT_INPUT_METHOD))
-                apply()
-            }
-            startActivity(Intent(Settings.ACTION_INPUT_METHOD_SETTINGS)
-                .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
+            keyboardLauncher.launch(Intent(Settings.ACTION_INPUT_METHOD_SETTINGS))
         }
         keyboard.visibility = if (hasAccessibility()) View.VISIBLE else View.GONE
 
@@ -216,9 +214,9 @@ class CoverPreferences : AppCompatActivity() {
         val unlisted = packageRetriever.getHiddenPackages()
 
         hiddenList = findViewById(R.id.selectionListView)
-        hiddenList.adapter = FilteredAppsAdapter(this, packages, unlisted)
+        hiddenList.adapter = FilteredAppsAdapter(this, packages, unlisted, prefs)
 
-        val color = SamSprung.prefs.getInt(SamSprung.prefColors, Color.rgb(255, 255, 255))
+        val color = prefs.getInt(SamSprung.prefColors, Color.rgb(255, 255, 255))
 
         val textRed = findViewById<TextView>(R.id.color_red_text)
         val colorRedBar = findViewById<SeekBar>(R.id.color_red_bar)
@@ -259,7 +257,7 @@ class CoverPreferences : AppCompatActivity() {
                     colorGreenBar.progress,
                     colorBlueBar.progress
                 )
-                with(SamSprung.prefs.edit()) {
+                with(prefs.edit()) {
                     putInt(SamSprung.prefColors, newColor)
                     apply()
                 }
@@ -278,7 +276,7 @@ class CoverPreferences : AppCompatActivity() {
                     progress,
                     colorBlueBar.progress
                 )
-                with(SamSprung.prefs.edit()) {
+                with(prefs.edit()) {
                     putInt(SamSprung.prefColors, newColor)
                     apply()
                 }
@@ -297,7 +295,7 @@ class CoverPreferences : AppCompatActivity() {
                     colorGreenBar.progress,
                     progress
                 )
-                with(SamSprung.prefs.edit()) {
+                with(prefs.edit()) {
                     putInt(SamSprung.prefColors, newColor)
                     apply()
                 }
@@ -429,7 +427,15 @@ class CoverPreferences : AppCompatActivity() {
         if (this::accessibility.isInitialized)
             accessibility.isChecked = hasAccessibility()
         keyboard.visibility = if (hasAccessibility()) View.VISIBLE else View.GONE
-        with(SamSprung.prefs.edit()) {
+        with(prefs.edit()) {
+            putString(SamSprung.prefInputs, Settings.Secure.getString(
+                contentResolver, Settings.Secure.DEFAULT_INPUT_METHOD))
+            apply()
+        }
+    }
+    private val keyboardLauncher = registerForActivityResult(
+        ActivityResultContracts.StartActivityForResult()) {
+        with(prefs.edit()) {
             putString(SamSprung.prefInputs, Settings.Secure.getString(
                 contentResolver, Settings.Secure.DEFAULT_INPUT_METHOD))
             apply()
@@ -682,12 +688,12 @@ class CoverPreferences : AppCompatActivity() {
 
     private fun verifyCompatibility() {
         requestPermissions.launch(permissions)
-        if (isDeviceSecure() && !SamSprung.prefs.getBoolean(SamSprung.prefSecure, false)) {
+        if (isDeviceSecure() && !prefs.getBoolean(SamSprung.prefSecure, false)) {
             AlertDialog.Builder(this)
                 .setTitle(R.string.caveats_title)
                 .setMessage(R.string.caveats_warning)
                 .setPositiveButton(R.string.button_confirm) { dialog, _ ->
-                    with (SamSprung.prefs.edit()) {
+                    with (prefs.edit()) {
                         putBoolean(SamSprung.prefSecure,  true)
                         apply()
                     }

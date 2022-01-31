@@ -86,12 +86,11 @@ class AccessibilityObserver : AccessibilityService() {
             }
         }
         fun disableKeyboard(context: Context) {
+            val prefs = context.getSharedPreferences(SamSprung.prefsValue, MODE_PRIVATE)
             if (null == getObserver()) return
-            if (getInputMethod(context).contains(BuildConfig.APPLICATION_ID)) {
-                val setOrSammy = SamSprung.prefs.getString(SamSprung.prefInputs,
+                val setOrSammy = prefs.getString(SamSprung.prefInputs,
                     "com.samsung.android.honeyboard/.service.HoneyBoardService")
                 getObserver()!!.softKeyboardController.switchToInputMethod(setOrSammy!!)
-            }
         }
     }
 

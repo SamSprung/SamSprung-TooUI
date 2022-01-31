@@ -56,6 +56,7 @@ import android.app.*
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
+import android.content.SharedPreferences
 import android.content.res.Configuration
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
@@ -84,6 +85,8 @@ import java.io.File
 
 class DisplayListener : Service() {
 
+    private lateinit var prefs: SharedPreferences
+
     private var mDisplayListener: DisplayManager.DisplayListener? = null
     private lateinit var floatView: View
 
@@ -100,6 +103,7 @@ class DisplayListener : Service() {
     @SuppressLint("InflateParams", "ClickableViewAccessibility")
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         super.onStartCommand(intent, flags, startId)
+        prefs = getSharedPreferences(SamSprung.prefsValue, MODE_PRIVATE)
 
         val launchPackage = intent?.getStringExtra("launchPackage")
         val launchActivity = intent?.getStringExtra("launchActivity")
@@ -166,7 +170,7 @@ class DisplayListener : Service() {
         bottomSheetBehavior.addBottomSheetCallback(object : BottomSheetBehavior.BottomSheetCallback() {
             override fun onStateChanged(bottomSheet: View, newState: Int) {
                 if (newState == BottomSheetBehavior.STATE_EXPANDED) {
-                    val color = SamSprung.prefs.getInt(SamSprung.prefColors,
+                    val color = prefs.getInt(SamSprung.prefColors,
                         Color.rgb(255, 255, 255))
                     if (!menu.isVisible) menu.visibility = View.VISIBLE
                     val icons = menu.findViewById<LinearLayout>(R.id.icons_layout)
@@ -322,12 +326,12 @@ class DisplayListener : Service() {
         if (null != mDisplayListener) {
             displayManager.unregisterDisplayListener(mDisplayListener)
         }
-        if (SamSprung.prefs.getInt(SamSprung.autoRotate, 1) == 0
+        if (prefs.getInt(SamSprung.autoRotate, 1) == 0
             && Settings.System.canWrite(applicationContext)) {
             try {
                 Settings.System.putInt(applicationContext.contentResolver,
                     Settings.System.ACCELEROMETER_ROTATION,
-                    SamSprung.prefs.getInt(SamSprung.autoRotate, 0)
+                    prefs.getInt(SamSprung.autoRotate, 0)
                 )
             } catch (ignored: Settings.SettingNotFoundException) { }
         }

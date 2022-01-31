@@ -61,6 +61,7 @@ import android.content.pm.ApplicationInfo
 import android.content.pm.PackageManager
 import android.content.pm.ResolveInfo
 import android.graphics.Canvas
+import android.graphics.Color
 import android.hardware.camera2.CameraManager
 import android.media.AudioManager
 import android.net.wifi.WifiManager
@@ -70,9 +71,11 @@ import android.provider.Settings
 import android.text.TextUtils
 import android.view.*
 import android.widget.LinearLayout
+import android.widget.TextClock
 import android.widget.TextView
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.widget.AppCompatImageView
 import androidx.appcompat.widget.Toolbar
 import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.core.content.ContextCompat
@@ -95,6 +98,7 @@ class SamSprungDrawer : AppCompatActivity(),
     DrawerAppAdapater.OnAppClickListener,
     NotificationAdapter.OnNoticeClickListener {
 
+    private lateinit var prefs: SharedPreferences
     private lateinit var oReceiver: BroadcastReceiver
     private lateinit var bReceiver: BroadcastReceiver
     private lateinit var pReceiver: BroadcastReceiver
@@ -107,6 +111,7 @@ class SamSprungDrawer : AppCompatActivity(),
         setShowWhenLocked(true)
 
         super.onCreate(savedInstanceState)
+        prefs = getSharedPreferences(SamSprung.prefsValue, MODE_PRIVATE)
         supportActionBar?.hide()
         ScaledContext.wrap(this).setTheme(R.style.Theme_SecondScreen_NoActionBar)
         setContentView(R.layout.drawer_layout)
@@ -153,9 +158,27 @@ class SamSprungDrawer : AppCompatActivity(),
             registerReceiver(bReceiver, it)
         }
 
+        val toggleStats = findViewById<LinearLayout>(R.id.toggle_status)
+        val clock = findViewById<TextClock>(R.id.clock_status)
+
         val toolbar = findViewById<Toolbar>(R.id.toolbar)
         toolbar.inflateMenu(R.menu.cover_quick_toggles)
+
+        var color = prefs.getInt(SamSprung.prefColors,
+            Color.rgb(255, 255, 255))
+        batteryLevel.setTextColor(color)
+        clock.setTextColor(color)
+        for (i in 0 until toolbar.menu.size()) {
+            toolbar.menu.getItem(i).icon.setTint(color)
+            val icon = layoutInflater.inflate(
+                R.layout.toggle_status, null) as AppCompatImageView
+            icon.findViewById<AppCompatImageView>(R.id.toggle_icon)
+            icon.background = toolbar.menu.getItem(i).icon
+            toggleStats.addView(icon)
+        }
+
         noticesView = findViewById(R.id.notificationList)
+
 
         noticesView.layoutManager = LinearLayoutManager(this)
         noticesView.adapter = NotificationAdapter(this, this@SamSprungDrawer)
@@ -200,6 +223,7 @@ class SamSprungDrawer : AppCompatActivity(),
                 toolbar.menu.findItem(R.id.toggle_wifi).setIcon(R.drawable.ic_baseline_wifi_on_24)
             else
                 toolbar.menu.findItem(R.id.toggle_wifi).setIcon(R.drawable.ic_baseline_wifi_off_24)
+            toolbar.menu.findItem(R.id.toggle_wifi).icon.setTint(color)
         }
 
         val nfcAdapter = (getSystemService(NFC_SERVICE) as NfcManager).defaultAdapter
@@ -209,6 +233,7 @@ class SamSprungDrawer : AppCompatActivity(),
                 toolbar.menu.findItem(R.id.toggle_nfc).setIcon(R.drawable.ic_baseline_nfc_on_24)
             else
                 toolbar.menu.findItem(R.id.toggle_nfc).setIcon(R.drawable.ic_baseline_nfc_off_24)
+            toolbar.menu.findItem(R.id.toggle_nfc).icon.setTint(color)
         }
 
         val bottomSheetBehavior: BottomSheetBehavior<View> =
@@ -241,6 +266,7 @@ class SamSprungDrawer : AppCompatActivity(),
                                     toolbar.menu.findItem(R.id.toggle_bluetooth)
                                         .setIcon(R.drawable.ic_baseline_bluetooth_on_24)
                                 }
+                                toolbar.menu.findItem(R.id.toggle_bluetooth).icon.setTint(color)
                                 return@setOnMenuItemClickListener true
                             }
                             R.id.toggle_nfc -> {
@@ -257,6 +283,7 @@ class SamSprungDrawer : AppCompatActivity(),
                                     toolbar.menu.findItem(R.id.toggle_sound)
                                         .setIcon(R.drawable.ic_baseline_sound_on_24)
                                 }
+                                toolbar.menu.findItem(R.id.toggle_sound).icon.setTint(color)
                                 return@setOnMenuItemClickListener true
                             }
                             R.id.toggle_dnd -> {
@@ -272,6 +299,7 @@ class SamSprungDrawer : AppCompatActivity(),
                                     toolbar.menu.findItem(R.id.toggle_dnd)
                                         .setIcon(R.drawable.ic_baseline_do_not_disturb_off_24)
                                 }
+                                toolbar.menu.findItem(R.id.toggle_dnd).icon.setTint(color)
                                 return@setOnMenuItemClickListener true
                             }
                             R.id.toggle_torch -> {
@@ -284,6 +312,7 @@ class SamSprungDrawer : AppCompatActivity(),
                                     toolbar.menu.findItem(R.id.toggle_torch)
                                         .setIcon(R.drawable.ic_baseline_flashlight_on_24)
                                 }
+                                toolbar.menu.findItem(R.id.toggle_torch).icon.setTint(color)
                                 camManager.setTorchMode(camManager.cameraIdList[0], isTorchEnabled)
                                 return@setOnMenuItemClickListener true
                             }
@@ -303,6 +332,10 @@ class SamSprungDrawer : AppCompatActivity(),
                     info.visibility = View.GONE
                     if (!hasConfigured) {
                         hasConfigured = true
+                        color = prefs.getInt(SamSprung.prefColors,
+                            Color.rgb(255, 255, 255))
+                        batteryLevel.setTextColor(color)
+                        clock.setTextColor(color)
                         if (wifiManager.isWifiEnabled)
                             toolbar.menu.findItem(R.id.toggle_wifi)
                                 .setIcon(R.drawable.ic_baseline_wifi_on_24)
@@ -357,8 +390,20 @@ class SamSprungDrawer : AppCompatActivity(),
                         } else {
                             toolbar.menu.findItem(R.id.toggle_torch).isVisible = isTorchEnabled
                         }
+                        for (i in 0 until toolbar.menu.size()) {
+                            toolbar.menu.getItem(i).icon.setTint(color)
+                        }
                     }
                 } else {
+                    toggleStats.removeAllViewsInLayout()
+                    for (i in 0 until toolbar.menu.size()) {
+                        toolbar.menu.getItem(i).icon.setTint(color)
+                        val icon = layoutInflater.inflate(
+                            R.layout.toggle_status, null) as AppCompatImageView
+                        icon.findViewById<AppCompatImageView>(R.id.toggle_icon)
+                        icon.background = toolbar.menu.getItem(i).icon
+                        toggleStats.addView(icon)
+                    }
                     info.visibility = View.VISIBLE
                 }
             }
@@ -369,11 +414,11 @@ class SamSprungDrawer : AppCompatActivity(),
         val packageRetriever = PackageRetriever(this)
         var packages = packageRetriever.getFilteredPackageList()
 
-        if (SamSprung.prefs.getBoolean(SamSprung.prefLayout, true))
+        if (prefs.getBoolean(SamSprung.prefLayout, true))
             launcherView.layoutManager = GridLayoutManager(this, getColumnCount())
         else
             launcherView.layoutManager = LinearLayoutManager(this)
-        launcherView.adapter = DrawerAppAdapater(packages, this, packageManager)
+        launcherView.adapter = DrawerAppAdapater(packages, this, packageManager, prefs)
 
         pReceiver = object : BroadcastReceiver() {
             override fun onReceive(context: Context?, intent: Intent) {
@@ -465,7 +510,7 @@ class SamSprungDrawer : AppCompatActivity(),
     }
 
     private fun prepareConfiguration() {
-        with (SamSprung.prefs.edit()) {
+        with (prefs.edit()) {
             try {
                 putInt(SamSprung.autoRotate,  Settings.System.getInt(
                     applicationContext.contentResolver,

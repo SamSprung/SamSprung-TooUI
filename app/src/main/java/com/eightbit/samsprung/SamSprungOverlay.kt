@@ -54,6 +54,7 @@ package com.eightbit.samsprung
 import android.annotation.SuppressLint
 import android.app.ActivityOptions
 import android.content.Intent
+import android.content.SharedPreferences
 import android.graphics.Color
 import android.graphics.PixelFormat
 import android.graphics.drawable.ColorDrawable
@@ -74,6 +75,7 @@ import com.google.android.material.bottomsheet.BottomSheetBehavior
 
 class SamSprungOverlay : AppCompatActivity() {
 
+    private lateinit var  prefs: SharedPreferences
     private lateinit var bottomSheetBehavior: BottomSheetBehavior<View>
 
     @SuppressLint("ClickableViewAccessibility")
@@ -86,6 +88,7 @@ class SamSprungOverlay : AppCompatActivity() {
             PixelFormat.TRANSPARENT)
 
         super.onCreate(savedInstanceState)
+        prefs = getSharedPreferences(SamSprung.prefsValue, MODE_PRIVATE)
         supportActionBar?.hide()
         window.setLayout(
             ViewGroup.LayoutParams.MATCH_PARENT,
@@ -99,7 +102,7 @@ class SamSprungOverlay : AppCompatActivity() {
         setContentView(R.layout.navigation_menu)
 
         val bottomHandle = findViewById<View>(R.id.bottom_handle)
-        bottomHandle.setBackgroundColor(SamSprung.prefs.getInt(SamSprung.prefColors,
+        bottomHandle.setBackgroundColor(prefs.getInt(SamSprung.prefColors,
             Color.rgb(255, 255, 255)))
         bottomHandle.visibility = View.VISIBLE
         val handler = Handler(Looper.getMainLooper())
@@ -135,7 +138,7 @@ class SamSprungOverlay : AppCompatActivity() {
             }
 
             override fun onSlide(bottomSheet: View, slideOffset: Float) {
-                val color = SamSprung.prefs.getInt(SamSprung.prefColors,
+                val color = prefs.getInt(SamSprung.prefColors,
                     Color.rgb(255, 255, 255))
                 if (slideOffset > 0) {
                     if (bottomHandle.visibility != View.INVISIBLE) {

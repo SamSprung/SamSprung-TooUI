@@ -63,11 +63,9 @@ class SamSprung : Application() {
     override fun onCreate() {
         super.onCreate()
         AppCompatDelegate.setCompatVectorFromResourcesEnabled(true)
-        if (BuildConfig.FLAVOR == "gooogle"
+        if (BuildConfig.FLAVOR == "google"
             && BuildConfig.DEBUG) StrictMode.enableDefaults()
-        mPrefs = SoftReference(
-            getSharedPreferences("samsprung.launcher.PREFS", MODE_PRIVATE)
-        )
+        val prefs = getSharedPreferences("samsprung.launcher.PREFS", MODE_PRIVATE)
         Thread.setDefaultUncaughtExceptionHandler { _: Thread?, error: Throwable ->
             error.printStackTrace()
             startService(
@@ -98,8 +96,7 @@ class SamSprung : Application() {
         const val services: String = "com.eightbit.samsprung.SERVICES"
         const val request_code = 8675309
         var isKeyguardLocked: Boolean = true
-        lateinit var mPrefs: SoftReference<SharedPreferences>
-        val prefs: SharedPreferences get() = mPrefs.get()!!
+        const val prefsValue: String = "samsprung.preferences"
         const val prefLayout: String = "prefLayout"
         const val prefHidden: String = "prefHidden"
         const val autoRotate: String = "autoRotate"

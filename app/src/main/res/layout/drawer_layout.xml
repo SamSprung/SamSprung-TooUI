@@ -58,18 +58,18 @@
                 android:textSize="16sp"
                 android:textStyle="bold" />
 
-            <TextView
+            <LinearLayout
+                android:id="@+id/toggle_status"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:layout_height="16dp"
                 android:layout_weight="1"
                 android:gravity="center"
-                android:singleLine="true"
-                android:ellipsize="middle"
-                android:textColor="@android:color/white"
-                android:text="@string/notification_drawer"
-                android:textSize="16sp" />
+                android:layout_gravity="center"
+                android:orientation="horizontal">
+            </LinearLayout>
 
             <TextClock
+                android:id="@+id/clock_status"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="0.5"

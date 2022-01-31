@@ -52,6 +52,7 @@ package com.eightbit.samsprung
  */
 
 import android.content.Context
+import android.content.SharedPreferences
 import android.content.pm.PackageManager
 import android.content.pm.ResolveInfo
 import android.os.Handler
@@ -69,7 +70,8 @@ import java.util.concurrent.Executors
 class FilteredAppsAdapter(
     private val context: Context,
     private var packages: MutableList<ResolveInfo>,
-    private var hide: HashSet<String>
+    private var hide: HashSet<String>,
+    private val prefs: SharedPreferences
 ) : BaseAdapter() {
     private var pacMan: PackageManager = context.packageManager
     fun setPackages(packages: MutableList<ResolveInfo>, hide: HashSet<String>) {
@@ -121,13 +123,13 @@ class FilteredAppsAdapter(
             val packageName = application.activityInfo.packageName
             if (hide.contains(packageName)) {
                 hide.remove(packageName)
-                with(SamSprung.prefs.edit()) {
+                with(prefs.edit()) {
                     putStringSet(SamSprung.prefHidden, hide)
                     apply()
                 }
             } else {
                 hide.add(packageName)
-                with(SamSprung.prefs.edit()) {
+                with(prefs.edit()) {
                     putStringSet(SamSprung.prefHidden, hide)
                     apply()
                 }

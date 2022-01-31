@@ -56,11 +56,17 @@ import android.app.usage.UsageEvents
 import android.app.usage.UsageStatsManager
 import android.content.Context
 import android.content.Intent
+import android.content.SharedPreferences
 import android.content.pm.PackageManager
 import android.content.pm.ResolveInfo
+import androidx.appcompat.app.AppCompatActivity
 import java.util.*
 
 class PackageRetriever(val context: Context) {
+
+    private var prefs: SharedPreferences = context.getSharedPreferences(
+        SamSprung.prefsValue, AppCompatActivity.MODE_PRIVATE
+    )
 
     private fun getPackageList() : MutableList<ResolveInfo> {
         val mainIntent = Intent(Intent.ACTION_MAIN, null)
@@ -111,7 +117,7 @@ class PackageRetriever(val context: Context) {
 
     fun getHiddenPackages() : HashSet<String> {
         val unlisted: HashSet<String> = HashSet()
-        val hide: Set<String> = SamSprung.prefs.getStringSet(
+        val hide: Set<String> = prefs.getStringSet(
             SamSprung.prefHidden, setOf<String>()) as Set<String>
         unlisted.addAll(hide)
         return unlisted
@@ -120,7 +126,7 @@ class PackageRetriever(val context: Context) {
     fun getFilteredPackageList(): MutableList<ResolveInfo> {
         val packages = getRecentPackageList(true)
         packages.removeIf { item ->
-            SamSprung.prefs.getStringSet(SamSprung.prefHidden, HashSet())!!
+            prefs.getStringSet(SamSprung.prefHidden, HashSet())!!
                 .contains(item.activityInfo.packageName)
         }
         return packages
