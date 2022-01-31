@@ -577,9 +577,7 @@ class SamSprungWidget : AppCompatActivity(), View.OnClickListener, OnLongClickLi
             workspace.requestLayout()
         }
         if (appWidgets.isEmpty()) {
-            if (PROFILE_ROTATE) {
-                Debug.stopMethodTracing()
-            }
+            showAddDialog(CellLayout.CellInfo())
         } else {
             binder.obtainMessage(DesktopBinder.MESSAGE_BIND_APPWIDGETS).sendToTarget()
         }
@@ -727,7 +725,6 @@ class SamSprungWidget : AppCompatActivity(), View.OnClickListener, OnLongClickLi
     companion object {
         val LogTag: String = SamSprungWidget::class.java.javaClass.name
         const val LOGD = false
-        private const val PROFILE_ROTATE = false
         const val SCREEN_COUNT = 3
         private const val DEFAULT_SCREEN = 1
         private const val PREFERENCES = "widget.preferences"
