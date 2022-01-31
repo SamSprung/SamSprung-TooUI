@@ -266,7 +266,7 @@ class DisplayListener : Service() {
             .inflate(R.layout.keyboard_view, null) as KeyboardView
         mKeyboardView.isPreviewEnabled = false
         mKeyboardView.keyboard = mKeyboard
-        SamSprungInput.setInputMethod(mKeyboard, mKeyboardView, parent)
+        SamSprungInput.setInputMethod(mKeyboardView, mKeyboard, parent)
         AccessibilityObserver.enableKeyboard(applicationContext)
         return mKeyboardView
     }
