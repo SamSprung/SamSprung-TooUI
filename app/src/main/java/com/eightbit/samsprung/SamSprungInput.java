@@ -9,9 +9,11 @@ import android.view.inputmethod.InputConnection;
 
 import androidx.coordinatorlayout.widget.CoordinatorLayout;
 
+import com.eightbit.content.ScaledContext;
+
 import java.lang.ref.SoftReference;
 
-interface InputListener {
+interface InputMethodListener {
     public void onInputRequested(SamSprungInput instance);
 }
 
@@ -19,11 +21,12 @@ interface InputListener {
 public class SamSprungInput extends InputMethodService
         implements KeyboardView.OnKeyboardActionListener {
 
-    private static InputListener listener;
+    private static InputMethodListener listener;
 
     private static SoftReference<KeyboardView> mKeyboardView;
     private static Keyboard mKeyboard;
     private static CoordinatorLayout parent;
+    private static boolean isNumPad = false;
 
     private boolean caps = false;
 
@@ -36,12 +39,11 @@ public class SamSprungInput extends InputMethodService
 
     @Override
     public boolean onShowInputRequested(int flags, boolean configChange) {
-        if (null != listener)
-            listener.onInputRequested(this);
+        if (null != listener) listener.onInputRequested(this);
         return true;
     }
 
-    public static void setInputListener(InputListener inputListener) {
+    public static void setInputListener(InputMethodListener inputListener) {
         listener = inputListener;
     }
 
@@ -49,6 +51,7 @@ public class SamSprungInput extends InputMethodService
         mKeyboard = keyboard;
         mKeyboardView = new SoftReference<>(keyBoardView);
         parent = coordinator;
+        isNumPad = false;
     }
 
     @Override
@@ -56,11 +59,22 @@ public class SamSprungInput extends InputMethodService
         return null;
     }
 
+    private void swapKeyboardLayout() {
+        if (isNumPad) {
+            isNumPad = false;
+            mKeyboard = new Keyboard(ScaledContext.wrap(this), R.xml.keyboard_qwerty);
+        } else {
+            isNumPad = true;
+            mKeyboard = new Keyboard(ScaledContext.wrap(this), R.xml.keyboard_numpad);
+        }
+        mKeyboardView.get().setKeyboard(mKeyboard);
+    }
+
     @Override
     public void onKey(int primaryCode, int[] keyCodes) {
         InputConnection ic = getCurrentInputConnection();
         if (keyCodes[0] == -999) return;
-        switch(primaryCode){
+        switch(primaryCode) {
             case Keyboard.KEYCODE_DELETE :
                 ic.deleteSurroundingText(1, 0);
                 break;
@@ -98,14 +112,12 @@ public class SamSprungInput extends InputMethodService
 
     @Override
     public void swipeLeft() {
-        mKeyboard = new Keyboard(parent.getContext(), R.xml.keyboard_numpad);
-        mKeyboardView.get().setKeyboard(mKeyboard);
+        swapKeyboardLayout();
     }
 
     @Override
     public void swipeRight() {
-        mKeyboard = new Keyboard(parent.getContext(), R.xml.keyboard_qwerty);
-        mKeyboardView.get().setKeyboard(mKeyboard);
+        swapKeyboardLayout();
     }
 
     @Override
