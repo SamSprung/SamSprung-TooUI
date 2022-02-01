@@ -498,7 +498,7 @@ class SamSprungDrawer : AppCompatActivity(),
             override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
                 if (direction == ItemTouchHelper.LEFT) {
                     if (searchView.query.isNotBlank()) {
-                        (launcherView.adapter as DrawerAppAdapater).setQuery("")
+                        searchView.setQuery("", true)
                         if (searchWrapper.isVisible)
                             searchWrapper.visibility = View.GONE
                     } else {
@@ -511,7 +511,7 @@ class SamSprungDrawer : AppCompatActivity(),
                 }
                 if (direction == ItemTouchHelper.RIGHT) {
                     if (searchView.query.isNotBlank()) {
-                        (launcherView.adapter as DrawerAppAdapater).setQuery("")
+                        searchView.setQuery("", true)
                         if (searchWrapper.isVisible)
                             searchWrapper.visibility = View.GONE
                     } else {
@@ -524,7 +524,7 @@ class SamSprungDrawer : AppCompatActivity(),
         launcherView.setOnTouchListener(object : OnSwipeTouchListener(this@SamSprungDrawer) {
             override fun onSwipeLeft() : Boolean {
                 if (searchView.query.isNotBlank()) {
-                    (launcherView.adapter as DrawerAppAdapater).setQuery("")
+                    searchView.setQuery("", true)
                     if (searchWrapper.isVisible)
                         searchWrapper.visibility = View.GONE
                 } else {
@@ -538,7 +538,7 @@ class SamSprungDrawer : AppCompatActivity(),
             }
             override fun onSwipeRight() : Boolean {
                 if (searchView.query.isNotBlank()) {
-                    (launcherView.adapter as DrawerAppAdapater).setQuery("")
+                    searchView.setQuery("", true)
                     if (searchWrapper.isVisible)
                         searchWrapper.visibility = View.GONE
                 } else {
