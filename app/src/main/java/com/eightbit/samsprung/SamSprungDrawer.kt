@@ -67,6 +67,8 @@ import android.graphics.Color
 import android.graphics.PixelFormat
 import android.hardware.camera2.CameraManager
 import android.hardware.camera2.CameraManager.TorchCallback
+import android.inputmethodservice.Keyboard
+import android.inputmethodservice.KeyboardView
 import android.media.AudioManager
 import android.net.wifi.WifiManager
 import android.nfc.NfcAdapter
@@ -75,15 +77,15 @@ import android.os.*
 import android.provider.Settings
 import android.text.TextUtils
 import android.view.*
-import android.widget.LinearLayout
-import android.widget.TextClock
-import android.widget.TextView
+import android.widget.*
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.AppCompatImageView
+import androidx.appcompat.widget.SearchView
 import androidx.appcompat.widget.Toolbar
 import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.core.content.ContextCompat
+import androidx.core.view.isVisible
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -158,7 +160,8 @@ class SamSprungDrawer : AppCompatActivity(),
                 WallpaperManager.getInstance(this).drawable
         }
 
-        findViewById<BlurView>(R.id.blurContainer).setupWith(
+        val blurView = findViewById<BlurView>(R.id.blurContainer)
+        blurView.setupWith(
             window.decorView.findViewById(R.id.coordinator))
             .setFrameClearDrawable(window.decorView.background)
             .setBlurRadius(1f)
@@ -437,6 +440,40 @@ class SamSprungDrawer : AppCompatActivity(),
             registerReceiver(pReceiver, it)
         }
 
+        val searchWrapper = findViewById<FrameLayout>(R.id.search_wrapper)
+        val searchView = findViewById<SearchView>(R.id.package_search)
+        val searchManager = getSystemService(SEARCH_SERVICE) as SearchManager
+        searchView.setSearchableInfo(searchManager.getSearchableInfo(componentName))
+        searchView.isSubmitButtonEnabled = false
+        searchView.setIconifiedByDefault(false)
+        searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
+            override fun onQueryTextSubmit(query: String): Boolean {
+                (launcherView.adapter as DrawerAppAdapater).setQuery(query)
+                return false
+            }
+
+            override fun onQueryTextChange(query: String): Boolean {
+                (launcherView.adapter as DrawerAppAdapater).setQuery(query)
+                return true
+            }
+        })
+        searchWrapper.visibility = View.GONE
+
+        val mKeyboardView = if (hasAccessibility())
+            getKeyboard(searchWrapper, ScaledContext.wrap(this)) else null
+
+        SamSprungInput.setInputListener(object : SamSprungInput.InputMethodListener {
+            override fun onInputRequested(instance: SamSprungInput) {
+                if (!mKeyboardView!!.isShown)
+                    searchWrapper.addView(mKeyboardView, 0)
+            }
+
+            override fun onKeyboardHidden(isHidden: Boolean?) {
+                if (searchWrapper.isVisible)
+                    searchWrapper.visibility = View.GONE
+            }
+        })
+
         val drawerTouchCallback: ItemTouchHelper.SimpleCallback = object :
             ItemTouchHelper.SimpleCallback(0,
                 ItemTouchHelper.RIGHT or ItemTouchHelper.LEFT) {
@@ -459,16 +496,56 @@ class SamSprungDrawer : AppCompatActivity(),
             ) { }
 
             override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
-                if (direction == ItemTouchHelper.LEFT || direction == ItemTouchHelper.RIGHT) {
-                    finish()
-                    startActivity(
-                        Intent(applicationContext, SamSprungOverlay::class.java),
-                        ActivityOptions.makeBasic().setLaunchDisplayId(1).toBundle())
+                if (direction == ItemTouchHelper.LEFT) {
+                    if (searchView.query.isNotBlank()) {
+                        (launcherView.adapter as DrawerAppAdapater).setQuery("")
+                        if (searchWrapper.isVisible)
+                            searchWrapper.visibility = View.GONE
+                    } else {
+                        finish()
+                        startActivity(
+                            Intent(applicationContext, SamSprungOverlay::class.java),
+                            ActivityOptions.makeBasic().setLaunchDisplayId(1).toBundle()
+                        )
+                    }
+                }
+                if (direction == ItemTouchHelper.RIGHT) {
+                    if (searchView.query.isNotBlank()) {
+                        (launcherView.adapter as DrawerAppAdapater).setQuery("")
+                        if (searchWrapper.isVisible)
+                            searchWrapper.visibility = View.GONE
+                    } else {
+                        searchWrapper.visibility = View.VISIBLE
+                    }
                 }
             }
         }
         ItemTouchHelper(drawerTouchCallback).attachToRecyclerView(launcherView)
         launcherView.setOnTouchListener(object : OnSwipeTouchListener(this@SamSprungDrawer) {
+            override fun onSwipeLeft() : Boolean {
+                if (searchView.query.isNotBlank()) {
+                    (launcherView.adapter as DrawerAppAdapater).setQuery("")
+                    if (searchWrapper.isVisible)
+                        searchWrapper.visibility = View.GONE
+                } else {
+                    finish()
+                    startActivity(
+                        Intent(applicationContext, SamSprungOverlay::class.java),
+                        ActivityOptions.makeBasic().setLaunchDisplayId(1).toBundle()
+                    )
+                }
+                return true
+            }
+            override fun onSwipeRight() : Boolean {
+                if (searchView.query.isNotBlank()) {
+                    (launcherView.adapter as DrawerAppAdapater).setQuery("")
+                    if (searchWrapper.isVisible)
+                        searchWrapper.visibility = View.GONE
+                } else {
+                    searchWrapper.visibility = View.VISIBLE
+                }
+                return true
+            }
             override fun onSwipeBottom() : Boolean {
                 if (bottomSheetBehavior.state == BottomSheetBehavior.STATE_EXPANDED) return false
                 if (launcherView.layoutManager is LinearLayoutManager) {
@@ -522,6 +599,20 @@ class SamSprungDrawer : AppCompatActivity(),
             DisplayListener.setFakeOrientationLock(orientationChanger)
             finish()
         }
+    }
+
+    @SuppressLint("InflateParams")
+    @Suppress("DEPRECATION")
+    private fun getKeyboard (parent: ViewGroup, displayContext: Context) : KeyboardView {
+        val mKeyboard = Keyboard(parent.context, R.xml.keyboard_qwerty)
+        val mKeyboardView = LayoutInflater.from(displayContext)
+            .inflate(R.layout.keyboard_view, null) as KeyboardView
+        mKeyboardView.isPreviewEnabled = false
+        mKeyboardView.keyboard = mKeyboard
+        SamSprungInput.setInputMethod(mKeyboardView, mKeyboard, parent)
+        AccessibilityObserver.enableKeyboard(displayContext)
+        mKeyboardView.elevation = 1F
+        return mKeyboardView
     }
 
     private fun prepareConfiguration() {
@@ -723,6 +814,7 @@ class SamSprungDrawer : AppCompatActivity(),
 
     override fun onDestroy() {
         super.onDestroy()
+        AccessibilityObserver.disableKeyboard(this)
         try {
             if (this::oReceiver.isInitialized)
                 unregisterReceiver(oReceiver)

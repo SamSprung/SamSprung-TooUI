@@ -486,7 +486,8 @@ class CoverPreferences : AppCompatActivity() {
         try {
             var line: String?
             val mLogcatProc: Process = Runtime.getRuntime().exec(arrayOf(
-                "logcat", "-d", "-t", "256", BuildConfig.APPLICATION_ID, "AndroidRuntime",
+                "logcat", "-d", "-t", "256", BuildConfig.APPLICATION_ID,
+                "AndroidRuntime", "System.err",
                 "AppIconSolution:S", "ViewRootImpl:S", "IssueReporterActivity:S",
             ))
             val reader = BufferedReader(InputStreamReader(mLogcatProc.inputStream))
@@ -676,7 +677,7 @@ class CoverPreferences : AppCompatActivity() {
     }
 
     private fun verifyCompatibility() {
-        requestPermissions.launch(permissions)
+        runOnUiThread { requestPermissions.launch(permissions) }
         if (isDeviceSecure() && !prefs.getBoolean(SamSprung.prefSecure, false)) {
             AlertDialog.Builder(this)
                 .setTitle(R.string.caveats_title)

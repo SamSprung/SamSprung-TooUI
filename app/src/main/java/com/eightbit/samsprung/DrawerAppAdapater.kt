@@ -60,8 +60,8 @@ import android.os.Looper
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Filter
 import android.widget.TextView
-import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.AppCompatImageView
 import androidx.recyclerview.widget.RecyclerView
 import com.eightbit.samsprung.DrawerAppAdapater.AppViewHolder
@@ -73,22 +73,26 @@ class DrawerAppAdapater(
     private val packageManager: PackageManager,
     private val prefs: SharedPreferences
 ) : RecyclerView.Adapter<AppViewHolder>() {
+    private var filter: PackageFilter? = null
+    private var filteredData: MutableList<ResolveInfo> = packages
+
     @SuppressLint("NotifyDataSetChanged")
     fun setPackages(packages: MutableList<ResolveInfo>) {
         this.packages = packages
+        filteredData = packages
         notifyDataSetChanged()
     }
 
     override fun getItemCount(): Int {
-        return packages.size
+        return filteredData.size
     }
 
     override fun getItemId(i: Int): Long {
-        return packages[i].labelRes.toLong()
+        return filteredData[i].labelRes.toLong()
     }
 
     private fun getItem(i: Int): ResolveInfo {
-        return packages[i]
+        return filteredData[i]
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): AppViewHolder {
@@ -111,6 +115,48 @@ class DrawerAppAdapater(
             }
         }
         holder.bind(getItem(position))
+    }
+
+    fun setQuery(query: String) {
+        getFilter()?.filter(query)
+    }
+
+    private fun getFilter(): PackageFilter? {
+        if (null == this.filter) {
+            this.filter = PackageFilter()
+        }
+        return this.filter
+    }
+
+    inner class PackageFilter : Filter() {
+        override fun performFiltering(constraint: CharSequence?): FilterResults {
+            val query = constraint?.toString() ?: ""
+            val filterResults = FilterResults()
+            val queryText = query.trim { it <= ' ' }.lowercase()
+            if (queryText.isBlank()) {
+                filterResults.count = packages.size
+                filterResults.values = packages
+                return filterResults
+            }
+            val tempList: MutableList<ResolveInfo> = mutableListOf()
+            Executors.newSingleThreadExecutor().execute {
+                for (app in packages) {
+                    if (app.loadLabel(packageManager).contains(queryText, ignoreCase = true))
+                        tempList.add(app)
+                }
+            }
+            filterResults.count = tempList.size
+            filterResults.values = tempList
+            return filterResults
+        }
+
+        @SuppressLint("NotifyDataSetChanged")
+        override fun publishResults(charSequence: CharSequence, filterResults: FilterResults) {
+            if (filteredData.isEmpty() || filteredData !== filterResults.values) {
+                filteredData = filterResults.values as MutableList<ResolveInfo>
+                notifyDataSetChanged()
+            }
+        }
     }
 
     abstract class AppViewHolder(

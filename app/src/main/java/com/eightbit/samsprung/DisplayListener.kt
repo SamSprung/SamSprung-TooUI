@@ -166,10 +166,15 @@ class DisplayListener : Service() {
         val mKeyboardView = if (hasAccessibility())
             getKeyboard(coordinator, this) else null
 
-        SamSprungInput.setInputListener {
-            if (!mKeyboardView!!.isShown)
-                coordinator.addView(mKeyboardView, 0)
-        }
+
+        SamSprungInput.setInputListener(object : SamSprungInput.InputMethodListener {
+            override fun onInputRequested(instance: SamSprungInput) {
+                if (!mKeyboardView!!.isShown)
+                    coordinator.addView(mKeyboardView, 0)
+            }
+
+            override fun onKeyboardHidden(isHidden: Boolean) { }
+        })
 
         val menu = floatView.findViewById<LinearLayout>(R.id.button_layout)
         val menuLogo = menu.findViewById<VerticalStrokeTextView>(R.id.samsprung_logo)
@@ -330,7 +335,7 @@ class DisplayListener : Service() {
         mKeyguardLock: KeyguardManager.KeyguardLock
     ) {
         if (hasAccessibility())
-            AccessibilityObserver.disableKeyboard()
+            AccessibilityObserver.disableKeyboard(this)
         val windowService = SamSprung.getCoverContext()?.getSystemService(Context.WINDOW_SERVICE) as WindowManager
         if (this::floatView.isInitialized && floatView.isAttachedToWindow)
             windowService.removeView(floatView)
@@ -339,9 +344,9 @@ class DisplayListener : Service() {
         }
         if (SamSprung.isKeyguardLocked)
             @Suppress("DEPRECATION") mKeyguardLock.reenableKeyguard()
-        if (null != getFakeOrientationLock() && getFakeOrientationLock()!!.isAttachedToWindow) {
+        try {
             windowService.removeView(getFakeOrientationLock())
-        }
+        } catch (ignored: Exception) { }
         try {
             stopForeground(true)
         } catch (ignored: Exception) { }

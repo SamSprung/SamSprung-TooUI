@@ -87,8 +87,9 @@ class AccessibilityObserver : AccessibilityService() {
                 }
             }
         }
-        fun disableKeyboard() {
+        fun disableKeyboard(context: Context) {
             if (null == getObserver() || null == cachedInputMethod) return
+            if (getInputMethod(context).contains(BuildConfig.APPLICATION_ID))
                 getObserver()!!.softKeyboardController.switchToInputMethod(cachedInputMethod!!)
         }
     }

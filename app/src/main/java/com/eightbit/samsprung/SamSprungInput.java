@@ -5,28 +5,24 @@ import android.inputmethodservice.Keyboard;
 import android.inputmethodservice.KeyboardView;
 import android.view.KeyEvent;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.inputmethod.InputConnection;
-
-import androidx.coordinatorlayout.widget.CoordinatorLayout;
 
 import com.eightbit.content.ScaledContext;
 
 import java.lang.ref.SoftReference;
-
-interface InputMethodListener {
-    void onInputRequested(SamSprungInput instance);
-}
 
 @SuppressWarnings("deprecation")
 public class SamSprungInput extends InputMethodService
         implements KeyboardView.OnKeyboardActionListener {
 
     private static InputMethodListener listener;
+    private static SamSprungInput instance;
 
     private static SoftReference<KeyboardView> mKeyboardView;
     private static Keyboard mKeyboard;
     private Keyboard mNumPad;
-    private static CoordinatorLayout parent;
+    private static SoftReference<ViewGroup> parent;
     private static boolean isNumPad = false;
 
     private boolean caps = false;
@@ -34,13 +30,13 @@ public class SamSprungInput extends InputMethodService
     @Override
     public void onInitializeInterface() {
         mNumPad = new Keyboard(ScaledContext.cover(this), R.xml.keyboard_numpad);
-        if (null != mKeyboardView)
-            mKeyboardView.get().setOnKeyboardActionListener(this);
         super.onInitializeInterface();
     }
 
     @Override
     public boolean onShowInputRequested(int flags, boolean configChange) {
+        if (null != mKeyboardView)
+            mKeyboardView.get().setOnKeyboardActionListener(this);
         if (null != listener) listener.onInputRequested(this);
         return true;
     }
@@ -52,11 +48,11 @@ public class SamSprungInput extends InputMethodService
     public static void setInputMethod(
             KeyboardView keyBoardView,
             Keyboard keyboard,
-            CoordinatorLayout coordinator
+            ViewGroup viewGroup
     ) {
         mKeyboardView = new SoftReference<>(keyBoardView);
         mKeyboard = keyboard;
-        parent = coordinator;
+        parent = new SoftReference<>(viewGroup);
         isNumPad = false;
     }
 
@@ -81,7 +77,9 @@ public class SamSprungInput extends InputMethodService
         InputConnection ic = getCurrentInputConnection();
         switch(primaryCode) {
             case 555:
-                parent.removeView(mKeyboardView.get());
+                if (null != listener)
+                    listener.onKeyboardHidden(true);
+                parent.get().removeView(mKeyboardView.get());
                 break;
             case -999:
                 swapKeyboardLayout();
@@ -96,7 +94,9 @@ public class SamSprungInput extends InputMethodService
                 break;
             case Keyboard.KEYCODE_DONE:
                 ic.sendKeyEvent(new KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_ENTER));
-                parent.removeView(mKeyboardView.get());
+                if (null != listener)
+                    listener.onKeyboardHidden(true);
+                parent.get().removeView(mKeyboardView.get());
                 break;
             default:
                 char code = (char)primaryCode;
@@ -127,4 +127,9 @@ public class SamSprungInput extends InputMethodService
 
     @Override
     public void swipeUp() { }
+
+    interface InputMethodListener {
+        void onInputRequested(SamSprungInput instance);
+        void onKeyboardHidden(Boolean isHidden);
+    }
 }

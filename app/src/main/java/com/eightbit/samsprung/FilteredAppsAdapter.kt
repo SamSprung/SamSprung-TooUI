@@ -74,6 +74,7 @@ class FilteredAppsAdapter(
     private val prefs: SharedPreferences
 ) : BaseAdapter() {
     private var pacMan: PackageManager = context.packageManager
+
     fun setPackages(packages: MutableList<ResolveInfo>, hide: HashSet<String>) {
         this.packages = packages
         this.hide = hide

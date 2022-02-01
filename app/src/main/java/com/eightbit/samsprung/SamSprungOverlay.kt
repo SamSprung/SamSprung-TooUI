@@ -67,6 +67,7 @@ import android.widget.LinearLayout
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.AppCompatImageView
 import androidx.coordinatorlayout.widget.CoordinatorLayout
+import androidx.core.view.isVisible
 import com.eightbit.content.ScaledContext
 import com.eightbit.view.OnSwipeTouchListener
 import com.eightbit.widget.VerticalStrokeTextView
@@ -152,7 +153,7 @@ class SamSprungOverlay : AppCompatActivity() {
                     }
                 } else {
                     bottomHandle.setBackgroundColor(color)
-                    if (bottomHandle.visibility != View.VISIBLE) {
+                    if (!bottomHandle.isVisible) {
                         handler.postDelayed({
                             runOnUiThread { bottomHandle.visibility = View.VISIBLE }
                         }, 500)

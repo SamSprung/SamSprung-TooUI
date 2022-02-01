@@ -9,5 +9,6 @@
     android:paddingBottom="4dp"
     android:paddingStart="8dp"
     android:paddingEnd="8dp"
+    android:layout_gravity="center"
     android:scaleType="centerInside"
     android:contentDescription="@string/description_icon" />
