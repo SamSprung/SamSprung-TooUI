@@ -105,6 +105,7 @@ class SamSprungOverlay : AppCompatActivity() {
         val bottomHandle = findViewById<View>(R.id.bottom_handle)
         bottomHandle.setBackgroundColor(prefs.getInt(SamSprung.prefColors,
             Color.rgb(255, 255, 255)))
+        bottomHandle.alpha = prefs.getFloat(SamSprung.prefAlphas, 1f)
         bottomHandle.visibility = View.VISIBLE
         val handler = Handler(Looper.getMainLooper())
 
@@ -153,6 +154,7 @@ class SamSprungOverlay : AppCompatActivity() {
                     }
                 } else {
                     bottomHandle.setBackgroundColor(color)
+                    bottomHandle.alpha = prefs.getFloat(SamSprung.prefAlphas, 1f)
                     if (!bottomHandle.isVisible) {
                         handler.postDelayed({
                             runOnUiThread { bottomHandle.visibility = View.VISIBLE }

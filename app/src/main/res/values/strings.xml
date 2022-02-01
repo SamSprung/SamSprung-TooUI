@@ -26,6 +26,7 @@
     <string name="color_red">Red</string>
     <string name="color_green">Green</string>
     <string name="color_blue">Blue</string>
+    <string name="color_alpha">Cover Bar Opacity</string>
 
     <string name="overlay_service">%1$s Overlay Service</string>
     <string name="display_service">%1$s Display Service</string>

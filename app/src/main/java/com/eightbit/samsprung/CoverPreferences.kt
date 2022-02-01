@@ -230,6 +230,14 @@ class CoverPreferences : AppCompatActivity() {
         val colorBlueBar = findViewById<SeekBar>(R.id.color_blue_bar)
         colorBlueBar.setProgress(color.blue, true)
 
+        val alphaFloat = prefs.getFloat(SamSprung.prefAlphas, 1f)
+        val alphaPreview = findViewById<View>(R.id.alpha_preview)
+        val alphaView = findViewById<LinearLayout>(R.id.color_alpha_view)
+        val colorAlphaBar = findViewById<SeekBar>(R.id.color_alpha_bar)
+        alphaPreview.setBackgroundColor(color)
+        alphaPreview.alpha = alphaFloat
+        colorAlphaBar.setProgress((alphaFloat * 100).toInt(), true)
+
         val colorComposite = findViewById<View>(R.id.color_composite)
         colorComposite.setBackgroundColor(color)
         colorComposite.setOnClickListener {
@@ -240,7 +248,11 @@ class CoverPreferences : AppCompatActivity() {
                 colorGreenBar.visibility = View.GONE
                 textBlue.visibility = View.GONE
                 colorBlueBar.visibility = View.GONE
+                alphaView.visibility = View.GONE
+                colorAlphaBar.visibility = View.GONE
             } else {
+                colorAlphaBar.visibility = View.VISIBLE
+                alphaView.visibility = View.VISIBLE
                 colorBlueBar.visibility = View.VISIBLE
                 textBlue.visibility = View.VISIBLE
                 colorGreenBar.visibility = View.VISIBLE
@@ -262,6 +274,7 @@ class CoverPreferences : AppCompatActivity() {
                     apply()
                 }
                 colorComposite.setBackgroundColor(newColor)
+                alphaPreview.setBackgroundColor(newColor)
             }
 
             override fun onStartTrackingTouch(seek: SeekBar) { }
@@ -281,6 +294,7 @@ class CoverPreferences : AppCompatActivity() {
                     apply()
                 }
                 colorComposite.setBackgroundColor(newColor)
+                alphaPreview.setBackgroundColor(newColor)
             }
 
             override fun onStartTrackingTouch(seek: SeekBar) { }
@@ -300,6 +314,22 @@ class CoverPreferences : AppCompatActivity() {
                     apply()
                 }
                 colorComposite.setBackgroundColor(newColor)
+                alphaPreview.setBackgroundColor(newColor)
+            }
+
+            override fun onStartTrackingTouch(seek: SeekBar) { }
+
+            override fun onStopTrackingTouch(seek: SeekBar) { }
+        })
+
+        colorAlphaBar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
+            override fun onProgressChanged(seek: SeekBar, progress: Int, fromUser: Boolean) {
+                val alpha = progress.toFloat() / 100
+                with(prefs.edit()) {
+                    putFloat(SamSprung.prefAlphas, alpha)
+                    apply()
+                }
+                alphaPreview.alpha = alpha
             }
 
             override fun onStartTrackingTouch(seek: SeekBar) { }
@@ -313,6 +343,8 @@ class CoverPreferences : AppCompatActivity() {
         colorGreenBar.visibility = View.GONE
         textBlue.visibility = View.GONE
         colorBlueBar.visibility = View.GONE
+        alphaView.visibility = View.GONE
+        colorAlphaBar.visibility = View.GONE
 
         startForegroundService(Intent(this, OnBroadcastService::class.java)
             .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK))

@@ -283,6 +283,41 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"/>
 
+            <LinearLayout
+                android:id="@+id/color_alpha_view"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:layout_marginBottom="4dp"
+                android:layout_marginStart="12dp"
+                android:layout_marginEnd="10dp"
+                android:orientation="horizontal">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="16sp"
+                android:textColor="?android:textColorPrimary"
+                android:gravity="center_vertical"
+                android:text="@string/color_alpha" />
+
+            <View
+                android:id="@+id/alpha_preview"
+                android:layout_width="40dp"
+                android:layout_height="match_parent"
+                android:layout_gravity="center_vertical"
+                android:gravity="center_vertical"
+                android:layout_marginStart="20dp"/>
+
+            </LinearLayout>
+
+            <SeekBar
+                android:id="@+id/color_alpha_bar"
+                android:max="100"
+                android:progress="1"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"/>
+
             <View
                 android:layout_width="match_parent"
                 android:layout_height="1dp"

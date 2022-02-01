@@ -126,6 +126,7 @@ class SamSprung : Application() {
         const val autoRotate: String = "autoRotate"
         const val prefSecure: String = "prefSecure"
         const val prefColors: String = "prefColors"
+        const val prefAlphas: String = "prefAlphas"
         const val prefWarned: String = "prefWarned"
 
         var mContext: SoftReference<Context>? = null
