@@ -126,12 +126,6 @@ class SamSprungDrawer : AppCompatActivity(),
     override fun onCreate(savedInstanceState: Bundle?) {
         setShowWhenLocked(true)
 
-        if (null != DisplayListener.getFakeOrientationLock()
-            && DisplayListener.getFakeOrientationLock()!!.isAttachedToWindow) {
-            (SamSprung.getCoverContext()?.getSystemService(Context.WINDOW_SERVICE)
-                    as WindowManager).removeView(DisplayListener.getFakeOrientationLock())
-        }
-
         super.onCreate(savedInstanceState)
         prefs = getSharedPreferences(SamSprung.prefsValue, MODE_PRIVATE)
         supportActionBar?.hide()
@@ -145,7 +139,7 @@ class SamSprungDrawer : AppCompatActivity(),
         oReceiver = object : BroadcastReceiver() {
             override fun onReceive(context: Context?, intent: Intent) {
                 if (intent.action == Intent.ACTION_SCREEN_OFF) {
-                    finish()
+                    terminate()
                 }
             }
         }
@@ -464,7 +458,7 @@ class SamSprungDrawer : AppCompatActivity(),
 
         SamSprungInput.setInputListener(object : SamSprungInput.InputMethodListener {
             override fun onInputRequested(instance: SamSprungInput) {
-                if (!mKeyboardView!!.isShown)
+                if (null == mKeyboardView?.parent)
                     searchWrapper.addView(mKeyboardView, 0)
             }
 
@@ -502,7 +496,7 @@ class SamSprungDrawer : AppCompatActivity(),
                         if (searchWrapper.isVisible)
                             searchWrapper.visibility = View.GONE
                     } else {
-                        finish()
+                        terminate()
                         startActivity(
                             Intent(applicationContext, SamSprungOverlay::class.java),
                             ActivityOptions.makeBasic().setLaunchDisplayId(1).toBundle()
@@ -528,7 +522,7 @@ class SamSprungDrawer : AppCompatActivity(),
                     if (searchWrapper.isVisible)
                         searchWrapper.visibility = View.GONE
                 } else {
-                    finish()
+                    terminate()
                     startActivity(
                         Intent(applicationContext, SamSprungOverlay::class.java),
                         ActivityOptions.makeBasic().setLaunchDisplayId(1).toBundle()
@@ -551,7 +545,7 @@ class SamSprungDrawer : AppCompatActivity(),
                 if (launcherView.layoutManager is LinearLayoutManager) {
                     if ((launcherView.layoutManager as LinearLayoutManager)
                             .findFirstCompletelyVisibleItemPosition() == 0) {
-                        finish()
+                        terminate()
                         startActivity(
                             Intent(this@SamSprungDrawer, SamSprungWidget::class.java),
                             ActivityOptions.makeBasic().setLaunchDisplayId(1).toBundle()
@@ -562,7 +556,7 @@ class SamSprungDrawer : AppCompatActivity(),
                 if (launcherView.layoutManager is GridLayoutManager) {
                     if ((launcherView.layoutManager as GridLayoutManager)
                             .findFirstCompletelyVisibleItemPosition() == 0) {
-                        finish()
+                        terminate()
                         startActivity(
                             Intent(this@SamSprungDrawer, SamSprungWidget::class.java),
                             ActivityOptions.makeBasic().setLaunchDisplayId(1).toBundle()
@@ -575,41 +569,13 @@ class SamSprungDrawer : AppCompatActivity(),
         })
     }
 
-    private fun fakeOrientationLock() {
-        val orientationChanger = LinearLayout(SamSprung.getCoverContext())
-        val orientationLayout = WindowManager.LayoutParams(
-            WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY,
-                    WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL,
-            PixelFormat.TRANSPARENT
-        )
-        orientationLayout.screenOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
-        val windowManager = SamSprung.getCoverContext()?.getSystemService(
-            Context.WINDOW_SERVICE) as WindowManager
-        windowManager.addView(orientationChanger, orientationLayout)
-        orientationChanger.visibility = View.VISIBLE
-        if (prefs.getInt(SamSprung.autoRotate, 1) == 1) {
-            Handler(Looper.getMainLooper()).postDelayed({
-                runOnUiThread {
-                    windowManager.removeView(orientationChanger)
-                    requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
-                    finish()
-                }
-            }, 100)
-        } else {
-            DisplayListener.setFakeOrientationLock(orientationChanger)
-            finish()
-        }
-    }
-
     @SuppressLint("InflateParams")
     @Suppress("DEPRECATION")
     private fun getKeyboard (parent: ViewGroup, displayContext: Context) : KeyboardView {
-        val mKeyboard = Keyboard(parent.context, R.xml.keyboard_qwerty)
         val mKeyboardView = LayoutInflater.from(displayContext)
             .inflate(R.layout.keyboard_view, null) as KeyboardView
         mKeyboardView.isPreviewEnabled = false
-        mKeyboardView.keyboard = mKeyboard
-        SamSprungInput.setInputMethod(mKeyboardView, mKeyboard, parent)
+        SamSprungInput.setInputMethod(parent, mKeyboardView)
         AccessibilityObserver.enableKeyboard(displayContext)
         mKeyboardView.elevation = 1F
         return mKeyboardView
@@ -753,10 +719,26 @@ class SamSprungDrawer : AppCompatActivity(),
                 Intent.FLAG_ACTIVITY_NO_ANIMATION
         startActivity(coverIntent.putExtras(extras), options.toBundle())
 
-        fakeOrientationLock()
-
-        val serviceIntent = Intent(this, DisplayListener::class.java)
-        startForegroundService(serviceIntent.putExtras(extras))
+        val orientationChanger = LinearLayout(SamSprung.getCoverContext())
+        val orientationLayout = WindowManager.LayoutParams(
+            WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY,
+            WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL,
+            PixelFormat.TRANSPARENT
+        )
+        orientationLayout.screenOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
+        val windowManager = SamSprung.getCoverContext()?.getSystemService(
+            Context.WINDOW_SERVICE) as WindowManager
+        windowManager.addView(orientationChanger, orientationLayout)
+        orientationChanger.visibility = View.VISIBLE
+        Handler(Looper.getMainLooper()).postDelayed({
+            runOnUiThread {
+                windowManager.removeView(orientationChanger)
+                requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
+                terminate()
+                startForegroundService(Intent(this,
+                    AppDisplayListener::class.java).putExtras(extras))
+            }
+        }, 100)
     }
 
     override fun onNoticeClicked(notice: SamSprungNotice, position: Int) {
@@ -765,7 +747,7 @@ class SamSprungDrawer : AppCompatActivity(),
 
             startIntentSender(notice.getIntentSender(),
                 null, 0, 0, 0)
-            startForegroundService(Intent(this, DisplayListener::class.java)
+            startForegroundService(Intent(this, AppDisplayListener::class.java)
                 .putExtra("launchPackage", notice.getIntentSender()!!.creatorPackage))
         }
     }
@@ -812,9 +794,13 @@ class SamSprungDrawer : AppCompatActivity(),
         }
     }
 
+    private fun terminate() {
+        AccessibilityObserver.disableKeyboard(this)
+        finish()
+    }
+
     override fun onDestroy() {
         super.onDestroy()
-        AccessibilityObserver.disableKeyboard(this)
         try {
             if (this::oReceiver.isInitialized)
                 unregisterReceiver(oReceiver)

@@ -65,7 +65,7 @@ open class OnSwipeTouchListener(ctx: Context) : OnTouchListener {
     private val gestureDetector: GestureDetector
 
     companion object {
-        private const val SWIPE_THRESHOLD = 200
+        private const val SWIPE_THRESHOLD = 150
         private const val SWIPE_VELOCITY_THRESHOLD = 100
     }
 

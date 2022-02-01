@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Keyboard xmlns:android="http://schemas.android.com/apk/res/android"
-    android:keyWidth="10%p"
+    android:keyWidth="40%p"
     android:keyHeight="40dp"
     android:horizontalGap="0px"
     android:verticalGap="0px">
@@ -41,13 +41,13 @@
         <Key android:codes="63,33,58" android:keyLabel="\? ! :" android:keyEdgeFlags="right"/>
     </Row>
     <Row>
-        <Key android:codes="44" android:keyLabel="," android:keyWidth="10%p" android:keyEdgeFlags="left"/>
-        <Key android:codes="47" android:keyLabel="/" android:keyWidth="10%p" />
-        <Key android:codes="32" android:keyIcon="@drawable/ic_baseline_space_bar_16" android:keyWidth="40%p" android:isRepeatable="true"/>
-        <Key android:codes="-5" android:keyIcon="@drawable/ic_baseline_keyboard_backspace_16" android:keyWidth="20%p" android:isRepeatable="true"/>
-        <Key android:codes="-4" android:keyLabel="DONE" android:keyWidth="20%p" android:keyEdgeFlags="right"/>
+        <Key android:codes="44" android:keyLabel="," android:keyEdgeFlags="left"/>
+        <Key android:codes="47" android:keyLabel="/" />
+        <Key android:codes="32" android:keyIcon="@drawable/ic_baseline_space_bar_16" android:keyWidth="120%p" android:isRepeatable="true"/>
+        <Key android:codes="-5" android:keyIcon="@drawable/ic_baseline_keyboard_backspace_16" android:keyWidth="60%p" android:isRepeatable="true"/>
+        <Key android:codes="-4" android:keyLabel="DONE" android:keyWidth="60%p" android:keyEdgeFlags="right"/>
     </Row>
-    <Row android:rowEdgeFlags="bottom" android:keyWidth="30%p" android:keyHeight="30dp" android:horizontalGap="10%p">
+    <Row android:rowEdgeFlags="bottom" android:keyWidth="60%p" android:keyHeight="30dp" android:horizontalGap="10%p">
         <Key android:codes="-999" android:keyIcon="@drawable/ic_baseline_navigate_before_24" android:keyEdgeFlags="left" />
         <Key android:codes="555" android:keyIcon="@drawable/ic_baseline_close_24"/>
         <Key android:codes="-999" android:keyIcon="@drawable/ic_baseline_navigate_next_24" android:keyEdgeFlags="right"/>

@@ -83,7 +83,7 @@ import java.io.File
 import java.lang.ref.SoftReference
 
 
-class DisplayListener : Service() {
+class AppDisplayListener : Service() {
 
     private lateinit var prefs: SharedPreferences
 
@@ -96,36 +96,32 @@ class DisplayListener : Service() {
 
     private lateinit var bottomSheetBehavior: BottomSheetBehavior<View>
 
-    companion object {
-        private var orientationLayout : SoftReference<LinearLayout>? = null
-        fun setFakeOrientationLock(orientationChanger : LinearLayout) {
-            orientationLayout = SoftReference(orientationChanger)
-        }
-        fun getFakeOrientationLock() : LinearLayout? {
-            return if (orientationLayout != null)
-                orientationLayout!!.get() else null
-        }
-    }
-
     override fun onBind(intent: Intent?): IBinder? {
         return null
     }
 
     @SuppressLint("InflateParams", "ClickableViewAccessibility")
-    override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+    override fun onStartCommand(intent: Intent, flags: Int, startId: Int): Int {
         super.onStartCommand(intent, flags, startId)
+
+        val launchPackage = intent.getStringExtra("launchPackage")
+        val launchActivity = intent.getStringExtra("launchActivity")
+
+        if (null == launchPackage) {
+            try {
+                stopForeground(true)
+            } catch (ignored: Exception) { }
+            try {
+                stopSelf()
+            } catch (ignored: Exception) { }
+            return START_NOT_STICKY
+        }
+
         prefs = getSharedPreferences(SamSprung.prefsValue, MODE_PRIVATE)
-
-        val launchPackage = intent?.getStringExtra("launchPackage")
-        val launchActivity = intent?.getStringExtra("launchActivity")
-
         @Suppress("DEPRECATION")
         mKeyguardLock = (getSystemService(Context.KEYGUARD_SERVICE)
                 as KeyguardManager).newKeyguardLock("cover_lock")
         displayManager = getSystemService(Context.DISPLAY_SERVICE) as DisplayManager
-
-        if (null == launchPackage)
-            return dismissDisplayService(displayManager, mKeyguardLock)
 
         showForegroundNotification(startId)
 
@@ -146,7 +142,7 @@ class DisplayListener : Service() {
             override fun onDisplayChanged(display: Int) {
                 if (display == 0) {
                     dismissDisplayListener(displayManager, mKeyguardLock)
-                    restoreActivityDisplay(launchPackage, launchActivity, display, false)
+                    restoreActivityDisplay(launchPackage!!, launchActivity, display, false)
                 } else {
                     if (SamSprung.isKeyguardLocked)
                         @Suppress("DEPRECATION") mKeyguardLock.disableKeyguard()
@@ -198,19 +194,19 @@ class DisplayListener : Service() {
                         bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
                     }
                     menuRecent.setOnClickListener {
-                        resetRecentActivities(launchPackage, launchActivity)
+                        resetRecentActivities(launchPackage!!, launchActivity)
                         dismissDisplayListener(displayManager, mKeyguardLock)
                         startActivity(
-                            Intent(this@DisplayListener, SamSprungDrawer::class.java)
+                            Intent(this@AppDisplayListener, SamSprungDrawer::class.java)
                                 .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK),
                             ActivityOptions.makeBasic().setLaunchDisplayId(1).toBundle()
                         )
                     }
                     menuHome.setOnClickListener {
-                        resetRecentActivities(launchPackage, launchActivity)
+                        resetRecentActivities(launchPackage!!, launchActivity)
                         dismissDisplayListener(displayManager, mKeyguardLock)
                         startActivity(
-                            Intent(this@DisplayListener, SamSprungOverlay::class.java)
+                            Intent(this@AppDisplayListener, SamSprungOverlay::class.java)
                                 .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK),
                             ActivityOptions.makeBasic().setLaunchDisplayId(1).toBundle()
                         )
@@ -219,7 +215,7 @@ class DisplayListener : Service() {
                         if (hasAccessibility()) {
                             AccessibilityObserver.executeButtonBack()
                         } else {
-                            restoreActivityDisplay(launchPackage, launchActivity, 1, false)
+                            restoreActivityDisplay(launchPackage!!, launchActivity, 1, false)
                         }
                     }
                 } else if (newState == BottomSheetBehavior.STATE_COLLAPSED) {
@@ -233,7 +229,7 @@ class DisplayListener : Service() {
         bottomSheetBehavior.isHideable = false
 
         floatView.findViewById<View>(R.id.bottom_sheet)!!.setOnTouchListener(
-            object: OnSwipeTouchListener(this@DisplayListener) {
+            object: OnSwipeTouchListener(this@AppDisplayListener) {
             override fun onSwipeTop() : Boolean {
                 bottomSheetBehavior.state = BottomSheetBehavior.STATE_EXPANDED
                 return true
@@ -246,7 +242,7 @@ class DisplayListener : Service() {
 
         (displayContext.getSystemService(WINDOW_SERVICE)
                 as WindowManager).addView(floatView, params)
-        return START_STICKY
+        return START_STICKY_COMPATIBILITY
     }
 
     private fun restoreActivityDisplay(
@@ -269,7 +265,7 @@ class DisplayListener : Service() {
         }
     }
 
-    private fun resetRecentActivities(pkg: String, cls: String?,) {
+    private fun resetRecentActivities(pkg: String, cls: String?) {
         restoreActivityDisplay(pkg, cls, 0, true)
 
         val homeLauncher = Intent(Intent.ACTION_MAIN)
@@ -284,12 +280,10 @@ class DisplayListener : Service() {
     @SuppressLint("InflateParams")
     @Suppress("DEPRECATION")
     private fun getKeyboard (parent: CoordinatorLayout, displayContext: Context) : KeyboardView {
-        val mKeyboard = Keyboard(parent.context, R.xml.keyboard_qwerty)
         val mKeyboardView = LayoutInflater.from(displayContext)
             .inflate(R.layout.keyboard_view, null) as KeyboardView
         mKeyboardView.isPreviewEnabled = false
-        mKeyboardView.keyboard = mKeyboard
-        SamSprungInput.setInputMethod(mKeyboardView, mKeyboard, parent)
+        SamSprungInput.setInputMethod(parent, mKeyboardView)
         AccessibilityObserver.enableKeyboard(displayContext)
         return mKeyboardView
     }
@@ -298,7 +292,7 @@ class DisplayListener : Service() {
     private fun showForegroundNotification(startId: Int) {
         var mNotificationManager: NotificationManager? = null
         val pendingIntent = PendingIntent.getService(this, 0,
-            Intent(this, DisplayListener::class.java),
+            Intent(this, AppDisplayListener::class.java),
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S)
                 PendingIntent.FLAG_IMMUTABLE else 0)
         val iconNotification = BitmapFactory.decodeResource(resources, R.mipmap.sprung_icon)
@@ -336,7 +330,8 @@ class DisplayListener : Service() {
     ) {
         if (hasAccessibility())
             AccessibilityObserver.disableKeyboard(this)
-        val windowService = SamSprung.getCoverContext()?.getSystemService(Context.WINDOW_SERVICE) as WindowManager
+        val windowService = SamSprung.getCoverContext()?.getSystemService(
+            Context.WINDOW_SERVICE) as WindowManager
         if (this::floatView.isInitialized && floatView.isAttachedToWindow)
             windowService.removeView(floatView)
         if (null != mDisplayListener) {
@@ -344,24 +339,15 @@ class DisplayListener : Service() {
         }
         if (SamSprung.isKeyguardLocked)
             @Suppress("DEPRECATION") mKeyguardLock.reenableKeyguard()
-        try {
-            windowService.removeView(getFakeOrientationLock())
-        } catch (ignored: Exception) { }
-        try {
-            stopForeground(true)
-        } catch (ignored: Exception) { }
-        try {
-            stopSelf()
-        } catch (ignored: Exception) { }
     }
 
-    private fun dismissDisplayService(
-        displayManager: DisplayManager,
+    override fun onDestroy() {
         @Suppress("DEPRECATION")
-        mKeyguardLock: KeyguardManager.KeyguardLock
-    ): Int {
+        mKeyguardLock = (getSystemService(Context.KEYGUARD_SERVICE)
+                as KeyguardManager).newKeyguardLock("cover_lock")
+        displayManager = getSystemService(Context.DISPLAY_SERVICE) as DisplayManager
         dismissDisplayListener(displayManager, mKeyguardLock)
-        return START_NOT_STICKY
+        super.onDestroy()
     }
 
     private fun hasAccessibility(): Boolean {

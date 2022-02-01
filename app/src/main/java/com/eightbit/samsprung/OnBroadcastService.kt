@@ -71,7 +71,7 @@ class OnBroadcastService : Service() {
         @SuppressLint("NotifyDataSetChanged")
         override fun onReceive(context: Context, intent: Intent) {
             if (Intent.ACTION_SCREEN_ON == intent.action) {
-                context.startService(Intent(context, DisplayListener::class.java))
+                context.startService(Intent(context, AppDisplayListener::class.java))
                 context.startActivity(
                     Intent(context.applicationContext, SamSprungOverlay::class.java)
                         .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK),
@@ -101,7 +101,7 @@ class OnBroadcastService : Service() {
             applicationContext.registerReceiver(onReceiver, it)
         }
 
-        return START_STICKY
+        return START_STICKY_COMPATIBILITY
     }
 
     @SuppressLint("LaunchActivityFromNotification")

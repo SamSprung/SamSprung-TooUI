@@ -17,7 +17,6 @@ public class SamSprungInput extends InputMethodService
         implements KeyboardView.OnKeyboardActionListener {
 
     private static InputMethodListener listener;
-    private static SamSprungInput instance;
 
     private static SoftReference<KeyboardView> mKeyboardView;
     private static Keyboard mKeyboard;
@@ -29,14 +28,17 @@ public class SamSprungInput extends InputMethodService
 
     @Override
     public void onInitializeInterface() {
+        mKeyboard = new Keyboard(ScaledContext.cover(this), R.xml.keyboard_qwerty);
         mNumPad = new Keyboard(ScaledContext.cover(this), R.xml.keyboard_numpad);
         super.onInitializeInterface();
     }
 
     @Override
     public boolean onShowInputRequested(int flags, boolean configChange) {
-        if (null != mKeyboardView)
+        if (null != mKeyboardView) {
+            mKeyboardView.get().setKeyboard(mKeyboard);
             mKeyboardView.get().setOnKeyboardActionListener(this);
+        }
         if (null != listener) listener.onInputRequested(this);
         return true;
     }
@@ -46,13 +48,10 @@ public class SamSprungInput extends InputMethodService
     }
 
     public static void setInputMethod(
-            KeyboardView keyBoardView,
-            Keyboard keyboard,
-            ViewGroup viewGroup
+            ViewGroup viewGroup, KeyboardView keyBoardView
     ) {
-        mKeyboardView = new SoftReference<>(keyBoardView);
-        mKeyboard = keyboard;
         parent = new SoftReference<>(viewGroup);
+        mKeyboardView = new SoftReference<>(keyBoardView);
         isNumPad = false;
     }
 
@@ -69,7 +68,12 @@ public class SamSprungInput extends InputMethodService
             isNumPad = true;
             mKeyboardView.get().setKeyboard(mNumPad);
         }
+    }
 
+    private void disconnectKeyboard() {
+        if (null != listener)
+            listener.onKeyboardHidden(true);
+        parent.get().removeView(mKeyboardView.get());
     }
 
     @Override
@@ -77,9 +81,7 @@ public class SamSprungInput extends InputMethodService
         InputConnection ic = getCurrentInputConnection();
         switch(primaryCode) {
             case 555:
-                if (null != listener)
-                    listener.onKeyboardHidden(true);
-                parent.get().removeView(mKeyboardView.get());
+                disconnectKeyboard();
                 break;
             case -999:
                 swapKeyboardLayout();
@@ -94,9 +96,7 @@ public class SamSprungInput extends InputMethodService
                 break;
             case Keyboard.KEYCODE_DONE:
                 ic.sendKeyEvent(new KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_ENTER));
-                if (null != listener)
-                    listener.onKeyboardHidden(true);
-                parent.get().removeView(mKeyboardView.get());
+                disconnectKeyboard();
                 break;
             default:
                 char code = (char)primaryCode;
