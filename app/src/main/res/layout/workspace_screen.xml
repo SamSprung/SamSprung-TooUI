@@ -26,4 +26,4 @@
     launcher:shortAxisStartPadding="0dp"
     launcher:shortAxisEndPadding="0dp"
     launcher:shortAxisCells="4"
-    launcher:longAxisCells="6" />
+    launcher:longAxisCells="5" />

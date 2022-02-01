@@ -70,12 +70,14 @@ class AccessibilityObserver : AccessibilityService() {
         fun executeButtonBack() {
             getObserver()?.performGlobalAction(GLOBAL_ACTION_BACK)
         }
+        private var cachedInputMethod: String? = null
         private fun getInputMethod(context: Context): String {
             return Settings.Secure.getString(context.contentResolver,
                 Settings.Secure.DEFAULT_INPUT_METHOD)
         }
         fun enableKeyboard(context: Context) {
             if (null == getObserver()) return
+            cachedInputMethod = getInputMethod(context)
             val mInputMethodProperties = (context.getSystemService(INPUT_METHOD_SERVICE)
                     as InputMethodManager).enabledInputMethodList
             for (i in 0 until mInputMethodProperties.size) {
@@ -85,12 +87,9 @@ class AccessibilityObserver : AccessibilityService() {
                 }
             }
         }
-        fun disableKeyboard(context: Context) {
-            val prefs = context.getSharedPreferences(SamSprung.prefsValue, MODE_PRIVATE)
-            if (null == getObserver()) return
-                val setOrSammy = prefs.getString(SamSprung.prefInputs,
-                    "com.samsung.android.honeyboard/.service.HoneyBoardService")
-                getObserver()!!.softKeyboardController.switchToInputMethod(setOrSammy!!)
+        fun disableKeyboard() {
+            if (null == getObserver() || null == cachedInputMethod) return
+                getObserver()!!.softKeyboardController.switchToInputMethod(cachedInputMethod!!)
         }
     }
 

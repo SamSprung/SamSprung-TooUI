@@ -427,20 +427,9 @@ class CoverPreferences : AppCompatActivity() {
         if (this::accessibility.isInitialized)
             accessibility.isChecked = hasAccessibility()
         keyboard.visibility = if (hasAccessibility()) View.VISIBLE else View.GONE
-        with(prefs.edit()) {
-            putString(SamSprung.prefInputs, Settings.Secure.getString(
-                contentResolver, Settings.Secure.DEFAULT_INPUT_METHOD))
-            apply()
-        }
     }
     private val keyboardLauncher = registerForActivityResult(
-        ActivityResultContracts.StartActivityForResult()) {
-        with(prefs.edit()) {
-            putString(SamSprung.prefInputs, Settings.Secure.getString(
-                contentResolver, Settings.Secure.DEFAULT_INPUT_METHOD))
-            apply()
-        }
-    }
+        ActivityResultContracts.StartActivityForResult()) { }
 
     private val overlayLauncher = registerForActivityResult(
         ActivityResultContracts.StartActivityForResult()) {
@@ -714,26 +703,34 @@ class CoverPreferences : AppCompatActivity() {
             findViewById<CoordinatorLayout>(R.id.coordinator).background =
                 WallpaperManager.getInstance(this).drawable
         }
-        val view: View = layoutInflater.inflate(R.layout.setup_notice_view, null)
-        val dialog = AlertDialog.Builder(
-            ContextThemeWrapper(this, R.style.DialogTheme_NoActionBar)
-        )
-        val setupDialog: Dialog = dialog.setView(view).show()
-        view.findViewById<AppCompatButton>(R.id.setup_confirm).setOnClickListener {
-            startActivity(Intent(Intent.ACTION_VIEW,
-                Uri.parse("https://github.com/SamSprung/SamSprung-TooUI/wiki")))
-        }
-        view.findViewById<AppCompatButton>(R.id.setup_confirm).setOnClickListener {
+        if (!prefs.getBoolean(SamSprung.prefWarned, false)) {
+            val view: View = layoutInflater.inflate(R.layout.setup_notice_view, null)
+            val dialog = AlertDialog.Builder(
+                ContextThemeWrapper(this, R.style.DialogTheme_NoActionBar)
+            )
+            val setupDialog: Dialog = dialog.setView(view).show()
+            view.findViewById<AppCompatButton>(R.id.setup_confirm).setOnClickListener {
+                startActivity(Intent(Intent.ACTION_VIEW,
+                    Uri.parse("https://github.com/SamSprung/SamSprung-TooUI/wiki")))
+            }
+            view.findViewById<AppCompatButton>(R.id.setup_confirm).setOnClickListener {
+                with(prefs.edit()) {
+                    putBoolean(SamSprung.prefWarned, true)
+                    apply()
+                }
+                verifyCompatibility()
+                setupDialog.dismiss()
+            }
+            setupDialog.setOnCancelListener {
+                verifyCompatibility()
+            }
+            setupDialog.window?.setBackgroundDrawableResource(R.drawable.rounded_layout)
+            setupDialog.window?.setLayout(
+                ViewGroup.LayoutParams.WRAP_CONTENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT
+            )
+        } else {
             verifyCompatibility()
-            setupDialog.dismiss()
         }
-        setupDialog.setOnCancelListener {
-            verifyCompatibility()
-        }
-        setupDialog.window?.setBackgroundDrawableResource(R.drawable.rounded_layout)
-        setupDialog.window?.setLayout(
-            ViewGroup.LayoutParams.WRAP_CONTENT,
-            ViewGroup.LayoutParams.WRAP_CONTENT
-        )
     }
 }

@@ -24,6 +24,7 @@ import android.appwidget.AppWidgetProviderInfo
 import android.content.*
 import android.content.pm.PackageManager
 import android.database.ContentObserver
+import android.hardware.display.DisplayManager
 import android.os.*
 import android.os.MessageQueue.IdleHandler
 import android.text.Selection
@@ -84,35 +85,13 @@ class SamSprungWidget : AppCompatActivity(), View.OnClickListener, OnLongClickLi
     private var mLocaleChanged = false
     private var mSavedInstanceState: Bundle? = null
     private var mBinder: DesktopBinder? = null
-    private val requestPickAppWidget = registerForActivityResult(
-        ActivityResultContracts.StartActivityForResult()) { result: ActivityResult ->
-        mWaitingForResult = false
-        if (result.resultCode == RESULT_CANCELED && result.data != null) {
-            // Clean up the appWidgetId if we canceled
-            val appWidgetId = result.data!!.getIntExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, -1)
-            if (appWidgetId != -1) {
-                appWidgetHost!!.deleteAppWidgetId(appWidgetId)
-            }
-        } else {
-            addAppWidget(result.data)
-        }
-    }
-    private val requestCreateAppWidget = registerForActivityResult(
-        ActivityResultContracts.StartActivityForResult()) { result: ActivityResult ->
-        mWaitingForResult = false
-        completeAddAppWidget(
-            result.data,
-            mAddItemCellInfo,
-            !isWorkspaceLocked
-        )
-    }
 
     @SuppressLint("ClickableViewAccessibility")
     override fun onCreate(savedInstanceState: Bundle?) {
         setShowWhenLocked(true)
         supportActionBar?.hide()
         super.onCreate(savedInstanceState)
-        ScaledContext.cover(this).setTheme(R.style.Theme_AppCompat)
+        SamSprung.getCoverContext()?.setTheme(R.style.Theme_AppCompat)
         mAppWidgetManager = AppWidgetManager.getInstance(applicationContext)
         appWidgetHost = CoverWidgetHost(
             applicationContext,
@@ -420,6 +399,29 @@ class SamSprungWidget : AppCompatActivity(), View.OnClickListener, OnLongClickLi
         contentResolver.unregisterContentObserver(mObserver)
     }
 
+    private val requestPickAppWidget = registerForActivityResult(
+        ActivityResultContracts.StartActivityForResult()) { result: ActivityResult ->
+        mWaitingForResult = false
+        if (result.resultCode == RESULT_CANCELED && result.data != null) {
+            // Clean up the appWidgetId if we canceled
+            val appWidgetId = result.data!!.getIntExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, -1)
+            if (appWidgetId != -1) {
+                appWidgetHost!!.deleteAppWidgetId(appWidgetId)
+            }
+        } else {
+            addAppWidget(result.data)
+        }
+    }
+    private val requestCreateAppWidget = registerForActivityResult(
+        ActivityResultContracts.StartActivityForResult()) { result: ActivityResult ->
+        mWaitingForResult = false
+        completeAddAppWidget(
+            result.data,
+            mAddItemCellInfo,
+            !isWorkspaceLocked
+        )
+    }
+
     private fun addAppWidget(data: Intent?) {
         mWaitingForResult = true
         val appWidgetId = data!!.getIntExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, -1)
@@ -458,7 +460,7 @@ class SamSprungWidget : AppCompatActivity(), View.OnClickListener, OnLongClickLi
             ) else null
             cellInfo = workspace!!.findAllVacantCells(occupied)
             if (!cellInfo!!.findCellForSpan(xy, spanX, spanY)) {
-                Toast.makeText(ScaledContext.cover(this), getString(R.string.out_of_space), Toast.LENGTH_SHORT).show()
+                Toast.makeText(ScaledContext.wrap(this), getString(R.string.out_of_space), Toast.LENGTH_SHORT).show()
                 return false
             }
         }

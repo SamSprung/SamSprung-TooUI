@@ -67,6 +67,7 @@
         <activity
             android:name=".SamSprungOverlay"
             android:theme="@style/LauncherTheme.NoActionBar"
+            android:configChanges="orientation|screenLayout|screenSize|smallestScreenSize"
             android:exported="true"
             android:showOnLockScreen="true"
             android:showWhenLocked="true">
@@ -74,6 +75,7 @@
         </activity>
         <activity
             android:name=".SamSprungDrawer"
+            android:configChanges="orientation|screenLayout|screenSize|smallestScreenSize"
             android:exported="true"
             android:launchMode="singleTop"
             android:showOnLockScreen="true"
@@ -86,6 +88,7 @@
         <activity
             android:name=".SamSprungWidget"
             android:theme="@style/Theme.AppCompat"
+            android:configChanges="orientation|screenLayout|screenSize|smallestScreenSize"
             android:showOnLockScreen="true"
             android:showWhenLocked="true">
             <meta-data android:name="com.samsung.android.activity.showWhenLocked" android:value="true"/>

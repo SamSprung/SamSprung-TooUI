@@ -33,7 +33,7 @@ public class SamSprungInput extends InputMethodService
 
     @Override
     public void onInitializeInterface() {
-        mNumPad = new Keyboard(ScaledContext.wrap(this), R.xml.keyboard_numpad);
+        mNumPad = new Keyboard(ScaledContext.cover(this), R.xml.keyboard_numpad);
         if (null != mKeyboardView)
             mKeyboardView.get().setOnKeyboardActionListener(this);
         super.onInitializeInterface();

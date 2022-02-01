@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Keyboard xmlns:android="http://schemas.android.com/apk/res/android"
-    android:keyWidth="15.8%p"
-    android:horizontalGap="0px"
-    android:verticalGap="0px"
-    android:keyHeight="30dp">
+    android:keyWidth="60%p"
+    android:keyHeight="30dp"
+    android:horizontalGap="10%p"
+    android:verticalGap="0px">
     <Row android:rowEdgeFlags="top">
         <Key android:codes="49" android:keyLabel="1" android:keyEdgeFlags="left" />
         <Key android:codes="50" android:keyLabel="2"/>
@@ -19,10 +19,10 @@
         <Key android:codes="56" android:keyLabel="8"/>
         <Key android:codes="57" android:keyLabel="9" android:keyEdgeFlags="right"/>
     </Row>
-    <Row android:horizontalGap="15.8%p">
+    <Row android:horizontalGap="68%p">
         <Key android:codes="48" android:keyLabel="0" android:keyEdgeFlags="left|right" />
     </Row>
-    <Row android:rowEdgeFlags="bottom" android:keyWidth="15.8%p" android:keyHeight="24dp">
+    <Row android:rowEdgeFlags="bottom">
         <Key android:codes="-999" android:keyIcon="@drawable/ic_baseline_navigate_before_24" android:keyEdgeFlags="left" />
         <Key android:codes="555" android:keyIcon="@drawable/ic_baseline_close_24"/>
         <Key android:codes="-999" android:keyIcon="@drawable/ic_baseline_navigate_next_24" android:keyEdgeFlags="right"/>

@@ -76,11 +76,11 @@ import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.core.app.NotificationCompat
 import androidx.core.content.ContextCompat
 import androidx.core.view.isVisible
-import com.eightbit.content.ScaledContext
 import com.eightbit.view.OnSwipeTouchListener
 import com.eightbit.widget.VerticalStrokeTextView
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import java.io.File
+import java.lang.ref.SoftReference
 
 
 class DisplayListener : Service() {
@@ -95,6 +95,17 @@ class DisplayListener : Service() {
     private lateinit var displayManager: DisplayManager
 
     private lateinit var bottomSheetBehavior: BottomSheetBehavior<View>
+
+    companion object {
+        private var orientationLayout : SoftReference<LinearLayout>? = null
+        fun setFakeOrientationLock(orientationChanger : LinearLayout) {
+            orientationLayout = SoftReference(orientationChanger)
+        }
+        fun getFakeOrientationLock() : LinearLayout? {
+            return if (orientationLayout != null)
+                orientationLayout!!.get() else null
+        }
+    }
 
     override fun onBind(intent: Intent?): IBinder? {
         return null
@@ -118,7 +129,7 @@ class DisplayListener : Service() {
 
         showForegroundNotification(startId)
 
-        val displayContext = ScaledContext.wrap(buildDisplayContext(1))
+        val displayContext = SamSprung.getCoverContext()!!
         floatView = LayoutInflater.from(displayContext).inflate(R.layout.navigation_menu, null)
         val params = WindowManager.LayoutParams(
             WindowManager.LayoutParams.MATCH_PARENT,
@@ -185,7 +196,7 @@ class DisplayListener : Service() {
                         resetRecentActivities(launchPackage, launchActivity)
                         dismissDisplayListener(displayManager, mKeyguardLock)
                         startActivity(
-                            Intent(buildDisplayContext(1), SamSprungDrawer::class.java)
+                            Intent(this@DisplayListener, SamSprungDrawer::class.java)
                                 .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK),
                             ActivityOptions.makeBasic().setLaunchDisplayId(1).toBundle()
                         )
@@ -194,7 +205,7 @@ class DisplayListener : Service() {
                         resetRecentActivities(launchPackage, launchActivity)
                         dismissDisplayListener(displayManager, mKeyguardLock)
                         startActivity(
-                            Intent(buildDisplayContext(1), SamSprungOverlay::class.java)
+                            Intent(this@DisplayListener, SamSprungOverlay::class.java)
                                 .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK),
                             ActivityOptions.makeBasic().setLaunchDisplayId(1).toBundle()
                         )
@@ -274,7 +285,7 @@ class DisplayListener : Service() {
         mKeyboardView.isPreviewEnabled = false
         mKeyboardView.keyboard = mKeyboard
         SamSprungInput.setInputMethod(mKeyboardView, mKeyboard, parent)
-        AccessibilityObserver.enableKeyboard(applicationContext)
+        AccessibilityObserver.enableKeyboard(displayContext)
         return mKeyboardView
     }
 
@@ -319,24 +330,18 @@ class DisplayListener : Service() {
         mKeyguardLock: KeyguardManager.KeyguardLock
     ) {
         if (hasAccessibility())
-            AccessibilityObserver.disableKeyboard(applicationContext)
+            AccessibilityObserver.disableKeyboard()
+        val windowService = SamSprung.getCoverContext()?.getSystemService(Context.WINDOW_SERVICE) as WindowManager
         if (this::floatView.isInitialized && floatView.isAttachedToWindow)
-            (buildDisplayContext(1).getSystemService(WINDOW_SERVICE)
-                    as WindowManager).removeView(floatView)
+            windowService.removeView(floatView)
         if (null != mDisplayListener) {
             displayManager.unregisterDisplayListener(mDisplayListener)
         }
-        if (prefs.getInt(SamSprung.autoRotate, 1) == 0
-            && Settings.System.canWrite(applicationContext)) {
-            try {
-                Settings.System.putInt(applicationContext.contentResolver,
-                    Settings.System.ACCELEROMETER_ROTATION,
-                    prefs.getInt(SamSprung.autoRotate, 0)
-                )
-            } catch (ignored: Settings.SettingNotFoundException) { }
-        }
         if (SamSprung.isKeyguardLocked)
             @Suppress("DEPRECATION") mKeyguardLock.reenableKeyguard()
+        if (null != getFakeOrientationLock() && getFakeOrientationLock()!!.isAttachedToWindow) {
+            windowService.removeView(getFakeOrientationLock())
+        }
         try {
             stopForeground(true)
         } catch (ignored: Exception) { }
@@ -352,17 +357,6 @@ class DisplayListener : Service() {
     ): Int {
         dismissDisplayListener(displayManager, mKeyguardLock)
         return START_NOT_STICKY
-    }
-
-    private fun buildDisplayContext(display: Int): Context {
-        // val displayManager = getSystemService(Context.DISPLAY_SERVICE) as DisplayManager
-        val displayContext = createDisplayContext(displayManager.getDisplay(display))
-        val wm = displayContext.getSystemService(WINDOW_SERVICE) as WindowManager
-        return object : ContextThemeWrapper(displayContext, R.style.Theme_SecondScreen) {
-            override fun getSystemService(name: String): Any? {
-                return if (WINDOW_SERVICE == name) wm else super.getSystemService(name)
-            }
-        }
     }
 
     private fun hasAccessibility(): Boolean {

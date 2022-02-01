@@ -52,10 +52,14 @@ package com.eightbit.samsprung
  */
 
 import android.app.Application
+import android.content.Context
 import android.content.Intent
-import android.content.SharedPreferences
+import android.hardware.display.DisplayManager
 import android.os.StrictMode
+import android.view.ContextThemeWrapper
+import android.view.WindowManager
 import androidx.appcompat.app.AppCompatDelegate
+import com.eightbit.content.ScaledContext
 import java.lang.ref.SoftReference
 import kotlin.system.exitProcess
 
@@ -65,7 +69,9 @@ class SamSprung : Application() {
         AppCompatDelegate.setCompatVectorFromResourcesEnabled(true)
         if (BuildConfig.FLAVOR == "google"
             && BuildConfig.DEBUG) StrictMode.enableDefaults()
-        val prefs = getSharedPreferences("samsprung.launcher.PREFS", MODE_PRIVATE)
+
+        mContext = SoftReference<Context>(buildDisplayContext(1))
+
         Thread.setDefaultUncaughtExceptionHandler { _: Thread?, error: Throwable ->
             error.printStackTrace()
             startService(
@@ -74,6 +80,7 @@ class SamSprung : Application() {
             // Unrecoverable error encountered
             exitProcess(1)
         }
+        val prefs = getSharedPreferences(prefsValue, MODE_PRIVATE)
         if (prefs.contains("gridview")) {
             with(prefs.edit()) {
                 putBoolean(prefLayout, prefs.getBoolean("gridview", true))
@@ -86,6 +93,23 @@ class SamSprung : Application() {
                 putStringSet(prefHidden, prefs.getStringSet("hidden_packages", setOf<String>()))
                 remove("hidden_packages")
                 apply()
+            }
+        }
+        if (prefs.contains(autoRotate)) {
+            with(prefs.edit()) {
+                remove(autoRotate)
+                apply()
+            }
+        }
+    }
+
+    private fun buildDisplayContext(display: Int): Context {
+        val displayManager = getSystemService(Context.DISPLAY_SERVICE) as DisplayManager
+        val displayContext = createDisplayContext(displayManager.getDisplay(display))
+        val wm = displayContext.getSystemService(WINDOW_SERVICE) as WindowManager
+        return object : ContextThemeWrapper(displayContext, R.style.Theme_SecondScreen) {
+            override fun getSystemService(name: String): Any? {
+                return if (WINDOW_SERVICE == name) wm else super.getSystemService(name)
             }
         }
     }
@@ -102,6 +126,14 @@ class SamSprung : Application() {
         const val autoRotate: String = "autoRotate"
         const val prefSecure: String = "prefSecure"
         const val prefColors: String = "prefColors"
-        const val prefInputs: String = "prefInputs"
+        const val prefWarned: String = "prefWarned"
+
+        var mContext: SoftReference<Context>? = null
+        fun getCoverContext(): Context? {
+            if (null != mContext && null != mContext!!.get()) {
+                return ScaledContext.wrap(mContext!!.get())
+            }
+            return null
+        }
     }
 }

@@ -101,7 +101,8 @@ class PackageRetriever(val context: Context) {
                 val iterator: MutableIterator<ResolveInfo> = packages.iterator()
                 while (iterator.hasNext()) {
                     val info = iterator.next()
-                    if (event.packageName == info.activityInfo.packageName) {
+                    if (context.packageName != event.packageName
+                        && event.packageName == info.activityInfo.packageName) {
                         iterator.remove()
                         recent.add(info)
                     }
