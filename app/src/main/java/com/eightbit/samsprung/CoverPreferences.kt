@@ -61,6 +61,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
 import android.content.pm.PackageManager
+import android.content.res.ColorStateList
 import android.graphics.Color
 import android.net.Uri
 import android.os.Build
@@ -222,13 +223,22 @@ class CoverPreferences : AppCompatActivity() {
         val colorRedBar = findViewById<SeekBar>(R.id.color_red_bar)
         colorRedBar.setProgress(color.red, true)
 
+        colorRedBar.progressTintList = ColorStateList
+            .valueOf(Color.rgb(colorRedBar.progress, 0,0))
+
         val textGreen = findViewById<TextView>(R.id.color_green_text)
         val colorGreenBar = findViewById<SeekBar>(R.id.color_green_bar)
         colorGreenBar.setProgress(color.green, true)
 
+        colorGreenBar.progressTintList = ColorStateList
+            .valueOf(Color.rgb(0, colorGreenBar.progress, 0))
+
         val textBlue = findViewById<TextView>(R.id.color_blue_text)
         val colorBlueBar = findViewById<SeekBar>(R.id.color_blue_bar)
         colorBlueBar.setProgress(color.blue, true)
+
+        colorBlueBar.progressTintList = ColorStateList
+            .valueOf(Color.rgb(0, 0, colorBlueBar.progress))
 
         val alphaFloat = prefs.getFloat(SamSprung.prefAlphas, 1f)
         val alphaPreview = findViewById<View>(R.id.alpha_preview)
@@ -275,6 +285,8 @@ class CoverPreferences : AppCompatActivity() {
                 }
                 colorComposite.setBackgroundColor(newColor)
                 alphaPreview.setBackgroundColor(newColor)
+                colorRedBar.progressTintList = ColorStateList
+                    .valueOf(Color.rgb(progress, 0, 0))
             }
 
             override fun onStartTrackingTouch(seek: SeekBar) { }
@@ -295,6 +307,8 @@ class CoverPreferences : AppCompatActivity() {
                 }
                 colorComposite.setBackgroundColor(newColor)
                 alphaPreview.setBackgroundColor(newColor)
+                colorGreenBar.progressTintList = ColorStateList
+                    .valueOf(Color.rgb(0, progress, 0))
             }
 
             override fun onStartTrackingTouch(seek: SeekBar) { }
@@ -315,6 +329,8 @@ class CoverPreferences : AppCompatActivity() {
                 }
                 colorComposite.setBackgroundColor(newColor)
                 alphaPreview.setBackgroundColor(newColor)
+                colorBlueBar.progressTintList = ColorStateList
+                    .valueOf(Color.rgb(0, 0, progress))
             }
 
             override fun onStartTrackingTouch(seek: SeekBar) { }
