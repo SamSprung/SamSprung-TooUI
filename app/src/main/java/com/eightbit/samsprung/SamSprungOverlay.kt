@@ -78,37 +78,31 @@ class SamSprungOverlay : AppCompatActivity() {
 
     private lateinit var  prefs: SharedPreferences
     private lateinit var bottomSheetBehavior: BottomSheetBehavior<View>
+    private lateinit var bottomHandle: View
 
     @SuppressLint("ClickableViewAccessibility")
     override fun onCreate(savedInstanceState: Bundle?) {
         setShowWhenLocked(true)
+
+        super.onCreate(savedInstanceState)
+        supportActionBar?.hide()
 
         window.setFlags(
             WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or
                     WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL,
             PixelFormat.TRANSPARENT)
 
-        super.onCreate(savedInstanceState)
-        prefs = getSharedPreferences(SamSprung.prefsValue, MODE_PRIVATE)
-        supportActionBar?.hide()
-        window.setLayout(
-            ViewGroup.LayoutParams.MATCH_PARENT,
-            ViewGroup.LayoutParams.WRAP_CONTENT
-        )
-        val wlp: WindowManager.LayoutParams = window.attributes
-        wlp.gravity = Gravity.BOTTOM
-        window.attributes = wlp
+        window.attributes.width = ViewGroup.LayoutParams.MATCH_PARENT
+        window.attributes.gravity = Gravity.BOTTOM
+
         window.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+
         ScaledContext.wrap(this).setTheme(R.style.Theme_SecondScreen_NoActionBar)
         setContentView(R.layout.navigation_menu)
 
-        val bottomHandle = findViewById<View>(R.id.bottom_handle)
-        bottomHandle.setBackgroundColor(prefs.getInt(SamSprung.prefColors,
-            Color.rgb(255, 255, 255)))
-        bottomHandle.alpha = prefs.getFloat(SamSprung.prefAlphas, 1f)
-        bottomHandle.visibility = View.VISIBLE
-        val handler = Handler(Looper.getMainLooper())
+        onNewIntent(intent)
 
+        val handler = Handler(Looper.getMainLooper())
         val coordinator = findViewById<CoordinatorLayout>(R.id.coordinator)
         val menu = findViewById<LinearLayout>(R.id.button_layout)
         val menuLogo = menu.findViewById<VerticalStrokeTextView>(R.id.samsprung_logo)
@@ -175,5 +169,15 @@ class SamSprungOverlay : AppCompatActivity() {
                 return true
             }
         })
+    }
+
+    override fun onNewIntent(intent: Intent?) {
+        super.onNewIntent(intent)
+        prefs = getSharedPreferences(SamSprung.prefsValue, MODE_PRIVATE)
+        bottomHandle = findViewById(R.id.bottom_handle)
+        bottomHandle.visibility = View.VISIBLE
+        bottomHandle.setBackgroundColor(prefs.getInt(SamSprung.prefColors,
+            Color.rgb(255, 255, 255)))
+        bottomHandle.alpha = prefs.getFloat(SamSprung.prefAlphas, 1f)
     }
 }

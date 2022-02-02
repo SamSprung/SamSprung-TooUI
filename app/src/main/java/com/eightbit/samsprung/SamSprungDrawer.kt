@@ -212,8 +212,25 @@ class SamSprungDrawer : AppCompatActivity(),
             toggleStats.addView(icon)
         }
 
-        noticesView = findViewById(R.id.notificationList)
+        val wifiEnabler = registerForActivityResult(
+            ActivityResultContracts.StartActivityForResult()) {
+            if (wifiManager.isWifiEnabled)
+                toolbar.menu.findItem(R.id.toggle_wifi).setIcon(R.drawable.ic_baseline_wifi_on_24)
+            else
+                toolbar.menu.findItem(R.id.toggle_wifi).setIcon(R.drawable.ic_baseline_wifi_off_24)
+            toolbar.menu.findItem(R.id.toggle_wifi).icon.setTint(color)
+        }
 
+        val nfcEnabler = registerForActivityResult(
+            ActivityResultContracts.StartActivityForResult()) {
+            if (nfcAdapter.isEnabled)
+                toolbar.menu.findItem(R.id.toggle_nfc).setIcon(R.drawable.ic_baseline_nfc_on_24)
+            else
+                toolbar.menu.findItem(R.id.toggle_nfc).setIcon(R.drawable.ic_baseline_nfc_off_24)
+            toolbar.menu.findItem(R.id.toggle_nfc).icon.setTint(color)
+        }
+
+        noticesView = findViewById(R.id.notificationList)
 
         noticesView.layoutManager = LinearLayoutManager(this)
         noticesView.adapter = NotificationAdapter(this, this@SamSprungDrawer)
@@ -250,24 +267,6 @@ class SamSprungDrawer : AppCompatActivity(),
         }
         ItemTouchHelper(noticeTouchCallback).attachToRecyclerView(noticesView)
         onNewIntent(intent)
-
-        val wifiEnabler = registerForActivityResult(
-            ActivityResultContracts.StartActivityForResult()) {
-            if (wifiManager.isWifiEnabled)
-                toolbar.menu.findItem(R.id.toggle_wifi).setIcon(R.drawable.ic_baseline_wifi_on_24)
-            else
-                toolbar.menu.findItem(R.id.toggle_wifi).setIcon(R.drawable.ic_baseline_wifi_off_24)
-            toolbar.menu.findItem(R.id.toggle_wifi).icon.setTint(color)
-        }
-
-        val nfcEnabler = registerForActivityResult(
-            ActivityResultContracts.StartActivityForResult()) {
-            if (nfcAdapter.isEnabled)
-                toolbar.menu.findItem(R.id.toggle_nfc).setIcon(R.drawable.ic_baseline_nfc_on_24)
-            else
-                toolbar.menu.findItem(R.id.toggle_nfc).setIcon(R.drawable.ic_baseline_nfc_off_24)
-            toolbar.menu.findItem(R.id.toggle_nfc).icon.setTint(color)
-        }
 
         val bottomSheetBehavior: BottomSheetBehavior<View> =
             BottomSheetBehavior.from(findViewById(R.id.bottom_sheet))
@@ -457,10 +456,7 @@ class SamSprungDrawer : AppCompatActivity(),
             getKeyboard(searchWrapper, ScaledContext.wrap(this)) else null
 
         SamSprungInput.setInputListener(object : SamSprungInput.InputMethodListener {
-            override fun onInputRequested(instance: SamSprungInput) {
-                if (null == mKeyboardView?.parent)
-                    searchWrapper.addView(mKeyboardView, 0)
-            }
+            override fun onInputRequested(instance: SamSprungInput) { }
 
             override fun onKeyboardHidden(isHidden: Boolean?) {
                 if (searchWrapper.isVisible)
@@ -491,10 +487,11 @@ class SamSprungDrawer : AppCompatActivity(),
 
             override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
                 if (direction == ItemTouchHelper.LEFT) {
-                    if (searchView.query.isNotBlank()) {
-                        searchView.setQuery("", true)
-                        if (searchWrapper.isVisible)
-                            searchWrapper.visibility = View.GONE
+                    if (searchWrapper.isVisible) {
+                        if (searchView.query.isNotBlank()) {
+                            searchView.setQuery("", true)
+                        }
+                        searchWrapper.visibility = View.GONE
                     } else {
                         terminate()
                         startActivity(
@@ -504,10 +501,11 @@ class SamSprungDrawer : AppCompatActivity(),
                     }
                 }
                 if (direction == ItemTouchHelper.RIGHT) {
-                    if (searchView.query.isNotBlank()) {
-                        searchView.setQuery("", true)
-                        if (searchWrapper.isVisible)
-                            searchWrapper.visibility = View.GONE
+                    if (searchWrapper.isVisible) {
+                        if (searchView.query.isNotBlank()) {
+                            searchView.setQuery("", true)
+                        }
+                        searchWrapper.visibility = View.GONE
                     } else {
                         searchWrapper.visibility = View.VISIBLE
                     }
@@ -517,10 +515,11 @@ class SamSprungDrawer : AppCompatActivity(),
         ItemTouchHelper(drawerTouchCallback).attachToRecyclerView(launcherView)
         launcherView.setOnTouchListener(object : OnSwipeTouchListener(this@SamSprungDrawer) {
             override fun onSwipeLeft() : Boolean {
-                if (searchView.query.isNotBlank()) {
-                    searchView.setQuery("", true)
-                    if (searchWrapper.isVisible)
-                        searchWrapper.visibility = View.GONE
+                if (searchWrapper.isVisible) {
+                    if (searchView.query.isNotBlank()) {
+                        searchView.setQuery("", true)
+                    }
+                    searchWrapper.visibility = View.GONE
                 } else {
                     terminate()
                     startActivity(
@@ -531,10 +530,11 @@ class SamSprungDrawer : AppCompatActivity(),
                 return true
             }
             override fun onSwipeRight() : Boolean {
-                if (searchView.query.isNotBlank()) {
-                    searchView.setQuery("", true)
-                    if (searchWrapper.isVisible)
-                        searchWrapper.visibility = View.GONE
+                if (searchWrapper.isVisible) {
+                    if (searchView.query.isNotBlank()) {
+                        searchView.setQuery("", true)
+                    }
+                    searchWrapper.visibility = View.GONE
                 } else {
                     searchWrapper.visibility = View.VISIBLE
                 }

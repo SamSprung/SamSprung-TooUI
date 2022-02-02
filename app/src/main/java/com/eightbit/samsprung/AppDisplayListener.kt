@@ -164,10 +164,7 @@ class AppDisplayListener : Service() {
 
 
         SamSprungInput.setInputListener(object : SamSprungInput.InputMethodListener {
-            override fun onInputRequested(instance: SamSprungInput) {
-                if (!mKeyboardView!!.isShown)
-                    coordinator.addView(mKeyboardView, 0)
-            }
+            override fun onInputRequested(instance: SamSprungInput) { }
 
             override fun onKeyboardHidden(isHidden: Boolean) { }
         })

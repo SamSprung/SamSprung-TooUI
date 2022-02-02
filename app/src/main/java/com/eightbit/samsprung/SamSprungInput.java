@@ -35,11 +35,17 @@ public class SamSprungInput extends InputMethodService
 
     @Override
     public boolean onShowInputRequested(int flags, boolean configChange) {
+        if (null != listener) listener.onInputRequested(this);
         if (null != mKeyboardView) {
             mKeyboardView.get().setKeyboard(mKeyboard);
             mKeyboardView.get().setOnKeyboardActionListener(this);
+            if (null != parent) {
+                if (null != mKeyboardView.get().getParent())
+                    ((ViewGroup) mKeyboardView.get().getParent())
+                            .removeView(mKeyboardView.get());
+                parent.get().addView(mKeyboardView.get(), 0);
+            }
         }
-        if (null != listener) listener.onInputRequested(this);
         return true;
     }
 
