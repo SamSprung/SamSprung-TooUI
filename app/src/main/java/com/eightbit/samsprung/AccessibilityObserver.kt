@@ -77,7 +77,8 @@ class AccessibilityObserver : AccessibilityService() {
         }
         fun enableKeyboard(context: Context) {
             if (null == getObserver()) return
-            cachedInputMethod = getInputMethod(context)
+            if (!getInputMethod(context).contains(BuildConfig.APPLICATION_ID))
+                cachedInputMethod = getInputMethod(context)
             val mInputMethodProperties = (context.getSystemService(INPUT_METHOD_SERVICE)
                     as InputMethodManager).enabledInputMethodList
             for (i in 0 until mInputMethodProperties.size) {

@@ -66,6 +66,7 @@ import android.graphics.Color
 import android.graphics.PixelFormat
 import android.graphics.drawable.ColorDrawable
 import android.hardware.camera2.CameraManager
+import android.hardware.display.DisplayManager
 import android.inputmethodservice.KeyboardView
 import android.media.AudioManager
 import android.net.wifi.WifiManager
@@ -84,17 +85,23 @@ import androidx.appcompat.widget.SearchView
 import androidx.appcompat.widget.Toolbar
 import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.core.content.ContextCompat
+import androidx.core.util.Consumer
 import androidx.core.view.isVisible
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import androidx.window.java.layout.WindowInfoRepositoryCallbackAdapter
+import androidx.window.layout.FoldingFeature
+import androidx.window.layout.WindowInfoRepository.Companion.windowInfoRepository
+import androidx.window.layout.WindowLayoutInfo
 import com.eightbit.content.ScaledContext
 import com.eightbit.view.OnSwipeTouchListener
 import com.eightbitlab.blurview.BlurView
 import com.eightbitlab.blurview.RenderScriptBlur
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import java.io.File
+import java.util.concurrent.Executor
 import java.util.concurrent.Executors
 
 
@@ -103,6 +110,8 @@ class SamSprungOverlay : AppCompatActivity(),
     NotificationAdapter.OnNoticeClickListener {
 
     private lateinit var prefs: SharedPreferences
+//    private lateinit var windowWasher : Consumer<WindowLayoutInfo>
+private var mDisplayListener: DisplayManager.DisplayListener? = null
     private lateinit var bottomHandle: View
     private lateinit var bottomSheetBehaviorMain: BottomSheetBehavior<View>
 
@@ -141,6 +150,34 @@ class SamSprungOverlay : AppCompatActivity(),
 
         ScaledContext.screen(this).setTheme(R.style.Theme_SecondScreen_NoActionBar)
         setContentView(R.layout.homescreen_menu)
+
+//        val wIRCA = WindowInfoRepositoryCallbackAdapter(windowInfoRepository())
+//        windowWasher = Consumer<WindowLayoutInfo> { windowLayoutInfo ->
+//            for (displayFeature in windowLayoutInfo.displayFeatures) {
+//                if (displayFeature is FoldingFeature) {
+//                    if (displayFeature.state == FoldingFeature.State.HALF_OPENED ||
+//                        displayFeature.state == FoldingFeature.State.FLAT) {
+//                        dismissOverlay()
+//                        wIRCA.removeWindowLayoutInfoListener(windowWasher)
+//                    }
+//                }
+//            }
+//        }
+//        wIRCA.addWindowLayoutInfoListener(runOnUiThreadExecutor(), windowWasher)
+        mDisplayListener = object : DisplayManager.DisplayListener {
+            override fun onDisplayAdded(display: Int) {}
+            override fun onDisplayChanged(display: Int) {
+                if (display == 0) {
+                    dismissOverlay()
+                }
+            }
+
+            override fun onDisplayRemoved(display: Int) {}
+        }
+        val displayManager = getSystemService(Context.DISPLAY_SERVICE) as DisplayManager
+        displayManager.registerDisplayListener(
+            mDisplayListener, Handler(Looper.getMainLooper())
+        )
 
         val handler = Handler(Looper.getMainLooper())
         val coordinatorMain = findViewById<CoordinatorLayout>(R.id.coordinator_main)
@@ -197,7 +234,7 @@ class SamSprungOverlay : AppCompatActivity(),
         oReceiver = object : BroadcastReceiver() {
             override fun onReceive(context: Context?, intent: Intent) {
                 if (intent.action == Intent.ACTION_SCREEN_OFF) {
-                    terminate()
+                    dismissOverlay()
                 }
             }
         }
@@ -557,7 +594,7 @@ class SamSprungOverlay : AppCompatActivity(),
                         }
                         searchWrapper.visibility = View.GONE
                     } else {
-                        terminate()
+                        dismissOverlay()
                         startActivity(
                             Intent(applicationContext, SamSprungPanels::class.java),
                             ActivityOptions.makeBasic().setLaunchDisplayId(1).toBundle()
@@ -586,7 +623,7 @@ class SamSprungOverlay : AppCompatActivity(),
                     }
                     searchWrapper.visibility = View.GONE
                 } else {
-                    terminate()
+                    dismissOverlay()
                     startActivity(
                         Intent(applicationContext, SamSprungPanels::class.java),
                         ActivityOptions.makeBasic().setLaunchDisplayId(1).toBundle()
@@ -626,18 +663,6 @@ class SamSprungOverlay : AppCompatActivity(),
             }
         })
         coordinator.visibility = View.GONE
-    }
-
-    @SuppressLint("InflateParams")
-    @Suppress("DEPRECATION")
-    private fun getKeyboard (parent: ViewGroup, displayContext: Context) : KeyboardView {
-        val mKeyboardView = LayoutInflater.from(displayContext)
-            .inflate(R.layout.keyboard_view, null) as KeyboardView
-        mKeyboardView.isPreviewEnabled = false
-        SamSprungInput.setInputMethod(parent, mKeyboardView)
-        AccessibilityObserver.enableKeyboard(displayContext)
-        mKeyboardView.elevation = 1F
-        return mKeyboardView
     }
 
     private fun animateSlideIn(view: View, anchor: View) {
@@ -805,7 +830,7 @@ class SamSprungOverlay : AppCompatActivity(),
             runOnUiThread {
                 windowManager.removeView(orientationChanger)
                 requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
-                terminate()
+                dismissOverlay()
                 startForegroundService(Intent(this,
                     AppDisplayListener::class.java).putExtras(extras))
             }
@@ -821,6 +846,23 @@ class SamSprungOverlay : AppCompatActivity(),
             startForegroundService(Intent(this, AppDisplayListener::class.java)
                 .putExtra("launchPackage", notice.getIntentSender()!!.creatorPackage))
         }
+    }
+
+//    private fun runOnUiThreadExecutor(): Executor {
+//        val handler = Handler(Looper.getMainLooper())
+//        return Executor { handler.post(it) }
+//    }
+
+    @SuppressLint("InflateParams")
+    @Suppress("DEPRECATION")
+    private fun getKeyboard (parent: ViewGroup, displayContext: Context) : KeyboardView {
+        val mKeyboardView = LayoutInflater.from(displayContext)
+            .inflate(R.layout.keyboard_view, null) as KeyboardView
+        mKeyboardView.isPreviewEnabled = false
+        SamSprungInput.setInputMethod(parent, mKeyboardView)
+        AccessibilityObserver.enableKeyboard(displayContext)
+        mKeyboardView.elevation = 1F
+        return mKeyboardView
     }
 
     private fun getColumnCount(): Int {
@@ -878,8 +920,13 @@ class SamSprungOverlay : AppCompatActivity(),
         }
     }
 
-    private fun terminate() {
-        AccessibilityObserver.disableKeyboard(this)
+    private fun dismissOverlay() {
+        if (hasAccessibility())
+            AccessibilityObserver.disableKeyboard(this)
+        val displayManager = getSystemService(Context.DISPLAY_SERVICE) as DisplayManager
+        if (null != mDisplayListener) {
+            displayManager.unregisterDisplayListener(mDisplayListener)
+        }
         finish()
     }
 
