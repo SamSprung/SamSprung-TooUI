@@ -128,6 +128,7 @@ class SamSprung : Application() {
         const val prefColors: String = "prefColors"
         const val prefAlphas: String = "prefAlphas"
         const val prefWarned: String = "prefWarned"
+        const val prefTester: String = "prefTester"
 
         var mContext: SoftReference<Context>? = null
         fun getCoverContext(): Context? {

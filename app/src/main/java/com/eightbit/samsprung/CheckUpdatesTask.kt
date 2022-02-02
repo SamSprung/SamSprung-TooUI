@@ -80,6 +80,8 @@ import java.util.concurrent.Executors
 
 class CheckUpdatesTask(private var activity: AppCompatActivity) {
 
+    private val repository = "https://api.github.com/repos/SamSprung/SamSprung-TooUI/releases/tags/"
+
     init {
         if (BuildConfig.FLAVOR != "google") {
             if (activity is CoverPreferences) {
@@ -204,8 +206,9 @@ class CheckUpdatesTask(private var activity: AppCompatActivity) {
     }
 
     fun retrieveUpdate() {
-        RequestGitHubAPI(activity.getString(R.string.latest_url)).setResultListener(
-            object : RequestGitHubAPI.ResultListener {
+        val prefs = activity.getSharedPreferences(SamSprung.prefsValue, AppCompatActivity.MODE_PRIVATE)
+        RequestGitHubAPI(repository + if (prefs.getBoolean(SamSprung.prefTester, false))
+            "preview" else "sideload").setResultListener(object : RequestGitHubAPI.ResultListener {
             override fun onResults(result: String) {
                 try {
                     val jsonObject = JSONTokener(result).nextValue() as JSONObject
