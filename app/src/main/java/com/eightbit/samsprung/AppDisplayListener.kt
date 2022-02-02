@@ -196,7 +196,7 @@ class AppDisplayListener : Service() {
                         dismissDisplayListener(displayManager, mKeyguardLock)
                         startActivity(
                             Intent(this@AppDisplayListener, SamSprungOverlay::class.java)
-                                .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK),
+                                .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK).setAction(SamSprung.services),
                             ActivityOptions.makeBasic().setLaunchDisplayId(1).toBundle()
                         )
                     }

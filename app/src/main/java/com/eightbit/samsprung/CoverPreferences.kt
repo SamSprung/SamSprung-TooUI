@@ -417,9 +417,6 @@ class CoverPreferences : AppCompatActivity() {
         colorAlphaBar.visibility = View.GONE
         colorPanel.visibility = View.GONE
 
-        startForegroundService(Intent(this, OnBroadcastService::class.java)
-            .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK))
-
         billingClient = BillingClient.newBuilder(this)
             .setListener(purchasesUpdatedListener).enablePendingPurchases().build()
 
@@ -807,6 +804,8 @@ class CoverPreferences : AppCompatActivity() {
             findViewById<CoordinatorLayout>(R.id.coordinator).background =
                 WallpaperManager.getInstance(this).drawable
         }
+        startForegroundService(Intent(this, OnBroadcastService::class.java)
+            .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK))
         if (!prefs.getBoolean(SamSprung.prefWarned, false)) {
             val view: View = layoutInflater.inflate(R.layout.setup_notice_view, null)
             val dialog = AlertDialog.Builder(

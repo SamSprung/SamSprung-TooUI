@@ -75,7 +75,6 @@ import android.os.*
 import android.provider.Settings
 import android.text.TextUtils
 import android.view.*
-import android.view.animation.Animation
 import android.view.animation.TranslateAnimation
 import android.widget.*
 import androidx.activity.result.contract.ActivityResultContracts
@@ -91,9 +90,7 @@ import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.eightbit.content.ScaledContext
-import com.eightbit.view.AnimatedLinearLayout
 import com.eightbit.view.OnSwipeTouchListener
-import com.eightbit.widget.VerticalStrokeTextView
 import com.eightbitlab.blurview.BlurView
 import com.eightbitlab.blurview.RenderScriptBlur
 import com.google.android.material.bottomsheet.BottomSheetBehavior
@@ -105,8 +102,9 @@ class SamSprungOverlay : AppCompatActivity(),
     DrawerAppAdapater.OnAppClickListener,
     NotificationAdapter.OnNoticeClickListener {
 
-    private lateinit var  prefs: SharedPreferences
+    private lateinit var prefs: SharedPreferences
     private lateinit var bottomHandle: View
+    private lateinit var bottomSheetBehaviorMain: BottomSheetBehavior<View>
 
     private lateinit var wifiManager: WifiManager
     private lateinit var bluetoothAdapter: BluetoothAdapter
@@ -139,16 +137,16 @@ class SamSprungOverlay : AppCompatActivity(),
 
         window.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
 
+        prefs = getSharedPreferences(SamSprung.prefsValue, MODE_PRIVATE)
+
         ScaledContext.screen(this).setTheme(R.style.Theme_SecondScreen_NoActionBar)
         setContentView(R.layout.homescreen_menu)
-
-        onNewIntent(null)
 
         val handler = Handler(Looper.getMainLooper())
         val coordinatorMain = findViewById<CoordinatorLayout>(R.id.coordinator_main)
         val fakeOverlay = findViewById<LinearLayout>(R.id.fake_overlay)
         val coordinator = findViewById<CoordinatorLayout>(R.id.coordinator)
-        val bottomSheetBehaviorMain = BottomSheetBehavior.from(findViewById(R.id.bottom_sheet_main))
+        bottomSheetBehaviorMain = BottomSheetBehavior.from(findViewById(R.id.bottom_sheet_main))
         bottomSheetBehaviorMain.state = BottomSheetBehavior.STATE_COLLAPSED
         bottomSheetBehaviorMain.addBottomSheetCallback(object : BottomSheetBehavior.BottomSheetCallback() {
             override fun onStateChanged(bottomSheet: View, newState: Int) {
@@ -178,7 +176,7 @@ class SamSprungOverlay : AppCompatActivity(),
                         handler.postDelayed({
                             runOnUiThread {
                                 bottomHandle.visibility = View.VISIBLE }
-                        }, 500)
+                        }, 250)
                     }
                 }
             }
@@ -326,7 +324,8 @@ class SamSprungOverlay : AppCompatActivity(),
             }
         }
         ItemTouchHelper(noticeTouchCallback).attachToRecyclerView(noticesView)
-        onNewIntent(null)
+
+        onNewIntent(if (null != intent?.action && SamSprung.services == intent.action) intent else null)
 
         val bottomSheetBehavior: BottomSheetBehavior<View> =
             BottomSheetBehavior.from(findViewById(R.id.bottom_sheet))
@@ -511,6 +510,11 @@ class SamSprungOverlay : AppCompatActivity(),
             }
         })
         searchWrapper.visibility = View.GONE
+        val searchAnimation = TranslateAnimation(
+            -blurView.width.toFloat(), 0f, 0f, 0f
+        )
+        searchAnimation.duration = 500
+        searchAnimation.fillAfter = false
 
         val mKeyboardView = if (hasAccessibility())
             getKeyboard(searchWrapper, ScaledContext.screen(this)) else null
@@ -568,12 +572,7 @@ class SamSprungOverlay : AppCompatActivity(),
                         searchWrapper.visibility = View.GONE
                     } else {
                         searchWrapper.visibility = View.VISIBLE
-                        val animate = TranslateAnimation(
-                            -blurView.width.toFloat(), 0f, 0f, 0f
-                        )
-                        animate.duration = 500
-                        animate.fillAfter = false
-                        searchWrapper.startAnimation(animate)
+                        animateSlideIn(searchWrapper, blurView)
                     }
                 }
             }
@@ -603,12 +602,7 @@ class SamSprungOverlay : AppCompatActivity(),
                     searchWrapper.visibility = View.GONE
                 } else {
                     searchWrapper.visibility = View.VISIBLE
-                    val animate = TranslateAnimation(
-                        -blurView.width.toFloat(), 0f, 0f, 0f
-                    )
-                    animate.duration = 500
-                    animate.fillAfter = false
-                    searchWrapper.startAnimation(animate)
+                    animateSlideIn(searchWrapper, blurView)
                 }
                 return true
             }
@@ -644,6 +638,15 @@ class SamSprungOverlay : AppCompatActivity(),
         AccessibilityObserver.enableKeyboard(displayContext)
         mKeyboardView.elevation = 1F
         return mKeyboardView
+    }
+
+    private fun animateSlideIn(view: View, anchor: View) {
+        val animate = TranslateAnimation(
+            -anchor.width.toFloat(), 0f, 0f, 0f
+        )
+        animate.duration = 500
+        animate.fillAfter = false
+        view.startAnimation(animate)
     }
 
     private fun prepareConfiguration() {
@@ -865,6 +868,13 @@ class SamSprungOverlay : AppCompatActivity(),
             AccessibilityObserver.getObserver()?.setEventsChangedListener(
                 noticesView.adapter as NotificationAdapter
             )
+        }
+        if (null != intent?.action && SamSprung.services == intent.action) {
+            Handler(Looper.getMainLooper()).postDelayed({
+                runOnUiThread {
+                    bottomSheetBehaviorMain.state = BottomSheetBehavior.STATE_EXPANDED
+                }
+            }, 250)
         }
     }
 
