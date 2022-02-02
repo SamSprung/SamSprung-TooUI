@@ -2,7 +2,7 @@ name: Android CI
 
 on:
   push:
-    branches: [ custom, sideload ]
+    branches: [ custom, sideload, preview ]
 
 jobs:
   build:
@@ -16,10 +16,16 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.ORG_TOKEN }}
       run: |
-        gh api repos/SamSprung/SamSprung-TooUI/dispatches --raw-field event_type=SamSprung
+        gh api repos/SamSprung/SamSprung-TooUI/dispatches --raw-field event_type=sideload
+    - name: Execute launcher dispatch event
+      if: contains(github.ref, 'preview')
+      env:
+        GITHUB_TOKEN: ${{ secrets.ORG_TOKEN }}
+      run: |
+        gh api repos/SamSprung/SamSprung-TooUI/dispatches --raw-field event_type=preview
     - name: Execute widget dispatch event
       if: contains(github.ref, 'custom')
       env:
         GITHUB_TOKEN: ${{ secrets.ORG_TOKEN }}
       run: |
-        gh api repos/SamSprung/SamSprung-Widget/dispatches --raw-field event_type=SamSprung
+        gh api repos/SamSprung/SamSprung-Widget/dispatches --raw-field event_type=custom
