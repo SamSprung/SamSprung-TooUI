@@ -136,6 +136,7 @@ class AppDisplayListener : Service() {
             PixelFormat.TRANSLUCENT
         )
         params.gravity = Gravity.BOTTOM
+        floatView.keepScreenOn = true
 
         mDisplayListener = object : DisplayManager.DisplayListener {
             override fun onDisplayAdded(display: Int) {}
