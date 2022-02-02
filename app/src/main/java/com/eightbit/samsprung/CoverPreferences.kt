@@ -66,6 +66,8 @@ import android.graphics.Color
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.provider.Settings
 import android.text.SpannableStringBuilder
 import android.text.Spanned
@@ -75,6 +77,7 @@ import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
+import android.view.animation.TranslateAnimation
 import android.widget.*
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresApi
@@ -91,6 +94,7 @@ import androidx.core.graphics.red
 import androidx.core.view.isVisible
 import com.android.billingclient.api.*
 import com.eightbit.material.IconifiedSnackbar
+import com.eightbit.view.AnimatedLinearLayout
 import com.eightbitlab.blurview.BlurView
 import com.eightbitlab.blurview.RenderScriptBlur
 import com.google.android.material.snackbar.Snackbar
@@ -214,7 +218,7 @@ class CoverPreferences : AppCompatActivity() {
         val packages = packageRetriever.getRecentPackageList(false)
         val unlisted = packageRetriever.getHiddenPackages()
 
-        hiddenList = findViewById(R.id.selectionListView)
+        hiddenList = findViewById(R.id.app_toggle_list)
         hiddenList.adapter = FilteredAppsAdapter(this, packages, unlisted, prefs)
 
         val color = prefs.getInt(SamSprung.prefColors, Color.rgb(255, 255, 255))
@@ -248,27 +252,77 @@ class CoverPreferences : AppCompatActivity() {
         alphaPreview.alpha = alphaFloat
         colorAlphaBar.setProgress((alphaFloat * 100).toInt(), true)
 
+        val colorPanel = findViewById<AnimatedLinearLayout>(R.id.color_panel)
         val colorComposite = findViewById<View>(R.id.color_composite)
         colorComposite.setBackgroundColor(color)
+
+        val colorHandler = Handler(Looper.getMainLooper())
         colorComposite.setOnClickListener {
-            if (colorRedBar.isVisible && colorGreenBar.isVisible && colorBlueBar.isVisible) {
-                textRed.visibility = View.GONE
-                colorRedBar.visibility = View.GONE
-                textGreen.visibility = View.GONE
-                colorGreenBar.visibility = View.GONE
-                textBlue.visibility = View.GONE
-                colorBlueBar.visibility = View.GONE
-                alphaView.visibility = View.GONE
-                colorAlphaBar.visibility = View.GONE
+            if (colorPanel.isVisible) {
+                val animate = TranslateAnimation(
+                    0f, 0f, 0f, -colorPanel.height.toFloat()
+                )
+                animate.duration = 1500
+                animate.fillAfter = false
+                colorPanel.setAnimationListener(object : AnimatedLinearLayout.AnimationListener {
+                    override fun onAnimationStart(layout: AnimatedLinearLayout) {
+                        colorHandler.postDelayed({
+                            textRed.visibility = View.INVISIBLE
+                            colorRedBar.visibility = View.INVISIBLE
+                        }, 250)
+                        colorHandler.postDelayed({
+                            textGreen.visibility = View.INVISIBLE
+                            colorGreenBar.visibility = View.INVISIBLE
+                        }, 500)
+                        colorHandler.postDelayed({
+                            textBlue.visibility = View.INVISIBLE
+                            colorBlueBar.visibility = View.INVISIBLE
+                        }, 750)
+                        colorHandler.postDelayed({
+                            alphaView.visibility = View.INVISIBLE
+                            colorAlphaBar.visibility = View.INVISIBLE
+                        }, 1000)
+                    }
+                    override fun onAnimationEnd(layout: AnimatedLinearLayout) {
+                        layout.setAnimationListener(null)
+                        textRed.visibility = View.GONE
+                        colorRedBar.visibility = View.GONE
+                        textGreen.visibility = View.GONE
+                        colorGreenBar.visibility = View.GONE
+                        textBlue.visibility = View.GONE
+                        colorBlueBar.visibility = View.GONE
+                        alphaView.visibility = View.GONE
+                        colorAlphaBar.visibility = View.GONE
+                        colorPanel.visibility = View.GONE
+                    }
+                })
+                colorPanel.startAnimation(animate)
+                val follow = TranslateAnimation(
+                    0f, 0f, 0f, -colorPanel.height.toFloat()
+                )
+                follow.duration = 1500
+                follow.fillAfter = false
+                findViewById<View>(R.id.color_divider).startAnimation(follow)
+
             } else {
-                colorAlphaBar.visibility = View.VISIBLE
-                alphaView.visibility = View.VISIBLE
-                colorBlueBar.visibility = View.VISIBLE
-                textBlue.visibility = View.VISIBLE
-                colorGreenBar.visibility = View.VISIBLE
-                textGreen.visibility = View.VISIBLE
-                colorRedBar.visibility = View.VISIBLE
-                textRed.visibility = View.VISIBLE
+                colorPanel.visibility = View.VISIBLE
+                colorHandler.postDelayed({
+                    colorAlphaBar.visibility = View.VISIBLE
+                    alphaView.visibility = View.VISIBLE
+                }, 100)
+                colorHandler.postDelayed({
+                    colorBlueBar.visibility = View.VISIBLE
+                    textBlue.visibility = View.VISIBLE
+                }, 200)
+                colorHandler.postDelayed({
+                    colorGreenBar.visibility = View.VISIBLE
+                    textGreen.visibility = View.VISIBLE
+                }, 300)
+                colorHandler.postDelayed({
+                    colorRedBar.visibility = View.VISIBLE
+                    textRed.visibility = View.VISIBLE
+                }, 400)
+                colorPanel.visibility = View.VISIBLE
             }
         }
 
@@ -361,6 +415,7 @@ class CoverPreferences : AppCompatActivity() {
         colorBlueBar.visibility = View.GONE
         alphaView.visibility = View.GONE
         colorAlphaBar.visibility = View.GONE
+        colorPanel.visibility = View.GONE
 
         startForegroundService(Intent(this, OnBroadcastService::class.java)
             .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK))
