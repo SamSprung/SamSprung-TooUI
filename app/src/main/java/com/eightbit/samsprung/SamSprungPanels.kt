@@ -20,6 +20,7 @@ import android.annotation.SuppressLint
 import android.app.ActivityOptions
 import android.app.WallpaperManager
 import android.appwidget.AppWidgetManager
+import android.appwidget.AppWidgetProviderInfo
 import android.content.*
 import android.content.pm.PackageManager
 import android.database.ContentObserver
@@ -40,7 +41,6 @@ import androidx.core.content.ContextCompat
 import com.eightbit.content.ScaledContext
 import com.eightbit.samsprung.WidgetSettings.Favorites
 import com.eightbit.samsprung.widget.*
-import com.eightbit.view.OnSwipeTouchListener
 import com.eightbitlab.blurview.BlurView
 import com.eightbitlab.blurview.RenderScriptBlur
 import java.io.DataInputStream
@@ -50,6 +50,11 @@ import java.io.IOException
 import java.lang.ref.SoftReference
 import java.util.*
 import java.util.concurrent.Executors
+import android.widget.Toast
+import androidx.core.view.get
+import java.lang.reflect.Field
+import java.lang.reflect.Method
+
 
 /**
  * Default launcher application.
@@ -153,18 +158,6 @@ class SamSprungPanels : AppCompatActivity(), View.OnClickListener, OnLongClickLi
         dragLayer.setDragScoller(workspace)
         dragLayer.setDragListener(deleteZone)
 
-        workspace.setOnTouchListener(object : OnSwipeTouchListener(this@SamSprungPanels) {
-            override fun onSwipeTop() : Boolean {
-                finish()
-                startActivity(
-                    Intent(this@SamSprungPanels, SamSprungOverlay::class.java)
-                        .setAction(SamSprung.services),
-                    ActivityOptions.makeBasic().setLaunchDisplayId(1).toBundle()
-                )
-                return true
-            }
-        })
-
         contentResolver.registerContentObserver(Favorites.CONTENT_URI, true, mObserver)
 
         if (!mRestoring) {
@@ -264,18 +257,7 @@ class SamSprungPanels : AppCompatActivity(), View.OnClickListener, OnLongClickLi
     }
 
     fun onScreenChanged(workspace: Workspace, mCurrentScreen: Int) {
-        workspace.setOnTouchListener(
-            object : OnSwipeTouchListener(this@SamSprungPanels) {
-            override fun onSwipeTop() : Boolean {
-                finish()
-                startActivity(
-                    Intent(this@SamSprungPanels, SamSprungOverlay::class.java)
-                        .setAction(SamSprung.services),
-                    ActivityOptions.makeBasic().setLaunchDisplayId(1).toBundle()
-                )
-                return true
-            }
-        })
+
     }
 
     /**
@@ -402,6 +384,7 @@ class SamSprungPanels : AppCompatActivity(), View.OnClickListener, OnLongClickLi
     private val requestPickAppWidget = registerForActivityResult(
         ActivityResultContracts.StartActivityForResult()) { result: ActivityResult ->
         mWaitingForResult = false
+        Log.d("WIDGETS", result.toString())
         if (result.resultCode == RESULT_CANCELED && result.data != null) {
             // Clean up the appWidgetId if we canceled
             val appWidgetId = result.data!!.getIntExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, -1)
@@ -409,7 +392,16 @@ class SamSprungPanels : AppCompatActivity(), View.OnClickListener, OnLongClickLi
                 appWidgetHost!!.deleteAppWidgetId(appWidgetId)
             }
         } else {
-            addAppWidget(result.data)
+            if (result.data!!.component == ComponentName(packageName, "XXX.YYY.ZZZ")) {
+                finish()
+                startActivity(
+                    Intent(this@SamSprungPanels, SamSprungOverlay::class.java)
+                        .setAction(SamSprung.services),
+                    ActivityOptions.makeBasic().setLaunchDisplayId(1).toBundle()
+                )
+            } else {
+                addAppWidget(result.data)
+            }
         }
     }
     private val requestCreateAppWidget = registerForActivityResult(
@@ -595,11 +587,6 @@ class SamSprungPanels : AppCompatActivity(), View.OnClickListener, OnLongClickLi
     val dragController: DragController?
         get() = mDragLayer
 
-    /**
-     * Launches the intent referred by the clicked shortcut.
-     *
-     * @param v The view representing the clicked shortcut.
-     */
     override fun onClick(v: View) {
         v.tag
     }
@@ -646,21 +633,21 @@ class SamSprungPanels : AppCompatActivity(), View.OnClickListener, OnLongClickLi
         val pickIntent = Intent(AppWidgetManager.ACTION_APPWIDGET_PICK)
         pickIntent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId)
         // add a custom widget item
-//        val customInfo = ArrayList<AppWidgetProviderInfo>()
-//        val info = AppWidgetProviderInfo()
-//        info.provider = ComponentName("XXX", "YYY.ZZZ")
-//        info.label = getString(R.string.exit_widgets)
-//        info.icon = R.drawable.ic_baseline_widgets_24
-//        info.configure = ComponentName("XXX", "YYY.ZZZ")
-//        customInfo.add(info)
-//        pickIntent.putParcelableArrayListExtra(
-//            AppWidgetManager.EXTRA_CUSTOM_INFO, customInfo
-//        )
-//        val customExtras = ArrayList<Bundle>()
-//        customExtras.add(Bundle())
-//        pickIntent.putParcelableArrayListExtra(
-//            AppWidgetManager.EXTRA_CUSTOM_EXTRAS, customExtras
-//        )
+        val customInfo = ArrayList<AppWidgetProviderInfo>()
+        val info = AppWidgetProviderInfo()
+        info.provider = ComponentName(packageName, "XXX.YYY.ZZZ")
+        info.label = getString(R.string.menu_item_terminate)
+        info.icon = R.drawable.ic_baseline_widgets_24
+        info.configure = ComponentName(packageName, "XXX.YYY.ZZZ")
+        customInfo.add(info)
+        pickIntent.putParcelableArrayListExtra(
+            AppWidgetManager.EXTRA_CUSTOM_INFO, customInfo
+        )
+        val customExtras = ArrayList<Bundle>()
+        customExtras.add(Bundle())
+        pickIntent.putParcelableArrayListExtra(
+            AppWidgetManager.EXTRA_CUSTOM_EXTRAS, customExtras
+        )
         requestPickAppWidget.launch(pickIntent)
     }
 
@@ -726,7 +713,6 @@ class SamSprungPanels : AppCompatActivity(), View.OnClickListener, OnLongClickLi
         }
 
         init {
-
             // Sort widgets so active workspace is bound first
             val currentScreen = launcher.workspace!!.currentScreen
             val size = appWidgets!!.size

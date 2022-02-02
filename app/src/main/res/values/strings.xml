@@ -54,6 +54,7 @@
 
     <!-- Title of selection box -->
     <string name="menu_item_add_item">Add to Panel</string>
+    <string name="menu_item_terminate">* Exit Panels *</string>
     <!-- Error message when user has filled a panel or cancelled configuration -->
     <string name="out_of_space">Cancelled adding widget</string>
     <!-- Text to show user in place of a widget when we can't display it properly -->
