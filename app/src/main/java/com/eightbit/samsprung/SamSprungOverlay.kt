@@ -503,7 +503,7 @@ class SamSprungOverlay : AppCompatActivity(),
                 return true
             }
         })
-        searchWrapper.visibility = View.INVISIBLE
+        searchWrapper.visibility = View.GONE
 
         val mKeyboardView = if (hasAccessibility())
             getKeyboard(searchWrapper, ScaledContext.screen(this)) else null
@@ -513,7 +513,7 @@ class SamSprungOverlay : AppCompatActivity(),
 
             override fun onKeyboardHidden(isHidden: Boolean?) {
                 if (searchWrapper.isVisible)
-                    searchWrapper.visibility = View.INVISIBLE
+                    searchWrapper.visibility = View.GONE
             }
         })
 
@@ -544,7 +544,7 @@ class SamSprungOverlay : AppCompatActivity(),
                         if (searchView.query.isNotBlank()) {
                             searchView.setQuery("", true)
                         }
-                        searchWrapper.visibility = View.INVISIBLE
+                        searchWrapper.visibility = View.GONE
                     } else {
                         terminate()
                         startActivity(
@@ -558,21 +558,14 @@ class SamSprungOverlay : AppCompatActivity(),
                         if (searchView.query.isNotBlank()) {
                             searchView.setQuery("", true)
                         }
-                        searchWrapper.visibility = View.INVISIBLE
+                        searchWrapper.visibility = View.GONE
                     } else {
                         searchWrapper.visibility = View.VISIBLE
                         val animate = TranslateAnimation(
-                            -coordinator.width.toFloat(), 0f, 0f, 0f
+                            -blurView.width.toFloat(), 0f, 0f, 0f
                         )
                         animate.duration = 500
                         animate.fillAfter = false
-                        animate.setAnimationListener(object : Animation.AnimationListener {
-                            override fun onAnimationStart(animation: Animation) { }
-                            override fun onAnimationEnd(animation: Animation) {
-                                animate.setAnimationListener(null)
-                            }
-                            override fun onAnimationRepeat(p0: Animation?) {}
-                        })
                         searchWrapper.startAnimation(animate)
                     }
                 }
@@ -603,6 +596,12 @@ class SamSprungOverlay : AppCompatActivity(),
                     searchWrapper.visibility = View.GONE
                 } else {
                     searchWrapper.visibility = View.VISIBLE
+                    val animate = TranslateAnimation(
+                        -blurView.width.toFloat(), 0f, 0f, 0f
+                    )
+                    animate.duration = 500
+                    animate.fillAfter = false
+                    searchWrapper.startAnimation(animate)
                 }
                 return true
             }
