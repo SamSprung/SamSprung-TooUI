@@ -87,7 +87,7 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".SamSprungWidget"
+            android:name=".SamSprungPanels"
             android:theme="@style/Theme.AppCompat"
             android:configChanges="orientation|screenLayout|screenSize|smallestScreenSize"
             android:showOnLockScreen="true"
@@ -123,14 +123,14 @@
             <intent-filter>
                 <action android:name="android.service.notification.NotificationListenerService" />
             </intent-filter>
-            <meta-data
-                android:name="android.service.notification.default_filter_types"
-                android:value="conversations,alerting,silent">
-            </meta-data>
-            <meta-data
-                android:name="android.service.notification.disabled_filter_types"
-                android:value="ongoing">
-            </meta-data>
+<!--            <meta-data-->
+<!--                android:name="android.service.notification.default_filter_types"-->
+<!--                android:value="conversations,alerting,silent">-->
+<!--            </meta-data>-->
+<!--            <meta-data-->
+<!--                android:name="android.service.notification.disabled_filter_types"-->
+<!--                android:value="ongoing">-->
+<!--            </meta-data>-->
         </service>
         <service
             android:name=".AccessibilityObserver"

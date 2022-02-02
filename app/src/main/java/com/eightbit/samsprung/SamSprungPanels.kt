@@ -20,11 +20,9 @@ import android.annotation.SuppressLint
 import android.app.ActivityOptions
 import android.app.WallpaperManager
 import android.appwidget.AppWidgetManager
-import android.appwidget.AppWidgetProviderInfo
 import android.content.*
 import android.content.pm.PackageManager
 import android.database.ContentObserver
-import android.hardware.display.DisplayManager
 import android.os.*
 import android.os.MessageQueue.IdleHandler
 import android.text.Selection
@@ -57,7 +55,7 @@ import java.util.concurrent.Executors
  * Default launcher application.
  */
 @SuppressLint("ClickableViewAccessibility")
-class SamSprungWidget : AppCompatActivity(), View.OnClickListener, OnLongClickListener {
+class SamSprungPanels : AppCompatActivity(), View.OnClickListener, OnLongClickListener {
     private val mObserver: ContentObserver = FavoritesChangeObserver()
     private var mDragLayer: DragLayer? = null
     var workspace: Workspace? = null
@@ -86,20 +84,44 @@ class SamSprungWidget : AppCompatActivity(), View.OnClickListener, OnLongClickLi
     private var mSavedInstanceState: Bundle? = null
     private var mBinder: DesktopBinder? = null
 
+    private var widgetContext: Context? = SamSprung.getCoverContext()
+
     @SuppressLint("ClickableViewAccessibility")
     override fun onCreate(savedInstanceState: Bundle?) {
         setShowWhenLocked(true)
-        supportActionBar?.hide()
+
+        widgetContext = ScaledContext.widget(applicationContext)
+
         super.onCreate(savedInstanceState)
-        SamSprung.getCoverContext()?.setTheme(R.style.Theme_AppCompat)
-        mAppWidgetManager = AppWidgetManager.getInstance(applicationContext)
+        supportActionBar?.hide()
+        widgetContext?.setTheme(R.style.Theme_AppCompat)
+
+        mAppWidgetManager = AppWidgetManager.getInstance(widgetContext)
         appWidgetHost = CoverWidgetHost(
-            applicationContext,
+            widgetContext,
             APPWIDGET_HOST_ID
         )
         appWidgetHost!!.startListening()
-        checkForLocaleChange()
+
+        val localeConfiguration = LocaleConfiguration()
+        readConfiguration(applicationContext, localeConfiguration)
+        val configuration = resources.configuration
+        val previousLocale = localeConfiguration.locale
+        val locale = configuration.locales[0].toString()
+        val previousMcc = localeConfiguration.mcc
+        val mcc = configuration.mcc
+        val previousMnc = localeConfiguration.mnc
+        val mnc = configuration.mnc
+        mLocaleChanged = locale != previousLocale || mcc != previousMcc || mnc != previousMnc
+        if (mLocaleChanged) {
+            localeConfiguration.locale = locale
+            localeConfiguration.mcc = mcc
+            localeConfiguration.mnc = mnc
+            writeConfiguration(applicationContext, localeConfiguration)
+        }
+
         setContentView(R.layout.widget_layout)
+
         if (ContextCompat.checkSelfPermission(
                 this,
                 Manifest.permission.READ_EXTERNAL_STORAGE
@@ -118,8 +140,32 @@ class SamSprungWidget : AppCompatActivity(), View.OnClickListener, OnLongClickLi
             .setHasFixedTransformationMatrix(true)
             .setBlurAlgorithm(RenderScriptBlur(this))
 
-        setupViews()
-        registerContentObservers()
+        mDragLayer = findViewById(R.id.drag_layer)
+        val dragLayer = mDragLayer
+        workspace = dragLayer!!.findViewById(R.id.workspace)
+        val workspace = workspace
+        val deleteZone: DeleteZone = dragLayer.findViewById(R.id.delete_zone)
+        workspace!!.setOnLongClickListener(this)
+        workspace.setDragger(dragLayer)
+        workspace.setLauncher(this)
+        deleteZone.setLauncher(this)
+        deleteZone.setDragController(dragLayer)
+        dragLayer.setDragScoller(workspace)
+        dragLayer.setDragListener(deleteZone)
+
+        workspace.setOnTouchListener(object : OnSwipeTouchListener(this@SamSprungPanels) {
+            override fun onSwipeTop() : Boolean {
+                finish()
+                startActivity(
+                    Intent(this@SamSprungPanels, SamSprungDrawer::class.java),
+                    ActivityOptions.makeBasic().setLaunchDisplayId(1).toBundle()
+                )
+                return true
+            }
+        })
+
+        contentResolver.registerContentObserver(Favorites.CONTENT_URI, true, mObserver)
+
         if (!mRestoring) {
             startLoaders()
         }
@@ -131,25 +177,6 @@ class SamSprungWidget : AppCompatActivity(), View.OnClickListener, OnLongClickLi
         Selection.setSelection(mDefaultKeySsb, 0)
     }
 
-    private fun checkForLocaleChange() {
-        val localeConfiguration = LocaleConfiguration()
-        readConfiguration(applicationContext, localeConfiguration)
-        val configuration = resources.configuration
-        val previousLocale = localeConfiguration.locale
-        val locale = configuration.locales[0].toString()
-        val previousMcc = localeConfiguration.mcc
-        val mcc = configuration.mcc
-        val previousMnc = localeConfiguration.mnc
-        val mnc = configuration.mnc
-        mLocaleChanged = locale != previousLocale || mcc != previousMcc || mnc != previousMnc
-        if (mLocaleChanged) {
-            localeConfiguration.locale = locale
-            localeConfiguration.mcc = mcc
-            localeConfiguration.mnc = mnc
-            writeConfiguration(applicationContext, localeConfiguration)
-        }
-    }
-
     class LocaleConfiguration {
         var locale: String? = null
         var mcc = -1
@@ -157,8 +184,8 @@ class SamSprungWidget : AppCompatActivity(), View.OnClickListener, OnLongClickLi
     }
 
     private fun startLoaders() {
-        val loadApplications = model.loadApplications(true, this, mLocaleChanged)
-        model.loadUserItems(!mLocaleChanged, this, mLocaleChanged, loadApplications)
+        model.loadUserItems(!mLocaleChanged, this, mLocaleChanged,
+            model.loadApplications(true, this, mLocaleChanged))
         mRestoring = false
     }
 
@@ -235,43 +262,13 @@ class SamSprungWidget : AppCompatActivity(), View.OnClickListener, OnLongClickLi
         }
     }
 
-    /**
-     * Finds all the views we need and configure them properly.
-     */
-    private fun setupViews() {
-        mDragLayer = findViewById(R.id.drag_layer)
-        val dragLayer = mDragLayer
-        workspace = dragLayer!!.findViewById(R.id.workspace)
-        val workspace = workspace
-        val deleteZone: DeleteZone = dragLayer.findViewById(R.id.delete_zone)
-        workspace!!.setOnLongClickListener(this)
-        workspace.setDragger(dragLayer)
-        workspace.setLauncher(this)
-        deleteZone.setLauncher(this)
-        deleteZone.setDragController(dragLayer)
-        dragLayer.setDragScoller(workspace)
-        dragLayer.setDragListener(deleteZone)
-
-        workspace.setOnTouchListener(
-            object : OnSwipeTouchListener(this@SamSprungWidget) {
-            override fun onSwipeTop() : Boolean {
-                finish()
-                startActivity(
-                    Intent(this@SamSprungWidget, SamSprungDrawer::class.java),
-                    ActivityOptions.makeBasic().setLaunchDisplayId(1).toBundle()
-                )
-                return true
-            }
-        })
-    }
-
     fun onScreenChanged(workspace: Workspace, mCurrentScreen: Int) {
         workspace.setOnTouchListener(
-            object : OnSwipeTouchListener(this@SamSprungWidget) {
+            object : OnSwipeTouchListener(this@SamSprungPanels) {
             override fun onSwipeTop() : Boolean {
                 finish()
                 startActivity(
-                    Intent(this@SamSprungWidget, SamSprungDrawer::class.java),
+                    Intent(this@SamSprungPanels, SamSprungDrawer::class.java),
                     ActivityOptions.makeBasic().setLaunchDisplayId(1).toBundle()
                 )
                 return true
@@ -310,7 +307,7 @@ class SamSprungWidget : AppCompatActivity(), View.OnClickListener, OnLongClickLi
         launcherInfo.spanY = spans[1]
         Executors.newSingleThreadExecutor().execute {
             WidgetModel.addItemToDatabase(
-                applicationContext, launcherInfo,
+                widgetContext, launcherInfo,
                 Favorites.CONTAINER_DESKTOP,
                 workspace!!.currentScreen, xy[0], xy[1], false
             )
@@ -319,7 +316,8 @@ class SamSprungWidget : AppCompatActivity(), View.OnClickListener, OnLongClickLi
             model.addDesktopAppWidget(launcherInfo)
 
             // Perform actual inflation because we're live
-            launcherInfo.hostView = appWidgetHost!!.createView(applicationContext, appWidgetId, appWidgetInfo)
+            launcherInfo.hostView = appWidgetHost!!.createView(
+                widgetContext, appWidgetId, appWidgetInfo)
             launcherInfo.hostView!!.setAppWidget(appWidgetId, appWidgetInfo)
             launcherInfo.hostView!!.tag = launcherInfo
             workspace!!.addInCurrentScreen(
@@ -460,20 +458,11 @@ class SamSprungWidget : AppCompatActivity(), View.OnClickListener, OnLongClickLi
             ) else null
             cellInfo = workspace!!.findAllVacantCells(occupied)
             if (!cellInfo!!.findCellForSpan(xy, spanX, spanY)) {
-                Toast.makeText(ScaledContext.wrap(this), getString(R.string.out_of_space), Toast.LENGTH_SHORT).show()
+                Toast.makeText(ScaledContext.screen(this), getString(R.string.out_of_space), Toast.LENGTH_SHORT).show()
                 return false
             }
         }
         return true
-    }
-
-    /**
-     * Registers various content observers. The current implementation registers
-     * only a favorites observer to keep track of the favorites applications.
-     */
-    private fun registerContentObservers() {
-        val resolver = contentResolver
-        resolver.registerContentObserver(Favorites.CONTENT_URI, true, mObserver)
     }
 
     override fun dispatchKeyEvent(event: KeyEvent): Boolean {
@@ -578,7 +567,8 @@ class SamSprungWidget : AppCompatActivity(), View.OnClickListener, OnLongClickLi
             val item = appWidgets.removeFirst()
             val appWidgetId = item.appWidgetId
             val appWidgetInfo = mAppWidgetManager!!.getAppWidgetInfo(appWidgetId)
-            item.hostView = appWidgetHost!!.createView(applicationContext, appWidgetId, appWidgetInfo)
+            item.hostView = appWidgetHost!!.createView(
+                widgetContext, appWidgetId, appWidgetInfo)
             if (LOGD) {
                 Log.d(
                     LogTag, String.format(
@@ -682,12 +672,12 @@ class SamSprungWidget : AppCompatActivity(), View.OnClickListener, OnLongClickLi
     }
 
     private class DesktopBinder(
-        launcher: SamSprungWidget, shortcuts: ArrayList<WidgetInfo?>?,
+        launcher: SamSprungPanels, shortcuts: ArrayList<WidgetInfo?>?,
         appWidgets: ArrayList<CoverWidgetInfo>?
     ) : Handler(Looper.getMainLooper()), IdleHandler {
         private val mShortcuts: ArrayList<WidgetInfo?>? = shortcuts
         private val mAppWidgets: LinkedList<CoverWidgetInfo>
-        private val mLauncher: SoftReference<SamSprungWidget> = SoftReference(launcher)
+        private val mLauncher: SoftReference<SamSprungPanels> = SoftReference(launcher)
         var mTerminate = false
         fun startBindingItems() {
             if (WidgetModel.DEBUG_LOADERS) Log.d(LogTag, "------> start binding items")
@@ -754,11 +744,59 @@ class SamSprungWidget : AppCompatActivity(), View.OnClickListener, OnLongClickLi
         }
     }
 
+    private fun readConfiguration(context: Context, configuration: LocaleConfiguration) {
+        Executors.newSingleThreadExecutor().execute {
+            var `in`: DataInputStream? = null
+            try {
+                `in` = DataInputStream(context.openFileInput(PREFERENCES))
+                configuration.locale = `in`.readUTF()
+                configuration.mcc = `in`.readInt()
+                configuration.mnc = `in`.readInt()
+            } catch (e: FileNotFoundException) {
+                // Ignore
+            } catch (e: IOException) {
+                // Ignore
+            } finally {
+                if (`in` != null) {
+                    try {
+                        `in`.close()
+                    } catch (e: IOException) {
+                        // Ignore
+                    }
+                }
+            }
+        }
+    }
+
+    private fun writeConfiguration(context: Context, configuration: LocaleConfiguration) {
+        Executors.newSingleThreadExecutor().execute {
+            var out: DataOutputStream? = null
+            try {
+                out = DataOutputStream(context.openFileOutput(PREFERENCES, MODE_PRIVATE))
+                out.writeUTF(configuration.locale)
+                out.writeInt(configuration.mcc)
+                out.writeInt(configuration.mnc)
+                out.flush()
+            } catch (e: FileNotFoundException) {
+                // Ignore
+            } catch (e: IOException) {
+                context.getFileStreamPath(PREFERENCES).delete()
+            } finally {
+                if (out != null) {
+                    try {
+                        out.close()
+                    } catch (e: IOException) {
+                        // Ignore
+                    }
+                }
+            }
+        }
+    }
+
     companion object {
-        val LogTag: String = SamSprungWidget::class.java.name
+        val LogTag: String = SamSprungPanels::class.java.name
         const val LOGD = false
-        const val SCREEN_COUNT = 3
-        private const val DEFAULT_SCREEN = 1
+
         private const val PREFERENCES = "widget.preferences"
 
         // Type: int
@@ -787,55 +825,13 @@ class SamSprungWidget : AppCompatActivity(), View.OnClickListener, OnLongClickLi
 
         // Type: int[]
         private const val RUNTIME_STATE_PENDING_ADD_OCCUPIED_CELLS = "widget.add_occupied_cells"
+
         val model = WidgetModel()
         private val sLock = Any()
-        private var sScreen = DEFAULT_SCREEN
+
         const val APPWIDGET_HOST_ID = SamSprung.request_code
-        private fun readConfiguration(context: Context, configuration: LocaleConfiguration) {
-            var `in`: DataInputStream? = null
-            try {
-                `in` = DataInputStream(context.openFileInput(PREFERENCES))
-                configuration.locale = `in`.readUTF()
-                configuration.mcc = `in`.readInt()
-                configuration.mnc = `in`.readInt()
-            } catch (e: FileNotFoundException) {
-                // Ignore
-            } catch (e: IOException) {
-                // Ignore
-            } finally {
-                if (`in` != null) {
-                    try {
-                        `in`.close()
-                    } catch (e: IOException) {
-                        // Ignore
-                    }
-                }
-            }
-        }
 
-        private fun writeConfiguration(context: Context, configuration: LocaleConfiguration) {
-            var out: DataOutputStream? = null
-            try {
-                out = DataOutputStream(context.openFileOutput(PREFERENCES, MODE_PRIVATE))
-                out.writeUTF(configuration.locale)
-                out.writeInt(configuration.mcc)
-                out.writeInt(configuration.mnc)
-                out.flush()
-            } catch (e: FileNotFoundException) {
-                // Ignore
-            } catch (e: IOException) {
-                context.getFileStreamPath(PREFERENCES).delete()
-            } finally {
-                if (out != null) {
-                    try {
-                        out.close()
-                    } catch (e: IOException) {
-                        // Ignore
-                    }
-                }
-            }
-        }
-
+        private var sScreen = 1 // DEFAULT_SCREEN
         var screen: Int
             get() {
                 synchronized(sLock) { return sScreen }

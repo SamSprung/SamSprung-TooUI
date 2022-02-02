@@ -142,7 +142,7 @@ class AppDisplayListener : Service() {
             override fun onDisplayChanged(display: Int) {
                 if (display == 0) {
                     dismissDisplayListener(displayManager, mKeyguardLock)
-                    restoreActivityDisplay(launchPackage!!, launchActivity, display, false)
+                    restoreActivityDisplay(launchPackage, launchActivity, display, false)
                 } else {
                     if (SamSprung.isKeyguardLocked)
                         @Suppress("DEPRECATION") mKeyguardLock.disableKeyguard()

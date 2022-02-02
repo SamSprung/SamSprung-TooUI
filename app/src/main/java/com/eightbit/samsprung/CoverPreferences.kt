@@ -139,7 +139,7 @@ class CoverPreferences : AppCompatActivity() {
             } catch (ignored: ClassCastException) { }
         }
 
-        onNewIntent(intent)
+        onNewIntent(null)
 
         findViewById<BlurView>(R.id.blurContainer).setupWith(
             window.decorView.findViewById(R.id.coordinator))

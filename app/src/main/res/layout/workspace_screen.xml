@@ -17,13 +17,13 @@
 <com.eightbit.samsprung.widget.CellLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:launcher="http://schemas.android.com/apk/res-auto"
-    android:layout_width="fill_parent"
-    android:layout_height="fill_parent"
-    launcher:cellWidth="85dp"
-    launcher:cellHeight="65dp"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    launcher:cellWidth="90dp"
+    launcher:cellHeight="85dp"
     launcher:longAxisStartPadding="0dp"
     launcher:longAxisEndPadding="0dp"
     launcher:shortAxisStartPadding="0dp"
     launcher:shortAxisEndPadding="0dp"
-    launcher:shortAxisCells="4"
-    launcher:longAxisCells="5" />
+    launcher:shortAxisCells="5"
+    launcher:longAxisCells="8" />

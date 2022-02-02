@@ -31,14 +31,13 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.os.Process;
 
-import com.eightbit.samsprung.SamSprungWidget;
+import com.eightbit.samsprung.SamSprungPanels;
 import com.eightbit.samsprung.WidgetSettings;
 
 import java.lang.ref.WeakReference;
 import java.net.URISyntaxException;
 import java.text.Collator;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -65,9 +64,6 @@ public class WidgetModel {
     private Thread mApplicationsLoaderThread;
     private Thread mDesktopLoaderThread;
 
-    private final HashMap<ComponentName, ApplicationInfo> mAppInfoCache =
-            new HashMap<>(INITIAL_ICON_CACHE_CAPACITY);
-
     public WidgetModel() {
     }
 
@@ -87,30 +83,17 @@ public class WidgetModel {
     }
 
     /**
-     * Drop our cache of components to their lables & icons.  We do
-     * this from Launcher when applications are added/removed.  It's a
-     * bit overkill, but it's a rare operation anyway.
-     */
-    synchronized void dropApplicationCache() {
-        mAppInfoCache.clear();
-    }
-
-    /**
      * Loads the list of installed applications in mApplications.
      *
      * @return true if the applications loader must be started
      *         (see startApplicationsLoader()), false otherwise.
      */
-    public synchronized boolean loadApplications(boolean isLaunching, SamSprungWidget launcher,
+    public synchronized boolean loadApplications(boolean isLaunching, SamSprungPanels launcher,
             boolean localeChanged) {
 
         if (DEBUG_LOADERS) d(LOG_TAG, "load applications");
 
         stopAndWaitForApplicationsLoader();
-
-        if (localeChanged) {
-            dropApplicationCache();
-        }
 
         if (!isLaunching) {
             startApplicationsLoaderLocked(launcher, false);
@@ -137,12 +120,12 @@ public class WidgetModel {
         }
     }
 
-    private synchronized void startApplicationsLoader(SamSprungWidget launcher, boolean isLaunching) {
+    private synchronized void startApplicationsLoader(SamSprungPanels launcher, boolean isLaunching) {
         if (DEBUG_LOADERS) d(LOG_TAG, "  --> starting applications loader unlocked");
         startApplicationsLoaderLocked(launcher, isLaunching);
     }
 
-    private void startApplicationsLoaderLocked(SamSprungWidget launcher, boolean isLaunching) {
+    private void startApplicationsLoaderLocked(SamSprungPanels launcher, boolean isLaunching) {
         if (DEBUG_LOADERS) d(LOG_TAG, "  --> starting applications loader");
 
         stopAndWaitForApplicationsLoader();
@@ -156,14 +139,14 @@ public class WidgetModel {
     private static final AtomicInteger sWorkspaceLoaderCount = new AtomicInteger(1);
 
     private static class ApplicationsLoader implements Runnable {
-        private final WeakReference<SamSprungWidget> mLauncher;
+        private final WeakReference<SamSprungPanels> mLauncher;
 
         private volatile boolean mStopped;
         private volatile boolean mRunning;
         private final boolean mIsLaunching;
         private final int mId;
 
-        ApplicationsLoader(SamSprungWidget launcher, boolean isLaunching) {
+        ApplicationsLoader(SamSprungPanels launcher, boolean isLaunching) {
             mIsLaunching = isLaunching;
             mLauncher = new WeakReference<>(launcher);
             mRunning = true;
@@ -189,7 +172,7 @@ public class WidgetModel {
             final Intent mainIntent = new Intent(Intent.ACTION_MAIN, null);
             mainIntent.addCategory(Intent.CATEGORY_LAUNCHER);
 
-            final SamSprungWidget launcher = mLauncher.get();
+            final SamSprungPanels launcher = mLauncher.get();
 
             if (mStopped) {
                 if (DEBUG_LOADERS) d(LOG_TAG, "  ----> applications loader stopped (" + mId + ")");
@@ -206,7 +189,7 @@ public class WidgetModel {
      * Loads all of the items on the desktop, in folders, or in the dock.
      * These can be apps, shortcuts or widgets
      */
-    public void loadUserItems(boolean isLaunching, SamSprungWidget launcher, boolean localeChanged,
+    public void loadUserItems(boolean isLaunching, SamSprungPanels launcher, boolean localeChanged,
                        boolean loadApplications) {
         if (DEBUG_LOADERS) d(LOG_TAG, "loading user items");
 
@@ -297,13 +280,13 @@ public class WidgetModel {
         private volatile boolean mStopped;
         private volatile boolean mRunning;
 
-        private final WeakReference<SamSprungWidget> mLauncher;
+        private final WeakReference<SamSprungPanels> mLauncher;
         private final boolean mLocaleChanged;
         private final boolean mLoadApplications;
         private final boolean mIsLaunching;
         private final int mId;        
 
-        DesktopItemsLoader(SamSprungWidget launcher, boolean localeChanged, boolean loadApplications,
+        DesktopItemsLoader(SamSprungPanels launcher, boolean localeChanged, boolean loadApplications,
                            boolean isLaunching) {
             mLoadApplications = loadApplications;
             mIsLaunching = isLaunching;
@@ -327,7 +310,7 @@ public class WidgetModel {
 
             android.os.Process.setThreadPriority(Process.THREAD_PRIORITY_DEFAULT);
 
-            final SamSprungWidget launcher = mLauncher.get();
+            final SamSprungPanels launcher = mLauncher.get();
             final ContentResolver contentResolver = launcher.getContentResolver();
             final PackageManager manager = launcher.getPackageManager();
 
@@ -377,7 +360,7 @@ public class WidgetModel {
 
                             container = c.getInt(containerIndex);
                             if (container != WidgetSettings.Favorites.CONTAINER_DESKTOP) {
-                                e(SamSprungWidget.Companion.getLogTag(), "Widget found where container "
+                                e(SamSprungPanels.Companion.getLogTag(), "Widget found where container "
                                         + "!= CONTAINER_DESKTOP -- ignoring!");
                                 continue;
                             }
@@ -386,7 +369,7 @@ public class WidgetModel {
                             desktopAppWidgets.add(appWidgetInfo);
                         }
                     } catch (Exception e) {
-                        w(SamSprungWidget.Companion.getLogTag(), "Desktop items loading interrupted:", e);
+                        w(SamSprungPanels.Companion.getLogTag(), "Desktop items loading interrupted:", e);
                     }
                 }
             }
@@ -435,28 +418,7 @@ public class WidgetModel {
     public void unbind() {
         // Interrupt the applications loader before setting the adapter to null
         stopAndWaitForApplicationsLoader();
-        unbindDrawables(mDesktopItems);
         unbindAppWidgetHostViews(mDesktopAppWidgets);
-        unbindCachedIconDrawables();
-    }
-
-    /**
-     * Remove the callback for the cached drawables or we leak the previous
-     * Home screen on orientation change.
-     */
-    private void unbindDrawables(ArrayList<WidgetInfo> desktopItems) {
-        if (desktopItems != null) {
-            final int count = desktopItems.size();
-            for (int i = 0; i < count; i++) {
-                WidgetInfo item = desktopItems.get(i);
-                switch (item.itemType) {
-                case WidgetSettings.Favorites.ITEM_TYPE_APPLICATION:
-                case WidgetSettings.Favorites.ITEM_TYPE_SHORTCUT:
-                    ((ApplicationInfo)item).icon.setCallback(null);
-                    break;
-                }
-            }
-        }
     }
 
     /**
@@ -469,16 +431,6 @@ public class WidgetModel {
                 CoverWidgetInfo launcherInfo = appWidgets.get(i);
                 launcherInfo.hostView = null;
             }
-        }
-    }
-
-    /**
-     * Remove the callback for the cached drawables or we leak the previous
-     * Home screen on orientation change.
-     */
-    private void unbindCachedIconDrawables() {
-        for (ApplicationInfo appInfo : mAppInfoCache.values()) {
-            appInfo.icon.setCallback(null);
         }
     }
 

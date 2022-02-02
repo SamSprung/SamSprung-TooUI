@@ -26,7 +26,7 @@
                 android:id="@+id/workspace"
                 android:layout_width="fill_parent"
                 android:layout_height="fill_parent"
-                launcher:defaultScreen="2">
+                launcher:defaultScreen="1">
 
                 <include android:id="@+id/cell1" layout="@layout/workspace_screen" />
                 <include android:id="@+id/cell2" layout="@layout/workspace_screen" />

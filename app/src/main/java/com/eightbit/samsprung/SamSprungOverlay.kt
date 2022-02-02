@@ -97,10 +97,10 @@ class SamSprungOverlay : AppCompatActivity() {
 
         window.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
 
-        ScaledContext.wrap(this).setTheme(R.style.Theme_SecondScreen_NoActionBar)
+        ScaledContext.screen(this).setTheme(R.style.Theme_SecondScreen_NoActionBar)
         setContentView(R.layout.navigation_menu)
 
-        onNewIntent(intent)
+        onNewIntent(null)
 
         val handler = Handler(Looper.getMainLooper())
         val coordinator = findViewById<CoordinatorLayout>(R.id.coordinator)

@@ -35,7 +35,7 @@ import android.view.ViewParent;
 import android.widget.Scroller;
 
 import com.eightbit.samsprung.R;
-import com.eightbit.samsprung.SamSprungWidget;
+import com.eightbit.samsprung.SamSprungPanels;
 import com.eightbit.samsprung.WidgetSettings;
 
 /**
@@ -80,7 +80,7 @@ public class Workspace extends ViewGroup implements DropTarget, DragSource, Drag
 
     private OnLongClickListener mLongClickListener;
 
-    private SamSprungWidget mLauncher;
+    private SamSprungPanels mLauncher;
     private DragController mDragger;
     
     /**
@@ -132,7 +132,7 @@ public class Workspace extends ViewGroup implements DropTarget, DragSource, Drag
     private void initWorkspace() {
         mScroller = new Scroller(getContext());
         mCurrentScreen = mDefaultScreen;
-        SamSprungWidget.Companion.setScreen(mCurrentScreen);
+        SamSprungPanels.Companion.setScreen(mCurrentScreen);
 
         Paint mPaint = new Paint();
         mPaint.setDither(false);
@@ -395,34 +395,17 @@ public class Workspace extends ViewGroup implements DropTarget, DragSource, Drag
     public void computeScroll() {
         if (mScroller.computeScrollOffset()) {
 
-// === changed
-//            mScrollX = mScroller.getCurrX();
-//            mScrollY = mScroller.getCurrY();
-//
-//    public void scrollTo(int x, int y) {
-//        if (mScrollX != x || mScrollY != y) {
-//            int oldX = mScrollX;
-//            int oldY = mScrollY;
-//            mScrollX = x;
-//            mScrollY = y;
-//            onScrollChanged(mScrollX, mScrollY, oldX, oldY);
-//            invalidate();
-//        }
-//    }
 			scrollTo( mScroller.getCurrX(), mScroller.getCurrY() ); 
             
             postInvalidate();
         } else if (mNextScreen != INVALID_SCREEN) {
             mCurrentScreen = Math.max(0, Math.min(mNextScreen, getChildCount() - 1));
-            SamSprungWidget.Companion.setScreen(mCurrentScreen);
+            SamSprungPanels.Companion.setScreen(mCurrentScreen);
             mLauncher.onScreenChanged(this, mCurrentScreen);
             mNextScreen = INVALID_SCREEN;
             clearChildrenCache();
         }
     }
-
-// === remove : isOpaque is hide
-//    @Override
 
     @Override
     protected void dispatchDraw(Canvas canvas) {
@@ -811,7 +794,7 @@ public class Workspace extends ViewGroup implements DropTarget, DragSource, Drag
         super.onRestoreInstanceState(savedState.getSuperState());
         if (savedState.currentScreen != -1) {
             mCurrentScreen = savedState.currentScreen;
-            SamSprungWidget.Companion.setScreen(mCurrentScreen);
+            SamSprungPanels.Companion.setScreen(mCurrentScreen);
         }
     }
 
@@ -925,7 +908,7 @@ public class Workspace extends ViewGroup implements DropTarget, DragSource, Drag
                 spanX, spanY, mVacantCache, recycle);
     }
 
-    public void setLauncher(SamSprungWidget launcher) {
+    public void setLauncher(SamSprungPanels launcher) {
         mLauncher = launcher;
     }
 
@@ -939,7 +922,7 @@ public class Workspace extends ViewGroup implements DropTarget, DragSource, Drag
                 final CellLayout cellLayout = (CellLayout) getChildAt(mDragInfo.screen);
                 cellLayout.removeView(mDragInfo.cell);
                 final Object tag = mDragInfo.cell.getTag();
-                SamSprungWidget.Companion.getModel().removeDesktopItem((WidgetInfo) tag);
+                SamSprungPanels.Companion.getModel().removeDesktopItem((WidgetInfo) tag);
             }
         } else {
             if (mDragInfo != null) {
@@ -1022,7 +1005,7 @@ public class Workspace extends ViewGroup implements DropTarget, DragSource, Drag
 
     /**
      * Set true to allow long-press events to be triggered, usually checked by
-     * {@link SamSprungWidget} to accept or block dpad-initiated long-presses.
+     * {@link SamSprungPanels} to accept or block dpad-initiated long-presses.
      */
     public void setAllowLongPress(boolean allowLongPress) {
         mAllowLongPress = allowLongPress;

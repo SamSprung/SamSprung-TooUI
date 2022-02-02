@@ -165,7 +165,7 @@ public class WidgetProvider extends ContentProvider {
         DatabaseHelper(Context context) {
             super(context, DATABASE_NAME, null, DATABASE_VERSION);
             mContext = context;
-            mAppWidgetHost = new AppWidgetHost(context, SamSprungWidget.APPWIDGET_HOST_ID);
+            mAppWidgetHost = new AppWidgetHost(context, SamSprungPanels.APPWIDGET_HOST_ID);
         }
 
         /**

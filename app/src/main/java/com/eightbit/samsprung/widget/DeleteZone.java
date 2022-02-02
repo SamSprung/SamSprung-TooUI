@@ -32,7 +32,7 @@ import android.view.animation.TranslateAnimation;
 import androidx.appcompat.widget.AppCompatImageView;
 
 import com.eightbit.samsprung.R;
-import com.eightbit.samsprung.SamSprungWidget;
+import com.eightbit.samsprung.SamSprungPanels;
 import com.eightbit.samsprung.WidgetSettings;
 
 public class DeleteZone extends AppCompatImageView implements DropTarget, DragController.DragListener {
@@ -42,7 +42,7 @@ public class DeleteZone extends AppCompatImageView implements DropTarget, DragCo
 
     private final int[] mLocation = new int[2];
     
-    private SamSprungWidget mLauncher;
+    private SamSprungPanels mLauncher;
     private boolean mTrashMode;
 
     private AnimationSet mInAnimation;
@@ -92,7 +92,7 @@ public class DeleteZone extends AppCompatImageView implements DropTarget, DragCo
 
         if (item.container == -1) return;
 
-        final WidgetModel model = SamSprungWidget.Companion.getModel();
+        final WidgetModel model = SamSprungPanels.Companion.getModel();
         if (item.container == WidgetSettings.Favorites.CONTAINER_DESKTOP) {
             if (item instanceof CoverWidgetInfo) {
                 model.removeDesktopAppWidget((CoverWidgetInfo) item);
@@ -215,7 +215,7 @@ public class DeleteZone extends AppCompatImageView implements DropTarget, DragCo
         }
     }
 
-    public void setLauncher(SamSprungWidget launcher) {
+    public void setLauncher(SamSprungPanels launcher) {
         mLauncher = launcher;
     }
 

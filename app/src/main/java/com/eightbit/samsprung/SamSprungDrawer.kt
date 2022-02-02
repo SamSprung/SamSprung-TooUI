@@ -67,7 +67,6 @@ import android.graphics.Color
 import android.graphics.PixelFormat
 import android.hardware.camera2.CameraManager
 import android.hardware.camera2.CameraManager.TorchCallback
-import android.inputmethodservice.Keyboard
 import android.inputmethodservice.KeyboardView
 import android.media.AudioManager
 import android.net.wifi.WifiManager
@@ -120,8 +119,6 @@ class SamSprungDrawer : AppCompatActivity(),
     private lateinit var pReceiver: BroadcastReceiver
     private lateinit var noticesView: RecyclerView
 
-    private val SCREW_YOU_JAGAN2 = "SCREW YOU JAGAN2 ;)"
-
     @SuppressLint("InflateParams", "ClickableViewAccessibility")
     override fun onCreate(savedInstanceState: Bundle?) {
         setShowWhenLocked(true)
@@ -129,7 +126,7 @@ class SamSprungDrawer : AppCompatActivity(),
         super.onCreate(savedInstanceState)
         prefs = getSharedPreferences(SamSprung.prefsValue, MODE_PRIVATE)
         supportActionBar?.hide()
-        ScaledContext.wrap(this).setTheme(R.style.Theme_SecondScreen_NoActionBar)
+        ScaledContext.screen(this).setTheme(R.style.Theme_SecondScreen_NoActionBar)
 
         requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_LOCKED
         requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_BEHIND
@@ -266,7 +263,7 @@ class SamSprungDrawer : AppCompatActivity(),
             }
         }
         ItemTouchHelper(noticeTouchCallback).attachToRecyclerView(noticesView)
-        onNewIntent(intent)
+        onNewIntent(null)
 
         val bottomSheetBehavior: BottomSheetBehavior<View> =
             BottomSheetBehavior.from(findViewById(R.id.bottom_sheet))
@@ -453,7 +450,7 @@ class SamSprungDrawer : AppCompatActivity(),
         searchWrapper.visibility = View.GONE
 
         val mKeyboardView = if (hasAccessibility())
-            getKeyboard(searchWrapper, ScaledContext.wrap(this)) else null
+            getKeyboard(searchWrapper, ScaledContext.screen(this)) else null
 
         SamSprungInput.setInputListener(object : SamSprungInput.InputMethodListener {
             override fun onInputRequested(instance: SamSprungInput) { }
@@ -547,7 +544,7 @@ class SamSprungDrawer : AppCompatActivity(),
                             .findFirstCompletelyVisibleItemPosition() == 0) {
                         terminate()
                         startActivity(
-                            Intent(this@SamSprungDrawer, SamSprungWidget::class.java),
+                            Intent(this@SamSprungDrawer, SamSprungPanels::class.java),
                             ActivityOptions.makeBasic().setLaunchDisplayId(1).toBundle()
                         )
                         return true
@@ -558,7 +555,7 @@ class SamSprungDrawer : AppCompatActivity(),
                             .findFirstCompletelyVisibleItemPosition() == 0) {
                         terminate()
                         startActivity(
-                            Intent(this@SamSprungDrawer, SamSprungWidget::class.java),
+                            Intent(this@SamSprungDrawer, SamSprungPanels::class.java),
                             ActivityOptions.makeBasic().setLaunchDisplayId(1).toBundle()
                         )
                         return true

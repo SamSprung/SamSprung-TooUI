@@ -132,7 +132,7 @@ class SamSprung : Application() {
         var mContext: SoftReference<Context>? = null
         fun getCoverContext(): Context? {
             if (null != mContext && null != mContext!!.get()) {
-                return ScaledContext.wrap(mContext!!.get())
+                return ScaledContext.screen(mContext!!.get())
             }
             return null
         }
