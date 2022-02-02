@@ -151,7 +151,9 @@ class SamSprungOverlay : AppCompatActivity(),
         val bottomSheetBehaviorMain = BottomSheetBehavior.from(findViewById(R.id.bottom_sheet_main))
         bottomSheetBehaviorMain.state = BottomSheetBehavior.STATE_COLLAPSED
         bottomSheetBehaviorMain.addBottomSheetCallback(object : BottomSheetBehavior.BottomSheetCallback() {
-            override fun onStateChanged(bottomSheet: View, newState: Int) { }
+            override fun onStateChanged(bottomSheet: View, newState: Int) {
+                coordinator.keepScreenOn = newState == BottomSheetBehavior.STATE_EXPANDED
+            }
             override fun onSlide(bottomSheet: View, slideOffset: Float) {
                 fakeOverlay.visibility = if (slideOffset > 0.75) View.GONE else View.VISIBLE
                 val color = prefs.getInt(SamSprung.prefColors,
@@ -558,15 +560,14 @@ class SamSprungOverlay : AppCompatActivity(),
                         }
                         searchWrapper.visibility = View.INVISIBLE
                     } else {
+                        searchWrapper.visibility = View.VISIBLE
                         val animate = TranslateAnimation(
                             -coordinator.width.toFloat(), 0f, 0f, 0f
                         )
-                        animate.duration = 1000
+                        animate.duration = 500
                         animate.fillAfter = false
                         animate.setAnimationListener(object : Animation.AnimationListener {
-                            override fun onAnimationStart(animation: Animation) {
-                                searchWrapper.visibility = View.VISIBLE
-                            }
+                            override fun onAnimationStart(animation: Animation) { }
                             override fun onAnimationEnd(animation: Animation) {
                                 animate.setAnimationListener(null)
                             }
@@ -866,7 +867,6 @@ class SamSprungOverlay : AppCompatActivity(),
     }
 
     override fun onDestroy() {
-        super.onDestroy()
         try {
             if (this::oReceiver.isInitialized)
                 unregisterReceiver(oReceiver)
@@ -879,5 +879,6 @@ class SamSprungOverlay : AppCompatActivity(),
             if (this::pReceiver.isInitialized)
                 unregisterReceiver(pReceiver)
         } catch (ignored: Exception) { }
+        super.onDestroy()
     }
 }
