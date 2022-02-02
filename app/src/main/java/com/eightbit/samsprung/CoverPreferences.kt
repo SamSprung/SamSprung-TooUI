@@ -214,6 +214,15 @@ class CoverPreferences : AppCompatActivity() {
             ))
         }
 
+        val updates = findViewById<SwitchCompat>(R.id.updates_switch)
+        updates.isChecked = prefs.getBoolean(SamSprung.prefTester, false)
+        updates.setOnCheckedChangeListener { _, _ ->
+            with(prefs.edit()) {
+                putBoolean(SamSprung.prefTester, updates.isChecked)
+                apply()
+            }
+        }
+
         val packageRetriever = PackageRetriever(this)
         val packages = packageRetriever.getRecentPackageList(false)
         val unlisted = packageRetriever.getHiddenPackages()

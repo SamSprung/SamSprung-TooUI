@@ -209,7 +209,36 @@
                 android:layout_height="1dp"
                 android:background="@android:color/background_dark"
                 android:layout_marginTop="4dp"
-                android:layout_marginBottom="8dp"/>
+                android:layout_marginBottom="4dp"/>
+
+            <LinearLayout
+                android:id="@+id/updates"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginStart="16dp"
+                android:layout_marginEnd="8dp"
+                android:layout_gravity="center_vertical"
+                tools:ignore="UseCompoundDrawables">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:textSize="28sp"
+                    android:textColor="?android:textColorPrimary"
+                    android:gravity="center_vertical"
+                    android:layout_height="wrap_content"
+                    android:text="@string/updates_preference" />
+
+                <androidx.appcompat.widget.SwitchCompat
+                    android:id="@+id/updates_switch"
+                    android:layout_width="0dp"
+                    android:gravity="center"
+                    android:layout_weight="1"
+                    android:textSize="28sp"
+                    android:textColor="?android:textColorPrimary"
+                    android:layout_height="wrap_content" />
+            </LinearLayout>
 
             <ToggleButton
                 android:id="@+id/swapViewType"
