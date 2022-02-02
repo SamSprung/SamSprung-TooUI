@@ -152,7 +152,13 @@ class SamSprungOverlay : AppCompatActivity(),
         bottomSheetBehaviorMain.state = BottomSheetBehavior.STATE_COLLAPSED
         bottomSheetBehaviorMain.addBottomSheetCallback(object : BottomSheetBehavior.BottomSheetCallback() {
             override fun onStateChanged(bottomSheet: View, newState: Int) {
-                coordinator.keepScreenOn = newState == BottomSheetBehavior.STATE_EXPANDED
+                if (newState == BottomSheetBehavior.STATE_EXPANDED) {
+                    coordinator.keepScreenOn = true
+                } else if (newState == BottomSheetBehavior.STATE_COLLAPSED) {
+                    coordinator.keepScreenOn = false
+                    coordinator.visibility = View.GONE
+                    bottomSheetBehaviorMain.isDraggable = true
+                }
             }
             override fun onSlide(bottomSheet: View, slideOffset: Float) {
                 fakeOverlay.visibility = if (slideOffset > 0.75) View.GONE else View.VISIBLE
@@ -160,17 +166,18 @@ class SamSprungOverlay : AppCompatActivity(),
                     Color.rgb(255, 255, 255))
                 if (slideOffset > 0) {
                     bottomSheetBehaviorMain.isDraggable = false
+                    coordinator.visibility = View.VISIBLE
                     if (bottomHandle.visibility != View.INVISIBLE) {
                         handler.removeCallbacksAndMessages(null)
                         bottomHandle.visibility = View.INVISIBLE
                     }
                 } else {
-                    bottomSheetBehaviorMain.isDraggable = true
                     bottomHandle.setBackgroundColor(color)
                     bottomHandle.alpha = prefs.getFloat(SamSprung.prefAlphas, 1f)
                     if (!bottomHandle.isVisible) {
                         handler.postDelayed({
-                            runOnUiThread { bottomHandle.visibility = View.VISIBLE }
+                            runOnUiThread {
+                                bottomHandle.visibility = View.VISIBLE }
                         }, 500)
                     }
                 }
@@ -624,6 +631,7 @@ class SamSprungOverlay : AppCompatActivity(),
                 return false
             }
         })
+        coordinator.visibility = View.GONE
     }
 
     @SuppressLint("InflateParams")
