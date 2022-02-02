@@ -75,18 +75,6 @@
             <meta-data android:name="com.samsung.android.activity.showWhenLocked" android:value="true"/>
         </activity>
         <activity
-            android:name=".SamSprungDrawer"
-            android:configChanges="orientation|screenLayout|screenSize|smallestScreenSize"
-            android:exported="true"
-            android:launchMode="singleTop"
-            android:showOnLockScreen="true"
-            android:showWhenLocked="true">
-            <meta-data android:name="com.samsung.android.activity.showWhenLocked" android:value="true"/>
-            <intent-filter>
-                <category android:name="android.intent.category.SECONDARY_HOME" />
-            </intent-filter>
-        </activity>
-        <activity
             android:name=".SamSprungPanels"
             android:theme="@style/Theme.AppCompat"
             android:configChanges="orientation|screenLayout|screenSize|smallestScreenSize"

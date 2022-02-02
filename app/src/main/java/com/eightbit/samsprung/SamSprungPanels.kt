@@ -157,7 +157,7 @@ class SamSprungPanels : AppCompatActivity(), View.OnClickListener, OnLongClickLi
             override fun onSwipeTop() : Boolean {
                 finish()
                 startActivity(
-                    Intent(this@SamSprungPanels, SamSprungDrawer::class.java),
+                    Intent(this@SamSprungPanels, SamSprungOverlay::class.java),
                     ActivityOptions.makeBasic().setLaunchDisplayId(1).toBundle()
                 )
                 return true
@@ -268,7 +268,7 @@ class SamSprungPanels : AppCompatActivity(), View.OnClickListener, OnLongClickLi
             override fun onSwipeTop() : Boolean {
                 finish()
                 startActivity(
-                    Intent(this@SamSprungPanels, SamSprungDrawer::class.java),
+                    Intent(this@SamSprungPanels, SamSprungOverlay::class.java),
                     ActivityOptions.makeBasic().setLaunchDisplayId(1).toBundle()
                 )
                 return true

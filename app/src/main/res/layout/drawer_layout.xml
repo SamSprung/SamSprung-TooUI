@@ -6,8 +6,7 @@
     android:id="@+id/coordinator"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    tools:context=".SamSprungDrawer">
+    android:orientation="vertical">
 
     <com.eightbitlab.blurview.BlurView
         android:id="@+id/blurContainer"

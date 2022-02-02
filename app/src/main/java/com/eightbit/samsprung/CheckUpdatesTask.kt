@@ -214,7 +214,7 @@ class CheckUpdatesTask(private var activity: AppCompatActivity) {
                         if (activity is CoverPreferences) {
                             val assets = (jsonObject["assets"] as JSONArray)[0] as JSONObject
                             downloadUpdate(assets["browser_download_url"] as String)
-                        } else if (activity is SamSprungDrawer) {
+                        } else if (activity is SamSprungOverlay) {
                             showUpdateNotification()
                         }
                     }

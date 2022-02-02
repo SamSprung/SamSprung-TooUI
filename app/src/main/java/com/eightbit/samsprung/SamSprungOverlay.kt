@@ -51,34 +51,76 @@ package com.eightbit.samsprung
  * subject to to the terms and conditions of the Apache License, Version 2.0.
  */
 
+import android.Manifest
 import android.annotation.SuppressLint
-import android.app.ActivityOptions
-import android.content.Intent
-import android.content.SharedPreferences
+import android.app.*
+import android.bluetooth.BluetoothAdapter
+import android.bluetooth.BluetoothManager
+import android.content.*
+import android.content.pm.ActivityInfo
+import android.content.pm.ApplicationInfo
+import android.content.pm.PackageManager
+import android.content.pm.ResolveInfo
+import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.PixelFormat
 import android.graphics.drawable.ColorDrawable
-import android.os.Bundle
-import android.os.Handler
-import android.os.Looper
+import android.hardware.camera2.CameraManager
+import android.inputmethodservice.KeyboardView
+import android.media.AudioManager
+import android.net.wifi.WifiManager
+import android.nfc.NfcAdapter
+import android.nfc.NfcManager
+import android.os.*
+import android.provider.Settings
+import android.text.TextUtils
 import android.view.*
-import android.widget.ImageView
-import android.widget.LinearLayout
+import android.view.animation.Animation
+import android.view.animation.TranslateAnimation
+import android.widget.*
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.AppCompatImageView
+import androidx.appcompat.widget.SearchView
+import androidx.appcompat.widget.Toolbar
 import androidx.coordinatorlayout.widget.CoordinatorLayout
+import androidx.core.content.ContextCompat
 import androidx.core.view.isVisible
+import androidx.recyclerview.widget.GridLayoutManager
+import androidx.recyclerview.widget.ItemTouchHelper
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.eightbit.content.ScaledContext
+import com.eightbit.view.AnimatedLinearLayout
 import com.eightbit.view.OnSwipeTouchListener
 import com.eightbit.widget.VerticalStrokeTextView
+import com.eightbitlab.blurview.BlurView
+import com.eightbitlab.blurview.RenderScriptBlur
 import com.google.android.material.bottomsheet.BottomSheetBehavior
+import java.io.File
+import java.util.concurrent.Executors
 
 
-class SamSprungOverlay : AppCompatActivity() {
+class SamSprungOverlay : AppCompatActivity(),
+    DrawerAppAdapater.OnAppClickListener,
+    NotificationAdapter.OnNoticeClickListener {
 
     private lateinit var  prefs: SharedPreferences
-    private lateinit var bottomSheetBehavior: BottomSheetBehavior<View>
     private lateinit var bottomHandle: View
+
+    private lateinit var wifiManager: WifiManager
+    private lateinit var bluetoothAdapter: BluetoothAdapter
+    private lateinit var nfcAdapter: NfcAdapter
+    private lateinit var audioManager: AudioManager
+    private lateinit var notificationManager: NotificationManager
+    private lateinit var camManager: CameraManager
+
+    private var isTorchEnabled = false
+
+    private lateinit var oReceiver: BroadcastReceiver
+    private lateinit var bReceiver: BroadcastReceiver
+    private lateinit var pReceiver: BroadcastReceiver
+    private lateinit var noticesView: RecyclerView
 
     @SuppressLint("ClickableViewAccessibility")
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -98,55 +140,30 @@ class SamSprungOverlay : AppCompatActivity() {
         window.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
 
         ScaledContext.screen(this).setTheme(R.style.Theme_SecondScreen_NoActionBar)
-        setContentView(R.layout.navigation_menu)
+        setContentView(R.layout.homescreen_menu)
 
         onNewIntent(null)
 
         val handler = Handler(Looper.getMainLooper())
+        val coordinatorMain = findViewById<CoordinatorLayout>(R.id.coordinator_main)
+        val fakeOverlay = findViewById<LinearLayout>(R.id.fake_overlay)
         val coordinator = findViewById<CoordinatorLayout>(R.id.coordinator)
-        val menu = findViewById<LinearLayout>(R.id.button_layout)
-        val menuLogo = menu.findViewById<VerticalStrokeTextView>(R.id.samsprung_logo)
-        val menuRecent = menu.findViewById<ImageView>(R.id.button_recent)
-        val menuHome = menu.findViewById<ImageView>(R.id.button_home)
-        val menuBack = menu.findViewById<ImageView>(R.id.button_back)
-        bottomSheetBehavior = BottomSheetBehavior.from(findViewById(R.id.bottom_sheet))
-        bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
-        bottomSheetBehavior.addBottomSheetCallback(object : BottomSheetBehavior.BottomSheetCallback() {
-            override fun onStateChanged(bottomSheet: View, newState: Int) {
-                if (newState == BottomSheetBehavior.STATE_EXPANDED) {
-                    menu.visibility = View.VISIBLE
-                    menuRecent.setOnClickListener {
-                        finish()
-                        startActivity(
-                            Intent(this@SamSprungOverlay, SamSprungDrawer::class.java),
-                            ActivityOptions.makeBasic().setLaunchDisplayId(1).toBundle()
-                        )
-                    }
-                    menuHome.setOnClickListener {
-                        bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
-                    }
-                    menuBack.setOnClickListener {
-                        bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
-                    }
-                } else if (newState == BottomSheetBehavior.STATE_COLLAPSED) {
-                    menu.visibility = View.GONE
-                }
-            }
-
+        val bottomSheetBehaviorMain = BottomSheetBehavior.from(findViewById(R.id.bottom_sheet_main))
+        bottomSheetBehaviorMain.state = BottomSheetBehavior.STATE_COLLAPSED
+        bottomSheetBehaviorMain.addBottomSheetCallback(object : BottomSheetBehavior.BottomSheetCallback() {
+            override fun onStateChanged(bottomSheet: View, newState: Int) { }
             override fun onSlide(bottomSheet: View, slideOffset: Float) {
+                fakeOverlay.visibility = if (slideOffset > 0.75) View.GONE else View.VISIBLE
                 val color = prefs.getInt(SamSprung.prefColors,
                     Color.rgb(255, 255, 255))
                 if (slideOffset > 0) {
+                    bottomSheetBehaviorMain.isDraggable = false
                     if (bottomHandle.visibility != View.INVISIBLE) {
-                        val icons = menu.findViewById<LinearLayout>(R.id.icons_layout)
-                        for (i in 0 until icons.childCount) {
-                            (icons.getChildAt(i) as AppCompatImageView).setColorFilter(color)
-                        }
-                        menuLogo.setTextColor(color)
                         handler.removeCallbacksAndMessages(null)
                         bottomHandle.visibility = View.INVISIBLE
                     }
                 } else {
+                    bottomSheetBehaviorMain.isDraggable = true
                     bottomHandle.setBackgroundColor(color)
                     bottomHandle.alpha = prefs.getFloat(SamSprung.prefAlphas, 1f)
                     if (!bottomHandle.isVisible) {
@@ -158,26 +175,709 @@ class SamSprungOverlay : AppCompatActivity() {
             }
         })
 
-        coordinator.setOnTouchListener(
+        coordinatorMain.setOnTouchListener(
             object: OnSwipeTouchListener(this@SamSprungOverlay) {
             override fun onSwipeTop() : Boolean {
-                bottomSheetBehavior.state = BottomSheetBehavior.STATE_EXPANDED
+                bottomSheetBehaviorMain.state = BottomSheetBehavior.STATE_EXPANDED
                 return true
             }
             override fun onSwipeBottom() : Boolean {
-                bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
+                bottomSheetBehaviorMain.state = BottomSheetBehavior.STATE_COLLAPSED
                 return true
+            }
+        })
+
+        oReceiver = object : BroadcastReceiver() {
+            override fun onReceive(context: Context?, intent: Intent) {
+                if (intent.action == Intent.ACTION_SCREEN_OFF) {
+                    terminate()
+                }
+            }
+        }
+        IntentFilter(Intent.ACTION_SCREEN_OFF).also {
+            registerReceiver(oReceiver, it)
+        }
+
+        if (ContextCompat.checkSelfPermission(this,
+                Manifest.permission.READ_EXTERNAL_STORAGE
+            ) == PackageManager.PERMISSION_GRANTED) {
+            coordinator.background =
+                WallpaperManager.getInstance(this).drawable
+        }
+
+        val blurView = findViewById<BlurView>(R.id.blurContainer)
+        blurView.setupWith(
+            window.decorView.findViewById(R.id.coordinator))
+            .setFrameClearDrawable(window.decorView.background)
+            .setBlurRadius(1f)
+            .setBlurAutoUpdate(true)
+            .setHasFixedTransformationMatrix(true)
+            .setBlurAlgorithm(RenderScriptBlur(this))
+
+        val batteryLevel = findViewById<TextView>(R.id.battery_status)
+        bReceiver = object : BroadcastReceiver() {
+            override fun onReceive(context: Context?, intent: Intent) {
+                if (intent.action == Intent.ACTION_BATTERY_CHANGED) {
+                    Handler(Looper.getMainLooper()).post {
+                        batteryLevel.text = String.format("%d%%",
+                            intent.getIntExtra(BatteryManager.EXTRA_LEVEL, 100))
+                    }
+                }
+            }
+        }
+
+        IntentFilter(Intent.ACTION_BATTERY_CHANGED).also {
+            registerReceiver(bReceiver, it)
+        }
+
+        wifiManager = getSystemService(WIFI_SERVICE) as WifiManager
+        bluetoothAdapter = (getSystemService(Context.BLUETOOTH_SERVICE)
+                as BluetoothManager).adapter
+        nfcAdapter = (getSystemService(NFC_SERVICE) as NfcManager).defaultAdapter
+        audioManager = getSystemService(AUDIO_SERVICE) as AudioManager
+        notificationManager = getSystemService(NOTIFICATION_SERVICE)
+                as NotificationManager
+        camManager = getSystemService(CAMERA_SERVICE) as CameraManager
+        camManager.registerTorchCallback(object: CameraManager.TorchCallback() {
+            override fun onTorchModeChanged(cameraId: String, enabled: Boolean) {
+                super.onTorchModeChanged(cameraId, enabled)
+                isTorchEnabled = enabled
+            }
+        }, null)
+
+        val toggleStats = findViewById<LinearLayout>(R.id.toggle_status)
+        val clock = findViewById<TextClock>(R.id.clock_status)
+
+        val toolbar = findViewById<Toolbar>(R.id.toolbar)
+        toolbar.inflateMenu(R.menu.cover_quick_toggles)
+
+        var color = configureMenuIcons(toolbar)
+        batteryLevel.setTextColor(color)
+        clock.setTextColor(color)
+
+        for (i in 0 until toolbar.menu.size()) {
+            val icon = layoutInflater.inflate(
+                R.layout.toggle_status, null) as AppCompatImageView
+            icon.findViewById<AppCompatImageView>(R.id.toggle_icon)
+            icon.background = toolbar.menu.getItem(i).icon
+            toggleStats.addView(icon)
+        }
+
+        val wifiEnabler = registerForActivityResult(
+            ActivityResultContracts.StartActivityForResult()) {
+            if (wifiManager.isWifiEnabled)
+                toolbar.menu.findItem(R.id.toggle_wifi).setIcon(R.drawable.ic_baseline_wifi_on_24)
+            else
+                toolbar.menu.findItem(R.id.toggle_wifi).setIcon(R.drawable.ic_baseline_wifi_off_24)
+            toolbar.menu.findItem(R.id.toggle_wifi).icon.setTint(color)
+        }
+
+        val nfcEnabler = registerForActivityResult(
+            ActivityResultContracts.StartActivityForResult()) {
+            if (nfcAdapter.isEnabled)
+                toolbar.menu.findItem(R.id.toggle_nfc).setIcon(R.drawable.ic_baseline_nfc_on_24)
+            else
+                toolbar.menu.findItem(R.id.toggle_nfc).setIcon(R.drawable.ic_baseline_nfc_off_24)
+            toolbar.menu.findItem(R.id.toggle_nfc).icon.setTint(color)
+        }
+
+        noticesView = findViewById(R.id.notificationList)
+
+        noticesView.layoutManager = LinearLayoutManager(this)
+        noticesView.adapter = NotificationAdapter(this, this@SamSprungOverlay)
+        val noticeTouchCallback: ItemTouchHelper.SimpleCallback = object :
+            ItemTouchHelper.SimpleCallback(0,
+                ItemTouchHelper.RIGHT or ItemTouchHelper.LEFT) {
+            override fun onMove(
+                recyclerView: RecyclerView,
+                viewHolder: RecyclerView.ViewHolder,
+                target: RecyclerView.ViewHolder
+            ): Boolean {
+                return false
+            }
+
+            override fun onChildDraw(
+                c: Canvas,
+                recyclerView: RecyclerView,
+                viewHolder: RecyclerView.ViewHolder,
+                dX: Float,
+                dY: Float,
+                actionState: Int,
+                isCurrentlyActive: Boolean
+            ) { }
+
+            override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
+                if (direction == ItemTouchHelper.RIGHT) {
+                    val notice = (viewHolder as NotificationAdapter.NoticeViewHolder).notice
+                    if (null != notice.getKey()) {
+                        NotificationObserver.getObserver()
+                            ?.setNotificationsShown(arrayOf(notice.getKey()))
+                    }
+                }
+            }
+        }
+        ItemTouchHelper(noticeTouchCallback).attachToRecyclerView(noticesView)
+        onNewIntent(null)
+
+        val bottomSheetBehavior: BottomSheetBehavior<View> =
+            BottomSheetBehavior.from(findViewById(R.id.bottom_sheet))
+        bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
+        bottomSheetBehavior.addBottomSheetCallback(object : BottomSheetBehavior.BottomSheetCallback() {
+
+            var hasConfigured = false
+            override fun onStateChanged(bottomSheet: View, newState: Int) {
+                if (newState == BottomSheetBehavior.STATE_EXPANDED) {
+                    toolbar.setOnMenuItemClickListener { item: MenuItem ->
+                        when (item.itemId) {
+                            R.id.toggle_wifi -> {
+                                wifiEnabler.launch(Intent(Settings.Panel.ACTION_INTERNET_CONNECTIVITY))
+                                return@setOnMenuItemClickListener true
+                            }
+                            R.id.toggle_bluetooth -> {
+                                if (bluetoothAdapter.isEnabled) {
+                                    bluetoothAdapter.disable()
+                                    toolbar.menu.findItem(R.id.toggle_bluetooth)
+                                        .setIcon(R.drawable.ic_baseline_bluetooth_off_24)
+                                } else {
+                                    bluetoothAdapter.enable()
+                                    toolbar.menu.findItem(R.id.toggle_bluetooth)
+                                        .setIcon(R.drawable.ic_baseline_bluetooth_on_24)
+                                }
+                                toolbar.menu.findItem(R.id.toggle_bluetooth).icon.setTint(color)
+                                return@setOnMenuItemClickListener true
+                            }
+                            R.id.toggle_nfc -> {
+                                nfcEnabler.launch(Intent(Settings.Panel.ACTION_NFC))
+                                return@setOnMenuItemClickListener true
+                            }
+                            R.id.toggle_sound -> {
+                                if (audioManager.ringerMode == AudioManager.RINGER_MODE_NORMAL) {
+                                    audioManager.ringerMode = AudioManager.RINGER_MODE_SILENT
+                                    toolbar.menu.findItem(R.id.toggle_sound)
+                                        .setIcon(R.drawable.ic_baseline_sound_off_24)
+                                } else {
+                                    audioManager.ringerMode = AudioManager.RINGER_MODE_NORMAL
+                                    toolbar.menu.findItem(R.id.toggle_sound)
+                                        .setIcon(R.drawable.ic_baseline_sound_on_24)
+                                }
+                                toolbar.menu.findItem(R.id.toggle_sound).icon.setTint(color)
+                                return@setOnMenuItemClickListener true
+                            }
+                            R.id.toggle_dnd -> {
+                                if (notificationManager.currentInterruptionFilter ==
+                                    NotificationManager.INTERRUPTION_FILTER_ALL) {
+                                    notificationManager.setInterruptionFilter(
+                                        NotificationManager.INTERRUPTION_FILTER_NONE)
+                                    toolbar.menu.findItem(R.id.toggle_dnd)
+                                        .setIcon(R.drawable.ic_baseline_do_not_disturb_on_24)
+                                } else {
+                                    notificationManager.setInterruptionFilter(
+                                        NotificationManager.INTERRUPTION_FILTER_ALL)
+                                    toolbar.menu.findItem(R.id.toggle_dnd)
+                                        .setIcon(R.drawable.ic_baseline_do_not_disturb_off_24)
+                                }
+                                toolbar.menu.findItem(R.id.toggle_dnd).icon.setTint(color)
+                                return@setOnMenuItemClickListener true
+                            }
+//                            R.id.toggle_rotation -> {
+//                                if (prefs.getInt(SamSprung.autoRotate, 1) == 1) {
+//                                    toolbar.menu.findItem(R.id.toggle_rotation)
+//                                        .setIcon(R.drawable.ic_baseline_screen_lock_rotation_24)
+//                                    with(prefs.edit()) {
+//                                        putInt(SamSprung.autoRotate, 0)
+//                                        apply()
+//                                    }
+//                                } else {
+//                                    toolbar.menu.findItem(R.id.toggle_rotation)
+//                                        .setIcon(R.drawable.ic_baseline_screen_rotation_24)
+//                                    with(prefs.edit()) {
+//                                        putInt(SamSprung.autoRotate, 1)
+//                                        apply()
+//                                    }
+//                                }
+//                                toolbar.menu.findItem(R.id.toggle_rotation).icon.setTint(color)
+//                                return@setOnMenuItemClickListener true
+//                            }
+                            R.id.toggle_torch -> {
+                                if (isTorchEnabled) {
+                                    toolbar.menu.findItem(R.id.toggle_torch)
+                                        .setIcon(R.drawable.ic_baseline_flashlight_off_24)
+                                } else {
+                                    toolbar.menu.findItem(R.id.toggle_torch)
+                                        .setIcon(R.drawable.ic_baseline_flashlight_on_24)
+                                }
+                                toolbar.menu.findItem(R.id.toggle_torch).icon.setTint(color)
+                                camManager.setTorchMode(camManager.cameraIdList[0], !isTorchEnabled)
+                                return@setOnMenuItemClickListener true
+                            }
+                            else -> {
+                                return@setOnMenuItemClickListener false
+                            }
+                        }
+                    }
+                } else if (newState == BottomSheetBehavior.STATE_COLLAPSED) {
+                    hasConfigured = false
+                }
+            }
+
+            override fun onSlide(bottomSheet: View, slideOffset: Float) {
+                val info = findViewById<LinearLayout>(R.id.bottom_info)
+                if (slideOffset > 0.75) {
+                    info.visibility = View.GONE
+                    if (!hasConfigured) {
+                        hasConfigured = true
+                        color = configureMenuIcons(toolbar)
+                        batteryLevel.setTextColor(color)
+                        clock.setTextColor(color)
+                    }
+                } else {
+                    toggleStats.removeAllViewsInLayout()
+                    for (i in 0 until toolbar.menu.size()) {
+                        toolbar.menu.getItem(i).icon.setTint(color)
+                        val icon = layoutInflater.inflate(
+                            R.layout.toggle_status, null) as AppCompatImageView
+                        icon.findViewById<AppCompatImageView>(R.id.toggle_icon)
+                        icon.background = toolbar.menu.getItem(i).icon
+                        toggleStats.addView(icon)
+                    }
+                    info.visibility = View.VISIBLE
+                }
+            }
+        })
+
+        val launcherView = findViewById<RecyclerView>(R.id.appsList)
+
+        val packageRetriever = PackageRetriever(this)
+        var packages = packageRetriever.getFilteredPackageList()
+
+        if (prefs.getBoolean(SamSprung.prefLayout, true))
+            launcherView.layoutManager = GridLayoutManager(this, getColumnCount())
+        else
+            launcherView.layoutManager = LinearLayoutManager(this)
+        launcherView.adapter = DrawerAppAdapater(packages, this, packageManager, prefs)
+
+        pReceiver = object : BroadcastReceiver() {
+            override fun onReceive(context: Context?, intent: Intent) {
+                if (intent.action == Intent.ACTION_PACKAGE_FULLY_REMOVED) {
+                    Executors.newSingleThreadExecutor().execute {
+                        packages = packageRetriever.getFilteredPackageList()
+                        runOnUiThread { (launcherView.adapter as DrawerAppAdapater)
+                            .setPackages(packages) }
+                    }
+                }
+                if (intent.action == Intent.ACTION_PACKAGE_ADDED) {
+                    if (!intent.getBooleanExtra(Intent.EXTRA_REPLACING, false)) {
+                        Executors.newSingleThreadExecutor().execute {
+                            packages = packageRetriever.getFilteredPackageList()
+                            runOnUiThread { (launcherView.adapter as DrawerAppAdapater)
+                                .setPackages(packages) }
+                        }
+                    }
+                }
+            }
+        }
+        IntentFilter().apply {
+            addAction(Intent.ACTION_PACKAGE_ADDED)
+            addAction(Intent.ACTION_PACKAGE_REMOVED)
+            addDataScheme("package")
+        }.also {
+            registerReceiver(pReceiver, it)
+        }
+
+        val searchWrapper = findViewById<FrameLayout>(R.id.search_wrapper)
+        val searchView = findViewById<SearchView>(R.id.package_search)
+        val searchManager = getSystemService(SEARCH_SERVICE) as SearchManager
+        searchView.setSearchableInfo(searchManager.getSearchableInfo(componentName))
+        searchView.isSubmitButtonEnabled = false
+        searchView.setIconifiedByDefault(false)
+        searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
+            override fun onQueryTextSubmit(query: String): Boolean {
+                (launcherView.adapter as DrawerAppAdapater).setQuery(query)
+                return false
+            }
+
+            override fun onQueryTextChange(query: String): Boolean {
+                (launcherView.adapter as DrawerAppAdapater).setQuery(query)
+                return true
+            }
+        })
+        searchWrapper.visibility = View.INVISIBLE
+
+        val mKeyboardView = if (hasAccessibility())
+            getKeyboard(searchWrapper, ScaledContext.screen(this)) else null
+
+        SamSprungInput.setInputListener(object : SamSprungInput.InputMethodListener {
+            override fun onInputRequested(instance: SamSprungInput) { }
+
+            override fun onKeyboardHidden(isHidden: Boolean?) {
+                if (searchWrapper.isVisible)
+                    searchWrapper.visibility = View.INVISIBLE
+            }
+        })
+
+        val drawerTouchCallback: ItemTouchHelper.SimpleCallback = object :
+            ItemTouchHelper.SimpleCallback(0,
+                ItemTouchHelper.RIGHT or ItemTouchHelper.LEFT) {
+            override fun onMove(
+                recyclerView: RecyclerView,
+                viewHolder: RecyclerView.ViewHolder,
+                target: RecyclerView.ViewHolder
+            ): Boolean {
+                return false
+            }
+
+            override fun onChildDraw(
+                c: Canvas,
+                recyclerView: RecyclerView,
+                viewHolder: RecyclerView.ViewHolder,
+                dX: Float,
+                dY: Float,
+                actionState: Int,
+                isCurrentlyActive: Boolean
+            ) { }
+
+            override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
+                if (direction == ItemTouchHelper.LEFT) {
+                    if (searchWrapper.isVisible) {
+                        if (searchView.query.isNotBlank()) {
+                            searchView.setQuery("", true)
+                        }
+                        searchWrapper.visibility = View.INVISIBLE
+                    } else {
+                        terminate()
+                        startActivity(
+                            Intent(applicationContext, SamSprungPanels::class.java),
+                            ActivityOptions.makeBasic().setLaunchDisplayId(1).toBundle()
+                        )
+                    }
+                }
+                if (direction == ItemTouchHelper.RIGHT) {
+                    if (searchWrapper.isVisible) {
+                        if (searchView.query.isNotBlank()) {
+                            searchView.setQuery("", true)
+                        }
+                        searchWrapper.visibility = View.INVISIBLE
+                    } else {
+                        val animate = TranslateAnimation(
+                            -coordinator.width.toFloat(), 0f, 0f, 0f
+                        )
+                        animate.duration = 1000
+                        animate.fillAfter = false
+                        animate.setAnimationListener(object : Animation.AnimationListener {
+                            override fun onAnimationStart(animation: Animation) {
+                                searchWrapper.visibility = View.VISIBLE
+                            }
+                            override fun onAnimationEnd(animation: Animation) {
+                                animate.setAnimationListener(null)
+                            }
+                            override fun onAnimationRepeat(p0: Animation?) {}
+                        })
+                        searchWrapper.startAnimation(animate)
+                    }
+                }
+            }
+        }
+        ItemTouchHelper(drawerTouchCallback).attachToRecyclerView(launcherView)
+        launcherView.setOnTouchListener(object : OnSwipeTouchListener(this@SamSprungOverlay) {
+            override fun onSwipeLeft() : Boolean {
+                if (searchWrapper.isVisible) {
+                    if (searchView.query.isNotBlank()) {
+                        searchView.setQuery("", true)
+                    }
+                    searchWrapper.visibility = View.GONE
+                } else {
+                    terminate()
+                    startActivity(
+                        Intent(applicationContext, SamSprungPanels::class.java),
+                        ActivityOptions.makeBasic().setLaunchDisplayId(1).toBundle()
+                    )
+                }
+                return true
+            }
+            override fun onSwipeRight() : Boolean {
+                if (searchWrapper.isVisible) {
+                    if (searchView.query.isNotBlank()) {
+                        searchView.setQuery("", true)
+                    }
+                    searchWrapper.visibility = View.GONE
+                } else {
+                    searchWrapper.visibility = View.VISIBLE
+                }
+                return true
+            }
+            override fun onSwipeBottom() : Boolean {
+                if (bottomSheetBehavior.state == BottomSheetBehavior.STATE_EXPANDED) return false
+                if (launcherView.layoutManager is LinearLayoutManager) {
+                    if ((launcherView.layoutManager as LinearLayoutManager)
+                            .findFirstCompletelyVisibleItemPosition() == 0) {
+                        bottomSheetBehaviorMain.state = BottomSheetBehavior.STATE_COLLAPSED
+                        return true
+                    }
+                }
+                if (launcherView.layoutManager is GridLayoutManager) {
+                    if ((launcherView.layoutManager as GridLayoutManager)
+                            .findFirstCompletelyVisibleItemPosition() == 0) {
+                        bottomSheetBehaviorMain.state = BottomSheetBehavior.STATE_COLLAPSED
+                        return true
+                    }
+                }
+                return false
             }
         })
     }
 
+    @SuppressLint("InflateParams")
+    @Suppress("DEPRECATION")
+    private fun getKeyboard (parent: ViewGroup, displayContext: Context) : KeyboardView {
+        val mKeyboardView = LayoutInflater.from(displayContext)
+            .inflate(R.layout.keyboard_view, null) as KeyboardView
+        mKeyboardView.isPreviewEnabled = false
+        SamSprungInput.setInputMethod(parent, mKeyboardView)
+        AccessibilityObserver.enableKeyboard(displayContext)
+        mKeyboardView.elevation = 1F
+        return mKeyboardView
+    }
+
+    private fun prepareConfiguration() {
+        requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_LOCKED
+        requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_BEHIND
+
+        val mKeyguardManager = (getSystemService(Context.KEYGUARD_SERVICE) as KeyguardManager)
+        @Suppress("DEPRECATION")
+        SamSprung.isKeyguardLocked = mKeyguardManager.inKeyguardRestrictedInputMode()
+
+        if (SamSprung.isKeyguardLocked) {
+            @Suppress("DEPRECATION")
+            mKeyguardManager.newKeyguardLock("cover_lock").disableKeyguard()
+        }
+
+        mKeyguardManager.requestDismissKeyguard(this,
+            object : KeyguardManager.KeyguardDismissCallback() {
+                override fun onDismissError() {
+                    super.onDismissError()
+                }
+
+                override fun onDismissSucceeded() {
+                    super.onDismissSucceeded()
+                }
+
+                override fun onDismissCancelled() {
+                    super.onDismissCancelled()
+                }
+            })
+    }
+
+    private fun configureMenuIcons(toolbar: Toolbar) : Int {
+        val color = prefs.getInt(SamSprung.prefColors,
+            Color.rgb(255, 255, 255))
+
+        val wifiManager = getSystemService(WIFI_SERVICE) as WifiManager
+
+        if (wifiManager.isWifiEnabled)
+            toolbar.menu.findItem(R.id.toggle_wifi)
+                .setIcon(R.drawable.ic_baseline_wifi_on_24)
+        else
+            toolbar.menu.findItem(R.id.toggle_wifi)
+                .setIcon(R.drawable.ic_baseline_wifi_off_24)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S &&
+            ContextCompat.checkSelfPermission(
+                this@SamSprungOverlay,
+                Manifest.permission.BLUETOOTH_CONNECT,
+            ) == PackageManager.PERMISSION_GRANTED
+        ) {
+            if (bluetoothAdapter.isEnabled)
+                toolbar.menu.findItem(R.id.toggle_bluetooth)
+                    .setIcon(R.drawable.ic_baseline_bluetooth_on_24)
+            else
+                toolbar.menu.findItem(R.id.toggle_bluetooth)
+                    .setIcon(R.drawable.ic_baseline_bluetooth_off_24)
+        } else {
+            toolbar.menu.findItem(R.id.toggle_bluetooth).isVisible = false
+        }
+
+        if (nfcAdapter.isEnabled)
+            toolbar.menu.findItem(R.id.toggle_nfc)
+                .setIcon(R.drawable.ic_baseline_nfc_on_24)
+        else
+            toolbar.menu.findItem(R.id.toggle_nfc)
+                .setIcon(R.drawable.ic_baseline_nfc_off_24)
+
+        if (audioManager.ringerMode == AudioManager.RINGER_MODE_NORMAL)
+            toolbar.menu.findItem(R.id.toggle_sound)
+                .setIcon(R.drawable.ic_baseline_sound_on_24)
+        else
+            toolbar.menu.findItem(R.id.toggle_sound)
+                .setIcon(R.drawable.ic_baseline_sound_off_24)
+
+        if (notificationManager.isNotificationPolicyAccessGranted) {
+            if (notificationManager.currentInterruptionFilter ==
+                NotificationManager.INTERRUPTION_FILTER_ALL
+            )
+                toolbar.menu.findItem(R.id.toggle_dnd)
+                    .setIcon(R.drawable.ic_baseline_do_not_disturb_off_24)
+            else
+                toolbar.menu.findItem(R.id.toggle_dnd)
+                    .setIcon(R.drawable.ic_baseline_do_not_disturb_on_24)
+        } else {
+            toolbar.menu.findItem(R.id.toggle_dnd).isVisible = false
+        }
+
+//        if (prefs.getInt(SamSprung.autoRotate, 1) == 1)
+//            toolbar.menu.findItem(R.id.toggle_rotation)
+//                .setIcon(R.drawable.ic_baseline_screen_rotation_24)
+//        else
+//            toolbar.menu.findItem(R.id.toggle_rotation)
+//                .setIcon(R.drawable.ic_baseline_screen_lock_rotation_24)
+
+        if (packageManager.hasSystemFeature(PackageManager.FEATURE_CAMERA_FLASH)) {
+            if (isTorchEnabled) {
+                toolbar.menu.findItem(R.id.toggle_torch)
+                    .setIcon(R.drawable.ic_baseline_flashlight_on_24)
+            } else {
+                toolbar.menu.findItem(R.id.toggle_torch)
+                    .setIcon(R.drawable.ic_baseline_flashlight_off_24)
+            }
+        } else {
+            toolbar.menu.findItem(R.id.toggle_torch).isVisible = false
+        }
+        for (i in 0 until toolbar.menu.size()) {
+            toolbar.menu.getItem(i).icon.setTint(color)
+        }
+        return color
+    }
+
+    override fun onAppClicked(appInfo: ResolveInfo, position: Int) {
+        prepareConfiguration()
+
+        val extras = Bundle()
+        extras.putString("launchPackage", appInfo.activityInfo.packageName)
+        extras.putString("launchActivity", appInfo.activityInfo.name)
+
+        IntentFilter(Intent.ACTION_SCREEN_OFF).also {
+            applicationContext.registerReceiver(OffBroadcastReceiver(
+                ComponentName(appInfo.activityInfo.packageName, appInfo.activityInfo.name)
+            ), it)
+        }
+        val coverIntent = Intent(Intent.ACTION_MAIN)
+        coverIntent.addCategory(Intent.CATEGORY_LAUNCHER)
+        coverIntent.component = ComponentName(appInfo.activityInfo.packageName, appInfo.activityInfo.name)
+        val options = ActivityOptions.makeBasic().setLaunchDisplayId(1)
+        try {
+            val applicationInfo: ApplicationInfo =
+                packageManager.getApplicationInfo(
+                    appInfo.activityInfo.packageName, PackageManager.GET_META_DATA
+                )
+            applicationInfo.metaData.putString(
+                "com.samsung.android.activity.showWhenLocked", "true"
+            )
+        } catch (e: PackageManager.NameNotFoundException) {
+            e.printStackTrace()
+        }
+        coverIntent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or
+                Intent.FLAG_ACTIVITY_CLEAR_TASK or
+                Intent.FLAG_ACTIVITY_FORWARD_RESULT or
+                Intent.FLAG_ACTIVITY_NO_ANIMATION
+        startActivity(coverIntent.putExtras(extras), options.toBundle())
+
+        val orientationChanger = LinearLayout(SamSprung.getCoverContext())
+        val orientationLayout = WindowManager.LayoutParams(
+            WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY,
+            WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL,
+            PixelFormat.TRANSPARENT
+        )
+        orientationLayout.screenOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
+        val windowManager = SamSprung.getCoverContext()?.getSystemService(
+            Context.WINDOW_SERVICE) as WindowManager
+        windowManager.addView(orientationChanger, orientationLayout)
+        orientationChanger.visibility = View.VISIBLE
+        Handler(Looper.getMainLooper()).postDelayed({
+            runOnUiThread {
+                windowManager.removeView(orientationChanger)
+                requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
+                terminate()
+                startForegroundService(Intent(this,
+                    AppDisplayListener::class.java).putExtras(extras))
+            }
+        }, 100)
+    }
+
+    override fun onNoticeClicked(notice: SamSprungNotice, position: Int) {
+        if (null != notice.getIntentSender()) {
+            prepareConfiguration()
+
+            startIntentSender(notice.getIntentSender(),
+                null, 0, 0, 0)
+            startForegroundService(Intent(this, AppDisplayListener::class.java)
+                .putExtra("launchPackage", notice.getIntentSender()!!.creatorPackage))
+        }
+    }
+
+    private fun getColumnCount(): Int {
+        return (windowManager.currentWindowMetrics.bounds.width() / 96 + 0.5).toInt()
+    }
+
+    private fun hasAccessibility(): Boolean {
+        val serviceString = Settings.Secure.getString(contentResolver,
+            Settings.Secure.ENABLED_ACCESSIBILITY_SERVICES
+        )
+        return serviceString != null && serviceString.contains(packageName
+                + File.separator + AccessibilityObserver::class.java.name)
+    }
+
+    private fun hasNotificationListener(): Boolean {
+        val flat = Settings.Secure.getString(
+            contentResolver, "enabled_notification_listeners"
+        )
+        if (!TextUtils.isEmpty(flat)) {
+            val names = flat.split(":").toTypedArray()
+            for (i in names.indices) {
+                val cn = ComponentName.unflattenFromString(names[i])
+                if (null != cn && TextUtils.equals(packageName, cn.packageName)) return true
+            }
+        }
+        return false
+    }
+
     override fun onNewIntent(intent: Intent?) {
         super.onNewIntent(intent)
+//        CheckUpdatesTask(this)
         prefs = getSharedPreferences(SamSprung.prefsValue, MODE_PRIVATE)
         bottomHandle = findViewById(R.id.bottom_handle)
         bottomHandle.visibility = View.VISIBLE
         bottomHandle.setBackgroundColor(prefs.getInt(SamSprung.prefColors,
             Color.rgb(255, 255, 255)))
         bottomHandle.alpha = prefs.getFloat(SamSprung.prefAlphas, 1f)
+        if (!this::noticesView.isInitialized) return
+        if (hasNotificationListener()) {
+            NotificationObserver.getObserver()?.setNotificationsChangedListener(
+                noticesView.adapter as NotificationAdapter
+            )
+        }
+        if (hasAccessibility()) {
+            AccessibilityObserver.getObserver()?.setEventsChangedListener(
+                noticesView.adapter as NotificationAdapter
+            )
+        }
+    }
+
+    private fun terminate() {
+        AccessibilityObserver.disableKeyboard(this)
+        finish()
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        try {
+            if (this::oReceiver.isInitialized)
+                unregisterReceiver(oReceiver)
+        } catch (ignored: Exception) { }
+        try {
+            if (this::bReceiver.isInitialized)
+                unregisterReceiver(bReceiver)
+        } catch (ignored: Exception) { }
+        try {
+            if (this::pReceiver.isInitialized)
+                unregisterReceiver(pReceiver)
+        } catch (ignored: Exception) { }
     }
 }

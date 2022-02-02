@@ -191,16 +191,16 @@ class AppDisplayListener : Service() {
                         bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
                     }
                     menuRecent.setOnClickListener {
-                        resetRecentActivities(launchPackage!!, launchActivity)
+                        resetRecentActivities(launchPackage, launchActivity)
                         dismissDisplayListener(displayManager, mKeyguardLock)
                         startActivity(
-                            Intent(this@AppDisplayListener, SamSprungDrawer::class.java)
+                            Intent(this@AppDisplayListener, SamSprungOverlay::class.java)
                                 .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK),
                             ActivityOptions.makeBasic().setLaunchDisplayId(1).toBundle()
                         )
                     }
                     menuHome.setOnClickListener {
-                        resetRecentActivities(launchPackage!!, launchActivity)
+                        resetRecentActivities(launchPackage, launchActivity)
                         dismissDisplayListener(displayManager, mKeyguardLock)
                         startActivity(
                             Intent(this@AppDisplayListener, SamSprungOverlay::class.java)
