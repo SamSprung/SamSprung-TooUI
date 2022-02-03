@@ -100,6 +100,9 @@ class OnBroadcastService : Service() {
             )
         }
 
+        try {
+            applicationContext.unregisterReceiver(onReceiver)
+        } catch (ignored: Exception) { }
         val onScreenFilter = IntentFilter(Intent.ACTION_SCREEN_ON)
         onScreenFilter.priority = 999
         onScreenFilter.also {

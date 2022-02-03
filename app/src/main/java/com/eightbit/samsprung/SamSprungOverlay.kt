@@ -163,7 +163,6 @@ class SamSprungOverlay : AppCompatActivity(),
         )
 
         val handler = Handler(Looper.getMainLooper())
-        val coordinatorMain = findViewById<CoordinatorLayout>(R.id.coordinator_main)
         val fakeOverlay = findViewById<LinearLayout>(R.id.fake_overlay)
         val coordinator = findViewById<CoordinatorLayout>(R.id.coordinator)
         bottomSheetBehaviorMain = BottomSheetBehavior.from(findViewById(R.id.bottom_sheet_main))
@@ -175,10 +174,11 @@ class SamSprungOverlay : AppCompatActivity(),
                 } else if (newState == BottomSheetBehavior.STATE_COLLAPSED) {
                     coordinator.keepScreenOn = false
                     coordinator.visibility = View.GONE
+                    bottomSheetBehaviorMain.isDraggable = true
                 }
             }
             override fun onSlide(bottomSheet: View, slideOffset: Float) {
-                fakeOverlay.visibility = if (slideOffset > 0.75) View.GONE else View.VISIBLE
+                fakeOverlay.visibility = if (slideOffset > 0.5) View.GONE else View.VISIBLE
                 val color = prefs.getInt(SamSprung.prefColors,
                     Color.rgb(255, 255, 255))
                 if (slideOffset > 0) {
@@ -189,7 +189,6 @@ class SamSprungOverlay : AppCompatActivity(),
                         bottomHandle.visibility = View.INVISIBLE
                     }
                 } else {
-                    bottomSheetBehaviorMain.isDraggable = true
                     bottomHandle.setBackgroundColor(color)
                     bottomHandle.alpha = prefs.getFloat(SamSprung.prefAlphas, 1f)
                     if (!bottomHandle.isVisible) {
