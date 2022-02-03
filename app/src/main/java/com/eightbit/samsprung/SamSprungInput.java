@@ -39,7 +39,6 @@ public class SamSprungInput extends InputMethodService
 
     @Override
     public boolean onShowInputRequested(int flags, boolean configChange) {
-        Log.d("SamSprungInput", "setting input");
         if (null != listener) mKeyboardView =
                 new SoftReference<>(listener.onInputRequested(this));
         if (null != mKeyboardView) {
@@ -49,6 +48,7 @@ public class SamSprungInput extends InputMethodService
                 ((ViewGroup) mKeyboardView.get().getParent()).removeView(mKeyboardView.get());
             if (null != parent) {
                 parent.get().addView(mKeyboardView.get(), 0);
+                parent.get().requestLayout();
             }
         }
         return true;

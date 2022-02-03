@@ -76,11 +76,9 @@ class DrawerAppAdapater(
     private var filter: PackageFilter? = null
     private var filteredData: MutableList<ResolveInfo> = packages
 
-    @SuppressLint("NotifyDataSetChanged")
     fun setPackages(packages: MutableList<ResolveInfo>) {
         this.packages = packages
         filteredData = packages
-        notifyDataSetChanged()
     }
 
     override fun getItemCount(): Int {

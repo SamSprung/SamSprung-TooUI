@@ -27,23 +27,15 @@
 
         </com.eightbitlab.blurview.BlurView>
 
-        <FrameLayout
-            android:id="@+id/search_wrapper"
+        <androidx.appcompat.widget.SearchView
+            android:id="@+id/package_search"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_gravity="bottom"
             android:layout_marginBottom="20dp"
-            android:orientation="vertical">
-
-            <androidx.appcompat.widget.SearchView
-                android:id="@+id/package_search"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_gravity="bottom"
-                android:background="@color/bottomSheetTint"
-                android:lineSpacingExtra="0dp"
-                android:lineSpacingMultiplier="0" />
-        </FrameLayout>
+            android:background="@color/bottomSheetTint"
+            android:lineSpacingExtra="0dp"
+            android:lineSpacingMultiplier="0" />
 
         <LinearLayout
             android:id="@+id/bottom_sheet"

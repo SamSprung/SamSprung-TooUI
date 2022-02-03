@@ -53,6 +53,7 @@ package com.eightbit.samsprung
 
 import android.annotation.SuppressLint
 import android.app.Notification
+import android.content.pm.ResolveInfo
 import android.service.notification.StatusBarNotification
 import android.view.LayoutInflater
 import android.view.View
@@ -186,7 +187,9 @@ class NotificationAdapter(
     private fun refreshStatusBarNotifications() {
         Executors.newSingleThreadExecutor().execute {
             val groups: HashMap<String, SamSprungNotice> = hashMapOf()
-            for (sbn: StatusBarNotification in sbNotifications) {
+            val iterator: MutableIterator<StatusBarNotification> = sbNotifications.iterator()
+            while (iterator.hasNext()) {
+                val sbn = iterator.next()
                 val notification = sbn.notification
                 if (groups.containsKey(notification.group)
                     && null != groups[notification.group]) {

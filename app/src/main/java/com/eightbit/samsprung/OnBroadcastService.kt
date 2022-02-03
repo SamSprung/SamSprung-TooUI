@@ -71,7 +71,6 @@ class OnBroadcastService : Service() {
         @SuppressLint("NotifyDataSetChanged")
         override fun onReceive(context: Context, intent: Intent) {
             if (Intent.ACTION_SCREEN_ON == intent.action) {
-                context.startService(Intent(context, AppDisplayListener::class.java))
                 context.startActivity(
                     Intent(context.applicationContext, SamSprungOverlay::class.java)
                         .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK),
@@ -91,9 +90,15 @@ class OnBroadcastService : Service() {
 
         showForegroundNotification(startId)
 
-        if (!Settings.canDrawOverlays(applicationContext)
-            || SamSprung.services == intent?.action)
+        if (!Settings.canDrawOverlays(applicationContext) || SamSprung.updating == intent?.action)
             return dismissOverlayService()
+        if (SamSprung.services == intent?.action) {
+            startActivity(
+                Intent(applicationContext, SamSprungOverlay::class.java)
+                    .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK),
+                ActivityOptions.makeBasic().setLaunchDisplayId(1).toBundle()
+            )
+        }
 
         val onScreenFilter = IntentFilter(Intent.ACTION_SCREEN_ON)
         onScreenFilter.priority = 999
@@ -109,7 +114,7 @@ class OnBroadcastService : Service() {
         var mNotificationManager: NotificationManager? = null
         val pendingIntent = PendingIntent.getService(this, 0,
             Intent(this, OnBroadcastService::class.java)
-                .setAction(SamSprung.services),
+                .setAction(SamSprung.updating),
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S)
                 PendingIntent.FLAG_IMMUTABLE else 0)
         val iconNotification = BitmapFactory.decodeResource(resources, R.mipmap.sprung_icon)
@@ -120,18 +125,19 @@ class OnBroadcastService : Service() {
         mNotificationManager.createNotificationChannelGroup(
             NotificationChannelGroup("services_group", "Services")
         )
-        val notificationChannel = NotificationChannel("service_channel",
-            "Service Notification", NotificationManager.IMPORTANCE_LOW)
+        val notificationChannel = NotificationChannel("overlay_channel",
+            "Overlay Notification", NotificationManager.IMPORTANCE_LOW)
         notificationChannel.enableLights(false)
         notificationChannel.lockscreenVisibility = Notification.VISIBILITY_SECRET
         mNotificationManager.createNotificationChannel(notificationChannel)
-        val builder = NotificationCompat.Builder(this, "service_channel")
+        val builder = NotificationCompat.Builder(this, "overlay_channel")
 
         val notificationText = getString(R.string.overlay_service, getString(R.string.samsprung))
         builder.setContentTitle(notificationText).setTicker(notificationText)
             .setSmallIcon(R.drawable.ic_baseline_samsprung_24)
             .setWhen(0).setOnlyAlertOnce(true)
             .setContentIntent(pendingIntent).setOngoing(true)
+            .setGroup("services_group")
         if (null != iconNotification) {
             builder.setLargeIcon(
                 Bitmap.createScaledBitmap(
@@ -142,12 +148,8 @@ class OnBroadcastService : Service() {
     }
 
     private fun dismissOverlayService(): Int {
-        try {
-            stopForeground(true)
-        } catch (ignored: Exception) { }
-        try {
-            stopSelf()
-        } catch (ignored: Exception) { }
+        stopForeground(true)
+        stopSelf()
         return START_NOT_STICKY
     }
 }

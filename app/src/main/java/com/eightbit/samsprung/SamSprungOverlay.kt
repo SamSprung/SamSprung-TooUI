@@ -76,7 +76,6 @@ import android.os.*
 import android.provider.Settings
 import android.text.TextUtils
 import android.view.*
-import android.view.animation.Animation
 import android.view.animation.TranslateAnimation
 import android.widget.*
 import androidx.activity.result.contract.ActivityResultContracts
@@ -97,8 +96,11 @@ import com.eightbitlab.blurview.BlurView
 import com.eightbitlab.blurview.RenderScriptBlur
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import java.io.File
-import java.lang.ref.SoftReference
 import java.util.concurrent.Executors
+import android.content.ComponentName
+
+import android.os.Build
+import android.service.notification.NotificationListenerService
 
 
 class SamSprungOverlay : AppCompatActivity(),
@@ -109,7 +111,7 @@ class SamSprungOverlay : AppCompatActivity(),
     private var mDisplayListener: DisplayManager.DisplayListener? = null
     private lateinit var bottomHandle: View
     private lateinit var bottomSheetBehaviorMain: BottomSheetBehavior<View>
-    private lateinit var searchWrapper: FrameLayout
+    private lateinit var searchView: SearchView
 
     private lateinit var wifiManager: WifiManager
     private lateinit var bluetoothAdapter: BluetoothAdapter
@@ -161,6 +163,8 @@ class SamSprungOverlay : AppCompatActivity(),
             mDisplayListener, Handler(Looper.getMainLooper())
         )
 
+        rebootNotificationListenerService()
+
         val handler = Handler(Looper.getMainLooper())
         val coordinatorMain = findViewById<CoordinatorLayout>(R.id.coordinator_main)
         val fakeOverlay = findViewById<LinearLayout>(R.id.fake_overlay)
@@ -174,7 +178,6 @@ class SamSprungOverlay : AppCompatActivity(),
                 } else if (newState == BottomSheetBehavior.STATE_COLLAPSED) {
                     coordinator.keepScreenOn = false
                     coordinator.visibility = View.GONE
-                    bottomSheetBehaviorMain.isDraggable = true
                 }
             }
             override fun onSlide(bottomSheet: View, slideOffset: Float) {
@@ -189,6 +192,7 @@ class SamSprungOverlay : AppCompatActivity(),
                         bottomHandle.visibility = View.INVISIBLE
                     }
                 } else {
+                    bottomSheetBehaviorMain.isDraggable = true
                     bottomHandle.setBackgroundColor(color)
                     bottomHandle.alpha = prefs.getFloat(SamSprung.prefAlphas, 1f)
                     if (!bottomHandle.isVisible) {
@@ -482,20 +486,25 @@ class SamSprungOverlay : AppCompatActivity(),
         launcherView.adapter = DrawerAppAdapater(packages, this, packageManager, prefs)
 
         pReceiver = object : BroadcastReceiver() {
+            @SuppressLint("NotifyDataSetChanged")
             override fun onReceive(context: Context?, intent: Intent) {
                 if (intent.action == Intent.ACTION_PACKAGE_FULLY_REMOVED) {
                     Executors.newSingleThreadExecutor().execute {
                         packages = packageRetriever.getFilteredPackageList()
-                        runOnUiThread { (launcherView.adapter as DrawerAppAdapater)
-                            .setPackages(packages) }
+                        runOnUiThread {
+                            (launcherView.adapter as DrawerAppAdapater).setPackages(packages)
+                            (launcherView.adapter as DrawerAppAdapater).notifyDataSetChanged()
+                        }
                     }
                 }
                 if (intent.action == Intent.ACTION_PACKAGE_ADDED) {
                     if (!intent.getBooleanExtra(Intent.EXTRA_REPLACING, false)) {
                         Executors.newSingleThreadExecutor().execute {
                             packages = packageRetriever.getFilteredPackageList()
-                            runOnUiThread { (launcherView.adapter as DrawerAppAdapater)
-                                .setPackages(packages) }
+                            runOnUiThread {
+                                (launcherView.adapter as DrawerAppAdapater).setPackages(packages)
+                                (launcherView.adapter as DrawerAppAdapater).notifyDataSetChanged()
+                            }
                         }
                     }
                 }
@@ -509,8 +518,7 @@ class SamSprungOverlay : AppCompatActivity(),
             registerReceiver(pReceiver, it)
         }
 
-        searchWrapper = findViewById(R.id.search_wrapper)
-        val searchView = findViewById<SearchView>(R.id.package_search)
+        searchView = findViewById<SearchView>(R.id.package_search)
         val searchManager = getSystemService(SEARCH_SERVICE) as SearchManager
         searchView.setSearchableInfo(searchManager.getSearchableInfo(componentName))
         searchView.isSubmitButtonEnabled = false
@@ -526,7 +534,7 @@ class SamSprungOverlay : AppCompatActivity(),
                 return true
             }
         })
-        searchWrapper.visibility = View.GONE
+        searchView.visibility = View.GONE
 
         val keyboardView = getInputMethod()
         keyboardView.elevation = 1F
@@ -539,10 +547,10 @@ class SamSprungOverlay : AppCompatActivity(),
                 return null
             }
             override fun onKeyboardHidden() {
-                if (searchWrapper.isVisible)
-                    searchWrapper.visibility = View.GONE
+                if (searchView.isVisible)
+                    searchView.visibility = View.GONE
             }
-        }, searchWrapper)
+        }, coordinatorMain)
 
         val drawerTouchCallback: ItemTouchHelper.SimpleCallback = object :
             ItemTouchHelper.SimpleCallback(0,
@@ -627,23 +635,23 @@ class SamSprungOverlay : AppCompatActivity(),
     }
 
     private fun clearSearchOrOpen(searchView: SearchView, anchor: View) {
-        if (searchWrapper.isVisible) {
+        if (searchView.isVisible) {
             if (searchView.query.isNotBlank()) {
                 searchView.setQuery("", true)
             }
-            searchWrapper.visibility = View.GONE
+            searchView.visibility = View.GONE
         } else {
-            searchWrapper.visibility = View.VISIBLE
-            animateSearchReveal(searchWrapper, anchor)
+            searchView.visibility = View.VISIBLE
+            animateSearchReveal(searchView, anchor)
         }
     }
 
     private fun clearSearchOrClose(searchView: SearchView) {
-        if (searchWrapper.isVisible) {
+        if (searchView.isVisible) {
             if (searchView.query.isNotBlank()) {
                 searchView.setQuery("", true)
             }
-            searchWrapper.visibility = View.GONE
+            searchView.visibility = View.GONE
         } else {
             dismissOverlay()
             startActivity(
@@ -796,8 +804,8 @@ class SamSprungOverlay : AppCompatActivity(),
         Handler(Looper.getMainLooper()).postDelayed({
             runOnUiThread {
                 windowManager.removeView(orientationChanger)
-                requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
                 dismissOverlay()
+                requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
                 startForegroundService(Intent(this,
                     AppDisplayListener::class.java).putExtras(extras))
             }
@@ -893,5 +901,23 @@ class SamSprungOverlay : AppCompatActivity(),
                 unregisterReceiver(pReceiver)
         } catch (ignored: Exception) { }
         super.onDestroy()
+    }
+
+    private fun rebootNotificationListenerService() {
+        Executors.newSingleThreadExecutor().execute {
+            val componentName = ComponentName(
+                applicationContext,
+                NotificationObserver::class.java
+            )
+            packageManager.setComponentEnabledSetting(
+                componentName,
+                PackageManager.COMPONENT_ENABLED_STATE_DISABLED, PackageManager.DONT_KILL_APP
+            )
+            packageManager.setComponentEnabledSetting(
+                componentName,
+                PackageManager.COMPONENT_ENABLED_STATE_ENABLED, PackageManager.DONT_KILL_APP
+            )
+            NotificationListenerService.requestRebind(componentName)
+        }
     }
 }

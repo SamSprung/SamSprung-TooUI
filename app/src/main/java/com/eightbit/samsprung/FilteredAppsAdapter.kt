@@ -78,7 +78,6 @@ class FilteredAppsAdapter(
     fun setPackages(packages: MutableList<ResolveInfo>, hide: HashSet<String>) {
         this.packages = packages
         this.hide = hide
-        notifyDataSetChanged()
     }
 
     override fun getCount(): Int {

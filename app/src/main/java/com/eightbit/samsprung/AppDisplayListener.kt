@@ -53,10 +53,7 @@ package com.eightbit.samsprung
 
 import android.annotation.SuppressLint
 import android.app.*
-import android.content.ComponentName
-import android.content.Context
-import android.content.Intent
-import android.content.SharedPreferences
+import android.content.*
 import android.content.res.Configuration
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
@@ -71,11 +68,9 @@ import android.view.LayoutInflater
 import android.widget.ImageView
 import android.widget.LinearLayout
 import androidx.appcompat.widget.AppCompatImageView
-import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.core.app.NotificationCompat
 import androidx.core.content.ContextCompat
 import androidx.core.view.isVisible
-import com.eightbit.content.ScaledContext
 import com.eightbit.view.OnSwipeTouchListener
 import com.eightbit.widget.VerticalStrokeTextView
 import com.google.android.material.bottomsheet.BottomSheetBehavior
@@ -85,13 +80,11 @@ import java.io.File
 class AppDisplayListener : Service() {
 
     private lateinit var prefs: SharedPreferences
-
-    private var mDisplayListener: DisplayManager.DisplayListener? = null
-    private lateinit var floatView: View
-
+    private lateinit var oReceiver: BroadcastReceiver
+    private lateinit var mDisplayListener: DisplayManager.DisplayListener
     @Suppress("DEPRECATION")
     private lateinit var mKeyguardLock: KeyguardManager.KeyguardLock
-
+    private lateinit var floatView: View
     private lateinit var bottomSheetBehavior: BottomSheetBehavior<View>
 
     override fun onBind(intent: Intent?): IBinder? {
@@ -110,9 +103,17 @@ class AppDisplayListener : Service() {
         mKeyguardLock = (getSystemService(Context.KEYGUARD_SERVICE)
                 as KeyguardManager).newKeyguardLock("cover_lock")
 
-        if (null == launchPackage) {
-            dismissDisplayListener(mKeyguardLock)
-            return START_NOT_STICKY
+        oReceiver = object : BroadcastReceiver() {
+            override fun onReceive(context: Context?, intent: Intent) {
+                if (intent.action == Intent.ACTION_SCREEN_OFF) {
+                    stopForeground(true)
+                    stopSelf()
+                    onDestroy()
+                }
+            }
+        }
+        IntentFilter(Intent.ACTION_SCREEN_OFF).also {
+            registerReceiver(oReceiver, it)
         }
 
         showForegroundNotification(startId)
@@ -134,12 +135,14 @@ class AppDisplayListener : Service() {
             override fun onDisplayAdded(display: Int) {}
             override fun onDisplayChanged(display: Int) {
                 if (display == 0) {
-                    dismissDisplayListener(mKeyguardLock)
                     restoreActivityDisplay(launchPackage, launchActivity, display, false)
+                    stopForeground(true)
+                    stopSelf()
+                    onDestroy()
                 } else {
                     if (SamSprung.isKeyguardLocked)
                         @Suppress("DEPRECATION") mKeyguardLock.disableKeyguard()
-                    if (!floatView.isShown)
+                    if (this@AppDisplayListener::floatView.isInitialized && !floatView.isShown)
                         (displayContext.getSystemService(WINDOW_SERVICE)
                                 as WindowManager).addView(floatView, params)
                 }
@@ -153,6 +156,7 @@ class AppDisplayListener : Service() {
 
         val keyboardView = getInputMethod()
 
+        @Suppress("DEPRECATION")
         SamSprungInput.setInputListener(object : SamSprungInput.InputMethodListener {
             override fun onInputRequested(instance: SamSprungInput) : KeyboardView? {
                 if (hasAccessibility())
@@ -185,27 +189,34 @@ class AppDisplayListener : Service() {
                     }
                     menuRecent.setOnClickListener {
                         resetRecentActivities(launchPackage, launchActivity)
-                        dismissDisplayListener(mKeyguardLock)
-                        startActivity(
-                            Intent(this@AppDisplayListener, SamSprungOverlay::class.java)
-                                .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK).setAction(SamSprung.services),
-                            ActivityOptions.makeBasic().setLaunchDisplayId(1).toBundle()
+                        stopForeground(true)
+                        stopSelf()
+                        onDestroy()
+                        startForegroundService(
+                            Intent(
+                                applicationContext,
+                                OnBroadcastService::class.java
+                            ).setAction(SamSprung.services)
                         )
                     }
                     menuHome.setOnClickListener {
                         resetRecentActivities(launchPackage, launchActivity)
-                        dismissDisplayListener(mKeyguardLock)
-                        startActivity(
-                            Intent(this@AppDisplayListener, SamSprungOverlay::class.java)
-                                .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK),
-                            ActivityOptions.makeBasic().setLaunchDisplayId(1).toBundle()
+                        stopForeground(true)
+                        stopSelf()
+                        onDestroy()
+                        startForegroundService(
+                            Intent(
+                                applicationContext,
+                                OnBroadcastService::class.java
+                            ).setAction(SamSprung.services)
                         )
                     }
                     menuBack.setOnClickListener {
                         if (hasAccessibility()) {
                             AccessibilityObserver.executeButtonBack()
                         } else {
-                            restoreActivityDisplay(launchPackage, launchActivity, 1, false)
+                            restoreActivityDisplay(launchPackage,
+                                launchActivity, 1, false)
                         }
                     }
                 } else if (newState == BottomSheetBehavior.STATE_COLLAPSED) {
@@ -215,8 +226,6 @@ class AppDisplayListener : Service() {
 
             override fun onSlide(bottomSheet: View, slideOffset: Float) { }
         })
-
-        bottomSheetBehavior.isHideable = false
 
         floatView.findViewById<View>(R.id.bottom_sheet)!!.setOnTouchListener(
             object: OnSwipeTouchListener(this@AppDisplayListener) {
@@ -232,9 +241,11 @@ class AppDisplayListener : Service() {
 
         (displayContext.getSystemService(WINDOW_SERVICE)
                 as WindowManager).addView(floatView, params)
-        return START_REDELIVER_INTENT
+        return START_NOT_STICKY
     }
 
+    @SuppressLint("InflateParams")
+    @Suppress("DEPRECATION")
     private fun getInputMethod(): KeyboardView {
         val mKeyboardView = LayoutInflater.from(this@AppDisplayListener)
             .inflate(R.layout.keyboard_view, null) as KeyboardView
@@ -244,13 +255,14 @@ class AppDisplayListener : Service() {
     }
 
     private fun restoreActivityDisplay(
-        pkg: String, cls: String?, display: Int, backStack: Boolean) {
-        if (null != cls) {
+        pkg: String?, cls: String?, display: Int, backStack: Boolean) {
+        if (null != pkg && null != cls) {
             val coverIntent = Intent(Intent.ACTION_MAIN)
             coverIntent.addCategory(Intent.CATEGORY_LAUNCHER)
             coverIntent.component = ComponentName(pkg, cls)
             coverIntent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or
                     Intent.FLAG_ACTIVITY_CLEAR_TASK or
+                    Intent.FLAG_ACTIVITY_NEW_DOCUMENT or
                     Intent.FLAG_ACTIVITY_FORWARD_RESULT or
                     Intent.FLAG_ACTIVITY_NO_ANIMATION
             if (backStack) {
@@ -263,12 +275,13 @@ class AppDisplayListener : Service() {
         }
     }
 
-    private fun resetRecentActivities(pkg: String, cls: String?) {
+    private fun resetRecentActivities(pkg: String?, cls: String?) {
         restoreActivityDisplay(pkg, cls, 0, true)
 
         val homeLauncher = Intent(Intent.ACTION_MAIN)
         homeLauncher.addCategory(Intent.CATEGORY_HOME)
         homeLauncher.flags = Intent.FLAG_ACTIVITY_NEW_TASK or
+                Intent.FLAG_ACTIVITY_CLEAR_TASK or
                 Intent.FLAG_ACTIVITY_FORWARD_RESULT or
                 Intent.FLAG_ACTIVITY_NO_ANIMATION
         startActivity(homeLauncher, ActivityOptions
@@ -290,48 +303,25 @@ class AppDisplayListener : Service() {
         mNotificationManager.createNotificationChannelGroup(
             NotificationChannelGroup("services_group", "Services")
         )
-        val notificationChannel = NotificationChannel("service_channel",
-            "Service Notification", NotificationManager.IMPORTANCE_LOW)
+        val notificationChannel = NotificationChannel("display_channel",
+            "Display Notification", NotificationManager.IMPORTANCE_LOW)
         notificationChannel.enableLights(false)
         notificationChannel.lockscreenVisibility = Notification.VISIBILITY_SECRET
         mNotificationManager.createNotificationChannel(notificationChannel)
-        val builder = NotificationCompat.Builder(this, "service_channel")
+        val builder = NotificationCompat.Builder(this, "display_channel")
 
         val notificationText = getString(R.string.display_service, getString(R.string.samsprung))
         builder.setContentTitle(notificationText).setTicker(notificationText)
             .setSmallIcon(R.drawable.ic_baseline_samsprung_24)
             .setWhen(0).setOnlyAlertOnce(true)
             .setContentIntent(pendingIntent).setOngoing(true)
+            .setGroup("services_group")
         if (null != iconNotification) {
             builder.setLargeIcon(Bitmap.createScaledBitmap(
                 iconNotification, 128, 128, false))
         }
         builder.color = ContextCompat.getColor(this, R.color.primary_light)
         startForeground(startId, builder.build())
-    }
-
-    private fun dismissDisplayListener(
-        @Suppress("DEPRECATION")
-        mKeyguardLock: KeyguardManager.KeyguardLock
-    ) {
-        if (hasAccessibility())
-            AccessibilityObserver.disableKeyboard(this)
-        val windowService = SamSprung.getCoverContext()?.getSystemService(
-            Context.WINDOW_SERVICE) as WindowManager
-        if (this::floatView.isInitialized && floatView.isAttachedToWindow)
-            windowService.removeView(floatView)
-        if (null != mDisplayListener) {
-            (getSystemService(Context.DISPLAY_SERVICE) as DisplayManager)
-                .unregisterDisplayListener(mDisplayListener)
-        }
-        if (SamSprung.isKeyguardLocked)
-            @Suppress("DEPRECATION") mKeyguardLock.reenableKeyguard()
-        try {
-            stopForeground(true)
-        } catch (ignored: Exception) { }
-        try {
-            stopSelf()
-        } catch (ignored: Exception) { }
     }
 
     private fun hasAccessibility(): Boolean {
@@ -345,6 +335,26 @@ class AppDisplayListener : Service() {
     override fun onConfigurationChanged(newConfig: Configuration) {
         super.onConfigurationChanged(newConfig)
         if (this::floatView.isInitialized && floatView.isAttachedToWindow)
-            floatView.invalidate()
+            floatView.requestLayout()
+    }
+
+    override fun onDestroy() {
+        if (hasAccessibility())
+            AccessibilityObserver.disableKeyboard(this)
+        try {
+            if (this::oReceiver.isInitialized)
+                unregisterReceiver(oReceiver)
+        } catch (ignored: Exception) { }
+        if (this::mDisplayListener.isInitialized) {
+            (getSystemService(Context.DISPLAY_SERVICE) as DisplayManager)
+                .unregisterDisplayListener(mDisplayListener)
+        }
+        val windowService = SamSprung.getCoverContext()?.getSystemService(
+            Context.WINDOW_SERVICE) as WindowManager
+        if (this::floatView.isInitialized && floatView.isAttachedToWindow)
+            windowService.removeView(floatView)
+        if (SamSprung.isKeyguardLocked)
+            @Suppress("DEPRECATION") mKeyguardLock.reenableKeyguard()
+        super.onDestroy()
     }
 }

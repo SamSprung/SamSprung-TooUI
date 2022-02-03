@@ -80,7 +80,6 @@ import android.view.ViewGroup
 import android.view.animation.TranslateAnimation
 import android.widget.*
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.view.ContextThemeWrapper
@@ -126,7 +125,6 @@ class CoverPreferences : AppCompatActivity() {
     private val buttonsIAP = ArrayList<Button>()
     private val buttonsSub = ArrayList<Button>()
 
-    @RequiresApi(Build.VERSION_CODES.S)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         prefs = getSharedPreferences(SamSprung.prefsValue, MODE_PRIVATE)
@@ -526,8 +524,10 @@ class CoverPreferences : AppCompatActivity() {
             val packageRetriever = PackageRetriever(this)
             val packages = packageRetriever.getRecentPackageList(false)
             val unlisted = packageRetriever.getHiddenPackages()
-            runOnUiThread {  (hiddenList.adapter as FilteredAppsAdapter)
-                .setPackages(packages, unlisted) }
+            runOnUiThread {
+                (hiddenList.adapter as FilteredAppsAdapter).setPackages(packages, unlisted)
+                (hiddenList.adapter as FilteredAppsAdapter).notifyDataSetChanged()
+            }
         }
     }
 
@@ -643,8 +643,8 @@ class CoverPreferences : AppCompatActivity() {
             for (button: Button in buttonsSub)
                 subscriptions.addView(button)
             dialog.setOnCancelListener {
-                donations.removeAllViewsInLayout()
-                subscriptions.removeAllViewsInLayout()
+                donations.removeAllViews()
+                subscriptions.removeAllViews()
             }
             val donateDialog: Dialog = dialog.setView(view).show()
             donateDialog.window?.setBackgroundDrawableResource(R.drawable.rounded_layout)

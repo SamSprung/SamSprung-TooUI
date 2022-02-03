@@ -102,7 +102,7 @@
             android:exported="true"
             android:permission="android.permission.FOREGROUND_SERVICE" />
         <service android:name=".AppDisplayListener"
-            android:exported="true"
+            android:exported="false"
             android:permission="android.permission.FOREGROUND_SERVICE" />
         <service
             android:name=".NotificationObserver"

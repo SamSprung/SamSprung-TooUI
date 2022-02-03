@@ -394,10 +394,11 @@ class SamSprungPanels : AppCompatActivity(), View.OnClickListener, OnLongClickLi
         } else {
             if (result.data!!.component == ComponentName(packageName, "XXX.YYY.ZZZ")) {
                 finish()
-                startActivity(
-                    Intent(this@SamSprungPanels, SamSprungOverlay::class.java)
-                        .setAction(SamSprung.services),
-                    ActivityOptions.makeBasic().setLaunchDisplayId(1).toBundle()
+                startForegroundService(
+                    Intent(
+                        applicationContext,
+                        OnBroadcastService::class.java
+                    ).setAction(SamSprung.services)
                 )
             } else {
                 addAppWidget(result.data)

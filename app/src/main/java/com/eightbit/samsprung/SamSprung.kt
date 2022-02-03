@@ -75,7 +75,7 @@ class SamSprung : Application() {
         Thread.setDefaultUncaughtExceptionHandler { _: Thread?, error: Throwable ->
             error.printStackTrace()
             startService(
-                Intent(this, OnBroadcastService::class.java).setAction(services)
+                Intent(this, OnBroadcastService::class.java).setAction(updating)
             )
             // Unrecoverable error encountered
             exitProcess(1)
