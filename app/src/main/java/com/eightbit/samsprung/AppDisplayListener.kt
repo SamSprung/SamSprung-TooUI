@@ -76,7 +76,6 @@ import com.eightbit.widget.VerticalStrokeTextView
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import java.io.File
 
-
 class AppDisplayListener : Service() {
 
     private lateinit var prefs: SharedPreferences
@@ -135,7 +134,7 @@ class AppDisplayListener : Service() {
             override fun onDisplayAdded(display: Int) {}
             override fun onDisplayChanged(display: Int) {
                 if (display == 0) {
-                    restoreActivityDisplay(launchPackage, launchActivity, display, false)
+                    restoreActivityDisplay(launchPackage, launchActivity, display)
                     stopForeground(true)
                     stopSelf()
                     onDestroy()
@@ -196,7 +195,12 @@ class AppDisplayListener : Service() {
                             Intent(
                                 applicationContext,
                                 OnBroadcastService::class.java
-                            ).setAction(SamSprung.services)
+                            )
+                        )
+                        startActivity(
+                            Intent(this@AppDisplayListener, SamSprungOverlay::class.java)
+                                .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK).setAction(SamSprung.services),
+                            ActivityOptions.makeBasic().setLaunchDisplayId(1).toBundle()
                         )
                     }
                     menuHome.setOnClickListener {
@@ -216,7 +220,7 @@ class AppDisplayListener : Service() {
                             AccessibilityObserver.executeButtonBack()
                         } else {
                             restoreActivityDisplay(launchPackage,
-                                launchActivity, 1, false)
+                                launchActivity, 1)
                         }
                     }
                 } else if (newState == BottomSheetBehavior.STATE_COLLAPSED) {
@@ -255,33 +259,26 @@ class AppDisplayListener : Service() {
     }
 
     private fun restoreActivityDisplay(
-        pkg: String?, cls: String?, display: Int, backStack: Boolean) {
+        pkg: String?, cls: String?, display: Int) {
         if (null != pkg && null != cls) {
             val coverIntent = Intent(Intent.ACTION_MAIN)
             coverIntent.addCategory(Intent.CATEGORY_LAUNCHER)
             coverIntent.component = ComponentName(pkg, cls)
             coverIntent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or
                     Intent.FLAG_ACTIVITY_CLEAR_TASK or
-                    Intent.FLAG_ACTIVITY_NEW_DOCUMENT or
                     Intent.FLAG_ACTIVITY_FORWARD_RESULT or
                     Intent.FLAG_ACTIVITY_NO_ANIMATION
-            if (backStack) {
-                startActivity(coverIntent, ActivityOptions.makeTaskLaunchBehind()
-                    .setLaunchDisplayId(display).toBundle())
-            } else {
-                startActivity(coverIntent, ActivityOptions.makeBasic()
-                    .setLaunchDisplayId(display).toBundle())
-            }
+            startActivity(coverIntent, ActivityOptions.makeBasic()
+                .setLaunchDisplayId(display).toBundle())
         }
     }
 
     private fun resetRecentActivities(pkg: String?, cls: String?) {
-        restoreActivityDisplay(pkg, cls, 0, true)
+        restoreActivityDisplay(pkg, cls, 0)
 
         val homeLauncher = Intent(Intent.ACTION_MAIN)
         homeLauncher.addCategory(Intent.CATEGORY_HOME)
         homeLauncher.flags = Intent.FLAG_ACTIVITY_NEW_TASK or
-                Intent.FLAG_ACTIVITY_CLEAR_TASK or
                 Intent.FLAG_ACTIVITY_FORWARD_RESULT or
                 Intent.FLAG_ACTIVITY_NO_ANIMATION
         startActivity(homeLauncher, ActivityOptions

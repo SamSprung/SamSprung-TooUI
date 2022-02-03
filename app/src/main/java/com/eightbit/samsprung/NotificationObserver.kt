@@ -120,14 +120,10 @@ class NotificationObserver : NotificationListenerService() {
         val notifications: ArrayList<StatusBarNotification> = arrayListOf()
         notifications.addAll(activeNotifications)
         getObserver()?.mNotificationsChangedListener?.onActiveNotifications(notifications)
-        notifications.clear()
-        notifications.addAll(snoozedNotifications)
-        getObserver()?.mNotificationsChangedListener?.onSnoozedNotifications(notifications)
     }
 
     interface NotificationsChangedListener {
         fun onActiveNotifications(activeNotifications: ArrayList<StatusBarNotification>)
-        fun onSnoozedNotifications(snoozedNotifications: ArrayList<StatusBarNotification>)
         fun onNotificationPosted(sbn: StatusBarNotification?)
         fun onNotificationRemoved(sbn: StatusBarNotification?)
     }

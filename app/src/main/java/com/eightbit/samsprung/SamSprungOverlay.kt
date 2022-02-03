@@ -101,6 +101,7 @@ import android.content.ComponentName
 
 import android.os.Build
 import android.service.notification.NotificationListenerService
+import android.service.notification.StatusBarNotification
 
 
 class SamSprungOverlay : AppCompatActivity(),
@@ -163,8 +164,6 @@ class SamSprungOverlay : AppCompatActivity(),
             mDisplayListener, Handler(Looper.getMainLooper())
         )
 
-        rebootNotificationListenerService()
-
         val handler = Handler(Looper.getMainLooper())
         val coordinatorMain = findViewById<CoordinatorLayout>(R.id.coordinator_main)
         val fakeOverlay = findViewById<LinearLayout>(R.id.fake_overlay)
@@ -205,17 +204,17 @@ class SamSprungOverlay : AppCompatActivity(),
             }
         })
 
-        coordinatorMain.setOnTouchListener(
-            object: OnSwipeTouchListener(this@SamSprungOverlay) {
-            override fun onSwipeTop() : Boolean {
-                bottomSheetBehaviorMain.state = BottomSheetBehavior.STATE_EXPANDED
-                return true
-            }
-            override fun onSwipeBottom() : Boolean {
-                bottomSheetBehaviorMain.state = BottomSheetBehavior.STATE_COLLAPSED
-                return true
-            }
-        })
+//        coordinatorMain.setOnTouchListener(
+//            object: OnSwipeTouchListener(this@SamSprungOverlay) {
+//            override fun onSwipeTop() : Boolean {
+//                bottomSheetBehaviorMain.state = BottomSheetBehavior.STATE_EXPANDED
+//                return true
+//            }
+//            override fun onSwipeBottom() : Boolean {
+//                bottomSheetBehaviorMain.state = BottomSheetBehavior.STATE_COLLAPSED
+//                return true
+//            }
+//        })
 
         oReceiver = object : BroadcastReceiver() {
             override fun onReceive(context: Context?, intent: Intent) {
@@ -315,38 +314,6 @@ class SamSprungOverlay : AppCompatActivity(),
 
         noticesView.layoutManager = LinearLayoutManager(this)
         noticesView.adapter = NotificationAdapter(this, this@SamSprungOverlay)
-        val noticeTouchCallback: ItemTouchHelper.SimpleCallback = object :
-            ItemTouchHelper.SimpleCallback(0,
-                ItemTouchHelper.RIGHT or ItemTouchHelper.LEFT) {
-            override fun onMove(
-                recyclerView: RecyclerView,
-                viewHolder: RecyclerView.ViewHolder,
-                target: RecyclerView.ViewHolder
-            ): Boolean {
-                return false
-            }
-
-            override fun onChildDraw(
-                c: Canvas,
-                recyclerView: RecyclerView,
-                viewHolder: RecyclerView.ViewHolder,
-                dX: Float,
-                dY: Float,
-                actionState: Int,
-                isCurrentlyActive: Boolean
-            ) { }
-
-            override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
-                if (direction == ItemTouchHelper.RIGHT) {
-                    val notice = (viewHolder as NotificationAdapter.NoticeViewHolder).notice
-                    if (null != notice.getKey()) {
-                        NotificationObserver.getObserver()
-                            ?.setNotificationsShown(arrayOf(notice.getKey()))
-                    }
-                }
-            }
-        }
-        ItemTouchHelper(noticeTouchCallback).attachToRecyclerView(noticesView)
 
         val bottomSheetBehavior: BottomSheetBehavior<View> =
             BottomSheetBehavior.from(findViewById(R.id.bottom_sheet))
@@ -615,6 +582,7 @@ class SamSprungOverlay : AppCompatActivity(),
         onNewIntent(if (null != intent?.action && SamSprung.services == intent.action) intent else null)
     }
 
+    @Suppress("DEPRECATION")
     private fun getInputMethod(): KeyboardView {
         val mKeyboardView = LayoutInflater.from(ScaledContext
             .screen(this@SamSprungOverlay))
@@ -812,15 +780,17 @@ class SamSprungOverlay : AppCompatActivity(),
         }, 100)
     }
 
-    override fun onNoticeClicked(notice: SamSprungNotice, position: Int) {
-        if (null != notice.getIntentSender()) {
-            prepareConfiguration()
+    override fun onNoticeClicked(notice: StatusBarNotification, position: Int) {
+        val intentSender = notice.notification.contentIntent.intentSender
+        prepareConfiguration()
+        startIntentSender(intentSender, null, 0, 0, 0)
+        startForegroundService(Intent(this, AppDisplayListener::class.java)
+            .putExtra("launchPackage", intentSender.creatorPackage))
+    }
 
-            startIntentSender(notice.getIntentSender(),
-                null, 0, 0, 0)
-            startForegroundService(Intent(this, AppDisplayListener::class.java)
-                .putExtra("launchPackage", notice.getIntentSender()!!.creatorPackage))
-        }
+    override fun onNoticeLongClicked(notice: StatusBarNotification, position: Int) : Boolean {
+        NotificationObserver.getObserver()?.setNotificationsShown(arrayOf(notice.key))
+        return true
     }
 
     private fun getColumnCount(): Int {
@@ -851,7 +821,21 @@ class SamSprungOverlay : AppCompatActivity(),
 
     override fun onNewIntent(intent: Intent?) {
         super.onNewIntent(intent)
-//        CheckUpdatesTask(this)
+        Executors.newSingleThreadExecutor().execute {
+            val componentName = ComponentName(
+                applicationContext,
+                NotificationObserver::class.java
+            )
+            packageManager.setComponentEnabledSetting(
+                componentName,
+                PackageManager.COMPONENT_ENABLED_STATE_DISABLED, PackageManager.DONT_KILL_APP
+            )
+            packageManager.setComponentEnabledSetting(
+                componentName,
+                PackageManager.COMPONENT_ENABLED_STATE_ENABLED, PackageManager.DONT_KILL_APP
+            )
+            NotificationListenerService.requestRebind(componentName)
+        }
         bottomHandle = findViewById(R.id.bottom_handle)
         bottomHandle.visibility = View.VISIBLE
         bottomHandle.setBackgroundColor(prefs.getInt(SamSprung.prefColors,
@@ -860,11 +844,6 @@ class SamSprungOverlay : AppCompatActivity(),
         if (!this::noticesView.isInitialized) return
         if (hasNotificationListener()) {
             NotificationObserver.getObserver()?.setNotificationsChangedListener(
-                noticesView.adapter as NotificationAdapter
-            )
-        }
-        if (hasAccessibility()) {
-            AccessibilityObserver.getObserver()?.setEventsChangedListener(
                 noticesView.adapter as NotificationAdapter
             )
         }
@@ -901,23 +880,5 @@ class SamSprungOverlay : AppCompatActivity(),
                 unregisterReceiver(pReceiver)
         } catch (ignored: Exception) { }
         super.onDestroy()
-    }
-
-    private fun rebootNotificationListenerService() {
-        Executors.newSingleThreadExecutor().execute {
-            val componentName = ComponentName(
-                applicationContext,
-                NotificationObserver::class.java
-            )
-            packageManager.setComponentEnabledSetting(
-                componentName,
-                PackageManager.COMPONENT_ENABLED_STATE_DISABLED, PackageManager.DONT_KILL_APP
-            )
-            packageManager.setComponentEnabledSetting(
-                componentName,
-                PackageManager.COMPONENT_ENABLED_STATE_ENABLED, PackageManager.DONT_KILL_APP
-            )
-            NotificationListenerService.requestRebind(componentName)
-        }
     }
 }

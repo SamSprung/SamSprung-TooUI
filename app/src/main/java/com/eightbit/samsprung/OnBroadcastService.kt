@@ -106,7 +106,7 @@ class OnBroadcastService : Service() {
             applicationContext.registerReceiver(onReceiver, it)
         }
 
-        return START_STICKY_COMPATIBILITY
+        return START_STICKY
     }
 
     @SuppressLint("LaunchActivityFromNotification")

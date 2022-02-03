@@ -51,9 +51,6 @@ package com.eightbit.samsprung
  * subject to to the terms and conditions of the Apache License, Version 2.0.
  */
 
-import android.annotation.SuppressLint
-import android.app.Notification
-import android.content.pm.ResolveInfo
 import android.service.notification.StatusBarNotification
 import android.view.LayoutInflater
 import android.view.View
@@ -64,36 +61,31 @@ import androidx.appcompat.widget.AppCompatImageView
 import androidx.core.app.NotificationCompat
 import androidx.recyclerview.widget.RecyclerView
 import java.util.*
-import java.util.concurrent.Executors
-import kotlin.collections.ArrayList
 
 class NotificationAdapter(
     private var activity: AppCompatActivity,
     private var listener: OnNoticeClickListener
 ) : RecyclerView.Adapter<NotificationAdapter.NoticeViewHolder>(),
-    NotificationObserver.NotificationsChangedListener,
-    AccessibilityObserver.EventsChangedListener {
+    NotificationObserver.NotificationsChangedListener {
 
     companion object {
-        private var notices: ArrayList<SamSprungNotice> = arrayListOf()
         private var sbNotifications: ArrayList<StatusBarNotification> = arrayListOf()
-        private var notifications: ArrayList<Notification> = arrayListOf()
     }
 
     override fun getItemCount(): Int {
-        return notices.size
+        return sbNotifications.size
     }
 
     override fun getItemId(i: Int): Long {
         return i.toLong()
     }
 
-    private fun getItem(i: Int): SamSprungNotice {
-        return notices[i]
+    private fun getItem(i: Int): StatusBarNotification {
+        return sbNotifications[i]
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): NoticeViewHolder {
-        return SimpleViewHolder(parent, listener)
+        return SimpleViewHolder(parent, listener, activity)
     }
 
     override fun onBindViewHolder(holder: NoticeViewHolder, position: Int) {
@@ -101,176 +93,96 @@ class NotificationAdapter(
             if (null != holder.listener)
                 holder.listener.onNoticeClicked(holder.notice, position)
         }
+        holder.itemView.setOnLongClickListener {
+            if (null != holder.listener)
+                return@setOnLongClickListener holder.listener
+                    .onNoticeLongClicked(holder.notice, position)
+            return@setOnLongClickListener false
+        }
         holder.iconView.setOnClickListener {
             if (null != holder.listener)
                 holder.listener.onNoticeClicked(holder.notice, position)
+        }
+        holder.itemView.setOnLongClickListener {
+            if (null != holder.listener)
+                return@setOnLongClickListener holder.listener
+                    .onNoticeLongClicked(holder.notice, position)
+            return@setOnLongClickListener false
         }
         holder.bind(getItem(position))
     }
 
     abstract class NoticeViewHolder(
-        itemView: View, val listener: OnNoticeClickListener?
+        itemView: View, val listener: OnNoticeClickListener?, val activity: AppCompatActivity
     ) : RecyclerView.ViewHolder(itemView) {
         val iconView: AppCompatImageView = itemView.findViewById(R.id.icon)
         private val linesText: TextView = itemView.findViewById(R.id.lines)
-        lateinit var notice: SamSprungNotice
-        fun bind(notice: SamSprungNotice) {
+        lateinit var notice: StatusBarNotification
+        fun bind(notice: StatusBarNotification) {
             this.notice = notice
-            iconView.setImageDrawable(notice.getDrawable())
-            linesText.text = notice.getString().trim()
+            val notification = notice.notification
+           when {
+                null != notification.getLargeIcon() -> iconView.setImageDrawable(
+                    notification.getLargeIcon().loadDrawable(activity)
+                )
+                null != notification.smallIcon -> iconView.setImageDrawable(
+                    notification.smallIcon.loadDrawable(activity)
+                )
+            }
+            if (null != notification.extras
+                && null != notification.extras.getCharSequenceArray(
+                    NotificationCompat.EXTRA_TEXT_LINES)) {
+                linesText.text = (Arrays.toString(
+                    notification.extras.getCharSequenceArray(
+                        NotificationCompat.EXTRA_TEXT_LINES)
+                ))
+            } else if (null != notification.extras && null != notification.extras
+                    .getCharSequence(NotificationCompat.EXTRA_TEXT)) {
+                linesText.text = (notification.extras.getCharSequence(
+                    NotificationCompat.EXTRA_TEXT).toString())
+            } else if (null != notification.tickerText) {
+                linesText.text = (notification.tickerText.toString())
+            }
         }
     }
 
     internal class SimpleViewHolder(
         parent: ViewGroup,
-        listener: OnNoticeClickListener?
+        listener: OnNoticeClickListener?,
+        activity: AppCompatActivity
     ) : NoticeViewHolder(
         LayoutInflater.from(parent.context).inflate(
             R.layout.notification_card,
             parent, false
-        ), listener
+        ), listener, activity
     )
 
     interface OnNoticeClickListener {
-        fun onNoticeClicked(notice: SamSprungNotice, position: Int)
-    }
-
-    @SuppressLint("NotifyDataSetChanged")
-    private fun createNotice(notification: Notification) : SamSprungNotice {
-        val notice = SamSprungNotice()
-        when {
-            null != notification.getLargeIcon() -> notice.setDrawable(
-                notification.getLargeIcon().loadDrawable(activity)
-            )
-            null != notification.smallIcon -> notice.setDrawable(
-                notification.smallIcon.loadDrawable(activity)
-            )
-        }
-        if (null != notification.extras
-            && null != notification.extras.getCharSequenceArray(
-                NotificationCompat.EXTRA_TEXT_LINES)) {
-            notice.setString(Arrays.toString(
-                notification.extras.getCharSequenceArray(
-                    NotificationCompat.EXTRA_TEXT_LINES)
-            ))
-        } else if (null != notification.extras && null != notification.extras
-                .getCharSequence(NotificationCompat.EXTRA_TEXT)) {
-            notice.setString(notification.extras.getCharSequence(
-                    NotificationCompat.EXTRA_TEXT).toString())
-        } else if (null != notification.tickerText) {
-            notice.setString(notification.tickerText.toString())
-        }
-        if (null != notification.contentIntent)
-            notice.setIntentSender(notification.contentIntent.intentSender)
-        return notice
-    }
-
-    private fun updateNotice(notice: SamSprungNotice, notification: Notification) : SamSprungNotice {
-        if (null != notification.extras && null != notification.extras
-                .getCharSequenceArray(NotificationCompat.EXTRA_TEXT_LINES)) {
-            notice.setString(Arrays.toString(
-                notification.extras.getCharSequenceArray(
-                    NotificationCompat.EXTRA_TEXT_LINES)
-            ))
-        } else if (null != notification.extras && null != notification.extras
-                .getCharSequence(NotificationCompat.EXTRA_TEXT)) {
-            notice.setString(notification.extras.getCharSequence(
-                NotificationCompat.EXTRA_TEXT).toString())
-        } else if (null != notification.tickerText) {
-            notice.setString(notification.tickerText.toString())
-        }
-        return notice
-    }
-
-
-    @SuppressLint("NotifyDataSetChanged")
-    private fun refreshStatusBarNotifications() {
-        Executors.newSingleThreadExecutor().execute {
-            val groups: HashMap<String, SamSprungNotice> = hashMapOf()
-            val iterator: MutableIterator<StatusBarNotification> = sbNotifications.iterator()
-            while (iterator.hasNext()) {
-                val sbn = iterator.next()
-                val notification = sbn.notification
-                if (groups.containsKey(notification.group)
-                    && null != groups[notification.group]) {
-                    val notice = updateNotice(groups[notification.group]!!, notification)
-                    notice.setKey(sbn.key)
-                    groups.replace(notification.group, notice)
-                } else {
-                    val notice = createNotice(notification)
-                    notice.setKey(sbn.key)
-                    if (null != notification.group) {
-                        groups[notification.group] = notice
-                    } else {
-                        groups[activity.packageName] = notice
-                    }
-                }
-            }
-            notices = ArrayList(groups.values)
-            activity.runOnUiThread { this.notifyDataSetChanged() }
-        }
+        fun onNoticeClicked(notice: StatusBarNotification, position: Int)
+        fun onNoticeLongClicked(notice: StatusBarNotification, position: Int) : Boolean
     }
 
     override fun onActiveNotifications(activeNotifications: ArrayList<StatusBarNotification>) {
         for (sbn: StatusBarNotification in activeNotifications) {
             if (!sbNotifications.contains(sbn)) {
                 sbNotifications.add(sbn)
-                refreshStatusBarNotifications()
-            }
-        }
-    }
-    override fun onSnoozedNotifications(snoozedNotifications: ArrayList<StatusBarNotification>) {
-        for (sbn: StatusBarNotification in snoozedNotifications) {
-            if (sbNotifications.contains(sbn)) {
-                sbNotifications.remove(sbn)
-                refreshStatusBarNotifications()
+                activity.runOnUiThread { this.notifyDataSetChanged() }
             }
         }
     }
     override fun onNotificationPosted(sbn: StatusBarNotification?) {
         if (null == sbn) return
         sbNotifications.add(sbn)
-        refreshStatusBarNotifications()
+        activity.runOnUiThread { this.notifyDataSetChanged() }
     }
     override fun onNotificationRemoved(sbn: StatusBarNotification?) {
         if (null == sbn) return
         for (sbNotice: StatusBarNotification in sbNotifications) {
             if (sbNotice == sbn) {
                 sbNotifications.remove(sbNotice)
-                refreshStatusBarNotifications()
+                activity.runOnUiThread { this.notifyDataSetChanged() }
                 break
             }
-        }
-    }
-
-    @SuppressLint("NotifyDataSetChanged")
-    private fun refreshNotifications() {
-        Executors.newSingleThreadExecutor().execute {
-            val groups: HashMap<String, SamSprungNotice> = hashMapOf()
-            for (notification: Notification in notifications) {
-                if (groups.containsKey(notification.group)
-                    && null != groups[notification.group]) {
-                    groups.replace(notification.group,
-                        updateNotice(groups[notification.group]!!, notification))
-                } else {
-                    val notice = createNotice(notification)
-                    if (null != notification.group) {
-                        groups[notification.group] = notice
-                    } else {
-                        groups[activity.packageName] = notice
-                    }
-
-                }
-            }
-            notices = ArrayList(groups.values)
-            activity.runOnUiThread { this.notifyDataSetChanged() }
-        }
-    }
-
-    override fun onEventPosted(notification: Notification) {
-        if (!notifications.contains(notification)) {
-            notifications.add(notification)
-            refreshNotifications()
         }
     }
 }

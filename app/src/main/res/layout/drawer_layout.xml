@@ -72,7 +72,7 @@
                     android:layout_width="wrap_content"
                     android:paddingStart="12dp"
                     android:paddingEnd="4dp"
-                    android:layout_height="20dp"
+                    android:layout_height="match_parent"
                     android:layout_weight="1"
                     android:gravity="center"
                     android:layout_gravity="center"
@@ -90,9 +90,9 @@
                     android:textStyle="bold" />
             </LinearLayout>
 
-            <LinearLayout
+            <RelativeLayout
                 android:layout_width="match_parent"
-                android:layout_height="260dp"
+                android:layout_height="match_parent"
                 android:orientation="vertical">
 
                 <androidx.appcompat.widget.Toolbar
@@ -101,6 +101,8 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="-6dp"
                     android:layout_marginBottom="-2dp"
+                    android:layout_alignParentTop="true"
+                    android:gravity="center_horizontal"
                     android:minHeight="?attr/actionBarSize"
                     app:contentInsetLeft="2dp"
                     app:contentInsetStart="2dp"
@@ -108,10 +110,11 @@
 
                 <androidx.recyclerview.widget.RecyclerView
                     android:id="@+id/notificationList"
+                    android:layout_below="@id/toolbar"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:layout_marginBottom="2dp" />
-            </LinearLayout>
+            </RelativeLayout>
         </LinearLayout>
     </androidx.coordinatorlayout.widget.CoordinatorLayout>
 </merge>

@@ -53,7 +53,6 @@ package com.eightbit.samsprung
 
 import android.accessibilityservice.AccessibilityService
 import android.accessibilityservice.AccessibilityServiceInfo
-import android.app.Notification
 import android.content.ComponentName
 import android.content.Context
 import android.provider.Settings
@@ -113,8 +112,6 @@ class AccessibilityObserver : AccessibilityService() {
         observerInstance = this
     }
 
-    private var mEventsChangedListener: EventsChangedListener? = null
-
     override fun onServiceConnected() {
         val info = AccessibilityServiceInfo()
         info.eventTypes = AccessibilityEvent.TYPE_NOTIFICATION_STATE_CHANGED
@@ -125,23 +122,13 @@ class AccessibilityObserver : AccessibilityService() {
     }
 
     override fun onAccessibilityEvent(event: AccessibilityEvent) {
-        if (AccessibilityEvent.TYPE_NOTIFICATION_STATE_CHANGED == event.eventType) {
-            val notification = event.parcelableData
-            if (notification is Notification) {
-                getObserver()?.mEventsChangedListener?.onEventPosted(notification)
-            }
-        }
+//        if (AccessibilityEvent.TYPE_NOTIFICATION_STATE_CHANGED == event.eventType) {
+//            val notification = event.parcelableData
+//            if (notification is Notification) { }
+//        }
     }
 
     override fun onInterrupt() {
         isConnected = false
-    }
-
-    fun setEventsChangedListener(listener: EventsChangedListener?) {
-        getObserver()?.mEventsChangedListener = listener
-    }
-
-    interface EventsChangedListener {
-        fun onEventPosted(notification: Notification)
     }
 }
