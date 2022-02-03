@@ -56,6 +56,13 @@ import android.content.BroadcastReceiver
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
+import android.content.Context.ACTIVITY_SERVICE
+
+import androidx.core.content.ContextCompat.getSystemService
+
+import android.app.ActivityManager
+import androidx.core.content.ContextCompat
+
 
 class OffBroadcastReceiver : BroadcastReceiver {
     private var componentName : ComponentName? = null
@@ -89,7 +96,18 @@ class OffBroadcastReceiver : BroadcastReceiver {
             componentName = null
             context.applicationContext.unregisterReceiver(this)
 
-            context.startForegroundService(Intent(context, OnBroadcastService::class.java))
+            if (!isServiceRunning(context, OnBroadcastService::class.java))
+                context.startForegroundService(Intent(context, OnBroadcastService::class.java))
         }
+    }
+
+    private fun isServiceRunning(context: Context, serviceClass: Class<*>): Boolean {
+        for (service in (context.getSystemService(ACTIVITY_SERVICE) as ActivityManager)
+            .getRunningServices(Int.MAX_VALUE)) {
+            if (serviceClass.name == service.service.className) {
+                return true
+            }
+        }
+        return false
     }
 }

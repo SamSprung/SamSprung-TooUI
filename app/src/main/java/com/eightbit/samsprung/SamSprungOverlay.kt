@@ -102,6 +102,7 @@ import android.content.ComponentName
 import android.os.Build
 import android.service.notification.NotificationListenerService
 import android.service.notification.StatusBarNotification
+import android.util.TypedValue
 
 
 class SamSprungOverlay : AppCompatActivity(),
@@ -474,6 +475,14 @@ class SamSprungOverlay : AppCompatActivity(),
         }
 
         searchView = findViewById<SearchView>(R.id.package_search)
+        searchView.findViewById<LinearLayout>(R.id.search_bar)?.run {
+            this.layoutParams = this.layoutParams.apply {
+                height = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP,
+                    24f, resources.displayMetrics).toInt()
+            }
+        }
+        searchView.gravity = Gravity.CENTER_VERTICAL
+
         val searchManager = getSystemService(SEARCH_SERVICE) as SearchManager
         searchView.setSearchableInfo(searchManager.getSearchableInfo(componentName))
         searchView.isSubmitButtonEnabled = false
@@ -505,7 +514,7 @@ class SamSprungOverlay : AppCompatActivity(),
                 if (searchView.isVisible)
                     searchView.visibility = View.GONE
             }
-        }, coordinatorMain)
+        }, findViewById(R.id.bottom_sheet))
 
         val drawerTouchCallback: ItemTouchHelper.SimpleCallback = object :
             ItemTouchHelper.SimpleCallback(0,

@@ -51,6 +51,7 @@ package com.eightbit.samsprung
  * subject to to the terms and conditions of the Apache License, Version 2.0.
  */
 
+import android.app.ActivityManager
 import android.app.Application
 import android.content.Context
 import android.content.Intent
@@ -64,13 +65,22 @@ import java.lang.ref.SoftReference
 import kotlin.system.exitProcess
 
 class SamSprung : Application() {
+
     override fun onCreate() {
         super.onCreate()
         AppCompatDelegate.setCompatVectorFromResourcesEnabled(true)
         if (BuildConfig.FLAVOR == "google"
             && BuildConfig.DEBUG) StrictMode.enableDefaults()
 
-        mContext = SoftReference<Context>(buildDisplayContext(1))
+        val displayManager = getSystemService(Context.DISPLAY_SERVICE) as DisplayManager
+        val displayContext = createDisplayContext(displayManager.getDisplay(1))
+        val wm = displayContext.getSystemService(WINDOW_SERVICE) as WindowManager
+        mContext = SoftReference<Context>(object : ContextThemeWrapper(
+            displayContext, R.style.Theme_SecondScreen) {
+            override fun getSystemService(name: String): Any? {
+                return if (WINDOW_SERVICE == name) wm else super.getSystemService(name)
+            }
+        })
 
         Thread.setDefaultUncaughtExceptionHandler { _: Thread?, error: Throwable ->
             error.printStackTrace()
@@ -99,17 +109,6 @@ class SamSprung : Application() {
             with(prefs.edit()) {
                 remove(autoRotate)
                 apply()
-            }
-        }
-    }
-
-    private fun buildDisplayContext(display: Int): Context {
-        val displayManager = getSystemService(Context.DISPLAY_SERVICE) as DisplayManager
-        val displayContext = createDisplayContext(displayManager.getDisplay(display))
-        val wm = displayContext.getSystemService(WINDOW_SERVICE) as WindowManager
-        return object : ContextThemeWrapper(displayContext, R.style.Theme_SecondScreen) {
-            override fun getSystemService(name: String): Any? {
-                return if (WINDOW_SERVICE == name) wm else super.getSystemService(name)
             }
         }
     }

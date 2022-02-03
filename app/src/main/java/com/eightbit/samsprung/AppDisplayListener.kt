@@ -191,17 +191,13 @@ class AppDisplayListener : Service() {
                         stopForeground(true)
                         stopSelf()
                         onDestroy()
-                        startForegroundService(
-                            Intent(
-                                applicationContext,
-                                OnBroadcastService::class.java
-                            )
-                        )
                         startActivity(
                             Intent(this@AppDisplayListener, SamSprungOverlay::class.java)
                                 .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK).setAction(SamSprung.services),
                             ActivityOptions.makeBasic().setLaunchDisplayId(1).toBundle()
                         )
+                        if (!isServiceRunning(applicationContext, OnBroadcastService::class.java))
+                            startForegroundService(Intent(applicationContext, OnBroadcastService::class.java))
                     }
                     menuHome.setOnClickListener {
                         resetRecentActivities(launchPackage, launchActivity)
@@ -327,6 +323,16 @@ class AppDisplayListener : Service() {
         )
         return serviceString != null && serviceString.contains(packageName
                 + File.separator + AccessibilityObserver::class.java.name)
+    }
+
+    private fun isServiceRunning(context: Context, serviceClass: Class<*>): Boolean {
+        for (service in (context.getSystemService(ACTIVITY_SERVICE) as ActivityManager)
+            .getRunningServices(Int.MAX_VALUE)) {
+            if (serviceClass.name == service.service.className) {
+                return true
+            }
+        }
+        return false
     }
 
     override fun onConfigurationChanged(newConfig: Configuration) {

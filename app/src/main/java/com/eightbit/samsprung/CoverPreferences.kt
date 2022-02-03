@@ -53,6 +53,7 @@ package com.eightbit.samsprung
 
 import android.Manifest
 import android.annotation.SuppressLint
+import android.app.ActivityManager
 import android.app.Dialog
 import android.app.KeyguardManager
 import android.app.WallpaperManager
@@ -542,7 +543,8 @@ class CoverPreferences : AppCompatActivity() {
         ActivityResultContracts.StartActivityForResult()) {
         if (this::mainSwitch.isInitialized) {
             mainSwitch.isChecked = Settings.canDrawOverlays(applicationContext)
-            if (mainSwitch.isChecked)
+            if (mainSwitch.isChecked && !isServiceRunning(
+                    applicationContext, OnBroadcastService::class.java))
                 startForegroundService(Intent(this, OnBroadcastService::class.java))
         }
     }
@@ -568,6 +570,16 @@ class CoverPreferences : AppCompatActivity() {
             for (i in names.indices) {
                 val cn = ComponentName.unflattenFromString(names[i])
                 if (null != cn && TextUtils.equals(packageName, cn.packageName)) return true
+            }
+        }
+        return false
+    }
+
+    private fun isServiceRunning(context: Context, serviceClass: Class<*>): Boolean {
+        for (service in (context.getSystemService(ACTIVITY_SERVICE) as ActivityManager)
+            .getRunningServices(Int.MAX_VALUE)) {
+            if (serviceClass.name == service.service.className) {
+                return true
             }
         }
         return false
@@ -810,7 +822,8 @@ class CoverPreferences : AppCompatActivity() {
             findViewById<CoordinatorLayout>(R.id.coordinator).background =
                 WallpaperManager.getInstance(this).drawable
         }
-        startForegroundService(Intent(this, OnBroadcastService::class.java))
+        if (!isServiceRunning(applicationContext, OnBroadcastService::class.java))
+            startForegroundService(Intent(this, OnBroadcastService::class.java))
         if (!prefs.getBoolean(SamSprung.prefWarned, false)) {
             val view: View = layoutInflater.inflate(R.layout.setup_notice_view, null)
             val dialog = AlertDialog.Builder(
