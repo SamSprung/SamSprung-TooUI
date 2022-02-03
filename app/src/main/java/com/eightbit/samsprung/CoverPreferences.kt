@@ -488,7 +488,6 @@ class CoverPreferences : AppCompatActivity() {
         ActivityResultContracts.RequestPermission()) {
         if (it) findViewById<CoordinatorLayout>(R.id.coordinator).background =
             WallpaperManager.getInstance(this).drawable
-        updates = CheckUpdatesTask(this@CoverPreferences)
     }
 
     private val requestPermissions = registerForActivityResult(
@@ -500,10 +499,9 @@ class CoverPreferences : AppCompatActivity() {
                 }
             } else if (it.key == Manifest.permission.READ_EXTERNAL_STORAGE && !it.value) {
                 requestStorage.launch(Manifest.permission.READ_EXTERNAL_STORAGE)
-            } else {
-                updates = CheckUpdatesTask(this@CoverPreferences)
             }
         }
+        updates = CheckUpdatesTask(this@CoverPreferences)
     }
 
     private val notificationLauncher = registerForActivityResult(
