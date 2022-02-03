@@ -68,9 +68,7 @@ class NotificationAdapter(
 ) : RecyclerView.Adapter<NotificationAdapter.NoticeViewHolder>(),
     NotificationObserver.NotificationsChangedListener {
 
-    companion object {
-        private var sbNotifications: ArrayList<StatusBarNotification> = arrayListOf()
-    }
+    private var sbNotifications: ArrayList<StatusBarNotification> = arrayListOf()
 
     override fun getItemCount(): Int {
         return sbNotifications.size
@@ -95,19 +93,21 @@ class NotificationAdapter(
         }
         holder.itemView.setOnLongClickListener {
             if (null != holder.listener)
-                return@setOnLongClickListener holder.listener
+                holder.listener
                     .onNoticeLongClicked(holder.notice, position)
-            return@setOnLongClickListener false
+            else
+                false
         }
         holder.iconView.setOnClickListener {
             if (null != holder.listener)
                 holder.listener.onNoticeClicked(holder.notice, position)
         }
-        holder.itemView.setOnLongClickListener {
+        holder.iconView.setOnLongClickListener {
             if (null != holder.listener)
-                return@setOnLongClickListener holder.listener
+                holder.listener
                     .onNoticeLongClicked(holder.notice, position)
-            return@setOnLongClickListener false
+            else
+                false
         }
         holder.bind(getItem(position))
     }
@@ -121,7 +121,7 @@ class NotificationAdapter(
         fun bind(notice: StatusBarNotification) {
             this.notice = notice
             val notification = notice.notification
-           when {
+            when {
                 null != notification.getLargeIcon() -> iconView.setImageDrawable(
                     notification.getLargeIcon().loadDrawable(activity)
                 )

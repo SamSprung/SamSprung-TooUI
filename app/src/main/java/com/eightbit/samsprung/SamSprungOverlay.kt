@@ -784,12 +784,11 @@ class SamSprungOverlay : AppCompatActivity(),
         val intentSender = notice.notification.contentIntent.intentSender
         prepareConfiguration()
         startIntentSender(intentSender, null, 0, 0, 0)
-        startForegroundService(Intent(this, AppDisplayListener::class.java)
-            .putExtra("launchPackage", intentSender.creatorPackage))
+        NotificationObserver.getObserver()?.setNotificationsShown(arrayOf(notice.key))
     }
 
     override fun onNoticeLongClicked(notice: StatusBarNotification, position: Int) : Boolean {
-        NotificationObserver.getObserver()?.setNotificationsShown(arrayOf(notice.key))
+        NotificationObserver.getObserver()?.cancelNotification(notice.key)
         return true
     }
 
