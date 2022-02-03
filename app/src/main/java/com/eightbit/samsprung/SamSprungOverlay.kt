@@ -57,6 +57,7 @@ import android.app.*
 import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothManager
 import android.content.*
+import android.content.ComponentName
 import android.content.pm.ActivityInfo
 import android.content.pm.ApplicationInfo
 import android.content.pm.PackageManager
@@ -64,7 +65,6 @@ import android.content.pm.ResolveInfo
 import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.PixelFormat
-import android.graphics.drawable.ColorDrawable
 import android.hardware.camera2.CameraManager
 import android.hardware.display.DisplayManager
 import android.inputmethodservice.KeyboardView
@@ -74,7 +74,9 @@ import android.nfc.NfcAdapter
 import android.nfc.NfcManager
 import android.os.*
 import android.provider.Settings
-import android.text.TextUtils
+import android.service.notification.NotificationListenerService
+import android.service.notification.StatusBarNotification
+import android.util.TypedValue
 import android.view.*
 import android.view.animation.TranslateAnimation
 import android.widget.*
@@ -97,12 +99,9 @@ import com.eightbitlab.blurview.RenderScriptBlur
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import java.io.File
 import java.util.concurrent.Executors
-import android.content.ComponentName
-
-import android.os.Build
-import android.service.notification.NotificationListenerService
-import android.service.notification.StatusBarNotification
-import android.util.TypedValue
+import android.view.MotionEvent
+import android.view.View.OnTouchListener
+import androidx.core.view.ViewCompat
 
 
 class SamSprungOverlay : AppCompatActivity(),
@@ -143,8 +142,6 @@ class SamSprungOverlay : AppCompatActivity(),
 
         window.attributes.width = ViewGroup.LayoutParams.MATCH_PARENT
         window.attributes.gravity = Gravity.BOTTOM
-
-        window.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
 
         prefs = getSharedPreferences(SamSprung.prefsValue, MODE_PRIVATE)
 
@@ -308,7 +305,6 @@ class SamSprungOverlay : AppCompatActivity(),
             BottomSheetBehavior.from(findViewById(R.id.bottom_sheet))
         bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
         bottomSheetBehavior.addBottomSheetCallback(object : BottomSheetBehavior.BottomSheetCallback() {
-
             var hasConfigured = false
             override fun onStateChanged(bottomSheet: View, newState: Int) {
                 if (newState == BottomSheetBehavior.STATE_EXPANDED) {
@@ -501,7 +497,6 @@ class SamSprungOverlay : AppCompatActivity(),
         searchView.visibility = View.GONE
 
         val keyboardView = getInputMethod()
-        keyboardView.elevation = 1F
 
         SamSprungInput.setInputListener(object : SamSprungInput.InputMethodListener {
             override fun onInputRequested(instance: SamSprungInput): KeyboardView? {
@@ -514,11 +509,12 @@ class SamSprungOverlay : AppCompatActivity(),
                 if (searchView.isVisible)
                     searchView.visibility = View.GONE
             }
-        }, findViewById(R.id.bottom_sheet))
+        }, findViewById<LinearLayout>(R.id.keyboard_wrapper))
 
-        val drawerTouchCallback: ItemTouchHelper.SimpleCallback = object :
-            ItemTouchHelper.SimpleCallback(0,
-                ItemTouchHelper.RIGHT or ItemTouchHelper.LEFT) {
+        val drawerTouchCallback: ItemTouchHelper.SimpleCallback =
+            object : ItemTouchHelper.SimpleCallback(
+                0, ItemTouchHelper.START or ItemTouchHelper.END
+            ) {
             override fun onMove(
                 recyclerView: RecyclerView,
                 viewHolder: RecyclerView.ViewHolder,
@@ -538,10 +534,10 @@ class SamSprungOverlay : AppCompatActivity(),
             ) { }
 
             override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
-                if (direction == ItemTouchHelper.LEFT) {
+                if (direction == ItemTouchHelper.START) {
                     clearSearchOrClose(searchView)
                 }
-                if (direction == ItemTouchHelper.RIGHT) {
+                if (direction == ItemTouchHelper.END) {
                     clearSearchOrOpen(searchView, blurView)
                 }
             }
@@ -581,12 +577,11 @@ class SamSprungOverlay : AppCompatActivity(),
 
     @Suppress("DEPRECATION")
     private fun getInputMethod(): KeyboardView {
-        val mKeyboardView = LayoutInflater.from(ScaledContext
-            .screen(this@SamSprungOverlay))
-            .inflate(R.layout.keyboard_view, null) as KeyboardView
+        val mKeyboardView = LayoutInflater.from(
+            ScaledContext.screen(this@SamSprungOverlay)
+        ).inflate(R.layout.keyboard_view, null) as KeyboardView
         mKeyboardView.isPreviewEnabled = false
-        AccessibilityObserver.enableKeyboard(
-            ScaledContext.screen(this@SamSprungOverlay))
+        AccessibilityObserver.enableKeyboard(applicationContext)
         return mKeyboardView
     }
 
@@ -836,18 +831,18 @@ class SamSprungOverlay : AppCompatActivity(),
         bottomHandle.setBackgroundColor(prefs.getInt(SamSprung.prefColors,
             Color.rgb(255, 255, 255)))
         bottomHandle.alpha = prefs.getFloat(SamSprung.prefAlphas, 1f)
-        if (!this::noticesView.isInitialized) return
-        if (hasNotificationListener()) {
-            NotificationReceiver.getReceiver()?.setNotificationsListener(
-                noticesView.adapter as NotificationAdapter
-            )
-        }
         if (null != intent?.action && SamSprung.services == intent.action) {
             Handler(Looper.getMainLooper()).postDelayed({
                 runOnUiThread {
                     bottomSheetBehaviorMain.state = BottomSheetBehavior.STATE_EXPANDED
                 }
             }, 250)
+        }
+        if (!this::noticesView.isInitialized) return
+        if (hasNotificationListener()) {
+            NotificationReceiver.getReceiver()?.setNotificationsListener(
+                noticesView.adapter as NotificationAdapter
+            )
         }
     }
 

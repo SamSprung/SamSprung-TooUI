@@ -40,7 +40,6 @@
         </LinearLayout>
 
         <include
-            layout="@layout/drawer_layout"
-            android:id="@+id/coordinator" />
+            layout="@layout/drawer_layout" />
     </LinearLayout>
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

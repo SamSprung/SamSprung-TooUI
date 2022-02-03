@@ -51,6 +51,7 @@ package com.eightbit.samsprung
  * subject to to the terms and conditions of the Apache License, Version 2.0.
  */
 
+import android.annotation.SuppressLint
 import android.service.notification.StatusBarNotification
 import android.view.LayoutInflater
 import android.view.View
@@ -91,21 +92,19 @@ class NotificationAdapter(
             if (null != holder.listener)
                 holder.listener.onNoticeClicked(holder.notice, position)
         }
-        holder.itemView.setOnLongClickListener {
-            if (null != holder.listener)
-                holder.listener
-                    .onNoticeLongClicked(holder.notice, position)
-            else
-                false
-        }
         holder.iconView.setOnClickListener {
             if (null != holder.listener)
                 holder.listener.onNoticeClicked(holder.notice, position)
         }
+        holder.itemView.setOnLongClickListener {
+            if (null != holder.listener && holder.notice.isClearable)
+                holder.listener.onNoticeLongClicked(holder.notice, position)
+            else
+                false
+        }
         holder.iconView.setOnLongClickListener {
-            if (null != holder.listener)
-                holder.listener
-                    .onNoticeLongClicked(holder.notice, position)
+            if (null != holder.listener && holder.notice.isClearable)
+                holder.listener.onNoticeLongClicked(holder.notice, position)
             else
                 false
         }
@@ -157,32 +156,53 @@ class NotificationAdapter(
         ), listener, activity
     )
 
-    interface OnNoticeClickListener {
-        fun onNoticeClicked(notice: StatusBarNotification, position: Int)
-        fun onNoticeLongClicked(notice: StatusBarNotification, position: Int) : Boolean
-    }
-
+    @SuppressLint("NotifyDataSetChanged")
     override fun onActiveNotifications(activeNotifications: ArrayList<StatusBarNotification>) {
         for (sbn: StatusBarNotification in activeNotifications) {
-            if (!sbNotifications.contains(sbn)) {
-                sbNotifications.add(sbn)
-                activity.runOnUiThread { this.notifyDataSetChanged() }
+            var isRecent = false
+            for (current in sbNotifications) {
+                if (current.key == sbn.key) {
+                    isRecent = true
+                    break
+                }
+            }
+            if (!isRecent) {
+                sbNotifications.add(0, sbn)
+                activity.runOnUiThread { this.notifyItemInserted(0) }
             }
         }
     }
+    @SuppressLint("NotifyDataSetChanged")
     override fun onNotificationPosted(sbn: StatusBarNotification?) {
         if (null == sbn) return
-        sbNotifications.add(sbn)
-        activity.runOnUiThread { this.notifyDataSetChanged() }
-    }
-    override fun onNotificationRemoved(sbn: StatusBarNotification?) {
-        if (null == sbn) return
-        for (sbNotice: StatusBarNotification in sbNotifications) {
-            if (sbNotice == sbn) {
-                sbNotifications.remove(sbNotice)
-                activity.runOnUiThread { this.notifyDataSetChanged() }
+        var current = -1
+        for (index in 0 until sbNotifications.size) {
+            if (sbNotifications[index].key == sbn.key) {
+                current = index
                 break
             }
         }
+        if (-1 == current) {
+            sbNotifications.add(0, sbn)
+            activity.runOnUiThread { this.notifyItemInserted(0) }
+        } else {
+            sbNotifications[current] = sbn
+        }
+    }
+    @SuppressLint("NotifyDataSetChanged")
+    override fun onNotificationRemoved(sbn: StatusBarNotification?) {
+        if (null == sbn) return
+        for (index in 0 until sbNotifications.size) {
+            if (sbNotifications[index].key == sbn.key) {
+                sbNotifications.remove(sbNotifications[index])
+                activity.runOnUiThread { this.notifyItemRemoved(index) }
+                break
+            }
+        }
+    }
+
+    interface OnNoticeClickListener {
+        fun onNoticeClicked(notice: StatusBarNotification, position: Int)
+        fun onNoticeLongClicked(notice: StatusBarNotification, position: Int) : Boolean
     }
 }

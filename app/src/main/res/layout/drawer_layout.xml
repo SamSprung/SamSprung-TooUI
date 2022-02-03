@@ -7,25 +7,38 @@
         android:layout_height="match_parent"
         android:orientation="vertical">
 
-        <com.eightbitlab.blurview.BlurView
-            android:id="@+id/blurContainer"
+        <FrameLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            app:blurOverlayColor="@color/bottomSheetTint"
-            android:clickable="true"
-            android:focusable="true">
+            android:orientation="vertical">
 
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/appsList"
+            <com.eightbitlab.blurview.BlurView
+                android:id="@+id/blurContainer"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:clipToPadding="false"
-                android:paddingStart="20dp"
-                android:paddingEnd="0dp"
-                android:layout_marginBottom="20dp"
-                android:scrollbars="vertical" />
+                app:blurOverlayColor="@color/bottomSheetTint"
+                android:clickable="true"
+                android:focusable="true">
 
-        </com.eightbitlab.blurview.BlurView>
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/appsList"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:clipToPadding="false"
+                    android:paddingStart="20dp"
+                    android:paddingEnd="0dp"
+                    android:layout_marginBottom="20dp"
+                    android:scrollbars="vertical" />
+            </com.eightbitlab.blurview.BlurView>
+
+            <LinearLayout
+                android:id="@+id/keyboard_wrapper"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="vertical"
+                android:gravity="bottom"
+                android:layout_marginBottom="20dp" />
+        </FrameLayout>
 
         <androidx.appcompat.widget.SearchView
             android:id="@+id/package_search"
@@ -111,10 +124,12 @@
 
                 <androidx.recyclerview.widget.RecyclerView
                     android:id="@+id/notificationList"
+                    android:nestedScrollingEnabled="true"
                     android:layout_below="@id/toolbar"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:layout_marginBottom="2dp" />
+                    android:layout_marginBottom="2dp"
+                    app:layout_behavior="@string/appbar_scrolling_view_behavior" />
             </RelativeLayout>
         </LinearLayout>
     </androidx.coordinatorlayout.widget.CoordinatorLayout>

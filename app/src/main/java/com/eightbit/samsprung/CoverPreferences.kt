@@ -53,7 +53,6 @@ package com.eightbit.samsprung
 
 import android.Manifest
 import android.annotation.SuppressLint
-import android.app.ActivityManager
 import android.app.Dialog
 import android.app.KeyguardManager
 import android.app.WallpaperManager
@@ -168,7 +167,7 @@ class CoverPreferences : AppCompatActivity() {
 
         accessibility = findViewById(R.id.accessibility_switch)
         accessibility.isChecked = hasAccessibility()
-        accessibility.setOnClickListener {
+        findViewById<LinearLayout>(R.id.accessibility).setOnClickListener {
             if (accessibility.isChecked) {
                 AlertDialog.Builder(this)
                     .setMessage(getString(R.string.aceessibility_details))
@@ -191,7 +190,7 @@ class CoverPreferences : AppCompatActivity() {
 
         notifications = findViewById(R.id.notifications_switch)
         notifications.isChecked = hasNotificationListener()
-        notifications.setOnClickListener {
+        findViewById<LinearLayout>(R.id.notifications).setOnClickListener {
             notificationLauncher.launch(Intent(
                 Settings.ACTION_NOTIFICATION_LISTENER_SETTINGS
             ))
@@ -199,7 +198,7 @@ class CoverPreferences : AppCompatActivity() {
 
         settings = findViewById(R.id.settings_switch)
         settings.isChecked = Settings.System.canWrite(applicationContext)
-        settings.setOnClickListener {
+        findViewById<LinearLayout>(R.id.settings).setOnClickListener {
             settingsLauncher.launch(Intent(
                 Settings.ACTION_MANAGE_WRITE_SETTINGS,
                 Uri.parse("package:$packageName")
@@ -219,6 +218,9 @@ class CoverPreferences : AppCompatActivity() {
                 putBoolean(SamSprung.prefTester, updates.isChecked)
                 apply()
             }
+        }
+        findViewById<LinearLayout>(R.id.updates).setOnClickListener {
+            updates.isChecked = !updates.isChecked
         }
 
         val packageRetriever = PackageRetriever(this)
@@ -542,8 +544,7 @@ class CoverPreferences : AppCompatActivity() {
         ActivityResultContracts.StartActivityForResult()) {
         if (this::mainSwitch.isInitialized) {
             mainSwitch.isChecked = Settings.canDrawOverlays(applicationContext)
-            if (mainSwitch.isChecked && !isServiceRunning(OnBroadcastService::class.java))
-                startForegroundService(Intent(this, OnBroadcastService::class.java))
+            startForegroundService(Intent(this, OnBroadcastService::class.java))
         }
     }
 
@@ -570,17 +571,6 @@ class CoverPreferences : AppCompatActivity() {
         }.any {componentName->
             myNotificationListenerComponentName == componentName
         }
-    }
-
-    @Suppress("DEPRECATION")
-    private fun isServiceRunning(serviceClass: Class<*>): Boolean {
-        for (service in (getSystemService(ACTIVITY_SERVICE) as ActivityManager)
-            .getRunningServices(Int.MAX_VALUE)) {
-            if (serviceClass.name == service.service.className) {
-                return true
-            }
-        }
-        return false
     }
 
     private fun getRepositoryToken(): String {
@@ -820,8 +810,7 @@ class CoverPreferences : AppCompatActivity() {
             findViewById<CoordinatorLayout>(R.id.coordinator).background =
                 WallpaperManager.getInstance(this).drawable
         }
-        if (!isServiceRunning(OnBroadcastService::class.java))
-            startForegroundService(Intent(this, OnBroadcastService::class.java))
+        startForegroundService(Intent(this, OnBroadcastService::class.java))
         if (!prefs.getBoolean(SamSprung.prefWarned, false)) {
             val view: View = layoutInflater.inflate(R.layout.setup_notice_view, null)
             val dialog = AlertDialog.Builder(
