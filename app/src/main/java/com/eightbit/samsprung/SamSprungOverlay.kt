@@ -76,6 +76,7 @@ import android.os.*
 import android.provider.Settings
 import android.text.TextUtils
 import android.view.*
+import android.view.animation.Animation
 import android.view.animation.TranslateAnimation
 import android.widget.*
 import androidx.activity.result.contract.ActivityResultContracts
@@ -85,23 +86,18 @@ import androidx.appcompat.widget.SearchView
 import androidx.appcompat.widget.Toolbar
 import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.core.content.ContextCompat
-import androidx.core.util.Consumer
 import androidx.core.view.isVisible
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import androidx.window.java.layout.WindowInfoRepositoryCallbackAdapter
-import androidx.window.layout.FoldingFeature
-import androidx.window.layout.WindowInfoRepository.Companion.windowInfoRepository
-import androidx.window.layout.WindowLayoutInfo
 import com.eightbit.content.ScaledContext
 import com.eightbit.view.OnSwipeTouchListener
 import com.eightbitlab.blurview.BlurView
 import com.eightbitlab.blurview.RenderScriptBlur
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import java.io.File
-import java.util.concurrent.Executor
+import java.lang.ref.SoftReference
 import java.util.concurrent.Executors
 
 
@@ -110,10 +106,10 @@ class SamSprungOverlay : AppCompatActivity(),
     NotificationAdapter.OnNoticeClickListener {
 
     private lateinit var prefs: SharedPreferences
-//    private lateinit var windowWasher : Consumer<WindowLayoutInfo>
-private var mDisplayListener: DisplayManager.DisplayListener? = null
+    private var mDisplayListener: DisplayManager.DisplayListener? = null
     private lateinit var bottomHandle: View
     private lateinit var bottomSheetBehaviorMain: BottomSheetBehavior<View>
+    private lateinit var searchWrapper: FrameLayout
 
     private lateinit var wifiManager: WifiManager
     private lateinit var bluetoothAdapter: BluetoothAdapter
@@ -129,7 +125,7 @@ private var mDisplayListener: DisplayManager.DisplayListener? = null
     private lateinit var pReceiver: BroadcastReceiver
     private lateinit var noticesView: RecyclerView
 
-    @SuppressLint("ClickableViewAccessibility")
+    @SuppressLint("ClickableViewAccessibility", "InflateParams")
     override fun onCreate(savedInstanceState: Bundle?) {
         setShowWhenLocked(true)
 
@@ -151,19 +147,6 @@ private var mDisplayListener: DisplayManager.DisplayListener? = null
         ScaledContext.screen(this).setTheme(R.style.Theme_SecondScreen_NoActionBar)
         setContentView(R.layout.homescreen_menu)
 
-//        val wIRCA = WindowInfoRepositoryCallbackAdapter(windowInfoRepository())
-//        windowWasher = Consumer<WindowLayoutInfo> { windowLayoutInfo ->
-//            for (displayFeature in windowLayoutInfo.displayFeatures) {
-//                if (displayFeature is FoldingFeature) {
-//                    if (displayFeature.state == FoldingFeature.State.HALF_OPENED ||
-//                        displayFeature.state == FoldingFeature.State.FLAT) {
-//                        dismissOverlay()
-//                        wIRCA.removeWindowLayoutInfoListener(windowWasher)
-//                    }
-//                }
-//            }
-//        }
-//        wIRCA.addWindowLayoutInfoListener(runOnUiThreadExecutor(), windowWasher)
         mDisplayListener = object : DisplayManager.DisplayListener {
             override fun onDisplayAdded(display: Int) {}
             override fun onDisplayChanged(display: Int) {
@@ -174,8 +157,7 @@ private var mDisplayListener: DisplayManager.DisplayListener? = null
 
             override fun onDisplayRemoved(display: Int) {}
         }
-        val displayManager = getSystemService(Context.DISPLAY_SERVICE) as DisplayManager
-        displayManager.registerDisplayListener(
+        (getSystemService(Context.DISPLAY_SERVICE) as DisplayManager).registerDisplayListener(
             mDisplayListener, Handler(Looper.getMainLooper())
         )
 
@@ -362,8 +344,6 @@ private var mDisplayListener: DisplayManager.DisplayListener? = null
         }
         ItemTouchHelper(noticeTouchCallback).attachToRecyclerView(noticesView)
 
-        onNewIntent(if (null != intent?.action && SamSprung.services == intent.action) intent else null)
-
         val bottomSheetBehavior: BottomSheetBehavior<View> =
             BottomSheetBehavior.from(findViewById(R.id.bottom_sheet))
         bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
@@ -529,7 +509,7 @@ private var mDisplayListener: DisplayManager.DisplayListener? = null
             registerReceiver(pReceiver, it)
         }
 
-        val searchWrapper = findViewById<FrameLayout>(R.id.search_wrapper)
+        searchWrapper = findViewById(R.id.search_wrapper)
         val searchView = findViewById<SearchView>(R.id.package_search)
         val searchManager = getSystemService(SEARCH_SERVICE) as SearchManager
         searchView.setSearchableInfo(searchManager.getSearchableInfo(componentName))
@@ -547,23 +527,22 @@ private var mDisplayListener: DisplayManager.DisplayListener? = null
             }
         })
         searchWrapper.visibility = View.GONE
-        val searchAnimation = TranslateAnimation(
-            -blurView.width.toFloat(), 0f, 0f, 0f
-        )
-        searchAnimation.duration = 500
-        searchAnimation.fillAfter = false
 
-        val mKeyboardView = if (hasAccessibility())
-            getKeyboard(searchWrapper, ScaledContext.screen(this)) else null
+        val keyboardView = getInputMethod()
+        keyboardView.elevation = 1F
 
         SamSprungInput.setInputListener(object : SamSprungInput.InputMethodListener {
-            override fun onInputRequested(instance: SamSprungInput) { }
-
-            override fun onKeyboardHidden(isHidden: Boolean?) {
+            override fun onInputRequested(instance: SamSprungInput): KeyboardView? {
+                if (hasAccessibility()) {
+                    return keyboardView
+                }
+                return null
+            }
+            override fun onKeyboardHidden() {
                 if (searchWrapper.isVisible)
                     searchWrapper.visibility = View.GONE
             }
-        })
+        }, searchWrapper)
 
         val drawerTouchCallback: ItemTouchHelper.SimpleCallback = object :
             ItemTouchHelper.SimpleCallback(0,
@@ -588,59 +567,21 @@ private var mDisplayListener: DisplayManager.DisplayListener? = null
 
             override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
                 if (direction == ItemTouchHelper.LEFT) {
-                    if (searchWrapper.isVisible) {
-                        if (searchView.query.isNotBlank()) {
-                            searchView.setQuery("", true)
-                        }
-                        searchWrapper.visibility = View.GONE
-                    } else {
-                        dismissOverlay()
-                        startActivity(
-                            Intent(applicationContext, SamSprungPanels::class.java),
-                            ActivityOptions.makeBasic().setLaunchDisplayId(1).toBundle()
-                        )
-                    }
+                    clearSearchOrClose(searchView)
                 }
                 if (direction == ItemTouchHelper.RIGHT) {
-                    if (searchWrapper.isVisible) {
-                        if (searchView.query.isNotBlank()) {
-                            searchView.setQuery("", true)
-                        }
-                        searchWrapper.visibility = View.GONE
-                    } else {
-                        searchWrapper.visibility = View.VISIBLE
-                        animateSlideIn(searchWrapper, blurView)
-                    }
+                    clearSearchOrOpen(searchView, blurView)
                 }
             }
         }
         ItemTouchHelper(drawerTouchCallback).attachToRecyclerView(launcherView)
         launcherView.setOnTouchListener(object : OnSwipeTouchListener(this@SamSprungOverlay) {
             override fun onSwipeLeft() : Boolean {
-                if (searchWrapper.isVisible) {
-                    if (searchView.query.isNotBlank()) {
-                        searchView.setQuery("", true)
-                    }
-                    searchWrapper.visibility = View.GONE
-                } else {
-                    dismissOverlay()
-                    startActivity(
-                        Intent(applicationContext, SamSprungPanels::class.java),
-                        ActivityOptions.makeBasic().setLaunchDisplayId(1).toBundle()
-                    )
-                }
+                clearSearchOrClose(searchView)
                 return true
             }
             override fun onSwipeRight() : Boolean {
-                if (searchWrapper.isVisible) {
-                    if (searchView.query.isNotBlank()) {
-                        searchView.setQuery("", true)
-                    }
-                    searchWrapper.visibility = View.GONE
-                } else {
-                    searchWrapper.visibility = View.VISIBLE
-                    animateSlideIn(searchWrapper, blurView)
-                }
+                clearSearchOrOpen(searchView, blurView)
                 return true
             }
             override fun onSwipeBottom() : Boolean {
@@ -663,15 +604,53 @@ private var mDisplayListener: DisplayManager.DisplayListener? = null
             }
         })
         coordinator.visibility = View.GONE
+        onNewIntent(if (null != intent?.action && SamSprung.services == intent.action) intent else null)
     }
 
-    private fun animateSlideIn(view: View, anchor: View) {
+    private fun getInputMethod(): KeyboardView {
+        val mKeyboardView = LayoutInflater.from(ScaledContext
+            .screen(this@SamSprungOverlay))
+            .inflate(R.layout.keyboard_view, null) as KeyboardView
+        mKeyboardView.isPreviewEnabled = false
+        AccessibilityObserver.enableKeyboard(
+            ScaledContext.screen(this@SamSprungOverlay))
+        return mKeyboardView
+    }
+
+    private fun animateSearchReveal(view: View, anchor: View) {
         val animate = TranslateAnimation(
             -anchor.width.toFloat(), 0f, 0f, 0f
         )
         animate.duration = 500
         animate.fillAfter = false
         view.startAnimation(animate)
+    }
+
+    private fun clearSearchOrOpen(searchView: SearchView, anchor: View) {
+        if (searchWrapper.isVisible) {
+            if (searchView.query.isNotBlank()) {
+                searchView.setQuery("", true)
+            }
+            searchWrapper.visibility = View.GONE
+        } else {
+            searchWrapper.visibility = View.VISIBLE
+            animateSearchReveal(searchWrapper, anchor)
+        }
+    }
+
+    private fun clearSearchOrClose(searchView: SearchView) {
+        if (searchWrapper.isVisible) {
+            if (searchView.query.isNotBlank()) {
+                searchView.setQuery("", true)
+            }
+            searchWrapper.visibility = View.GONE
+        } else {
+            dismissOverlay()
+            startActivity(
+                Intent(applicationContext, SamSprungPanels::class.java),
+                ActivityOptions.makeBasic().setLaunchDisplayId(1).toBundle()
+            )
+        }
     }
 
     private fun prepareConfiguration() {
@@ -688,19 +667,7 @@ private var mDisplayListener: DisplayManager.DisplayListener? = null
         }
 
         mKeyguardManager.requestDismissKeyguard(this,
-            object : KeyguardManager.KeyguardDismissCallback() {
-                override fun onDismissError() {
-                    super.onDismissError()
-                }
-
-                override fun onDismissSucceeded() {
-                    super.onDismissSucceeded()
-                }
-
-                override fun onDismissCancelled() {
-                    super.onDismissCancelled()
-                }
-            })
+            object : KeyguardManager.KeyguardDismissCallback() { })
     }
 
     private fun configureMenuIcons(toolbar: Toolbar) : Int {
@@ -848,23 +815,6 @@ private var mDisplayListener: DisplayManager.DisplayListener? = null
         }
     }
 
-//    private fun runOnUiThreadExecutor(): Executor {
-//        val handler = Handler(Looper.getMainLooper())
-//        return Executor { handler.post(it) }
-//    }
-
-    @SuppressLint("InflateParams")
-    @Suppress("DEPRECATION")
-    private fun getKeyboard (parent: ViewGroup, displayContext: Context) : KeyboardView {
-        val mKeyboardView = LayoutInflater.from(displayContext)
-            .inflate(R.layout.keyboard_view, null) as KeyboardView
-        mKeyboardView.isPreviewEnabled = false
-        SamSprungInput.setInputMethod(parent, mKeyboardView)
-        AccessibilityObserver.enableKeyboard(displayContext)
-        mKeyboardView.elevation = 1F
-        return mKeyboardView
-    }
-
     private fun getColumnCount(): Int {
         return (windowManager.currentWindowMetrics.bounds.width() / 96 + 0.5).toInt()
     }
@@ -894,7 +844,6 @@ private var mDisplayListener: DisplayManager.DisplayListener? = null
     override fun onNewIntent(intent: Intent?) {
         super.onNewIntent(intent)
 //        CheckUpdatesTask(this)
-        prefs = getSharedPreferences(SamSprung.prefsValue, MODE_PRIVATE)
         bottomHandle = findViewById(R.id.bottom_handle)
         bottomHandle.visibility = View.VISIBLE
         bottomHandle.setBackgroundColor(prefs.getInt(SamSprung.prefColors,
@@ -923,9 +872,9 @@ private var mDisplayListener: DisplayManager.DisplayListener? = null
     private fun dismissOverlay() {
         if (hasAccessibility())
             AccessibilityObserver.disableKeyboard(this)
-        val displayManager = getSystemService(Context.DISPLAY_SERVICE) as DisplayManager
         if (null != mDisplayListener) {
-            displayManager.unregisterDisplayListener(mDisplayListener)
+            (getSystemService(Context.DISPLAY_SERVICE) as DisplayManager)
+                .unregisterDisplayListener(mDisplayListener)
         }
         finish()
     }

@@ -63,7 +63,6 @@ import android.graphics.BitmapFactory
 import android.graphics.Color
 import android.graphics.PixelFormat
 import android.hardware.display.DisplayManager
-import android.inputmethodservice.Keyboard
 import android.inputmethodservice.KeyboardView
 import android.os.*
 import android.provider.Settings
@@ -76,11 +75,11 @@ import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.core.app.NotificationCompat
 import androidx.core.content.ContextCompat
 import androidx.core.view.isVisible
+import com.eightbit.content.ScaledContext
 import com.eightbit.view.OnSwipeTouchListener
 import com.eightbit.widget.VerticalStrokeTextView
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import java.io.File
-import java.lang.ref.SoftReference
 
 
 class AppDisplayListener : Service() {
@@ -92,7 +91,6 @@ class AppDisplayListener : Service() {
 
     @Suppress("DEPRECATION")
     private lateinit var mKeyguardLock: KeyguardManager.KeyguardLock
-    private lateinit var displayManager: DisplayManager
 
     private lateinit var bottomSheetBehavior: BottomSheetBehavior<View>
 
@@ -149,21 +147,20 @@ class AppDisplayListener : Service() {
 
             override fun onDisplayRemoved(display: Int) {}
         }
-        val displayManager = getSystemService(Context.DISPLAY_SERVICE) as DisplayManager
-        displayManager.registerDisplayListener(
+        (getSystemService(Context.DISPLAY_SERVICE) as DisplayManager).registerDisplayListener(
             mDisplayListener, Handler(Looper.getMainLooper())
         )
 
-        val coordinator = floatView.findViewById<CoordinatorLayout>(R.id.coordinator)
-        val mKeyboardView = if (hasAccessibility())
-            getKeyboard(coordinator, this) else null
-
+        val keyboardView = getInputMethod()
 
         SamSprungInput.setInputListener(object : SamSprungInput.InputMethodListener {
-            override fun onInputRequested(instance: SamSprungInput) { }
-
-            override fun onKeyboardHidden(isHidden: Boolean) { }
-        })
+            override fun onInputRequested(instance: SamSprungInput) : KeyboardView? {
+                if (hasAccessibility())
+                    return keyboardView
+                return null
+            }
+            override fun onKeyboardHidden() { }
+        }, floatView.findViewById(R.id.coordinator))
 
         val menu = floatView.findViewById<LinearLayout>(R.id.button_layout)
         val menuLogo = menu.findViewById<VerticalStrokeTextView>(R.id.samsprung_logo)
@@ -208,7 +205,7 @@ class AppDisplayListener : Service() {
                         if (hasAccessibility()) {
                             AccessibilityObserver.executeButtonBack()
                         } else {
-                            restoreActivityDisplay(launchPackage!!, launchActivity, 1, false)
+                            restoreActivityDisplay(launchPackage, launchActivity, 1, false)
                         }
                     }
                 } else if (newState == BottomSheetBehavior.STATE_COLLAPSED) {
@@ -236,6 +233,14 @@ class AppDisplayListener : Service() {
         (displayContext.getSystemService(WINDOW_SERVICE)
                 as WindowManager).addView(floatView, params)
         return START_REDELIVER_INTENT
+    }
+
+    private fun getInputMethod(): KeyboardView {
+        val mKeyboardView = LayoutInflater.from(this@AppDisplayListener)
+            .inflate(R.layout.keyboard_view, null) as KeyboardView
+        mKeyboardView.isPreviewEnabled = false
+        AccessibilityObserver.enableKeyboard(this@AppDisplayListener)
+        return mKeyboardView
     }
 
     private fun restoreActivityDisplay(
@@ -268,17 +273,6 @@ class AppDisplayListener : Service() {
                 Intent.FLAG_ACTIVITY_NO_ANIMATION
         startActivity(homeLauncher, ActivityOptions
             .makeBasic().setLaunchDisplayId(0).toBundle())
-    }
-
-    @SuppressLint("InflateParams")
-    @Suppress("DEPRECATION")
-    private fun getKeyboard (parent: CoordinatorLayout, displayContext: Context) : KeyboardView {
-        val mKeyboardView = LayoutInflater.from(displayContext)
-            .inflate(R.layout.keyboard_view, null) as KeyboardView
-        mKeyboardView.isPreviewEnabled = false
-        SamSprungInput.setInputMethod(parent, mKeyboardView)
-        AccessibilityObserver.enableKeyboard(displayContext)
-        return mKeyboardView
     }
 
     @SuppressLint("LaunchActivityFromNotification")
@@ -326,9 +320,9 @@ class AppDisplayListener : Service() {
             Context.WINDOW_SERVICE) as WindowManager
         if (this::floatView.isInitialized && floatView.isAttachedToWindow)
             windowService.removeView(floatView)
-        val displayManager = getSystemService(Context.DISPLAY_SERVICE) as DisplayManager
         if (null != mDisplayListener) {
-            displayManager.unregisterDisplayListener(mDisplayListener)
+            (getSystemService(Context.DISPLAY_SERVICE) as DisplayManager)
+                .unregisterDisplayListener(mDisplayListener)
         }
         if (SamSprung.isKeyguardLocked)
             @Suppress("DEPRECATION") mKeyguardLock.reenableKeyguard()
@@ -338,12 +332,6 @@ class AppDisplayListener : Service() {
         try {
             stopSelf()
         } catch (ignored: Exception) { }
-    }
-
-    override fun onDestroy() {
-        if (hasAccessibility())
-            AccessibilityObserver.disableKeyboard(this)
-        super.onDestroy()
     }
 
     private fun hasAccessibility(): Boolean {

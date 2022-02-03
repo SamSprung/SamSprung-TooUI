@@ -1,9 +1,13 @@
 package com.eightbit.samsprung;
 
+import android.annotation.SuppressLint;
+import android.content.Context;
 import android.inputmethodservice.InputMethodService;
 import android.inputmethodservice.Keyboard;
 import android.inputmethodservice.KeyboardView;
+import android.util.Log;
 import android.view.KeyEvent;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.InputConnection;
@@ -18,8 +22,8 @@ public class SamSprungInput extends InputMethodService
 
     private static InputMethodListener listener;
 
-    private static SoftReference<KeyboardView> mKeyboardView;
-    private static Keyboard mKeyboard;
+    private SoftReference<KeyboardView> mKeyboardView;
+    private Keyboard mKeyboard;
     private Keyboard mNumPad;
     private static SoftReference<ViewGroup> parent;
     private static boolean isNumPad = false;
@@ -35,29 +39,24 @@ public class SamSprungInput extends InputMethodService
 
     @Override
     public boolean onShowInputRequested(int flags, boolean configChange) {
-        if (null != listener) listener.onInputRequested(this);
+        Log.d("SamSprungInput", "setting input");
+        if (null != listener) mKeyboardView =
+                new SoftReference<>(listener.onInputRequested(this));
         if (null != mKeyboardView) {
             mKeyboardView.get().setKeyboard(mKeyboard);
             mKeyboardView.get().setOnKeyboardActionListener(this);
+            if (null != mKeyboardView.get().getParent())
+                ((ViewGroup) mKeyboardView.get().getParent()).removeView(mKeyboardView.get());
             if (null != parent) {
-                if (null != mKeyboardView.get().getParent())
-                    ((ViewGroup) mKeyboardView.get().getParent())
-                            .removeView(mKeyboardView.get());
                 parent.get().addView(mKeyboardView.get(), 0);
             }
         }
         return true;
     }
 
-    public static void setInputListener(InputMethodListener inputListener) {
+    public static void setInputListener(InputMethodListener inputListener, ViewGroup anchor) {
         listener = inputListener;
-    }
-
-    public static void setInputMethod(
-            ViewGroup viewGroup, KeyboardView keyBoardView
-    ) {
-        parent = new SoftReference<>(viewGroup);
-        mKeyboardView = new SoftReference<>(keyBoardView);
+        parent = new SoftReference<>(anchor);
         isNumPad = false;
     }
 
@@ -77,9 +76,9 @@ public class SamSprungInput extends InputMethodService
     }
 
     private void disconnectKeyboard() {
-        if (null != listener)
-            listener.onKeyboardHidden(true);
         parent.get().removeView(mKeyboardView.get());
+        if (null != listener)
+            listener.onKeyboardHidden();
     }
 
     @Override
@@ -135,7 +134,7 @@ public class SamSprungInput extends InputMethodService
     public void swipeUp() { }
 
     interface InputMethodListener {
-        void onInputRequested(SamSprungInput instance);
-        void onKeyboardHidden(Boolean isHidden);
+        KeyboardView onInputRequested(SamSprungInput instance);
+        void onKeyboardHidden();
     }
 }
