@@ -167,8 +167,8 @@ class NotificationAdapter(
                 }
             }
             if (!isRecent) {
-                sbNotifications.add(0, sbn)
-                activity.runOnUiThread { this.notifyItemInserted(0) }
+                sbNotifications.add(sbn)
+                activity.runOnUiThread { this.notifyItemInserted(sbNotifications.size - 1) }
             }
         }
     }
