@@ -543,8 +543,7 @@ class CoverPreferences : AppCompatActivity() {
         if (this::mainSwitch.isInitialized) {
             mainSwitch.isChecked = Settings.canDrawOverlays(applicationContext)
             if (mainSwitch.isChecked)
-                startForegroundService(Intent(this, OnBroadcastService::class.java)
-                    .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK))
+                startForegroundService(Intent(this, OnBroadcastService::class.java))
         }
     }
 
@@ -811,8 +810,7 @@ class CoverPreferences : AppCompatActivity() {
             findViewById<CoordinatorLayout>(R.id.coordinator).background =
                 WallpaperManager.getInstance(this).drawable
         }
-        startForegroundService(Intent(this, OnBroadcastService::class.java)
-            .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK))
+        startForegroundService(Intent(this, OnBroadcastService::class.java))
         if (!prefs.getBoolean(SamSprung.prefWarned, false)) {
             val view: View = layoutInflater.inflate(R.layout.setup_notice_view, null)
             val dialog = AlertDialog.Builder(

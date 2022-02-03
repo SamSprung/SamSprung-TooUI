@@ -154,7 +154,7 @@ class SamSprungOverlay : AppCompatActivity(),
             override fun onDisplayAdded(display: Int) {}
             override fun onDisplayChanged(display: Int) {
                 if (display == 0) {
-                    dismissOverlay()
+                    finish()
                 }
             }
 
@@ -204,22 +204,10 @@ class SamSprungOverlay : AppCompatActivity(),
             }
         })
 
-//        coordinatorMain.setOnTouchListener(
-//            object: OnSwipeTouchListener(this@SamSprungOverlay) {
-//            override fun onSwipeTop() : Boolean {
-//                bottomSheetBehaviorMain.state = BottomSheetBehavior.STATE_EXPANDED
-//                return true
-//            }
-//            override fun onSwipeBottom() : Boolean {
-//                bottomSheetBehaviorMain.state = BottomSheetBehavior.STATE_COLLAPSED
-//                return true
-//            }
-//        })
-
         oReceiver = object : BroadcastReceiver() {
             override fun onReceive(context: Context?, intent: Intent) {
                 if (intent.action == Intent.ACTION_SCREEN_OFF) {
-                    dismissOverlay()
+                    finish()
                 }
             }
         }
@@ -621,7 +609,7 @@ class SamSprungOverlay : AppCompatActivity(),
             }
             searchView.visibility = View.GONE
         } else {
-            dismissOverlay()
+            finish()
             startActivity(
                 Intent(applicationContext, SamSprungPanels::class.java),
                 ActivityOptions.makeBasic().setLaunchDisplayId(1).toBundle()
@@ -772,7 +760,7 @@ class SamSprungOverlay : AppCompatActivity(),
         Handler(Looper.getMainLooper()).postDelayed({
             runOnUiThread {
                 windowManager.removeView(orientationChanger)
-                dismissOverlay()
+                finish()
                 requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
                 startForegroundService(Intent(this,
                     AppDisplayListener::class.java).putExtras(extras))
@@ -855,17 +843,13 @@ class SamSprungOverlay : AppCompatActivity(),
         }
     }
 
-    private fun dismissOverlay() {
+    override fun onDestroy() {
         if (hasAccessibility())
             AccessibilityObserver.disableKeyboard(this)
         if (null != mDisplayListener) {
             (getSystemService(Context.DISPLAY_SERVICE) as DisplayManager)
                 .unregisterDisplayListener(mDisplayListener)
         }
-        finish()
-    }
-
-    override fun onDestroy() {
         try {
             if (this::oReceiver.isInitialized)
                 unregisterReceiver(oReceiver)

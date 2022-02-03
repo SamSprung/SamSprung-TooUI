@@ -88,6 +88,8 @@ class OffBroadcastReceiver : BroadcastReceiver {
 
             componentName = null
             context.applicationContext.unregisterReceiver(this)
+
+            context.startForegroundService(Intent(context, OnBroadcastService::class.java))
         }
     }
 }
