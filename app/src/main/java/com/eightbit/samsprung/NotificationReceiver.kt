@@ -59,21 +59,21 @@ import android.service.notification.NotificationListenerService
 import android.service.notification.StatusBarNotification
 
 @SuppressLint("NotifyDataSetChanged")
-class NotificationObserver : NotificationListenerService() {
+class NotificationReceiver : NotificationListenerService() {
 
     companion object {
-        private lateinit var observerInstance: NotificationObserver
+        private lateinit var receiverInstance: NotificationReceiver
         private var isConnected: Boolean = false
-        fun getObserver() : NotificationObserver? {
-            return if (isConnected) observerInstance else null
+        fun getReceiver() : NotificationReceiver? {
+            return if (isConnected) receiverInstance else null
         }
     }
 
     init {
-        observerInstance = this
+        receiverInstance = this
     }
 
-    private var mNotificationsChangedListener: NotificationsChangedListener? = null
+    private var mNotificationsListener: NotificationsListener? = null
 
     override fun onBind(intent: Intent?): IBinder? {
         return super.onBind(intent)
@@ -87,42 +87,42 @@ class NotificationObserver : NotificationListenerService() {
     override fun onListenerDisconnected() {
         super.onListenerDisconnected()
         isConnected = false
-        requestRebind(ComponentName(applicationContext, NotificationObserver::class.java))
+        requestRebind(ComponentName(applicationContext, NotificationReceiver::class.java))
     }
 
     override fun onNotificationPosted(sbn: StatusBarNotification?) {
         super.onNotificationPosted(sbn)
-        getObserver()?.mNotificationsChangedListener?.onNotificationPosted(sbn)
+        getReceiver()?.mNotificationsListener?.onNotificationPosted(sbn)
     }
 
     override fun onNotificationPosted(sbn: StatusBarNotification, rankingMap: RankingMap) {
         super.onNotificationPosted(sbn, rankingMap)
-        getObserver()?.mNotificationsChangedListener?.onNotificationPosted(sbn)
+        getReceiver()?.mNotificationsListener?.onNotificationPosted(sbn)
     }
 
     override fun onNotificationRemoved(sbn: StatusBarNotification) {
         super.onNotificationRemoved(sbn)
-        getObserver()?.mNotificationsChangedListener?.onNotificationRemoved(sbn)
+        getReceiver()?.mNotificationsListener?.onNotificationRemoved(sbn)
     }
 
     override fun onNotificationRemoved(sbn: StatusBarNotification, rankingMap: RankingMap) {
         super.onNotificationRemoved(sbn, rankingMap)
-        getObserver()?.mNotificationsChangedListener?.onNotificationRemoved(sbn)
+        getReceiver()?.mNotificationsListener?.onNotificationRemoved(sbn)
     }
 
     override fun onNotificationRemoved(sbn: StatusBarNotification, rankingMap: RankingMap, reason: Int) {
         super.onNotificationRemoved(sbn, rankingMap, reason)
-        getObserver()?.mNotificationsChangedListener?.onNotificationRemoved(sbn)
+        getReceiver()?.mNotificationsListener?.onNotificationRemoved(sbn)
     }
 
-    fun setNotificationsChangedListener(listener: NotificationsChangedListener?) {
-        getObserver()?.mNotificationsChangedListener = listener
+    fun setNotificationsListener(listener: NotificationsListener?) {
+        getReceiver()?.mNotificationsListener = listener
         val notifications: ArrayList<StatusBarNotification> = arrayListOf()
         notifications.addAll(activeNotifications)
-        getObserver()?.mNotificationsChangedListener?.onActiveNotifications(notifications)
+        getReceiver()?.mNotificationsListener?.onActiveNotifications(notifications)
     }
 
-    interface NotificationsChangedListener {
+    interface NotificationsListener {
         fun onActiveNotifications(activeNotifications: ArrayList<StatusBarNotification>)
         fun onNotificationPosted(sbn: StatusBarNotification?)
         fun onNotificationRemoved(sbn: StatusBarNotification?)

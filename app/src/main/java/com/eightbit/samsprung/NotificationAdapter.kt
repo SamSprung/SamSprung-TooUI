@@ -66,7 +66,7 @@ class NotificationAdapter(
     private var activity: AppCompatActivity,
     private var listener: OnNoticeClickListener
 ) : RecyclerView.Adapter<NotificationAdapter.NoticeViewHolder>(),
-    NotificationObserver.NotificationsChangedListener {
+    NotificationReceiver.NotificationsListener {
 
     private var sbNotifications: ArrayList<StatusBarNotification> = arrayListOf()
 

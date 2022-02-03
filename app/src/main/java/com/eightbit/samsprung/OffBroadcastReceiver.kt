@@ -101,6 +101,7 @@ class OffBroadcastReceiver : BroadcastReceiver {
         }
     }
 
+    @Suppress("DEPRECATION")
     private fun isServiceRunning(context: Context, serviceClass: Class<*>): Boolean {
         for (service in (context.getSystemService(ACTIVITY_SERVICE) as ActivityManager)
             .getRunningServices(Int.MAX_VALUE)) {

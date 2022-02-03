@@ -781,11 +781,11 @@ class SamSprungOverlay : AppCompatActivity(),
         val intentSender = notice.notification.contentIntent.intentSender
         prepareConfiguration()
         startIntentSender(intentSender, null, 0, 0, 0)
-        NotificationObserver.getObserver()?.setNotificationsShown(arrayOf(notice.key))
+        NotificationReceiver.getReceiver()?.setNotificationsShown(arrayOf(notice.key))
     }
 
     override fun onNoticeLongClicked(notice: StatusBarNotification, position: Int) : Boolean {
-        NotificationObserver.getObserver()?.cancelNotification(notice.key)
+        NotificationReceiver.getReceiver()?.cancelNotification(notice.key)
         return true
     }
 
@@ -802,17 +802,16 @@ class SamSprungOverlay : AppCompatActivity(),
     }
 
     private fun hasNotificationListener(): Boolean {
-        val flat = Settings.Secure.getString(
-            contentResolver, "enabled_notification_listeners"
-        )
-        if (!TextUtils.isEmpty(flat)) {
-            val names = flat.split(":").toTypedArray()
-            for (i in names.indices) {
-                val cn = ComponentName.unflattenFromString(names[i])
-                if (null != cn && TextUtils.equals(packageName, cn.packageName)) return true
-            }
+        val myNotificationListenerComponentName = ComponentName(
+            applicationContext, NotificationReceiver::class.java)
+        val enabledListeners = Settings.Secure.getString(
+            contentResolver, "enabled_notification_listeners")
+        if (enabledListeners.isEmpty()) return false
+        return enabledListeners.split(":").map {
+            ComponentName.unflattenFromString(it)
+        }.any {componentName->
+            myNotificationListenerComponentName == componentName
         }
-        return false
     }
 
     override fun onNewIntent(intent: Intent?) {
@@ -820,7 +819,7 @@ class SamSprungOverlay : AppCompatActivity(),
         Executors.newSingleThreadExecutor().execute {
             val componentName = ComponentName(
                 applicationContext,
-                NotificationObserver::class.java
+                NotificationReceiver::class.java
             )
             packageManager.setComponentEnabledSetting(
                 componentName,
@@ -839,7 +838,7 @@ class SamSprungOverlay : AppCompatActivity(),
         bottomHandle.alpha = prefs.getFloat(SamSprung.prefAlphas, 1f)
         if (!this::noticesView.isInitialized) return
         if (hasNotificationListener()) {
-            NotificationObserver.getObserver()?.setNotificationsChangedListener(
+            NotificationReceiver.getReceiver()?.setNotificationsListener(
                 noticesView.adapter as NotificationAdapter
             )
         }

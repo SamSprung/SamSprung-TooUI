@@ -72,7 +72,6 @@ import android.os.Looper
 import android.provider.Settings
 import android.text.SpannableStringBuilder
 import android.text.Spanned
-import android.text.TextUtils
 import android.text.style.ImageSpan
 import android.view.Menu
 import android.view.MenuItem
@@ -543,8 +542,7 @@ class CoverPreferences : AppCompatActivity() {
         ActivityResultContracts.StartActivityForResult()) {
         if (this::mainSwitch.isInitialized) {
             mainSwitch.isChecked = Settings.canDrawOverlays(applicationContext)
-            if (mainSwitch.isChecked && !isServiceRunning(
-                    applicationContext, OnBroadcastService::class.java))
+            if (mainSwitch.isChecked && !isServiceRunning(OnBroadcastService::class.java))
                 startForegroundService(Intent(this, OnBroadcastService::class.java))
         }
     }
@@ -562,21 +560,21 @@ class CoverPreferences : AppCompatActivity() {
     }
 
     private fun hasNotificationListener(): Boolean {
-        val flat = Settings.Secure.getString(
-            contentResolver, "enabled_notification_listeners"
-        )
-        if (!TextUtils.isEmpty(flat)) {
-            val names = flat.split(":").toTypedArray()
-            for (i in names.indices) {
-                val cn = ComponentName.unflattenFromString(names[i])
-                if (null != cn && TextUtils.equals(packageName, cn.packageName)) return true
-            }
+        val myNotificationListenerComponentName = ComponentName(
+            applicationContext, NotificationReceiver::class.java)
+        val enabledListeners = Settings.Secure.getString(
+            contentResolver, "enabled_notification_listeners")
+        if (enabledListeners.isEmpty()) return false
+        return enabledListeners.split(":").map {
+            ComponentName.unflattenFromString(it)
+        }.any {componentName->
+            myNotificationListenerComponentName == componentName
         }
-        return false
     }
 
-    private fun isServiceRunning(context: Context, serviceClass: Class<*>): Boolean {
-        for (service in (context.getSystemService(ACTIVITY_SERVICE) as ActivityManager)
+    @Suppress("DEPRECATION")
+    private fun isServiceRunning(serviceClass: Class<*>): Boolean {
+        for (service in (getSystemService(ACTIVITY_SERVICE) as ActivityManager)
             .getRunningServices(Int.MAX_VALUE)) {
             if (serviceClass.name == service.service.className) {
                 return true
@@ -822,7 +820,7 @@ class CoverPreferences : AppCompatActivity() {
             findViewById<CoordinatorLayout>(R.id.coordinator).background =
                 WallpaperManager.getInstance(this).drawable
         }
-        if (!isServiceRunning(applicationContext, OnBroadcastService::class.java))
+        if (!isServiceRunning(OnBroadcastService::class.java))
             startForegroundService(Intent(this, OnBroadcastService::class.java))
         if (!prefs.getBoolean(SamSprung.prefWarned, false)) {
             val view: View = layoutInflater.inflate(R.layout.setup_notice_view, null)
