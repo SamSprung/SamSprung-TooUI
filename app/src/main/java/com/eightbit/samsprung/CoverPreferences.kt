@@ -63,6 +63,7 @@ import android.content.SharedPreferences
 import android.content.pm.PackageManager
 import android.content.res.ColorStateList
 import android.graphics.Color
+import android.graphics.drawable.ColorDrawable
 import android.hardware.display.DisplayManager
 import android.net.Uri
 import android.os.Build
@@ -110,6 +111,12 @@ import java.util.*
 import java.util.concurrent.Executors
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
+import android.view.WindowManager
+
+import android.view.Gravity
+
+
+
 
 class CoverPreferences : AppCompatActivity() {
 
@@ -636,7 +643,8 @@ class CoverPreferences : AppCompatActivity() {
                 subscriptions.removeAllViews()
             }
             val donateDialog: Dialog = dialog.setView(view).show()
-            donateDialog.window?.setBackgroundDrawableResource(R.drawable.rounded_layout)
+            donateDialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+            donateDialog.window?.setGravity(Gravity.TOP)
             true
         }
         R.id.donate -> {

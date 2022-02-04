@@ -56,6 +56,7 @@ import android.content.Context
 import android.content.Intent
 import android.hardware.display.DisplayManager
 import android.os.StrictMode
+import android.provider.Settings
 import android.view.ContextThemeWrapper
 import android.view.WindowManager
 import android.widget.Toast
@@ -85,15 +86,16 @@ class SamSprung : Application() {
                     return if (WINDOW_SERVICE == name) wm else super.getSystemService(name)
                 }
             })
+            val prefs = getSharedPreferences(prefsValue, MODE_PRIVATE)
             Thread.setDefaultUncaughtExceptionHandler { _: Thread?, error: Throwable ->
                 error.printStackTrace()
-                startService(
-                    Intent(this, OnBroadcastService::class.java).setAction(updating)
-                )
+                with(prefs.edit()) {
+                    putString(prefBoards, AccessibilityObserver.cachedInputMethod)
+                    apply()
+                }
                 // Unrecoverable error encountered
                 exitProcess(1)
             }
-            val prefs = getSharedPreferences(prefsValue, MODE_PRIVATE)
             if (prefs.contains("gridview")) {
                 with(prefs.edit()) {
                     putBoolean(prefLayout, prefs.getBoolean("gridview", true))
@@ -132,6 +134,7 @@ class SamSprung : Application() {
         const val prefAlphas: String = "prefAlphas"
         const val prefWarned: String = "prefWarned"
         const val prefTester: String = "prefTester"
+        const val prefBoards: String = "prefBoards"
 
         var mContext: SoftReference<Context>? = null
         fun getCoverContext(): Context? {

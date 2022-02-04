@@ -182,8 +182,8 @@ class SamSprungOverlay : AppCompatActivity(),
                 val color = prefs.getInt(SamSprung.prefColors,
                     Color.rgb(255, 255, 255))
                 if (slideOffset > 0) {
-                    bottomSheetBehaviorMain.isDraggable = false
                     coordinator.visibility = View.VISIBLE
+                    if (slideOffset > 0.5) bottomSheetBehaviorMain.isDraggable = false
                     if (bottomHandle.visibility != View.INVISIBLE) {
                         handler.removeCallbacksAndMessages(null)
                         bottomHandle.visibility = View.INVISIBLE

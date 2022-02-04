@@ -64,13 +64,13 @@ class AccessibilityObserver : AccessibilityService() {
     companion object {
         private lateinit var observerInstance: AccessibilityObserver
         private var isConnected: Boolean = false
-        fun getObserver() : AccessibilityObserver? {
+        private fun getObserver() : AccessibilityObserver? {
             return if (isConnected) observerInstance else null
         }
         fun executeButtonBack() {
             getObserver()?.performGlobalAction(GLOBAL_ACTION_BACK)
         }
-        private var cachedInputMethod: String? = null
+        var cachedInputMethod: String? = null
         private fun getInputMethod(context: Context): String {
             return Settings.Secure.getString(
                 context.applicationContext.contentResolver,
@@ -119,6 +119,15 @@ class AccessibilityObserver : AccessibilityService() {
         info.notificationTimeout = 100
         serviceInfo = info
         isConnected = true
+        val prefs = getSharedPreferences(SamSprung.prefsValue, MODE_PRIVATE)
+        if (prefs.contains(SamSprung.prefBoards)) {
+            cachedInputMethod = prefs.getString(SamSprung.prefBoards, null)
+            with(prefs.edit()) {
+                remove(SamSprung.prefBoards)
+                apply()
+            }
+            disableKeyboard(this)
+        }
     }
 
     override fun onAccessibilityEvent(event: AccessibilityEvent) {

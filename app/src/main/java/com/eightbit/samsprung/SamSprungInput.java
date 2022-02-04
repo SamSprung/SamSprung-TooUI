@@ -48,7 +48,6 @@ public class SamSprungInput extends InputMethodService
                 ((ViewGroup) mKeyboardView.get().getParent()).removeView(mKeyboardView.get());
             if (null != parent) {
                 parent.get().addView(mKeyboardView.get(), 0);
-                parent.get().requestLayout();
             }
         }
         return true;
