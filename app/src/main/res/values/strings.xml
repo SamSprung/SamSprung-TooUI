@@ -39,6 +39,8 @@
 
     <string name="capture_logcat">Report Issue (Logcat)</string>
     <string name="donation_link">Sponsor Development</string>
+    <string name="sub_button">%1$s Subscription</string>
+    <string name="iap_button">%1$s Donation</string>
     <string name="build_hash">SamSprung - %1$s</string>
 
     <string name="menu_recent">Recent</string>
@@ -61,4 +63,6 @@
     <string name="out_of_space">Cancelled adding widget</string>
     <!-- Text to show user in place of a widget when we can't display it properly -->
     <string name="gadget_error_text">Problem loading widget</string>
+
+    <string name="incompatible_device">SamSprung is not intended for use with single screen devices</string>
 </resources>

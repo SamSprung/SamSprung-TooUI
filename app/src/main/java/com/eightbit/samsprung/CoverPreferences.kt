@@ -63,6 +63,7 @@ import android.content.SharedPreferences
 import android.content.pm.PackageManager
 import android.content.res.ColorStateList
 import android.graphics.Color
+import android.hardware.display.DisplayManager
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
@@ -97,11 +98,18 @@ import com.eightbitlab.blurview.BlurView
 import com.eightbitlab.blurview.RenderScriptBlur
 import com.google.android.material.snackbar.Snackbar
 import com.heinrichreimersoftware.androidissuereporter.IssueReporterLauncher
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import java.io.BufferedReader
 import java.io.File
 import java.io.InputStreamReader
 import java.util.*
 import java.util.concurrent.Executors
+import kotlin.coroutines.resume
+import kotlin.coroutines.suspendCoroutine
 
 class CoverPreferences : AppCompatActivity() {
 
@@ -121,11 +129,15 @@ class CoverPreferences : AppCompatActivity() {
     private lateinit var billingClient: BillingClient
     private val iapList = ArrayList<String>()
     private val subList = ArrayList<String>()
-    private val buttonsIAP = ArrayList<Button>()
-    private val buttonsSub = ArrayList<Button>()
+    private val buttonsIAP = ArrayList<SkuDetails>()
+    private val buttonsSub = ArrayList<SkuDetails>()
+
+    private var hasPremiumSupport = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        if ((getSystemService(Context.DISPLAY_SERVICE) as DisplayManager)
+                .getDisplay(1) == null) finishAndRemoveTask()
         prefs = getSharedPreferences(SamSprung.prefsValue, MODE_PRIVATE)
         setContentView(R.layout.cover_settings_layout)
         permissionList = findViewById(R.id.permissions)
@@ -163,7 +175,8 @@ class CoverPreferences : AppCompatActivity() {
         keyboard.setOnClickListener {
             keyboardLauncher.launch(Intent(Settings.ACTION_INPUT_METHOD_SETTINGS))
         }
-        keyboard.visibility = if (hasAccessibility()) View.VISIBLE else View.GONE
+        keyboard.isEnabled = hasAccessibility()
+        keyboard.alpha = if (hasAccessibility()) 1f else 0.5f
 
         accessibility = findViewById(R.id.accessibility_switch)
         accessibility.isChecked = hasAccessibility()
@@ -271,26 +284,26 @@ class CoverPreferences : AppCompatActivity() {
                 val animate = TranslateAnimation(
                     0f, 0f, 0f, -colorPanel.height.toFloat()
                 )
-                animate.duration = 1500
+                animate.duration = 750
                 animate.fillAfter = false
                 colorPanel.setAnimationListener(object : AnimatedLinearLayout.AnimationListener {
                     override fun onAnimationStart(layout: AnimatedLinearLayout) {
                         colorHandler.postDelayed({
                             textRed.visibility = View.INVISIBLE
                             colorRedBar.visibility = View.INVISIBLE
-                        }, 250)
+                        }, 125)
                         colorHandler.postDelayed({
                             textGreen.visibility = View.INVISIBLE
                             colorGreenBar.visibility = View.INVISIBLE
-                        }, 500)
+                        }, 250)
                         colorHandler.postDelayed({
                             textBlue.visibility = View.INVISIBLE
                             colorBlueBar.visibility = View.INVISIBLE
-                        }, 750)
+                        }, 375)
                         colorHandler.postDelayed({
                             alphaView.visibility = View.INVISIBLE
                             colorAlphaBar.visibility = View.INVISIBLE
-                        }, 1000)
+                        }, 500)
                     }
                     override fun onAnimationEnd(layout: AnimatedLinearLayout) {
                         layout.setAnimationListener(null)
@@ -309,7 +322,7 @@ class CoverPreferences : AppCompatActivity() {
                 val follow = TranslateAnimation(
                     0f, 0f, 0f, -colorPanel.height.toFloat()
                 )
-                follow.duration = 1500
+                follow.duration = 750
                 follow.fillAfter = false
                 findViewById<View>(R.id.color_divider).startAnimation(follow)
 
@@ -318,19 +331,19 @@ class CoverPreferences : AppCompatActivity() {
                 colorHandler.postDelayed({
                     colorAlphaBar.visibility = View.VISIBLE
                     alphaView.visibility = View.VISIBLE
-                }, 100)
+                }, 75)
                 colorHandler.postDelayed({
                     colorBlueBar.visibility = View.VISIBLE
                     textBlue.visibility = View.VISIBLE
-                }, 200)
+                }, 150)
                 colorHandler.postDelayed({
                     colorGreenBar.visibility = View.VISIBLE
                     textGreen.visibility = View.VISIBLE
-                }, 300)
+                }, 225)
                 colorHandler.postDelayed({
                     colorRedBar.visibility = View.VISIBLE
                     textRed.visibility = View.VISIBLE
-                }, 400)
+                }, 300)
                 colorPanel.visibility = View.VISIBLE
             }
         }
@@ -425,48 +438,6 @@ class CoverPreferences : AppCompatActivity() {
         alphaView.visibility = View.GONE
         colorAlphaBar.visibility = View.GONE
         colorPanel.visibility = View.GONE
-
-        billingClient = BillingClient.newBuilder(this)
-            .setListener(purchasesUpdatedListener).enablePendingPurchases().build()
-
-        Executors.newSingleThreadExecutor().execute {
-            billingClient.startConnection(object : BillingClientStateListener {
-                override fun onBillingSetupFinished(billingResult: BillingResult) {
-                    if (billingResult.responseCode == BillingClient.BillingResponseCode.OK) {
-                        iapList.add(getIAP(1))
-                        iapList.add(getIAP(5))
-                        iapList.add(getIAP(10))
-                        iapList.add(getIAP(25))
-                        iapList.add(getIAP(50))
-                        iapList.add(getIAP(99))
-                        billingClient.querySkuDetailsAsync(
-                            SkuDetailsParams.newBuilder()
-                                .setSkusList(iapList)
-                                .setType(BillingClient.SkuType.INAPP)
-                                .build(), responseListenerIAP
-                        )
-
-                        subList.add(getSub(1))
-                        subList.add(getSub(5))
-                        subList.add(getSub(10))
-                        subList.add(getSub(25))
-                        subList.add(getSub(50))
-                        subList.add(getSub(99))
-                        billingClient.querySkuDetailsAsync(
-                            SkuDetailsParams.newBuilder()
-                                .setSkusList(subList)
-                                .setType(BillingClient.SkuType.SUBS)
-                                .build(), responseListenerSub
-                        )
-                    }
-                }
-
-                override fun onBillingServiceDisconnected() {
-                    // Try to restart the connection on the next request to
-                    // Google Play by calling the startConnection() method.
-                }
-            })
-        }
     }
 
     private val permissions =
@@ -535,7 +506,8 @@ class CoverPreferences : AppCompatActivity() {
         ActivityResultContracts.StartActivityForResult()) {
         if (this::accessibility.isInitialized)
             accessibility.isChecked = hasAccessibility()
-        keyboard.visibility = if (hasAccessibility()) View.VISIBLE else View.GONE
+        keyboard.isEnabled = hasAccessibility()
+        keyboard.alpha = if (hasAccessibility()) 1f else 0.5f
     }
     private val keyboardLauncher = registerForActivityResult(
         ActivityResultContracts.StartActivityForResult()) { }
@@ -634,11 +606,31 @@ class CoverPreferences : AppCompatActivity() {
                 ContextThemeWrapper(this, R.style.DialogTheme_NoActionBar)
             )
             val donations = view.findViewById<LinearLayout>(R.id.donation_layout)
-            for (button: Button in buttonsIAP)
+            for (skuDetail: SkuDetails in buttonsIAP) {
+                val button = Button(applicationContext)
+                button.setBackgroundResource(R.drawable.button_rippled)
+                button.text = getString(R.string.iap_button, skuDetail.price)
+                button.setOnClickListener {
+                    billingClient.launchBillingFlow(
+                        this,
+                        BillingFlowParams.newBuilder().setSkuDetails(skuDetail).build()
+                    )
+                }
                 donations.addView(button)
+            }
             val subscriptions = view.findViewById<LinearLayout>(R.id.subscription_layout)
-            for (button: Button in buttonsSub)
+            for (skuDetail: SkuDetails in buttonsSub) {
+                val button = Button(applicationContext)
+                button.setBackgroundResource(R.drawable.button_rippled)
+                button.text = getString(R.string.sub_button, skuDetail.price)
+                button.setOnClickListener {
+                    billingClient.launchBillingFlow(
+                        this,
+                        BillingFlowParams.newBuilder().setSkuDetails(skuDetail).build()
+                    )
+                }
                 subscriptions.addView(button)
+            }
             dialog.setOnCancelListener {
                 donations.removeAllViews()
                 subscriptions.removeAllViews()
@@ -672,10 +664,10 @@ class CoverPreferences : AppCompatActivity() {
         menuInflater.inflate(R.menu.cover_settings_menu, menu)
         updateMenuWithIcon(menu.findItem(R.id.logcat), -1)
         updateMenuWithIcon(menu.findItem(R.id.subscribe), -1)
-        if (BuildConfig.FLAVOR == "github")
-            updateMenuWithIcon(menu.findItem(R.id.donate), -1)
-        else
-            menu.findItem(R.id.donate).isVisible = false
+        updateMenuWithIcon(menu.findItem(R.id.donate), -1)
+        menu.findItem(R.id.donate).isVisible = BuildConfig.FLAVOR != "google"
+        menu.findItem(R.id.subscribe).isVisible = buttonsIAP.isNotEmpty() || buttonsSub.isNotEmpty()
+        menu.findItem(R.id.logcat).isVisible = hasPremiumSupport
         menu.findItem(R.id.version).title = (getString(R.string.build_hash, BuildConfig.COMMIT))
         updateMenuWithIcon(menu.findItem(R.id.version), -1)
         val actionSwitch: MenuItem = menu.findItem(R.id.switch_action_bar)
@@ -695,115 +687,10 @@ class CoverPreferences : AppCompatActivity() {
         return true
     }
 
-    private fun getIAP(amount: Int) : String {
-        return String.format("subscription_%02d", amount)
-    }
-
-    private fun getSub(amount: Int) : String {
-        return String.format("monthly_%02d", amount)
-    }
-
-    private val responseListenerIAP = SkuDetailsResponseListener { _, skuDetails ->
-        if (null != skuDetails) {
-            for (skuDetail: SkuDetails in skuDetails.sortedBy { skuDetail -> skuDetail.sku }) {
-                val button = Button(this)
-                button.setBackgroundResource(R.drawable.button_rippled)
-                button.text = skuDetail.title
-                button.setOnClickListener {
-                    billingClient.launchBillingFlow(this,
-                        BillingFlowParams.newBuilder().setSkuDetails(skuDetail).build())
-                }
-                buttonsIAP.add(button)
-            }
-        }
-    }
-
-    private val responseListenerSub = SkuDetailsResponseListener { _, skuDetails ->
-        if (null != skuDetails) {
-            for (skuDetail: SkuDetails in skuDetails.sortedBy { skuDetail -> skuDetail.sku }) {
-                val button = Button(this)
-                button.setBackgroundResource(R.drawable.button_rippled)
-                button.text = skuDetail.title
-                button.setOnClickListener {
-                    billingClient.launchBillingFlow(this,
-                        BillingFlowParams.newBuilder().setSkuDetails(skuDetail).build())
-                }
-                buttonsSub.add(button)
-            }
-        }
-    }
-
-    private val consumeResponseListener = ConsumeResponseListener { _, _ ->
-        Snackbar.make(
-            findViewById(R.id.donation_wrapper),
-            R.string.donation_thanks, Snackbar.LENGTH_LONG
-        ).show()
-    }
-
-    private fun handlePurchaseIAP(purchase : Purchase) {
-        val consumeParams = ConsumeParams.newBuilder().setPurchaseToken(purchase.purchaseToken)
-        billingClient.consumeAsync(consumeParams.build(), consumeResponseListener
-        )
-    }
-
-    private var acknowledgePurchaseResponseListener = AcknowledgePurchaseResponseListener {
-        IconifiedSnackbar(this).buildTickerBar(getString(R.string.donation_thanks)).show()
-    }
-
-    private fun handlePurchaseSub(purchase : Purchase) {
-        val acknowledgePurchaseParams = AcknowledgePurchaseParams.newBuilder()
-            .setPurchaseToken(purchase.purchaseToken)
-        billingClient.acknowledgePurchase(acknowledgePurchaseParams.build(),
-            acknowledgePurchaseResponseListener)
-    }
-
-    private fun handlePurchase(purchase : Purchase) {
-        if (purchase.purchaseState == Purchase.PurchaseState.PURCHASED) {
-            if (!purchase.isAcknowledged) {
-                for (iap: String in iapList) {
-                    if (purchase.skus.contains(iap))
-                        handlePurchaseIAP(purchase)
-                }
-                for (sub: String in subList) {
-                    if (purchase.skus.contains(sub))
-                        handlePurchaseSub(purchase)
-                }
-            }
-        }
-    }
-
-    private val purchasesUpdatedListener = PurchasesUpdatedListener { billingResult, purchases ->
-        if (billingResult.responseCode == BillingClient.BillingResponseCode.OK && null != purchases) {
-            for (purchase in purchases) {
-                handlePurchase(purchase)
-            }
-        } else if (billingResult.responseCode == BillingClient.BillingResponseCode.USER_CANCELED) {
-            
-        }
-    }
-
-    private fun verifyCompatibility() {
-        runOnUiThread { requestPermissions.launch(permissions) }
-        if (isDeviceSecure() && !prefs.getBoolean(SamSprung.prefSecure, false)) {
-            AlertDialog.Builder(this)
-                .setTitle(R.string.caveats_title)
-                .setMessage(R.string.caveats_warning)
-                .setPositiveButton(R.string.button_confirm) { dialog, _ ->
-                    with (prefs.edit()) {
-                        putBoolean(SamSprung.prefSecure,  true)
-                        apply()
-                    }
-                    dialog.dismiss()
-                }
-                .setNegativeButton(R.string.button_cancel) { dialog, _ ->
-                    dialog.dismiss()
-                    finish()
-                }.show()
-        }
-    }
-
     override fun onNewIntent(intent: Intent?) {
         super.onNewIntent(intent)
+        retrieveDonationMenu()
+
         if (ContextCompat.checkSelfPermission(this,
                 Manifest.permission.READ_EXTERNAL_STORAGE
             ) == PackageManager.PERMISSION_GRANTED) {
@@ -839,6 +726,203 @@ class CoverPreferences : AppCompatActivity() {
             )
         } else {
             verifyCompatibility()
+        }
+    }
+
+    private fun getIAP(amount: Int) : String {
+        return String.format("subscription_%02d", amount)
+    }
+
+    private fun getSub(amount: Int) : String {
+        return String.format("monthly_%02d", amount)
+    }
+
+    private val responseListenerIAP = SkuDetailsResponseListener { _, skuDetails ->
+        if (null != skuDetails) {
+            for (skuDetail: SkuDetails in skuDetails.sortedBy { skuDetail -> skuDetail.sku }) {
+                buttonsIAP.add(skuDetail)
+            }
+        }
+        billingClient.queryPurchaseHistoryAsync(
+            BillingClient.SkuType.INAPP, iapHistoryListener)
+    }
+
+    private val responseListenerSub = SkuDetailsResponseListener { _, skuDetails ->
+        if (null != skuDetails) {
+            for (skuDetail: SkuDetails in skuDetails.sortedBy { skuDetail -> skuDetail.sku }) {
+                buttonsSub.add(skuDetail)
+            }
+        }
+        billingClient.queryPurchaseHistoryAsync(
+            BillingClient.SkuType.SUBS, subHistoryListener)
+    }
+
+    private val consumeResponseListener = ConsumeResponseListener { _, _ ->
+        Snackbar.make(
+            findViewById(R.id.donation_wrapper),
+            R.string.donation_thanks, Snackbar.LENGTH_LONG
+        ).show()
+    }
+
+    private fun handlePurchaseIAP(purchase : Purchase) {
+        val consumeParams = ConsumeParams.newBuilder().setPurchaseToken(purchase.purchaseToken)
+        billingClient.consumeAsync(consumeParams.build(), consumeResponseListener)
+    }
+
+    private var acknowledgePurchaseResponseListener = AcknowledgePurchaseResponseListener {
+        IconifiedSnackbar(this).buildTickerBar(getString(R.string.donation_thanks)).show()
+        hasPremiumSupport = true
+    }
+
+    private fun handlePurchaseSub(purchase : Purchase) {
+        val acknowledgePurchaseParams = AcknowledgePurchaseParams.newBuilder()
+            .setPurchaseToken(purchase.purchaseToken)
+        billingClient.acknowledgePurchase(acknowledgePurchaseParams.build(),
+            acknowledgePurchaseResponseListener)
+    }
+
+    private fun handlePurchase(purchase : Purchase) {
+        if (purchase.purchaseState == Purchase.PurchaseState.PURCHASED) {
+            if (!purchase.isAcknowledged) {
+                for (iap: String in iapList) {
+                    if (purchase.skus.contains(iap))
+                        handlePurchaseIAP(purchase)
+                }
+                for (sub: String in subList) {
+                    if (purchase.skus.contains(sub))
+                        handlePurchaseSub(purchase)
+                }
+            }
+        }
+    }
+
+    private val purchasesUpdatedListener = PurchasesUpdatedListener { billingResult, purchases ->
+        if (billingResult.responseCode == BillingClient.BillingResponseCode.OK && null != purchases) {
+            for (purchase in purchases) {
+                handlePurchase(purchase)
+            }
+//        } else if (billingResult.responseCode == BillingClient.BillingResponseCode.USER_CANCELED) {
+        }
+    }
+
+    private lateinit var subsPurchased: ArrayList<String>
+
+    private val iapOwnedListener = PurchasesResponseListener { billingResult, purchases ->
+        if (billingResult.responseCode == BillingClient.BillingResponseCode.OK) {
+            for (purchase in purchases) {
+                for (sku in purchase.skus) {
+                    if (subsPurchased.contains(sku)) {
+                        hasPremiumSupport = true
+                        break
+                    }
+                }
+            }
+        }
+    }
+
+    private val subHistoryListener = PurchaseHistoryResponseListener { billingResult, purchases ->
+        if (billingResult.responseCode == BillingClient.BillingResponseCode.OK && null != purchases) {
+            for (purchase in purchases)
+                subsPurchased.addAll(purchase.skus)
+            billingClient.queryPurchasesAsync(BillingClient.SkuType.SUBS, iapOwnedListener)
+        }
+    }
+
+    private val iapHistoryListener = PurchaseHistoryResponseListener { billingResult, purchases ->
+        if (billingResult.responseCode == BillingClient.BillingResponseCode.OK && null != purchases) {
+            hasPremiumSupport = true
+        }
+    }
+
+    private fun verifyCompatibility() {
+        if (isDeviceSecure() && !prefs.getBoolean(SamSprung.prefSecure, false)) {
+            AlertDialog.Builder(this)
+                .setTitle(R.string.caveats_title)
+                .setMessage(R.string.caveats_warning)
+                .setPositiveButton(R.string.button_confirm) { dialog, _ ->
+                    with (prefs.edit()) {
+                        putBoolean(SamSprung.prefSecure,  true)
+                        apply()
+                    }
+                    dialog.dismiss()
+                    runOnUiThread { requestPermissions.launch(permissions) }
+                }
+                .setNegativeButton(R.string.button_cancel) { dialog, _ ->
+                    dialog.dismiss()
+                    finish()
+                }.show()
+        } else {
+            runOnUiThread { requestPermissions.launch(permissions) }
+        }
+    }
+
+    private val billingConnectionMutex = Mutex()
+
+    private val resultAlreadyConnected = BillingResult.newBuilder()
+        .setResponseCode(BillingClient.BillingResponseCode.OK)
+        .setDebugMessage("Billing client is already connected")
+        .build()
+
+    /**
+     * Returns immediately if this BillingClient is already connected, otherwise
+     * initiates the connection and suspends until this client is connected.
+     * If a connection is already in the process of being established, this
+     * method just suspends until the billing client is ready.
+     */
+    suspend fun BillingClient.connect(): BillingResult = billingConnectionMutex.withLock {
+        if (isReady) {
+            // fast path: avoid suspension if already connected
+            resultAlreadyConnected
+        } else {
+            unsafeConnect()
+        }
+    }
+
+    private suspend fun BillingClient.unsafeConnect() = suspendCoroutine<BillingResult> { cont ->
+        startConnection(object : BillingClientStateListener {
+            override fun onBillingSetupFinished(billingResult: BillingResult) {
+                cont.resume(billingResult)
+            }
+            override fun onBillingServiceDisconnected() {
+                // no need to setup reconnection logic here, call ensureReady()
+                // before each purchase to reconnect as necessary
+            }
+        })
+    }
+
+    private fun retrieveDonationMenu() {
+        billingClient = BillingClient.newBuilder(this)
+            .setListener(purchasesUpdatedListener).enablePendingPurchases().build()
+
+        CoroutineScope(Dispatchers.IO).launch(Dispatchers.IO) {
+            val clientResponseCode = billingClient.connect().responseCode
+            if (clientResponseCode == BillingClient.BillingResponseCode.OK) {
+                iapList.add(getIAP(1))
+                iapList.add(getIAP(5))
+                iapList.add(getIAP(10))
+                iapList.add(getIAP(25))
+                iapList.add(getIAP(50))
+                iapList.add(getIAP(99))
+                billingClient.querySkuDetailsAsync(
+                    SkuDetailsParams.newBuilder()
+                        .setSkusList(iapList)
+                        .setType(BillingClient.SkuType.INAPP)
+                        .build(), responseListenerIAP
+                )
+
+                subList.add(getSub(1))
+                subList.add(getSub(5))
+                subList.add(getSub(10))
+                subList.add(getSub(25))
+                subList.add(getSub(50))
+                subList.add(getSub(99))
+                billingClient.querySkuDetailsAsync(
+                    SkuDetailsParams.newBuilder()
+                        .setSkusList(subList)
+                        .setType(BillingClient.SkuType.SUBS)
+                        .build(), responseListenerSub
+                )
+            }
         }
     }
 }

@@ -75,6 +75,7 @@
                         android:layout_width="0dp"
                         android:gravity="center"
                         android:layout_weight="1"
+                        android:clickable="false"
                         android:textSize="28sp"
                         android:textColor="?android:textColorPrimary"
                         android:layout_height="wrap_content" />
@@ -88,7 +89,8 @@
                     android:layout_marginStart="16dp"
                     android:layout_marginEnd="8dp"
                     android:layout_gravity="center_vertical"
-                    tools:ignore="UseCompoundDrawables">
+                    tools:ignore="UseCompoundDrawables"
+                    android:enabled="false">
 
                     <TextView
                         android:layout_width="0dp"
@@ -136,6 +138,7 @@
                         android:layout_width="0dp"
                         android:gravity="center"
                         android:layout_weight="1"
+                        android:clickable="false"
                         android:textSize="28sp"
                         android:textColor="?android:textColorPrimary"
                         android:layout_height="wrap_content" />
@@ -198,6 +201,7 @@
                         android:layout_width="0dp"
                         android:gravity="center"
                         android:layout_weight="1"
+                        android:clickable="false"
                         android:textSize="28sp"
                         android:textColor="?android:textColorPrimary"
                         android:layout_height="wrap_content" />

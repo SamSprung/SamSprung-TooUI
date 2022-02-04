@@ -51,7 +51,6 @@ package com.eightbit.samsprung
  * subject to to the terms and conditions of the Apache License, Version 2.0.
  */
 
-import android.app.ActivityManager
 import android.app.Application
 import android.content.Context
 import android.content.Intent
@@ -59,6 +58,7 @@ import android.hardware.display.DisplayManager
 import android.os.StrictMode
 import android.view.ContextThemeWrapper
 import android.view.WindowManager
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatDelegate
 import com.eightbit.content.ScaledContext
 import java.lang.ref.SoftReference
@@ -73,42 +73,46 @@ class SamSprung : Application() {
             && BuildConfig.DEBUG) StrictMode.enableDefaults()
 
         val displayManager = getSystemService(Context.DISPLAY_SERVICE) as DisplayManager
-        val displayContext = createDisplayContext(displayManager.getDisplay(1))
-        val wm = displayContext.getSystemService(WINDOW_SERVICE) as WindowManager
-        mContext = SoftReference<Context>(object : ContextThemeWrapper(
-            displayContext, R.style.Theme_SecondScreen) {
-            override fun getSystemService(name: String): Any? {
-                return if (WINDOW_SERVICE == name) wm else super.getSystemService(name)
+        if (displayManager.getDisplay(1) == null) {
+            Toast.makeText(this, R.string.incompatible_device, Toast.LENGTH_LONG).show()
+        } else {
+            val displayContext = createDisplayContext(displayManager.getDisplay(1))
+            val wm = displayContext.getSystemService(WINDOW_SERVICE) as WindowManager
+            mContext = SoftReference<Context>(object : ContextThemeWrapper(
+                displayContext, R.style.Theme_SecondScreen
+            ) {
+                override fun getSystemService(name: String): Any? {
+                    return if (WINDOW_SERVICE == name) wm else super.getSystemService(name)
+                }
+            })
+            Thread.setDefaultUncaughtExceptionHandler { _: Thread?, error: Throwable ->
+                error.printStackTrace()
+                startService(
+                    Intent(this, OnBroadcastService::class.java).setAction(updating)
+                )
+                // Unrecoverable error encountered
+                exitProcess(1)
             }
-        })
-
-        Thread.setDefaultUncaughtExceptionHandler { _: Thread?, error: Throwable ->
-            error.printStackTrace()
-            startService(
-                Intent(this, OnBroadcastService::class.java).setAction(updating)
-            )
-            // Unrecoverable error encountered
-            exitProcess(1)
-        }
-        val prefs = getSharedPreferences(prefsValue, MODE_PRIVATE)
-        if (prefs.contains("gridview")) {
-            with(prefs.edit()) {
-                putBoolean(prefLayout, prefs.getBoolean("gridview", true))
-                remove("gridview")
-                apply()
+            val prefs = getSharedPreferences(prefsValue, MODE_PRIVATE)
+            if (prefs.contains("gridview")) {
+                with(prefs.edit()) {
+                    putBoolean(prefLayout, prefs.getBoolean("gridview", true))
+                    remove("gridview")
+                    apply()
+                }
             }
-        }
-        if (prefs.contains("hidden_packages")) {
-            with(prefs.edit()) {
-                putStringSet(prefHidden, prefs.getStringSet("hidden_packages", setOf<String>()))
-                remove("hidden_packages")
-                apply()
+            if (prefs.contains("hidden_packages")) {
+                with(prefs.edit()) {
+                    putStringSet(prefHidden, prefs.getStringSet("hidden_packages", setOf<String>()))
+                    remove("hidden_packages")
+                    apply()
+                }
             }
-        }
-        if (prefs.contains(autoRotate)) {
-            with(prefs.edit()) {
-                remove(autoRotate)
-                apply()
+            if (prefs.contains(autoRotate)) {
+                with(prefs.edit()) {
+                    remove(autoRotate)
+                    apply()
+                }
             }
         }
     }
