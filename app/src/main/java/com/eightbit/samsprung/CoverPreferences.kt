@@ -56,20 +56,15 @@ import android.annotation.SuppressLint
 import android.app.Dialog
 import android.app.KeyguardManager
 import android.app.WallpaperManager
-import android.content.ComponentName
-import android.content.Context
-import android.content.Intent
-import android.content.SharedPreferences
+import android.content.*
 import android.content.pm.PackageManager
 import android.content.res.ColorStateList
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import android.hardware.display.DisplayManager
 import android.net.Uri
-import android.os.Build
-import android.os.Bundle
-import android.os.Handler
-import android.os.Looper
+import android.os.*
+import android.provider.MediaStore
 import android.provider.Settings
 import android.view.Menu
 import android.view.MenuItem
@@ -110,6 +105,7 @@ import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
 
 import com.eightbit.content.ScaledContext
+import java.lang.Process
 
 
 class CoverPreferences : AppCompatActivity() {
@@ -118,7 +114,7 @@ class CoverPreferences : AppCompatActivity() {
 
     private lateinit var updates : CheckUpdatesTask
 
-    private lateinit var gitLogcat: LinearLayout
+    private var hasPremiumSupport = false
     private lateinit var mainSwitch: SwitchCompat
     private lateinit var permissionList: LinearLayout
     private lateinit var keyboard: LinearLayout
@@ -558,10 +554,10 @@ class CoverPreferences : AppCompatActivity() {
         return output.toString()
     }
 
-    private fun captureLogcat() {
+    private fun captureLogcat(parent: ViewGroup) {
         val log = StringBuilder()
         val separator = System.getProperty("line.separator")
-        log.append(getString(R.string.build_hash, BuildConfig.COMMIT))
+        log.append(getString(R.string.build_hash_full, BuildConfig.COMMIT))
         try {
             var line: String?
             val mLogcatProc: Process = Runtime.getRuntime().exec(arrayOf(
@@ -579,15 +575,32 @@ class CoverPreferences : AppCompatActivity() {
         } catch (e: Exception) {
             e.printStackTrace()
         }
-        IssueReporterLauncher.forTarget("SamSprung", "SamSprung-TooUI")
-            .theme(R.style.Theme_SecondScreen_NoActionBar)
-            .guestToken(getRepositoryToken())
-            .guestEmailRequired(true)
-            .guestAllowUsername(true)
-            .titleTextDefault(getString(R.string.build_hash, BuildConfig.COMMIT))
-            .minDescriptionLength(50)
-            .putExtraInfo("logcat", log.toString())
-            .homeAsUpEnabled(false).launch(this)
+        if (hasPremiumSupport) {
+            IssueReporterLauncher.forTarget("SamSprung", "SamSprung-TooUI")
+                .theme(R.style.Theme_SecondScreen_NoActionBar)
+                .guestToken(getRepositoryToken())
+                .guestEmailRequired(true)
+                .guestAllowUsername(true)
+                .titleTextDefault(getString(R.string.build_hash_full, BuildConfig.COMMIT))
+                .minDescriptionLength(50)
+                .putExtraInfo("logcat", log.toString())
+                .homeAsUpEnabled(false).launch(this)
+        } else {
+            val contentValues = ContentValues().apply {
+                put(MediaStore.MediaColumns.DISPLAY_NAME, "samsprung_logcat")
+                put(MediaStore.MediaColumns.MIME_TYPE, "text/plain")
+                put(MediaStore.MediaColumns.RELATIVE_PATH, Environment.DIRECTORY_DOWNLOADS)
+            }
+            contentResolver.insert(
+                MediaStore.Downloads.EXTERNAL_CONTENT_URI, contentValues)?.let {
+                contentResolver.openOutputStream(it).use { fos ->
+                    fos?.write(log.toString().toByteArray())
+                }
+            }
+            IconifiedSnackbar(this, parent).buildSnackbar(
+                R.string.logcat_saved, Snackbar.LENGTH_LONG, null
+            ).show()
+        }
     }
 
     val updateLauncher = registerForActivityResult(
@@ -633,9 +646,8 @@ class CoverPreferences : AppCompatActivity() {
         }
         paypal.isVisible = BuildConfig.FLAVOR != "google"
 
-        gitLogcat = findViewById<LinearLayout>(R.id.github)
-        gitLogcat.setOnClickListener {
-            captureLogcat()
+        findViewById<LinearLayout>(R.id.github).setOnClickListener {
+            captureLogcat(findViewById(R.id.coordinator))
         }
 
         val googlePlay = findViewById<LinearLayout>(R.id.google_play)
@@ -760,7 +772,7 @@ class CoverPreferences : AppCompatActivity() {
 
     private var acknowledgePurchaseResponseListener = AcknowledgePurchaseResponseListener {
         IconifiedSnackbar(this).buildTickerBar(getString(R.string.donation_thanks)).show()
-        gitLogcat.isVisible = true
+        hasPremiumSupport = true
     }
 
     private fun handlePurchaseSub(purchase : Purchase) {
@@ -801,7 +813,7 @@ class CoverPreferences : AppCompatActivity() {
             for (purchase in purchases) {
                 for (sku in purchase.skus) {
                     if (subsPurchased.contains(sku)) {
-                        gitLogcat.isVisible = true
+                        hasPremiumSupport = true
                         break
                     }
                 }
@@ -819,7 +831,14 @@ class CoverPreferences : AppCompatActivity() {
 
     private val iapHistoryListener = PurchaseHistoryResponseListener { billingResult, purchases ->
         if (billingResult.responseCode == BillingClient.BillingResponseCode.OK && null != purchases) {
-            gitLogcat.isVisible = true
+            for (purchase in purchases) {
+                for (sku in purchase.skus) {
+                    if (sku.split("_")[1].toInt() >= 25) {
+                        hasPremiumSupport = true
+                        break
+                    }
+                }
+            }
         }
     }
 

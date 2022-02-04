@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-
 package com.eightbit.samsprung.widget;
 
 import android.appwidget.AppWidgetHostView;

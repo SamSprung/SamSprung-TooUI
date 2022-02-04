@@ -44,6 +44,9 @@
     <string name="iap_button">%1$s Donation</string>
     <string name="build_hash">#%1$s</string>
 
+    <string name="build_hash_full">SamSprung - %1$s</string>
+    <string name="logcat_saved">Logcat file saved to Downloads</string>
+
     <string name="menu_recent">Recent</string>
     <string name="menu_home">Home</string>
     <string name="menu_back">Back</string>
