@@ -1,6 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">SamSprung TooUI</string>
+
+    <string name="samsprung">SamSprung</string>
+    <string name="logcat_link">Logcat</string>
+    <string name="google_play_link">Google Play</string>
+    <string name="paypal_link">PayPal</string>
+
+    <string name="build_hash">#%1$s</string>
+    <string name="build_hash_full">SamSprung - #%1$s</string>
+    <string name="git_issue_title">Logcat - SamSprung #%1$s</string>
+
     <string name="description_icon">Icon</string>
     <string name="description_badge">Badge</string>
 </resources>

@@ -54,7 +54,7 @@
             android:layout_marginStart="8dp"
             android:textColor="?android:textColorPrimary"
             android:gravity="center_vertical"
-            android:text="@string/capture_logcat" />
+            android:text="@string/logcat_link" />
     </LinearLayout>
 
     <LinearLayout

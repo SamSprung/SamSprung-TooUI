@@ -581,7 +581,7 @@ class CoverPreferences : AppCompatActivity() {
                 .guestToken(getRepositoryToken())
                 .guestEmailRequired(true)
                 .guestAllowUsername(true)
-                .titleTextDefault(getString(R.string.build_hash_full, BuildConfig.COMMIT))
+                .titleTextDefault(getString(R.string.git_issue_title, BuildConfig.COMMIT))
                 .minDescriptionLength(50)
                 .putExtraInfo("logcat", log.toString())
                 .homeAsUpEnabled(false).launch(this)
@@ -598,7 +598,7 @@ class CoverPreferences : AppCompatActivity() {
                 }
             }
             IconifiedSnackbar(this, parent).buildSnackbar(
-                R.string.logcat_saved, Snackbar.LENGTH_LONG, null
+                R.string.logcat_written, Snackbar.LENGTH_LONG, null
             ).show()
         }
     }

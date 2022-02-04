@@ -1,6 +1,4 @@
 <resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="MissingTranslation">
-    <string name="samsprung">SamSprung</string>
-
     <string name="samsprung_ime">SamSprung Keyboard</string>
 
     <string name="setup_notice">This app will NOT appear in the widget list.\n\nEnabling the switch(es) and approving permission(s) will complete the activation process.\n\nFrom the cover screen, swipe the bar up to reveal the navigation panel and begin using SamSprung.\n\nThis app is EXPERIMENTAL.\n\nUpdates are posted regularly. Features may be added, removed, or changed at any time. See the Wiki.\n\nDon\'t pay for cheap imitation. Welcome to SamSprung!</string>
@@ -37,15 +35,10 @@
 
     <string name="loading_text">Loading&#8230;</string>
 
-    <string name="capture_logcat">Logcat</string>
-    <string name="google_play_link">Google Play</string>
-    <string name="paypal_link">PayPal</string>
     <string name="sub_button">%1$s Subscription</string>
     <string name="iap_button">%1$s Donation</string>
-    <string name="build_hash">#%1$s</string>
 
-    <string name="build_hash_full">SamSprung - %1$s</string>
-    <string name="logcat_saved">Logcat file saved to Downloads</string>
+    <string name="logcat_written">Logcat file saved to Downloads</string>
 
     <string name="menu_recent">Recent</string>
     <string name="menu_home">Home</string>
