@@ -1,30 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
-
     <item
         android:id="@+id/switch_action_bar"
         android:title="@string/app_name"
         app:actionLayout="@layout/configure_switch"
         app:showAsAction="ifRoom" />
-    <item
-        android:id="@+id/logcat"
-        android:title="@string/capture_logcat"
-        android:icon="@drawable/ic_github_octocat_24dp"
-        app:showAsAction="never" />
-    <item
-        android:id="@+id/donate"
-        android:title="@string/donation_link"
-        android:icon="@drawable/ic_paypal_donation"
-        app:showAsAction="never" />
-    <item
-        android:id="@+id/subscribe"
-        android:title="@string/donation_link"
-        android:icon="@drawable/ic_google_play_24"
-        app:showAsAction="never" />
-    <item
-        android:id="@+id/version"
-        android:title="@string/build_hash"
-        android:icon="@drawable/ic_gitlab_icon_rgb"
-        app:showAsAction="never" />
 </menu>

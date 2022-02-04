@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="utf-8"?>
+<merge
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+<LinearLayout
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginStart="12dp"
+    android:layout_marginEnd="12dp"
+    android:layout_marginTop="8dp"
+    android:layout_marginBottom="8dp"
+    android:gravity="center_horizontal"
+    android:orientation="horizontal">
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:gravity="center"
+        android:orientation="horizontal">
+
+        <androidx.appcompat.widget.AppCompatImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:srcCompat="@drawable/ic_gitlab_icon_rgb"
+            android:contentDescription="@string/description_icon"/>
+        <TextView
+            android:id="@+id/build_info"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="14sp"
+            android:layout_marginStart="10dp"
+            android:textColor="?android:textColorPrimary"
+            android:gravity="center_vertical" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/github"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:gravity="center"
+        android:orientation="horizontal">
+        <androidx.appcompat.widget.AppCompatImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:srcCompat="@drawable/ic_github_octocat_24dp"
+            android:contentDescription="@string/description_icon"/>
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="14sp"
+            android:layout_marginStart="10dp"
+            android:textColor="?android:textColorPrimary"
+            android:gravity="center_vertical"
+            android:text="@string/capture_logcat" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/paypal"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:gravity="center"
+        android:orientation="horizontal">
+        <androidx.appcompat.widget.AppCompatImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:srcCompat="@drawable/ic_paypal_donation"
+            android:contentDescription="@string/description_icon"/>
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="14sp"
+            android:layout_marginStart="10dp"
+            android:textColor="?android:textColorPrimary"
+            android:gravity="center_vertical"
+            android:text="@string/paypal_link" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/google_play"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:gravity="center"
+        android:orientation="horizontal">
+        <androidx.appcompat.widget.AppCompatImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:srcCompat="@drawable/ic_google_play_24"
+            android:contentDescription="@string/description_icon"/>
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="14sp"
+            android:layout_marginStart="10dp"
+            android:textColor="?android:textColorPrimary"
+            android:gravity="center_vertical"
+            android:text="@string/google_play_link" />
+    </LinearLayout>
+</LinearLayout>
+</merge>

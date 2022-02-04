@@ -99,9 +99,6 @@ import com.eightbitlab.blurview.RenderScriptBlur
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import java.io.File
 import java.util.concurrent.Executors
-import android.view.MotionEvent
-import android.view.View.OnTouchListener
-import androidx.core.view.ViewCompat
 
 
 class SamSprungOverlay : AppCompatActivity(),
@@ -146,7 +143,7 @@ class SamSprungOverlay : AppCompatActivity(),
         prefs = getSharedPreferences(SamSprung.prefsValue, MODE_PRIVATE)
 
         ScaledContext.screen(this).setTheme(R.style.Theme_SecondScreen_NoActionBar)
-        setContentView(R.layout.homescreen_menu)
+        setContentView(R.layout.home_main_view)
 
         mDisplayListener = object : DisplayManager.DisplayListener {
             override fun onDisplayAdded(display: Int) {}

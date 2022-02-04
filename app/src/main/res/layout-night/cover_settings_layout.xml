@@ -22,6 +22,14 @@
             android:layout_height="match_parent"
             android:orientation="vertical">
 
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_marginTop="0dp"
+                android:background="@android:color/background_light" />
+
+            <include layout="@layout/social_menu_bar" />
+
             <LinearLayout
                 android:id="@+id/permissions"
                 android:layout_width="match_parent"
@@ -36,7 +44,7 @@
                     android:layout_marginBottom="8dp"/>
 
                 <TextView
-                    android:layout_width="match_parent"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:textSize="16sp"
                     android:layout_marginStart="14dp"
@@ -245,7 +253,7 @@
                     android:textColor="?android:textColorPrimary"
                     android:layout_height="wrap_content" />
             </LinearLayout>
-            
+
             <ToggleButton
                 android:id="@+id/swapViewType"
                 android:layout_width="match_parent"

@@ -71,9 +71,6 @@ import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.provider.Settings
-import android.text.SpannableStringBuilder
-import android.text.Spanned
-import android.text.style.ImageSpan
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
@@ -111,7 +108,6 @@ import java.util.*
 import java.util.concurrent.Executors
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
-import android.view.WindowManager
 
 import android.view.Gravity
 
@@ -124,6 +120,7 @@ class CoverPreferences : AppCompatActivity() {
 
     private lateinit var updates : CheckUpdatesTask
 
+    private lateinit var gitLogcat: LinearLayout
     private lateinit var mainSwitch: SwitchCompat
     private lateinit var permissionList: LinearLayout
     private lateinit var keyboard: LinearLayout
@@ -136,10 +133,8 @@ class CoverPreferences : AppCompatActivity() {
     private lateinit var billingClient: BillingClient
     private val iapList = ArrayList<String>()
     private val subList = ArrayList<String>()
-    private val buttonsIAP = ArrayList<SkuDetails>()
-    private val buttonsSub = ArrayList<SkuDetails>()
-
-    private var hasPremiumSupport = false
+    private val iapSkuDetails = ArrayList<SkuDetails>()
+    private val subSkuDetails = ArrayList<SkuDetails>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -602,82 +597,8 @@ class CoverPreferences : AppCompatActivity() {
             updates.retrieveUpdate()
     }
 
-    override fun onOptionsItemSelected(item: MenuItem) = when (item.itemId) {
-        R.id.logcat -> {
-            captureLogcat()
-            true
-        }
-        R.id.subscribe -> {
-            val view: View = layoutInflater.inflate(R.layout.donation_layout, null)
-            val dialog = AlertDialog.Builder(
-                ContextThemeWrapper(this, R.style.DialogTheme_NoActionBar)
-            )
-            val donations = view.findViewById<LinearLayout>(R.id.donation_layout)
-            for (skuDetail: SkuDetails in buttonsIAP) {
-                val button = Button(applicationContext)
-                button.setBackgroundResource(R.drawable.button_rippled)
-                button.text = getString(R.string.iap_button, skuDetail.price)
-                button.setOnClickListener {
-                    billingClient.launchBillingFlow(
-                        this,
-                        BillingFlowParams.newBuilder().setSkuDetails(skuDetail).build()
-                    )
-                }
-                donations.addView(button)
-            }
-            val subscriptions = view.findViewById<LinearLayout>(R.id.subscription_layout)
-            for (skuDetail: SkuDetails in buttonsSub) {
-                val button = Button(applicationContext)
-                button.setBackgroundResource(R.drawable.button_rippled)
-                button.text = getString(R.string.sub_button, skuDetail.price)
-                button.setOnClickListener {
-                    billingClient.launchBillingFlow(
-                        this,
-                        BillingFlowParams.newBuilder().setSkuDetails(skuDetail).build()
-                    )
-                }
-                subscriptions.addView(button)
-            }
-            dialog.setOnCancelListener {
-                donations.removeAllViews()
-                subscriptions.removeAllViews()
-            }
-            val donateDialog: Dialog = dialog.setView(view).show()
-            donateDialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
-            donateDialog.window?.setGravity(Gravity.TOP)
-            true
-        }
-        R.id.donate -> {
-            startActivity(Intent(Intent.ACTION_VIEW,
-                Uri.parse("https://www.paypal.com/donate/?hosted_button_id=Q2LFH2SC8RHRN")))
-            true
-        } else -> {
-            super.onOptionsItemSelected(item)
-        }
-    }
-
-    private fun updateMenuWithIcon(item: MenuItem, color: Int) {
-        val builder = SpannableStringBuilder().append("*").append("    ").append(item.title)
-        if (item.icon != null && item.icon.constantState != null) {
-            val drawable = item.icon.constantState!!.newDrawable()
-            if (-1 != color) drawable.mutate().setTint(color)
-            drawable.setBounds(0, 0, drawable.intrinsicWidth, drawable.intrinsicHeight)
-            val imageSpan = ImageSpan(drawable)
-            builder.setSpan(imageSpan, 0, 1, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
-            item.title = builder
-        }
-    }
-
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         menuInflater.inflate(R.menu.cover_settings_menu, menu)
-        updateMenuWithIcon(menu.findItem(R.id.logcat), -1)
-        updateMenuWithIcon(menu.findItem(R.id.subscribe), -1)
-        updateMenuWithIcon(menu.findItem(R.id.donate), -1)
-        menu.findItem(R.id.donate).isVisible = BuildConfig.FLAVOR != "google"
-        menu.findItem(R.id.subscribe).isVisible = buttonsIAP.isNotEmpty() || buttonsSub.isNotEmpty()
-        menu.findItem(R.id.logcat).isVisible = hasPremiumSupport
-        menu.findItem(R.id.version).title = (getString(R.string.build_hash, BuildConfig.COMMIT))
-        updateMenuWithIcon(menu.findItem(R.id.version), -1)
         val actionSwitch: MenuItem = menu.findItem(R.id.switch_action_bar)
         actionSwitch.setActionView(R.layout.configure_switch)
         mainSwitch = menu.findItem(R.id.switch_action_bar).actionView
@@ -698,6 +619,65 @@ class CoverPreferences : AppCompatActivity() {
     override fun onNewIntent(intent: Intent?) {
         super.onNewIntent(intent)
         retrieveDonationMenu()
+
+        val buildInfo = findViewById<TextView>(R.id.build_info)
+        buildInfo.text = (getString(R.string.build_hash, BuildConfig.COMMIT))
+        buildInfo.setOnClickListener {
+            startActivity(Intent(Intent.ACTION_VIEW,
+                Uri.parse("https://github.com/SamSprung/SamSprung-TooUI")))
+        }
+
+        val paypal = findViewById<LinearLayout>(R.id.paypal)
+        paypal.setOnClickListener {
+            startActivity(Intent(Intent.ACTION_VIEW,
+                Uri.parse("https://www.paypal.com/donate/?hosted_button_id=Q2LFH2SC8RHRN")))
+        }
+        paypal.isVisible = BuildConfig.FLAVOR != "google"
+
+        gitLogcat = findViewById<LinearLayout>(R.id.github)
+        gitLogcat.setOnClickListener {
+            captureLogcat()
+        }
+
+        val googlePlay = findViewById<LinearLayout>(R.id.google_play)
+        googlePlay.setOnClickListener {
+            val view: View = layoutInflater.inflate(R.layout.donation_layout, null)
+            val dialog = AlertDialog.Builder(
+                ContextThemeWrapper(this, R.style.DialogTheme_NoActionBar)
+            )
+            val donations = view.findViewById<LinearLayout>(R.id.donation_layout)
+            for (skuDetail: SkuDetails in iapSkuDetails) {
+                val button = Button(applicationContext)
+                button.setBackgroundResource(R.drawable.button_rippled)
+                button.text = getString(R.string.iap_button, skuDetail.price)
+                button.setOnClickListener {
+                    billingClient.launchBillingFlow(
+                        this,
+                        BillingFlowParams.newBuilder().setSkuDetails(skuDetail).build()
+                    )
+                }
+                donations.addView(button)
+            }
+            val subscriptions = view.findViewById<LinearLayout>(R.id.subscription_layout)
+            for (skuDetail: SkuDetails in subSkuDetails) {
+                val button = Button(applicationContext)
+                button.setBackgroundResource(R.drawable.button_rippled)
+                button.text = getString(R.string.sub_button, skuDetail.price)
+                button.setOnClickListener {
+                    billingClient.launchBillingFlow(
+                        this,
+                        BillingFlowParams.newBuilder().setSkuDetails(skuDetail).build()
+                    )
+                }
+                subscriptions.addView(button)
+            }
+            dialog.setOnCancelListener {
+                donations.removeAllViews()
+                subscriptions.removeAllViews()
+            }
+            val donateDialog: Dialog = dialog.setView(view).show()
+            donateDialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+        }
 
         if (ContextCompat.checkSelfPermission(this,
                 Manifest.permission.READ_EXTERNAL_STORAGE
@@ -747,8 +727,9 @@ class CoverPreferences : AppCompatActivity() {
 
     private val responseListenerIAP = SkuDetailsResponseListener { _, skuDetails ->
         if (null != skuDetails) {
+            iapSkuDetails.clear()
             for (skuDetail: SkuDetails in skuDetails.sortedBy { skuDetail -> skuDetail.sku }) {
-                buttonsIAP.add(skuDetail)
+                iapSkuDetails.add(skuDetail)
             }
         }
         billingClient.queryPurchaseHistoryAsync(
@@ -757,8 +738,9 @@ class CoverPreferences : AppCompatActivity() {
 
     private val responseListenerSub = SkuDetailsResponseListener { _, skuDetails ->
         if (null != skuDetails) {
+            subSkuDetails.clear()
             for (skuDetail: SkuDetails in skuDetails.sortedBy { skuDetail -> skuDetail.sku }) {
-                buttonsSub.add(skuDetail)
+                subSkuDetails.add(skuDetail)
             }
         }
         billingClient.queryPurchaseHistoryAsync(
@@ -779,7 +761,7 @@ class CoverPreferences : AppCompatActivity() {
 
     private var acknowledgePurchaseResponseListener = AcknowledgePurchaseResponseListener {
         IconifiedSnackbar(this).buildTickerBar(getString(R.string.donation_thanks)).show()
-        hasPremiumSupport = true
+        gitLogcat.isVisible = true
     }
 
     private fun handlePurchaseSub(purchase : Purchase) {
@@ -820,7 +802,7 @@ class CoverPreferences : AppCompatActivity() {
             for (purchase in purchases) {
                 for (sku in purchase.skus) {
                     if (subsPurchased.contains(sku)) {
-                        hasPremiumSupport = true
+                        gitLogcat.isVisible = true
                         break
                     }
                 }
@@ -838,7 +820,7 @@ class CoverPreferences : AppCompatActivity() {
 
     private val iapHistoryListener = PurchaseHistoryResponseListener { billingResult, purchases ->
         if (billingResult.responseCode == BillingClient.BillingResponseCode.OK && null != purchases) {
-            hasPremiumSupport = true
+            gitLogcat.isVisible = true
         }
     }
 
@@ -877,7 +859,7 @@ class CoverPreferences : AppCompatActivity() {
      * If a connection is already in the process of being established, this
      * method just suspends until the billing client is ready.
      */
-    suspend fun BillingClient.connect(): BillingResult = billingConnectionMutex.withLock {
+    private suspend fun BillingClient.connect(): BillingResult = billingConnectionMutex.withLock {
         if (isReady) {
             // fast path: avoid suspension if already connected
             resultAlreadyConnected

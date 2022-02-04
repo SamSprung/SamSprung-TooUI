@@ -39,7 +39,6 @@
 
         </LinearLayout>
 
-        <include
-            layout="@layout/drawer_layout" />
+        <include layout="@layout/home_app_view" />
     </LinearLayout>
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

@@ -37,11 +37,12 @@
 
     <string name="loading_text">Loading&#8230;</string>
 
-    <string name="capture_logcat">Report Issue (Logcat)</string>
-    <string name="donation_link">Sponsor Development</string>
+    <string name="capture_logcat">Logcat</string>
+    <string name="google_play_link">Google Play</string>
+    <string name="paypal_link">PayPal</string>
     <string name="sub_button">%1$s Subscription</string>
     <string name="iap_button">%1$s Donation</string>
-    <string name="build_hash">SamSprung - %1$s</string>
+    <string name="build_hash">#%1$s</string>
 
     <string name="menu_recent">Recent</string>
     <string name="menu_home">Home</string>
