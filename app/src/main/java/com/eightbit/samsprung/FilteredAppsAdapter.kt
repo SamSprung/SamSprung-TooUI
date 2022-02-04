@@ -134,6 +134,7 @@ class FilteredAppsAdapter(
                     apply()
                 }
             }
+            this.notifyDataSetChanged()
         }
 
         return convertView

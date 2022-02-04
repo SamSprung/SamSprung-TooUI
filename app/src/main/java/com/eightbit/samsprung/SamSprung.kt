@@ -53,10 +53,8 @@ package com.eightbit.samsprung
 
 import android.app.Application
 import android.content.Context
-import android.content.Intent
 import android.hardware.display.DisplayManager
 import android.os.StrictMode
-import android.provider.Settings
 import android.view.ContextThemeWrapper
 import android.view.WindowManager
 import android.widget.Toast
@@ -96,20 +94,6 @@ class SamSprung : Application() {
                 // Unrecoverable error encountered
                 exitProcess(1)
             }
-            if (prefs.contains("gridview")) {
-                with(prefs.edit()) {
-                    putBoolean(prefLayout, prefs.getBoolean("gridview", true))
-                    remove("gridview")
-                    apply()
-                }
-            }
-            if (prefs.contains("hidden_packages")) {
-                with(prefs.edit()) {
-                    putStringSet(prefHidden, prefs.getStringSet("hidden_packages", setOf<String>()))
-                    remove("hidden_packages")
-                    apply()
-                }
-            }
             if (prefs.contains(autoRotate)) {
                 with(prefs.edit()) {
                     remove(autoRotate)
@@ -139,7 +123,7 @@ class SamSprung : Application() {
         var mContext: SoftReference<Context>? = null
         fun getCoverContext(): Context? {
             if (null != mContext && null != mContext!!.get()) {
-                return ScaledContext.screen(mContext!!.get())
+                return ScaledContext.wrap(mContext!!.get())
             }
             return null
         }

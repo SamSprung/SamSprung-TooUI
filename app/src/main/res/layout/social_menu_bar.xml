@@ -16,7 +16,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_weight="1"
-        android:gravity="center"
+        android:gravity="start|center_vertical"
         android:orientation="horizontal">
 
         <androidx.appcompat.widget.AppCompatImageView
@@ -29,7 +29,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textSize="14sp"
-            android:layout_marginStart="10dp"
+            android:layout_marginStart="8dp"
             android:textColor="?android:textColorPrimary"
             android:gravity="center_vertical" />
     </LinearLayout>
@@ -39,6 +39,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_weight="1"
+        android:layout_marginEnd="2dp"
         android:gravity="center"
         android:orientation="horizontal">
         <androidx.appcompat.widget.AppCompatImageView
@@ -50,7 +51,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textSize="14sp"
-            android:layout_marginStart="10dp"
+            android:layout_marginStart="8dp"
             android:textColor="?android:textColorPrimary"
             android:gravity="center_vertical"
             android:text="@string/capture_logcat" />
@@ -61,6 +62,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_weight="1"
+        android:layout_marginStart="2dp"
         android:gravity="center"
         android:orientation="horizontal">
         <androidx.appcompat.widget.AppCompatImageView
@@ -72,7 +74,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textSize="14sp"
-            android:layout_marginStart="10dp"
+            android:layout_marginStart="8dp"
             android:textColor="?android:textColorPrimary"
             android:gravity="center_vertical"
             android:text="@string/paypal_link" />
@@ -83,7 +85,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_weight="1"
-        android:gravity="center"
+        android:gravity="end|center_vertical"
         android:orientation="horizontal">
         <androidx.appcompat.widget.AppCompatImageView
             android:layout_width="wrap_content"
@@ -94,7 +96,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textSize="14sp"
-            android:layout_marginStart="10dp"
+            android:layout_marginStart="8dp"
             android:textColor="?android:textColorPrimary"
             android:gravity="center_vertical"
             android:text="@string/google_play_link" />

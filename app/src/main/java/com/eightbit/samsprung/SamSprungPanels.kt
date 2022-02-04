@@ -17,7 +17,6 @@ package com.eightbit.samsprung
 
 import android.Manifest
 import android.annotation.SuppressLint
-import android.app.ActivityOptions
 import android.app.WallpaperManager
 import android.appwidget.AppWidgetManager
 import android.appwidget.AppWidgetProviderInfo
@@ -33,7 +32,6 @@ import android.util.Log
 import android.view.*
 import android.view.View.OnLongClickListener
 import android.view.inputmethod.InputMethodManager
-import android.widget.*
 import androidx.activity.result.ActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
@@ -51,9 +49,6 @@ import java.lang.ref.SoftReference
 import java.util.*
 import java.util.concurrent.Executors
 import android.widget.Toast
-import androidx.core.view.get
-import java.lang.reflect.Field
-import java.lang.reflect.Method
 
 
 /**
@@ -453,7 +448,7 @@ class SamSprungPanels : AppCompatActivity(), View.OnClickListener, OnLongClickLi
             ) else null
             cellInfo = workspace!!.findAllVacantCells(occupied)
             if (!cellInfo!!.findCellForSpan(xy, spanX, spanY)) {
-                Toast.makeText(ScaledContext.screen(this), getString(R.string.out_of_space), Toast.LENGTH_SHORT).show()
+                Toast.makeText(ScaledContext.wrap(this), getString(R.string.out_of_space), Toast.LENGTH_SHORT).show()
                 return false
             }
         }

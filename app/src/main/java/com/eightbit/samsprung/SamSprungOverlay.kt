@@ -142,7 +142,7 @@ class SamSprungOverlay : AppCompatActivity(),
 
         prefs = getSharedPreferences(SamSprung.prefsValue, MODE_PRIVATE)
 
-        ScaledContext.screen(this).setTheme(R.style.Theme_SecondScreen_NoActionBar)
+        ScaledContext.wrap(this).setTheme(R.style.Theme_SecondScreen_NoActionBar)
         setContentView(R.layout.home_main_view)
 
         mDisplayListener = object : DisplayManager.DisplayListener {
@@ -574,7 +574,7 @@ class SamSprungOverlay : AppCompatActivity(),
     @Suppress("DEPRECATION")
     private fun getInputMethod(): KeyboardView {
         val mKeyboardView = LayoutInflater.from(
-            ScaledContext.screen(this@SamSprungOverlay)
+            ScaledContext.wrap(this@SamSprungOverlay)
         ).inflate(R.layout.keyboard_view, null) as KeyboardView
         mKeyboardView.isPreviewEnabled = false
         AccessibilityObserver.enableKeyboard(applicationContext)

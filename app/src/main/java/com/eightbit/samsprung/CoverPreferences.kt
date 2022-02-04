@@ -109,9 +109,7 @@ import java.util.concurrent.Executors
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
 
-import android.view.Gravity
-
-
+import com.eightbit.content.ScaledContext
 
 
 class CoverPreferences : AppCompatActivity() {
@@ -137,6 +135,7 @@ class CoverPreferences : AppCompatActivity() {
     private val subSkuDetails = ArrayList<SkuDetails>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        ScaledContext.screen(this).setTheme(R.style.Theme_SecondScreen)
         super.onCreate(savedInstanceState)
         if ((getSystemService(Context.DISPLAY_SERVICE) as DisplayManager)
                 .getDisplay(1) == null) finishAndRemoveTask()
