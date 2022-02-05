@@ -189,7 +189,7 @@ class CheckUpdatesTask(private var activity: AppCompatActivity) {
             R.string.update_service, activity.getString(R.string.app_name))
         builder.setContentTitle(notificationText).setTicker(notificationText)
             .setContentText(activity.getString(R.string.click_update_app))
-            .setSmallIcon(R.drawable.ic_launcher_foreground)
+            .setSmallIcon(R.drawable.ic_baseline_samsprung_24)
             .setPriority(NotificationCompat.PRIORITY_LOW)
             .setWhen(0).setOnlyAlertOnce(true)
             .setContentIntent(pendingIntent).setOngoing(false)
@@ -198,7 +198,7 @@ class CheckUpdatesTask(private var activity: AppCompatActivity) {
                 Bitmap.createScaledBitmap(
                     iconNotification, 128, 128, false))
         }
-        builder.color = ContextCompat.getColor(activity, R.color.secondary_light)
+        builder.color = ContextCompat.getColor(activity, R.color.secondary_dark)
 
         val notification: Notification = builder.build()
         notification.flags = notification.flags or Notification.FLAG_AUTO_CANCEL

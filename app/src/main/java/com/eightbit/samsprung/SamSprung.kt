@@ -65,6 +65,36 @@ import kotlin.system.exitProcess
 
 class SamSprung : Application() {
 
+    var isKeyguardLocked: Boolean = true
+
+    private var mContext: SoftReference<Context>? = null
+    fun getCoverContext(): Context? {
+        if (null != mContext && null != mContext!!.get()) {
+            return ScaledContext.wrap(mContext!!.get())
+        }
+        return null
+    }
+
+    companion object {
+        const val provider: String = "com.eightbit.samsprung.provider"
+        const val updating: String = "com.eightbit.samsprung.UPDATING"
+        const val services: String = "com.eightbit.samsprung.SERVICES"
+        const val launcher: String = "com.eightbit.samsprung.LAUNCHER"
+
+        const val request_code = 8675309
+
+        const val prefsValue: String = "samsprung.preferences"
+        const val prefLayout: String = "prefLayout"
+        const val prefHidden: String = "prefHidden"
+        const val autoRotate: String = "autoRotate"
+        const val prefSecure: String = "prefSecure"
+        const val prefColors: String = "prefColors"
+        const val prefAlphas: String = "prefAlphas"
+        const val prefWarned: String = "prefWarned"
+        const val prefTester: String = "prefTester"
+        const val prefBoards: String = "prefBoards"
+    }
+
     override fun onCreate() {
         super.onCreate()
         AppCompatDelegate.setCompatVectorFromResourcesEnabled(true)
@@ -73,7 +103,8 @@ class SamSprung : Application() {
 
         val displayManager = getSystemService(Context.DISPLAY_SERVICE) as DisplayManager
         if (displayManager.getDisplay(1) == null) {
-            Toast.makeText(this, R.string.incompatible_device, Toast.LENGTH_LONG).show()
+            Toast.makeText(this,
+                R.string.incompatible_device, Toast.LENGTH_LONG).show()
         } else {
             val displayContext = createDisplayContext(displayManager.getDisplay(1))
             val wm = displayContext.getSystemService(WINDOW_SERVICE) as WindowManager
@@ -103,29 +134,12 @@ class SamSprung : Application() {
         }
     }
 
-    companion object {
-        const val provider: String = "com.eightbit.samsprung.provider"
-        const val updating: String = "com.eightbit.samsprung.UPDATING"
-        const val services: String = "com.eightbit.samsprung.SERVICES"
-        const val request_code = 8675309
-        var isKeyguardLocked: Boolean = true
-        const val prefsValue: String = "samsprung.preferences"
-        const val prefLayout: String = "prefLayout"
-        const val prefHidden: String = "prefHidden"
-        const val autoRotate: String = "autoRotate"
-        const val prefSecure: String = "prefSecure"
-        const val prefColors: String = "prefColors"
-        const val prefAlphas: String = "prefAlphas"
-        const val prefWarned: String = "prefWarned"
-        const val prefTester: String = "prefTester"
-        const val prefBoards: String = "prefBoards"
-
-        var mContext: SoftReference<Context>? = null
-        fun getCoverContext(): Context? {
-            if (null != mContext && null != mContext!!.get()) {
-                return ScaledContext.wrap(mContext!!.get())
-            }
-            return null
+    override fun onTerminate() {
+        super.onTerminate()
+        val prefs = getSharedPreferences(prefsValue, MODE_PRIVATE)
+        with(prefs.edit()) {
+            putString(prefBoards, AccessibilityObserver.cachedInputMethod)
+            apply()
         }
     }
 }

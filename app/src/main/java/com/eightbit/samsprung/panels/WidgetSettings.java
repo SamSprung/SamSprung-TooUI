@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.eightbit.samsprung;
+package com.eightbit.samsprung.panels;
 
 import android.net.Uri;
 import android.provider.BaseColumns;

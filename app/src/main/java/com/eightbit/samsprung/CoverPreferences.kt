@@ -112,7 +112,7 @@ class CoverPreferences : AppCompatActivity() {
 
     private lateinit var prefs: SharedPreferences
 
-    private lateinit var updates : CheckUpdatesTask
+    private lateinit var updateCheck : CheckUpdatesTask
 
     private var hasPremiumSupport = false
     private lateinit var mainSwitch: SwitchCompat
@@ -141,7 +141,6 @@ class CoverPreferences : AppCompatActivity() {
 
         if (prefs.contains(SamSprung.autoRotate)) {
             try {
-                prefs.getBoolean(SamSprung.autoRotate, false)
                 with(prefs.edit()) {
                     remove(SamSprung.autoRotate)
                     apply()
@@ -328,19 +327,19 @@ class CoverPreferences : AppCompatActivity() {
                 colorHandler.postDelayed({
                     colorAlphaBar.visibility = View.VISIBLE
                     alphaView.visibility = View.VISIBLE
-                }, 75)
+                }, 100)
                 colorHandler.postDelayed({
                     colorBlueBar.visibility = View.VISIBLE
                     textBlue.visibility = View.VISIBLE
-                }, 150)
+                }, 200)
                 colorHandler.postDelayed({
                     colorGreenBar.visibility = View.VISIBLE
                     textGreen.visibility = View.VISIBLE
-                }, 225)
+                }, 300)
                 colorHandler.postDelayed({
                     colorRedBar.visibility = View.VISIBLE
                     textRed.visibility = View.VISIBLE
-                }, 300)
+                }, 400)
                 colorPanel.visibility = View.VISIBLE
             }
         }
@@ -471,7 +470,7 @@ class CoverPreferences : AppCompatActivity() {
                 requestStorage.launch(Manifest.permission.READ_EXTERNAL_STORAGE)
             }
         }
-        updates = CheckUpdatesTask(this@CoverPreferences)
+        updateCheck = CheckUpdatesTask(this@CoverPreferences)
     }
 
     private val notificationLauncher = registerForActivityResult(
@@ -606,7 +605,7 @@ class CoverPreferences : AppCompatActivity() {
     val updateLauncher = registerForActivityResult(
         ActivityResultContracts.StartActivityForResult()) {
         if (packageManager.canRequestPackageInstalls())
-            updates.retrieveUpdate()
+            updateCheck.retrieveUpdate()
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
@@ -630,6 +629,7 @@ class CoverPreferences : AppCompatActivity() {
 
     override fun onNewIntent(intent: Intent?) {
         super.onNewIntent(intent)
+        startForegroundService(Intent(this, OnBroadcastService::class.java))
         retrieveDonationMenu()
 
         val buildInfo = findViewById<TextView>(R.id.build_info)
@@ -696,7 +696,6 @@ class CoverPreferences : AppCompatActivity() {
             findViewById<CoordinatorLayout>(R.id.coordinator).background =
                 WallpaperManager.getInstance(this).drawable
         }
-        startForegroundService(Intent(this, OnBroadcastService::class.java))
         if (!prefs.getBoolean(SamSprung.prefWarned, false)) {
             val view: View = layoutInflater.inflate(R.layout.setup_notice_view, null)
             val dialog = AlertDialog.Builder(

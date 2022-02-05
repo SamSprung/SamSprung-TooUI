@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.eightbit.samsprung.widget;
+package com.eightbit.samsprung.panels;
 
 import static android.util.Log.d;
 import static android.util.Log.e;
@@ -32,7 +32,6 @@ import android.net.Uri;
 import android.os.Process;
 
 import com.eightbit.samsprung.SamSprungPanels;
-import com.eightbit.samsprung.WidgetSettings;
 
 import java.lang.ref.WeakReference;
 import java.net.URISyntaxException;

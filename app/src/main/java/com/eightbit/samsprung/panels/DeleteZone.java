@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.eightbit.samsprung.widget;
+package com.eightbit.samsprung.panels;
 
 import android.content.Context;
 import android.content.res.TypedArray;
@@ -33,7 +33,6 @@ import androidx.appcompat.widget.AppCompatImageView;
 
 import com.eightbit.samsprung.R;
 import com.eightbit.samsprung.SamSprungPanels;
-import com.eightbit.samsprung.WidgetSettings;
 
 public class DeleteZone extends AppCompatImageView implements DropTarget, DragController.DragListener {
     private static final int ORIENTATION_HORIZONTAL = 1;

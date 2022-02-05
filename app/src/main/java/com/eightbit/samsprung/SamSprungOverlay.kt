@@ -58,10 +58,7 @@ import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothManager
 import android.content.*
 import android.content.ComponentName
-import android.content.pm.ActivityInfo
-import android.content.pm.ApplicationInfo
-import android.content.pm.PackageManager
-import android.content.pm.ResolveInfo
+import android.content.pm.*
 import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.PixelFormat
@@ -120,9 +117,7 @@ class SamSprungOverlay : AppCompatActivity(),
 
     private var isTorchEnabled = false
 
-    private lateinit var oReceiver: BroadcastReceiver
-    private lateinit var bReceiver: BroadcastReceiver
-    private lateinit var pReceiver: BroadcastReceiver
+    private lateinit var viewReceiver: BroadcastReceiver
     private lateinit var noticesView: RecyclerView
 
     @SuppressLint("ClickableViewAccessibility", "InflateParams")
@@ -198,17 +193,6 @@ class SamSprungOverlay : AppCompatActivity(),
             }
         })
 
-        oReceiver = object : BroadcastReceiver() {
-            override fun onReceive(context: Context?, intent: Intent) {
-                if (intent.action == Intent.ACTION_SCREEN_OFF) {
-                    finish()
-                }
-            }
-        }
-        IntentFilter(Intent.ACTION_SCREEN_OFF).also {
-            registerReceiver(oReceiver, it)
-        }
-
         if (ContextCompat.checkSelfPermission(this,
                 Manifest.permission.READ_EXTERNAL_STORAGE
             ) == PackageManager.PERMISSION_GRANTED) {
@@ -226,20 +210,6 @@ class SamSprungOverlay : AppCompatActivity(),
             .setBlurAlgorithm(RenderScriptBlur(this))
 
         val batteryLevel = findViewById<TextView>(R.id.battery_status)
-        bReceiver = object : BroadcastReceiver() {
-            override fun onReceive(context: Context?, intent: Intent) {
-                if (intent.action == Intent.ACTION_BATTERY_CHANGED) {
-                    Handler(Looper.getMainLooper()).post {
-                        batteryLevel.text = String.format("%d%%",
-                            intent.getIntExtra(BatteryManager.EXTRA_LEVEL, 100))
-                    }
-                }
-            }
-        }
-
-        IntentFilter(Intent.ACTION_BATTERY_CHANGED).also {
-            registerReceiver(bReceiver, it)
-        }
 
         wifiManager = getSystemService(WIFI_SERVICE) as WifiManager
         bluetoothAdapter = (getSystemService(Context.BLUETOOTH_SERVICE)
@@ -357,18 +327,18 @@ class SamSprungOverlay : AppCompatActivity(),
                                 return@setOnMenuItemClickListener true
                             }
 //                            R.id.toggle_rotation -> {
-//                                if (prefs.getInt(SamSprung.autoRotate, 1) == 1) {
+//                                if (prefs.getInt(application.autoRotate, 1) == 1) {
 //                                    toolbar.menu.findItem(R.id.toggle_rotation)
 //                                        .setIcon(R.drawable.ic_baseline_screen_lock_rotation_24)
 //                                    with(prefs.edit()) {
-//                                        putInt(SamSprung.autoRotate, 0)
+//                                        putInt(application.autoRotate, 0)
 //                                        apply()
 //                                    }
 //                                } else {
 //                                    toolbar.menu.findItem(R.id.toggle_rotation)
 //                                        .setIcon(R.drawable.ic_baseline_screen_rotation_24)
 //                                    with(prefs.edit()) {
-//                                        putInt(SamSprung.autoRotate, 1)
+//                                        putInt(application.autoRotate, 1)
 //                                        apply()
 //                                    }
 //                                }
@@ -433,10 +403,17 @@ class SamSprungOverlay : AppCompatActivity(),
             launcherView.layoutManager = LinearLayoutManager(this)
         launcherView.adapter = DrawerAppAdapater(packages, this, packageManager, prefs)
 
-        pReceiver = object : BroadcastReceiver() {
+        viewReceiver = object : BroadcastReceiver() {
             @SuppressLint("NotifyDataSetChanged")
             override fun onReceive(context: Context?, intent: Intent) {
-                if (intent.action == Intent.ACTION_PACKAGE_FULLY_REMOVED) {
+                if (intent.action == Intent.ACTION_SCREEN_OFF) {
+                    finish()
+                } else if (intent.action == Intent.ACTION_BATTERY_CHANGED) {
+                    Handler(Looper.getMainLooper()).post {
+                        batteryLevel.text = String.format("%d%%",
+                            intent.getIntExtra(BatteryManager.EXTRA_LEVEL, 100))
+                    }
+                } else if (intent.action == Intent.ACTION_PACKAGE_FULLY_REMOVED) {
                     Executors.newSingleThreadExecutor().execute {
                         packages = packageRetriever.getFilteredPackageList()
                         runOnUiThread {
@@ -444,8 +421,7 @@ class SamSprungOverlay : AppCompatActivity(),
                             (launcherView.adapter as DrawerAppAdapater).notifyDataSetChanged()
                         }
                     }
-                }
-                if (intent.action == Intent.ACTION_PACKAGE_ADDED) {
+                } else if (intent.action == Intent.ACTION_PACKAGE_ADDED) {
                     if (!intent.getBooleanExtra(Intent.EXTRA_REPLACING, false)) {
                         Executors.newSingleThreadExecutor().execute {
                             packages = packageRetriever.getFilteredPackageList()
@@ -458,12 +434,15 @@ class SamSprungOverlay : AppCompatActivity(),
                 }
             }
         }
+
         IntentFilter().apply {
+            addAction(Intent.ACTION_SCREEN_OFF)
+            addAction(Intent.ACTION_BATTERY_CHANGED)
             addAction(Intent.ACTION_PACKAGE_ADDED)
             addAction(Intent.ACTION_PACKAGE_REMOVED)
             addDataScheme("package")
         }.also {
-            registerReceiver(pReceiver, it)
+            registerReceiver(viewReceiver, it)
         }
 
         searchView = findViewById<SearchView>(R.id.package_search)
@@ -568,7 +547,7 @@ class SamSprungOverlay : AppCompatActivity(),
             }
         })
         coordinator.visibility = View.GONE
-        onNewIntent(if (null != intent?.action && SamSprung.services == intent.action) intent else null)
+        onNewIntent(if (null != intent?.action && SamSprung.launcher == intent.action) intent else null)
     }
 
     @Suppress("DEPRECATION")
@@ -623,9 +602,9 @@ class SamSprungOverlay : AppCompatActivity(),
 
         val mKeyguardManager = (getSystemService(Context.KEYGUARD_SERVICE) as KeyguardManager)
         @Suppress("DEPRECATION")
-        SamSprung.isKeyguardLocked = mKeyguardManager.inKeyguardRestrictedInputMode()
+        (application as SamSprung).isKeyguardLocked = mKeyguardManager.inKeyguardRestrictedInputMode()
 
-        if (SamSprung.isKeyguardLocked) {
+        if ((application as SamSprung).isKeyguardLocked) {
             @Suppress("DEPRECATION")
             mKeyguardManager.newKeyguardLock("cover_lock").disableKeyguard()
         }
@@ -689,7 +668,7 @@ class SamSprungOverlay : AppCompatActivity(),
             toolbar.menu.findItem(R.id.toggle_dnd).isVisible = false
         }
 
-//        if (prefs.getInt(SamSprung.autoRotate, 1) == 1)
+//        if (prefs.getInt(application.autoRotate, 1) == 1)
 //            toolbar.menu.findItem(R.id.toggle_rotation)
 //                .setIcon(R.drawable.ic_baseline_screen_rotation_24)
 //        else
@@ -725,35 +704,22 @@ class SamSprungOverlay : AppCompatActivity(),
                 ComponentName(appInfo.activityInfo.packageName, appInfo.activityInfo.name)
             ), it)
         }
-        val coverIntent = Intent(Intent.ACTION_MAIN)
-        coverIntent.addCategory(Intent.CATEGORY_LAUNCHER)
-        coverIntent.component = ComponentName(appInfo.activityInfo.packageName, appInfo.activityInfo.name)
-        val options = ActivityOptions.makeBasic().setLaunchDisplayId(1)
-        try {
-            val applicationInfo: ApplicationInfo =
-                packageManager.getApplicationInfo(
-                    appInfo.activityInfo.packageName, PackageManager.GET_META_DATA
-                )
-            applicationInfo.metaData.putString(
-                "com.samsung.android.activity.showWhenLocked", "true"
-            )
-        } catch (e: PackageManager.NameNotFoundException) {
-            e.printStackTrace()
-        }
-        coverIntent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or
-                Intent.FLAG_ACTIVITY_CLEAR_TASK or
-                Intent.FLAG_ACTIVITY_FORWARD_RESULT or
-                Intent.FLAG_ACTIVITY_NO_ANIMATION
-        startActivity(coverIntent.putExtras(extras), options.toBundle())
 
-        val orientationChanger = LinearLayout(SamSprung.getCoverContext())
+        (getSystemService(LAUNCHER_APPS_SERVICE) as LauncherApps).startMainActivity(
+            ComponentName(appInfo.activityInfo.packageName, appInfo.activityInfo.name),
+            Process.myUserHandle(),
+            windowManager.currentWindowMetrics.bounds,
+            ActivityOptions.makeBasic().setLaunchDisplayId(1).toBundle()
+        )
+
+        val orientationChanger = LinearLayout((application as SamSprung).getCoverContext())
         val orientationLayout = WindowManager.LayoutParams(
             WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY,
             WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL,
             PixelFormat.TRANSPARENT
         )
         orientationLayout.screenOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
-        val windowManager = SamSprung.getCoverContext()?.getSystemService(
+        val windowManager = (application as SamSprung).getCoverContext()?.getSystemService(
             Context.WINDOW_SERVICE) as WindowManager
         windowManager.addView(orientationChanger, orientationLayout)
         orientationChanger.visibility = View.VISIBLE
@@ -827,7 +793,7 @@ class SamSprungOverlay : AppCompatActivity(),
         bottomHandle.setBackgroundColor(prefs.getInt(SamSprung.prefColors,
             Color.rgb(255, 255, 255)))
         bottomHandle.alpha = prefs.getFloat(SamSprung.prefAlphas, 1f)
-        if (null != intent?.action && SamSprung.services == intent.action) {
+        if (null != intent?.action && SamSprung.launcher == intent.action) {
             Handler(Looper.getMainLooper()).postDelayed({
                 runOnUiThread {
                     bottomSheetBehaviorMain.state = BottomSheetBehavior.STATE_EXPANDED
@@ -843,6 +809,7 @@ class SamSprungOverlay : AppCompatActivity(),
     }
 
     override fun onDestroy() {
+        super.onDestroy()
         if (hasAccessibility())
             AccessibilityObserver.disableKeyboard(this)
         if (null != mDisplayListener) {
@@ -850,17 +817,8 @@ class SamSprungOverlay : AppCompatActivity(),
                 .unregisterDisplayListener(mDisplayListener)
         }
         try {
-            if (this::oReceiver.isInitialized)
-                unregisterReceiver(oReceiver)
+            if (this::viewReceiver.isInitialized)
+                unregisterReceiver(viewReceiver)
         } catch (ignored: Exception) { }
-        try {
-            if (this::bReceiver.isInitialized)
-                unregisterReceiver(bReceiver)
-        } catch (ignored: Exception) { }
-        try {
-            if (this::pReceiver.isInitialized)
-                unregisterReceiver(pReceiver)
-        } catch (ignored: Exception) { }
-        super.onDestroy()
     }
 }

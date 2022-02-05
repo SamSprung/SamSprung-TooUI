@@ -14,14 +14,12 @@
  * limitations under the License.
  */
 
-package com.eightbit.samsprung.widget;
+package com.eightbit.samsprung.panels;
 
 import android.appwidget.AppWidgetHostView;
 import android.content.ContentValues;
 
 import androidx.annotation.NonNull;
-
-import com.eightbit.samsprung.WidgetSettings;
 
 /**
  * Represents a widget, which just contains an identifier.

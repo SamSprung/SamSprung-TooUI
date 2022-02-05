@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.eightbit.samsprung.widget;
+package com.eightbit.samsprung.panels;
 
 import android.graphics.Bitmap;
 import android.graphics.Canvas;

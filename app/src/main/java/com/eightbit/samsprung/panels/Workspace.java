@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.eightbit.samsprung.widget;
+package com.eightbit.samsprung.panels;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
@@ -36,7 +36,6 @@ import android.widget.Scroller;
 
 import com.eightbit.samsprung.R;
 import com.eightbit.samsprung.SamSprungPanels;
-import com.eightbit.samsprung.WidgetSettings;
 
 /**
  * The workspace is a wide area with a wallpaper and a finite number of screens. Each

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.eightbit.samsprung;
+package com.eightbit.samsprung.panels;
 
 import android.appwidget.AppWidgetHost;
 import android.content.ComponentName;
@@ -35,7 +35,8 @@ import android.provider.Settings;
 import android.text.TextUtils;
 import android.util.Log;
 
-import com.eightbit.samsprung.WidgetSettings.Favorites;
+import com.eightbit.samsprung.SamSprungPanels;
+import com.eightbit.samsprung.panels.WidgetSettings.Favorites;
 
 import java.util.ArrayList;
 
@@ -43,11 +44,11 @@ public class WidgetProvider extends ContentProvider {
     private static final String LOG_TAG = WidgetProvider.class.getName();
     private static final boolean LOGD = true;
 
-    private static final String DATABASE_NAME = "widgets.db";
+    private static final String DATABASE_NAME = "panels.db";
     
-    private static final int DATABASE_VERSION = 7;
+    private static final int DATABASE_VERSION = 15;
 
-    static final String AUTHORITY = "com.eightbit.samsprung.widget";
+    static final String AUTHORITY = "com.eightbit.samsprung.panels";
     static final String EXTRA_BIND_SOURCES = AUTHORITY + ".bindsources";
     static final String EXTRA_BIND_TARGETS = AUTHORITY + ".bindtargets";
     

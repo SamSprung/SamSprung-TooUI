@@ -61,7 +61,7 @@
                 android:text="@string/samsprung"
                 android:textSize="18sp"
                 android:scaleY="0.75"
-                app:direction="2"
+                app:text_direction="2"
                 app:stroke_width="2dp"
                 app:stroke_color="@android:color/white" />
 

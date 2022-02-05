@@ -32,13 +32,14 @@ import android.util.Log
 import android.view.*
 import android.view.View.OnLongClickListener
 import android.view.inputmethod.InputMethodManager
+import android.widget.Toast
 import androidx.activity.result.ActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import com.eightbit.content.ScaledContext
-import com.eightbit.samsprung.WidgetSettings.Favorites
-import com.eightbit.samsprung.widget.*
+import com.eightbit.samsprung.panels.WidgetSettings.Favorites
+import com.eightbit.samsprung.panels.*
 import com.eightbitlab.blurview.BlurView
 import com.eightbitlab.blurview.RenderScriptBlur
 import java.io.DataInputStream
@@ -48,7 +49,6 @@ import java.io.IOException
 import java.lang.ref.SoftReference
 import java.util.*
 import java.util.concurrent.Executors
-import android.widget.Toast
 
 
 /**
@@ -84,7 +84,8 @@ class SamSprungPanels : AppCompatActivity(), View.OnClickListener, OnLongClickLi
     private var mSavedInstanceState: Bundle? = null
     private var mBinder: DesktopBinder? = null
 
-    private var widgetContext: Context? = SamSprung.getCoverContext()
+    private var widgetContext: Context? = null
+    private lateinit var offReceiver: BroadcastReceiver
 
     @SuppressLint("ClickableViewAccessibility")
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -164,6 +165,23 @@ class SamSprungPanels : AppCompatActivity(), View.OnClickListener, OnLongClickLi
         // For handling default keys
         mDefaultKeySsb = SpannableStringBuilder()
         Selection.setSelection(mDefaultKeySsb, 0)
+
+        offReceiver = object : BroadcastReceiver() {
+            override fun onReceive(context: Context?, intent: Intent) {
+                if (intent.action == Intent.ACTION_SCREEN_OFF) {
+                    finish()
+                    startForegroundService(
+                        Intent(
+                            applicationContext,
+                            OnBroadcastService::class.java
+                        ).setAction(SamSprung.services)
+                    )
+                }
+            }
+        }
+        IntentFilter(Intent.ACTION_SCREEN_OFF).also {
+            registerReceiver(offReceiver, it)
+        }
     }
 
     class LocaleConfiguration {
@@ -374,6 +392,10 @@ class SamSprungPanels : AppCompatActivity(), View.OnClickListener, OnLongClickLi
         model.unbind()
         model.abortLoaders()
         contentResolver.unregisterContentObserver(mObserver)
+        try {
+            if (this::offReceiver.isInitialized)
+                unregisterReceiver(offReceiver)
+        } catch (ignored: Exception) { }
     }
 
     private val requestPickAppWidget = registerForActivityResult(
@@ -393,7 +415,7 @@ class SamSprungPanels : AppCompatActivity(), View.OnClickListener, OnLongClickLi
                     Intent(
                         applicationContext,
                         OnBroadcastService::class.java
-                    ).setAction(SamSprung.services)
+                    ).setAction(SamSprung.launcher)
                 )
             } else {
                 addAppWidget(result.data)
@@ -824,4 +846,153 @@ class SamSprungPanels : AppCompatActivity(), View.OnClickListener, OnLongClickLi
                 synchronized(sLock) { sScreen = screen }
             }
     }
+
+//    fun getSpanForWidget(context: Context?, info: AppWidgetProviderInfo): IntArray? {
+//        return getSpanForWidget(context, info.provider, info.minWidth, info.minHeight)
+//    }
+//
+//    fun getMinSpanForWidget(context: Context?, info: AppWidgetProviderInfo): IntArray? {
+//        return getSpanForWidget(
+//            context,
+//            info.provider,
+//            info.minResizeWidth,
+//            info.minResizeHeight
+//        )
+//    }
+//
+//    fun getSpanForWidget(context: Context?, info: PendingAddWidgetInfo): IntArray? {
+//        return getSpanForWidget(
+//            context, info.componentName, info.info.minWidth,
+//            info.info.minHeight
+//        )
+//    }
+//
+//    fun getMinSpanForWidget(context: Context?, info: PendingAddWidgetInfo): IntArray? {
+//        return getSpanForWidget(
+//            context, info.componentName, info.info.minResizeWidth,
+//            info.info.minResizeHeight
+//        )
+//    }
+//
+//    fun addAppWidgetImpl(
+//        appWidgetId: Int, info: ItemInfo?, boundWidget: AppWidgetHostView?,
+//        appWidgetInfo: AppWidgetProviderInfo
+//    ) {
+//        if (appWidgetInfo.configure != null) {
+//            mPendingAddWidgetInfo = appWidgetInfo
+//            mPendingAddWidgetId = appWidgetId
+//
+//            // Launch over to configure widget, if needed
+//            startAppWidgetConfigureActivitySafely(appWidgetId)
+//        } else {
+//            // Otherwise just add it
+//            if (info != null) {
+//                completeAddAppWidget(
+//                    appWidgetId, info.container,
+//                    info.screen, boundWidget, appWidgetInfo
+//                )
+//            } else {
+//                completeAddAppWidget(
+//                    appWidgetId, mPendingAddInfo.container,
+//                    mPendingAddInfo.screen, boundWidget, appWidgetInfo
+//                )
+//                resetAddInfo()
+//            }
+//
+//            // Exit spring loaded mode if necessary after adding the widget
+//            exitSpringLoadedDragModeDelayed(true, false, null)
+//        }
+//    }
+//
+//    fun addAppWidgetFromDrop(
+//        info: PendingAddWidgetInfo, container: Long, screen: Int,
+//        cell: IntArray?, span: IntArray?, loc: IntArray
+//    ) {
+//        resetAddInfo()
+//        info.container = container
+//        mPendingAddInfo.container = info.container
+//        info.screen = screen
+//        mPendingAddInfo.screen = info.screen
+//        mPendingAddInfo.dropPos = loc
+//        mPendingAddInfo.minSpanX = info.minSpanX
+//        mPendingAddInfo.minSpanY = info.minSpanY
+//        if (cell != null) {
+//            mPendingAddInfo.cellX = cell[0]
+//            mPendingAddInfo.cellY = cell[1]
+//        }
+//        if (span != null) {
+//            mPendingAddInfo.spanX = span[0]
+//            mPendingAddInfo.spanY = span[1]
+//        }
+//        val hostView: AppWidgetHostView = info.boundWidget
+//        val appWidgetId: Int
+//        if (hostView != null) {
+//            appWidgetId = hostView.appWidgetId
+//            addAppWidgetImpl(appWidgetId, info, hostView, info.info)
+//        } else {
+//            // In this case, we either need to start an activity to get permission to bind
+//            // the widget, or we need to start an activity to configure the widget, or both.
+//            appWidgetId = getAppWidgetHost().allocateAppWidgetId()
+//            if (mAppWidgetManager!!.bindAppWidgetIdIfAllowed(
+//                    appWidgetId,
+//                    info.info.getProfile(), info.componentName, info.bindOptions
+//                )
+//            ) {
+//                addAppWidgetImpl(appWidgetId, info, null, info.info)
+//            } else {
+//                if (mAppWidgetManager!!.bindAppWidgetIdIfAllowed(appWidgetId, info.componentName)) {
+//                    addAppWidgetImpl(appWidgetId, info, null, info.info)
+//                } else {
+//                    mPendingAddWidgetInfo = info.info
+//                    val intent = Intent(AppWidgetManager.ACTION_APPWIDGET_BIND)
+//                    intent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId)
+//                    intent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_PROVIDER, info.componentName)
+//                    startActivityForResult(intent, Launcher.REQUEST_BIND_APPWIDGET)
+//                }
+//            }
+//        }
+//    }
+//
+//    private fun completeTwoStageWidgetDrop(resultCode: Int, appWidgetId: Int) {
+//        val cellLayout = mWorkspace.getChildAt(mPendingAddInfo.screen) as CellLayout
+//        var onCompleteRunnable: Runnable? = null
+//        var animationType = 0
+//        var boundWidget: AppWidgetHostView? = null
+//        if (resultCode == RESULT_OK) {
+//            animationType = Workspace.COMPLETE_TWO_STAGE_WIDGET_DROP_ANIMATION
+//            val layout: AppWidgetHostView = mAppWidgetHost.createView(
+//                widgetContext, appWidgetId,
+//                mPendingAddWidgetInfo
+//            )
+//            boundWidget = layout
+//            onCompleteRunnable = Runnable {
+//                completeAddAppWidget(
+//                    appWidgetId, mPendingAddInfo.container,
+//                    mPendingAddInfo.screen, layout, null
+//                )
+//                exitSpringLoadedDragModeDelayed(
+//                    resultCode != RESULT_CANCELED, false,
+//                    null
+//                )
+//            }
+//        } else if (resultCode == RESULT_CANCELED) {
+//            mAppWidgetHost.deleteAppWidgetId(appWidgetId)
+//            animationType = Workspace.CANCEL_TWO_STAGE_WIDGET_DROP_ANIMATION
+//            onCompleteRunnable = Runnable {
+//                exitSpringLoadedDragModeDelayed(
+//                    resultCode != RESULT_CANCELED, false, null
+//                )
+//            }
+//        }
+//        if (mDragLayer.getAnimatedView() != null) {
+//            mWorkspace.animateWidgetDrop(
+//                mPendingAddInfo, cellLayout,
+//                mDragLayer.getAnimatedView() as DragView?, onCompleteRunnable,
+//                animationType, boundWidget, true
+//            )
+//        } else {
+//            // The animated view may be null in the case of a rotation during widget configuration
+//            onCompleteRunnable!!.run()
+//        }
+//    }
 }

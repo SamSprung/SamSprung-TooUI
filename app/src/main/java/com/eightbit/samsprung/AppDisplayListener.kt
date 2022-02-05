@@ -79,7 +79,7 @@ import java.io.File
 class AppDisplayListener : Service() {
 
     private lateinit var prefs: SharedPreferences
-    private lateinit var oReceiver: BroadcastReceiver
+    private lateinit var offReceiver: BroadcastReceiver
     private lateinit var mDisplayListener: DisplayManager.DisplayListener
     @Suppress("DEPRECATION")
     private lateinit var mKeyguardLock: KeyguardManager.KeyguardLock
@@ -102,7 +102,7 @@ class AppDisplayListener : Service() {
         mKeyguardLock = (getSystemService(Context.KEYGUARD_SERVICE)
                 as KeyguardManager).newKeyguardLock("cover_lock")
 
-        oReceiver = object : BroadcastReceiver() {
+        offReceiver = object : BroadcastReceiver() {
             override fun onReceive(context: Context?, intent: Intent) {
                 if (intent.action == Intent.ACTION_SCREEN_OFF) {
                     stopForeground(true)
@@ -112,12 +112,12 @@ class AppDisplayListener : Service() {
             }
         }
         IntentFilter(Intent.ACTION_SCREEN_OFF).also {
-            registerReceiver(oReceiver, it)
+            registerReceiver(offReceiver, it)
         }
 
         showForegroundNotification(startId)
 
-        val displayContext = SamSprung.getCoverContext()!!
+        val displayContext = (application as SamSprung).getCoverContext()!!
         floatView = LayoutInflater.from(displayContext).inflate(R.layout.navigation_menu, null)
         val params = WindowManager.LayoutParams(
             WindowManager.LayoutParams.MATCH_PARENT,
@@ -139,7 +139,7 @@ class AppDisplayListener : Service() {
                     stopSelf()
                     onDestroy()
                 } else {
-                    if (SamSprung.isKeyguardLocked)
+                    if ((application as SamSprung).isKeyguardLocked)
                         @Suppress("DEPRECATION") mKeyguardLock.disableKeyguard()
                     if (this@AppDisplayListener::floatView.isInitialized && !floatView.isShown)
                         (displayContext.getSystemService(WINDOW_SERVICE)
@@ -191,13 +191,9 @@ class AppDisplayListener : Service() {
                         stopForeground(true)
                         stopSelf()
                         onDestroy()
-                        startActivity(
-                            Intent(this@AppDisplayListener, SamSprungOverlay::class.java)
-                                .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK).setAction(SamSprung.services),
-                            ActivityOptions.makeBasic().setLaunchDisplayId(1).toBundle()
-                        )
-                        if (!isServiceRunning(applicationContext, OnBroadcastService::class.java))
-                            startForegroundService(Intent(applicationContext, OnBroadcastService::class.java))
+                        startForegroundService(Intent(
+                            applicationContext, OnBroadcastService::class.java
+                        ).setAction(SamSprung.launcher))
                     }
                     menuHome.setOnClickListener {
                         resetRecentActivities(launchPackage, launchActivity)
@@ -342,22 +338,22 @@ class AppDisplayListener : Service() {
     }
 
     override fun onDestroy() {
+        super.onDestroy()
         if (hasAccessibility())
             AccessibilityObserver.disableKeyboard(this)
         try {
-            if (this::oReceiver.isInitialized)
-                unregisterReceiver(oReceiver)
+            if (this::offReceiver.isInitialized)
+                unregisterReceiver(offReceiver)
         } catch (ignored: Exception) { }
         if (this::mDisplayListener.isInitialized) {
             (getSystemService(Context.DISPLAY_SERVICE) as DisplayManager)
                 .unregisterDisplayListener(mDisplayListener)
         }
-        val windowService = SamSprung.getCoverContext()?.getSystemService(
+        val windowService = (application as SamSprung).getCoverContext()?.getSystemService(
             Context.WINDOW_SERVICE) as WindowManager
         if (this::floatView.isInitialized && floatView.isAttachedToWindow)
             windowService.removeView(floatView)
-        if (SamSprung.isKeyguardLocked)
+        if ((application as SamSprung).isKeyguardLocked)
             @Suppress("DEPRECATION") mKeyguardLock.reenableKeyguard()
-        super.onDestroy()
     }
 }

@@ -14,13 +14,11 @@
  * limitations under the License.
  */
 
-package com.eightbit.samsprung.widget;
+package com.eightbit.samsprung.panels;
 
 import android.content.ContentValues;
 import android.graphics.Bitmap;
 import android.util.Log;
-
-import com.eightbit.samsprung.WidgetSettings;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;

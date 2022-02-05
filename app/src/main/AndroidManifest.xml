@@ -150,8 +150,8 @@
         </provider>
 
         <provider
-            android:name=".WidgetProvider"
-            android:authorities="com.eightbit.samsprung.widget"
+            android:name=".panels.WidgetProvider"
+            android:authorities="com.eightbit.samsprung.panels"
             android:writePermission="samsprung.permission.WRITE_SETTINGS"
             android:readPermission="samsprung.permission.READ_SETTINGS" />
     </application>

@@ -98,8 +98,13 @@ class OnBroadcastService : Service() {
                     .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK),
                 ActivityOptions.makeBasic().setLaunchDisplayId(1).toBundle()
             )
+        } else if (SamSprung.launcher == intent?.action) {
+            startActivity(
+                Intent(applicationContext, SamSprungOverlay::class.java)
+                    .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK).setAction(SamSprung.launcher),
+                ActivityOptions.makeBasic().setLaunchDisplayId(1).toBundle()
+            )
         }
-
         try {
             applicationContext.unregisterReceiver(onReceiver)
         } catch (ignored: Exception) { }

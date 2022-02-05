@@ -73,7 +73,7 @@ class VerticalStrokeTextView : AppCompatTextView {
         val a = context.obtainStyledAttributes(
             attrs, R.styleable.VerticalStrokeTextView
         )
-        direction = a.getInt(R.styleable.VerticalStrokeTextView_direction, 0)
+        direction = a.getInt(R.styleable.VerticalStrokeTextView_text_direction, 0)
         strokeWidth = a.getDimensionPixelSize(R.styleable.VerticalStrokeTextView_stroke_width, 1).toFloat()
         strokeColor = a.getColor(R.styleable.VerticalStrokeTextView_stroke_color, -0x1000000)
         a.recycle()
