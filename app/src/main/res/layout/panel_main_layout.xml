@@ -10,9 +10,7 @@
         android:id="@+id/blurContainer"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        launcher:blurOverlayColor="@color/bottomSheetTint"
-        android:clickable="true"
-        android:focusable="true">
+        launcher:blurOverlayColor="@color/bottomSheetTint">
 
         <com.eightbit.samsprung.panels.DragLayer
             android:id="@+id/drag_layer"
