@@ -70,6 +70,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.json.JSONArray
+import org.json.JSONException
 import org.json.JSONObject
 import org.json.JSONTokener
 import java.io.File
@@ -205,25 +206,51 @@ class CheckUpdatesTask(private var activity: AppCompatActivity) {
         mNotificationManager.notify(SamSprung.request_code, notification)
     }
 
-    fun retrieveUpdate() {
-        val prefs = activity.getSharedPreferences(SamSprung.prefsValue, AppCompatActivity.MODE_PRIVATE)
-        RequestGitHubAPI(repository + if (prefs.getBoolean(SamSprung.prefTester, false))
-            "preview" else "sideload").setResultListener(object : RequestGitHubAPI.ResultListener {
-            override fun onResults(result: String) {
-                try {
-                    val jsonObject = JSONTokener(result).nextValue() as JSONObject
-                    val lastCommit = (jsonObject["name"] as String).substring(10)
-                    if (BuildConfig.COMMIT != lastCommit) {
-                        if (activity is CoverPreferences) {
-                            val assets = (jsonObject["assets"] as JSONArray)[0] as JSONObject
-                            downloadUpdate(assets["browser_download_url"] as String)
-                        } else if (activity is SamSprungOverlay) {
-                            showUpdateNotification()
-                        }
-                    }
-                } catch (e: Exception) {
-                    e.printStackTrace()
+    private fun parseUpdateJSON(result: String, isPreview: Boolean) {
+        var lastCommit: String? = null
+        var downloadUrl: String? = null
+        try {
+            val jsonObject = JSONTokener(result).nextValue() as JSONObject
+            lastCommit = (jsonObject["name"] as String).substring(6)
+            val assets = jsonObject["assets"] as JSONArray
+            val asset = assets[0] as JSONObject
+            downloadUrl = asset["browser_download_url"] as String
+            if (isPreview && BuildConfig.COMMIT != lastCommit) {
+                if (activity is CoverPreferences) {
+                    downloadUpdate(downloadUrl)
+                } else if (activity is SamSprungOverlay) {
+                    showUpdateNotification()
                 }
+            }
+        } catch (ignored: JSONException) { }
+        if (!isPreview && null != lastCommit && null != downloadUrl) {
+            RequestGitHubAPI(repository + "preview").setResultListener(
+                object : RequestGitHubAPI.ResultListener {
+                override fun onResults(result: String) {
+                    try {
+                        val jsonObject = JSONTokener(result).nextValue() as JSONObject
+                        val extraCommit = (jsonObject["name"] as String).substring(6)
+                        if (BuildConfig.COMMIT != extraCommit && BuildConfig.COMMIT != lastCommit) {
+                            if (activity is CoverPreferences) {
+                                downloadUpdate(downloadUrl)
+                            } else if (activity is SamSprungOverlay) {
+                                showUpdateNotification()
+                            }
+                        }
+                    } catch (ignored: JSONException) { }
+                }
+            })
+        }
+    }
+
+    fun retrieveUpdate() {
+        val prefs = activity.getSharedPreferences(
+            SamSprung.prefsValue, AppCompatActivity.MODE_PRIVATE)
+        val isPreview = prefs.getBoolean(SamSprung.prefTester, false)
+        RequestGitHubAPI(repository + if (isPreview) "preview" else "sideload")
+            .setResultListener(object : RequestGitHubAPI.ResultListener {
+            override fun onResults(result: String) {
+                parseUpdateJSON(result, isPreview)
             }
         })
     }
