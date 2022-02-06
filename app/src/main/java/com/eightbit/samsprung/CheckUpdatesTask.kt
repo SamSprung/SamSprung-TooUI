@@ -96,7 +96,7 @@ class CheckUpdatesTask(private var activity: AppCompatActivity) {
                         as NotificationManager).cancel(SamSprung.request_code)
             } catch (ignored: Exception) { }
             Executors.newSingleThreadExecutor().execute {
-                val files: Array<File>? = activity.noBackupFilesDir.listFiles { _, name ->
+                val files: Array<File>? = activity.externalCacheDir?.listFiles { _, name ->
                     name.lowercase(Locale.getDefault()).endsWith(".apk")
                 }
                 if (null != files) {
@@ -146,7 +146,7 @@ class CheckUpdatesTask(private var activity: AppCompatActivity) {
     private fun downloadUpdate(link: String) {
         val download: String = link.substring(
             link.lastIndexOf(File.separator) + 1)
-        val apk = File(activity.noBackupFilesDir, download)
+        val apk = File(activity.externalCacheDir, download)
         CoroutineScope(Dispatchers.IO).launch(Dispatchers.IO) {
             URL(link).openStream().use { input ->
                 FileOutputStream(apk).use { output ->

@@ -477,6 +477,7 @@ class CoverPreferences : AppCompatActivity() {
             WallpaperManager.getInstance(this).drawable
     }
 
+    @SuppressLint("MissingPermission")
     private val requestPermissions = registerForActivityResult(
         ActivityResultContracts.RequestMultiplePermissions()) { permissions ->
         permissions.entries.forEach {
@@ -484,8 +485,12 @@ class CoverPreferences : AppCompatActivity() {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
                     requestBluetooth.launch(Manifest.permission.BLUETOOTH_CONNECT)
                 }
-            } else if (it.key == Manifest.permission.READ_EXTERNAL_STORAGE && !it.value) {
-                requestStorage.launch(Manifest.permission.READ_EXTERNAL_STORAGE)
+            } else if (it.key == Manifest.permission.READ_EXTERNAL_STORAGE) {
+                if (it.value)
+                    findViewById<CoordinatorLayout>(R.id.coordinator).background =
+                        WallpaperManager.getInstance(this@CoverPreferences).drawable
+                else
+                    requestStorage.launch(Manifest.permission.READ_EXTERNAL_STORAGE)
             }
         }
         updateCheck = CheckUpdatesTask(this@CoverPreferences)
@@ -708,12 +713,6 @@ class CoverPreferences : AppCompatActivity() {
             donateDialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
         }
 
-        if (ContextCompat.checkSelfPermission(this,
-                Manifest.permission.READ_EXTERNAL_STORAGE
-            ) == PackageManager.PERMISSION_GRANTED) {
-            findViewById<CoordinatorLayout>(R.id.coordinator).background =
-                WallpaperManager.getInstance(this).drawable
-        }
         if (!prefs.getBoolean(SamSprung.prefWarned, false)) {
             val view: View = layoutInflater.inflate(R.layout.setup_notice_view, null)
             val dialog = AlertDialog.Builder(
