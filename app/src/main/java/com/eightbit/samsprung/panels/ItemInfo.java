@@ -77,12 +77,12 @@ class ItemInfo {
     /**
      * Indicates the X cell span.
      */
-    int spanX = 1;
+    public int spanX = 1;
 
     /**
      * Indicates the Y cell span.
      */
-    int spanY = 1;
+    public int spanY = 1;
 
     /**
      * Indicates the minimum X cell span.

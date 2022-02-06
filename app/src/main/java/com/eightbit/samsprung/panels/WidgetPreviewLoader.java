@@ -327,17 +327,15 @@ public class WidgetPreviewLoader {
             sb.append(info.getProfile());
             sb.append('/');
             sb.append(info.provider.flattenToString());
-            output = sb.toString();
-            sb.setLength(0);
         } else {
             sb.append(SHORTCUT_PREFIX);
 
             ResolveInfo info = (ResolveInfo) o;
             sb.append(new ComponentName(info.activityInfo.packageName,
                     info.activityInfo.name).flattenToString());
-            output = sb.toString();
-            sb.setLength(0);
         }
+        output = sb.toString();
+        sb.setLength(0);
         return output;
     }
 
@@ -372,8 +370,7 @@ public class WidgetPreviewLoader {
         // Delete everything
         try {
             db.delete(CacheDb.TABLE_NAME, null, null);
-        } catch (SQLiteDiskIOException e) {
-        }
+        } catch (SQLiteDiskIOException ignored) { }
     }
 
     public static void removeFromDb(final CacheDb cacheDb, final String packageName) {

@@ -18,6 +18,7 @@ package com.eightbit.samsprung
 import android.Manifest
 import android.annotation.SuppressLint
 import android.app.ActivityOptions
+import android.app.Dialog
 import android.app.WallpaperManager
 import android.appwidget.AppWidgetManager
 import android.appwidget.AppWidgetProviderInfo
@@ -60,8 +61,13 @@ import android.content.ComponentName
 import android.graphics.Rect
 import android.content.ActivityNotFoundException
 import android.content.Intent
-
-
+import android.graphics.Color
+import android.graphics.drawable.ColorDrawable
+import android.widget.ImageView
+import android.widget.LinearLayout
+import androidx.appcompat.app.AlertDialog
+import androidx.appcompat.view.ContextThemeWrapper
+import androidx.appcompat.widget.AppCompatImageView
 
 
 /**
@@ -154,6 +160,16 @@ class SamSprungPanels : AppCompatActivity(), View.OnClickListener, OnLongClickLi
             .setHasFixedTransformationMatrix(true)
             .setBlurAlgorithm(RenderScriptBlur(this))
 
+        findViewById<AppCompatImageView>(R.id.menu_zone).setOnClickListener {
+            finish()
+            startForegroundService(
+                Intent(
+                    applicationContext,
+                    OnBroadcastService::class.java
+                ).setAction(SamSprung.launcher)
+            )
+        }
+
         mDragLayer = findViewById(R.id.drag_layer)
         val dragLayer = mDragLayer
         workspace = dragLayer!!.findViewById(R.id.workspace)
@@ -230,26 +246,6 @@ class SamSprungPanels : AppCompatActivity(), View.OnClickListener, OnLongClickLi
         return !inputManager.isFullscreenMode
     }
 
-    override fun onKeyDown(keyCode: Int, event: KeyEvent): Boolean {
-        val handled = super.onKeyDown(keyCode, event)
-        if (!handled && acceptFilter() && keyCode != KeyEvent.KEYCODE_ENTER) {
-            val gotKey = TextKeyListener.getInstance().onKeyDown(
-                workspace, mDefaultKeySsb,
-                keyCode, event
-            )
-            if (gotKey && mDefaultKeySsb != null && mDefaultKeySsb!!.isNotEmpty()) {
-                // something usable has been typed - start a search
-                // the typed text will be retrieved and cleared by
-                // showSearchDialog()
-                // If there are multiple keystrokes before the search dialog takes focus,
-                // onSearchRequested() will be called for every keystroke,
-                // but it is idempotent, so it's fine.
-                return onSearchRequested()
-            }
-        }
-        return handled
-    }
-
     /**
      * Restores the previous state, if it exists.
      *
@@ -284,6 +280,50 @@ class SamSprungPanels : AppCompatActivity(), View.OnClickListener, OnLongClickLi
 
     fun onScreenChanged(workspace: Workspace, mCurrentScreen: Int) {
 
+    }
+
+    private fun completeAddAppWidget(
+        appWidgetId: Int, cellInfo: CellLayout.CellInfo?,
+        insertAtFirst: Boolean
+    ) {
+        mWaitingForResult = false
+        val appWidgetInfo = mAppWidgetManager!!.getAppWidgetInfo(appWidgetId)
+
+        // Calculate the grid spans needed to fit this widget
+        val layout = workspace!!.getChildAt(cellInfo!!.screen) as CellLayout
+        val spans = layout.rectToCell(appWidgetInfo.minWidth, appWidgetInfo.minHeight)
+
+        // Try finding open space on Launcher screen
+        val xy = mCellCoordinates
+        if (!findSlot(cellInfo, xy, spans!![0], spans[1])) return
+
+        // Build Launcher-specific widget info and save to database
+        val launcherInfo =
+            CoverWidgetInfo(appWidgetId)
+        launcherInfo.spanX = spans[0]
+        launcherInfo.spanY = spans[1]
+        Executors.newSingleThreadExecutor().execute {
+            WidgetModel.addItemToDatabase(
+                widgetContext, launcherInfo,
+                Favorites.CONTAINER_DESKTOP,
+                workspace!!.currentScreen, xy[0], xy[1], false
+            )
+        }
+        if (!mRestoring) {
+            model.addDesktopAppWidget(launcherInfo)
+
+            // Perform actual inflation because we're live
+            launcherInfo.hostView = appWidgetHost!!.createView(
+                widgetContext, appWidgetId, appWidgetInfo)
+            launcherInfo.hostView!!.setAppWidget(appWidgetId, appWidgetInfo)
+            launcherInfo.hostView!!.tag = launcherInfo
+            workspace!!.addInCurrentScreen(
+                launcherInfo.hostView, xy[0], xy[1],
+                launcherInfo.spanX, launcherInfo.spanY, insertAtFirst
+            )
+        } else if (model.isDesktopLoaded) {
+            model.addDesktopAppWidget(launcherInfo)
+        }
     }
 
     /**
@@ -438,9 +478,39 @@ class SamSprungPanels : AppCompatActivity(), View.OnClickListener, OnLongClickLi
     private val requestCreateAppWidget = registerForActivityResult(
         ActivityResultContracts.StartActivityForResult()) { result: ActivityResult ->
         mWaitingForResult = false
+        val appWidgetId = result.data!!.getIntExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, -1)
+        completeAddAppWidget(
+            appWidgetId, mAddItemCellInfo, !isWorkspaceLocked
+        )
+    }
+
+    private val requestBindAppWidget = registerForActivityResult(
+        ActivityResultContracts.StartActivityForResult()) { result: ActivityResult ->
+        mWaitingForResult = false
         completeAddAppWidget(
             result.data, mAddItemCellInfo, !isWorkspaceLocked
         )
+    }
+
+    private fun addAppWidget(appWidgetId: Int) {
+        mWaitingForResult = true
+        val appWidget = mAppWidgetManager!!.getAppWidgetInfo(appWidgetId) ?: return
+        if (null != appWidget.configure) {
+            try {
+                appWidgetHost?.startAppWidgetConfigureActivityForResult(
+                    this, appWidgetId, 0, requestCreateAppWidgetHost,
+                    ActivityOptions.makeBasic().setLaunchDisplayId(1).toBundle()
+                )
+            } catch (ignored: ActivityNotFoundException) {
+                // Launch over to configure widget, if needed
+                val intent = Intent(AppWidgetManager.ACTION_APPWIDGET_CONFIGURE)
+                intent.component = appWidget.configure
+                intent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId)
+                requestCreateAppWidget.launch(intent)
+            }
+        } else {
+            completeAddAppWidget(appWidgetId, mAddItemCellInfo, !isWorkspaceLocked)
+        }
     }
 
     private fun addAppWidget(data: Intent?) {
@@ -662,29 +732,77 @@ class SamSprungPanels : AppCompatActivity(), View.OnClickListener, OnLongClickLi
     }
 
     private fun showAddDialog(cellInfo: CellLayout.CellInfo) {
+
         mWaitingForResult = true
         mAddItemCellInfo = cellInfo
         workspace?.unlock()
         val appWidgetId = appWidgetHost!!.allocateAppWidgetId()
-        val pickIntent = Intent(AppWidgetManager.ACTION_APPWIDGET_PICK)
-        pickIntent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId)
-        // add a custom widget item
-        val customInfo = ArrayList<AppWidgetProviderInfo>()
-        val info = AppWidgetProviderInfo()
-        info.provider = ComponentName(packageName, "XXX.YYY.ZZZ")
-        info.label = getString(R.string.menu_item_terminate)
-        info.icon = R.drawable.ic_baseline_widgets_24
-        info.configure = ComponentName(packageName, "XXX.YYY.ZZZ")
-        customInfo.add(info)
-        pickIntent.putParcelableArrayListExtra(
-            AppWidgetManager.EXTRA_CUSTOM_INFO, customInfo
+
+        val view: View = layoutInflater.inflate(R.layout.widget_previews, null)
+        val dialog = AlertDialog.Builder(
+            ContextThemeWrapper(this, R.style.DialogTheme_NoActionBar)
         )
-        val customExtras = ArrayList<Bundle>()
-        customExtras.add(Bundle())
-        pickIntent.putParcelableArrayListExtra(
-            AppWidgetManager.EXTRA_CUSTOM_EXTRAS, customExtras
-        )
-        requestPickAppWidget.launch(pickIntent)
+        val previews = view.findViewById<LinearLayout>(R.id.previews_layout)
+        dialog.setOnCancelListener {
+            previews.removeAllViews()
+        }
+        val widgetDialog: Dialog = dialog.setView(view).show()
+        val mWidgetPreviewLoader = WidgetPreviewLoader(this)
+        val infoList: List<AppWidgetProviderInfo> = mAppWidgetManager!!.installedProviders
+        for (info: AppWidgetProviderInfo in infoList) {
+            var spanX: Int = info.minHeight
+            var spanY: Int = info.minWidth
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                spanX = info.maxResizeHeight
+                spanY = info.maxResizeWidth
+            }
+            val maxWidth: Int = resources.displayMetrics.widthPixels
+            val maxHeight: Int = resources.displayMetrics.heightPixels
+            val previewSizeBeforeScale = IntArray(1)
+            val preview = mWidgetPreviewLoader.generateWidgetPreview(
+                info, spanX,
+                spanY, maxWidth, maxHeight, null, previewSizeBeforeScale
+            )
+            val previewImage = ImageView(this)
+            previewImage.setImageBitmap(preview)
+            previewImage.setOnClickListener {
+                val success = mAppWidgetManager!!.bindAppWidgetIdIfAllowed(appWidgetId, info.provider)
+                if (success) {
+                    addAppWidget(appWidgetId)
+                } else {
+                    val intent = Intent(AppWidgetManager.ACTION_APPWIDGET_BIND)
+                    intent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId)
+                    intent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_PROVIDER, info.provider)
+                    intent.putExtra(
+                        AppWidgetManager.EXTRA_APPWIDGET_PROVIDER_PROFILE, info.profile
+                    )
+                    requestBindAppWidget.launch(intent)
+                }
+                widgetDialog.dismiss()
+            }
+            previews.addView(previewImage)
+        }
+        widgetDialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+
+//        val pickIntent = Intent(AppWidgetManager.ACTION_APPWIDGET_PICK)
+//        pickIntent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId)
+//        // add a custom widget item
+//        val customInfo = ArrayList<AppWidgetProviderInfo>()
+//        val info = AppWidgetProviderInfo()
+//        info.provider = ComponentName(packageName, "XXX.YYY.ZZZ")
+//        info.label = getString(R.string.menu_item_terminate)
+//        info.icon = R.drawable.ic_baseline_widgets_24
+//        info.configure = ComponentName(packageName, "XXX.YYY.ZZZ")
+//        customInfo.add(info)
+//        pickIntent.putParcelableArrayListExtra(
+//            AppWidgetManager.EXTRA_CUSTOM_INFO, customInfo
+//        )
+//        val customExtras = ArrayList<Bundle>()
+//        customExtras.add(Bundle())
+//        pickIntent.putParcelableArrayListExtra(
+//            AppWidgetManager.EXTRA_CUSTOM_EXTRAS, customExtras
+//        )
+//        requestPickAppWidget.launch(pickIntent)
     }
 
     /**

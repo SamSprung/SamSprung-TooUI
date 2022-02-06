@@ -82,7 +82,7 @@ public class WidgetInfo {
 
     WidgetInfo() { }
 
-    WidgetInfo(WidgetInfo info) {
+    public WidgetInfo(WidgetInfo info) {
         id = info.id;
         cellX = info.cellX;
         cellY = info.cellY;
