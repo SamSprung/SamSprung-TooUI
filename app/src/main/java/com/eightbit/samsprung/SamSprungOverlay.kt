@@ -117,6 +117,7 @@ class SamSprungOverlay : AppCompatActivity(),
 
     private var isTorchEnabled = false
 
+    private lateinit var battReceiver: BroadcastReceiver
     private lateinit var viewReceiver: BroadcastReceiver
     private lateinit var noticesView: RecyclerView
 
@@ -210,8 +211,6 @@ class SamSprungOverlay : AppCompatActivity(),
             .setHasFixedTransformationMatrix(true)
             .setBlurAlgorithm(RenderScriptBlur(this))
 
-        val batteryLevel = findViewById<TextView>(R.id.battery_status)
-
         wifiManager = getSystemService(WIFI_SERVICE) as WifiManager
         bluetoothAdapter = (getSystemService(Context.BLUETOOTH_SERVICE)
                 as BluetoothManager).adapter
@@ -227,6 +226,24 @@ class SamSprungOverlay : AppCompatActivity(),
             }
         }, null)
 
+        val batteryLevel = findViewById<TextView>(R.id.battery_status)
+        battReceiver = object : BroadcastReceiver() {
+            @SuppressLint("NotifyDataSetChanged")
+            override fun onReceive(context: Context?, intent: Intent) {
+                if (intent.action == Intent.ACTION_BATTERY_CHANGED) {
+                    Handler(Looper.getMainLooper()).post {
+                        batteryLevel.text = String.format("%d%%",
+                            intent.getIntExtra(BatteryManager.EXTRA_LEVEL, 100))
+                    }
+                }
+            }
+        }
+
+        IntentFilter().apply {
+            addAction(Intent.ACTION_BATTERY_CHANGED)
+        }.also {
+            registerReceiver(battReceiver, it)
+        }
         val toggleStats = findViewById<LinearLayout>(R.id.toggle_status)
         val clock = findViewById<TextClock>(R.id.clock_status)
 
@@ -438,7 +455,6 @@ class SamSprungOverlay : AppCompatActivity(),
 
         IntentFilter().apply {
             addAction(Intent.ACTION_SCREEN_OFF)
-            addAction(Intent.ACTION_BATTERY_CHANGED)
             addAction(Intent.ACTION_PACKAGE_ADDED)
             addAction(Intent.ACTION_PACKAGE_REMOVED)
             addDataScheme("package")
@@ -816,6 +832,10 @@ class SamSprungOverlay : AppCompatActivity(),
             (getSystemService(Context.DISPLAY_SERVICE) as DisplayManager)
                 .unregisterDisplayListener(mDisplayListener)
         }
+        try {
+            if (this::battReceiver.isInitialized)
+                unregisterReceiver(battReceiver)
+        } catch (ignored: Exception) { }
         try {
             if (this::viewReceiver.isInitialized)
                 unregisterReceiver(viewReceiver)
