@@ -62,6 +62,10 @@ import androidx.appcompat.app.AppCompatDelegate
 import com.eightbit.content.ScaledContext
 import java.lang.ref.SoftReference
 import kotlin.system.exitProcess
+import com.eightbit.samsprung.panels.WidgetPreviewLoader
+import com.eightbit.samsprung.panels.WidgetPreviewLoader.CacheDb
+import java.util.concurrent.Executors
+
 
 class SamSprung : Application() {
 
@@ -125,6 +129,9 @@ class SamSprung : Application() {
                 // Unrecoverable error encountered
                 exitProcess(1)
             }
+            Executors.newSingleThreadExecutor().execute {
+                recreateWidgetPreviewDb()
+            }
             if (prefs.contains(autoRotate)) {
                 with(prefs.edit()) {
                     remove(autoRotate)
@@ -132,6 +139,14 @@ class SamSprung : Application() {
                 }
             }
         }
+    }
+
+    private var mWidgetPreviewCacheDb: CacheDb? = null
+    fun recreateWidgetPreviewDb() {
+        mWidgetPreviewCacheDb = CacheDb(this)
+    }
+    fun getWidgetPreviewCacheDb(): CacheDb? {
+        return mWidgetPreviewCacheDb
     }
 
     override fun onTerminate() {

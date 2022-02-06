@@ -36,7 +36,7 @@
                 android:layout_width="30dip"
                 android:layout_height="wrap_content"
                 android:scaleType="center"
-                android:src="@drawable/ic_baseline_delete_outline_24"
+                android:src="@drawable/ic_baseline_delete_forever_24"
                 android:background="@drawable/delete_zone_selector"
                 android:layout_marginBottom="10dip"
                 android:layout_gravity="end|bottom"

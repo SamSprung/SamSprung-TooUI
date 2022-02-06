@@ -156,6 +156,7 @@ class SamSprungOverlay : AppCompatActivity(),
 
         val handler = Handler(Looper.getMainLooper())
         val fakeOverlay = findViewById<LinearLayout>(R.id.fake_overlay)
+        bottomHandle = findViewById(R.id.bottom_handle)
         val coordinator = findViewById<CoordinatorLayout>(R.id.coordinator)
         bottomSheetBehaviorMain = BottomSheetBehavior.from(findViewById(R.id.bottom_sheet_main))
         bottomSheetBehaviorMain.state = BottomSheetBehavior.STATE_COLLAPSED
@@ -547,7 +548,7 @@ class SamSprungOverlay : AppCompatActivity(),
             }
         })
         coordinator.visibility = View.GONE
-        onNewIntent(if (null != intent?.action && SamSprung.launcher == intent.action) intent else null)
+        onNewIntent(intent)
     }
 
     @Suppress("DEPRECATION")
@@ -788,18 +789,17 @@ class SamSprungOverlay : AppCompatActivity(),
             )
             NotificationListenerService.requestRebind(componentName)
         }
-        bottomHandle = findViewById(R.id.bottom_handle)
-        bottomHandle.visibility = View.VISIBLE
-        bottomHandle.setBackgroundColor(prefs.getInt(SamSprung.prefColors,
-            Color.rgb(255, 255, 255)))
-        bottomHandle.alpha = prefs.getFloat(SamSprung.prefAlphas, 1f)
-        if (null != intent?.action && SamSprung.launcher == intent.action) {
-            Handler(Looper.getMainLooper()).postDelayed({
-                runOnUiThread {
+        Handler(Looper.getMainLooper()).postDelayed({
+            runOnUiThread {
+                bottomHandle = findViewById(R.id.bottom_handle)
+                bottomHandle.visibility = View.VISIBLE
+                bottomHandle.setBackgroundColor(prefs.getInt(SamSprung.prefColors,
+                    Color.rgb(255, 255, 255)))
+                bottomHandle.alpha = prefs.getFloat(SamSprung.prefAlphas, 1f)
+                if (null != intent?.action && com.eightbit.samsprung.SamSprung.launcher == intent.action)
                     bottomSheetBehaviorMain.state = BottomSheetBehavior.STATE_EXPANDED
-                }
-            }, 250)
-        }
+            }
+        }, 200)
         if (!this::noticesView.isInitialized) return
         if (hasNotificationListener()) {
             NotificationReceiver.getReceiver()?.setNotificationsListener(
