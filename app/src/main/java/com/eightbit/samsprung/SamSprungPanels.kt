@@ -459,24 +459,6 @@ class SamSprungPanels : AppCompatActivity(), View.OnClickListener, OnLongClickLi
         return true
     }
 
-    override fun dispatchKeyEvent(event: KeyEvent): Boolean {
-        if (event.action == KeyEvent.ACTION_DOWN) {
-            when (event.keyCode) {
-                KeyEvent.KEYCODE_VOLUME_DOWN -> {
-                    finish()
-                    startForegroundService(
-                        Intent(
-                            applicationContext,
-                            OnBroadcastService::class.java
-                        ).setAction(SamSprung.services)
-                    )
-                    return true
-                }
-            }
-        }
-        return super.dispatchKeyEvent(event)
-    }
-
     /**
      * When the notification that favorites have changed is received, requests
      * a favorites list refresh.
