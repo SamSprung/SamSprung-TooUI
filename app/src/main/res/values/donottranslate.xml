@@ -2,11 +2,11 @@
 <resources>
     <string name="app_name">SamSprung TooUI</string>
 
-    <string name="samsprung">SamSprung</string>
     <string name="logcat_link">Logcat</string>
     <string name="google_play_link">Google Play</string>
     <string name="paypal_link">PayPal</string>
 
+    <string name="samsprung">SamSprung</string>
     <string name="build_hash">#%1$s</string>
     <string name="build_hash_full">SamSprung - #%1$s</string>
     <string name="git_issue_title">Logcat - SamSprung #%1$s</string>

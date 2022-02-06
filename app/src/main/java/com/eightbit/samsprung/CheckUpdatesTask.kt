@@ -207,11 +207,12 @@ class CheckUpdatesTask(private var activity: AppCompatActivity) {
     }
 
     private fun parseUpdateJSON(result: String, isPreview: Boolean) {
+        val offset = activity.getString(R.string.samsprung).length + 1
         var lastCommit: String? = null
         var downloadUrl: String? = null
         try {
             val jsonObject = JSONTokener(result).nextValue() as JSONObject
-            lastCommit = (jsonObject["name"] as String).substring(6)
+            lastCommit = (jsonObject["name"] as String).substring(offset)
             val assets = jsonObject["assets"] as JSONArray
             val asset = assets[0] as JSONObject
             downloadUrl = asset["browser_download_url"] as String
@@ -229,7 +230,7 @@ class CheckUpdatesTask(private var activity: AppCompatActivity) {
                 override fun onResults(result: String) {
                     try {
                         val jsonObject = JSONTokener(result).nextValue() as JSONObject
-                        val extraCommit = (jsonObject["name"] as String).substring(6)
+                        val extraCommit = (jsonObject["name"] as String).substring(offset)
                         if (BuildConfig.COMMIT != extraCommit && BuildConfig.COMMIT != lastCommit) {
                             if (activity is CoverPreferences) {
                                 downloadUpdate(downloadUrl)
