@@ -66,6 +66,7 @@ import android.net.Uri
 import android.os.*
 import android.provider.MediaStore
 import android.provider.Settings
+import android.service.notification.NotificationListenerService
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
@@ -203,6 +204,23 @@ class CoverPreferences : AppCompatActivity() {
             notificationLauncher.launch(Intent(
                 Settings.ACTION_NOTIFICATION_LISTENER_SETTINGS
             ))
+        }
+        if (notifications.isChecked) {
+            Executors.newSingleThreadExecutor().execute {
+                val componentName = ComponentName(
+                    applicationContext,
+                    NotificationReceiver::class.java
+                )
+                packageManager.setComponentEnabledSetting(
+                    componentName,
+                    PackageManager.COMPONENT_ENABLED_STATE_DISABLED, PackageManager.DONT_KILL_APP
+                )
+                packageManager.setComponentEnabledSetting(
+                    componentName,
+                    PackageManager.COMPONENT_ENABLED_STATE_ENABLED, PackageManager.DONT_KILL_APP
+                )
+                NotificationListenerService.requestRebind(componentName)
+            }
         }
 
         settings = findViewById(R.id.settings_switch)

@@ -42,6 +42,7 @@ import com.eightbit.samsprung.SamSprungPanels;
  * screen contains a number of icons, folders or widgets the user can interact with.
  * A workspace is meant to be used with a fixed width only.
  */
+@SuppressWarnings("unused")
 public class Workspace extends ViewGroup implements DropTarget, DragSource, DragScroller {
     private static final int INVALID_SCREEN = -1;
     
@@ -211,7 +212,7 @@ public class Workspace extends ViewGroup implements DropTarget, DragSource, Drag
     /**
      * Sets the current screen.
      *
-     * @param currentScreen
+     * @param currentScreen the screen to be set as current
      */
     public void setCurrentScreen(int currentScreen) {
         clearVacantCache();
@@ -415,8 +416,6 @@ public class Workspace extends ViewGroup implements DropTarget, DragSource, Drag
     	int mBottom =  getBottom();
     	int mScrollX = getScrollX();
     	int mScrollY = getScrollY();
-    
-        boolean restore = false;
 
         // ViewGroup.dispatchDraw() supports many features we don't need:
         // clip to padding, layout animation, animation listener, disappearing
@@ -441,10 +440,6 @@ public class Workspace extends ViewGroup implements DropTarget, DragSource, Drag
                     drawChild(canvas, getChildAt(i), drawingTime);
                 }
             }
-        }
-
-        if (restore) {
-            canvas.restore();
         }
     }
 

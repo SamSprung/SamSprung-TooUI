@@ -20,28 +20,40 @@ import android.annotation.SuppressLint
 import android.app.ActivityOptions
 import android.app.Dialog
 import android.app.WallpaperManager
+import android.appwidget.AppWidgetHostView
 import android.appwidget.AppWidgetManager
 import android.appwidget.AppWidgetProviderInfo
 import android.content.*
 import android.content.pm.PackageManager
 import android.database.ContentObserver
+import android.graphics.Color
+import android.graphics.Rect
+import android.graphics.drawable.ColorDrawable
 import android.os.*
 import android.os.MessageQueue.IdleHandler
 import android.text.Selection
 import android.text.SpannableStringBuilder
 import android.text.method.TextKeyListener
 import android.util.Log
-import android.view.*
+import android.view.KeyEvent
+import android.view.View
 import android.view.View.OnLongClickListener
+import android.view.ViewGroup
 import android.view.inputmethod.InputMethodManager
+import android.widget.ImageView
+import android.widget.LinearLayout
 import android.widget.Toast
 import androidx.activity.result.ActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.view.ContextThemeWrapper
+import androidx.appcompat.widget.AppCompatImageView
 import androidx.core.content.ContextCompat
 import com.eightbit.content.ScaledContext
-import com.eightbit.samsprung.panels.WidgetSettings.Favorites
 import com.eightbit.samsprung.panels.*
+import com.eightbit.samsprung.panels.CellLayout
+import com.eightbit.samsprung.panels.WidgetSettings.Favorites
 import com.eightbitlab.blurview.BlurView
 import com.eightbitlab.blurview.RenderScriptBlur
 import java.io.DataInputStream
@@ -51,23 +63,6 @@ import java.io.IOException
 import java.lang.ref.SoftReference
 import java.util.*
 import java.util.concurrent.Executors
-import com.eightbit.samsprung.panels.PendingAddWidgetInfo
-
-import com.eightbit.samsprung.panels.CellLayout
-
-import android.appwidget.AppWidgetHostView
-
-import android.content.ComponentName
-import android.graphics.Rect
-import android.content.ActivityNotFoundException
-import android.content.Intent
-import android.graphics.Color
-import android.graphics.drawable.ColorDrawable
-import android.widget.ImageView
-import android.widget.LinearLayout
-import androidx.appcompat.app.AlertDialog
-import androidx.appcompat.view.ContextThemeWrapper
-import androidx.appcompat.widget.AppCompatImageView
 
 
 /**
@@ -160,7 +155,11 @@ class SamSprungPanels : AppCompatActivity(), View.OnClickListener, OnLongClickLi
             .setHasFixedTransformationMatrix(true)
             .setBlurAlgorithm(RenderScriptBlur(this))
 
-        findViewById<AppCompatImageView>(R.id.menu_zone).setOnClickListener {
+        val menuHandle = findViewById<AppCompatImageView>(R.id.menu_zone)
+        menuHandle.setOnClickListener {
+            showAddDialog(CellLayout.CellInfo())
+        }
+        menuHandle.setOnLongClickListener {
             finish()
             startForegroundService(
                 Intent(
@@ -168,6 +167,7 @@ class SamSprungPanels : AppCompatActivity(), View.OnClickListener, OnLongClickLi
                     OnBroadcastService::class.java
                 ).setAction(SamSprung.launcher)
             )
+            return@setOnLongClickListener true
         }
 
         mDragLayer = findViewById(R.id.drag_layer)
@@ -220,8 +220,7 @@ class SamSprungPanels : AppCompatActivity(), View.OnClickListener, OnLongClickLi
     }
 
     private fun startLoaders() {
-        model.loadUserItems(!mLocaleChanged, this, mLocaleChanged,
-            model.loadApplications(true, this, mLocaleChanged))
+        model.loadUserItems(!mLocaleChanged, this, mLocaleChanged)
         mRestoring = false
     }
 
@@ -237,13 +236,8 @@ class SamSprungPanels : AppCompatActivity(), View.OnClickListener, OnLongClickLi
         if (mBinder != null) {
             mBinder!!.mTerminate = true
         }
-//        return lastNonConfigurationInstance
+        // return lastNonConfigurationInstance
         return null
-    }
-
-    private fun acceptFilter(): Boolean {
-        val inputManager = getSystemService(INPUT_METHOD_SERVICE) as InputMethodManager
-        return !inputManager.isFullscreenMode
     }
 
     /**
@@ -278,6 +272,7 @@ class SamSprungPanels : AppCompatActivity(), View.OnClickListener, OnLongClickLi
         }
     }
 
+    @Suppress("UNUSED")
     fun onScreenChanged(workspace: Workspace, mCurrentScreen: Int) {
 
     }
@@ -287,59 +282,6 @@ class SamSprungPanels : AppCompatActivity(), View.OnClickListener, OnLongClickLi
         insertAtFirst: Boolean
     ) {
         mWaitingForResult = false
-        val appWidgetInfo = mAppWidgetManager!!.getAppWidgetInfo(appWidgetId)
-
-        // Calculate the grid spans needed to fit this widget
-        val layout = workspace!!.getChildAt(cellInfo!!.screen) as CellLayout
-        val spans = layout.rectToCell(appWidgetInfo.minWidth, appWidgetInfo.minHeight)
-
-        // Try finding open space on Launcher screen
-        val xy = mCellCoordinates
-        if (!findSlot(cellInfo, xy, spans!![0], spans[1])) return
-
-        // Build Launcher-specific widget info and save to database
-        val launcherInfo =
-            CoverWidgetInfo(appWidgetId)
-        launcherInfo.spanX = spans[0]
-        launcherInfo.spanY = spans[1]
-        Executors.newSingleThreadExecutor().execute {
-            WidgetModel.addItemToDatabase(
-                widgetContext, launcherInfo,
-                Favorites.CONTAINER_DESKTOP,
-                workspace!!.currentScreen, xy[0], xy[1], false
-            )
-        }
-        if (!mRestoring) {
-            model.addDesktopAppWidget(launcherInfo)
-
-            // Perform actual inflation because we're live
-            launcherInfo.hostView = appWidgetHost!!.createView(
-                widgetContext, appWidgetId, appWidgetInfo)
-            launcherInfo.hostView!!.setAppWidget(appWidgetId, appWidgetInfo)
-            launcherInfo.hostView!!.tag = launcherInfo
-            workspace!!.addInCurrentScreen(
-                launcherInfo.hostView, xy[0], xy[1],
-                launcherInfo.spanX, launcherInfo.spanY, insertAtFirst
-            )
-        } else if (model.isDesktopLoaded) {
-            model.addDesktopAppWidget(launcherInfo)
-        }
-    }
-
-    /**
-     * Add a widget to the workspace.
-     *
-     * @param data The intent describing the appWidgetId.
-     * @param cellInfo The position on screen where to create the widget.
-     */
-    private fun completeAddAppWidget(
-        data: Intent?, cellInfo: CellLayout.CellInfo?,
-        insertAtFirst: Boolean
-    ) {
-        mWaitingForResult = false
-        val extras = data!!.extras
-        val appWidgetId = extras!!.getInt(AppWidgetManager.EXTRA_APPWIDGET_ID, -1)
-        Log.d(LogTag, "dumping extras content=$extras")
         val appWidgetInfo = mAppWidgetManager!!.getAppWidgetInfo(appWidgetId)
 
         // Calculate the grid spans needed to fit this widget
@@ -451,45 +393,19 @@ class SamSprungPanels : AppCompatActivity(), View.OnClickListener, OnLongClickLi
         } catch (ignored: Exception) { }
     }
 
-    private val requestPickAppWidget = registerForActivityResult(
+    private val requestCreateAppWidget = registerForActivityResult(
         ActivityResultContracts.StartActivityForResult()) { result: ActivityResult ->
         mWaitingForResult = false
-        Log.d("WIDGETS", result.toString())
-        if (result.resultCode == RESULT_CANCELED && result.data != null) {
-            // Clean up the appWidgetId if we canceled
-            val appWidgetId = result.data!!.getIntExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, -1)
+        val appWidgetId = result.data?.getIntExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, -1) ?: -1
+        if (result.resultCode == RESULT_CANCELED) {
             if (appWidgetId != -1) {
                 appWidgetHost!!.deleteAppWidgetId(appWidgetId)
             }
         } else {
-            if (result.data!!.component == ComponentName(packageName, "XXX.YYY.ZZZ")) {
-                finish()
-                startForegroundService(
-                    Intent(
-                        applicationContext,
-                        OnBroadcastService::class.java
-                    ).setAction(SamSprung.launcher)
-                )
-            } else {
-                addAppWidget(result.data)
-            }
+            completeAddAppWidget(
+                appWidgetId, mAddItemCellInfo, !isWorkspaceLocked
+            )
         }
-    }
-    private val requestCreateAppWidget = registerForActivityResult(
-        ActivityResultContracts.StartActivityForResult()) { result: ActivityResult ->
-        mWaitingForResult = false
-        val appWidgetId = result.data!!.getIntExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, -1)
-        completeAddAppWidget(
-            appWidgetId, mAddItemCellInfo, !isWorkspaceLocked
-        )
-    }
-
-    private val requestBindAppWidget = registerForActivityResult(
-        ActivityResultContracts.StartActivityForResult()) { result: ActivityResult ->
-        mWaitingForResult = false
-        completeAddAppWidget(
-            result.data, mAddItemCellInfo, !isWorkspaceLocked
-        )
     }
 
     private fun addAppWidget(appWidgetId: Int) {
@@ -510,28 +426,6 @@ class SamSprungPanels : AppCompatActivity(), View.OnClickListener, OnLongClickLi
             }
         } else {
             completeAddAppWidget(appWidgetId, mAddItemCellInfo, !isWorkspaceLocked)
-        }
-    }
-
-    private fun addAppWidget(data: Intent?) {
-        mWaitingForResult = true
-        val appWidgetId = data!!.getIntExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, -1)
-        val appWidget = mAppWidgetManager!!.getAppWidgetInfo(appWidgetId) ?: return
-        if (null != appWidget.configure) {
-            try {
-                appWidgetHost?.startAppWidgetConfigureActivityForResult(
-                    this, appWidgetId, 0, requestCreateAppWidgetHost,
-                    ActivityOptions.makeBasic().setLaunchDisplayId(1).toBundle()
-                )
-            } catch (ignored: ActivityNotFoundException) {
-                // Launch over to configure widget, if needed
-                val intent = Intent(AppWidgetManager.ACTION_APPWIDGET_CONFIGURE)
-                intent.component = appWidget.configure
-                intent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId)
-                requestCreateAppWidget.launch(intent)
-            }
-        } else {
-            completeAddAppWidget(data, mAddItemCellInfo, !isWorkspaceLocked)
         }
     }
 
@@ -568,11 +462,16 @@ class SamSprungPanels : AppCompatActivity(), View.OnClickListener, OnLongClickLi
     override fun dispatchKeyEvent(event: KeyEvent): Boolean {
         if (event.action == KeyEvent.ACTION_DOWN) {
             when (event.keyCode) {
-                KeyEvent.KEYCODE_BACK -> {
-                    workspace!!.dispatchKeyEvent(event)
+                KeyEvent.KEYCODE_VOLUME_DOWN -> {
+                    finish()
+                    startForegroundService(
+                        Intent(
+                            applicationContext,
+                            OnBroadcastService::class.java
+                        ).setAction(SamSprung.services)
+                    )
                     return true
                 }
-                KeyEvent.KEYCODE_HOME -> return true
             }
         }
         return super.dispatchKeyEvent(event)
@@ -584,7 +483,7 @@ class SamSprungPanels : AppCompatActivity(), View.OnClickListener, OnLongClickLi
      */
     private fun onFavoritesChanged() {
         isWorkspaceLocked = true
-        model.loadUserItems(false, this, false, false)
+        model.loadUserItems(false, this, false)
     }
 
     fun onDesktopItemsLoaded(
@@ -690,9 +589,6 @@ class SamSprungPanels : AppCompatActivity(), View.OnClickListener, OnLongClickLi
         }
     }
 
-    val dragController: DragController?
-        get() = mDragLayer
-
     override fun onClick(v: View) {
         v.tag
     }
@@ -776,33 +672,13 @@ class SamSprungPanels : AppCompatActivity(), View.OnClickListener, OnLongClickLi
                     intent.putExtra(
                         AppWidgetManager.EXTRA_APPWIDGET_PROVIDER_PROFILE, info.profile
                     )
-                    requestBindAppWidget.launch(intent)
+                    requestCreateAppWidget.launch(intent)
                 }
                 widgetDialog.dismiss()
             }
             previews.addView(previewImage)
         }
         widgetDialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
-
-//        val pickIntent = Intent(AppWidgetManager.ACTION_APPWIDGET_PICK)
-//        pickIntent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId)
-//        // add a custom widget item
-//        val customInfo = ArrayList<AppWidgetProviderInfo>()
-//        val info = AppWidgetProviderInfo()
-//        info.provider = ComponentName(packageName, "XXX.YYY.ZZZ")
-//        info.label = getString(R.string.menu_item_terminate)
-//        info.icon = R.drawable.ic_baseline_widgets_24
-//        info.configure = ComponentName(packageName, "XXX.YYY.ZZZ")
-//        customInfo.add(info)
-//        pickIntent.putParcelableArrayListExtra(
-//            AppWidgetManager.EXTRA_CUSTOM_INFO, customInfo
-//        )
-//        val customExtras = ArrayList<Bundle>()
-//        customExtras.add(Bundle())
-//        pickIntent.putParcelableArrayListExtra(
-//            AppWidgetManager.EXTRA_CUSTOM_EXTRAS, customExtras
-//        )
-//        requestPickAppWidget.launch(pickIntent)
     }
 
     /**
@@ -995,29 +871,16 @@ class SamSprungPanels : AppCompatActivity(), View.OnClickListener, OnLongClickLi
         return intArrayOf(requiredWidth, requiredHeight)
     }
 
-    fun getSpanForWidget(context: Context, info: AppWidgetProviderInfo): IntArray? {
+    fun getSpanForWidget(context: Context, info: AppWidgetProviderInfo): IntArray {
         return getSpanForWidget(context, info.provider, info.minWidth, info.minHeight)
     }
 
-    fun getMinSpanForWidget(context: Context, info: AppWidgetProviderInfo): IntArray? {
+    @Suppress("UNUSED")
+    fun getMinSpanForWidget(context: Context, info: AppWidgetProviderInfo): IntArray {
         return getSpanForWidget(context, info.provider, info.minResizeWidth, info.minResizeHeight)
     }
 
-    fun getSpanForWidget(context: Context, info: PendingAddWidgetInfo): IntArray? {
-        return getSpanForWidget(
-            context, info.componentName, info.info.minWidth,
-            info.info.minHeight
-        )
-    }
-
-    fun getMinSpanForWidget(context: Context, info: PendingAddWidgetInfo): IntArray? {
-        return getSpanForWidget(
-            context, info.componentName, info.info.minResizeWidth,
-            info.info.minResizeHeight
-        )
-    }
-
-    val requestCreateAppWidgetHost = 9001
+    private val requestCreateAppWidgetHost = 9001
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
@@ -1025,10 +888,14 @@ class SamSprungPanels : AppCompatActivity(), View.OnClickListener, OnLongClickLi
 
         // We have special handling for widgets
         if (requestCode == requestCreateAppWidgetHost) {
-            val appWidgetId: Int
-            if (data?.getIntExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, -1) ?: -1 >= 0) {
+            val appWidgetId = data?.getIntExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, -1) ?: -1
+            if (resultCode == RESULT_CANCELED) {
+                if (appWidgetId != -1) {
+                    appWidgetHost!!.deleteAppWidgetId(appWidgetId)
+                }
+            } else {
                 completeAddAppWidget(
-                    data, mAddItemCellInfo, !isWorkspaceLocked
+                    appWidgetId, mAddItemCellInfo, !isWorkspaceLocked
                 )
             }
             return

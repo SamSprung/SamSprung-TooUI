@@ -71,7 +71,6 @@ import android.nfc.NfcAdapter
 import android.nfc.NfcManager
 import android.os.*
 import android.provider.Settings
-import android.service.notification.NotificationListenerService
 import android.service.notification.StatusBarNotification
 import android.util.TypedValue
 import android.view.*
@@ -790,21 +789,6 @@ class SamSprungOverlay : AppCompatActivity(),
 
     override fun onNewIntent(intent: Intent?) {
         super.onNewIntent(intent)
-        Executors.newSingleThreadExecutor().execute {
-            val componentName = ComponentName(
-                applicationContext,
-                NotificationReceiver::class.java
-            )
-            packageManager.setComponentEnabledSetting(
-                componentName,
-                PackageManager.COMPONENT_ENABLED_STATE_DISABLED, PackageManager.DONT_KILL_APP
-            )
-            packageManager.setComponentEnabledSetting(
-                componentName,
-                PackageManager.COMPONENT_ENABLED_STATE_ENABLED, PackageManager.DONT_KILL_APP
-            )
-            NotificationListenerService.requestRebind(componentName)
-        }
         Handler(Looper.getMainLooper()).postDelayed({
             runOnUiThread {
                 bottomHandle = findViewById(R.id.bottom_handle)
@@ -815,13 +799,14 @@ class SamSprungOverlay : AppCompatActivity(),
                 if (null != intent?.action && com.eightbit.samsprung.SamSprung.launcher == intent.action)
                     bottomSheetBehaviorMain.state = BottomSheetBehavior.STATE_EXPANDED
             }
+            if (this::noticesView.isInitialized) {
+                if (hasNotificationListener()) {
+                    NotificationReceiver.getReceiver()?.setNotificationsListener(
+                        noticesView.adapter as NotificationAdapter
+                    )
+                }
+            }
         }, 200)
-        if (!this::noticesView.isInitialized) return
-        if (hasNotificationListener()) {
-            NotificationReceiver.getReceiver()?.setNotificationsListener(
-                noticesView.adapter as NotificationAdapter
-            )
-        }
     }
 
     override fun onDestroy() {

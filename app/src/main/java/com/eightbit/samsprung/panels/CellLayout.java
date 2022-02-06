@@ -645,6 +645,7 @@ public class CellLayout extends ViewGroup {
      * @param cellX The child's new x cell location
      * @param cellY The child's new y cell location 
      */
+    @SuppressWarnings("unused")
     void onDragOverChild(View child, int cellX, int cellY) {
         int[] cellXY = mCellXY;
         pointToCellRounded(cellX, cellY, cellXY);
@@ -727,8 +728,8 @@ public class CellLayout extends ViewGroup {
         for (int x = 0; x < xCount; x++) {
             for (int y = 0; y < yCount; y++) {
                 boolean available = !occupied[x][y];
-out:            for (int i = x; i < x + spanX - 1 && x < xCount; i++) {
-                    for (int j = y; j < y + spanY - 1 && y < yCount; j++) {
+out:            for (int i = x; i < x + spanX - 1; i++) {
+                    for (int j = y; j < y + spanY - 1; j++) {
                         available = available && !occupied[i][j];
                         if (!available) break out;
                     }

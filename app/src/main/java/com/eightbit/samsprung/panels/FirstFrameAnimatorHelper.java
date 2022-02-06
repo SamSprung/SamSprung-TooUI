@@ -28,12 +28,13 @@ import android.view.ViewTreeObserver;
  *  For the first two frames, it adjusts the current play time of the animation to
  *  prevent jank at the beginning of the animation
  */
+@SuppressWarnings("unused")
 public class FirstFrameAnimatorHelper extends AnimatorListenerAdapter
         implements ValueAnimator.AnimatorUpdateListener {
     private static final boolean DEBUG = false;
     private static final int MAX_DELAY = 1000;
     private static final int IDEAL_FRAME_DURATION = 16;
-    private View mTarget;
+    private final View mTarget;
     private long mStartFrame;
     private long mStartTime = -1;
     private boolean mHandlingOnAnimationUpdate;
@@ -109,11 +110,7 @@ public class FirstFrameAnimatorHelper extends AnimatorListenerAdapter
                 mAdjustedSecondFrameTime = true;
             } else {
                 if (frameNum > 1) {
-                    mTarget.post(new Runnable() {
-                        public void run() {
-                            animation.removeUpdateListener(FirstFrameAnimatorHelper.this);
-                        }
-                    });
+                    mTarget.post(() -> animation.removeUpdateListener(FirstFrameAnimatorHelper.this));
                 }
                 if (DEBUG) print(animation);
             }

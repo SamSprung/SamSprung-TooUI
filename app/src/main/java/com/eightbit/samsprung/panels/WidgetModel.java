@@ -35,7 +35,6 @@ import com.eightbit.samsprung.SamSprungPanels;
 
 import java.lang.ref.WeakReference;
 import java.net.URISyntaxException;
-import java.text.Collator;
 import java.util.ArrayList;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -49,18 +48,13 @@ public class WidgetModel {
     public static final String LOG_TAG = WidgetModel.class.getName();
 
     private static final long APPLICATION_NOT_RESPONDING_TIMEOUT = 5000;
-    private static final int INITIAL_ICON_CACHE_CAPACITY = 50;
-
-    private static final Collator sCollator = Collator.getInstance();
 
     private boolean mDesktopItemsLoaded;
 
     private ArrayList<WidgetInfo> mDesktopItems;
     private ArrayList<CoverWidgetInfo> mDesktopAppWidgets;
 
-    private ApplicationsLoader mApplicationsLoader;
     private DesktopItemsLoader mDesktopItemsLoader;
-    private Thread mApplicationsLoaderThread;
     private Thread mDesktopLoaderThread;
 
     public WidgetModel() {
@@ -69,11 +63,6 @@ public class WidgetModel {
     public synchronized void abortLoaders() {
         if (DEBUG_LOADERS) d(LOG_TAG, "aborting loaders");
 
-        if (mApplicationsLoader != null && mApplicationsLoader.isRunning()) {
-            if (DEBUG_LOADERS) d(LOG_TAG, "  --> aborting applications loader");
-            mApplicationsLoader.stop();
-        }
-
         if (mDesktopItemsLoader != null && mDesktopItemsLoader.isRunning()) {
             if (DEBUG_LOADERS) d(LOG_TAG, "  --> aborting workspace loader");
             mDesktopItemsLoader.stop();
@@ -81,104 +70,7 @@ public class WidgetModel {
         }
     }
 
-    /**
-     * Loads the list of installed applications in mApplications.
-     *
-     * @return true if the applications loader must be started
-     *         (see startApplicationsLoader()), false otherwise.
-     */
-    public synchronized boolean loadApplications(boolean isLaunching, SamSprungPanels launcher,
-            boolean localeChanged) {
-
-        if (DEBUG_LOADERS) d(LOG_TAG, "load applications");
-
-        stopAndWaitForApplicationsLoader();
-
-        if (!isLaunching) {
-            startApplicationsLoaderLocked(launcher, false);
-            return false;
-        }
-
-        return true;
-    }
-
-    private synchronized void stopAndWaitForApplicationsLoader() {
-        if (mApplicationsLoader != null && mApplicationsLoader.isRunning()) {
-            if (DEBUG_LOADERS) {
-                d(LOG_TAG, "  --> wait for applications loader (" + mApplicationsLoader.mId + ")");
-            }
-
-            mApplicationsLoader.stop();
-            // Wait for the currently running thread to finish, this can take a little
-            // time but it should be well below the timeout limit
-            try {
-                mApplicationsLoaderThread.join(APPLICATION_NOT_RESPONDING_TIMEOUT);
-            } catch (InterruptedException e) {
-                // Empty
-            }
-        }
-    }
-
-    private synchronized void startApplicationsLoader(SamSprungPanels launcher, boolean isLaunching) {
-        if (DEBUG_LOADERS) d(LOG_TAG, "  --> starting applications loader unlocked");
-        startApplicationsLoaderLocked(launcher, isLaunching);
-    }
-
-    private void startApplicationsLoaderLocked(SamSprungPanels launcher, boolean isLaunching) {
-        if (DEBUG_LOADERS) d(LOG_TAG, "  --> starting applications loader");
-
-        stopAndWaitForApplicationsLoader();
-
-        mApplicationsLoader = new ApplicationsLoader(launcher, isLaunching);
-        mApplicationsLoaderThread = new Thread(mApplicationsLoader, "Applications Loader");
-        mApplicationsLoaderThread.start();
-    }
-
-    private static final AtomicInteger sAppsLoaderCount = new AtomicInteger(1);
     private static final AtomicInteger sWorkspaceLoaderCount = new AtomicInteger(1);
-
-    private static class ApplicationsLoader implements Runnable {
-        private final WeakReference<SamSprungPanels> mLauncher;
-
-        private volatile boolean mStopped;
-        private volatile boolean mRunning;
-        private final boolean mIsLaunching;
-        private final int mId;
-
-        ApplicationsLoader(SamSprungPanels launcher, boolean isLaunching) {
-            mIsLaunching = isLaunching;
-            mLauncher = new WeakReference<>(launcher);
-            mRunning = true;
-            mId = sAppsLoaderCount.getAndIncrement();
-        }
-
-        void stop() {
-            mStopped = true;
-        }
-
-        boolean isRunning() {
-            return mRunning;
-        }
-
-        public void run() {
-            if (DEBUG_LOADERS) d(LOG_TAG, "  ----> running applications loader (" + mId + ")");
-
-            // Elevate priority when Home launches for the first time to avoid
-            // starving at boot time. Staring at a blank home is not cool.
-            android.os.Process.setThreadPriority(mIsLaunching ? Process.THREAD_PRIORITY_DEFAULT :
-                    Process.THREAD_PRIORITY_BACKGROUND);
-
-            final Intent mainIntent = new Intent(Intent.ACTION_MAIN, null);
-            mainIntent.addCategory(Intent.CATEGORY_LAUNCHER);
-
-            final SamSprungPanels launcher = mLauncher.get();
-
-            if (mStopped) {
-                if (DEBUG_LOADERS) d(LOG_TAG, "  ----> applications loader stopped (" + mId + ")");
-            }
-            mRunning = false;
-        }
-    }
 
     public boolean isDesktopLoaded() {
         return mDesktopItems != null && mDesktopAppWidgets != null && mDesktopItemsLoaded;
@@ -188,13 +80,11 @@ public class WidgetModel {
      * Loads all of the items on the desktop, in folders, or in the dock.
      * These can be apps, shortcuts or widgets
      */
-    public void loadUserItems(boolean isLaunching, SamSprungPanels launcher, boolean localeChanged,
-                       boolean loadApplications) {
+    public void loadUserItems(boolean isLaunching, SamSprungPanels launcher, boolean localeChanged) {
         if (DEBUG_LOADERS) d(LOG_TAG, "loading user items");
 
         if (isLaunching && isDesktopLoaded()) {
             if (DEBUG_LOADERS) d(LOG_TAG, "  --> items loaded, return");
-            if (loadApplications) startApplicationsLoader(launcher, true);
             // We have already loaded our data from the DB
             launcher.onDesktopItemsLoaded(mDesktopItems, mDesktopAppWidgets);
             return;
@@ -210,19 +100,11 @@ public class WidgetModel {
             } catch (InterruptedException e) {
                 // Empty
             }
-
-            // If the thread we are interrupting was tasked to load the list of
-            // applications make sure we keep that information in the new loader
-            // spawned below
-            // note: we don't apply this to localeChanged because the thread can
-            // only be stopped *after* the localeChanged handling has occured
-            loadApplications = mDesktopItemsLoader.mLoadApplications;
         }
 
         if (DEBUG_LOADERS) d(LOG_TAG, "  --> starting workspace loader");
         mDesktopItemsLoaded = false;
-        mDesktopItemsLoader = new DesktopItemsLoader(launcher, localeChanged, loadApplications,
-                isLaunching);
+        mDesktopItemsLoader = new DesktopItemsLoader(launcher, localeChanged, isLaunching);
         mDesktopLoaderThread = new Thread(mDesktopItemsLoader, "Desktop Items Loader");
         mDesktopLoaderThread.start();
     }
@@ -281,13 +163,10 @@ public class WidgetModel {
 
         private final WeakReference<SamSprungPanels> mLauncher;
         private final boolean mLocaleChanged;
-        private final boolean mLoadApplications;
         private final boolean mIsLaunching;
         private final int mId;        
 
-        DesktopItemsLoader(SamSprungPanels launcher, boolean localeChanged, boolean loadApplications,
-                           boolean isLaunching) {
-            mLoadApplications = loadApplications;
+        DesktopItemsLoader(SamSprungPanels launcher, boolean localeChanged, boolean isLaunching) {
             mIsLaunching = isLaunching;
             mLauncher = new WeakReference<>(launcher);
             mLocaleChanged = localeChanged;
@@ -395,13 +274,6 @@ public class WidgetModel {
                     });
                 }
 
-                if (mLoadApplications) {
-                    if (DEBUG_LOADERS) {
-                        d(LOG_TAG, "  ----> loading applications from workspace loader");
-                    }
-                    startApplicationsLoader(launcher, mIsLaunching);
-                }
-
                 mDesktopItemsLoaded = true;
             } else {
                 if (DEBUG_LOADERS) d(LOG_TAG, "  ----> worskpace loader was stopped");
@@ -416,7 +288,6 @@ public class WidgetModel {
      */
     public void unbind() {
         // Interrupt the applications loader before setting the adapter to null
-        stopAndWaitForApplicationsLoader();
         unbindAppWidgetHostViews(mDesktopAppWidgets);
     }
 

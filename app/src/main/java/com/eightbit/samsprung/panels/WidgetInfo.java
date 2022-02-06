@@ -26,6 +26,7 @@ import java.io.IOException;
 /**
  * Represents an item in the launcher.
  */
+@SuppressWarnings("unused")
 public class WidgetInfo {
     
     static final int NO_ID = -1;

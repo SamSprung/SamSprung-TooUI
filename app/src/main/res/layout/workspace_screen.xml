@@ -22,8 +22,8 @@
     launcher:cellWidth="90dp"
     launcher:cellHeight="85dp"
     launcher:longAxisStartPadding="0dp"
-    launcher:longAxisEndPadding="0dp"
+    launcher:longAxisEndPadding="28dp"
     launcher:shortAxisStartPadding="0dp"
     launcher:shortAxisEndPadding="0dp"
     launcher:shortAxisCells="6"
-    launcher:longAxisCells="8" />
+    launcher:longAxisCells="8"/>

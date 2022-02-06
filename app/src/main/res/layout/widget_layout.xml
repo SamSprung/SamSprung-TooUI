@@ -22,8 +22,8 @@
             <!-- The workspace contains 3 screens of cells -->
             <com.eightbit.samsprung.panels.Workspace
                 android:id="@+id/workspace"
-                android:layout_width="fill_parent"
-                android:layout_height="fill_parent"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
                 launcher:defaultScreen="1">
 
                 <include android:id="@+id/cell1" layout="@layout/workspace_screen" />
@@ -38,7 +38,7 @@
                 android:scaleType="center"
                 android:src="@drawable/ic_baseline_widgets_24"
                 android:background="@drawable/delete_zone_selector"
-                android:layout_marginBottom="10dip"
+                android:layout_marginTop="10dip"
                 android:layout_gravity="end|top"
                 launcher:direction="1"
                 android:alpha=".6"/>

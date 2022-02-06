@@ -140,8 +140,6 @@ public class DragLayer extends FrameLayout implements DragController {
     private int mTriggerWidth = -1;
     private int mTriggerHeight = -1;
 
-    private static final int DISTANCE_DRAW_SNAG = 20;
-
     private static final int ANIMATION_STATE_STARTING = 1;
     private static final int ANIMATION_STATE_RUNNING = 2;
     private static final int ANIMATION_STATE_DONE = 3;
@@ -616,6 +614,7 @@ public class DragLayer extends FrameLayout implements DragController {
      * @param view The view that will not be taken into account while looking
      *        for a drop target.
      */
+    @SuppressWarnings("unused")
     void setIgnoredDropTarget(View view) {
         mIgnoredDropTarget = view;
     }

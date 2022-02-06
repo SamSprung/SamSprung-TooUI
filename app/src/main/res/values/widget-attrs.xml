@@ -55,6 +55,6 @@
          a DeleteZone view in XML files. -->
     <declare-styleable name="DeleteZone">
         <!-- Orientation of the delete zone. -->
-        <attr name="direction" />
+        <attr name="direction" format="integer"/>
     </declare-styleable>
 </resources>

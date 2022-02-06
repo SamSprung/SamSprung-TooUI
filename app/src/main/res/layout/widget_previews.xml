@@ -11,8 +11,8 @@
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_marginStart="4dp"
-        android:layout_marginEnd="4dp">
+        android:layout_marginStart="2dp"
+        android:layout_marginEnd="2dp">
 
     <LinearLayout
         android:id="@+id/previews_layout"
