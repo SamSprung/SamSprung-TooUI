@@ -134,7 +134,7 @@ class SamSprungOverlay : AppCompatActivity(),
 
         window.attributes.width = ViewGroup.LayoutParams.MATCH_PARENT
         window.attributes.gravity = Gravity.BOTTOM
-        window.setBackgroundDrawable(null)
+        // window.setBackgroundDrawable(null)
 
         prefs = getSharedPreferences(SamSprung.prefsValue, MODE_PRIVATE)
 
@@ -256,7 +256,7 @@ class SamSprungOverlay : AppCompatActivity(),
 
         for (i in 0 until toolbar.menu.size()) {
             val icon = layoutInflater.inflate(
-                R.layout.toggle_status, null) as AppCompatImageView
+                R.layout.toggle_state_icon, null) as AppCompatImageView
             icon.findViewById<AppCompatImageView>(R.id.toggle_icon)
             icon.background = toolbar.menu.getItem(i).icon
             toggleStats.addView(icon)
@@ -400,7 +400,7 @@ class SamSprungOverlay : AppCompatActivity(),
                     for (i in 0 until toolbar.menu.size()) {
                         toolbar.menu.getItem(i).icon.setTint(color)
                         val icon = layoutInflater.inflate(
-                            R.layout.toggle_status, null) as AppCompatImageView
+                            R.layout.toggle_state_icon, null) as AppCompatImageView
                         icon.findViewById<AppCompatImageView>(R.id.toggle_icon)
                         icon.background = toolbar.menu.getItem(i).icon
                         toggleStats.addView(icon)

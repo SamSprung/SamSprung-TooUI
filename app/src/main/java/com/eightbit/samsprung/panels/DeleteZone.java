@@ -150,7 +150,7 @@ public class DeleteZone extends AppCompatImageView implements DropTarget, DragCo
             mTrashMode = false;
             mDragLayer.setDeleteRegion(null);
             startAnimation(mOutAnimation);
-            setVisibility(GONE);
+            setVisibility(INVISIBLE);
         }
     }
 

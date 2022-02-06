@@ -35,12 +35,10 @@ import android.text.Selection
 import android.text.SpannableStringBuilder
 import android.text.method.TextKeyListener
 import android.util.Log
-import android.view.KeyEvent
 import android.view.View
 import android.view.View.OnLongClickListener
 import android.view.ViewGroup
 import android.view.inputmethod.InputMethodManager
-import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.Toast
 import androidx.activity.result.ActivityResult
@@ -109,7 +107,7 @@ class SamSprungPanels : AppCompatActivity(), View.OnClickListener, OnLongClickLi
 
         super.onCreate(savedInstanceState)
         supportActionBar?.hide()
-        widgetContext?.setTheme(R.style.Theme_AppCompat)
+        ScaledContext.widget(this).setTheme(R.style.Theme_AppCompat)
 
         mAppWidgetManager = AppWidgetManager.getInstance(widgetContext)
         appWidgetHost = CoverWidgetHost(
@@ -135,7 +133,7 @@ class SamSprungPanels : AppCompatActivity(), View.OnClickListener, OnLongClickLi
             writeConfiguration(applicationContext, localeConfiguration)
         }
 
-        setContentView(R.layout.widget_layout)
+        setContentView(R.layout.panel_main_layout)
 
         if (ContextCompat.checkSelfPermission(
                 this,
@@ -616,7 +614,7 @@ class SamSprungPanels : AppCompatActivity(), View.OnClickListener, OnLongClickLi
         workspace?.unlock()
         val appWidgetId = appWidgetHost!!.allocateAppWidgetId()
 
-        val view: View = layoutInflater.inflate(R.layout.widget_previews, null)
+        val view: View = layoutInflater.inflate(R.layout.panel_preview_dialog, null)
         val dialog = AlertDialog.Builder(
             ContextThemeWrapper(this, R.style.DialogTheme_NoActionBar)
         )
@@ -641,7 +639,9 @@ class SamSprungPanels : AppCompatActivity(), View.OnClickListener, OnLongClickLi
                 info, spanX,
                 spanY, maxWidth, maxHeight, null, previewSizeBeforeScale
             )
-            val previewImage = ImageView(this)
+            val previewImage = layoutInflater.inflate(
+                R.layout.panel_preview_image, null) as AppCompatImageView
+            previewImage.adjustViewBounds = true
             previewImage.setImageBitmap(preview)
             previewImage.setOnClickListener {
                 val success = mAppWidgetManager!!.bindAppWidgetIdIfAllowed(appWidgetId, info.provider)

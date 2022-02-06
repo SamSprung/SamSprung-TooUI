@@ -31,6 +31,15 @@
                 <include android:id="@+id/cell3" layout="@layout/workspace_screen" />
             </com.eightbit.samsprung.panels.Workspace>
 
+            <LinearLayout
+                android:layout_width="30dip"
+                android:layout_height="match_parent"
+                android:layout_gravity="end"
+                android:layout_marginTop="10dip"
+                android:layout_marginBottom="10dip"
+                android:orientation="vertical"
+                android:alpha=".6">
+
             <androidx.appcompat.widget.AppCompatImageView
                 android:id="@+id/menu_zone"
                 android:layout_width="30dip"
@@ -38,10 +47,8 @@
                 android:scaleType="center"
                 android:src="@drawable/ic_baseline_widgets_24"
                 android:background="@drawable/delete_zone_selector"
-                android:layout_marginTop="10dip"
                 android:layout_gravity="end|top"
-                launcher:direction="1"
-                android:alpha=".6"/>
+                android:layout_weight="1" />
 
             <com.eightbit.samsprung.panels.DeleteZone
                 android:id="@+id/delete_zone"
@@ -50,11 +57,12 @@
                 android:scaleType="center"
                 android:src="@drawable/ic_baseline_delete_forever_24"
                 android:background="@drawable/delete_zone_selector"
-                android:layout_marginBottom="10dip"
                 android:layout_gravity="end|bottom"
-                android:visibility="gone"
-                launcher:direction="1"
-                android:alpha=".6"/>
+                android:layout_weight="1"
+                android:visibility="invisible"
+                launcher:direction="1" />
+
+            </LinearLayout>
 
         </com.eightbit.samsprung.panels.DragLayer>
 
