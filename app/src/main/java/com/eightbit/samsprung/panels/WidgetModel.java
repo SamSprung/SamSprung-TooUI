@@ -80,7 +80,7 @@ public class WidgetModel {
      * Loads all of the items on the desktop, in folders, or in the dock.
      * These can be apps, shortcuts or widgets
      */
-    public void loadUserItems(boolean isLaunching, SamSprungPanels launcher, boolean localeChanged) {
+    public void loadUserItems(boolean isLaunching, SamSprungPanels launcher) {
         if (DEBUG_LOADERS) d(LOG_TAG, "loading user items");
 
         if (isLaunching && isDesktopLoaded()) {
@@ -104,7 +104,7 @@ public class WidgetModel {
 
         if (DEBUG_LOADERS) d(LOG_TAG, "  --> starting workspace loader");
         mDesktopItemsLoaded = false;
-        mDesktopItemsLoader = new DesktopItemsLoader(launcher, localeChanged, isLaunching);
+        mDesktopItemsLoader = new DesktopItemsLoader(launcher, isLaunching);
         mDesktopLoaderThread = new Thread(mDesktopItemsLoader, "Desktop Items Loader");
         mDesktopLoaderThread.start();
     }
@@ -162,14 +162,12 @@ public class WidgetModel {
         private volatile boolean mRunning;
 
         private final WeakReference<SamSprungPanels> mLauncher;
-        private final boolean mLocaleChanged;
         private final boolean mIsLaunching;
         private final int mId;        
 
-        DesktopItemsLoader(SamSprungPanels launcher, boolean localeChanged, boolean isLaunching) {
+        DesktopItemsLoader(SamSprungPanels launcher, boolean isLaunching) {
             mIsLaunching = isLaunching;
             mLauncher = new WeakReference<>(launcher);
-            mLocaleChanged = localeChanged;
             mId = sWorkspaceLoaderCount.getAndIncrement();
         }
 
@@ -191,10 +189,6 @@ public class WidgetModel {
             final SamSprungPanels launcher = mLauncher.get();
             final ContentResolver contentResolver = launcher.getContentResolver();
             final PackageManager manager = launcher.getPackageManager();
-
-            if (mLocaleChanged) {
-                updateShortcutLabels(contentResolver, manager);
-            }
 
             mDesktopItems = new ArrayList<>();
             mDesktopAppWidgets = new ArrayList<>();

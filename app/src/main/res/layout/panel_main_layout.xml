@@ -12,22 +12,17 @@
         android:layout_height="match_parent"
         launcher:blurOverlayColor="@color/bottomSheetTint">
 
-        <com.eightbit.samsprung.panels.DragLayer
-            android:id="@+id/drag_layer"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent">
-
-            <!-- The workspace contains 3 screens of cells -->
-            <com.eightbit.samsprung.panels.Workspace
-                android:id="@+id/workspace"
+            <HorizontalScrollView
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                launcher:defaultScreen="1">
-
-                <include android:id="@+id/cell1" layout="@layout/workspace_screen" />
-                <include android:id="@+id/cell2" layout="@layout/workspace_screen" />
-                <include android:id="@+id/cell3" layout="@layout/workspace_screen" />
-            </com.eightbit.samsprung.panels.Workspace>
+                android:layout_height="match_parent">
+                <LinearLayout
+                    android:id="@+id/workspace"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:layout_marginEnd="28dp"
+                    android:orientation="horizontal">
+                </LinearLayout>
+            </HorizontalScrollView>
 
             <LinearLayout
                 android:layout_width="30dip"
@@ -48,7 +43,7 @@
                 android:layout_gravity="end|top"
                 android:layout_weight="1" />
 
-            <com.eightbit.samsprung.panels.DeleteZone
+            <androidx.appcompat.widget.AppCompatImageView
                 android:id="@+id/delete_zone"
                 android:layout_width="30dip"
                 android:layout_height="wrap_content"
@@ -56,13 +51,9 @@
                 android:src="@drawable/ic_baseline_delete_forever_24"
                 android:background="@drawable/delete_zone_selector"
                 android:layout_gravity="end|bottom"
-                android:layout_weight="1"
-                android:visibility="invisible"
-                launcher:direction="1" />
+                android:layout_weight="1" />
 
             </LinearLayout>
-
-        </com.eightbit.samsprung.panels.DragLayer>
 
     </com.eightbitlab.blurview.BlurView>
 
