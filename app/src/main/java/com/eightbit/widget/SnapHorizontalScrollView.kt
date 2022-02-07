@@ -13,6 +13,7 @@ import java.util.*
 import kotlin.math.abs
 
 // Rewritten from https://stackoverflow.com/a/49527237/461982
+
 /* ====================================================================
  * Copyright (c) 2012-2022 AbandonedCart.  All rights reserved.
  *
@@ -76,6 +77,11 @@ class SnapHorizontalScrollView : HorizontalScrollView {
     constructor(context: Context?, attrs: AttributeSet?) : super(context, attrs)
     constructor(context: Context?) : super(context)
 
+    override fun onInterceptTouchEvent(ev: MotionEvent?): Boolean {
+        return super.onInterceptTouchEvent(ev)
+                && mGestureDetector!!.onTouchEvent(ev)
+    }
+
     fun removeFeatureItem(featureLayout: LinearLayout) {
         mItems.remove(featureLayout)
     }
@@ -83,52 +89,71 @@ class SnapHorizontalScrollView : HorizontalScrollView {
     @SuppressLint("ClickableViewAccessibility")
     fun addFeatureItem(featureLayout: LinearLayout) {
         mItems.add(featureLayout)
-        setOnTouchListener { v: View, event: MotionEvent ->
-            //If the user swipes
-            if (mGestureDetector!!.onTouchEvent(event)) {
-                return@setOnTouchListener true
-            } else if (event.action == MotionEvent.ACTION_UP || event.action == MotionEvent.ACTION_CANCEL) {
-                val scrollX = scrollX
-                val featureWidth = v.measuredWidth
-                mActiveFeature = (scrollX + featureWidth / 2) / featureWidth
-                val scrollTo = mActiveFeature * featureWidth
-                smoothScrollTo(scrollTo, 0)
-                return@setOnTouchListener true
-            } else {
-                return@setOnTouchListener false
-            }
-        }
         mGestureDetector = GestureDetector(featureLayout.context, SnapGestureDetector())
+        setOnTouchListener { v: View, event: MotionEvent ->
+            return@setOnTouchListener mGestureDetector!!.onTouchEvent(event)
+//            // If the user swipes
+//            if (mGestureDetector!!.onTouchEvent(event)) {
+//                return@setOnTouchListener true
+//            } else
+//                if (event.action == MotionEvent.ACTION_UP || event.action == MotionEvent.ACTION_CANCEL) {
+//                val scrollX = scrollX
+//                val featureWidth = v.measuredWidth
+//                mActiveFeature = (scrollX + featureWidth / 2) / featureWidth
+//                val scrollTo = mActiveFeature * featureWidth
+//                smoothScrollTo(scrollTo, 0)
+//                return@setOnTouchListener true
+//            } else {
+//                return@setOnTouchListener false
+//            }
+        }
     }
 
     internal inner class SnapGestureDetector : SimpleOnGestureListener() {
+        override fun onScroll(
+            e1: MotionEvent?,
+            e2: MotionEvent,
+            distanceX: Float,
+            distanceY: Float
+        ): Boolean {
+            if (abs(distanceX) > abs(distanceY)) return true
+            return false
+        }
         override fun onFling(
-            e1: MotionEvent,
+            e1: MotionEvent?,
             e2: MotionEvent,
             velocityX: Float,
             velocityY: Float
         ): Boolean {
             try {
-                // right to left
-                if (e1.x - e2.x > SWIPE_MIN_DISTANCE && abs(velocityX) > SWIPE_THRESHOLD_VELOCITY) {
-                    val featureWidth = measuredWidth
-                    mActiveFeature =
-                        if (mActiveFeature < mItems.size - 1) mActiveFeature + 1 else mItems.size - 1
-                    smoothScrollTo(mActiveFeature * featureWidth, 0)
-                    return true
-                } else if (e2.x - e1.x > SWIPE_MIN_DISTANCE && abs(velocityX) > SWIPE_THRESHOLD_VELOCITY) {
-                    val featureWidth = measuredWidth
-                    mActiveFeature = if (mActiveFeature > 0) mActiveFeature - 1 else 0
-                    smoothScrollTo(mActiveFeature * featureWidth, 0)
-                    return true
+                if (null == e1) return false
+                val diffY = e2.y - e1.y
+                val diffX = e2.x - e1.x
+                if (abs(diffX) > abs(diffY)) {
+                    if (abs(diffX) > SWIPE_THRESHOLD && abs(velocityX) > SWIPE_VELOCITY_THRESHOLD) {
+                        return if (diffX > 0) {
+                            val featureWidth = measuredWidth
+                            mActiveFeature = if (mActiveFeature > 0) mActiveFeature - 1 else 0
+                            smoothScrollTo(mActiveFeature * featureWidth, 0)
+                            true
+                        } else {
+                            val featureWidth = measuredWidth
+                            mActiveFeature = if (mActiveFeature < mItems.size - 1)
+                                mActiveFeature + 1 else mItems.size - 1
+                            smoothScrollTo(mActiveFeature * featureWidth, 0)
+                            true
+                        }
+                    }
                 }
-            } catch (ignored : Exception) { }
+            } catch (exception: Exception) {
+                exception.printStackTrace()
+            }
             return false
         }
     }
 
     companion object {
-        private const val SWIPE_MIN_DISTANCE = 10
-        private const val SWIPE_THRESHOLD_VELOCITY = 250
+        private const val SWIPE_THRESHOLD = 10
+        private const val SWIPE_VELOCITY_THRESHOLD = 250
     }
 }
