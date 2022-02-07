@@ -206,9 +206,6 @@ public class WidgetModel {
                 final int containerIndex = c.getColumnIndexOrThrow(WidgetSettings.Favorites.CONTAINER);
                 final int itemTypeIndex = c.getColumnIndexOrThrow(WidgetSettings.Favorites.ITEM_TYPE);
                 final int appWidgetIdIndex = c.getColumnIndexOrThrow(WidgetSettings.Favorites.APPWIDGET_ID);
-                final int screenIndex = c.getColumnIndexOrThrow(WidgetSettings.Favorites.SCREEN);
-                final int cellXIndex = c.getColumnIndexOrThrow(WidgetSettings.Favorites.CELLX);
-                final int cellYIndex = c.getColumnIndexOrThrow(WidgetSettings.Favorites.CELLY);
                 final int spanXIndex = c.getColumnIndexOrThrow(WidgetSettings.Favorites.SPANX);
                 final int spanYIndex = c.getColumnIndexOrThrow(WidgetSettings.Favorites.SPANY);
                 final int uriIndex = c.getColumnIndexOrThrow(WidgetSettings.Favorites.URI);
@@ -224,9 +221,6 @@ public class WidgetModel {
                             int appWidgetId = c.getInt(appWidgetIdIndex);
                             appWidgetInfo = new CoverWidgetInfo(appWidgetId);
                             appWidgetInfo.id = c.getLong(idIndex);
-                            appWidgetInfo.screen = c.getInt(screenIndex);
-                            appWidgetInfo.cellX = c.getInt(cellXIndex);
-                            appWidgetInfo.cellY = c.getInt(cellYIndex);
                             appWidgetInfo.spanX = c.getInt(spanXIndex);
                             appWidgetInfo.spanY = c.getInt(spanYIndex);
 
@@ -325,19 +319,17 @@ public class WidgetModel {
      * Move an item in the DB to a new <container, screen, cellX, cellY>
      */
     static void moveItemInDatabase(Context context, WidgetInfo item, long container, int screen,
-                                   int cellX, int cellY) {
+                                   int spanX, int spanY) {
         item.container = container;
-        item.screen = screen;
-        item.cellX = cellX;
-        item.cellY = cellY;
+        item.spanX = spanX;
+        item.spanY = spanY;
 
         final ContentValues values = new ContentValues();
         final ContentResolver cr = context.getContentResolver();
 
         values.put(WidgetSettings.Favorites.CONTAINER, item.container);
-        values.put(WidgetSettings.Favorites.CELLX, item.cellX);
-        values.put(WidgetSettings.Favorites.CELLY, item.cellY);
-        values.put(WidgetSettings.Favorites.SCREEN, item.screen);
+        values.put(WidgetSettings.Favorites.SPANX, item.spanX);
+        values.put(WidgetSettings.Favorites.SPANY, item.spanY);
 
         cr.update(WidgetSettings.Favorites.getContentUri(item.id, false), values, null, null);
     }
@@ -347,11 +339,10 @@ public class WidgetModel {
      * cellY fields of the item. Also assigns an ID to the item.
      */
     public static void addItemToDatabase(Context context, WidgetInfo item, int container,
-                                         int screen, int cellX, int cellY, boolean notify) {
+                                         int spanX, int spanY, boolean notify) {
         item.container = container;
-        item.screen = screen;
-        item.cellX = cellX;
-        item.cellY = cellY;
+        item.spanX = spanX;
+        item.spanY = spanY;
 
         final ContentValues values = new ContentValues();
         final ContentResolver cr = context.getContentResolver();

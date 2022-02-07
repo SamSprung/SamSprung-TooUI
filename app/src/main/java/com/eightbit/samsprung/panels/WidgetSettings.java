@@ -124,26 +124,6 @@ public class WidgetSettings {
         public static final int CONTAINER_DESKTOP = -100;
 
         /**
-         * The screen holding the favorite (if container is CONTAINER_DESKTOP)
-         * <P>Type: INTEGER</P>
-         */
-        public static final String SCREEN = "screen";
-
-        /**
-         * The X coordinate of the cell holding the favorite
-         * (if container is CONTAINER_DESKTOP or CONTAINER_DOCK)
-         * <P>Type: INTEGER</P>
-         */
-        public static final String CELLX = "cellX";
-
-        /**
-         * The Y coordinate of the cell holding the favorite
-         * (if container is CONTAINER_DESKTOP)
-         * <P>Type: INTEGER</P>
-         */
-        public static final String CELLY = "cellY";
-
-        /**
          * The X span of the cell holding the favorite
          * <P>Type: INTEGER</P>
          */

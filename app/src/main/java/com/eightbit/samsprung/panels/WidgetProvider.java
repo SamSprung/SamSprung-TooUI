@@ -46,7 +46,7 @@ public class WidgetProvider extends ContentProvider {
 
     private static final String DATABASE_NAME = "panels.db";
     
-    private static final int DATABASE_VERSION = 15;
+    private static final int DATABASE_VERSION = 16;
 
     static final String AUTHORITY = "com.eightbit.samsprung.panels";
     static final String EXTRA_BIND_SOURCES = AUTHORITY + ".bindsources";
@@ -189,9 +189,6 @@ public class WidgetProvider extends ContentProvider {
                     "title TEXT," +
                     "intent TEXT," +
                     "container INTEGER," +
-                    "screen INTEGER," +
-                    "cellX INTEGER," +
-                    "cellY INTEGER," +
                     "spanX INTEGER," +
                     "spanY INTEGER," +
                     "itemType INTEGER," +
@@ -258,9 +255,6 @@ public class WidgetProvider extends ContentProvider {
             final int iconIndex = c.getColumnIndexOrThrow(WidgetSettings.Favorites.ICON);
             final int containerIndex = c.getColumnIndexOrThrow(WidgetSettings.Favorites.CONTAINER);
             final int itemTypeIndex = c.getColumnIndexOrThrow(WidgetSettings.Favorites.ITEM_TYPE);
-            final int screenIndex = c.getColumnIndexOrThrow(WidgetSettings.Favorites.SCREEN);
-            final int cellXIndex = c.getColumnIndexOrThrow(WidgetSettings.Favorites.CELLX);
-            final int cellYIndex = c.getColumnIndexOrThrow(WidgetSettings.Favorites.CELLY);
             final int uriIndex = c.getColumnIndexOrThrow(WidgetSettings.Favorites.URI);
 
             ContentValues[] rows = new ContentValues[c.getCount()];
@@ -275,9 +269,6 @@ public class WidgetProvider extends ContentProvider {
                 values.put(WidgetSettings.Favorites.CONTAINER, c.getInt(containerIndex));
                 values.put(WidgetSettings.Favorites.ITEM_TYPE, c.getInt(itemTypeIndex));
                 values.put(WidgetSettings.Favorites.APPWIDGET_ID, -1);
-                values.put(WidgetSettings.Favorites.SCREEN, c.getInt(screenIndex));
-                values.put(WidgetSettings.Favorites.CELLX, c.getInt(cellXIndex));
-                values.put(WidgetSettings.Favorites.CELLY, c.getInt(cellYIndex));
                 values.put(WidgetSettings.Favorites.URI, c.getString(uriIndex));
                 rows[i++] = values;
             }
@@ -352,7 +343,7 @@ public class WidgetProvider extends ContentProvider {
             bindTargets.add(new ComponentName("com.android.camera",
                     "com.android.camera.PhotoAppWidgetProvider"));
             
-            final String selectWhere = buildOrWhereString(Favorites.ITEM_TYPE, bindSources);
+            final String selectWhere = buildOrWhereString(bindSources);
             
             Cursor c = null;
             boolean allocatedAppWidgets = false;
@@ -433,10 +424,11 @@ public class WidgetProvider extends ContentProvider {
      * Build a query string that will match any row where the column matches
      * anything in the values list.
      */
-    static String buildOrWhereString(String column, int[] values) {
+    static String buildOrWhereString(int[] values) {
         StringBuilder selectWhere = new StringBuilder();
         for (int i = values.length - 1; i >= 0; i--) {
-            selectWhere.append(column).append("=").append(values[i]);
+            selectWhere.append(WidgetSettings.BaseLauncherColumns.ITEM_TYPE)
+                    .append("=").append(values[i]);
             if (i > 0) {
                 selectWhere.append(" OR ");
             }

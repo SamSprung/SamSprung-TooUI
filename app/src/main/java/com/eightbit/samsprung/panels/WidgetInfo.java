@@ -50,21 +50,6 @@ public class WidgetInfo {
      * it will be the id of the folder.
      */
     public long container = NO_ID;
-    
-    /**
-     * Iindicates the screen in which the shortcut appears.
-     */
-    public int screen = -1;
-    
-    /**
-     * Indicates the X position of the associated cell.
-     */
-    public int cellX = -1;
-
-    /**
-     * Indicates the Y position of the associated cell.
-     */
-    public int cellY = -1;
 
     /**
      * Indicates the X cell span.
@@ -85,11 +70,8 @@ public class WidgetInfo {
 
     public WidgetInfo(WidgetInfo info) {
         id = info.id;
-        cellX = info.cellX;
-        cellY = info.cellY;
         spanX = info.spanX;
         spanY = info.spanY;
-        screen = info.screen;
         itemType = info.itemType;
         container = info.container;
     }
@@ -103,9 +85,6 @@ public class WidgetInfo {
         values.put(WidgetSettings.BaseLauncherColumns.ITEM_TYPE, itemType);
         if (!isGesture) {
             values.put(WidgetSettings.Favorites.CONTAINER, container);
-            values.put(WidgetSettings.Favorites.SCREEN, screen);
-            values.put(WidgetSettings.Favorites.CELLX, cellX);
-            values.put(WidgetSettings.Favorites.CELLY, cellY);
             values.put(WidgetSettings.Favorites.SPANX, spanX);
             values.put(WidgetSettings.Favorites.SPANY, spanY);
         }

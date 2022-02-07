@@ -42,6 +42,7 @@ import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.concurrent.Executors;
 
 abstract class SoftReferenceThreadLocal<T> {
@@ -241,7 +242,7 @@ public class WidgetPreviewLoader {
             }
 
             synchronized(mLoadedPreviews) {
-                mLoadedPreviews.put(name, new WeakReference<Bitmap>(preview));
+                mLoadedPreviews.put(name, new WeakReference<>(preview));
             }
 
             // write to db on a thread pool... this can be done lazily and improves the performance
@@ -256,12 +257,12 @@ public class WidgetPreviewLoader {
         String name = getObjectName(o);
         synchronized (mLoadedPreviews) {
             if (mLoadedPreviews.containsKey(name)) {
-                Bitmap b = mLoadedPreviews.get(name).get();
+                Bitmap b = Objects.requireNonNull(mLoadedPreviews.get(name)).get();
                 if (b == bitmapToRecycle) {
                     mLoadedPreviews.remove(name);
                     if (bitmapToRecycle.isMutable()) {
                         synchronized (mUnusedBitmaps) {
-                            mUnusedBitmaps.add(new SoftReference<Bitmap>(b));
+                            mUnusedBitmaps.add(new SoftReference<>(b));
                         }
                     }
                 } else {
@@ -458,8 +459,8 @@ public class WidgetPreviewLoader {
 
         Drawable drawable = info.loadPreviewImage(mContext, 0);
 
-        int previewWidth;
-        int previewHeight;
+        int previewWidth = 0;
+        int previewHeight = 0;
         Bitmap defaultPreview = null;
         boolean widgetPreviewExists = (drawable != null);
         if (widgetPreviewExists) {
@@ -472,45 +473,47 @@ public class WidgetPreviewLoader {
 
             BitmapDrawable previewDrawable = (BitmapDrawable) ResourcesCompat.getDrawable(
                     mContext.getResources(), R.drawable.widget_preview_tile, mContext.getTheme());
-            final int previewDrawableWidth = previewDrawable
-                    .getIntrinsicWidth();
-            final int previewDrawableHeight = previewDrawable
-                    .getIntrinsicHeight();
-            previewWidth = previewDrawableWidth * cellHSpan; // subtract 2 dips
-            previewHeight = previewDrawableHeight * cellVSpan;
+            if (null != previewDrawable) {
+                final int previewDrawableWidth = previewDrawable
+                        .getIntrinsicWidth();
+                final int previewDrawableHeight = previewDrawable
+                        .getIntrinsicHeight();
+                previewWidth = previewDrawableWidth * cellHSpan; // subtract 2 dips
+                previewHeight = previewDrawableHeight * cellVSpan;
 
-            defaultPreview = Bitmap.createBitmap(previewWidth, previewHeight,
-                    Config.ARGB_8888);
-            final Canvas c = mCachedAppWidgetPreviewCanvas.get();
-            c.setBitmap(defaultPreview);
-            previewDrawable.setBounds(0, 0, previewWidth, previewHeight);
-            previewDrawable.setTileModeXY(Shader.TileMode.REPEAT,
-                    Shader.TileMode.REPEAT);
-            previewDrawable.draw(c);
-            c.setBitmap(null);
+                defaultPreview = Bitmap.createBitmap(previewWidth, previewHeight,
+                        Config.ARGB_8888);
+                final Canvas c = mCachedAppWidgetPreviewCanvas.get();
+                c.setBitmap(defaultPreview);
+                previewDrawable.setBounds(0, 0, previewWidth, previewHeight);
+                previewDrawable.setTileModeXY(Shader.TileMode.REPEAT,
+                        Shader.TileMode.REPEAT);
+                previewDrawable.draw(c);
+                c.setBitmap(null);
 
-            // Draw the icon in the top left corner
-            float sWidgetPreviewIconPaddingPercentage = 0.25f;
-            int minOffset = (int) (mAppIconSize * sWidgetPreviewIconPaddingPercentage);
-            int smallestSide = Math.min(previewWidth, previewHeight);
-            float iconScale = Math.min((float) smallestSide
-                    / (mAppIconSize + 2 * minOffset), 1f);
+                // Draw the icon in the top left corner
+                float sWidgetPreviewIconPaddingPercentage = 0.25f;
+                int minOffset = (int) (mAppIconSize * sWidgetPreviewIconPaddingPercentage);
+                int smallestSide = Math.min(previewWidth, previewHeight);
+                float iconScale = Math.min((float) smallestSide
+                        / (mAppIconSize + 2 * minOffset), 1f);
 
-            try {
-                Drawable icon = null;
-                int hoffset =
-                        (int) ((previewDrawableWidth - mAppIconSize * iconScale) / 2);
-                int yoffset =
-                        (int) ((previewDrawableHeight - mAppIconSize * iconScale) / 2);
-                if (info.icon > 0)
-                    icon = getFullResIcon(info.provider.getPackageName(),
-                            info.icon, info.getProfile());
-                if (icon != null) {
-                    renderDrawableToBitmap(icon, defaultPreview, hoffset,
-                            yoffset, (int) (mAppIconSize * iconScale),
-                            (int) (mAppIconSize * iconScale));
-                }
-            } catch (Resources.NotFoundException ignored) { }
+                try {
+                    Drawable icon = null;
+                    int hoffset =
+                            (int) ((previewDrawableWidth - mAppIconSize * iconScale) / 2);
+                    int yoffset =
+                            (int) ((previewDrawableHeight - mAppIconSize * iconScale) / 2);
+                    if (info.icon > 0)
+                        icon = getFullResIcon(info.provider.getPackageName(),
+                                info.icon, info.getProfile());
+                    if (icon != null) {
+                        renderDrawableToBitmap(icon, defaultPreview, hoffset,
+                                yoffset, (int) (mAppIconSize * iconScale),
+                                (int) (mAppIconSize * iconScale));
+                    }
+                } catch (Resources.NotFoundException ignored) { }
+            }
         }
 
         // Scale to fit width only - let the widget preview be clipped in the
@@ -542,7 +545,8 @@ public class WidgetPreviewLoader {
             final Rect src = mCachedAppWidgetPreviewSrcRect.get();
             final Rect dest = mCachedAppWidgetPreviewDestRect.get();
             c.setBitmap(preview);
-            src.set(0, 0, defaultPreview.getWidth(), defaultPreview.getHeight());
+            if (null != defaultPreview)
+                src.set(0, 0, defaultPreview.getWidth(), defaultPreview.getHeight());
             dest.set(x, 0, x + previewWidth, previewHeight);
 
             Paint p = mCachedAppWidgetPreviewPaint.get();
@@ -583,7 +587,7 @@ public class WidgetPreviewLoader {
             Drawable badgedPreviewDrawable = mContext.getPackageManager().getUserBadgedDrawableForDensity(
                     previewDrawable, info.getProfile(), badgeLocation, 0);
 
-            // Reture the nadged bitmap.
+            // Return the badged bitmap.
             if (badgedPreviewDrawable instanceof BitmapDrawable) {
                 BitmapDrawable bitmapDrawable = (BitmapDrawable) badgedPreviewDrawable;
                 return bitmapDrawable.getBitmap();

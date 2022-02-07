@@ -1,16 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">SamSprung TooUI</string>
+    <string name="app_name" translatable="false">SamSprung TooUI</string>
 
-    <string name="logcat_link">Logcat</string>
-    <string name="google_play_link">Google Play</string>
-    <string name="paypal_link">PayPal</string>
+    <string name="logcat_link" translatable="false">Logcat</string>
+    <string name="google_play_link" translatable="false">Google Play</string>
+    <string name="paypal_link" translatable="false">PayPal</string>
 
-    <string name="samsprung">SamSprung</string>
-    <string name="build_hash">#%1$s</string>
-    <string name="build_hash_full">SamSprung - #%1$s</string>
-    <string name="git_issue_title">Logcat - SamSprung #%1$s</string>
+    <string name="samsprung" translatable="false">SamSprung</string>
+    <string name="build_hash" translatable="false">#%1$s</string>
+    <string name="build_hash_full" translatable="false">SamSprung - #%1$s</string>
+    <string name="git_issue_title" translatable="false">Logcat - SamSprung #%1$s</string>
 
-    <string name="description_icon">Icon</string>
-    <string name="description_badge">Badge</string>
+    <string name="description_icon" translatable="false">Icon</string>
+    <string name="description_badge" translatable="false">Badge</string>
 </resources>

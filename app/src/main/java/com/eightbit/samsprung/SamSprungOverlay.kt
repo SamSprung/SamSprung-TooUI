@@ -134,7 +134,7 @@ class SamSprungOverlay : AppCompatActivity(),
 
         window.attributes.width = ViewGroup.LayoutParams.MATCH_PARENT
         window.attributes.gravity = Gravity.BOTTOM
-        // window.setBackgroundDrawable(null)
+        window.setBackgroundDrawable(null)
 
         prefs = getSharedPreferences(SamSprung.prefsValue, MODE_PRIVATE)
 

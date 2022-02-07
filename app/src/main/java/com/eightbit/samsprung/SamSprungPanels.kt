@@ -1,3 +1,5 @@
+package com.eightbit.samsprung
+
 /*
  * Copyright (C) 2008 The Android Open Source Project
  *
@@ -13,7 +15,57 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.eightbit.samsprung
+
+/* ====================================================================
+ * Copyright (c) 2012-2022 AbandonedCart.  All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met:
+ *
+ * 1. Redistributions of source code must retain the above copyright
+ *    notice, this list of conditions and the following disclaimer.
+ *
+ * 2. Redistributions in binary form must reproduce the above copyright
+ *    notice, this list of conditions and the following disclaimer in
+ *    the documentation and/or other materials provided with the
+ *    distribution.
+ *
+ * 3. All advertising materials mentioning features or use of this
+ *    software and redistributions of any form whatsoever
+ *    must display the following acknowledgment:
+ *    "This product includes software developed by AbandonedCart" unless
+ *    otherwise displayed by tagged, public repository entries.
+ *
+ * 4. The names "8-Bit Dream", "TwistedUmbrella" and "AbandonedCart"
+ *    must not be used in any form to endorse or promote products
+ *    derived from this software without prior written permission. For
+ *    written permission, please contact enderinexiledc@gmail.com
+ *
+ * 5. Products derived from this software may not be called "8-Bit Dream",
+ *    "TwistedUmbrella" or "AbandonedCart" nor may these labels appear
+ *    in their names without prior written permission of AbandonedCart.
+ *
+ * THIS SOFTWARE IS PROVIDED BY AbandonedCart ``AS IS'' AND ANY
+ * EXPRESSED OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+ * PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE OpenSSL PROJECT OR
+ * ITS CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+ * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT
+ * NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+ * LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+ * HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,
+ * STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+ * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
+ * OF THE POSSIBILITY OF SUCH DAMAGE.
+ * ====================================================================
+ *
+ * The license and distribution terms for any publicly available version or
+ * derivative of this code cannot be changed.  i.e. this code cannot simply be
+ * copied and put under another distribution license
+ * [including the GNU Public License.] Content not subject to these terms is
+ * subject to to the terms and conditions of the Apache License, Version 2.0.
+ */
 
 import android.Manifest
 import android.annotation.SuppressLint
@@ -43,6 +95,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.view.ContextThemeWrapper
 import androidx.appcompat.widget.AppCompatImageView
 import androidx.core.content.ContextCompat
+import androidx.core.graphics.drawable.toBitmap
 import androidx.core.view.children
 import androidx.core.view.get
 import com.eightbit.content.ScaledContext
@@ -55,7 +108,6 @@ import java.lang.ref.SoftReference
 import java.util.*
 import java.util.concurrent.Executors
 
-
 /**
  * Default launcher application.
  */
@@ -63,8 +115,7 @@ import java.util.concurrent.Executors
 class SamSprungPanels : AppCompatActivity() {
     private val mObserver: ContentObserver = FavoritesChangeObserver()
     private var mAppWidgetManager: AppWidgetManager? = null
-    var appWidgetHost: CoverWidgetHost? = null
-        private set
+    private var appWidgetHost: CoverWidgetHost? = null
     private lateinit var workspace: LinearLayout
 
     private var mDestroyed = false
@@ -82,7 +133,7 @@ class SamSprungPanels : AppCompatActivity() {
 
         super.onCreate(savedInstanceState)
         supportActionBar?.hide()
-        ScaledContext.widget(this).setTheme(R.style.Theme_AppCompat)
+        widgetContext?.setTheme(R.style.Theme_AppCompat)
 
         mAppWidgetManager = AppWidgetManager.getInstance(widgetContext)
         appWidgetHost = CoverWidgetHost(
@@ -111,11 +162,11 @@ class SamSprungPanels : AppCompatActivity() {
             .setHasFixedTransformationMatrix(true)
             .setBlurAlgorithm(RenderScriptBlur(this))
 
-        workspace = findViewById<LinearLayout>(R.id.workspace)
+        workspace = findViewById(R.id.workspace)
         val menuHandle = findViewById<AppCompatImageView>(R.id.menu_zone)
         menuHandle.setOnClickListener {
-            tactileFeedback()
             showAddDialog()
+            tactileFeedback()
         }
         menuHandle.setOnLongClickListener {
             finish()
@@ -130,14 +181,21 @@ class SamSprungPanels : AppCompatActivity() {
 
         val deleteHandle = findViewById<AppCompatImageView>(R.id.delete_zone)
         deleteHandle.setOnClickListener {
-            tactileFeedback()
             val layout = getVisibleItem(workspace)
             if (null != layout) {
-                val widget = (layout as LinearLayout)[0]
-                WidgetModel.deleteItemFromDatabase(
-                    widgetContext, widget.tag as CoverWidgetInfo
-                )
-                workspace.removeView(layout)
+                val widget = layout[0]
+                if (widget.tag is CoverWidgetInfo) {
+                    tactileFeedback()
+                    val info = widget.tag as CoverWidgetInfo
+                    model.removeDesktopAppWidget(info)
+                    if (null != appWidgetHost) {
+                        appWidgetHost!!.deleteAppWidgetId(info.appWidgetId)
+                    }
+                    WidgetModel.deleteItemFromDatabase(
+                        widgetContext, info
+                    )
+                    workspace.removeView(layout)
+                }
             }
         }
         deleteHandle.setOnLongClickListener {
@@ -190,6 +248,7 @@ class SamSprungPanels : AppCompatActivity() {
         return null
     }
 
+    @SuppressLint("InflateParams")
     private fun completeAddAppWidget(appWidgetId: Int) {
         val appWidgetInfo = mAppWidgetManager!!.getAppWidgetInfo(appWidgetId)
 
@@ -215,7 +274,7 @@ class SamSprungPanels : AppCompatActivity() {
             WidgetModel.addItemToDatabase(
                 widgetContext, launcherInfo,
                 Favorites.CONTAINER_DESKTOP,
-                0, 0, 0, false
+                spans[0],  spans[1], false
             )
         }
         model.addDesktopAppWidget(launcherInfo)
@@ -240,6 +299,7 @@ class SamSprungPanels : AppCompatActivity() {
                 .defaultVibrator.vibrate(VibrationEffect.createOneShot(
                     30, VibrationEffect.DEFAULT_AMPLITUDE))
         } else {
+            @Suppress("DEPRECATION")
             (getSystemService(Context.VIBRATOR_SERVICE) as Vibrator)
                 .vibrate(VibrationEffect.createOneShot(
                     30, VibrationEffect.DEFAULT_AMPLITUDE))
@@ -366,6 +426,7 @@ class SamSprungPanels : AppCompatActivity() {
         }
     }
 
+    @SuppressLint("InflateParams")
     private fun bindAppWidgets(
         binder: DesktopBinder,
         appWidgets: LinkedList<CoverWidgetInfo>
@@ -400,8 +461,10 @@ class SamSprungPanels : AppCompatActivity() {
         }
     }
 
+    @SuppressLint("InflateParams")
     private fun showAddDialog() {
         val appWidgetId = appWidgetHost!!.allocateAppWidgetId()
+        val mWidgetPreviewLoader = WidgetPreviewLoader(this)
 
         val view: View = layoutInflater.inflate(R.layout.panel_picker_view, null)
         val dialog = AlertDialog.Builder(
@@ -409,10 +472,20 @@ class SamSprungPanels : AppCompatActivity() {
         )
         val previews = view.findViewById<LinearLayout>(R.id.previews_layout)
         dialog.setOnCancelListener {
-            previews.removeAllViews()
+            for (previewImage in previews.children) {
+                val preview = (previewImage as AppCompatImageView)
+                mWidgetPreviewLoader.recycleBitmap(previewImage.tag, preview.drawable.toBitmap())
+                previews.removeView(preview)
+            }
+        }
+        dialog.setOnDismissListener {
+            for (previewImage in previews.children) {
+                val preview = (previewImage as AppCompatImageView)
+                mWidgetPreviewLoader.recycleBitmap(previewImage.tag, preview.drawable.toBitmap())
+                previews.removeView(preview)
+            }
         }
         val widgetDialog: Dialog = dialog.setView(view).show()
-        val mWidgetPreviewLoader = WidgetPreviewLoader(this)
         val infoList: List<AppWidgetProviderInfo> = mAppWidgetManager!!.installedProviders
         for (info: AppWidgetProviderInfo in infoList) {
             var spanX: Int = info.minWidth
@@ -446,6 +519,7 @@ class SamSprungPanels : AppCompatActivity() {
                 }
                 widgetDialog.dismiss()
             }
+            previewImage.tag = info
             previews.addView(previewImage)
         }
         widgetDialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
@@ -518,11 +592,11 @@ class SamSprungPanels : AppCompatActivity() {
             mAppWidgets = LinkedList()
             for (i in 0 until size) {
                 val appWidgetInfo = appWidgets[i]
-                if (appWidgetInfo.screen == 0) {
-                    mAppWidgets.addFirst(appWidgetInfo)
-                } else {
+                // if (appWidgetInfo.screen == 0) {
+                //     mAppWidgets.addFirst(appWidgetInfo)
+                // } else {
                     mAppWidgets.addLast(appWidgetInfo)
-                }
+                // }
             }
             if (WidgetModel.DEBUG_LOADERS) {
                 Log.d(LogTag, "------> binding " + shortcuts!!.size + " items")
@@ -563,6 +637,7 @@ class SamSprungPanels : AppCompatActivity() {
 
     private val requestCreateAppWidgetHost = 9001
 
+    @Suppress("DEPRECATION")
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
 
