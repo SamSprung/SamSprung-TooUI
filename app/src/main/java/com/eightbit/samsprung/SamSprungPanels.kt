@@ -70,7 +70,6 @@ package com.eightbit.samsprung
 import android.Manifest
 import android.annotation.SuppressLint
 import android.app.ActivityOptions
-import android.app.Dialog
 import android.app.WallpaperManager
 import android.appwidget.AppWidgetHostView
 import android.appwidget.AppWidgetManager
@@ -87,7 +86,6 @@ import android.os.MessageQueue.IdleHandler
 import android.util.Log
 import android.util.TypedValue
 import android.view.View
-import android.widget.HorizontalScrollView
 import android.widget.LinearLayout
 import androidx.activity.result.ActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -102,19 +100,13 @@ import androidx.core.view.get
 import com.eightbit.content.ScaledContext
 import com.eightbit.samsprung.panels.*
 import com.eightbit.samsprung.panels.WidgetSettings.Favorites
+import com.eightbit.widget.SnapHorizontalScrollView
 import com.eightbitlab.blurview.BlurView
 import com.eightbitlab.blurview.RenderScriptBlur
 import java.lang.Integer.max
 import java.lang.ref.SoftReference
 import java.util.*
 import java.util.concurrent.Executors
-import android.view.ViewTreeObserver
-import android.view.ViewTreeObserver.OnScrollChangedListener
-import android.widget.Toast
-import androidx.recyclerview.widget.GridLayoutManager
-import androidx.recyclerview.widget.LinearLayoutManager
-import com.eightbit.view.OnSwipeTouchListener
-import com.google.android.material.bottomsheet.BottomSheetBehavior
 
 
 /**
@@ -126,6 +118,7 @@ class SamSprungPanels : AppCompatActivity() {
     private var mAppWidgetManager: AppWidgetManager? = null
     private var appWidgetHost: CoverWidgetHost? = null
     private lateinit var workspace: LinearLayout
+    private lateinit var snapScroller: SnapHorizontalScrollView
 
     private var mDestroyed = false
     private var mBinder: DesktopBinder? = null
@@ -171,6 +164,7 @@ class SamSprungPanels : AppCompatActivity() {
             .setHasFixedTransformationMatrix(true)
             .setBlurAlgorithm(RenderScriptBlur(this))
 
+        snapScroller = findViewById(R.id.snap_scroller)
         workspace = findViewById(R.id.workspace)
         val menuHandle = findViewById<AppCompatImageView>(R.id.menu_zone)
         menuHandle.setOnClickListener {
@@ -206,6 +200,7 @@ class SamSprungPanels : AppCompatActivity() {
                         widgetContext, widget
                     )
                     workspace.removeView(layout)
+                    snapScroller.removeFeatureItem(layout)
                 }
             }
         }
@@ -297,6 +292,7 @@ class SamSprungPanels : AppCompatActivity() {
         )
         wrapper.addView(launcherInfo.hostView)
         workspace.addView(wrapper, params)
+        snapScroller.addFeatureItem(wrapper)
     }
 
     private fun tactileFeedback() {
@@ -461,6 +457,7 @@ class SamSprungPanels : AppCompatActivity() {
             )
             wrapper.addView(item.hostView)
             workspace.addView(wrapper, params)
+            snapScroller.addFeatureItem(wrapper)
         }
         if (!appWidgets.isEmpty()) {
             binder.obtainMessage(DesktopBinder.MESSAGE_BIND_APPWIDGETS).sendToTarget()

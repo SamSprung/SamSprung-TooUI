@@ -12,7 +12,8 @@
         android:layout_height="match_parent"
         launcher:blurOverlayColor="@color/bottomSheetTint">
 
-            <HorizontalScrollView
+            <com.eightbit.widget.SnapHorizontalScrollView
+                android:id="@+id/snap_scroller"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent">
                 <LinearLayout
@@ -22,7 +23,7 @@
                     android:layout_marginEnd="28dp"
                     android:orientation="horizontal">
                 </LinearLayout>
-            </HorizontalScrollView>
+            </com.eightbit.widget.SnapHorizontalScrollView>
 
             <LinearLayout
                 android:layout_width="30dip"
