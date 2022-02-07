@@ -58,6 +58,8 @@ import java.io.DataInputStream
 import java.io.DataOutputStream
 import java.io.FileNotFoundException
 import java.io.IOException
+import java.lang.Integer.max
+import java.lang.Integer.min
 import java.lang.ref.SoftReference
 import java.util.*
 import java.util.concurrent.Executors
@@ -282,19 +284,23 @@ class SamSprungPanels : AppCompatActivity(), View.OnClickListener, OnLongClickLi
         mWaitingForResult = false
         val appWidgetInfo = mAppWidgetManager!!.getAppWidgetInfo(appWidgetId)
 
-        // Calculate the grid spans needed to fit this widget
+        // Build Launcher-specific widget info and save to database
+        val launcherInfo = CoverWidgetInfo(appWidgetId)
+
+        var spanX = appWidgetInfo.minWidth
+        var spanY = appWidgetInfo.minHeight
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            spanX = max(appWidgetInfo.minWidth, appWidgetInfo.maxResizeWidth)
+            spanY = max(appWidgetInfo.minHeight, appWidgetInfo.maxResizeHeight)
+        }
         val layout = workspace!!.getChildAt(cellInfo!!.screen) as CellLayout
-        val spans = layout.rectToCell(appWidgetInfo.minWidth, appWidgetInfo.minHeight)
+        val spans = layout.rectToCell(spanX, spanY)
+        launcherInfo.spanX = spans[0]
+        launcherInfo.spanY = spans[1]
 
         // Try finding open space on Launcher screen
         val xy = mCellCoordinates
-        if (!findSlot(cellInfo, xy, spans!![0], spans[1])) return
 
-        // Build Launcher-specific widget info and save to database
-        val launcherInfo =
-            CoverWidgetInfo(appWidgetId)
-        launcherInfo.spanX = spans[0]
-        launcherInfo.spanY = spans[1]
         Executors.newSingleThreadExecutor().execute {
             WidgetModel.addItemToDatabase(
                 widgetContext, launcherInfo,
@@ -314,6 +320,7 @@ class SamSprungPanels : AppCompatActivity(), View.OnClickListener, OnLongClickLi
                 launcherInfo.hostView, xy[0], xy[1],
                 launcherInfo.spanX, launcherInfo.spanY, insertAtFirst
             )
+
         } else if (model.isDesktopLoaded) {
             model.addDesktopAppWidget(launcherInfo)
         }
@@ -626,18 +633,17 @@ class SamSprungPanels : AppCompatActivity(), View.OnClickListener, OnLongClickLi
         val mWidgetPreviewLoader = WidgetPreviewLoader(this)
         val infoList: List<AppWidgetProviderInfo> = mAppWidgetManager!!.installedProviders
         for (info: AppWidgetProviderInfo in infoList) {
-            var spanX: Int = info.minHeight
-            var spanY: Int = info.minWidth
+            var spanX: Int = info.minWidth
+            var spanY: Int = info.minHeight
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-                spanX = info.maxResizeHeight
-                spanY = info.maxResizeWidth
+                spanX = max(info.minWidth, info.maxResizeWidth)
+                spanY = max(info.minHeight, info.maxResizeHeight)
             }
-            val maxWidth: Int = resources.displayMetrics.widthPixels
-            val maxHeight: Int = resources.displayMetrics.heightPixels
+            val maxWidth: Int = workspace!!.getChildAt(cellInfo!!.screen).width
+            val maxHeight: Int = workspace!!.getChildAt(cellInfo!!.screen).height
             val previewSizeBeforeScale = IntArray(1)
             val preview = mWidgetPreviewLoader.generateWidgetPreview(
-                info, spanX,
-                spanY, maxWidth, maxHeight, null, previewSizeBeforeScale
+                info, spanX, spanY, maxWidth, maxHeight, null, previewSizeBeforeScale
             )
             val previewImage = layoutInflater.inflate(
                 R.layout.panel_preview_image, null) as AppCompatImageView

@@ -65,6 +65,7 @@ public class SamSprungInput extends InputMethodService
     }
 
     private void swapKeyboardLayout() {
+        if (null == mKeyboardView) return;
         if (isNumPad) {
             isNumPad = false;
             mKeyboardView.get().setKeyboard(mKeyboard);
