@@ -87,8 +87,8 @@ class SnapHorizontalScrollView : HorizontalScrollView {
     }
 
     @SuppressLint("ClickableViewAccessibility")
-    fun addFeatureItem(featureLayout: LinearLayout) {
-        mItems.add(featureLayout)
+    fun addFeatureItem(featureLayout: LinearLayout, index: Int) {
+        mItems.add(index, featureLayout)
         mGestureDetector = GestureDetector(featureLayout.context, SnapGestureDetector())
         setOnTouchListener { v: View, event: MotionEvent ->
             return@setOnTouchListener mGestureDetector!!.onTouchEvent(event)
@@ -107,6 +107,10 @@ class SnapHorizontalScrollView : HorizontalScrollView {
 //                return@setOnTouchListener false
 //            }
         }
+    }
+
+    fun addFeatureItem(featureLayout: LinearLayout) {
+        addFeatureItem(featureLayout, mItems.size)
     }
 
     internal inner class SnapGestureDetector : SimpleOnGestureListener() {

@@ -435,11 +435,10 @@ public class WidgetPreviewLoader {
     }
 
     public Bitmap generateWidgetPreview(AppWidgetProviderInfo info, Bitmap preview) {
-        int[] cellSpans = mLauncher.getSpanForWidget(mLauncher, info);
+        int[] cellSpans = mLauncher.getWidgetMaxSize(info);
         int maxWidth = maxWidthForWidgetPreview(cellSpans[0]);
         int maxHeight = maxHeightForWidgetPreview(cellSpans[1]);
-        return generateWidgetPreview(info, cellSpans[0], cellSpans[1], maxWidth,
-                maxHeight, preview, null);
+        return generateWidgetPreview(info, maxWidth, maxHeight, preview, null);
     }
 
     public int maxWidthForWidgetPreview(int spanX) {
@@ -450,8 +449,8 @@ public class WidgetPreviewLoader {
         return Math.min(mPreviewBitmapHeight, spanY);
     }
 
-    public Bitmap generateWidgetPreview(AppWidgetProviderInfo info, int cellHSpan,
-            int cellVSpan, int maxPreviewWidth, int maxPreviewHeight, Bitmap preview,
+    public Bitmap generateWidgetPreview(AppWidgetProviderInfo info,
+            int maxPreviewWidth, int maxPreviewHeight, Bitmap preview,
             int[] preScaledWidthOut) {
         // Load the preview image if possible
         if (maxPreviewWidth < 0) maxPreviewWidth = Integer.MAX_VALUE;
@@ -468,9 +467,6 @@ public class WidgetPreviewLoader {
             previewHeight = drawable.getIntrinsicHeight();
         } else {
             // Generate a preview image if we couldn't load one
-            if (cellHSpan < 1) cellHSpan = 1;
-            if (cellVSpan < 1) cellVSpan = 1;
-
             BitmapDrawable previewDrawable = (BitmapDrawable) ResourcesCompat.getDrawable(
                     mContext.getResources(), R.drawable.widget_preview_tile, mContext.getTheme());
             if (null != previewDrawable) {
@@ -478,8 +474,8 @@ public class WidgetPreviewLoader {
                         .getIntrinsicWidth();
                 final int previewDrawableHeight = previewDrawable
                         .getIntrinsicHeight();
-                previewWidth = previewDrawableWidth * cellHSpan; // subtract 2 dips
-                previewHeight = previewDrawableHeight * cellVSpan;
+                previewWidth = previewDrawableWidth; // subtract 2 dips
+                previewHeight = previewDrawableHeight;
 
                 defaultPreview = Bitmap.createBitmap(previewWidth, previewHeight,
                         Config.ARGB_8888);

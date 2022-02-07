@@ -289,8 +289,9 @@ class SamSprungPanels : AppCompatActivity() {
             window.decorView.width, window.decorView.height
         )
         wrapper.addView(launcherInfo.hostView)
-        workspace.addView(wrapper, params)
-        snapScroller.addFeatureItem(wrapper)
+        val current = getVisibleIndex(workspace)
+        workspace.addView(wrapper, current, params)
+        snapScroller.addFeatureItem(wrapper, current)
     }
 
     private fun tactileFeedback() {
@@ -321,6 +322,34 @@ class SamSprungPanels : AppCompatActivity() {
             }
         }
         return null
+    }
+
+    private fun getVisibleIndex(listView: LinearLayout) : Int {
+        if (listView.childCount == 0) return 0
+        for (i in 0..listView.childCount) {
+            if (!listView[i].isShown) {
+                continue
+            }
+            val actualPosition = Rect()
+            listView[i].getGlobalVisibleRect(actualPosition)
+            val screen = Rect(
+                0, 0, window.decorView.width, window.decorView.height,
+            )
+            if (actualPosition.intersect(screen)) {
+                return i
+            }
+        }
+        return 0
+    }
+
+    fun getWidgetMaxSize(info: AppWidgetProviderInfo): IntArray {
+        var spanX: Int = info.minWidth
+        var spanY: Int = info.minHeight
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            spanX = max(info.minWidth, info.maxResizeWidth)
+            spanY = max(info.minHeight, info.maxResizeHeight)
+        }
+        return intArrayOf(spanX, spanY)
     }
 
     private val requestCreateAppWidget = registerForActivityResult(
@@ -445,7 +474,7 @@ class SamSprungPanels : AppCompatActivity() {
 
         val view: View = layoutInflater.inflate(R.layout.panel_picker_view, null)
         val dialog = AlertDialog.Builder(
-            ContextThemeWrapper(this, R.style.DialogTheme_NoActionBar)
+            ContextThemeWrapper(widgetContext, R.style.DialogTheme_NoActionBar)
         )
         val previews = view.findViewById<LinearLayout>(R.id.previews_layout)
         dialog.setOnCancelListener {
@@ -471,11 +500,9 @@ class SamSprungPanels : AppCompatActivity() {
                 spanX = max(info.minWidth, info.maxResizeWidth)
                 spanY = max(info.minHeight, info.maxResizeHeight)
             }
-            val maxWidth: Int = window.decorView.width
-            val maxHeight: Int = window.decorView.height
             val previewSizeBeforeScale = IntArray(1)
             val preview = mWidgetPreviewLoader.generateWidgetPreview(
-                info, spanX, spanY, maxWidth, maxHeight, null, previewSizeBeforeScale
+                info, spanX, spanY, null, previewSizeBeforeScale
             )
             val previewImage = layoutInflater.inflate(
                 R.layout.widget_preview, null) as AppCompatImageView
@@ -500,27 +527,6 @@ class SamSprungPanels : AppCompatActivity() {
             previews.addView(previewImage)
         }
         widgetDialog!!.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
-    }
-
-    private fun getSpanForWidget(
-        context: Context, component: ComponentName?, minWidth: Int,
-        minHeight: Int
-    ): IntArray {
-        val padding: Rect = AppWidgetHostView.getDefaultPaddingForWidget(context, component, null)
-        // We want to account for the extra amount of padding that we are adding to the widget
-        // to ensure that it gets the full amount of space that it has requested
-        val requiredWidth: Int = minWidth + padding.left + padding.right
-        val requiredHeight: Int = minHeight + padding.top + padding.bottom
-        return intArrayOf(requiredWidth, requiredHeight)
-    }
-
-    fun getSpanForWidget(context: Context, info: AppWidgetProviderInfo): IntArray {
-        return getSpanForWidget(context, info.provider, info.minWidth, info.minHeight)
-    }
-
-    @Suppress("UNUSED")
-    fun getMinSpanForWidget(context: Context, info: AppWidgetProviderInfo): IntArray {
-        return getSpanForWidget(context, info.provider, info.minResizeWidth, info.minResizeHeight)
     }
 
     private val requestCreateAppWidgetHost = 9001
