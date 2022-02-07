@@ -25,6 +25,7 @@ import android.appwidget.AppWidgetManager
 import android.appwidget.AppWidgetProviderInfo
 import android.content.*
 import android.content.pm.PackageManager
+import android.content.res.Resources
 import android.database.ContentObserver
 import android.graphics.Color
 import android.graphics.Rect
@@ -32,6 +33,7 @@ import android.graphics.drawable.ColorDrawable
 import android.os.*
 import android.os.MessageQueue.IdleHandler
 import android.util.Log
+import android.util.TypedValue
 import android.view.View
 import android.widget.LinearLayout
 import androidx.activity.result.ActivityResult
@@ -129,12 +131,13 @@ class SamSprungPanels : AppCompatActivity() {
         val deleteHandle = findViewById<AppCompatImageView>(R.id.delete_zone)
         deleteHandle.setOnClickListener {
             tactileFeedback()
-            val view = getVisibleItem(workspace)
-            if (null != view) {
-                workspace.removeView(view)
+            val layout = getVisibleItem(workspace)
+            if (null != layout) {
+                val widget = (layout as LinearLayout)[0]
                 WidgetModel.deleteItemFromDatabase(
-                    widgetContext, (view as LinearLayout)[0].tag as CoverWidgetInfo
+                    widgetContext, widget.tag as CoverWidgetInfo
                 )
+                workspace.removeView(layout)
             }
         }
         deleteHandle.setOnLongClickListener {
@@ -243,16 +246,22 @@ class SamSprungPanels : AppCompatActivity() {
         }
     }
 
-    private fun getVisibleItem(listView: LinearLayout): View? {
+    private fun getVisibleItem(listView: LinearLayout): LinearLayout? {
+        val buffer = 30
         for(item in listView.children) {
             if (!item.isShown) {
                 continue
             }
             val actualPosition = Rect()
             item.getGlobalVisibleRect(actualPosition)
-            val screen = Rect(0, 0, window.decorView.width, window.decorView.height)
-            if (actualPosition.intersect(screen))
-                return item
+            val screen = Rect(
+                buffer.toPx.toInt(), buffer.toPx.toInt(),
+                window.decorView.width - buffer.toPx.toInt(),
+                window.decorView.height - buffer.toPx.toInt()
+            )
+            if (actualPosition.intersect(screen)) {
+               return item as LinearLayout
+            }
         }
         return null
     }
@@ -570,4 +579,9 @@ class SamSprungPanels : AppCompatActivity() {
             return
         }
     }
+
+    val Number.toPx get() = TypedValue.applyDimension(
+        TypedValue.COMPLEX_UNIT_DIP,
+        this.toFloat(),
+        Resources.getSystem().displayMetrics)
 }
