@@ -96,18 +96,28 @@ class AppDisplayListener : Service() {
 
         val launchPackage = intent.getStringExtra("launchPackage")
         val launchActivity = intent.getStringExtra("launchActivity")
+        val intentSender = intent.getBooleanExtra("intentSender", false)
+        var componentName: ComponentName? = null
 
         prefs = getSharedPreferences(SamSprung.prefsValue, MODE_PRIVATE)
         @Suppress("DEPRECATION")
         mKeyguardLock = (getSystemService(Context.KEYGUARD_SERVICE)
                 as KeyguardManager).newKeyguardLock("cover_lock")
 
+        if (intentSender) {
+            componentName = packageManager.getLaunchIntentForPackage(launchPackage!!)?.component
+        }
+
         offReceiver = object : BroadcastReceiver() {
             override fun onReceive(context: Context?, intent: Intent) {
                 if (intent.action == Intent.ACTION_SCREEN_OFF) {
+                    if (null != componentName)
+                        resetRecentActivities(componentName)
+                    else
+                        resetRecentActivities(launchPackage, launchActivity)
+                    onDestroy()
                     stopForeground(true)
                     stopSelf()
-                    onDestroy()
                 }
             }
         }
@@ -134,10 +144,13 @@ class AppDisplayListener : Service() {
             override fun onDisplayAdded(display: Int) {}
             override fun onDisplayChanged(display: Int) {
                 if (display == 0) {
-                    restoreActivityDisplay(launchPackage, launchActivity, display)
+                    if (null != componentName)
+                        restoreActivityDisplay(componentName, display)
+                    else
+                        restoreActivityDisplay(launchPackage, launchActivity, display)
+                    onDestroy()
                     stopForeground(true)
                     stopSelf()
-                    onDestroy()
                 } else {
                     if ((application as SamSprung).isKeyguardLocked)
                         @Suppress("DEPRECATION") mKeyguardLock.disableKeyguard()
@@ -187,19 +200,25 @@ class AppDisplayListener : Service() {
                         bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
                     }
                     menuRecent.setOnClickListener {
-                        resetRecentActivities(launchPackage, launchActivity)
+                        if (null != componentName)
+                            resetRecentActivities(componentName)
+                        else
+                            resetRecentActivities(launchPackage, launchActivity)
+                        onDestroy()
                         stopForeground(true)
                         stopSelf()
-                        onDestroy()
                         startForegroundService(Intent(
                             applicationContext, OnBroadcastService::class.java
                         ).setAction(SamSprung.launcher))
                     }
                     menuHome.setOnClickListener {
-                        resetRecentActivities(launchPackage, launchActivity)
+                        if (null != componentName)
+                            resetRecentActivities(componentName)
+                        else
+                            resetRecentActivities(launchPackage, launchActivity)
+                        onDestroy()
                         stopForeground(true)
                         stopSelf()
-                        onDestroy()
                         startForegroundService(
                             Intent(
                                 applicationContext,
@@ -211,8 +230,11 @@ class AppDisplayListener : Service() {
                         if (hasAccessibility()) {
                             AccessibilityObserver.executeButtonBack()
                         } else {
-                            restoreActivityDisplay(launchPackage,
-                                launchActivity, 1)
+                            if (null != componentName)
+                                restoreActivityDisplay(componentName, 1)
+                            else
+                                restoreActivityDisplay(launchPackage, launchActivity, 1)
+
                         }
                     }
                 } else if (newState == BottomSheetBehavior.STATE_COLLAPSED) {
@@ -251,22 +273,39 @@ class AppDisplayListener : Service() {
     }
 
     private fun restoreActivityDisplay(
-        pkg: String?, cls: String?, display: Int) {
-        if (null != pkg && null != cls) {
+        componentName: ComponentName, display: Int) {
             val coverIntent = Intent(Intent.ACTION_MAIN)
             coverIntent.addCategory(Intent.CATEGORY_LAUNCHER)
-            coverIntent.component = ComponentName(pkg, cls)
+            coverIntent.component = componentName
             coverIntent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or
                     Intent.FLAG_ACTIVITY_CLEAR_TASK or
                     Intent.FLAG_ACTIVITY_FORWARD_RESULT or
                     Intent.FLAG_ACTIVITY_NO_ANIMATION
             startActivity(coverIntent, ActivityOptions.makeBasic()
                 .setLaunchDisplayId(display).toBundle())
+    }
+
+    private fun restoreActivityDisplay(
+        pkg: String?, cls: String?, display: Int) {
+        if (null != pkg && null != cls) {
+            restoreActivityDisplay(ComponentName(pkg, cls), display)
         }
     }
 
     private fun resetRecentActivities(pkg: String?, cls: String?) {
         restoreActivityDisplay(pkg, cls, 0)
+
+        val homeLauncher = Intent(Intent.ACTION_MAIN)
+        homeLauncher.addCategory(Intent.CATEGORY_HOME)
+        homeLauncher.flags = Intent.FLAG_ACTIVITY_NEW_TASK or
+                Intent.FLAG_ACTIVITY_FORWARD_RESULT or
+                Intent.FLAG_ACTIVITY_NO_ANIMATION
+        startActivity(homeLauncher, ActivityOptions
+            .makeBasic().setLaunchDisplayId(0).toBundle())
+    }
+
+    private fun resetRecentActivities(componentName: ComponentName) {
+        restoreActivityDisplay(componentName, 0)
 
         val homeLauncher = Intent(Intent.ACTION_MAIN)
         homeLauncher.addCategory(Intent.CATEGORY_HOME)
@@ -319,16 +358,6 @@ class AppDisplayListener : Service() {
         )
         return serviceString != null && serviceString.contains(packageName
                 + File.separator + AccessibilityObserver::class.java.name)
-    }
-
-    private fun isServiceRunning(context: Context, serviceClass: Class<*>): Boolean {
-        for (service in (context.getSystemService(ACTIVITY_SERVICE) as ActivityManager)
-            .getRunningServices(Int.MAX_VALUE)) {
-            if (serviceClass.name == service.service.className) {
-                return true
-            }
-        }
-        return false
     }
 
     override fun onConfigurationChanged(newConfig: Configuration) {

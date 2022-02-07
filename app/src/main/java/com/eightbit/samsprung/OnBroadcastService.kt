@@ -73,7 +73,8 @@ class OnBroadcastService : Service() {
             if (Intent.ACTION_SCREEN_ON == intent.action) {
                 context.startActivity(
                     Intent(context.applicationContext, SamSprungOverlay::class.java)
-                        .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK),
+                        .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                        .setAction(SamSprung.launcher),
                     ActivityOptions.makeBasic().setLaunchDisplayId(1).toBundle()
                 )
             }

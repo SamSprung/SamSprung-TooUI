@@ -62,6 +62,7 @@ import android.content.pm.*
 import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.PixelFormat
+import android.graphics.Rect
 import android.hardware.camera2.CameraManager
 import android.hardware.display.DisplayManager
 import android.inputmethodservice.KeyboardView
@@ -83,6 +84,7 @@ import androidx.appcompat.widget.SearchView
 import androidx.appcompat.widget.Toolbar
 import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.core.content.ContextCompat
+import androidx.core.view.children
 import androidx.core.view.isVisible
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.ItemTouchHelper
@@ -715,22 +717,16 @@ class SamSprungOverlay : AppCompatActivity(),
     override fun onAppClicked(appInfo: ResolveInfo, position: Int) {
         prepareConfiguration()
 
-        val extras = Bundle()
-        extras.putString("launchPackage", appInfo.activityInfo.packageName)
-        extras.putString("launchActivity", appInfo.activityInfo.name)
-
-        IntentFilter(Intent.ACTION_SCREEN_OFF).also {
-            applicationContext.registerReceiver(OffBroadcastReceiver(
-                ComponentName(appInfo.activityInfo.packageName, appInfo.activityInfo.name)
-            ), it)
-        }
-
         (getSystemService(LAUNCHER_APPS_SERVICE) as LauncherApps).startMainActivity(
             ComponentName(appInfo.activityInfo.packageName, appInfo.activityInfo.name),
             Process.myUserHandle(),
             windowManager.currentWindowMetrics.bounds,
             ActivityOptions.makeBasic().setLaunchDisplayId(1).toBundle()
         )
+
+        val extras = Bundle()
+        extras.putString("launchPackage", appInfo.activityInfo.packageName)
+        extras.putString("launchActivity", appInfo.activityInfo.name)
 
         val orientationChanger = LinearLayout((application as SamSprung).getCoverContext())
         val orientationLayout = WindowManager.LayoutParams(
@@ -756,14 +752,44 @@ class SamSprungOverlay : AppCompatActivity(),
 
     override fun onNoticeClicked(notice: StatusBarNotification, position: Int) {
         val intentSender = notice.notification.contentIntent.intentSender
+
         prepareConfiguration()
-        startIntentSender(intentSender, null, 0, 0, 0)
+
+        requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
+        startIntentSender(intentSender, null, 0, 0, 0,
+            ActivityOptions.makeBasic().setLaunchDisplayId(1).toBundle())
+
+        Handler(Looper.getMainLooper()).postDelayed({
+            runOnUiThread {
+                if (!getVisibility(bottomHandle)) {
+                    val extras = Bundle()
+                    extras.putString("launchPackage", intentSender.creatorPackage)
+                    extras.putBoolean("intentSender", true)
+
+                    startForegroundService(Intent(this,
+                        AppDisplayListener::class.java).putExtras(extras))
+                }
+            }
+        }, 100)
+
         NotificationReceiver.getReceiver()?.setNotificationsShown(arrayOf(notice.key))
     }
 
     override fun onNoticeLongClicked(notice: StatusBarNotification, position: Int) : Boolean {
         NotificationReceiver.getReceiver()?.cancelNotification(notice.key)
         return true
+    }
+
+    private fun getVisibility(view: View): Boolean {
+        val actualPosition = Rect()
+        view.getGlobalVisibleRect(actualPosition)
+        val screen = Rect(
+            0, 0, window.decorView.width, window.decorView.height,
+        )
+        if (actualPosition.intersect(screen)) {
+            return true
+        }
+        return false
     }
 
     private fun getColumnCount(): Int {
