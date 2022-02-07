@@ -286,6 +286,7 @@ class SamSprungPanels : AppCompatActivity(), View.OnClickListener, OnLongClickLi
 
         // Build Launcher-specific widget info and save to database
         val launcherInfo = CoverWidgetInfo(appWidgetId)
+        val xy = mCellCoordinates
 
         var spanX = appWidgetInfo.minWidth
         var spanY = appWidgetInfo.minHeight
@@ -295,11 +296,9 @@ class SamSprungPanels : AppCompatActivity(), View.OnClickListener, OnLongClickLi
         }
         val layout = workspace!!.getChildAt(cellInfo!!.screen) as CellLayout
         val spans = layout.rectToCell(spanX, spanY)
+        if (!findSlot(cellInfo, xy, spans!![0], spans[1])) return
         launcherInfo.spanX = spans[0]
         launcherInfo.spanY = spans[1]
-
-        // Try finding open space on Launcher screen
-        val xy = mCellCoordinates
 
         Executors.newSingleThreadExecutor().execute {
             WidgetModel.addItemToDatabase(
