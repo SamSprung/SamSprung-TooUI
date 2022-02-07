@@ -172,17 +172,20 @@ class SamSprungOverlay : AppCompatActivity(),
                 }
             }
             override fun onSlide(bottomSheet: View, slideOffset: Float) {
-                fakeOverlay.visibility = if (slideOffset > 0.5) View.GONE else View.VISIBLE
                 val color = prefs.getInt(SamSprung.prefColors,
                     Color.rgb(255, 255, 255))
                 if (slideOffset > 0) {
                     coordinator.visibility = View.VISIBLE
-                    if (slideOffset > 0.5) bottomSheetBehaviorMain.isDraggable = false
+                    if (slideOffset > 0.5) {
+                        bottomSheetBehaviorMain.isDraggable = false
+                        fakeOverlay.visibility = View.GONE
+                    }
                     if (bottomHandle.visibility != View.INVISIBLE) {
                         handler.removeCallbacksAndMessages(null)
                         bottomHandle.visibility = View.INVISIBLE
                     }
                 } else {
+                    fakeOverlay.visibility = View.VISIBLE
                     bottomHandle.setBackgroundColor(color)
                     bottomHandle.alpha = prefs.getFloat(SamSprung.prefAlphas, 1f)
                     if (!bottomHandle.isVisible) {
