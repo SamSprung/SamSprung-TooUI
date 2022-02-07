@@ -87,6 +87,7 @@ import android.os.MessageQueue.IdleHandler
 import android.util.Log
 import android.util.TypedValue
 import android.view.View
+import android.widget.HorizontalScrollView
 import android.widget.LinearLayout
 import androidx.activity.result.ActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -107,6 +108,14 @@ import java.lang.Integer.max
 import java.lang.ref.SoftReference
 import java.util.*
 import java.util.concurrent.Executors
+import android.view.ViewTreeObserver
+import android.view.ViewTreeObserver.OnScrollChangedListener
+import android.widget.Toast
+import androidx.recyclerview.widget.GridLayoutManager
+import androidx.recyclerview.widget.LinearLayoutManager
+import com.eightbit.view.OnSwipeTouchListener
+import com.google.android.material.bottomsheet.BottomSheetBehavior
+
 
 /**
  * Default launcher application.
@@ -119,11 +128,11 @@ class SamSprungPanels : AppCompatActivity() {
     private lateinit var workspace: LinearLayout
 
     private var mDestroyed = false
-    private var mIsNewIntent = false
     private var mBinder: DesktopBinder? = null
 
     private var widgetContext: Context? = null
     private lateinit var offReceiver: BroadcastReceiver
+    private var widgetDialog: AlertDialog? = null
 
     @SuppressLint("ClickableViewAccessibility")
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -165,10 +174,13 @@ class SamSprungPanels : AppCompatActivity() {
         workspace = findViewById(R.id.workspace)
         val menuHandle = findViewById<AppCompatImageView>(R.id.menu_zone)
         menuHandle.setOnClickListener {
-            showAddDialog()
-            tactileFeedback()
+            if (null == widgetDialog || !widgetDialog!!.isShowing) {
+                tactileFeedback()
+                showAddDialog()
+            }
         }
         menuHandle.setOnLongClickListener {
+            tactileFeedback()
             finish()
             startForegroundService(
                 Intent(
@@ -183,22 +195,22 @@ class SamSprungPanels : AppCompatActivity() {
         deleteHandle.setOnClickListener {
             val layout = getVisibleItem(workspace)
             if (null != layout) {
-                val widget = layout[0]
-                if (widget.tag is CoverWidgetInfo) {
+                val widget = layout[0].tag
+                if (widget is CoverWidgetInfo) {
                     tactileFeedback()
-                    val info = widget.tag as CoverWidgetInfo
-                    model.removeDesktopAppWidget(info)
+                    model.removeDesktopAppWidget(widget)
                     if (null != appWidgetHost) {
-                        appWidgetHost!!.deleteAppWidgetId(info.appWidgetId)
+                        appWidgetHost!!.deleteAppWidgetId(widget.appWidgetId)
                     }
                     WidgetModel.deleteItemFromDatabase(
-                        widgetContext, info
+                        widgetContext, widget
                     )
                     workspace.removeView(layout)
                 }
             }
         }
         deleteHandle.setOnLongClickListener {
+            tactileFeedback()
             finish()
             startForegroundService(
                 Intent(
@@ -232,12 +244,6 @@ class SamSprungPanels : AppCompatActivity() {
 
     private fun startLoaders() {
         model.loadUserItems(true, this)
-    }
-
-    override fun onResume() {
-        super.onResume()
-        startLoaders()
-        mIsNewIntent = false
     }
 
     override fun onRetainCustomNonConfigurationInstance(): Any? {
@@ -485,7 +491,7 @@ class SamSprungPanels : AppCompatActivity() {
                 previews.removeView(preview)
             }
         }
-        val widgetDialog: Dialog = dialog.setView(view).show()
+        widgetDialog = dialog.setView(view).show()
         val infoList: List<AppWidgetProviderInfo> = mAppWidgetManager!!.installedProviders
         for (info: AppWidgetProviderInfo in infoList) {
             var spanX: Int = info.minWidth
@@ -517,12 +523,12 @@ class SamSprungPanels : AppCompatActivity() {
                     )
                     requestCreateAppWidget.launch(intent)
                 }
-                widgetDialog.dismiss()
+                widgetDialog?.dismiss()
             }
             previewImage.tag = info
             previews.addView(previewImage)
         }
-        widgetDialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+        widgetDialog!!.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
     }
 
     /**
@@ -655,7 +661,7 @@ class SamSprungPanels : AppCompatActivity() {
         }
     }
 
-    val Number.toPx get() = TypedValue.applyDimension(
+    private val Number.toPx get() = TypedValue.applyDimension(
         TypedValue.COMPLEX_UNIT_DIP,
         this.toFloat(),
         Resources.getSystem().displayMetrics)
