@@ -96,6 +96,8 @@ import com.eightbitlab.blurview.RenderScriptBlur
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import java.io.File
 import java.util.concurrent.Executors
+import android.widget.LinearLayout
+import androidx.appcompat.widget.AppCompatButton
 
 
 class SamSprungOverlay : AppCompatActivity(),
@@ -778,26 +780,38 @@ class SamSprungOverlay : AppCompatActivity(),
 
     override fun onNoticeLongClicked(notice: StatusBarNotification, position: Int) : Boolean {
         tactileFeedback()
-        val wrapper: Context = ContextThemeWrapper(this@SamSprungOverlay, R.style.SlimPopupMenu)
-        val popupMenu = PopupMenu(wrapper, bottomHandle)
-        popupMenu.menuInflater.inflate(R.menu.notification_menu, popupMenu.menu)
-        if (null != notice.notification.actions) {
-            for (action in notice.notification.actions) {
-                val menuItem = popupMenu.menu.add(action.title)
-                menuItem.setOnMenuItemClickListener {
-                    processIntentSender(action.actionIntent.intentSender)
-                    return@setOnMenuItemClickListener true
+        val itemHolder = noticesView.findViewHolderForAdapterPosition(position)
+                as NotificationAdapter.NoticeViewHolder
+        val actionsPanel = itemHolder.itemView.findViewById<LinearLayout>(R.id.actions)
+        if (actionsPanel.isVisible) {
+            actionsPanel.visibility = View.GONE
+        } else {
+            if (actionsPanel.childCount > 0) {
+                actionsPanel.visibility = View.VISIBLE
+            } else {
+                if (null != notice.notification.actions) {
+                    for (action in notice.notification.actions) {
+                        setNotificationAction(actionsPanel, action)
+                    }
+                    actionsPanel.visibility = View.VISIBLE
+                }
+                if (notice.isClearable) {
+                    val param = LinearLayout.LayoutParams(
+                        LinearLayout.LayoutParams.MATCH_PARENT,
+                        LinearLayout.LayoutParams.WRAP_CONTENT,
+                        1.0f
+                    )
+                    val button = AppCompatButton(this@SamSprungOverlay)
+                    button.setTextSize(TypedValue.COMPLEX_UNIT_SP, 12f)
+                    button.text = getString(R.string.notification_dismiss)
+                    button.setOnClickListener {
+                        NotificationReceiver.getReceiver()?.cancelNotification(notice.key)
+                    }
+                    actionsPanel.addView(button, param)
+                    actionsPanel.visibility = View.VISIBLE
                 }
             }
         }
-        if (notice.isClearable) {
-            val menuItem = popupMenu.menu.add(getString(R.string.notification_dismiss))
-            menuItem.setOnMenuItemClickListener {
-                NotificationReceiver.getReceiver()?.cancelNotification(notice.key)
-                return@setOnMenuItemClickListener true
-            }
-        }
-        popupMenu.show()
         return true
     }
 
@@ -812,6 +826,21 @@ class SamSprungOverlay : AppCompatActivity(),
                 .vibrate(VibrationEffect.createOneShot(
                     30, VibrationEffect.DEFAULT_AMPLITUDE))
         }
+    }
+
+    private fun setNotificationAction(actionsPanel: LinearLayout, action: Notification.Action) {
+        val param = LinearLayout.LayoutParams(
+            LinearLayout.LayoutParams.MATCH_PARENT,
+            LinearLayout.LayoutParams.WRAP_CONTENT,
+            1.0f
+        )
+        val button = AppCompatButton(this@SamSprungOverlay)
+        button.setTextSize(TypedValue.COMPLEX_UNIT_SP, 12f)
+        button.text = action.title
+        button.setOnClickListener {
+            processIntentSender(action.actionIntent.intentSender)
+        }
+        actionsPanel.addView(button, param)
     }
 
     private fun getVisibility(view: View): Boolean {

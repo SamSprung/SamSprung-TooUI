@@ -57,8 +57,7 @@ public class WidgetModel {
     private DesktopItemsLoader mDesktopItemsLoader;
     private Thread mDesktopLoaderThread;
 
-    public WidgetModel() {
-    }
+    public WidgetModel() { }
 
     public synchronized void abortLoaders() {
         if (DEBUG_LOADERS) d(LOG_TAG, "aborting loaders");

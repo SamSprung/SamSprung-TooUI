@@ -14,6 +14,11 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:padding="4dp"
         android:gravity="center_vertical"
@@ -32,5 +37,16 @@
             android:layout_height="wrap_content"
             android:textSize="16sp"/>
 
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/actions"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="bottom|center_vertical"
+        android:visibility="gone">
+
+    </LinearLayout>
     </LinearLayout>
 </androidx.cardview.widget.CardView>
