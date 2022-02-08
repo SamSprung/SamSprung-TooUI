@@ -40,6 +40,7 @@
 
         </LinearLayout>
 
-        <include layout="@layout/home_app_view" />
+        <include layout="@layout/home_app_view"
+            android:id="@+id/coordinator"/>
     </LinearLayout>
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
