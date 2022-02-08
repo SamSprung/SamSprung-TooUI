@@ -810,7 +810,7 @@ class SamSprungOverlay : AppCompatActivity(),
         }, 100)
     }
 
-    override fun onNoticeClicked(notice: StatusBarNotification, position: Int) {
+    override fun onNoticeClicked(notice: StatusBarNotification) {
         processIntentSender(notice.notification.contentIntent.intentSender)
     }
 
@@ -827,12 +827,10 @@ class SamSprungOverlay : AppCompatActivity(),
                     for (action in notice.notification.actions) {
                         setNotificationAction(actionsPanel, action)
                     }
-                    actionsPanel.visibility = View.VISIBLE
                 }
-            }
-            if (notice.isClearable) {
-                setNotificationCancel(actionsPanel, notice.key)
-                actionsPanel.visibility = View.VISIBLE
+                if (notice.isClearable) {
+                    setNotificationCancel(actionsPanel, notice)
+                }
             }
         }
         return true
@@ -857,28 +855,39 @@ class SamSprungOverlay : AppCompatActivity(),
             LinearLayout.LayoutParams.WRAP_CONTENT,
             1.0f
         )
+        val wrapper = LinearLayout(this@SamSprungOverlay)
+        wrapper.gravity = Gravity.CENTER
         val button = AppCompatButton(this@SamSprungOverlay)
         button.setTextSize(TypedValue.COMPLEX_UNIT_SP, 10f)
         button.text = action.title
         button.setOnClickListener {
             processIntentSender(action.actionIntent.intentSender)
+            actionsPanel.visibility = View.GONE
         }
-        actionsPanel.addView(button, param)
+        wrapper.addView(button)
+        actionsPanel.addView(wrapper, param)
+        actionsPanel.visibility = View.VISIBLE
     }
 
-    private fun setNotificationCancel(actionsPanel: LinearLayout, key: String) {
+    private fun setNotificationCancel(actionsPanel: LinearLayout, sbn: StatusBarNotification) {
         val param = LinearLayout.LayoutParams(
             LinearLayout.LayoutParams.MATCH_PARENT,
             LinearLayout.LayoutParams.WRAP_CONTENT,
             1.0f
         )
+        val wrapper = LinearLayout(this@SamSprungOverlay)
+        wrapper.gravity = Gravity.CENTER
         val button = AppCompatButton(this@SamSprungOverlay)
         button.setTextSize(TypedValue.COMPLEX_UNIT_SP, 10f)
         button.text = getString(R.string.notification_dismiss)
         button.setOnClickListener {
-            NotificationReceiver.getReceiver()?.cancelNotification(key)
+            NotificationReceiver.getReceiver()?.setNotificationsShown(arrayOf(sbn.key))
+            NotificationReceiver.getReceiver()?.cancelNotification(sbn.key)
+            actionsPanel.visibility = View.GONE
         }
-        actionsPanel.addView(button, param)
+        wrapper.addView(button)
+        actionsPanel.addView(wrapper, param)
+        actionsPanel.visibility = View.VISIBLE
     }
 
     private fun getVisibility(view: View): Boolean {
@@ -927,7 +936,7 @@ class SamSprungOverlay : AppCompatActivity(),
                 bottomHandle.setBackgroundColor(prefs.getInt(SamSprung.prefColors,
                     Color.rgb(255, 255, 255)))
                 bottomHandle.alpha = prefs.getFloat(SamSprung.prefAlphas, 1f)
-                if (null != intent?.action && com.eightbit.samsprung.SamSprung.launcher == intent.action)
+                if (null != intent?.action && SamSprung.launcher == intent.action)
                     bottomSheetBehaviorMain.state = BottomSheetBehavior.STATE_EXPANDED
             }
             if (this::noticesView.isInitialized) {
