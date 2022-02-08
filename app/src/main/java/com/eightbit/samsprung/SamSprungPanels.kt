@@ -470,7 +470,7 @@ class SamSprungPanels : AppCompatActivity() {
 
         val view: View = layoutInflater.inflate(R.layout.panel_picker_view, null)
         val dialog = AlertDialog.Builder(
-            ContextThemeWrapper(widgetContext, R.style.DialogTheme_NoActionBar)
+            ContextThemeWrapper(this, R.style.DialogTheme_NoActionBar)
         )
         val previews = view.findViewById<LinearLayout>(R.id.previews_layout)
         dialog.setOnCancelListener {
@@ -490,15 +490,10 @@ class SamSprungPanels : AppCompatActivity() {
         widgetDialog = dialog.setView(view).show()
         val infoList: List<AppWidgetProviderInfo> = mAppWidgetManager!!.installedProviders
         for (info: AppWidgetProviderInfo in infoList) {
-            var spanX: Int = info.minWidth
-            var spanY: Int = info.minHeight
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-                spanX = max(info.minWidth, info.maxResizeWidth)
-                spanY = max(info.minHeight, info.maxResizeHeight)
-            }
             val previewSizeBeforeScale = IntArray(1)
             val preview = mWidgetPreviewLoader.generateWidgetPreview(
-                info, spanX, spanY, null, previewSizeBeforeScale
+                info, window.decorView.width, window.decorView.height,
+                null, previewSizeBeforeScale
             )
             val previewImage = layoutInflater.inflate(
                 R.layout.widget_preview, null) as AppCompatImageView

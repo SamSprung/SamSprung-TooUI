@@ -80,7 +80,6 @@ import androidx.appcompat.view.ContextThemeWrapper
 import androidx.appcompat.widget.AppCompatButton
 import androidx.appcompat.widget.SwitchCompat
 import androidx.coordinatorlayout.widget.CoordinatorLayout
-import androidx.core.content.ContextCompat
 import androidx.core.graphics.blue
 import androidx.core.graphics.green
 import androidx.core.graphics.red
@@ -734,7 +733,7 @@ class CoverPreferences : AppCompatActivity() {
             setupDialog.setOnCancelListener {
                 verifyCompatibility()
             }
-            setupDialog.window?.setBackgroundDrawableResource(R.drawable.rounded_layout)
+            setupDialog.window?.setBackgroundDrawableResource(R.drawable.rounded_layout_themed)
             setupDialog.window?.setLayout(
                 ViewGroup.LayoutParams.WRAP_CONTENT,
                 ViewGroup.LayoutParams.WRAP_CONTENT

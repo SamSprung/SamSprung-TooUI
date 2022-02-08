@@ -470,10 +470,8 @@ public class WidgetPreviewLoader {
             BitmapDrawable previewDrawable = (BitmapDrawable) ResourcesCompat.getDrawable(
                     mContext.getResources(), R.drawable.widget_preview_tile, mContext.getTheme());
             if (null != previewDrawable) {
-                final int previewDrawableWidth = previewDrawable
-                        .getIntrinsicWidth();
-                final int previewDrawableHeight = previewDrawable
-                        .getIntrinsicHeight();
+                final int previewDrawableWidth = previewDrawable.getIntrinsicWidth();
+                final int previewDrawableHeight = previewDrawable.getIntrinsicHeight();
                 previewWidth = previewDrawableWidth; // subtract 2 dips
                 previewHeight = previewDrawableHeight;
 
