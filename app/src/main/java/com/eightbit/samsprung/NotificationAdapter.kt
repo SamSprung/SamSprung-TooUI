@@ -92,19 +92,9 @@ class NotificationAdapter(
             if (null != holder.listener)
                 holder.listener.onNoticeClicked(holder.notice, position)
         }
-        holder.iconView.setOnClickListener {
-            if (null != holder.listener)
-                holder.listener.onNoticeClicked(holder.notice, position)
-        }
         holder.itemView.setOnLongClickListener {
             if (null != holder.listener)
-                holder.listener.onNoticeLongClicked(holder.notice, position)
-            else
-                false
-        }
-        holder.iconView.setOnLongClickListener {
-            if (null != holder.listener)
-                holder.listener.onNoticeLongClicked(holder.notice, position)
+                holder.listener.onNoticeLongClicked(holder.itemView, holder.notice)
             else
                 false
         }
@@ -203,6 +193,6 @@ class NotificationAdapter(
 
     interface OnNoticeClickListener {
         fun onNoticeClicked(notice: StatusBarNotification, position: Int)
-        fun onNoticeLongClicked(notice: StatusBarNotification, position: Int) : Boolean
+        fun onNoticeLongClicked(itemView: View, notice: StatusBarNotification) : Boolean
     }
 }

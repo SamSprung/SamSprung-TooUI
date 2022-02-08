@@ -77,8 +77,10 @@ import android.util.TypedValue
 import android.view.*
 import android.view.animation.TranslateAnimation
 import android.widget.*
+import android.widget.LinearLayout
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.widget.AppCompatButton
 import androidx.appcompat.widget.AppCompatImageView
 import androidx.appcompat.widget.SearchView
 import androidx.appcompat.widget.Toolbar
@@ -96,8 +98,10 @@ import com.eightbitlab.blurview.RenderScriptBlur
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import java.io.File
 import java.util.concurrent.Executors
-import android.widget.LinearLayout
-import androidx.appcompat.widget.AppCompatButton
+import android.view.MotionEvent
+
+
+
 
 
 class SamSprungOverlay : AppCompatActivity(),
@@ -287,7 +291,6 @@ class SamSprungOverlay : AppCompatActivity(),
         }
 
         noticesView = findViewById(R.id.notificationList)
-
         noticesView.layoutManager = LinearLayoutManager(this)
         noticesView.adapter = NotificationAdapter(this, this@SamSprungOverlay)
 
@@ -393,13 +396,15 @@ class SamSprungOverlay : AppCompatActivity(),
 
             override fun onSlide(bottomSheet: View, slideOffset: Float) {
                 val info = findViewById<LinearLayout>(R.id.bottom_info)
-                if (slideOffset > 0.75) {
-                    info.visibility = View.GONE
-                    if (!hasConfigured) {
-                        hasConfigured = true
-                        color = configureMenuIcons(toolbar)
-                        batteryLevel.setTextColor(color)
-                        clock.setTextColor(color)
+                if (slideOffset > 0) {
+                    if (slideOffset > 0.75) {
+                        info.visibility = View.GONE
+                        if (!hasConfigured) {
+                            hasConfigured = true
+                            color = configureMenuIcons(toolbar)
+                            batteryLevel.setTextColor(color)
+                            clock.setTextColor(color)
+                        }
                     }
                 } else {
                     toggleStats.removeAllViewsInLayout()
@@ -415,6 +420,37 @@ class SamSprungOverlay : AppCompatActivity(),
                 }
             }
         })
+
+        val noticeTouchCallback: ItemTouchHelper.SimpleCallback = object :
+            ItemTouchHelper.SimpleCallback(ItemTouchHelper.RIGHT or ItemTouchHelper.LEFT,
+                ItemTouchHelper.RIGHT or ItemTouchHelper.LEFT) {
+            override fun onMove(
+                recyclerView: RecyclerView,
+                viewHolder: RecyclerView.ViewHolder,
+                target: RecyclerView.ViewHolder
+            ): Boolean {
+                return false
+            }
+
+            override fun onChildDraw(
+                c: Canvas,
+                recyclerView: RecyclerView,
+                viewHolder: RecyclerView.ViewHolder,
+                dX: Float,
+                dY: Float,
+                actionState: Int,
+                isCurrentlyActive: Boolean
+            ) { }
+
+            override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
+                if (direction == ItemTouchHelper.RIGHT || direction == ItemTouchHelper.LEFT) {
+                    val notice = (viewHolder as NotificationAdapter.NoticeViewHolder).notice
+                    if (notice.isClearable)
+                        NotificationReceiver.getReceiver()?.cancelNotification(notice.key)
+                }
+            }
+        }
+        ItemTouchHelper(noticeTouchCallback).attachToRecyclerView(noticesView)
 
         val launcherView = findViewById<RecyclerView>(R.id.appsList)
 
@@ -778,11 +814,9 @@ class SamSprungOverlay : AppCompatActivity(),
         processIntentSender(notice.notification.contentIntent.intentSender)
     }
 
-    override fun onNoticeLongClicked(notice: StatusBarNotification, position: Int) : Boolean {
+    override fun onNoticeLongClicked(itemView: View, notice: StatusBarNotification) : Boolean {
         tactileFeedback()
-        val itemHolder = noticesView.findViewHolderForAdapterPosition(position)
-                as NotificationAdapter.NoticeViewHolder
-        val actionsPanel = itemHolder.itemView.findViewById<LinearLayout>(R.id.actions)
+        val actionsPanel = itemView.findViewById<LinearLayout>(R.id.actions)
         if (actionsPanel.isVisible) {
             actionsPanel.visibility = View.GONE
         } else {
@@ -795,21 +829,10 @@ class SamSprungOverlay : AppCompatActivity(),
                     }
                     actionsPanel.visibility = View.VISIBLE
                 }
-                if (notice.isClearable) {
-                    val param = LinearLayout.LayoutParams(
-                        LinearLayout.LayoutParams.MATCH_PARENT,
-                        LinearLayout.LayoutParams.WRAP_CONTENT,
-                        1.0f
-                    )
-                    val button = AppCompatButton(this@SamSprungOverlay)
-                    button.setTextSize(TypedValue.COMPLEX_UNIT_SP, 12f)
-                    button.text = getString(R.string.notification_dismiss)
-                    button.setOnClickListener {
-                        NotificationReceiver.getReceiver()?.cancelNotification(notice.key)
-                    }
-                    actionsPanel.addView(button, param)
-                    actionsPanel.visibility = View.VISIBLE
-                }
+            }
+            if (notice.isClearable) {
+                setNotificationCancel(actionsPanel, notice.key)
+                actionsPanel.visibility = View.VISIBLE
             }
         }
         return true
@@ -835,10 +858,25 @@ class SamSprungOverlay : AppCompatActivity(),
             1.0f
         )
         val button = AppCompatButton(this@SamSprungOverlay)
-        button.setTextSize(TypedValue.COMPLEX_UNIT_SP, 12f)
+        button.setTextSize(TypedValue.COMPLEX_UNIT_SP, 10f)
         button.text = action.title
         button.setOnClickListener {
             processIntentSender(action.actionIntent.intentSender)
+        }
+        actionsPanel.addView(button, param)
+    }
+
+    private fun setNotificationCancel(actionsPanel: LinearLayout, key: String) {
+        val param = LinearLayout.LayoutParams(
+            LinearLayout.LayoutParams.MATCH_PARENT,
+            LinearLayout.LayoutParams.WRAP_CONTENT,
+            1.0f
+        )
+        val button = AppCompatButton(this@SamSprungOverlay)
+        button.setTextSize(TypedValue.COMPLEX_UNIT_SP, 10f)
+        button.text = getString(R.string.notification_dismiss)
+        button.setOnClickListener {
+            NotificationReceiver.getReceiver()?.cancelNotification(key)
         }
         actionsPanel.addView(button, param)
     }

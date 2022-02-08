@@ -122,12 +122,10 @@
 
                 <androidx.recyclerview.widget.RecyclerView
                     android:id="@+id/notificationList"
-                    android:nestedScrollingEnabled="true"
                     android:layout_below="@id/toolbar"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:layout_marginBottom="2dp"
-                    app:layout_behavior="@string/appbar_scrolling_view_behavior" />
+                    android:layout_marginBottom="2dp" />
             </RelativeLayout>
         </LinearLayout>
     </androidx.coordinatorlayout.widget.CoordinatorLayout>

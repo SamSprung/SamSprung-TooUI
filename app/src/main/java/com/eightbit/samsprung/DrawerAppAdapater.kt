@@ -102,15 +102,12 @@ class DrawerAppAdapater(
 
     override fun onBindViewHolder(holder: AppViewHolder, position: Int) {
         holder.itemView.setOnClickListener {
-            if (null != holder.listener) holder.listener.onAppClicked(
-                holder.appInfo,
-                position
-            )
+            if (null != holder.listener)
+                holder.listener.onAppClicked(holder.appInfo, position)
         }
         holder.iconView.setOnClickListener {
-            if (null != holder.listener) {
+            if (null != holder.listener)
                 holder.listener.onAppClicked(holder.appInfo, position)
-            }
         }
         holder.bind(getItem(position))
     }

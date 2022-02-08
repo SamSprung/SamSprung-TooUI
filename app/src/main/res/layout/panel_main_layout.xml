@@ -15,7 +15,8 @@
             <com.eightbit.widget.SnapHorizontalScrollView
                 android:id="@+id/snap_scroller"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent">
+                android:layout_height="match_parent"
+                android:overScrollMode="never">
                 <LinearLayout
                     android:id="@+id/workspace"
                     android:layout_width="wrap_content"
