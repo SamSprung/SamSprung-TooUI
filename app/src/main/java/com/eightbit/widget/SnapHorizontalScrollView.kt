@@ -92,20 +92,6 @@ class SnapHorizontalScrollView : HorizontalScrollView {
         mGestureDetector = GestureDetector(featureLayout.context, SnapGestureDetector())
         setOnTouchListener { v: View, event: MotionEvent ->
             return@setOnTouchListener mGestureDetector!!.onTouchEvent(event)
-//            // If the user swipes
-//            if (mGestureDetector!!.onTouchEvent(event)) {
-//                return@setOnTouchListener true
-//            } else
-//                if (event.action == MotionEvent.ACTION_UP || event.action == MotionEvent.ACTION_CANCEL) {
-//                val scrollX = scrollX
-//                val featureWidth = v.measuredWidth
-//                mActiveFeature = (scrollX + featureWidth / 2) / featureWidth
-//                val scrollTo = mActiveFeature * featureWidth
-//                smoothScrollTo(scrollTo, 0)
-//                return@setOnTouchListener true
-//            } else {
-//                return@setOnTouchListener false
-//            }
         }
     }
 

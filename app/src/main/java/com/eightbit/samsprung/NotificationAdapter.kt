@@ -97,13 +97,13 @@ class NotificationAdapter(
                 holder.listener.onNoticeClicked(holder.notice, position)
         }
         holder.itemView.setOnLongClickListener {
-            if (null != holder.listener && holder.notice.isClearable)
+            if (null != holder.listener)
                 holder.listener.onNoticeLongClicked(holder.notice, position)
             else
                 false
         }
         holder.iconView.setOnLongClickListener {
-            if (null != holder.listener && holder.notice.isClearable)
+            if (null != holder.listener)
                 holder.listener.onNoticeLongClicked(holder.notice, position)
             else
                 false

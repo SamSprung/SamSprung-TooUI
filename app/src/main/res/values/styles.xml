@@ -3,4 +3,11 @@
     <style name="SlimButton" parent="Widget.AppCompat.Button.Small">
         <item name="android:minHeight">@dimen/button_height_min</item>
     </style>
+
+    <style name="SlimPopupMenu" parent="Widget.AppCompat.PopupMenu">
+        <item name="android:listPreferredItemHeightSmall">36dp</item>
+        <item name="android:textSize">18sp</item>
+        <item name="android:itemBackground">@drawable/rounded_layout</item>
+    </style>
+
 </resources>

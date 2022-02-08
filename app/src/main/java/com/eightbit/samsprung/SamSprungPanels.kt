@@ -317,16 +317,14 @@ class SamSprungPanels : AppCompatActivity() {
             val screen = Rect(
                 0, 0, window.decorView.width, window.decorView.height,
             )
-            if (actualPosition.intersect(screen)) {
-               return item as LinearLayout
-            }
+            if (actualPosition.intersect(screen)) return item as LinearLayout
         }
         return null
     }
 
     private fun getVisibleIndex(listView: LinearLayout) : Int {
         if (listView.childCount == 0) return 0
-        for (i in 0..listView.childCount) {
+        for (i in 0 until listView.childCount) {
             if (!listView[i].isShown) {
                 continue
             }
@@ -335,9 +333,7 @@ class SamSprungPanels : AppCompatActivity() {
             val screen = Rect(
                 0, 0, window.decorView.width, window.decorView.height,
             )
-            if (actualPosition.intersect(screen)) {
-                return i
-            }
+            if (actualPosition.intersect(screen)) return i
         }
         return 0
     }

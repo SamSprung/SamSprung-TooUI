@@ -84,7 +84,6 @@ import androidx.appcompat.widget.SearchView
 import androidx.appcompat.widget.Toolbar
 import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.core.content.ContextCompat
-import androidx.core.view.children
 import androidx.core.view.isVisible
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.ItemTouchHelper
@@ -495,6 +494,7 @@ class SamSprungOverlay : AppCompatActivity(),
 
         val keyboardView = getInputMethod()
 
+        @Suppress("DEPRECATION")
         SamSprungInput.setInputListener(object : SamSprungInput.InputMethodListener {
             override fun onInputRequested(instance: SamSprungInput): KeyboardView? {
                 if (hasAccessibility()) {
@@ -572,6 +572,7 @@ class SamSprungOverlay : AppCompatActivity(),
         onNewIntent(intent)
     }
 
+    @SuppressLint("InflateParams")
     @Suppress("DEPRECATION")
     private fun getInputMethod(): KeyboardView {
         val mKeyboardView = LayoutInflater.from(
@@ -750,9 +751,7 @@ class SamSprungOverlay : AppCompatActivity(),
         }, 100)
     }
 
-    override fun onNoticeClicked(notice: StatusBarNotification, position: Int) {
-        val intentSender = notice.notification.contentIntent.intentSender
-
+    private fun processIntentSender(intentSender: IntentSender) {
         prepareConfiguration()
 
         requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
@@ -771,13 +770,48 @@ class SamSprungOverlay : AppCompatActivity(),
                 }
             }
         }, 100)
+    }
 
-        NotificationReceiver.getReceiver()?.setNotificationsShown(arrayOf(notice.key))
+    override fun onNoticeClicked(notice: StatusBarNotification, position: Int) {
+        processIntentSender(notice.notification.contentIntent.intentSender)
     }
 
     override fun onNoticeLongClicked(notice: StatusBarNotification, position: Int) : Boolean {
-        NotificationReceiver.getReceiver()?.cancelNotification(notice.key)
+        tactileFeedback()
+        val wrapper: Context = ContextThemeWrapper(this@SamSprungOverlay, R.style.SlimPopupMenu)
+        val popupMenu = PopupMenu(wrapper, bottomHandle)
+        popupMenu.menuInflater.inflate(R.menu.notification_menu, popupMenu.menu)
+        if (null != notice.notification.actions) {
+            for (action in notice.notification.actions) {
+                val menuItem = popupMenu.menu.add(action.title)
+                menuItem.setOnMenuItemClickListener {
+                    processIntentSender(action.actionIntent.intentSender)
+                    return@setOnMenuItemClickListener true
+                }
+            }
+        }
+        if (notice.isClearable) {
+            val menuItem = popupMenu.menu.add(getString(R.string.notification_dismiss))
+            menuItem.setOnMenuItemClickListener {
+                NotificationReceiver.getReceiver()?.cancelNotification(notice.key)
+                return@setOnMenuItemClickListener true
+            }
+        }
+        popupMenu.show()
         return true
+    }
+
+    private fun tactileFeedback() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            (getSystemService(Context.VIBRATOR_MANAGER_SERVICE) as VibratorManager)
+                .defaultVibrator.vibrate(VibrationEffect.createOneShot(
+                    30, VibrationEffect.DEFAULT_AMPLITUDE))
+        } else {
+            @Suppress("DEPRECATION")
+            (getSystemService(Context.VIBRATOR_SERVICE) as Vibrator)
+                .vibrate(VibrationEffect.createOneShot(
+                    30, VibrationEffect.DEFAULT_AMPLITUDE))
+        }
     }
 
     private fun getVisibility(view: View): Boolean {
