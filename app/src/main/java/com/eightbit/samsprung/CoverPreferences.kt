@@ -105,6 +105,7 @@ import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
 
 import com.eightbit.content.ScaledContext
+import com.eightbit.io.Debug
 import java.lang.Process
 
 
@@ -575,61 +576,8 @@ class CoverPreferences : AppCompatActivity() {
         }
     }
 
-    private fun getRepositoryToken(): String {
-        val hex = "6768705f7666375663347a52574b396165634c33703431524c596d39716950617766323150626c47"
-        val output = java.lang.StringBuilder()
-        var i = 0
-        while (i < hex.length) {
-            val str = hex.substring(i, i + 2)
-            output.append(str.toInt(16).toChar())
-            i += 2
-        }
-        return output.toString()
-    }
-
     private fun captureLogcat(parent: ViewGroup) {
-        val log = StringBuilder()
-        val separator = System.getProperty("line.separator")
-        log.append(getString(R.string.build_hash_full, BuildConfig.COMMIT))
-        try {
-            var line: String?
-            val mLogcatProc: Process = Runtime.getRuntime().exec(arrayOf(
-                "logcat", "-d", "-t", "256", BuildConfig.APPLICATION_ID,
-                "AndroidRuntime", "System.err",
-                "AppIconSolution:S", "ViewRootImpl:S", "IssueReporterActivity:S",
-            ))
-            val reader = BufferedReader(InputStreamReader(mLogcatProc.inputStream))
-            log.append(separator).append(separator)
-            while (reader.readLine().also { line = it } != null) {
-                log.append(line)
-                log.append(separator)
-            }
-            reader.close()
-        } catch (e: Exception) {
-            e.printStackTrace()
-        }
-        if (hasPremiumSupport) {
-            IssueReporterLauncher.forTarget("SamSprung", "SamSprung-TooUI")
-                .theme(R.style.Theme_SecondScreen_NoActionBar)
-                .guestToken(getRepositoryToken())
-                .guestEmailRequired(true)
-                .guestAllowUsername(true)
-                .titleTextDefault(getString(R.string.git_issue_title, BuildConfig.COMMIT))
-                .minDescriptionLength(50)
-                .putExtraInfo("logcat", log.toString())
-                .homeAsUpEnabled(false).launch(this)
-        } else {
-            val contentValues = ContentValues().apply {
-                put(MediaStore.MediaColumns.DISPLAY_NAME, "samsprung_logcat")
-                put(MediaStore.MediaColumns.MIME_TYPE, "text/plain")
-                put(MediaStore.MediaColumns.RELATIVE_PATH, Environment.DIRECTORY_DOWNLOADS)
-            }
-            contentResolver.insert(
-                MediaStore.Downloads.EXTERNAL_CONTENT_URI, contentValues)?.let {
-                contentResolver.openOutputStream(it).use { fos ->
-                    fos?.write(log.toString().toByteArray())
-                }
-            }
+        if (Debug(this).captureLogcat(hasPremiumSupport) && !hasPremiumSupport) {
             IconifiedSnackbar(this, parent).buildSnackbar(
                 R.string.logcat_written, Snackbar.LENGTH_LONG, null
             ).show()
