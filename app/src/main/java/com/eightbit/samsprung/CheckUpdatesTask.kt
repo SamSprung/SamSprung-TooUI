@@ -83,6 +83,8 @@ class CheckUpdatesTask(private var activity: AppCompatActivity, private var isIn
 
     private val repository = "https://api.github.com/repos/SamSprung/SamSprung-TooUI/releases/tags/"
 
+    var listener: CheckUpdateListener? = null
+
     init {
         if (BuildConfig.FLAVOR != "google") {
             if (isInstaller) {
@@ -143,7 +145,7 @@ class CheckUpdatesTask(private var activity: AppCompatActivity, private var isIn
         }
     }
 
-    private fun downloadUpdate(link: String) {
+    fun downloadUpdate(link: String) {
         val download: String = link.substring(
             link.lastIndexOf(File.separator) + 1)
         val apk = File(activity.externalCacheDir, download)
@@ -220,6 +222,8 @@ class CheckUpdatesTask(private var activity: AppCompatActivity, private var isIn
                 if (isInstaller) {
                     downloadUpdate(downloadUrl)
                 } else {
+                    if (null != listener)
+                        listener?.onUpdateFound(downloadUrl)
                     showUpdateNotification()
                 }
             }
@@ -235,6 +239,8 @@ class CheckUpdatesTask(private var activity: AppCompatActivity, private var isIn
                             if (isInstaller) {
                                 downloadUpdate(downloadUrl)
                             } else {
+                                if (null != listener)
+                                    listener?.onUpdateFound(downloadUrl)
                                 showUpdateNotification()
                             }
                         }
@@ -254,5 +260,13 @@ class CheckUpdatesTask(private var activity: AppCompatActivity, private var isIn
                 parseUpdateJSON(result, isPreview)
             }
         })
+    }
+
+    fun setUpdateListener(listener: CheckUpdateListener) {
+        this.listener = listener
+    }
+
+    interface CheckUpdateListener {
+        fun onUpdateFound(downloadUrl: String)
     }
 }
