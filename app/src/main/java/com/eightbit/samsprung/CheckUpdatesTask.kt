@@ -79,7 +79,7 @@ import java.net.URL
 import java.util.*
 import java.util.concurrent.Executors
 
-class CheckUpdatesTask(private var activity: AppCompatActivity, private var isInstaller: Boolean) {
+class CheckUpdatesTask(private var activity: AppCompatActivity) {
 
     private val repository = "https://api.github.com/repos/SamSprung/SamSprung-TooUI/releases/tags/"
 
@@ -87,32 +87,33 @@ class CheckUpdatesTask(private var activity: AppCompatActivity, private var isIn
 
     init {
         if (BuildConfig.FLAVOR != "google") {
-            if (isInstaller) {
-                val installer = activity.applicationContext.packageManager.packageInstaller
-                for (session: PackageInstaller.SessionInfo in installer.mySessions) {
-                    installer.abandonSession(session.sessionId)
-                }
-            }
             try {
                 (activity.getSystemService(AppCompatActivity.NOTIFICATION_SERVICE)
                         as NotificationManager).cancel(SamSprung.request_code)
             } catch (ignored: Exception) { }
-            Executors.newSingleThreadExecutor().execute {
-                val files: Array<File>? = activity.externalCacheDir?.listFiles { _, name ->
-                    name.lowercase(Locale.getDefault()).endsWith(".apk")
+            if (activity is UpdateShimActivity) {
+                val installer = activity.applicationContext.packageManager.packageInstaller
+                for (session: PackageInstaller.SessionInfo in installer.mySessions) {
+                    installer.abandonSession(session.sessionId)
                 }
-                if (null != files) {
-                    for (file in files) {
-                        if (!file.isDirectory) file.delete()
+            } else {
+                Executors.newSingleThreadExecutor().execute {
+                    val files: Array<File>? = activity.externalCacheDir?.listFiles { _, name ->
+                        name.lowercase(Locale.getDefault()).endsWith(".apk")
+                    }
+                    if (null != files) {
+                        for (file in files) {
+                            if (!file.isDirectory) file.delete()
+                        }
                     }
                 }
-            }
-            if (activity.packageManager.canRequestPackageInstalls()) {
-                retrieveUpdate()
-            } else if (activity is CoverPreferences) {
-                (activity as CoverPreferences).updateLauncher
-                    .launch(Intent(Settings.ACTION_MANAGE_UNKNOWN_APP_SOURCES)
-                        .setData(Uri.parse(String.format("package:%s", activity.packageName))))
+                if (activity.packageManager.canRequestPackageInstalls()) {
+                    retrieveUpdate()
+                } else if (activity is CoverPreferences) {
+                    (activity as CoverPreferences).updateLauncher.launch(
+                        Intent(Settings.ACTION_MANAGE_UNKNOWN_APP_SOURCES).setData(
+                            Uri.parse(String.format("package:%s", activity.packageName))))
+                }
             }
         }
     }
@@ -163,11 +164,11 @@ class CheckUpdatesTask(private var activity: AppCompatActivity, private var isIn
         }
     }
 
-    private fun showUpdateNotification() {
+    private fun showUpdateNotification(downloadUrl: String) {
         var mNotificationManager: NotificationManager? = null
 
         val pendingIntent = PendingIntent.getActivity(activity, 0,
-            Intent(activity, CoverPreferences::class.java).setAction(SamSprung.updating),
+            Intent(activity, UpdateShimActivity::class.java).setAction(downloadUrl),
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S)
                 PendingIntent.FLAG_ONE_SHOT or PendingIntent.FLAG_MUTABLE
             else PendingIntent.FLAG_ONE_SHOT)
@@ -219,13 +220,8 @@ class CheckUpdatesTask(private var activity: AppCompatActivity, private var isIn
             val asset = assets[0] as JSONObject
             downloadUrl = asset["browser_download_url"] as String
             if (isPreview && BuildConfig.COMMIT != lastCommit) {
-                if (isInstaller) {
-                    downloadUpdate(downloadUrl)
-                } else {
-                    if (null != listener)
-                        listener?.onUpdateFound(downloadUrl)
-                    showUpdateNotification()
-                }
+                if (null != listener) listener?.onUpdateFound(downloadUrl)
+                showUpdateNotification(downloadUrl)
             }
         } catch (ignored: JSONException) { }
         if (!isPreview && null != lastCommit && null != downloadUrl) {
@@ -236,13 +232,8 @@ class CheckUpdatesTask(private var activity: AppCompatActivity, private var isIn
                         val jsonObject = JSONTokener(result).nextValue() as JSONObject
                         val extraCommit = (jsonObject["name"] as String).substring(offset)
                         if (BuildConfig.COMMIT != extraCommit && BuildConfig.COMMIT != lastCommit) {
-                            if (isInstaller) {
-                                downloadUpdate(downloadUrl)
-                            } else {
-                                if (null != listener)
-                                    listener?.onUpdateFound(downloadUrl)
-                                showUpdateNotification()
-                            }
+                            if (null != listener) listener?.onUpdateFound(downloadUrl)
+                            showUpdateNotification(downloadUrl)
                         }
                     } catch (ignored: JSONException) { }
                 }

@@ -137,10 +137,6 @@ class CoverPreferences : AppCompatActivity() {
                 .getDisplay(1) == null) finishAndRemoveTask()
         prefs = getSharedPreferences(SamSprung.prefsValue, MODE_PRIVATE)
 
-        if (null != intent.action && intent.action == SamSprung.updating) {
-            updateCheck = CheckUpdatesTask(this@CoverPreferences, true)
-        }
-
         setContentView(R.layout.cover_settings_layout)
         permissionList = findViewById(R.id.permissions)
 
@@ -497,20 +493,18 @@ class CoverPreferences : AppCompatActivity() {
                     requestStorage.launch(Manifest.permission.READ_EXTERNAL_STORAGE)
             }
         }
-        if (null == updateCheck) {
-            updateCheck = CheckUpdatesTask(this@CoverPreferences, false)
-            updateCheck?.setUpdateListener(object: CheckUpdatesTask.CheckUpdateListener {
-                override fun onUpdateFound(downloadUrl: String) {
-                    runOnUiThread {
-                        val buildInfo = findViewById<TextView>(R.id.build_info)
-                        buildInfo.setTextColor(Color.RED)
-                        buildInfo.setOnClickListener {
-                            updateCheck?.downloadUpdate(downloadUrl)
-                        }
+        updateCheck = CheckUpdatesTask(this@CoverPreferences)
+        updateCheck?.setUpdateListener(object: CheckUpdatesTask.CheckUpdateListener {
+            override fun onUpdateFound(downloadUrl: String) {
+                runOnUiThread {
+                    val buildInfo = findViewById<TextView>(R.id.build_info)
+                    buildInfo.setTextColor(Color.RED)
+                    buildInfo.setOnClickListener {
+                        updateCheck?.downloadUpdate(downloadUrl)
                     }
                 }
-            })
-        }
+            }
+        })
     }
 
     private val notificationLauncher = registerForActivityResult(
@@ -866,7 +860,7 @@ class CoverPreferences : AppCompatActivity() {
         if (billingResult.responseCode == BillingClient.BillingResponseCode.OK && null != purchases) {
             for (purchase in purchases) {
                 for (sku in purchase.skus) {
-                    if (sku.split("_")[1].toInt() >= 25) {
+                    if (sku.split("_")[1].toInt() >= 10) {
                         hasPremiumSupport = true
                         break
                     }
