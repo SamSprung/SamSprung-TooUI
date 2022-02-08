@@ -112,7 +112,7 @@ class CoverPreferences : AppCompatActivity() {
 
     private lateinit var prefs: SharedPreferences
 
-    private lateinit var updateCheck : CheckUpdatesTask
+    private var updateCheck : CheckUpdatesTask? = null
 
     private var hasPremiumSupport = false
     private lateinit var mainSwitch: SwitchCompat
@@ -136,6 +136,11 @@ class CoverPreferences : AppCompatActivity() {
         if ((getSystemService(Context.DISPLAY_SERVICE) as DisplayManager)
                 .getDisplay(1) == null) finishAndRemoveTask()
         prefs = getSharedPreferences(SamSprung.prefsValue, MODE_PRIVATE)
+
+        if (null != intent.action && intent.action == SamSprung.updating) {
+            updateCheck = CheckUpdatesTask(this@CoverPreferences, true)
+        }
+
         setContentView(R.layout.cover_settings_layout)
         permissionList = findViewById(R.id.permissions)
 
@@ -492,7 +497,8 @@ class CoverPreferences : AppCompatActivity() {
                     requestStorage.launch(Manifest.permission.READ_EXTERNAL_STORAGE)
             }
         }
-        updateCheck = CheckUpdatesTask(this@CoverPreferences)
+        if (null == updateCheck)
+            updateCheck = CheckUpdatesTask(this@CoverPreferences, false)
     }
 
     private val notificationLauncher = registerForActivityResult(
@@ -627,7 +633,7 @@ class CoverPreferences : AppCompatActivity() {
     val updateLauncher = registerForActivityResult(
         ActivityResultContracts.StartActivityForResult()) {
         if (packageManager.canRequestPackageInstalls())
-            updateCheck.retrieveUpdate()
+            updateCheck?.retrieveUpdate()
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {

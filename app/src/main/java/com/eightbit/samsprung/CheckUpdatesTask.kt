@@ -79,13 +79,13 @@ import java.net.URL
 import java.util.*
 import java.util.concurrent.Executors
 
-class CheckUpdatesTask(private var activity: AppCompatActivity) {
+class CheckUpdatesTask(private var activity: AppCompatActivity, private var isInstaller: Boolean) {
 
     private val repository = "https://api.github.com/repos/SamSprung/SamSprung-TooUI/releases/tags/"
 
     init {
         if (BuildConfig.FLAVOR != "google") {
-            if (activity is CoverPreferences) {
+            if (isInstaller) {
                 val installer = activity.applicationContext.packageManager.packageInstaller
                 for (session: PackageInstaller.SessionInfo in installer.mySessions) {
                     installer.abandonSession(session.sessionId)
@@ -165,7 +165,7 @@ class CheckUpdatesTask(private var activity: AppCompatActivity) {
         var mNotificationManager: NotificationManager? = null
 
         val pendingIntent = PendingIntent.getActivity(activity, 0,
-            Intent(activity, CoverPreferences::class.java),
+            Intent(activity, CoverPreferences::class.java).setAction(SamSprung.updating),
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S)
                 PendingIntent.FLAG_ONE_SHOT or PendingIntent.FLAG_MUTABLE
             else PendingIntent.FLAG_ONE_SHOT)
@@ -179,19 +179,19 @@ class CheckUpdatesTask(private var activity: AppCompatActivity) {
             NotificationChannelGroup("services_group", "Services")
         )
         val notificationChannel = NotificationChannel("update_channel",
-            "Update Notification", NotificationManager.IMPORTANCE_LOW)
+            "Update Notification", NotificationManager.IMPORTANCE_DEFAULT)
         notificationChannel.enableLights(false)
-        notificationChannel.lockscreenVisibility = Notification.VISIBILITY_PRIVATE
+        notificationChannel.lockscreenVisibility = Notification.VISIBILITY_PUBLIC
         mNotificationManager.createNotificationChannel(notificationChannel)
         val builder = NotificationCompat.Builder(
             activity, "update_channel")
 
         val notificationText = activity.getString(
-            R.string.update_service, activity.getString(R.string.app_name))
+            R.string.update_service, activity.getString(R.string.samsprung))
         builder.setContentTitle(notificationText).setTicker(notificationText)
             .setContentText(activity.getString(R.string.click_update_app))
             .setSmallIcon(R.drawable.ic_baseline_samsprung_24)
-            .setPriority(NotificationCompat.PRIORITY_LOW)
+            .setPriority(NotificationCompat.PRIORITY_DEFAULT)
             .setWhen(0).setOnlyAlertOnce(true)
             .setContentIntent(pendingIntent).setOngoing(false)
         if (null != iconNotification) {
@@ -217,9 +217,9 @@ class CheckUpdatesTask(private var activity: AppCompatActivity) {
             val asset = assets[0] as JSONObject
             downloadUrl = asset["browser_download_url"] as String
             if (isPreview && BuildConfig.COMMIT != lastCommit) {
-                if (activity is CoverPreferences) {
+                if (isInstaller) {
                     downloadUpdate(downloadUrl)
-                } else if (activity is SamSprungOverlay) {
+                } else {
                     showUpdateNotification()
                 }
             }
@@ -232,9 +232,9 @@ class CheckUpdatesTask(private var activity: AppCompatActivity) {
                         val jsonObject = JSONTokener(result).nextValue() as JSONObject
                         val extraCommit = (jsonObject["name"] as String).substring(offset)
                         if (BuildConfig.COMMIT != extraCommit && BuildConfig.COMMIT != lastCommit) {
-                            if (activity is CoverPreferences) {
+                            if (isInstaller) {
                                 downloadUpdate(downloadUrl)
-                            } else if (activity is SamSprungOverlay) {
+                            } else {
                                 showUpdateNotification()
                             }
                         }
