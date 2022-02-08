@@ -99,9 +99,9 @@ import com.google.android.material.bottomsheet.BottomSheetBehavior
 import java.io.File
 import java.util.concurrent.Executors
 import android.view.MotionEvent
-
-
-
+import android.view.View.OnFocusChangeListener
+import android.view.inputmethod.InputMethodManager
+import androidx.appcompat.view.ContextThemeWrapper
 
 
 class SamSprungOverlay : AppCompatActivity(),
@@ -528,6 +528,12 @@ class SamSprungOverlay : AppCompatActivity(),
                 return true
             }
         })
+        searchView.setOnQueryTextFocusChangeListener { view, hasFocus ->
+            if (hasFocus) {
+                (getSystemService(INPUT_METHOD_SERVICE) as InputMethodManager)
+                    .showSoftInput(view.findFocus(), 0)
+            }
+        }
         searchView.visibility = View.GONE
 
         val keyboardView = getInputMethod()
@@ -613,9 +619,7 @@ class SamSprungOverlay : AppCompatActivity(),
     @SuppressLint("InflateParams")
     @Suppress("DEPRECATION")
     private fun getInputMethod(): KeyboardView {
-        val mKeyboardView = LayoutInflater.from(
-            ScaledContext.wrap(this@SamSprungOverlay)
-        ).inflate(R.layout.keyboard_view, null) as KeyboardView
+        val mKeyboardView = layoutInflater.inflate(R.layout.keyboard_view, null) as KeyboardView
         mKeyboardView.isPreviewEnabled = false
         AccessibilityObserver.enableKeyboard(applicationContext)
         return mKeyboardView
@@ -857,8 +861,10 @@ class SamSprungOverlay : AppCompatActivity(),
         )
         val wrapper = LinearLayout(this@SamSprungOverlay)
         wrapper.gravity = Gravity.CENTER
-        val button = AppCompatButton(this@SamSprungOverlay)
+        val button = AppCompatButton(ContextThemeWrapper(this,
+            R.style.Theme_SecondScreen_NoActionBar))
         button.setTextSize(TypedValue.COMPLEX_UNIT_SP, 10f)
+        button.setSingleLine()
         button.text = action.title
         button.setOnClickListener {
             processIntentSender(action.actionIntent.intentSender)
@@ -877,8 +883,10 @@ class SamSprungOverlay : AppCompatActivity(),
         )
         val wrapper = LinearLayout(this@SamSprungOverlay)
         wrapper.gravity = Gravity.CENTER
-        val button = AppCompatButton(this@SamSprungOverlay)
+        val button = AppCompatButton(ContextThemeWrapper(this,
+            R.style.Theme_SecondScreen_NoActionBar))
         button.setTextSize(TypedValue.COMPLEX_UNIT_SP, 10f)
+        button.setSingleLine()
         button.text = getString(R.string.notification_dismiss)
         button.setOnClickListener {
             NotificationReceiver.getReceiver()?.setNotificationsShown(arrayOf(sbn.key))

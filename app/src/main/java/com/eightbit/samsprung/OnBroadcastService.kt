@@ -70,18 +70,24 @@ class OnBroadcastService : Service() {
     private val onReceiver = object : BroadcastReceiver() {
         @SuppressLint("NotifyDataSetChanged")
         override fun onReceive(context: Context, intent: Intent) {
-            if (Intent.ACTION_SCREEN_ON == intent.action) {
+            if (Intent.ACTION_USER_PRESENT == intent.action) {
                 context.startActivity(
                     Intent(context.applicationContext, SamSprungOverlay::class.java)
                         .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
                         .setAction(SamSprung.launcher),
                     ActivityOptions.makeBasic().setLaunchDisplayId(1).toBundle()
                 )
+            } else if (Intent.ACTION_SCREEN_ON == intent.action) {
+                context.startActivity(
+                    Intent(context.applicationContext, SamSprungOverlay::class.java)
+                        .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK),
+                    ActivityOptions.makeBasic().setLaunchDisplayId(1).toBundle()
+                )
             }
         }
     }
 
-    override fun onBind(p0: Intent?): IBinder? {
+    override fun onBind(intent: Intent?): IBinder? {
         return null
     }
 
@@ -109,12 +115,13 @@ class OnBroadcastService : Service() {
         try {
             applicationContext.unregisterReceiver(onReceiver)
         } catch (ignored: Exception) { }
-        val onScreenFilter = IntentFilter(Intent.ACTION_SCREEN_ON)
-        onScreenFilter.priority = 999
-        onScreenFilter.also {
-            applicationContext.registerReceiver(onReceiver, it)
+        IntentFilter().apply {
+            addAction(Intent.ACTION_USER_PRESENT)
+            addAction(Intent.ACTION_SCREEN_ON)
+            priority = 999
+        }.also {
+            registerReceiver(onReceiver, it)
         }
-
         return START_STICKY
     }
 

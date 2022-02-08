@@ -59,6 +59,10 @@ public class SamSprungInput extends InputMethodService
         isNumPad = false;
     }
 
+    public static void setParent(ViewGroup anchor) {
+        parent = new SoftReference<>(anchor);
+    }
+
     @Override
     public View onCreateInputView() {
         return null;
