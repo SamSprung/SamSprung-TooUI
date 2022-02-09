@@ -62,6 +62,10 @@ import androidx.appcompat.widget.AppCompatImageView
 import androidx.core.app.NotificationCompat
 import androidx.recyclerview.widget.RecyclerView
 import java.util.*
+import android.graphics.Bitmap
+
+
+
 
 class NotificationAdapter(
     private var activity: AppCompatActivity,
@@ -104,7 +108,8 @@ class NotificationAdapter(
     abstract class NoticeViewHolder(
         itemView: View, val listener: OnNoticeClickListener?, val activity: AppCompatActivity
     ) : RecyclerView.ViewHolder(itemView) {
-        val iconView: AppCompatImageView = itemView.findViewById(R.id.icon)
+        private val iconView: AppCompatImageView = itemView.findViewById(R.id.icon)
+        private val imageView: AppCompatImageView = itemView.findViewById(R.id.image)
         private val linesText: TextView = itemView.findViewById(R.id.lines)
         lateinit var notice: StatusBarNotification
         fun bind(notice: StatusBarNotification) {
@@ -118,17 +123,21 @@ class NotificationAdapter(
                     notification.smallIcon.loadDrawable(activity)
                 )
             }
-            if (null != notification.extras
-                && null != notification.extras.getCharSequenceArray(
-                    NotificationCompat.EXTRA_TEXT_LINES)) {
-                linesText.text = (Arrays.toString(
-                    notification.extras.getCharSequenceArray(
+            if (null != notification.extras) {
+                if (notification.extras.containsKey(NotificationCompat.EXTRA_PICTURE)) {
+                    imageView.visibility = View.VISIBLE
+                    imageView.setImageBitmap(notification.extras.get(
+                        NotificationCompat.EXTRA_PICTURE) as Bitmap)
+                }
+                if (notification.extras.containsKey(NotificationCompat.EXTRA_TEXT_LINES)) {
+                    linesText.text = (Arrays.toString(notification.extras.getCharSequenceArray(
                         NotificationCompat.EXTRA_TEXT_LINES)
-                ))
-            } else if (null != notification.extras && null != notification.extras
-                    .getCharSequence(NotificationCompat.EXTRA_TEXT)) {
-                linesText.text = (notification.extras.getCharSequence(
-                    NotificationCompat.EXTRA_TEXT).toString())
+                    ))
+                } else if (notification.extras.containsKey(NotificationCompat.EXTRA_TEXT)) {
+                    linesText.text = (notification.extras.getCharSequence(
+                        NotificationCompat.EXTRA_TEXT
+                    ).toString())
+                }
             } else if (null != notification.tickerText) {
                 linesText.text = (notification.tickerText.toString())
             }

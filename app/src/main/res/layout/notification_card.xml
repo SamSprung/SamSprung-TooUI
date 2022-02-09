@@ -30,13 +30,27 @@
                 android:layout_height="36dp"
                 android:contentDescription="@string/description_icon" />
 
-            <TextView
-                android:id="@+id/lines"
-                android:layout_marginStart="16dp"
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:textSize="16sp"/>
+                android:orientation="vertical"
+                tools:ignore="UseCompoundDrawables">
 
+                <androidx.appcompat.widget.AppCompatImageView
+                    android:id="@+id/image"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical"
+                    android:visibility="gone"
+                    android:contentDescription="@string/description_icon" />
+
+                <TextView
+                    android:id="@+id/lines"
+                    android:layout_marginStart="16dp"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textSize="16sp"/>
+            </LinearLayout>
         </LinearLayout>
 
         <LinearLayout

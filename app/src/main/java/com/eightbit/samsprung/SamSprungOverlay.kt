@@ -265,7 +265,7 @@ class SamSprungOverlay : AppCompatActivity(),
             val icon = layoutInflater.inflate(
                 R.layout.toggle_state_icon, null) as AppCompatImageView
             icon.findViewById<AppCompatImageView>(R.id.toggle_icon)
-            icon.background = toolbar.menu.getItem(i).icon
+            icon.setImageDrawable(toolbar.menu.getItem(i).icon)
             toggleStats.addView(icon)
         }
 
@@ -410,7 +410,7 @@ class SamSprungOverlay : AppCompatActivity(),
                         val icon = layoutInflater.inflate(
                             R.layout.toggle_state_icon, null) as AppCompatImageView
                         icon.findViewById<AppCompatImageView>(R.id.toggle_icon)
-                        icon.background = toolbar.menu.getItem(i).icon
+                        icon.setImageDrawable(toolbar.menu.getItem(i).icon)
                         toggleStats.addView(icon)
                     }
                     info.visibility = View.VISIBLE
@@ -786,6 +786,8 @@ class SamSprungOverlay : AppCompatActivity(),
 
                     startForegroundService(Intent(this,
                         AppDisplayListener::class.java).putExtras(extras))
+
+                    onDismiss()
                 }
             }
         }, 100)
