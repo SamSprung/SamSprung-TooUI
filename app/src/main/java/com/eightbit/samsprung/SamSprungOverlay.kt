@@ -76,7 +76,6 @@ import android.service.notification.StatusBarNotification
 import android.util.TypedValue
 import android.view.*
 import android.view.animation.TranslateAnimation
-import android.view.inputmethod.InputMethodManager
 import android.widget.*
 import android.widget.LinearLayout
 import androidx.activity.result.contract.ActivityResultContracts
@@ -89,7 +88,6 @@ import androidx.appcompat.widget.Toolbar
 import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.core.content.ContextCompat
 import androidx.core.view.isVisible
-import androidx.core.view.setPadding
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -103,9 +101,9 @@ import java.io.File
 import java.util.concurrent.Executors
 import android.view.WindowManager
 
+import android.os.Bundle
 
-
-
+import android.content.Intent
 
 class SamSprungOverlay : AppCompatActivity(),
     DrawerAppAdapater.OnAppClickListener,
@@ -807,22 +805,29 @@ class SamSprungOverlay : AppCompatActivity(),
         processIntentSender(notice.notification.contentIntent.intentSender)
     }
 
-    override fun onNoticeLongClicked(itemView: View, notice: StatusBarNotification) : Boolean {
+    override fun onNoticeLongClicked(itemView: View, notice: StatusBarNotification, position: Int) : Boolean {
         tactileFeedback()
-        val actionsPanel = itemView.findViewById<LinearLayout>(R.id.actions)
+        val actionsPanel = itemView.findViewById<LinearLayout>(R.id.action_panel)
         if (actionsPanel.isVisible) {
             actionsPanel.visibility = View.GONE
         } else {
-            if (actionsPanel.childCount > 0) {
+            val actionButtons = actionsPanel.findViewById<LinearLayout>(R.id.actions)
+            if (actionButtons.childCount > 0) {
                 actionsPanel.visibility = View.VISIBLE
             } else {
                 if (null != notice.notification.actions) {
                     for (action in notice.notification.actions) {
-                        setNotificationAction(actionsPanel, action)
+                        setNotificationAction(position, actionsPanel, action)
                     }
+                    (noticesView.layoutManager as LinearLayoutManager)
+                        .scrollToPositionWithOffset(position,
+                            -(actionButtons.height))
                 }
                 if (notice.isClearable) {
                     setNotificationCancel(actionsPanel, notice)
+                    (noticesView.layoutManager as LinearLayoutManager)
+                        .scrollToPositionWithOffset(position,
+                            -(actionButtons.height))
                 }
             }
         }
@@ -842,17 +847,52 @@ class SamSprungOverlay : AppCompatActivity(),
         }
     }
 
-    private fun setNotificationAction(actionsPanel: LinearLayout, action: Notification.Action) {
+    private fun setNotificationAction(position: Int, actionsPanel: LinearLayout,
+                                      action: Notification.Action) {
+        val actionButtons = actionsPanel.findViewById<LinearLayout>(R.id.actions)
+        val actionEntries = actionsPanel.findViewById<LinearLayout>(R.id.entries)
         val button = AppCompatButton(ContextThemeWrapper(this,
             R.style.Theme_SecondScreen_NoActionBar))
         button.setTextSize(TypedValue.COMPLEX_UNIT_SP, 10f)
         button.setSingleLine()
         button.text = action.title
         button.setOnClickListener {
-            processIntentSender(action.actionIntent.intentSender)
-            actionsPanel.visibility = View.GONE
+            if (action.remoteInputs.isNotEmpty()) {
+                for (remoteInput in action.remoteInputs) {
+                    if (remoteInput.allowFreeFormInput) {
+                        val toolbar = findViewById<Toolbar>(R.id.toolbar)
+                        toolbar.visibility = View.GONE
+                        SamSprungInput.setParent(actionEntries)
+                        actionEntries.visibility = View.VISIBLE
+                        val reply = actionEntries.findViewById<EditText>(R.id.reply)
+                        val send = actionEntries.findViewById<AppCompatImageView>(R.id.send)
+                        reply.setOnFocusChangeListener { view, hasFocus ->
+                            if (hasFocus)
+                                (noticesView.layoutManager as LinearLayoutManager)
+                                    .scrollToPositionWithOffset(position,
+                                        -(actionButtons.height + reply.height))
+                        }
+                        send.setOnClickListener {
+                            val replyIntent = Intent()
+                            val replyBundle = Bundle()
+                            
+                            replyBundle.putCharSequence(remoteInput.resultKey, reply.text.toString())
+                            RemoteInput.addResultsToIntent(action.remoteInputs, replyIntent, replyBundle)
+                            startIntentSender(action.actionIntent.intentSender,
+                                replyIntent, 0, 0, 0,
+                                ActivityOptions.makeBasic().setLaunchDisplayId(1).toBundle())
+                            actionEntries.visibility = View.GONE
+                            SamSprungInput.setParent(findViewById<LinearLayout>(R.id.keyboard_wrapper))
+                            toolbar.visibility = View.VISIBLE
+                        }
+                    }
+                }
+            } else {
+                processIntentSender(action.actionIntent.intentSender)
+                actionsPanel.visibility = View.GONE
+            }
         }
-        actionsPanel.addView(button, LinearLayout.LayoutParams(
+        actionButtons.addView(button, LinearLayout.LayoutParams(
             0, LinearLayout.LayoutParams.WRAP_CONTENT,
             if (action.title.length > 10) 1.5f else 1.0f
         ))
@@ -860,6 +900,7 @@ class SamSprungOverlay : AppCompatActivity(),
     }
 
     private fun setNotificationCancel(actionsPanel: LinearLayout, sbn: StatusBarNotification) {
+        val actionButtons = actionsPanel.findViewById<LinearLayout>(R.id.actions)
         val button = AppCompatButton(ContextThemeWrapper(this,
             R.style.Theme_SecondScreen_NoActionBar))
         button.setTextSize(TypedValue.COMPLEX_UNIT_SP, 10f)
@@ -870,7 +911,7 @@ class SamSprungOverlay : AppCompatActivity(),
             NotificationReceiver.getReceiver()?.cancelNotification(sbn.key)
             actionsPanel.visibility = View.GONE
         }
-        actionsPanel.addView(button, LinearLayout.LayoutParams(
+        actionButtons.addView(button, LinearLayout.LayoutParams(
             0, LinearLayout.LayoutParams.WRAP_CONTENT, 1.0f
         ))
         actionsPanel.visibility = View.VISIBLE
