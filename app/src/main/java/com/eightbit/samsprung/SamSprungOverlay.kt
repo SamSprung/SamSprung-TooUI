@@ -261,14 +261,6 @@ class SamSprungOverlay : AppCompatActivity(),
         batteryLevel.setTextColor(color)
         clock.setTextColor(color)
 
-        for (i in 0 until toolbar.menu.size()) {
-            val icon = layoutInflater.inflate(
-                R.layout.toggle_state_icon, null) as AppCompatImageView
-            icon.findViewById<AppCompatImageView>(R.id.toggle_icon)
-            icon.setImageDrawable(toolbar.menu.getItem(i).icon)
-            toggleStats.addView(icon)
-        }
-
         val wifiEnabler = registerForActivityResult(
             ActivityResultContracts.StartActivityForResult()) {
             if (wifiManager.isWifiEnabled)
@@ -396,17 +388,37 @@ class SamSprungOverlay : AppCompatActivity(),
                 } else {
                     toggleStats.removeAllViewsInLayout()
                     for (i in 0 until toolbar.menu.size()) {
-                        toolbar.menu.getItem(i).icon.setTint(color)
-                        val icon = layoutInflater.inflate(
-                            R.layout.toggle_state_icon, null) as AppCompatImageView
-                        icon.findViewById<AppCompatImageView>(R.id.toggle_icon)
-                        icon.setImageDrawable(toolbar.menu.getItem(i).icon)
-                        toggleStats.addView(icon)
+                        val enabled = prefs.getBoolean(toolbar.menu.getItem(i).title.toPref(), true)
+                        if (enabled) {
+                            toolbar.menu.getItem(i).isVisible = true
+                            toolbar.menu.getItem(i).icon.setTint(color)
+                            val icon = layoutInflater.inflate(
+                                R.layout.toggle_state_icon, null) as AppCompatImageView
+                            icon.findViewById<AppCompatImageView>(R.id.toggle_icon)
+                            icon.setImageDrawable(toolbar.menu.getItem(i).icon)
+                            toggleStats.addView(icon)
+                        } else {
+                            toolbar.menu.getItem(i).isVisible = false
+                        }
                     }
                     info.visibility = View.VISIBLE
                 }
             }
         })
+
+        for (i in 0 until toolbar.menu.size()) {
+            val enabled = prefs.getBoolean(toolbar.menu.getItem(i).title.toPref(), true)
+            if (enabled) {
+                toolbar.menu.getItem(i).isVisible = true
+                val icon = layoutInflater.inflate(
+                    R.layout.toggle_state_icon, null) as AppCompatImageView
+                icon.findViewById<AppCompatImageView>(R.id.toggle_icon)
+                icon.setImageDrawable(toolbar.menu.getItem(i).icon)
+                toggleStats.addView(icon)
+            } else {
+                toolbar.menu.getItem(i).isVisible = false
+            }
+        }
 
         val noticeTouchCallback: ItemTouchHelper.SimpleCallback = object :
             ItemTouchHelper.SimpleCallback(ItemTouchHelper.RIGHT or ItemTouchHelper.LEFT,
@@ -995,4 +1007,7 @@ class SamSprungOverlay : AppCompatActivity(),
         super.onDestroy()
         onDismiss()
     }
+
+    fun CharSequence.toPref(): String =  this.toString()
+        .lowercase().replace(" ", "_")
 }

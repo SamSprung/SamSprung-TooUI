@@ -458,71 +458,53 @@ class CoverPreferences : AppCompatActivity() {
         colorAlphaBar.visibility = View.GONE
         colorPanel.visibility = View.GONE
 
+
         val toolbar = findViewById<Toolbar>(R.id.toolbar)
         toolbar.inflateMenu(R.menu.cover_quick_toggles)
         toolbar.setOnMenuItemClickListener { item: MenuItem ->
+            val pref = item.title.toPref()
+            with(prefs.edit()) {
+                putBoolean(pref, !prefs.getBoolean(pref, true))
+                apply()
+            }
             when (item.itemId) {
                 R.id.toggle_wifi -> {
-                    with(prefs.edit()) {
-                        putBoolean("toggle_wifi", !prefs.getBoolean("toggle_wifi", true))
-                        apply()
-                    }
-                    if (prefs.getBoolean("toggle_wifi", true))
+                    if (prefs.getBoolean(pref, true))
                         item.setIcon(R.drawable.ic_baseline_wifi_on_24)
                     else
                         item.setIcon(R.drawable.ic_baseline_wifi_off_24)
                     return@setOnMenuItemClickListener true
                 }
                 R.id.toggle_bluetooth -> {
-                    with(prefs.edit()) {
-                        putBoolean("toggle_bluetooth", !prefs.getBoolean("toggle_bluetooth", true))
-                        apply()
-                    }
-                    if (prefs.getBoolean("toggle_bluetooth", true))
+                    if (prefs.getBoolean(pref, true))
                         item.setIcon(R.drawable.ic_baseline_bluetooth_on_24)
                     else
                         item.setIcon(R.drawable.ic_baseline_bluetooth_off_24)
                     return@setOnMenuItemClickListener true
                 }
                 R.id.toggle_nfc -> {
-                    with(prefs.edit()) {
-                        putBoolean("toggle_nfc", !prefs.getBoolean("toggle_nfc", true))
-                        apply()
-                    }
-                    if (prefs.getBoolean("toggle_nfc", true))
+                    if (prefs.getBoolean(pref, true))
                         item.setIcon(R.drawable.ic_baseline_nfc_on_24)
                     else
                         item.setIcon(R.drawable.ic_baseline_nfc_off_24)
                     return@setOnMenuItemClickListener true
                 }
                 R.id.toggle_sound -> {
-                    with(prefs.edit()) {
-                        putBoolean("toggle_sound", !prefs.getBoolean("toggle_sound", true))
-                        apply()
-                    }
-                    if (prefs.getBoolean("toggle_sound", true))
+                    if (prefs.getBoolean(pref, true))
                         item.setIcon(R.drawable.ic_baseline_sound_on_24)
                     else
                         item.setIcon(R.drawable.ic_baseline_sound_off_24)
                     return@setOnMenuItemClickListener true
                 }
                 R.id.toggle_dnd -> {
-                    with(prefs.edit()) {
-                        putBoolean("toggle_dnd", !prefs.getBoolean("toggle_dnd", true))
-                        apply()
-                    }
-                    if (prefs.getBoolean("toggle_dnd", true))
+                    if (prefs.getBoolean(pref, true))
                         item.setIcon(R.drawable.ic_baseline_do_not_disturb_on_24)
                     else
                         item.setIcon(R.drawable.ic_baseline_do_not_disturb_off_24)
                     return@setOnMenuItemClickListener true
                 }
                 R.id.toggle_torch -> {
-                    with(prefs.edit()) {
-                        putBoolean("toggle_torch", !prefs.getBoolean("toggle_torch", true))
-                        apply()
-                    }
-                    if (prefs.getBoolean("toggle_torch", true))
+                    if (prefs.getBoolean(pref, true))
                         item.setIcon(R.drawable.ic_baseline_flashlight_on_24)
                     else
                         item.setIcon(R.drawable.ic_baseline_flashlight_off_24)
@@ -535,37 +517,37 @@ class CoverPreferences : AppCompatActivity() {
         }
 
         val wifi = toolbar.menu.findItem(R.id.toggle_wifi)
-        if (prefs.getBoolean("toggle_wifi", true))
+        if (prefs.getBoolean(wifi.title.toPref(), true))
             wifi.setIcon(R.drawable.ic_baseline_wifi_on_24)
         else
             wifi.setIcon(R.drawable.ic_baseline_wifi_off_24)
 
         val bluetooth = toolbar.menu.findItem(R.id.toggle_bluetooth)
-        if (prefs.getBoolean("toggle_bluetooth", true))
+        if (prefs.getBoolean(bluetooth.title.toPref(), true))
             bluetooth.setIcon(R.drawable.ic_baseline_bluetooth_on_24)
         else
             bluetooth.setIcon(R.drawable.ic_baseline_bluetooth_off_24)
 
         val nfc = toolbar.menu.findItem(R.id.toggle_nfc)
-        if (prefs.getBoolean("toggle_nfc", true))
+        if (prefs.getBoolean(nfc.title.toPref(), true))
             nfc.setIcon(R.drawable.ic_baseline_nfc_on_24)
         else
             nfc.setIcon(R.drawable.ic_baseline_nfc_off_24)
 
         val sound = toolbar.menu.findItem(R.id.toggle_sound)
-        if (prefs.getBoolean("toggle_sound", true))
+        if (prefs.getBoolean(sound.title.toPref(), true))
             sound.setIcon(R.drawable.ic_baseline_sound_on_24)
         else
             sound.setIcon(R.drawable.ic_baseline_sound_off_24)
 
         val dnd = toolbar.menu.findItem(R.id.toggle_dnd)
-        if (prefs.getBoolean("toggle_dnd", true))
+        if (prefs.getBoolean(dnd.title.toPref(), true))
             dnd.setIcon(R.drawable.ic_baseline_do_not_disturb_on_24)
         else
             dnd.setIcon(R.drawable.ic_baseline_do_not_disturb_off_24)
 
         val torch = toolbar.menu.findItem(R.id.toggle_torch)
-        if (prefs.getBoolean("toggle_torch", true))
+        if (prefs.getBoolean(torch.title.toPref(), true))
             torch.setIcon(R.drawable.ic_baseline_flashlight_on_24)
         else
             torch.setIcon(R.drawable.ic_baseline_flashlight_off_24)
@@ -1024,4 +1006,7 @@ class CoverPreferences : AppCompatActivity() {
             }
         }
     }
+
+    private fun CharSequence.toPref(): String =  this.toString()
+        .lowercase().replace(" ", "_")
 }
