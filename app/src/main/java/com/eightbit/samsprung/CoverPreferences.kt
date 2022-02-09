@@ -252,7 +252,8 @@ class CoverPreferences : AppCompatActivity() {
         }
 
         val packageRetriever = PackageRetriever(this)
-        val packages = packageRetriever.getRecentPackageList(false)
+        // val packages = packageRetriever.getRecentPackageList(false)
+        val packages = packageRetriever.getPackageList()
         val unlisted = packageRetriever.getHiddenPackages()
 
         hiddenList = findViewById(R.id.app_toggle_list)

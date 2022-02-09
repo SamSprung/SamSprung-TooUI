@@ -532,12 +532,6 @@ class SamSprungOverlay : AppCompatActivity(),
                 return true
             }
         })
-        searchView.setOnQueryTextFocusChangeListener { view, hasFocus ->
-            if (hasFocus) {
-                (getSystemService(INPUT_METHOD_SERVICE) as InputMethodManager)
-                    .showSoftInput(view.findFocus(), 0)
-            }
-        }
         searchView.visibility = View.GONE
 
         val keyboardView = getInputMethod()
@@ -618,15 +612,6 @@ class SamSprungOverlay : AppCompatActivity(),
         })
         coordinator.visibility = View.GONE
         onNewIntent(intent)
-    }
-
-    @SuppressLint("InflateParams")
-    @Suppress("DEPRECATION")
-    private fun getInputMethod(): KeyboardView {
-        val mKeyboardView = layoutInflater.inflate(R.layout.keyboard_view, null) as KeyboardView
-        mKeyboardView.isPreviewEnabled = false
-        AccessibilityObserver.enableKeyboard(applicationContext)
-        return mKeyboardView
     }
 
     private fun animateSearchReveal(view: View, anchor: View) {
@@ -889,6 +874,15 @@ class SamSprungOverlay : AppCompatActivity(),
             0, LinearLayout.LayoutParams.WRAP_CONTENT, 1.0f
         ))
         actionsPanel.visibility = View.VISIBLE
+    }
+
+    @SuppressLint("InflateParams")
+    @Suppress("DEPRECATION")
+    private fun getInputMethod(): KeyboardView {
+        val mKeyboardView = layoutInflater.inflate(R.layout.keyboard_view, null) as KeyboardView
+        mKeyboardView.isPreviewEnabled = false
+        AccessibilityObserver.enableKeyboard(applicationContext)
+        return mKeyboardView
     }
 
     private fun getVisibility(view: View): Boolean {

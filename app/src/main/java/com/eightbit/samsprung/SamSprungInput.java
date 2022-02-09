@@ -1,13 +1,9 @@
 package com.eightbit.samsprung;
 
-import android.annotation.SuppressLint;
-import android.content.Context;
 import android.inputmethodservice.InputMethodService;
 import android.inputmethodservice.Keyboard;
 import android.inputmethodservice.KeyboardView;
-import android.util.Log;
 import android.view.KeyEvent;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.InputConnection;
@@ -23,15 +19,17 @@ public class SamSprungInput extends InputMethodService
     private static InputMethodListener listener;
 
     private SoftReference<KeyboardView> mKeyboardView;
+    private Keyboard mKeyPad;
     private Keyboard mKeyboard;
     private Keyboard mNumPad;
     private static SoftReference<ViewGroup> parent;
-    private static boolean isNumPad = false;
+    private static int kbIndex = 1;
 
     private boolean caps = false;
 
     @Override
     public void onInitializeInterface() {
+        mKeyPad = new Keyboard(ScaledContext.cover(this), R.xml.keyboard_predictive);
         mKeyboard = new Keyboard(ScaledContext.cover(this), R.xml.keyboard_qwerty);
         mNumPad = new Keyboard(ScaledContext.cover(this), R.xml.keyboard_numpad);
         super.onInitializeInterface();
@@ -42,7 +40,7 @@ public class SamSprungInput extends InputMethodService
         if (null != listener) mKeyboardView =
                 new SoftReference<>(listener.onInputRequested(this));
         if (null != mKeyboardView) {
-            mKeyboardView.get().setKeyboard(mKeyboard);
+            swapKeyboardLayout(kbIndex);
             mKeyboardView.get().setOnKeyboardActionListener(this);
             if (null != mKeyboardView.get().getParent())
                 ((ViewGroup) mKeyboardView.get().getParent()).removeView(mKeyboardView.get());
@@ -56,7 +54,6 @@ public class SamSprungInput extends InputMethodService
     public static void setInputListener(InputMethodListener inputListener, ViewGroup anchor) {
         listener = inputListener;
         parent = new SoftReference<>(anchor);
-        isNumPad = false;
     }
 
     public static void setParent(ViewGroup anchor) {
@@ -68,14 +65,32 @@ public class SamSprungInput extends InputMethodService
         return null;
     }
 
-    private void swapKeyboardLayout() {
+    private void swapKeyboardLayout(int newIndex) {
         if (null == mKeyboardView) return;
-        if (isNumPad) {
-            isNumPad = false;
-            mKeyboardView.get().setKeyboard(mKeyboard);
-        } else {
-            isNumPad = true;
-            mKeyboardView.get().setKeyboard(mNumPad);
+        switch (newIndex) {
+            case 0:
+                kbIndex = 0;
+                mKeyboardView.get().setKeyboard(mKeyPad);
+                break;
+            case 1:
+                kbIndex = 1;
+                mKeyboardView.get().setKeyboard(mKeyboard);
+                break;
+            case 2:
+                kbIndex = 2;
+                mKeyboardView.get().setKeyboard(mNumPad);
+                break;
+            default:
+                if (newIndex > 2) {
+                    kbIndex = 0;
+                    mKeyboardView.get().setKeyboard(mKeyPad);
+                }
+                if (newIndex < 0) {
+                    kbIndex = 2;
+                    mKeyboardView.get().setKeyboard(mNumPad);
+                }
+
+                break;
         }
     }
 
@@ -92,8 +107,11 @@ public class SamSprungInput extends InputMethodService
             case 555:
                 disconnectKeyboard();
                 break;
+            case -998:
+                swapKeyboardLayout(kbIndex - 1);
+                break;
             case -999:
-                swapKeyboardLayout();
+                swapKeyboardLayout(kbIndex + 1);
                 break;
             case Keyboard.KEYCODE_DELETE:
                 ic.deleteSurroundingText(1, 0);

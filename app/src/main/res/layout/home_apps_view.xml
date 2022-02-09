@@ -24,7 +24,6 @@
                 android:scrollbars="vertical"/>
         </com.eightbitlab.blurview.BlurView>
 
-
         <FrameLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
@@ -33,25 +32,25 @@
             android:layout_gravity="bottom"
             android:gravity="bottom">
 
-            <androidx.appcompat.widget.SearchView
-                android:id="@+id/package_search"
-                android:layout_width="match_parent"
-                android:layout_height="30dp"
-                android:layout_gravity="bottom"
-                android:layout_marginBottom="20dp"
-                android:layout_marginStart="-10dp"
-                android:background="@color/bottomSheetTint"
-                android:lineSpacingExtra="0dp"
-                android:lineSpacingMultiplier="0" />
-
             <LinearLayout
                 android:id="@+id/keyboard_wrapper"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
                 android:layout_gravity="bottom"
-                android:elevation="1dp"
-                android:layout_marginBottom="40dp" />
+                android:layout_marginBottom="44dp" />
+
+            <androidx.appcompat.widget.SearchView
+                android:id="@+id/package_search"
+                android:layout_width="match_parent"
+                android:layout_height="26dp"
+                android:layout_gravity="bottom"
+                android:layout_marginBottom="20dp"
+                android:layout_marginStart="-10dp"
+                android:background="@color/bottomSheetTint"
+                android:lineSpacingExtra="0dp"
+                android:lineSpacingMultiplier="0"
+                android:elevation="1dp"/>
         </FrameLayout>
 
         <LinearLayout

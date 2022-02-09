@@ -65,7 +65,8 @@ open class OnSwipeTouchListener(ctx: Context) : OnTouchListener {
     private val gestureDetector: GestureDetector
 
     companion object {
-        private const val SWIPE_THRESHOLD = 100
+        private const val SWIPE_VERTICAL_THRESHOLD = 500
+        private const val SWIPE_HORIZONTAL_THRESHOLD = 1000
         private const val SWIPE_VELOCITY_THRESHOLD = 250
     }
 
@@ -74,7 +75,7 @@ open class OnSwipeTouchListener(ctx: Context) : OnTouchListener {
     }
 
     @SuppressLint("ClickableViewAccessibility")
-    override fun onTouch(v: View, event: MotionEvent): Boolean {
+    override fun onTouch(view: View, event: MotionEvent): Boolean {
         return gestureDetector.onTouchEvent(event)
     }
 
@@ -95,14 +96,16 @@ open class OnSwipeTouchListener(ctx: Context) : OnTouchListener {
                 val diffY = e2.y - e1.y
                 val diffX = e2.x - e1.x
                 if (abs(diffX) > abs(diffY)) {
-                    if (abs(diffX) > SWIPE_THRESHOLD && abs(velocityX) > SWIPE_VELOCITY_THRESHOLD) {
+                    if (abs(diffX) > SWIPE_HORIZONTAL_THRESHOLD
+                        && abs(velocityX) > SWIPE_VELOCITY_THRESHOLD) {
                         return if (diffX > 0) {
                             onSwipeRight()
                         } else {
                             onSwipeLeft()
                         }
                     }
-                } else if (abs(diffY) > SWIPE_THRESHOLD && abs(velocityY) > SWIPE_VELOCITY_THRESHOLD) {
+                } else if (abs(diffY) > SWIPE_VERTICAL_THRESHOLD
+                    && abs(velocityY) > SWIPE_VELOCITY_THRESHOLD) {
                     return if (diffY > 0) {
                         onSwipeBottom()
                     } else {

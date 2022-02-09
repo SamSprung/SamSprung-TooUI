@@ -68,7 +68,7 @@ class PackageRetriever(val context: Context) {
         SamSprung.prefsValue, AppCompatActivity.MODE_PRIVATE
     )
 
-    private fun getPackageList() : MutableList<ResolveInfo> {
+    fun getPackageList() : MutableList<ResolveInfo> {
         val mainIntent = Intent(Intent.ACTION_MAIN, null)
         mainIntent.addCategory(Intent.CATEGORY_LAUNCHER)
         val packages: MutableList<ResolveInfo> = context.packageManager.queryIntentActivities(

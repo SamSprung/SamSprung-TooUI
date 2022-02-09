@@ -6,22 +6,22 @@
     android:verticalGap="0px">
     <Row android:rowEdgeFlags="top">
         <Key android:codes="49" android:keyLabel="1" android:keyEdgeFlags="left" />
-        <Key android:codes="50" android:keyLabel="2"/>
-        <Key android:codes="51" android:keyLabel="3" android:keyEdgeFlags="right"/>
+        <Key android:codes="97,98,99" android:keyLabel="ABC"/>
+        <Key android:codes="100,101,102" android:keyLabel="DEF" android:keyEdgeFlags="right"/>
     </Row>
     <Row>
-        <Key android:codes="52" android:keyLabel="4" android:keyEdgeFlags="left" />
-        <Key android:codes="53" android:keyLabel="5"/>
-        <Key android:codes="54" android:keyLabel="6" android:keyEdgeFlags="right" />
+        <Key android:codes="103,104,105" android:keyLabel="GHI" android:keyEdgeFlags="left" />
+        <Key android:codes="106,107,108" android:keyLabel="JKL"/>
+        <Key android:codes="109,110,111" android:keyLabel="MNO" android:keyEdgeFlags="right" />
     </Row>
     <Row>
-        <Key android:codes="55" android:keyLabel="7" android:keyEdgeFlags="left" />
-        <Key android:codes="56" android:keyLabel="8"/>
-        <Key android:codes="57" android:keyLabel="9" android:keyEdgeFlags="right"/>
+        <Key android:codes="112,113,114,115" android:keyLabel="PQRS" android:keyEdgeFlags="left" />
+        <Key android:codes="116,117,118" android:keyLabel="TUV"/>
+        <Key android:codes="119,120,121,122" android:keyLabel="WXYZ" android:keyEdgeFlags="right"/>
     </Row>
     <Row>
         <Key android:codes="-5" android:keyIcon="@drawable/ic_baseline_keyboard_backspace_16" android:keyEdgeFlags="left" />
-        <Key android:codes="48" android:keyLabel="0"/>
+        <Key android:codes="32" android:keyIcon="@drawable/ic_baseline_space_bar_16"/>
         <Key android:codes="-4" android:keyLabel="DONE" android:keyEdgeFlags="right"/>
     </Row>
     <Row android:rowEdgeFlags="bottom">
