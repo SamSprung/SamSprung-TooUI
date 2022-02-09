@@ -65,7 +65,7 @@ public class WidgetAnimUtils {
         });
     }
     public static void onDestroyActivity() {
-        HashSet<Animator> animators = new HashSet<Animator>(sAnimators);
+        HashSet<Animator> animators = new HashSet<>(sAnimators);
         for (Animator a : animators) {
             if (a.isRunning()) {
                 a.cancel();

@@ -147,7 +147,7 @@ class SamSprungOverlay : AppCompatActivity(),
             override fun onDisplayAdded(display: Int) {}
             override fun onDisplayChanged(display: Int) {
                 if (display == 0) {
-                    finish()
+                    onDismiss()
                 }
             }
 
@@ -464,7 +464,7 @@ class SamSprungOverlay : AppCompatActivity(),
             @SuppressLint("NotifyDataSetChanged")
             override fun onReceive(context: Context?, intent: Intent) {
                 if (intent.action == Intent.ACTION_SCREEN_OFF) {
-                    finish()
+                    onDismiss()
                 } else if (intent.action == Intent.ACTION_BATTERY_CHANGED) {
                     Handler(Looper.getMainLooper()).post {
                         batteryLevel.text = String.format("%d%%",
@@ -630,7 +630,7 @@ class SamSprungOverlay : AppCompatActivity(),
         if (searchView.query.isNotBlank()) {
             searchView.setQuery("", true)
         } else {
-            finish()
+            onDismiss()
             startActivity(
                 Intent(applicationContext, SamSprungPanels::class.java),
                 ActivityOptions.makeBasic().setLaunchDisplayId(1).toBundle()
@@ -762,7 +762,7 @@ class SamSprungOverlay : AppCompatActivity(),
         Handler(Looper.getMainLooper()).postDelayed({
             runOnUiThread {
                 windowManager.removeView(orientationChanger)
-                finish()
+                onDismiss()
                 requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
                 startForegroundService(Intent(this,
                     AppDisplayListener::class.java).putExtras(extras))
@@ -981,8 +981,7 @@ class SamSprungOverlay : AppCompatActivity(),
         }, 200)
     }
 
-    override fun onDestroy() {
-        super.onDestroy()
+    fun onDismiss() {
         if (hasAccessibility())
             AccessibilityObserver.disableKeyboard(this)
         if (null != mDisplayListener) {
@@ -997,5 +996,11 @@ class SamSprungOverlay : AppCompatActivity(),
             if (this::viewReceiver.isInitialized)
                 unregisterReceiver(viewReceiver)
         } catch (ignored: Exception) { }
+        finish()
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        onDismiss()
     }
 }

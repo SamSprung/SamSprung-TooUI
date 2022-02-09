@@ -18,6 +18,7 @@
         app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior">
 
         <LinearLayout
+            android:id="@+id/fake_overlay"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:gravity="bottom|center_horizontal"

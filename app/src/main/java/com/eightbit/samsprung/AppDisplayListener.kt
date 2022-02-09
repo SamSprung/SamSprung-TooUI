@@ -115,7 +115,7 @@ class AppDisplayListener : Service() {
                         resetRecentActivities(componentName)
                     else
                         resetRecentActivities(launchPackage, launchActivity)
-                    onDestroy()
+                    onDismiss()
                     stopForeground(true)
                     stopSelf()
                 }
@@ -148,7 +148,7 @@ class AppDisplayListener : Service() {
                         restoreActivityDisplay(componentName, display)
                     else
                         restoreActivityDisplay(launchPackage, launchActivity, display)
-                    onDestroy()
+                    onDismiss()
                     stopForeground(true)
                     stopSelf()
                 } else {
@@ -204,7 +204,7 @@ class AppDisplayListener : Service() {
                             resetRecentActivities(componentName)
                         else
                             resetRecentActivities(launchPackage, launchActivity)
-                        onDestroy()
+                        onDismiss()
                         stopForeground(true)
                         stopSelf()
                         startForegroundService(Intent(
@@ -216,7 +216,7 @@ class AppDisplayListener : Service() {
                             resetRecentActivities(componentName)
                         else
                             resetRecentActivities(launchPackage, launchActivity)
-                        onDestroy()
+                        onDismiss()
                         stopForeground(true)
                         stopSelf()
                         startForegroundService(
@@ -366,8 +366,7 @@ class AppDisplayListener : Service() {
             floatView.requestLayout()
     }
 
-    override fun onDestroy() {
-        super.onDestroy()
+    fun onDismiss() {
         if (hasAccessibility())
             AccessibilityObserver.disableKeyboard(this)
         try {
@@ -384,5 +383,10 @@ class AppDisplayListener : Service() {
             windowService.removeView(floatView)
         if ((application as SamSprung).isKeyguardLocked)
             @Suppress("DEPRECATION") mKeyguardLock.reenableKeyguard()
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        onDismiss()
     }
 }
