@@ -76,10 +76,12 @@ import android.service.notification.StatusBarNotification
 import android.util.TypedValue
 import android.view.*
 import android.view.animation.TranslateAnimation
+import android.view.inputmethod.InputMethodManager
 import android.widget.*
 import android.widget.LinearLayout
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.view.ContextThemeWrapper
 import androidx.appcompat.widget.AppCompatButton
 import androidx.appcompat.widget.AppCompatImageView
 import androidx.appcompat.widget.SearchView
@@ -87,6 +89,7 @@ import androidx.appcompat.widget.Toolbar
 import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.core.content.ContextCompat
 import androidx.core.view.isVisible
+import androidx.core.view.setPadding
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -98,10 +101,10 @@ import com.eightbitlab.blurview.RenderScriptBlur
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import java.io.File
 import java.util.concurrent.Executors
-import android.view.MotionEvent
-import android.view.View.OnFocusChangeListener
-import android.view.inputmethod.InputMethodManager
-import androidx.appcompat.view.ContextThemeWrapper
+import android.view.WindowManager
+
+
+
 
 
 class SamSprungOverlay : AppCompatActivity(),
@@ -112,7 +115,6 @@ class SamSprungOverlay : AppCompatActivity(),
     private var mDisplayListener: DisplayManager.DisplayListener? = null
     private lateinit var bottomHandle: View
     private lateinit var bottomSheetBehaviorMain: BottomSheetBehavior<View>
-    private lateinit var searchView: SearchView
 
     private lateinit var wifiManager: WifiManager
     private lateinit var bluetoothAdapter: BluetoothAdapter
@@ -172,7 +174,9 @@ class SamSprungOverlay : AppCompatActivity(),
             override fun onStateChanged(bottomSheet: View, newState: Int) {
                 if (newState == BottomSheetBehavior.STATE_EXPANDED) {
                     coordinator.keepScreenOn = true
+                    window.clearFlags(WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE)
                 } else if (newState == BottomSheetBehavior.STATE_COLLAPSED) {
+                    window.addFlags(WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE)
                     coordinator.keepScreenOn = false
                     coordinator.visibility = View.GONE
                     bottomSheetBehaviorMain.isDraggable = true
@@ -496,15 +500,15 @@ class SamSprungOverlay : AppCompatActivity(),
         }
 
         IntentFilter().apply {
-            addAction(Intent.ACTION_SCREEN_OFF)
             addAction(Intent.ACTION_PACKAGE_ADDED)
             addAction(Intent.ACTION_PACKAGE_REMOVED)
+            addAction(Intent.ACTION_SCREEN_OFF)
             addDataScheme("package")
         }.also {
             registerReceiver(viewReceiver, it)
         }
 
-        searchView = findViewById<SearchView>(R.id.package_search)
+        val searchView = findViewById<SearchView>(R.id.package_search)
         searchView.findViewById<LinearLayout>(R.id.search_bar)?.run {
             this.layoutParams = this.layoutParams.apply {
                 height = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP,
@@ -854,13 +858,6 @@ class SamSprungOverlay : AppCompatActivity(),
     }
 
     private fun setNotificationAction(actionsPanel: LinearLayout, action: Notification.Action) {
-        val param = LinearLayout.LayoutParams(
-            LinearLayout.LayoutParams.MATCH_PARENT,
-            LinearLayout.LayoutParams.WRAP_CONTENT,
-            1.0f
-        )
-        val wrapper = LinearLayout(this@SamSprungOverlay)
-        wrapper.gravity = Gravity.CENTER
         val button = AppCompatButton(ContextThemeWrapper(this,
             R.style.Theme_SecondScreen_NoActionBar))
         button.setTextSize(TypedValue.COMPLEX_UNIT_SP, 10f)
@@ -870,19 +867,14 @@ class SamSprungOverlay : AppCompatActivity(),
             processIntentSender(action.actionIntent.intentSender)
             actionsPanel.visibility = View.GONE
         }
-        wrapper.addView(button)
-        actionsPanel.addView(wrapper, param)
+        actionsPanel.addView(button, LinearLayout.LayoutParams(
+            0, LinearLayout.LayoutParams.WRAP_CONTENT,
+            if (action.title.length > 10) 1.5f else 1.0f
+        ))
         actionsPanel.visibility = View.VISIBLE
     }
 
     private fun setNotificationCancel(actionsPanel: LinearLayout, sbn: StatusBarNotification) {
-        val param = LinearLayout.LayoutParams(
-            LinearLayout.LayoutParams.MATCH_PARENT,
-            LinearLayout.LayoutParams.WRAP_CONTENT,
-            1.0f
-        )
-        val wrapper = LinearLayout(this@SamSprungOverlay)
-        wrapper.gravity = Gravity.CENTER
         val button = AppCompatButton(ContextThemeWrapper(this,
             R.style.Theme_SecondScreen_NoActionBar))
         button.setTextSize(TypedValue.COMPLEX_UNIT_SP, 10f)
@@ -893,8 +885,9 @@ class SamSprungOverlay : AppCompatActivity(),
             NotificationReceiver.getReceiver()?.cancelNotification(sbn.key)
             actionsPanel.visibility = View.GONE
         }
-        wrapper.addView(button)
-        actionsPanel.addView(wrapper, param)
+        actionsPanel.addView(button, LinearLayout.LayoutParams(
+            0, LinearLayout.LayoutParams.WRAP_CONTENT, 1.0f
+        ))
         actionsPanel.visibility = View.VISIBLE
     }
 
