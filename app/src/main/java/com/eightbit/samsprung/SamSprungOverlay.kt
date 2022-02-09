@@ -99,11 +99,6 @@ import com.eightbitlab.blurview.RenderScriptBlur
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import java.io.File
 import java.util.concurrent.Executors
-import android.view.WindowManager
-
-import android.os.Bundle
-
-import android.content.Intent
 
 class SamSprungOverlay : AppCompatActivity(),
     DrawerAppAdapater.OnAppClickListener,
@@ -796,12 +791,7 @@ class SamSprungOverlay : AppCompatActivity(),
         }, 100)
     }
 
-    override fun onNoticeClicked(notice: StatusBarNotification) {
-        processIntentSender(notice.notification.contentIntent.intentSender)
-    }
-
-    override fun onNoticeLongClicked(itemView: View, notice: StatusBarNotification, position: Int) : Boolean {
-        tactileFeedback()
+    override fun onNoticeClicked(itemView: View, position: Int, notice: StatusBarNotification) {
         val actionsPanel = itemView.findViewById<LinearLayout>(R.id.action_panel)
         if (actionsPanel.isVisible) {
             actionsPanel.visibility = View.GONE
@@ -826,6 +816,12 @@ class SamSprungOverlay : AppCompatActivity(),
                 }
             }
         }
+    }
+
+    override fun onNoticeLongClicked(itemView: View, position: Int,
+                                     notice: StatusBarNotification) : Boolean {
+        tactileFeedback()
+        processIntentSender(notice.notification.contentIntent.intentSender)
         return true
     }
 

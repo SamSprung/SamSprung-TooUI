@@ -90,11 +90,11 @@ class NotificationAdapter(
     override fun onBindViewHolder(holder: NoticeViewHolder, position: Int) {
         holder.itemView.setOnClickListener {
             if (null != holder.listener)
-                holder.listener.onNoticeClicked(holder.notice)
+                holder.listener.onNoticeClicked(holder.itemView, position, holder.notice)
         }
         holder.itemView.setOnLongClickListener {
             if (null != holder.listener)
-                holder.listener.onNoticeLongClicked(holder.itemView, holder.notice, position)
+                holder.listener.onNoticeLongClicked(holder.itemView, position, holder.notice)
             else
                 false
         }
@@ -192,7 +192,7 @@ class NotificationAdapter(
     }
 
     interface OnNoticeClickListener {
-        fun onNoticeClicked(notice: StatusBarNotification)
-        fun onNoticeLongClicked(itemView: View, notice: StatusBarNotification, position: Int) : Boolean
+        fun onNoticeClicked(itemView: View, position: Int, notice: StatusBarNotification)
+        fun onNoticeLongClicked(itemView: View, position: Int, notice: StatusBarNotification) : Boolean
     }
 }
