@@ -307,14 +307,12 @@ class SamSprungOverlay : AppCompatActivity(),
                             R.id.toggle_bluetooth -> {
                                 if (bluetoothAdapter.isEnabled) {
                                     bluetoothAdapter.disable()
-                                    toolbar.menu.findItem(R.id.toggle_bluetooth)
-                                        .setIcon(R.drawable.ic_baseline_bluetooth_off_24)
+                                    item.setIcon(R.drawable.ic_baseline_bluetooth_off_24)
                                 } else {
                                     bluetoothAdapter.enable()
-                                    toolbar.menu.findItem(R.id.toggle_bluetooth)
-                                        .setIcon(R.drawable.ic_baseline_bluetooth_on_24)
+                                    item.setIcon(R.drawable.ic_baseline_bluetooth_on_24)
                                 }
-                                toolbar.menu.findItem(R.id.toggle_bluetooth).icon.setTint(color)
+                                item.icon.setTint(color)
                                 return@setOnMenuItemClickListener true
                             }
                             R.id.toggle_nfc -> {
@@ -324,14 +322,12 @@ class SamSprungOverlay : AppCompatActivity(),
                             R.id.toggle_sound -> {
                                 if (audioManager.ringerMode == AudioManager.RINGER_MODE_NORMAL) {
                                     audioManager.ringerMode = AudioManager.RINGER_MODE_SILENT
-                                    toolbar.menu.findItem(R.id.toggle_sound)
-                                        .setIcon(R.drawable.ic_baseline_sound_off_24)
+                                    item.setIcon(R.drawable.ic_baseline_sound_off_24)
                                 } else {
                                     audioManager.ringerMode = AudioManager.RINGER_MODE_NORMAL
-                                    toolbar.menu.findItem(R.id.toggle_sound)
-                                        .setIcon(R.drawable.ic_baseline_sound_on_24)
+                                    item.setIcon(R.drawable.ic_baseline_sound_on_24)
                                 }
-                                toolbar.menu.findItem(R.id.toggle_sound).icon.setTint(color)
+                                item.icon.setTint(color)
                                 return@setOnMenuItemClickListener true
                             }
                             R.id.toggle_dnd -> {
@@ -339,45 +335,39 @@ class SamSprungOverlay : AppCompatActivity(),
                                     NotificationManager.INTERRUPTION_FILTER_ALL) {
                                     notificationManager.setInterruptionFilter(
                                         NotificationManager.INTERRUPTION_FILTER_NONE)
-                                    toolbar.menu.findItem(R.id.toggle_dnd)
-                                        .setIcon(R.drawable.ic_baseline_do_not_disturb_on_24)
+                                    item.setIcon(R.drawable.ic_baseline_do_not_disturb_on_24)
                                 } else {
                                     notificationManager.setInterruptionFilter(
                                         NotificationManager.INTERRUPTION_FILTER_ALL)
-                                    toolbar.menu.findItem(R.id.toggle_dnd)
-                                        .setIcon(R.drawable.ic_baseline_do_not_disturb_off_24)
+                                    item.setIcon(R.drawable.ic_baseline_do_not_disturb_off_24)
                                 }
-                                toolbar.menu.findItem(R.id.toggle_dnd).icon.setTint(color)
+                                item.icon.setTint(color)
                                 return@setOnMenuItemClickListener true
                             }
 //                            R.id.toggle_rotation -> {
 //                                if (prefs.getInt(application.autoRotate, 1) == 1) {
-//                                    toolbar.menu.findItem(R.id.toggle_rotation)
-//                                        .setIcon(R.drawable.ic_baseline_screen_lock_rotation_24)
+//                                    item.setIcon(R.drawable.ic_baseline_screen_lock_rotation_24)
 //                                    with(prefs.edit()) {
 //                                        putInt(application.autoRotate, 0)
 //                                        apply()
 //                                    }
 //                                } else {
-//                                    toolbar.menu.findItem(R.id.toggle_rotation)
-//                                        .setIcon(R.drawable.ic_baseline_screen_rotation_24)
+//                                    item.setIcon(R.drawable.ic_baseline_screen_rotation_24)
 //                                    with(prefs.edit()) {
 //                                        putInt(application.autoRotate, 1)
 //                                        apply()
 //                                    }
 //                                }
-//                                toolbar.menu.findItem(R.id.toggle_rotation).icon.setTint(color)
+//                                item.icon.setTint(color)
 //                                return@setOnMenuItemClickListener true
 //                            }
                             R.id.toggle_torch -> {
                                 if (isTorchEnabled) {
-                                    toolbar.menu.findItem(R.id.toggle_torch)
-                                        .setIcon(R.drawable.ic_baseline_flashlight_off_24)
+                                    item.setIcon(R.drawable.ic_baseline_flashlight_off_24)
                                 } else {
-                                    toolbar.menu.findItem(R.id.toggle_torch)
-                                        .setIcon(R.drawable.ic_baseline_flashlight_on_24)
+                                    item.setIcon(R.drawable.ic_baseline_flashlight_on_24)
                                 }
-                                toolbar.menu.findItem(R.id.toggle_torch).icon.setTint(color)
+                                item.icon.setTint(color)
                                 camManager.setTorchMode(camManager.cameraIdList[0], !isTorchEnabled)
                                 return@setOnMenuItemClickListener true
                             }

@@ -44,6 +44,7 @@
     <string name="menu_home">Home</string>
     <string name="menu_back">Back</string>
 
+    <string name="toggle_options">Toggles</string>
     <string name="toggle_wifi">Toggle Wifi</string>
     <string name="toggle_bluetooth">Toggle Bluetooth</string>
     <string name="toggle_nfc">Toggle NFC</string>

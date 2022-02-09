@@ -55,6 +55,7 @@ import android.Manifest
 import android.annotation.SuppressLint
 import android.app.Dialog
 import android.app.KeyguardManager
+import android.app.NotificationManager
 import android.app.WallpaperManager
 import android.content.*
 import android.content.pm.PackageManager
@@ -62,6 +63,7 @@ import android.content.res.ColorStateList
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import android.hardware.display.DisplayManager
+import android.media.AudioManager
 import android.net.Uri
 import android.os.*
 import android.provider.MediaStore
@@ -79,6 +81,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.view.ContextThemeWrapper
 import androidx.appcompat.widget.AppCompatButton
 import androidx.appcompat.widget.SwitchCompat
+import androidx.appcompat.widget.Toolbar
 import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.core.graphics.blue
 import androidx.core.graphics.green
@@ -454,6 +457,118 @@ class CoverPreferences : AppCompatActivity() {
         alphaView.visibility = View.GONE
         colorAlphaBar.visibility = View.GONE
         colorPanel.visibility = View.GONE
+
+        val toolbar = findViewById<Toolbar>(R.id.toolbar)
+        toolbar.inflateMenu(R.menu.cover_quick_toggles)
+        toolbar.setOnMenuItemClickListener { item: MenuItem ->
+            when (item.itemId) {
+                R.id.toggle_wifi -> {
+                    with(prefs.edit()) {
+                        putBoolean("toggle_wifi", !prefs.getBoolean("toggle_wifi", true))
+                        apply()
+                    }
+                    if (prefs.getBoolean("toggle_wifi", true))
+                        item.setIcon(R.drawable.ic_baseline_wifi_on_24)
+                    else
+                        item.setIcon(R.drawable.ic_baseline_wifi_off_24)
+                    return@setOnMenuItemClickListener true
+                }
+                R.id.toggle_bluetooth -> {
+                    with(prefs.edit()) {
+                        putBoolean("toggle_bluetooth", !prefs.getBoolean("toggle_bluetooth", true))
+                        apply()
+                    }
+                    if (prefs.getBoolean("toggle_bluetooth", true))
+                        item.setIcon(R.drawable.ic_baseline_bluetooth_on_24)
+                    else
+                        item.setIcon(R.drawable.ic_baseline_bluetooth_off_24)
+                    return@setOnMenuItemClickListener true
+                }
+                R.id.toggle_nfc -> {
+                    with(prefs.edit()) {
+                        putBoolean("toggle_nfc", !prefs.getBoolean("toggle_nfc", true))
+                        apply()
+                    }
+                    if (prefs.getBoolean("toggle_nfc", true))
+                        item.setIcon(R.drawable.ic_baseline_nfc_on_24)
+                    else
+                        item.setIcon(R.drawable.ic_baseline_nfc_off_24)
+                    return@setOnMenuItemClickListener true
+                }
+                R.id.toggle_sound -> {
+                    with(prefs.edit()) {
+                        putBoolean("toggle_sound", !prefs.getBoolean("toggle_sound", true))
+                        apply()
+                    }
+                    if (prefs.getBoolean("toggle_sound", true))
+                        item.setIcon(R.drawable.ic_baseline_sound_on_24)
+                    else
+                        item.setIcon(R.drawable.ic_baseline_sound_off_24)
+                    return@setOnMenuItemClickListener true
+                }
+                R.id.toggle_dnd -> {
+                    with(prefs.edit()) {
+                        putBoolean("toggle_dnd", !prefs.getBoolean("toggle_dnd", true))
+                        apply()
+                    }
+                    if (prefs.getBoolean("toggle_dnd", true))
+                        item.setIcon(R.drawable.ic_baseline_do_not_disturb_on_24)
+                    else
+                        item.setIcon(R.drawable.ic_baseline_do_not_disturb_off_24)
+                    return@setOnMenuItemClickListener true
+                }
+                R.id.toggle_torch -> {
+                    with(prefs.edit()) {
+                        putBoolean("toggle_torch", !prefs.getBoolean("toggle_torch", true))
+                        apply()
+                    }
+                    if (prefs.getBoolean("toggle_torch", true))
+                        item.setIcon(R.drawable.ic_baseline_flashlight_on_24)
+                    else
+                        item.setIcon(R.drawable.ic_baseline_flashlight_off_24)
+                    return@setOnMenuItemClickListener true
+                }
+                else -> {
+                    return@setOnMenuItemClickListener false
+                }
+            }
+        }
+
+        val wifi = toolbar.menu.findItem(R.id.toggle_wifi)
+        if (prefs.getBoolean("toggle_wifi", true))
+            wifi.setIcon(R.drawable.ic_baseline_wifi_on_24)
+        else
+            wifi.setIcon(R.drawable.ic_baseline_wifi_off_24)
+
+        val bluetooth = toolbar.menu.findItem(R.id.toggle_bluetooth)
+        if (prefs.getBoolean("toggle_bluetooth", true))
+            bluetooth.setIcon(R.drawable.ic_baseline_bluetooth_on_24)
+        else
+            bluetooth.setIcon(R.drawable.ic_baseline_bluetooth_off_24)
+
+        val nfc = toolbar.menu.findItem(R.id.toggle_nfc)
+        if (prefs.getBoolean("toggle_nfc", true))
+            nfc.setIcon(R.drawable.ic_baseline_nfc_on_24)
+        else
+            nfc.setIcon(R.drawable.ic_baseline_nfc_off_24)
+
+        val sound = toolbar.menu.findItem(R.id.toggle_sound)
+        if (prefs.getBoolean("toggle_sound", true))
+            sound.setIcon(R.drawable.ic_baseline_sound_on_24)
+        else
+            sound.setIcon(R.drawable.ic_baseline_sound_off_24)
+
+        val dnd = toolbar.menu.findItem(R.id.toggle_dnd)
+        if (prefs.getBoolean("toggle_dnd", true))
+            dnd.setIcon(R.drawable.ic_baseline_do_not_disturb_on_24)
+        else
+            dnd.setIcon(R.drawable.ic_baseline_do_not_disturb_off_24)
+
+        val torch = toolbar.menu.findItem(R.id.toggle_torch)
+        if (prefs.getBoolean("toggle_torch", true))
+            torch.setIcon(R.drawable.ic_baseline_flashlight_on_24)
+        else
+            torch.setIcon(R.drawable.ic_baseline_flashlight_off_24)
     }
 
     private val permissions =

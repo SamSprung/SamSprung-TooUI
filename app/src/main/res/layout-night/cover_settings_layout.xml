@@ -252,6 +252,10 @@
                     android:layout_height="wrap_content" />
             </LinearLayout>
 
+            <include
+                layout="@layout/toolbar_options"
+                android:id="@+id/toolbar_options" />
+
             <ToggleButton
                 android:id="@+id/swapViewType"
                 android:layout_width="match_parent"
