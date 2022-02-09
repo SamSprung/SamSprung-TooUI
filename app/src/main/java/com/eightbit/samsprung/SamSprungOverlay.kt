@@ -141,7 +141,7 @@ class SamSprungOverlay : AppCompatActivity(),
 
         window.attributes.width = ViewGroup.LayoutParams.MATCH_PARENT
         window.attributes.gravity = Gravity.BOTTOM
-        window.setBackgroundDrawable(null)
+        // window.setBackgroundDrawable(null)
 
         prefs = getSharedPreferences(SamSprung.prefsValue, MODE_PRIVATE)
 
@@ -522,6 +522,7 @@ class SamSprungOverlay : AppCompatActivity(),
         searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
             override fun onQueryTextSubmit(query: String): Boolean {
                 (launcherView.adapter as DrawerAppAdapater).setQuery(query)
+                searchView.visibility = View.GONE
                 return false
             }
 
@@ -622,23 +623,17 @@ class SamSprungOverlay : AppCompatActivity(),
     }
 
     private fun clearSearchOrOpen(searchView: SearchView, anchor: View) {
-        if (searchView.isVisible) {
-            if (searchView.query.isNotBlank()) {
-                searchView.setQuery("", true)
-            }
-            searchView.visibility = View.GONE
-        } else {
+        if (searchView.query.isNotBlank()) {
+            searchView.setQuery("", true)
+        } else if (!searchView.isVisible && hasAccessibility()) {
             searchView.visibility = View.VISIBLE
             animateSearchReveal(searchView, anchor)
         }
     }
 
     private fun clearSearchOrClose(searchView: SearchView) {
-        if (searchView.isVisible) {
-            if (searchView.query.isNotBlank()) {
-                searchView.setQuery("", true)
-            }
-            searchView.visibility = View.GONE
+        if (searchView.query.isNotBlank()) {
+            searchView.setQuery("", true)
         } else {
             finish()
             startActivity(
@@ -862,27 +857,32 @@ class SamSprungOverlay : AppCompatActivity(),
                     if (remoteInput.allowFreeFormInput) {
                         val toolbar = findViewById<Toolbar>(R.id.toolbar)
                         toolbar.visibility = View.GONE
-                        SamSprungInput.setParent(actionEntries)
                         actionEntries.visibility = View.VISIBLE
                         val reply = actionEntries.findViewById<EditText>(R.id.reply)
                         val send = actionEntries.findViewById<AppCompatImageView>(R.id.send)
                         reply.setOnFocusChangeListener { view, hasFocus ->
-                            if (hasFocus)
+                            if (hasFocus) {
+                                SamSprungInput.setParent(actionEntries)
                                 (noticesView.layoutManager as LinearLayoutManager)
                                     .scrollToPositionWithOffset(position,
-                                        -(actionButtons.height + reply.height))
+                                        -(actionButtons.height + reply.height)
+                                    )
+                            } else {
+                                SamSprungInput.setParent(
+                                    findViewById<LinearLayout>(R.id.keyboard_wrapper)
+                                )
+                            }
                         }
                         send.setOnClickListener {
                             val replyIntent = Intent()
                             val replyBundle = Bundle()
-                            
                             replyBundle.putCharSequence(remoteInput.resultKey, reply.text.toString())
                             RemoteInput.addResultsToIntent(action.remoteInputs, replyIntent, replyBundle)
                             startIntentSender(action.actionIntent.intentSender,
                                 replyIntent, 0, 0, 0,
                                 ActivityOptions.makeBasic().setLaunchDisplayId(1).toBundle())
                             actionEntries.visibility = View.GONE
-                            SamSprungInput.setParent(findViewById<LinearLayout>(R.id.keyboard_wrapper))
+
                             toolbar.visibility = View.VISIBLE
                         }
                     }
