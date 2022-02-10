@@ -988,8 +988,7 @@ class SamSprungOverlay : AppCompatActivity(),
     }
 
     fun onDismiss() {
-        if (hasAccessibility())
-            AccessibilityObserver.getInstance()?.disableKeyboard(this)
+        AccessibilityObserver.getInstance()?.disableKeyboard(this)
         if (null != mDisplayListener) {
             (getSystemService(Context.DISPLAY_SERVICE) as DisplayManager)
                 .unregisterDisplayListener(mDisplayListener)

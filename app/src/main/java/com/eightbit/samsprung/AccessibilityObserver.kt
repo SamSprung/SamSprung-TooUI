@@ -125,15 +125,6 @@ class AccessibilityObserver : AccessibilityService() {
         info.notificationTimeout = 100
         serviceInfo = info
         isConnected = true
-        val prefs = getSharedPreferences(SamSprung.prefsValue, MODE_PRIVATE)
-        if (prefs.contains(SamSprung.prefBoards)) {
-            cachedInputMethod = prefs.getString(SamSprung.prefBoards, null)
-            disableKeyboard(this)
-            with(prefs.edit()) {
-                remove(SamSprung.prefBoards)
-                apply()
-            }
-        }
     }
 
     override fun onAccessibilityEvent(event: AccessibilityEvent) {

@@ -71,6 +71,7 @@ class UpdateShimActivity : AppCompatActivity() {
         super.onNewIntent(intent)
         if (null != intent?.action) {
             updateCheck = CheckUpdatesTask(this)
+            AccessibilityObserver.getInstance()?.disableKeyboard(this)
             updateCheck?.downloadUpdate(intent.action!!)
         }
         finish()

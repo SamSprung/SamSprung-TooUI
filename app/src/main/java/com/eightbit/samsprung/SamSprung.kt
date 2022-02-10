@@ -95,7 +95,6 @@ class SamSprung : Application() {
         const val prefAlphas: String = "prefAlphas"
         const val prefWarned: String = "prefWarned"
         const val prefTester: String = "prefTester"
-        const val prefBoards: String = "prefBoards"
     }
 
     override fun onCreate() {
@@ -109,6 +108,12 @@ class SamSprung : Application() {
             Toast.makeText(this,
                 R.string.incompatible_device, Toast.LENGTH_LONG).show()
         } else {
+            Thread.setDefaultUncaughtExceptionHandler { _: Thread?, error: Throwable ->
+                error.printStackTrace()
+                AccessibilityObserver.getInstance()?.disableKeyboard(this)
+                // Unrecoverable error encountered
+                exitProcess(1)
+            }
             val displayContext = createDisplayContext(displayManager.getDisplay(1))
             val wm = displayContext.getSystemService(WINDOW_SERVICE) as WindowManager
             mContext = SoftReference<Context>(object : ContextThemeWrapper(
@@ -118,24 +123,8 @@ class SamSprung : Application() {
                     return if (WINDOW_SERVICE == name) wm else super.getSystemService(name)
                 }
             })
-            val prefs = getSharedPreferences(prefsValue, MODE_PRIVATE)
-            Thread.setDefaultUncaughtExceptionHandler { _: Thread?, error: Throwable ->
-                error.printStackTrace()
-                with(prefs.edit()) {
-                    putString(prefBoards, AccessibilityObserver.getInstance()?.getDefaultIME())
-                    apply()
-                }
-                // Unrecoverable error encountered
-                exitProcess(1)
-            }
             Executors.newSingleThreadExecutor().execute {
                 recreateWidgetPreviewDb()
-            }
-            if (prefs.contains(autoRotate)) {
-                with(prefs.edit()) {
-                    remove(autoRotate)
-                    apply()
-                }
             }
         }
     }
@@ -149,11 +138,7 @@ class SamSprung : Application() {
     }
 
     override fun onTerminate() {
+        AccessibilityObserver.getInstance()?.disableKeyboard(this)
         super.onTerminate()
-        val prefs = getSharedPreferences(prefsValue, MODE_PRIVATE)
-        with(prefs.edit()) {
-            putString(prefBoards, AccessibilityObserver.getInstance()?.getDefaultIME())
-            apply()
-        }
     }
 }

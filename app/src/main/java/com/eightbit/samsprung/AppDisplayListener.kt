@@ -367,8 +367,7 @@ class AppDisplayListener : Service() {
     }
 
     fun onDismiss() {
-        if (hasAccessibility())
-            AccessibilityObserver.getInstance()?.disableKeyboard(this)
+        AccessibilityObserver.getInstance()?.disableKeyboard(this)
         try {
             if (this::offReceiver.isInitialized)
                 unregisterReceiver(offReceiver)
