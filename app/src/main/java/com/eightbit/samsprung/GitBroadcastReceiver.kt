@@ -69,9 +69,7 @@ class GitBroadcastReceiver : BroadcastReceiver() {
         }
         if (BuildConfig.FLAVOR != "github") return
         if (Intent.ACTION_MY_PACKAGE_REPLACED == intent.action) {
-            context.startActivity(context.packageManager
-                .getLaunchIntentForPackage(BuildConfig.APPLICATION_ID)
-                ?.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
+            context.startForegroundService(Intent(context, OnBroadcastService::class.java))
         } else if (SamSprung.updating == intent.action) {
             when (intent.getIntExtra(PackageInstaller.EXTRA_STATUS, -1)) {
                 PackageInstaller.STATUS_PENDING_USER_ACTION -> {
