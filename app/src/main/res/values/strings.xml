@@ -57,4 +57,7 @@
     <string name="donation_thanks">Thank you for your support!</string>
 
     <string name="incompatible_device">SamSprung is not intended for use with single screen devices</string>
+
+    <string name="accessibility_service">SamSprung Soft Input</string>
+    <string name="accessibility_details">Enable virtual navigation action and keyboard support.\nWARNING: May reset the default keyboard to Samsung.</string>
 </resources>

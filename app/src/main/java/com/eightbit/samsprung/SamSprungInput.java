@@ -1,8 +1,11 @@
 package com.eightbit.samsprung;
 
+import android.content.Intent;
 import android.inputmethodservice.InputMethodService;
 import android.inputmethodservice.Keyboard;
 import android.inputmethodservice.KeyboardView;
+import android.speech.RecognizerIntent;
+import android.speech.SpeechRecognizer;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.ViewGroup;
@@ -19,6 +22,7 @@ public class SamSprungInput extends InputMethodService
     private static InputMethodListener listener;
 
     private SoftReference<KeyboardView> mKeyboardView;
+    private SpeechRecognizer voice;
     private Keyboard mKeyPad;
     private Keyboard mKeyboard;
     private Keyboard mNumPad;
@@ -47,6 +51,9 @@ public class SamSprungInput extends InputMethodService
             if (null != parent) {
                 parent.get().addView(mKeyboardView.get(), 0);
             }
+            voice = SpeechRecognizer.createSpeechRecognizer(this);
+            voice.setRecognitionListener(new VoiceRecognizer(suggested ->
+                    getCurrentInputConnection().commitText(suggested,1)));
         }
         return true;
     }
@@ -54,6 +61,25 @@ public class SamSprungInput extends InputMethodService
     public static void setInputListener(InputMethodListener inputListener, ViewGroup anchor) {
         listener = inputListener;
         parent = new SoftReference<>(anchor);
+    }
+
+    private Intent getSpeechIntent(boolean partial) {
+        Intent intent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
+        intent.putExtra(
+                RecognizerIntent.EXTRA_LANGUAGE_MODEL,
+                RecognizerIntent.LANGUAGE_MODEL_FREE_FORM
+        );
+        intent.putExtra(RecognizerIntent.EXTRA_CALLING_PACKAGE, BuildConfig.APPLICATION_ID);
+        if (partial) {
+            intent.putExtra(RecognizerIntent.EXTRA_PARTIAL_RESULTS, true);
+        } else {
+            intent.putExtra(RecognizerIntent.EXTRA_MAX_RESULTS, 1);
+        }
+        intent.putExtra(
+                RecognizerIntent.EXTRA_SPEECH_INPUT_COMPLETE_SILENCE_LENGTH_MILLIS,
+                Long.valueOf(1000)
+        );
+        return intent;
     }
 
     public static void setParent(ViewGroup anchor) {
@@ -112,6 +138,9 @@ public class SamSprungInput extends InputMethodService
                 break;
             case -999:
                 swapKeyboardLayout(kbIndex + 1);
+                break;
+            case -997:
+                voice.startListening(getSpeechIntent(false));
                 break;
             case Keyboard.KEYCODE_DELETE:
                 ic.deleteSurroundingText(1, 0);

@@ -5,7 +5,7 @@
     android:horizontalGap="10%p"
     android:verticalGap="0px">
     <Row android:rowEdgeFlags="top">
-        <Key android:codes="49" android:keyLabel="1" android:keyEdgeFlags="left" />
+        <Key android:codes="-997" android:keyIcon="@drawable/ic_baseline_mic_none_24" android:keyEdgeFlags="left" />
         <Key android:codes="97,98,99" android:keyLabel="ABC"/>
         <Key android:codes="100,101,102" android:keyLabel="DEF" android:keyEdgeFlags="right"/>
     </Row>

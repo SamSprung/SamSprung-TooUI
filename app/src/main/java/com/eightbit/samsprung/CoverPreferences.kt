@@ -558,15 +558,17 @@ class CoverPreferences : AppCompatActivity() {
             arrayOf(
                 Manifest.permission.BLUETOOTH_CONNECT,
                 Manifest.permission.READ_EXTERNAL_STORAGE,
+                Manifest.permission.RECORD_AUDIO,
                 Manifest.permission.BIND_APPWIDGET
             )
         else
             arrayOf(
                 Manifest.permission.READ_EXTERNAL_STORAGE,
+                Manifest.permission.RECORD_AUDIO,
                 Manifest.permission.BIND_APPWIDGET
             )
 
-    private val requestBluetooth = registerForActivityResult(
+    private val requestUnchecked = registerForActivityResult(
         ActivityResultContracts.RequestPermission()) { }
 
     @SuppressLint("MissingPermission")
@@ -582,7 +584,7 @@ class CoverPreferences : AppCompatActivity() {
         permissions.entries.forEach {
             if (it.key == Manifest.permission.BLUETOOTH_CONNECT && !it.value) {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-                    requestBluetooth.launch(Manifest.permission.BLUETOOTH_CONNECT)
+                    requestUnchecked.launch(Manifest.permission.BLUETOOTH_CONNECT)
                 }
             } else if (it.key == Manifest.permission.READ_EXTERNAL_STORAGE) {
                 if (it.value)
@@ -590,6 +592,8 @@ class CoverPreferences : AppCompatActivity() {
                         WallpaperManager.getInstance(this@CoverPreferences).drawable
                 else
                     requestStorage.launch(Manifest.permission.READ_EXTERNAL_STORAGE)
+            } else if (it.key == Manifest.permission.RECORD_AUDIO && !it.value) {
+                requestUnchecked.launch(Manifest.permission.RECORD_AUDIO)
             }
         }
         updateCheck = CheckUpdatesTask(this@CoverPreferences)
