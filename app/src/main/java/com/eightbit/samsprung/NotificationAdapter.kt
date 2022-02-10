@@ -52,6 +52,8 @@ package com.eightbit.samsprung
  */
 
 import android.annotation.SuppressLint
+import android.graphics.Bitmap
+import android.graphics.Matrix
 import android.service.notification.StatusBarNotification
 import android.view.LayoutInflater
 import android.view.View
@@ -62,7 +64,6 @@ import androidx.appcompat.widget.AppCompatImageView
 import androidx.core.app.NotificationCompat
 import androidx.recyclerview.widget.RecyclerView
 import java.util.*
-import android.graphics.Bitmap
 
 class NotificationAdapter(
     private var activity: AppCompatActivity,
@@ -125,8 +126,11 @@ class NotificationAdapter(
             if (null != notification.extras) {
                 if (notification.extras.containsKey(NotificationCompat.EXTRA_PICTURE)) {
                     imageView.visibility = View.VISIBLE
-                    imageView.setImageBitmap(notification.extras.get(
-                        NotificationCompat.EXTRA_PICTURE) as Bitmap)
+                    val bitmap = getScaledBitmap(activity, notification.extras
+                        .get(NotificationCompat.EXTRA_PICTURE) as Bitmap)
+                    imageView.setImageBitmap(bitmap)
+                } else {
+                    imageView.visibility = View.GONE
                 }
                 if (notification.extras.containsKey(NotificationCompat.EXTRA_BIG_TEXT)) {
                     val textBig = notification.extras.get(NotificationCompat.EXTRA_BIG_TEXT)
@@ -150,6 +154,21 @@ class NotificationAdapter(
             if (linesText.text.isEmpty() && null != notification.tickerText) {
                 linesText.text = notification.tickerText.toString()
             }
+            if (linesText.text.isEmpty()) linesText.text = ""
+        }
+
+        private fun getScaledBitmap(activity: AppCompatActivity, bitmap: Bitmap) : Bitmap {
+            val width: Int = bitmap.width
+            val height: Int = bitmap.height
+            val scaleWidth = activity.window.decorView.width.toFloat() / width
+            val scaleHeight = activity.window.decorView.height.toFloat() / height
+            val matrix = Matrix()
+            matrix.postScale(scaleWidth, scaleHeight)
+            val scaledBitmap = Bitmap.createBitmap(
+                bitmap, 0, 0, width, height, matrix, false
+            )
+            bitmap.recycle()
+            return scaledBitmap
         }
     }
 
