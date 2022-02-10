@@ -64,9 +64,6 @@ import androidx.recyclerview.widget.RecyclerView
 import java.util.*
 import android.graphics.Bitmap
 
-
-
-
 class NotificationAdapter(
     private var activity: AppCompatActivity,
     private var listener: OnNoticeClickListener
@@ -80,7 +77,7 @@ class NotificationAdapter(
     }
 
     override fun getItemId(i: Int): Long {
-        return i.toLong()
+        return UUID.nameUUIDFromBytes(sbNotifications[i].key.toByteArray()).mostSignificantBits
     }
 
     private fun getItem(i: Int): StatusBarNotification {
@@ -94,15 +91,17 @@ class NotificationAdapter(
     override fun onBindViewHolder(holder: NoticeViewHolder, position: Int) {
         holder.itemView.setOnClickListener {
             if (null != holder.listener)
-                holder.listener.onNoticeClicked(holder.itemView, position, holder.notice)
+                holder.listener.onNoticeClicked(holder.itemView,
+                    holder.bindingAdapterPosition, holder.notice)
         }
         holder.itemView.setOnLongClickListener {
             if (null != holder.listener)
-                holder.listener.onNoticeLongClicked(holder.itemView, position, holder.notice)
+                holder.listener.onNoticeLongClicked(holder.itemView,
+                    holder.bindingAdapterPosition, holder.notice)
             else
                 false
         }
-        holder.bind(getItem(position))
+        holder.bind(getItem(holder.bindingAdapterPosition))
     }
 
     abstract class NoticeViewHolder(
@@ -129,17 +128,27 @@ class NotificationAdapter(
                     imageView.setImageBitmap(notification.extras.get(
                         NotificationCompat.EXTRA_PICTURE) as Bitmap)
                 }
-                if (notification.extras.containsKey(NotificationCompat.EXTRA_TEXT_LINES)) {
-                    linesText.text = (Arrays.toString(notification.extras.getCharSequenceArray(
-                        NotificationCompat.EXTRA_TEXT_LINES)
-                    ))
-                } else if (notification.extras.containsKey(NotificationCompat.EXTRA_TEXT)) {
-                    linesText.text = (notification.extras.getCharSequence(
-                        NotificationCompat.EXTRA_TEXT
-                    ).toString())
+                if (notification.extras.containsKey(NotificationCompat.EXTRA_BIG_TEXT)) {
+                    val textBig = notification.extras.get(NotificationCompat.EXTRA_BIG_TEXT)
+                    if (null != textBig) linesText.text = textBig.toString()
                 }
-            } else if (null != notification.tickerText) {
-                linesText.text = (notification.tickerText.toString())
+                if (linesText.text.isEmpty() && notification.extras.containsKey(
+                        NotificationCompat.EXTRA_TEXT_LINES)
+                ) {
+                    val textLines = notification.extras.getCharSequenceArray(
+                        NotificationCompat.EXTRA_TEXT_LINES)
+                    if (null != textLines) linesText.text = Arrays.toString(textLines)
+                }
+                if (linesText.text.isEmpty() && notification.extras.containsKey(
+                        NotificationCompat.EXTRA_TEXT)
+                ) {
+                    val textExtra = notification.extras
+                        .getCharSequence(NotificationCompat.EXTRA_TEXT)
+                    if (null != textExtra) linesText.text = textExtra.toString()
+                }
+            }
+            if (linesText.text.isEmpty() && null != notification.tickerText) {
+                linesText.text = notification.tickerText.toString()
             }
         }
     }
@@ -186,6 +195,7 @@ class NotificationAdapter(
             activity.runOnUiThread { this.notifyItemInserted(0) }
         } else {
             sbNotifications[current] = sbn
+            activity.runOnUiThread { this.notifyItemChanged(current) }
         }
     }
     @SuppressLint("NotifyDataSetChanged")

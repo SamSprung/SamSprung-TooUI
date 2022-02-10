@@ -281,7 +281,9 @@ class SamSprungOverlay : AppCompatActivity(),
 
         noticesView = findViewById(R.id.notificationList)
         noticesView.layoutManager = LinearLayoutManager(this)
-        noticesView.adapter = NotificationAdapter(this, this@SamSprungOverlay)
+        val noticeAdapter = NotificationAdapter(this, this@SamSprungOverlay)
+        noticeAdapter.setHasStableIds(true)
+        noticesView.adapter = noticeAdapter
 
         val bottomSheetBehavior: BottomSheetBehavior<View> =
             BottomSheetBehavior.from(findViewById(R.id.bottom_sheet))
@@ -852,16 +854,17 @@ class SamSprungOverlay : AppCompatActivity(),
         button.setSingleLine()
         button.text = action.title
         button.setOnClickListener {
-            if (action.remoteInputs.isNotEmpty()) {
+            actionEntries.visibility = View.GONE
+            if (null != action.remoteInputs && action.remoteInputs.isNotEmpty()) {
                 for (remoteInput in action.remoteInputs) {
                     if (remoteInput.allowFreeFormInput) {
                         val toolbar = findViewById<Toolbar>(R.id.toolbar)
-                        toolbar.visibility = View.GONE
                         actionEntries.visibility = View.VISIBLE
                         val reply = actionEntries.findViewById<EditText>(R.id.reply)
                         val send = actionEntries.findViewById<AppCompatImageView>(R.id.send)
-                        reply.setOnFocusChangeListener { view, hasFocus ->
+                        reply.setOnFocusChangeListener { _, hasFocus ->
                             if (hasFocus) {
+                                toolbar.visibility = View.GONE
                                 SamSprungInput.setParent(actionEntries)
                                 (noticesView.layoutManager as LinearLayoutManager)
                                     .scrollToPositionWithOffset(position,
@@ -871,6 +874,7 @@ class SamSprungOverlay : AppCompatActivity(),
                                 SamSprungInput.setParent(
                                     findViewById<LinearLayout>(R.id.keyboard_wrapper)
                                 )
+                                toolbar.visibility = View.VISIBLE
                             }
                         }
                         send.setOnClickListener {
@@ -882,8 +886,6 @@ class SamSprungOverlay : AppCompatActivity(),
                                 replyIntent, 0, 0, 0,
                                 ActivityOptions.makeBasic().setLaunchDisplayId(1).toBundle())
                             actionEntries.visibility = View.GONE
-
-                            toolbar.visibility = View.VISIBLE
                         }
                     }
                 }
