@@ -268,7 +268,7 @@ class AppDisplayListener : Service() {
         val mKeyboardView = LayoutInflater.from(this@AppDisplayListener)
             .inflate(R.layout.keyboard_view, null) as KeyboardView
         mKeyboardView.isPreviewEnabled = false
-        AccessibilityObserver.enableKeyboard(this@AppDisplayListener)
+        AccessibilityObserver.getInstance()?.enableKeyboard(this@AppDisplayListener)
         return mKeyboardView
     }
 
@@ -368,7 +368,7 @@ class AppDisplayListener : Service() {
 
     fun onDismiss() {
         if (hasAccessibility())
-            AccessibilityObserver.disableKeyboard(this)
+            AccessibilityObserver.getInstance()?.disableKeyboard(this)
         try {
             if (this::offReceiver.isInitialized)
                 unregisterReceiver(offReceiver)

@@ -20,16 +20,78 @@ public class SamSprungInput extends InputMethodService
         implements KeyboardView.OnKeyboardActionListener {
 
     private static InputMethodListener listener;
+    private static SoftReference<ViewGroup> parent;
 
     private SoftReference<KeyboardView> mKeyboardView;
     private SpeechRecognizer voice;
     private Keyboard mKeyPad;
     private Keyboard mKeyboard;
     private Keyboard mNumPad;
-    private static SoftReference<ViewGroup> parent;
-    private static int kbIndex = 1;
 
+    private int kbIndex = 0;
     private boolean caps = false;
+
+    public static void setInputListener(InputMethodListener inputListener, ViewGroup anchor) {
+        listener = inputListener;
+        parent = new SoftReference<>(anchor);
+    }
+
+    public static void setParent(ViewGroup anchor) {
+        parent = new SoftReference<>(anchor);
+    }
+
+    private void swapKeyboardLayout(int newIndex) {
+        if (null == mKeyboardView) return;
+        switch (newIndex) {
+            case 0:
+                kbIndex = 0;
+                mKeyboardView.get().setKeyboard(mKeyPad);
+                break;
+            case 1:
+                kbIndex = 1;
+                mKeyboardView.get().setKeyboard(mKeyboard);
+                break;
+            case 2:
+                kbIndex = 2;
+                mKeyboardView.get().setKeyboard(mNumPad);
+                break;
+            default:
+                if (newIndex > 2) {
+                    kbIndex = 0;
+                    mKeyboardView.get().setKeyboard(mKeyPad);
+                }
+                if (newIndex < 0) {
+                    kbIndex = 2;
+                    mKeyboardView.get().setKeyboard(mNumPad);
+                }
+                break;
+        }
+    }
+
+    private void disconnectKeyboard() {
+        parent.get().removeView(mKeyboardView.get());
+        if (null != listener)
+            listener.onKeyboardHidden();
+    }
+
+    private Intent getSpeechIntent(boolean partial) {
+        Intent intent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
+        intent.putExtra(
+                RecognizerIntent.EXTRA_LANGUAGE_MODEL,
+                RecognizerIntent.LANGUAGE_MODEL_FREE_FORM
+        );
+        intent.putExtra(RecognizerIntent.EXTRA_CALLING_PACKAGE, BuildConfig.APPLICATION_ID);
+        if (partial) {
+            intent.putExtra(RecognizerIntent.EXTRA_PARTIAL_RESULTS, true);
+        } else {
+            intent.putExtra(RecognizerIntent.EXTRA_MAX_RESULTS, 1);
+        }
+        intent.putExtra(
+                RecognizerIntent.EXTRA_SPEECH_INPUT_COMPLETE_SILENCE_LENGTH_MILLIS,
+                Long.valueOf(1000)
+        );
+        return intent;
+    }
 
     @Override
     public void onInitializeInterface() {
@@ -58,72 +120,9 @@ public class SamSprungInput extends InputMethodService
         return true;
     }
 
-    public static void setInputListener(InputMethodListener inputListener, ViewGroup anchor) {
-        listener = inputListener;
-        parent = new SoftReference<>(anchor);
-    }
-
-    private Intent getSpeechIntent(boolean partial) {
-        Intent intent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
-        intent.putExtra(
-                RecognizerIntent.EXTRA_LANGUAGE_MODEL,
-                RecognizerIntent.LANGUAGE_MODEL_FREE_FORM
-        );
-        intent.putExtra(RecognizerIntent.EXTRA_CALLING_PACKAGE, BuildConfig.APPLICATION_ID);
-        if (partial) {
-            intent.putExtra(RecognizerIntent.EXTRA_PARTIAL_RESULTS, true);
-        } else {
-            intent.putExtra(RecognizerIntent.EXTRA_MAX_RESULTS, 1);
-        }
-        intent.putExtra(
-                RecognizerIntent.EXTRA_SPEECH_INPUT_COMPLETE_SILENCE_LENGTH_MILLIS,
-                Long.valueOf(1000)
-        );
-        return intent;
-    }
-
-    public static void setParent(ViewGroup anchor) {
-        parent = new SoftReference<>(anchor);
-    }
-
     @Override
     public View onCreateInputView() {
         return null;
-    }
-
-    private void swapKeyboardLayout(int newIndex) {
-        if (null == mKeyboardView) return;
-        switch (newIndex) {
-            case 0:
-                kbIndex = 0;
-                mKeyboardView.get().setKeyboard(mKeyPad);
-                break;
-            case 1:
-                kbIndex = 1;
-                mKeyboardView.get().setKeyboard(mKeyboard);
-                break;
-            case 2:
-                kbIndex = 2;
-                mKeyboardView.get().setKeyboard(mNumPad);
-                break;
-            default:
-                if (newIndex > 2) {
-                    kbIndex = 0;
-                    mKeyboardView.get().setKeyboard(mKeyPad);
-                }
-                if (newIndex < 0) {
-                    kbIndex = 2;
-                    mKeyboardView.get().setKeyboard(mNumPad);
-                }
-
-                break;
-        }
-    }
-
-    private void disconnectKeyboard() {
-        parent.get().removeView(mKeyboardView.get());
-        if (null != listener)
-            listener.onKeyboardHidden();
     }
 
     @Override

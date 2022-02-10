@@ -7,11 +7,15 @@
         android:layout_height="match_parent"
         android:orientation="vertical">
 
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
         <com.eightbitlab.blurview.BlurView
             android:id="@+id/blurContainer"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            app:blurOverlayColor="@color/bottomSheetTint">
+            app:blurOverlayColor="@color/bottomSheetTint" />
 
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/appsList"
@@ -20,9 +24,9 @@
                 android:clipToPadding="false"
                 android:paddingStart="20dp"
                 android:paddingEnd="0dp"
-                android:layout_marginBottom="20dp"
-                android:scrollbars="vertical"/>
-        </com.eightbitlab.blurview.BlurView>
+                android:paddingBottom="20dp"
+                android:scrollbars="vertical" />
+        </FrameLayout>
 
         <FrameLayout
             android:layout_width="match_parent"

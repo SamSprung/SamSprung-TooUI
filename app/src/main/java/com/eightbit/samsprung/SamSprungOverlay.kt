@@ -924,7 +924,7 @@ class SamSprungOverlay : AppCompatActivity(),
     private fun getInputMethod(): KeyboardView {
         val mKeyboardView = layoutInflater.inflate(R.layout.keyboard_view, null) as KeyboardView
         mKeyboardView.isPreviewEnabled = false
-        AccessibilityObserver.enableKeyboard(applicationContext)
+        AccessibilityObserver.getInstance()?.enableKeyboard(applicationContext)
         return mKeyboardView
     }
 
@@ -989,7 +989,7 @@ class SamSprungOverlay : AppCompatActivity(),
 
     fun onDismiss() {
         if (hasAccessibility())
-            AccessibilityObserver.disableKeyboard(this)
+            AccessibilityObserver.getInstance()?.disableKeyboard(this)
         if (null != mDisplayListener) {
             (getSystemService(Context.DISPLAY_SERVICE) as DisplayManager)
                 .unregisterDisplayListener(mDisplayListener)

@@ -64,52 +64,58 @@ class AccessibilityObserver : AccessibilityService() {
     companion object {
         private lateinit var observerInstance: AccessibilityObserver
         private var isConnected: Boolean = false
-        private fun getObserver() : AccessibilityObserver? {
+        fun getInstance() : AccessibilityObserver? {
             return if (isConnected) observerInstance else null
         }
         fun executeButtonBack() {
-            getObserver()?.performGlobalAction(GLOBAL_ACTION_BACK)
-        }
-        var cachedInputMethod: String? = null
-        private fun getInputMethod(context: Context): String {
-            return Settings.Secure.getString(
-                context.applicationContext.contentResolver,
-                Settings.Secure.DEFAULT_INPUT_METHOD
-            )
-        }
-        @JvmStatic
-        fun enableKeyboard(context: Context) {
-            if (null == getObserver()) return
-            if (!getInputMethod(context).startsWith(BuildConfig.APPLICATION_ID, true))
-                cachedInputMethod = getInputMethod(context)
-            val mInputMethodProperties = (context.getSystemService(INPUT_METHOD_SERVICE)
-                    as InputMethodManager).enabledInputMethodList
-            for (i in 0 until mInputMethodProperties.size) {
-                val imi = mInputMethodProperties[i]
-                if (imi.id.startsWith(BuildConfig.APPLICATION_ID, true)) {
-                    getObserver()!!.softKeyboardController.switchToInputMethod(imi.id)
-                }
-            }
-        }
-        fun disableKeyboard(context: Context) {
-            if (null == getObserver() || null == cachedInputMethod) return
-            if (getInputMethod(context).startsWith(BuildConfig.APPLICATION_ID, true)) {
-                val parameters = cachedInputMethod!!.split('/')
-                val defaultKeyboard = ComponentName(parameters[0], parameters[1])
-                val mInputMethodProperties = (context.getSystemService(INPUT_METHOD_SERVICE)
-                        as InputMethodManager).enabledInputMethodList
-                for (i in 0 until mInputMethodProperties.size) {
-                    val imi = mInputMethodProperties[i]
-                    if (imi.id.startsWith(defaultKeyboard.packageName, true)) {
-                        getObserver()!!.softKeyboardController.switchToInputMethod(imi.id)
-                    }
-                }
-            }
+            getInstance()?.performGlobalAction(GLOBAL_ACTION_BACK)
         }
     }
 
     init {
         observerInstance = this
+    }
+
+    private var cachedInputMethod: String? = null
+
+    private fun getInputMethod(context: Context): String {
+        return Settings.Secure.getString(
+            context.applicationContext.contentResolver,
+            Settings.Secure.DEFAULT_INPUT_METHOD
+        )
+    }
+
+    fun getDefaultIME() : String? {
+        return cachedInputMethod
+    }
+
+    fun enableKeyboard(context: Context) {
+        if (null == getInstance()) return
+        if (!getInputMethod(context).startsWith(BuildConfig.APPLICATION_ID, true))
+            cachedInputMethod = getInputMethod(context)
+        val mInputMethodProperties = (context.getSystemService(INPUT_METHOD_SERVICE)
+                as InputMethodManager).enabledInputMethodList
+        for (i in 0 until mInputMethodProperties.size) {
+            val imi = mInputMethodProperties[i]
+            if (imi.id.startsWith(BuildConfig.APPLICATION_ID, true)) {
+                getInstance()?.softKeyboardController!!.switchToInputMethod(imi.id)
+            }
+        }
+    }
+    fun disableKeyboard(context: Context) {
+        if (null == getInstance() || null == cachedInputMethod) return
+        if (getInputMethod(context).startsWith(BuildConfig.APPLICATION_ID, true)) {
+            val parameters = cachedInputMethod!!.split('/')
+            val defaultKeyboard = ComponentName(parameters[0], parameters[1])
+            val mInputMethodProperties = (context.getSystemService(INPUT_METHOD_SERVICE)
+                    as InputMethodManager).enabledInputMethodList
+            for (i in 0 until mInputMethodProperties.size) {
+                val imi = mInputMethodProperties[i]
+                if (imi.id.startsWith(defaultKeyboard.packageName, true)) {
+                    getInstance()?.softKeyboardController!!.switchToInputMethod(imi.id)
+                }
+            }
+        }
     }
 
     override fun onServiceConnected() {
@@ -122,11 +128,11 @@ class AccessibilityObserver : AccessibilityService() {
         val prefs = getSharedPreferences(SamSprung.prefsValue, MODE_PRIVATE)
         if (prefs.contains(SamSprung.prefBoards)) {
             cachedInputMethod = prefs.getString(SamSprung.prefBoards, null)
+            disableKeyboard(this)
             with(prefs.edit()) {
                 remove(SamSprung.prefBoards)
                 apply()
             }
-            disableKeyboard(this)
         }
     }
 

@@ -62,7 +62,6 @@ import androidx.appcompat.app.AppCompatDelegate
 import com.eightbit.content.ScaledContext
 import java.lang.ref.SoftReference
 import kotlin.system.exitProcess
-import com.eightbit.samsprung.panels.WidgetPreviewLoader
 import com.eightbit.samsprung.panels.WidgetPreviewLoader.CacheDb
 import java.util.concurrent.Executors
 
@@ -123,7 +122,7 @@ class SamSprung : Application() {
             Thread.setDefaultUncaughtExceptionHandler { _: Thread?, error: Throwable ->
                 error.printStackTrace()
                 with(prefs.edit()) {
-                    putString(prefBoards, AccessibilityObserver.cachedInputMethod)
+                    putString(prefBoards, AccessibilityObserver.getInstance()?.getDefaultIME())
                     apply()
                 }
                 // Unrecoverable error encountered
@@ -153,7 +152,7 @@ class SamSprung : Application() {
         super.onTerminate()
         val prefs = getSharedPreferences(prefsValue, MODE_PRIVATE)
         with(prefs.edit()) {
-            putString(prefBoards, AccessibilityObserver.cachedInputMethod)
+            putString(prefBoards, AccessibilityObserver.getInstance()?.getDefaultIME())
             apply()
         }
     }
