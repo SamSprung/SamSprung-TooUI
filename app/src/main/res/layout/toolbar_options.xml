@@ -27,5 +27,9 @@
         android:minHeight="?attr/actionBarSize"
         app:contentInsetLeft="2dp"
         app:contentInsetStart="2dp"
-        android:layout_gravity="center" />
+        android:layout_marginTop="-4dp"
+        android:layout_marginBottom="-2dp"
+        android:layout_marginEnd="-4dp"
+        android:gravity="end"
+        android:layout_gravity="center_vertical" />
 </LinearLayout>
