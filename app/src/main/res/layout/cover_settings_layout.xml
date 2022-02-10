@@ -13,7 +13,7 @@
         android:id="@+id/blurContainer"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        app:blurOverlayColor="@color/backgroundWhite">
+        app:blurOverlayColor="@color/backgroundTint">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -24,7 +24,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
                 android:layout_marginTop="0dp"
-                android:background="@android:color/background_dark" />
+                android:background="?colorPrimary" />
 
             <include layout="@layout/social_menu_bar" />
 
@@ -37,7 +37,7 @@
                 <View
                     android:layout_width="match_parent"
                     android:layout_height="1dp"
-                    android:background="@android:color/background_dark"
+                    android:background="?colorPrimary"
                     android:paddingTop="4dp"
                     android:layout_marginBottom="8dp"/>
 
@@ -53,7 +53,7 @@
                 <View
                     android:layout_width="match_parent"
                     android:layout_height="1dp"
-                    android:background="@android:color/background_dark"
+                    android:background="?colorPrimary"
                     android:layout_marginTop="4dp"
                     android:layout_marginBottom="8dp"/>
 
@@ -217,7 +217,7 @@
             <View
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
-                android:background="@android:color/background_dark"
+                android:background="?colorPrimary"
                 android:layout_marginTop="4dp"
                 android:layout_marginBottom="4dp"/>
 
@@ -267,7 +267,7 @@
             <View
                 android:id="@+id/color_composite"
                 android:layout_width="match_parent"
-                android:layout_height="12dp"
+                android:layout_height="18dp"
                 android:layout_marginTop="12dp"
                 android:layout_marginBottom="8dp"
                 android:layout_marginStart="8dp"
@@ -281,7 +281,7 @@
                 android:id="@+id/color_divider"
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
-                android:background="@android:color/background_light"
+                android:background="?colorPrimary"
                 android:layout_marginTop="8dp"
                 android:layout_marginBottom="16dp"/>
 
