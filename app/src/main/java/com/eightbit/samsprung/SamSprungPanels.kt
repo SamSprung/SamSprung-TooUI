@@ -173,9 +173,6 @@ class SamSprungPanels : AppCompatActivity() {
 
         val icons = findViewById<LinearLayout>(R.id.icons_layout)
         val menuClose = findViewById<AppCompatImageView>(R.id.retract_drawer)
-        val menuBack = findViewById<AppCompatImageView>(R.id.button_back)
-        val menuDelete = findViewById<AppCompatImageView>(R.id.button_delete)
-        val menuWidget = findViewById<AppCompatImageView>(R.id.button_widget)
 
         val bottomSheetBehavior: BottomSheetBehavior<View> =
             BottomSheetBehavior.from(findViewById(R.id.bottom_sheet))
@@ -189,45 +186,7 @@ class SamSprungPanels : AppCompatActivity() {
                         (icons.getChildAt(i) as AppCompatImageView).setColorFilter(color)
                     }
                     menuClose.setColorFilter(color)
-                    menuClose.setOnClickListener {
-                        bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
-                    }
-                    menuBack.setOnClickListener {
-                        tactileFeedback()
-                        finish()
-                        startForegroundService(
-                            Intent(
-                                applicationContext,
-                                OnBroadcastService::class.java
-                            ).setAction(SamSprung.launcher)
-                        )
-                    }
-                    menuDelete.setOnClickListener {
-                        bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
-                        val layout = getVisibleItem(workspace)
-                        if (null != layout) {
-                            val widget = layout[0].tag
-                            if (widget is CoverWidgetInfo) {
-                                tactileFeedback()
-                                model.removeDesktopAppWidget(widget)
-                                if (null != appWidgetHost) {
-                                    appWidgetHost!!.deleteAppWidgetId(widget.appWidgetId)
-                                }
-                                WidgetModel.deleteItemFromDatabase(
-                                    widgetContext, widget
-                                )
-                                workspace.removeView(layout)
-                                snapScroller.removeFeatureItem(layout)
-                            }
-                        }
-                    }
-                    menuWidget.setOnClickListener {
-                        bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
-                        if (null == widgetDialog || !widgetDialog!!.isShowing) {
-                            tactileFeedback()
-                            showAddDialog()
-                        }
-                    }
+                    setClickListeners(bottomSheetBehavior)
                 } else if (newState == BottomSheetBehavior.STATE_COLLAPSED) {
 
                 }
@@ -281,6 +240,48 @@ class SamSprungPanels : AppCompatActivity() {
 
     private fun startLoaders() {
         model.loadUserItems(true, this)
+    }
+
+    private fun setClickListeners(bottomSheetBehavior: BottomSheetBehavior<View>) {
+        findViewById<AppCompatImageView>(R.id.retract_drawer).setOnClickListener {
+            bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
+        }
+        findViewById<AppCompatImageView>(R.id.button_back).setOnClickListener {
+            tactileFeedback()
+            finish()
+            startForegroundService(
+                Intent(
+                    applicationContext,
+                    OnBroadcastService::class.java
+                ).setAction(SamSprung.launcher)
+            )
+        }
+        findViewById<AppCompatImageView>(R.id.button_delete).setOnClickListener {
+            bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
+            val layout = getVisibleItem(workspace)
+            if (null != layout) {
+                val widget = layout[0].tag
+                if (widget is CoverWidgetInfo) {
+                    tactileFeedback()
+                    model.removeDesktopAppWidget(widget)
+                    if (null != appWidgetHost) {
+                        appWidgetHost!!.deleteAppWidgetId(widget.appWidgetId)
+                    }
+                    WidgetModel.deleteItemFromDatabase(
+                        widgetContext, widget
+                    )
+                    workspace.removeView(layout)
+                    snapScroller.removeFeatureItem(layout)
+                }
+            }
+        }
+        findViewById<AppCompatImageView>(R.id.button_widget).setOnClickListener {
+            bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
+            if (null == widgetDialog || !widgetDialog!!.isShowing) {
+                tactileFeedback()
+                showAddDialog()
+            }
+        }
     }
 
     override fun onRetainCustomNonConfigurationInstance(): Any? {
@@ -438,12 +439,6 @@ class SamSprungPanels : AppCompatActivity() {
         appWidgets: ArrayList<CoverWidgetInfo>?
     ) {
         if (mDestroyed) {
-            if (WidgetModel.DEBUG_LOADERS) {
-                Log.d(
-                    WidgetModel.LOG_TAG,
-                    "  ------> destroyed, ignoring desktop items"
-                )
-            }
             return
         }
         // Flag any old binder to terminate early
@@ -483,14 +478,6 @@ class SamSprungPanels : AppCompatActivity() {
             val appWidgetInfo = mAppWidgetManager!!.getAppWidgetInfo(appWidgetId)
             item.hostView = appWidgetHost!!.createView(
                 widgetContext, appWidgetId, appWidgetInfo)
-            if (LOGD) {
-                Log.d(
-                    LogTag, String.format(
-                        "about to setAppWidget for id=%d, info=%s",
-                        appWidgetId, appWidgetInfo
-                    )
-                )
-            }
             item.hostView!!.setAppWidget(appWidgetId, appWidgetInfo)
             item.hostView!!.tag = item
 
@@ -595,7 +582,7 @@ class SamSprungPanels : AppCompatActivity() {
         try {
             appWidgetHost!!.stopListening()
         } catch (ex: NullPointerException) {
-            Log.w(LogTag, "problem while stopping AppWidgetHost during Launcher destruction", ex)
+            Log.w(SamSprungPanels::class.java.name, "problem while stopping AppWidgetHost during Launcher destruction", ex)
         }
         model.unbind()
         model.abortLoaders()
@@ -624,7 +611,6 @@ class SamSprungPanels : AppCompatActivity() {
         private val mLauncher: SoftReference<SamSprungPanels> = SoftReference(launcher)
         var mTerminate = false
         fun startBindingItems() {
-            if (WidgetModel.DEBUG_LOADERS) Log.d(LogTag, "------> start binding items")
             obtainMessage(MESSAGE_BIND_ITEMS, 0, mShortcuts!!.size).sendToTarget()
         }
 
@@ -679,19 +665,11 @@ class SamSprungPanels : AppCompatActivity() {
                     mAppWidgets.addLast(appWidgetInfo)
                 // }
             }
-            if (WidgetModel.DEBUG_LOADERS) {
-                Log.d(LogTag, "------> binding " + shortcuts!!.size + " items")
-                Log.d(LogTag, "------> binding " + appWidgets.size + " widgets")
-            }
         }
     }
 
     companion object {
-        val LogTag: String = SamSprungPanels::class.java.name
-        const val LOGD = false
-
         val model = WidgetModel()
-
         const val APPWIDGET_HOST_ID = SamSprung.request_code
     }
 }

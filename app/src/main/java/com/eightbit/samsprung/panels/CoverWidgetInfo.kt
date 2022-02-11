@@ -13,44 +13,37 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package com.eightbit.samsprung.panels
 
-package com.eightbit.samsprung.panels;
-
-import android.appwidget.AppWidgetHostView;
-import android.content.ContentValues;
-
-import androidx.annotation.NonNull;
+import android.appwidget.AppWidgetHostView
+import android.content.ContentValues
+import com.eightbit.samsprung.panels.WidgetSettings.Favorites
 
 /**
  * Represents a widget, which just contains an identifier.
  */
-public class CoverWidgetInfo extends WidgetInfo {
-
+class CoverWidgetInfo(appWidgetId: Int) : WidgetInfo() {
     /**
-     * Identifier for this widget when talking with {@link android.appwidget.AppWidgetManager} for updates.
+     * Identifier for this widget when talking with [android.appwidget.AppWidgetManager] for updates.
      */
-    public int appWidgetId;
-    
+    var appWidgetId: Int
+
     /**
      * View that holds this widget after it's been created.  This view isn't created
      * until Launcher knows it's needed.
      */
-    public AppWidgetHostView hostView = null;
-
-    public CoverWidgetInfo(int appWidgetId) {
-        itemType = WidgetSettings.Favorites.ITEM_TYPE_APPWIDGET;
-        this.appWidgetId = appWidgetId;
-    }
-    
-    @Override
-    public void onAddToDatabase(ContentValues values) {
-        super.onAddToDatabase(values);
-        values.put(WidgetSettings.Favorites.APPWIDGET_ID, appWidgetId);
+    var hostView: AppWidgetHostView? = null
+    override fun onAddToDatabase(values: ContentValues) {
+        super.onAddToDatabase(values)
+        values.put(Favorites.APPWIDGET_ID, appWidgetId)
     }
 
-    @NonNull
-    @Override
-    public String toString() {
-        return Integer.toString(appWidgetId);
+    override fun toString(): String {
+        return Integer.toString(appWidgetId)
+    }
+
+    init {
+        itemType = Favorites.ITEM_TYPE_APPWIDGET
+        this.appWidgetId = appWidgetId
     }
 }

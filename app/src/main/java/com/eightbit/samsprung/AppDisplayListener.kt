@@ -177,11 +177,9 @@ class AppDisplayListener : Service() {
         }, floatView.findViewById(R.id.coordinator))
 
         val menu = floatView.findViewById<LinearLayout>(R.id.button_layout)
-        val menuClose = menu.findViewById<AppCompatImageView>(R.id.retract_drawer)
         val icons = menu.findViewById<LinearLayout>(R.id.icons_layout)
-        val menuRecent = menu.findViewById<ImageView>(R.id.button_recent)
-        val menuHome = menu.findViewById<ImageView>(R.id.button_home)
-        val menuBack = menu.findViewById<ImageView>(R.id.button_back)
+        val menuClose = menu.findViewById<AppCompatImageView>(R.id.retract_drawer)
+
         bottomSheetBehavior = BottomSheetBehavior.from(floatView.findViewById(R.id.bottom_sheet)!!)
         bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
         bottomSheetBehavior.addBottomSheetCallback(object : BottomSheetBehavior.BottomSheetCallback() {
@@ -194,49 +192,7 @@ class AppDisplayListener : Service() {
                         (icons.getChildAt(i) as AppCompatImageView).setColorFilter(color)
                     }
                     menuClose.setColorFilter(color)
-                    menuClose.setOnClickListener {
-                        bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
-                    }
-                    menuRecent.setOnClickListener {
-                        tactileFeedback()
-                        if (null != componentName)
-                            resetRecentActivities(componentName)
-                        else
-                            resetRecentActivities(launchPackage, launchActivity)
-                        onDismiss()
-                        stopForeground(true)
-                        stopSelf()
-                        startForegroundService(Intent(
-                            applicationContext, OnBroadcastService::class.java
-                        ).setAction(SamSprung.launcher))
-                    }
-                    menuHome.setOnClickListener {
-                        tactileFeedback()
-                        if (null != componentName)
-                            resetRecentActivities(componentName)
-                        else
-                            resetRecentActivities(launchPackage, launchActivity)
-                        onDismiss()
-                        stopForeground(true)
-                        stopSelf()
-                        startForegroundService(
-                            Intent(
-                                applicationContext,
-                                OnBroadcastService::class.java
-                            ).setAction(SamSprung.services)
-                        )
-                    }
-                    menuBack.setOnClickListener {
-                        tactileFeedback()
-                        if (hasAccessibility()) {
-                            AccessibilityObserver.executeButtonBack()
-                        } else {
-                            if (null != componentName)
-                                restoreActivityDisplay(componentName, 1)
-                            else
-                                restoreActivityDisplay(launchPackage, launchActivity, 1)
-                        }
-                    }
+                    setClickListeners(menu, componentName, launchPackage, launchActivity)
                 } else if (newState == BottomSheetBehavior.STATE_COLLAPSED) {
                     if (menu.isVisible) menu.visibility = View.GONE
                 }
@@ -324,6 +280,53 @@ class AppDisplayListener : Service() {
             (getSystemService(Context.VIBRATOR_SERVICE) as Vibrator)
                 .vibrate(VibrationEffect.createOneShot(
                     30, VibrationEffect.DEFAULT_AMPLITUDE))
+        }
+    }
+
+    private fun setClickListeners(menu: LinearLayout, componentName: ComponentName?,
+                                  launchPackage: String?, launchActivity: String?) {
+        menu.findViewById<AppCompatImageView>(R.id.retract_drawer).setOnClickListener {
+            bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
+        }
+        menu.findViewById<ImageView>(R.id.button_recent).setOnClickListener {
+            tactileFeedback()
+            if (null != componentName)
+                resetRecentActivities(componentName)
+            else
+                resetRecentActivities(launchPackage, launchActivity)
+            onDismiss()
+            stopForeground(true)
+            stopSelf()
+            startForegroundService(Intent(
+                applicationContext, OnBroadcastService::class.java
+            ).setAction(SamSprung.launcher))
+        }
+        menu.findViewById<ImageView>(R.id.button_home).setOnClickListener {
+            tactileFeedback()
+            if (null != componentName)
+                resetRecentActivities(componentName)
+            else
+                resetRecentActivities(launchPackage, launchActivity)
+            onDismiss()
+            stopForeground(true)
+            stopSelf()
+            startForegroundService(
+                Intent(
+                    applicationContext,
+                    OnBroadcastService::class.java
+                ).setAction(SamSprung.services)
+            )
+        }
+        menu.findViewById<ImageView>(R.id.button_back).setOnClickListener {
+            tactileFeedback()
+            if (hasAccessibility()) {
+                AccessibilityObserver.executeButtonBack()
+            } else {
+                if (null != componentName)
+                    restoreActivityDisplay(componentName, 1)
+                else
+                    restoreActivityDisplay(launchPackage, launchActivity, 1)
+            }
         }
     }
 
