@@ -78,21 +78,17 @@ class AccessibilityObserver : AccessibilityService() {
 
     private var cachedInputMethod: String? = null
 
-    private fun getInputMethod(context: Context): String {
+    private fun getDefaultIME(context: Context): String {
         return Settings.Secure.getString(
             context.applicationContext.contentResolver,
             Settings.Secure.DEFAULT_INPUT_METHOD
         )
     }
 
-    fun getDefaultIME() : String? {
-        return cachedInputMethod
-    }
-
     fun enableKeyboard(context: Context) {
         if (null == getInstance()) return
-        if (!getInputMethod(context).startsWith(BuildConfig.APPLICATION_ID, true))
-            cachedInputMethod = getInputMethod(context)
+        if (!getDefaultIME(context).startsWith(BuildConfig.APPLICATION_ID, true))
+            cachedInputMethod = getDefaultIME(context)
         val mInputMethodProperties = (context.getSystemService(INPUT_METHOD_SERVICE)
                 as InputMethodManager).enabledInputMethodList
         for (i in 0 until mInputMethodProperties.size) {
@@ -104,7 +100,7 @@ class AccessibilityObserver : AccessibilityService() {
     }
     fun disableKeyboard(context: Context) {
         if (null == getInstance() || null == cachedInputMethod) return
-        if (getInputMethod(context).startsWith(BuildConfig.APPLICATION_ID, true)) {
+        if (getDefaultIME(context).startsWith(BuildConfig.APPLICATION_ID, true)) {
             val parameters = cachedInputMethod!!.split('/')
             val defaultKeyboard = ComponentName(parameters[0], parameters[1])
             val mInputMethodProperties = (context.getSystemService(INPUT_METHOD_SERVICE)

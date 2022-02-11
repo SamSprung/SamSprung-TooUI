@@ -870,7 +870,6 @@ class CoverPreferences : AppCompatActivity() {
             for (purchase in purchases) {
                 handlePurchase(purchase)
             }
-//        } else if (billingResult.responseCode == BillingClient.BillingResponseCode.USER_CANCELED) {
         }
     }
 

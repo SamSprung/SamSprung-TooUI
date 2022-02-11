@@ -421,36 +421,17 @@ class SamSprungOverlay : AppCompatActivity(),
             }
         }
 
-        val noticeTouchCallback: ItemTouchHelper.SimpleCallback = object :
-            ItemTouchHelper.SimpleCallback(ItemTouchHelper.RIGHT or ItemTouchHelper.LEFT,
-                ItemTouchHelper.RIGHT or ItemTouchHelper.LEFT) {
-            override fun onMove(
-                recyclerView: RecyclerView,
-                viewHolder: RecyclerView.ViewHolder,
-                target: RecyclerView.ViewHolder
-            ): Boolean {
-                return false
-            }
-
-            override fun onChildDraw(
-                c: Canvas,
-                recyclerView: RecyclerView,
-                viewHolder: RecyclerView.ViewHolder,
-                dX: Float,
-                dY: Float,
-                actionState: Int,
-                isCurrentlyActive: Boolean
-            ) { }
-
+        RecyclerViewFondler(noticesView).setSwipeCallback(
+            ItemTouchHelper.START or ItemTouchHelper.END,
+            object: RecyclerViewFondler.SwipeCallback {
             override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
-                if (direction == ItemTouchHelper.RIGHT || direction == ItemTouchHelper.LEFT) {
+                if (direction == ItemTouchHelper.START || direction == ItemTouchHelper.END) {
                     val notice = (viewHolder as NotificationAdapter.NoticeViewHolder).notice
                     if (notice.isClearable)
                         NotificationReceiver.getReceiver()?.cancelNotification(notice.key)
                 }
             }
-        }
-        ItemTouchHelper(noticeTouchCallback).attachToRecyclerView(noticesView)
+        })
 
         val launcherView = findViewById<RecyclerView>(R.id.appsList)
 
@@ -545,28 +526,9 @@ class SamSprungOverlay : AppCompatActivity(),
             }
         }, findViewById<LinearLayout>(R.id.keyboard_wrapper))
 
-        val drawerTouchCallback: ItemTouchHelper.SimpleCallback =
-            object : ItemTouchHelper.SimpleCallback(
-                0, ItemTouchHelper.START or ItemTouchHelper.END
-            ) {
-            override fun onMove(
-                recyclerView: RecyclerView,
-                viewHolder: RecyclerView.ViewHolder,
-                target: RecyclerView.ViewHolder
-            ): Boolean {
-                return false
-            }
-
-            override fun onChildDraw(
-                c: Canvas,
-                recyclerView: RecyclerView,
-                viewHolder: RecyclerView.ViewHolder,
-                dX: Float,
-                dY: Float,
-                actionState: Int,
-                isCurrentlyActive: Boolean
-            ) { }
-
+        RecyclerViewFondler(launcherView).setSwipeCallback(
+            ItemTouchHelper.START or ItemTouchHelper.END,
+            object: RecyclerViewFondler.SwipeCallback {
             override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
                 if (direction == ItemTouchHelper.START) {
                     clearSearchOrClose(searchView)
@@ -575,8 +537,8 @@ class SamSprungOverlay : AppCompatActivity(),
                     clearSearchOrOpen(searchView, blurView)
                 }
             }
-        }
-        ItemTouchHelper(drawerTouchCallback).attachToRecyclerView(launcherView)
+        })
+
         launcherView.setOnTouchListener(object : OnSwipeTouchListener(this@SamSprungOverlay) {
             override fun onSwipeLeft() : Boolean {
                 clearSearchOrClose(searchView)
@@ -735,42 +697,6 @@ class SamSprungOverlay : AppCompatActivity(),
         return color
     }
 
-    override fun onAppClicked(appInfo: ResolveInfo, position: Int) {
-        prepareConfiguration()
-
-        (getSystemService(LAUNCHER_APPS_SERVICE) as LauncherApps).startMainActivity(
-            ComponentName(appInfo.activityInfo.packageName, appInfo.activityInfo.name),
-            Process.myUserHandle(),
-            windowManager.currentWindowMetrics.bounds,
-            ActivityOptions.makeBasic().setLaunchDisplayId(1).toBundle()
-        )
-
-        val extras = Bundle()
-        extras.putString("launchPackage", appInfo.activityInfo.packageName)
-        extras.putString("launchActivity", appInfo.activityInfo.name)
-
-        val orientationChanger = LinearLayout((application as SamSprung).getScaledContext())
-        val orientationLayout = WindowManager.LayoutParams(
-            WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY,
-            WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL,
-            PixelFormat.TRANSPARENT
-        )
-        orientationLayout.screenOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
-        val windowManager = (application as SamSprung).getScaledContext()?.getSystemService(
-            Context.WINDOW_SERVICE) as WindowManager
-        windowManager.addView(orientationChanger, orientationLayout)
-        orientationChanger.visibility = View.VISIBLE
-        Handler(Looper.getMainLooper()).postDelayed({
-            runOnUiThread {
-                windowManager.removeView(orientationChanger)
-                onDismiss()
-                requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
-                startForegroundService(Intent(this,
-                    AppDisplayListener::class.java).putExtras(extras))
-            }
-        }, 50)
-    }
-
     private fun processIntentSender(intentSender: IntentSender) {
         prepareConfiguration()
 
@@ -790,40 +716,6 @@ class SamSprungOverlay : AppCompatActivity(),
                 onDismiss()
             }
         }, 100)
-    }
-
-    override fun onNoticeClicked(itemView: View, position: Int, notice: StatusBarNotification) {
-        val actionsPanel = itemView.findViewById<LinearLayout>(R.id.action_panel)
-        if (actionsPanel.isVisible) {
-            actionsPanel.visibility = View.GONE
-        } else {
-            val actionButtons = actionsPanel.findViewById<LinearLayout>(R.id.actions)
-            if (actionButtons.childCount > 0) {
-                actionsPanel.visibility = View.VISIBLE
-            } else {
-                if (null != notice.notification.actions) {
-                    for (action in notice.notification.actions) {
-                        setNotificationAction(position, actionsPanel, action)
-                    }
-                    (noticesView.layoutManager as LinearLayoutManager)
-                        .scrollToPositionWithOffset(position,
-                            -(actionButtons.height))
-                }
-                if (notice.isClearable) {
-                    setNotificationCancel(actionsPanel, notice)
-                    (noticesView.layoutManager as LinearLayoutManager)
-                        .scrollToPositionWithOffset(position,
-                            -(actionButtons.height))
-                }
-            }
-        }
-    }
-
-    override fun onNoticeLongClicked(itemView: View, position: Int,
-                                     notice: StatusBarNotification) : Boolean {
-        tactileFeedback()
-        processIntentSender(notice.notification.contentIntent.intentSender)
-        return true
     }
 
     private fun tactileFeedback() {
@@ -937,6 +829,76 @@ class SamSprungOverlay : AppCompatActivity(),
         }.any {componentName->
             myNotificationListenerComponentName == componentName
         }
+    }
+
+    override fun onAppClicked(appInfo: ResolveInfo, position: Int) {
+        prepareConfiguration()
+
+        (getSystemService(LAUNCHER_APPS_SERVICE) as LauncherApps).startMainActivity(
+            ComponentName(appInfo.activityInfo.packageName, appInfo.activityInfo.name),
+            Process.myUserHandle(),
+            windowManager.currentWindowMetrics.bounds,
+            ActivityOptions.makeBasic().setLaunchDisplayId(1).toBundle()
+        )
+
+        val extras = Bundle()
+        extras.putString("launchPackage", appInfo.activityInfo.packageName)
+        extras.putString("launchActivity", appInfo.activityInfo.name)
+
+        val orientationChanger = LinearLayout((application as SamSprung).getScaledContext())
+        val orientationLayout = WindowManager.LayoutParams(
+            WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY,
+            WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL,
+            PixelFormat.TRANSPARENT
+        )
+        orientationLayout.screenOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
+        val windowManager = (application as SamSprung).getScaledContext()?.getSystemService(
+            Context.WINDOW_SERVICE) as WindowManager
+        windowManager.addView(orientationChanger, orientationLayout)
+        orientationChanger.visibility = View.VISIBLE
+        Handler(Looper.getMainLooper()).postDelayed({
+            runOnUiThread {
+                windowManager.removeView(orientationChanger)
+                onDismiss()
+                requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
+                startForegroundService(Intent(this,
+                    AppDisplayListener::class.java).putExtras(extras))
+            }
+        }, 50)
+    }
+
+    override fun onNoticeClicked(itemView: View, position: Int, notice: StatusBarNotification) {
+        val actionsPanel = itemView.findViewById<LinearLayout>(R.id.action_panel)
+        if (actionsPanel.isVisible) {
+            actionsPanel.visibility = View.GONE
+        } else {
+            val actionButtons = actionsPanel.findViewById<LinearLayout>(R.id.actions)
+            if (actionButtons.childCount > 0) {
+                actionsPanel.visibility = View.VISIBLE
+            } else {
+                if (null != notice.notification.actions) {
+                    for (action in notice.notification.actions) {
+                        setNotificationAction(position, actionsPanel, action)
+                    }
+                    (noticesView.layoutManager as LinearLayoutManager)
+                        .scrollToPositionWithOffset(position,
+                            -(actionButtons.height))
+                }
+                if (notice.isClearable) {
+                    setNotificationCancel(actionsPanel, notice)
+                    (noticesView.layoutManager as LinearLayoutManager)
+                        .scrollToPositionWithOffset(position,
+                            -(actionButtons.height))
+                }
+            }
+        }
+    }
+
+    override fun onNoticeLongClicked(itemView: View, position: Int,
+                                     notice: StatusBarNotification) : Boolean {
+        tactileFeedback()
+        processIntentSender(notice.notification.contentIntent.intentSender)
+        return true
     }
 
     override fun onNewIntent(intent: Intent?) {
