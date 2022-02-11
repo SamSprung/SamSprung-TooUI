@@ -9,6 +9,8 @@ import android.speech.SpeechRecognizer;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.Animation;
+import android.view.animation.TranslateAnimation;
 import android.view.inputmethod.InputConnection;
 
 import com.eightbit.content.ScaledContext;
@@ -40,6 +42,54 @@ public class SamSprungInput extends InputMethodService
         parent = new SoftReference<>(anchor);
     }
 
+    private void animateKeyboardShow() {
+        TranslateAnimation animate = new TranslateAnimation(
+                0, 0f, mKeyboardView.get().getHeight() + 10, 0f
+        );
+        animate.setDuration(250);
+        animate.setFillAfter(false);
+        animate.setAnimationListener(new Animation.AnimationListener() {
+            @Override
+            public void onAnimationStart(Animation animation) { }
+
+            @Override
+            public void onAnimationEnd(Animation animation) {
+                mKeyboardView.get().setAnimation(null);
+                mKeyboardView.get().setOnKeyboardActionListener(SamSprungInput.this);
+                swapKeyboardLayout(kbIndex);
+            }
+
+            @Override
+            public void onAnimationRepeat(Animation animation) { }
+        });
+        parent.get().addView(mKeyboardView.get(), 0);
+        mKeyboardView.get().startAnimation(animate);
+    }
+
+    private void animateKeyboardHide() {
+        TranslateAnimation animate = new TranslateAnimation(
+                0, 0f, 0, mKeyboardView.get().getHeight()
+        );
+        animate.setDuration(250);
+        animate.setFillAfter(false);
+        animate.setAnimationListener(new Animation.AnimationListener() {
+            @Override
+            public void onAnimationStart(Animation animation) { }
+
+            @Override
+            public void onAnimationEnd(Animation animation) {
+                mKeyboardView.get().setAnimation(null);
+                parent.get().removeView(mKeyboardView.get());
+                if (null != listener)
+                    listener.onKeyboardHidden();
+            }
+
+            @Override
+            public void onAnimationRepeat(Animation animation) { }
+        });
+        mKeyboardView.get().startAnimation(animate);
+    }
+
     private void swapKeyboardLayout(int newIndex) {
         if (null == mKeyboardView) return;
         switch (newIndex) {
@@ -66,12 +116,6 @@ public class SamSprungInput extends InputMethodService
                 }
                 break;
         }
-    }
-
-    private void disconnectKeyboard() {
-        parent.get().removeView(mKeyboardView.get());
-        if (null != listener)
-            listener.onKeyboardHidden();
     }
 
     private Intent getSpeechIntent(boolean partial) {
@@ -106,12 +150,10 @@ public class SamSprungInput extends InputMethodService
         if (null != listener) mKeyboardView =
                 new SoftReference<>(listener.onInputRequested(this));
         if (null != mKeyboardView) {
-            swapKeyboardLayout(kbIndex);
-            mKeyboardView.get().setOnKeyboardActionListener(this);
             if (null != mKeyboardView.get().getParent())
                 ((ViewGroup) mKeyboardView.get().getParent()).removeView(mKeyboardView.get());
             if (null != parent) {
-                parent.get().addView(mKeyboardView.get(), 0);
+                animateKeyboardShow();
             }
             voice = SpeechRecognizer.createSpeechRecognizer(this);
             voice.setRecognitionListener(new VoiceRecognizer(suggested ->
@@ -130,7 +172,7 @@ public class SamSprungInput extends InputMethodService
         InputConnection ic = getCurrentInputConnection();
         switch(primaryCode) {
             case 555:
-                disconnectKeyboard();
+                animateKeyboardHide();
                 break;
             case -998:
                 swapKeyboardLayout(kbIndex - 1);
@@ -151,7 +193,7 @@ public class SamSprungInput extends InputMethodService
                 break;
             case Keyboard.KEYCODE_DONE:
                 ic.sendKeyEvent(new KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_ENTER));
-                disconnectKeyboard();
+                animateKeyboardHide();
                 break;
             default:
                 char code = (char)primaryCode;

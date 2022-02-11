@@ -62,7 +62,6 @@ import android.content.pm.*
 import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.PixelFormat
-import android.graphics.Rect
 import android.hardware.camera2.CameraManager
 import android.hardware.display.DisplayManager
 import android.inputmethodservice.KeyboardView
@@ -783,16 +782,14 @@ class SamSprungOverlay : AppCompatActivity(),
 
         Handler(Looper.getMainLooper()).postDelayed({
             runOnUiThread {
-                if (!getVisibility(bottomHandle)) {
-                    val extras = Bundle()
-                    extras.putString("launchPackage", intentSender.creatorPackage)
-                    extras.putBoolean("intentSender", true)
+                val extras = Bundle()
+                extras.putString("launchPackage", intentSender.creatorPackage)
+                extras.putBoolean("intentSender", true)
 
-                    startForegroundService(Intent(this,
-                        AppDisplayListener::class.java).putExtras(extras))
+                startForegroundService(Intent(this,
+                    AppDisplayListener::class.java).putExtras(extras))
 
-                    onDismiss()
-                }
+                onDismiss()
             }
         }, 100)
     }
@@ -926,18 +923,6 @@ class SamSprungOverlay : AppCompatActivity(),
         mKeyboardView.isPreviewEnabled = false
         AccessibilityObserver.getInstance()?.enableKeyboard(applicationContext)
         return mKeyboardView
-    }
-
-    private fun getVisibility(view: View): Boolean {
-        val actualPosition = Rect()
-        view.getGlobalVisibleRect(actualPosition)
-        val screen = Rect(
-            0, 0, window.decorView.width, window.decorView.height,
-        )
-        if (actualPosition.intersect(screen)) {
-            return true
-        }
-        return false
     }
 
     private fun getColumnCount(): Int {

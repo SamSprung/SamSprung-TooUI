@@ -55,7 +55,6 @@ import android.Manifest
 import android.annotation.SuppressLint
 import android.app.Dialog
 import android.app.KeyguardManager
-import android.app.NotificationManager
 import android.app.WallpaperManager
 import android.content.*
 import android.content.pm.PackageManager
@@ -63,10 +62,8 @@ import android.content.res.ColorStateList
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import android.hardware.display.DisplayManager
-import android.media.AudioManager
 import android.net.Uri
 import android.os.*
-import android.provider.MediaStore
 import android.provider.Settings
 import android.service.notification.NotificationListenerService
 import android.view.Menu
@@ -88,29 +85,23 @@ import androidx.core.graphics.green
 import androidx.core.graphics.red
 import androidx.core.view.isVisible
 import com.android.billingclient.api.*
+import com.eightbit.content.ScaledContext
+import com.eightbit.io.Debug
 import com.eightbit.material.IconifiedSnackbar
 import com.eightbit.view.AnimatedLinearLayout
 import com.eightbitlab.blurview.BlurView
 import com.eightbitlab.blurview.RenderScriptBlur
 import com.google.android.material.snackbar.Snackbar
-import com.heinrichreimersoftware.androidissuereporter.IssueReporterLauncher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
-import java.io.BufferedReader
 import java.io.File
-import java.io.InputStreamReader
 import java.util.*
 import java.util.concurrent.Executors
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
-
-import com.eightbit.content.ScaledContext
-import com.eightbit.io.Debug
-import java.lang.Process
-
 
 class CoverPreferences : AppCompatActivity() {
 
