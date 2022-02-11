@@ -94,7 +94,6 @@ import androidx.core.content.ContextCompat
 import androidx.core.graphics.drawable.toBitmap
 import androidx.core.view.children
 import androidx.core.view.get
-import androidx.core.view.isVisible
 import com.eightbit.content.ScaledContext
 import com.eightbit.samsprung.panels.*
 import com.eightbit.samsprung.panels.WidgetSettings.Favorites

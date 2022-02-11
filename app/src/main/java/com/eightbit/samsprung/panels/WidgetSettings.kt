@@ -17,7 +17,6 @@ package com.eightbit.samsprung.panels
 
 import android.net.Uri
 import android.provider.BaseColumns
-import com.eightbit.samsprung.panels.WidgetProvider
 
 /**
  * Settings related utilities.
@@ -90,8 +89,8 @@ class WidgetSettings {
          */
         val CONTENT_URI = Uri.parse(
             "content://" +
-                    WidgetProvider.Companion.AUTHORITY + "/" + WidgetProvider.Companion.TABLE_FAVORITES +
-                    "?" + WidgetProvider.Companion.PARAMETER_NOTIFY + "=true"
+                    WidgetProvider.AUTHORITY + "/" + WidgetProvider.TABLE_FAVORITES +
+                    "?" + WidgetProvider.PARAMETER_NOTIFY + "=true"
         )
 
         /**
@@ -100,8 +99,8 @@ class WidgetSettings {
          */
         val CONTENT_URI_NO_NOTIFICATION = Uri.parse(
             "content://" +
-                    WidgetProvider.Companion.AUTHORITY + "/" + WidgetProvider.Companion.TABLE_FAVORITES +
-                    "?" + WidgetProvider.Companion.PARAMETER_NOTIFY + "=false"
+                    WidgetProvider.AUTHORITY + "/" + WidgetProvider.TABLE_FAVORITES +
+                    "?" + WidgetProvider.PARAMETER_NOTIFY + "=false"
         )
 
         /**
@@ -114,9 +113,9 @@ class WidgetSettings {
          */
         fun getContentUri(id: Long, notify: Boolean): Uri {
             return Uri.parse(
-                "content://" + WidgetProvider.Companion.AUTHORITY +
-                        "/" + WidgetProvider.Companion.TABLE_FAVORITES + "/" + id + "?" +
-                        WidgetProvider.Companion.PARAMETER_NOTIFY + "=" + notify
+                "content://" + WidgetProvider.AUTHORITY +
+                        "/" + WidgetProvider.TABLE_FAVORITES + "/" + id + "?" +
+                        WidgetProvider.PARAMETER_NOTIFY + "=" + notify
             )
         }
 
