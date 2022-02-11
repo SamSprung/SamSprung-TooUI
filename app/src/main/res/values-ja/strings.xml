@@ -1,3 +1,3 @@
 <resources>
-    <string name="caveats_warning">アプリを起動するには、画面のロックを無効にする必要があります</string>
+    <string name="lock_screen_warning">アプリを起動するには、画面のロックを無効にする必要があります</string>
 </resources>

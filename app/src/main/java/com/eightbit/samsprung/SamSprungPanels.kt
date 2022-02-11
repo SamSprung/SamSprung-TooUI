@@ -94,6 +94,7 @@ import androidx.core.content.ContextCompat
 import androidx.core.graphics.drawable.toBitmap
 import androidx.core.view.children
 import androidx.core.view.get
+import androidx.core.view.isVisible
 import com.eightbit.content.ScaledContext
 import com.eightbit.samsprung.panels.*
 import com.eightbit.samsprung.panels.WidgetSettings.Favorites
@@ -114,23 +115,28 @@ import java.util.concurrent.Executors
 @SuppressLint("ClickableViewAccessibility")
 class SamSprungPanels : AppCompatActivity() {
     private val mObserver: ContentObserver = FavoritesChangeObserver()
+
     private var mAppWidgetManager: AppWidgetManager? = null
     private var appWidgetHost: CoverWidgetHost? = null
+
+    private var widgetContext: Context? = null
+    private var widgetDialog: AlertDialog? = null
+
+    private lateinit var displayMetrics: IntArray
+    private lateinit var offReceiver: BroadcastReceiver
+
     private lateinit var workspace: LinearLayout
     private lateinit var snapScroller: SnapHorizontalScrollView
 
     private var mDestroyed = false
     private var mBinder: DesktopBinder? = null
 
-    private var widgetContext: Context? = null
-    private lateinit var offReceiver: BroadcastReceiver
-    private var widgetDialog: AlertDialog? = null
-
     @SuppressLint("ClickableViewAccessibility")
     override fun onCreate(savedInstanceState: Bundle?) {
         setShowWhenLocked(true)
 
         widgetContext = ScaledContext.widget(applicationContext)
+        displayMetrics = ScaledContext.getDisplayParams(this)
 
         super.onCreate(savedInstanceState)
         supportActionBar?.hide()
@@ -163,6 +169,10 @@ class SamSprungPanels : AppCompatActivity() {
             .setHasFixedTransformationMatrix(true)
             .setBlurAlgorithm(RenderScriptBlur(this))
 
+        val prefs = getSharedPreferences(SamSprung.prefsValue, MODE_PRIVATE)
+
+        val icons = findViewById<LinearLayout>(R.id.icons_layout)
+        val menuClose = findViewById<AppCompatImageView>(R.id.retract_drawer)
         val menuBack = findViewById<AppCompatImageView>(R.id.button_back)
         val menuDelete = findViewById<AppCompatImageView>(R.id.button_delete)
         val menuWidget = findViewById<AppCompatImageView>(R.id.button_widget)
@@ -173,6 +183,15 @@ class SamSprungPanels : AppCompatActivity() {
         bottomSheetBehavior.addBottomSheetCallback(object : BottomSheetBehavior.BottomSheetCallback() {
             override fun onStateChanged(bottomSheet: View, newState: Int) {
                 if (newState == BottomSheetBehavior.STATE_EXPANDED) {
+                    val color = prefs.getInt(SamSprung.prefColors,
+                        Color.rgb(255, 255, 255))
+                    for (i in 0 until icons.childCount) {
+                        (icons.getChildAt(i) as AppCompatImageView).setColorFilter(color)
+                    }
+                    menuClose.setColorFilter(color)
+                    menuClose.setOnClickListener {
+                        bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
+                    }
                     menuBack.setOnClickListener {
                         tactileFeedback()
                         finish()
@@ -217,17 +236,24 @@ class SamSprungPanels : AppCompatActivity() {
             override fun onSlide(bottomSheet: View, slideOffset: Float) { }
         })
 
+        val color = prefs.getInt(SamSprung.prefColors,
+            Color.rgb(255, 255, 255))
+        for (i in 0 until icons.childCount) {
+            (icons.getChildAt(i) as AppCompatImageView).setColorFilter(color)
+        }
+        menuClose.setColorFilter(color)
+
         findViewById<View>(R.id.bottom_sheet)!!.setOnTouchListener(
             object: OnSwipeTouchListener(this@SamSprungPanels) {
-                override fun onSwipeTop() : Boolean {
-                    bottomSheetBehavior.state = BottomSheetBehavior.STATE_EXPANDED
-                    return true
-                }
-                override fun onSwipeBottom() : Boolean {
-                    bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
-                    return true
-                }
-            })
+            override fun onSwipeTop() : Boolean {
+                bottomSheetBehavior.state = BottomSheetBehavior.STATE_EXPANDED
+                return true
+            }
+            override fun onSwipeBottom() : Boolean {
+                bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
+                return true
+            }
+        })
 
         snapScroller = findViewById(R.id.snap_scroller)
         workspace = findViewById(R.id.workspace)
@@ -278,10 +304,10 @@ class SamSprungPanels : AppCompatActivity() {
             spanX = max(appWidgetInfo.minWidth, appWidgetInfo.maxResizeWidth)
             spanY = max(appWidgetInfo.minHeight, appWidgetInfo.maxResizeHeight)
         }
-        if (spanX > window.decorView.width)
-            spanX = window.decorView.width
-        if (spanY > window.decorView.height)
-            spanY = window.decorView.height
+        if (spanX > displayMetrics[0])
+            spanX = displayMetrics[0]
+        if (spanY > displayMetrics[1])
+            spanY = displayMetrics[1]
         val spans = intArrayOf(spanX, spanY)
 
         launcherInfo.spanX = spans[0]
@@ -303,8 +329,9 @@ class SamSprungPanels : AppCompatActivity() {
 
         val wrapper: LinearLayout = layoutInflater.inflate(
             R.layout.workspace_screen, null) as LinearLayout
+
         val params: LinearLayout.LayoutParams = LinearLayout.LayoutParams(
-            window.decorView.width, window.decorView.height
+            displayMetrics[0], displayMetrics[1]
         )
         wrapper.addView(launcherInfo.hostView)
         val current = getVisibleIndex(workspace)
@@ -470,7 +497,7 @@ class SamSprungPanels : AppCompatActivity() {
             val wrapper: LinearLayout = layoutInflater.inflate(
                 R.layout.workspace_screen, null) as LinearLayout
             val params: LinearLayout.LayoutParams = LinearLayout.LayoutParams(
-                window.decorView.width, window.decorView.height
+                displayMetrics[0], displayMetrics[1]
             )
             wrapper.addView(item.hostView)
             workspace.addView(wrapper, params)

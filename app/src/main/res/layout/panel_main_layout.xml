@@ -58,6 +58,15 @@
                 android:layout_height="8dp" />
         </LinearLayout>
 
+        <androidx.appcompat.widget.AppCompatImageView
+            android:id="@+id/retract_drawer"
+            android:layout_width="match_parent"
+            android:layout_height="36dp"
+            android:layout_gravity="center"
+            app:srcCompat="@drawable/ic_baseline_swipe_down_24"
+            android:layout_marginBottom="12dp"
+            android:contentDescription="@string/description_icon"/>
+
         <LinearLayout
             android:id="@+id/icons_layout"
             android:layout_width="match_parent"

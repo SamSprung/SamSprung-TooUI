@@ -24,7 +24,7 @@
                 android:clipToPadding="false"
                 android:paddingStart="20dp"
                 android:paddingEnd="0dp"
-                android:paddingBottom="20dp"
+                android:paddingBottom="24dp"
                 android:scrollbars="vertical" />
         </FrameLayout>
 

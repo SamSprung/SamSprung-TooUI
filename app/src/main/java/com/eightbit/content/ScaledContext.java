@@ -54,12 +54,22 @@ import android.content.Context;
 import android.content.ContextWrapper;
 import android.content.res.Configuration;
 import android.content.res.Resources;
+import android.graphics.Rect;
+import android.os.Build;
 import android.util.DisplayMetrics;
+import android.view.WindowManager;
 
 public class ScaledContext extends ContextWrapper {
 
     public ScaledContext(Context base) {
         super(base);
+    }
+
+    public static int[] getDisplayParams(Context context) {
+        WindowManager mWindowManager = (WindowManager)
+                context.getSystemService(Context.WINDOW_SERVICE);
+        Rect metrics = mWindowManager.getCurrentWindowMetrics().getBounds();
+        return new int[] { metrics.width(), metrics.height() };
     }
 
     @SuppressWarnings("unused")

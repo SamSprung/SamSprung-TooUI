@@ -1,5 +1,5 @@
 <resources>
-    <string name="caveats_warning">앱을 실행하기 위해서는 잠금화면 해제가 필요합니다.</string>
+    <string name="lock_screen_warning">앱을 실행하기 위해서는 잠금화면 해제가 필요합니다.</string>
     <string name="settings_notice">모든 권한이 허용되었습니다.</string>
     <string name="open_settings">권한 허용하러 가기</string>
     <string name="swap_so_system">시스템이 앱 종료를 관리합니다.</string>

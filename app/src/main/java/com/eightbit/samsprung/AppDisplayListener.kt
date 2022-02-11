@@ -72,7 +72,6 @@ import androidx.core.app.NotificationCompat
 import androidx.core.content.ContextCompat
 import androidx.core.view.isVisible
 import com.eightbit.view.OnSwipeTouchListener
-import com.eightbit.widget.VerticalStrokeTextView
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import java.io.File
 
@@ -178,7 +177,8 @@ class AppDisplayListener : Service() {
         }, floatView.findViewById(R.id.coordinator))
 
         val menu = floatView.findViewById<LinearLayout>(R.id.button_layout)
-        val menuLogo = menu.findViewById<VerticalStrokeTextView>(R.id.samsprung_logo)
+        val menuClose = menu.findViewById<AppCompatImageView>(R.id.retract_drawer)
+        val icons = menu.findViewById<LinearLayout>(R.id.icons_layout)
         val menuRecent = menu.findViewById<ImageView>(R.id.button_recent)
         val menuHome = menu.findViewById<ImageView>(R.id.button_home)
         val menuBack = menu.findViewById<ImageView>(R.id.button_back)
@@ -190,15 +190,15 @@ class AppDisplayListener : Service() {
                     val color = prefs.getInt(SamSprung.prefColors,
                         Color.rgb(255, 255, 255))
                     if (!menu.isVisible) menu.visibility = View.VISIBLE
-                    val icons = menu.findViewById<LinearLayout>(R.id.icons_layout)
                     for (i in 0 until icons.childCount) {
                         (icons.getChildAt(i) as AppCompatImageView).setColorFilter(color)
                     }
-                    menuLogo.setTextColor(color)
-                    menuLogo.setOnClickListener {
+                    menuClose.setColorFilter(color)
+                    menuClose.setOnClickListener {
                         bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
                     }
                     menuRecent.setOnClickListener {
+                        tactileFeedback()
                         if (null != componentName)
                             resetRecentActivities(componentName)
                         else
@@ -211,6 +211,7 @@ class AppDisplayListener : Service() {
                         ).setAction(SamSprung.launcher))
                     }
                     menuHome.setOnClickListener {
+                        tactileFeedback()
                         if (null != componentName)
                             resetRecentActivities(componentName)
                         else
@@ -226,6 +227,7 @@ class AppDisplayListener : Service() {
                         )
                     }
                     menuBack.setOnClickListener {
+                        tactileFeedback()
                         if (hasAccessibility()) {
                             AccessibilityObserver.executeButtonBack()
                         } else {
@@ -233,7 +235,6 @@ class AppDisplayListener : Service() {
                                 restoreActivityDisplay(componentName, 1)
                             else
                                 restoreActivityDisplay(launchPackage, launchActivity, 1)
-
                         }
                     }
                 } else if (newState == BottomSheetBehavior.STATE_COLLAPSED) {
@@ -243,6 +244,14 @@ class AppDisplayListener : Service() {
 
             override fun onSlide(bottomSheet: View, slideOffset: Float) { }
         })
+
+        val color = prefs.getInt(SamSprung.prefColors,
+            Color.rgb(255, 255, 255))
+        if (!menu.isVisible) menu.visibility = View.VISIBLE
+        for (i in 0 until icons.childCount) {
+            (icons.getChildAt(i) as AppCompatImageView).setColorFilter(color)
+        }
+        menuClose.setColorFilter(color)
 
         floatView.findViewById<View>(R.id.bottom_sheet)!!.setOnTouchListener(
             object: OnSwipeTouchListener(this@AppDisplayListener) {
@@ -303,6 +312,19 @@ class AppDisplayListener : Service() {
                 Intent.FLAG_ACTIVITY_NO_ANIMATION
         startActivity(homeLauncher, ActivityOptions
             .makeBasic().setLaunchDisplayId(0).toBundle())
+    }
+
+    private fun tactileFeedback() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            (getSystemService(Context.VIBRATOR_MANAGER_SERVICE) as VibratorManager)
+                .defaultVibrator.vibrate(VibrationEffect.createOneShot(
+                    30, VibrationEffect.DEFAULT_AMPLITUDE))
+        } else {
+            @Suppress("DEPRECATION")
+            (getSystemService(Context.VIBRATOR_SERVICE) as Vibrator)
+                .vibrate(VibrationEffect.createOneShot(
+                    30, VibrationEffect.DEFAULT_AMPLITUDE))
+        }
     }
 
     @SuppressLint("LaunchActivityFromNotification")

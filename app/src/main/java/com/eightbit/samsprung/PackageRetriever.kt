@@ -60,6 +60,7 @@ import android.content.SharedPreferences
 import android.content.pm.PackageManager
 import android.content.pm.ResolveInfo
 import android.net.Uri
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import java.util.*
 
@@ -81,6 +82,7 @@ class PackageRetriever(val context: Context) {
         for (installed in packages) {
             if (installed.resolvePackageName == "apps.ijp.coveros") {
                 try {
+                    Toast.makeText(context, R.string.incompatible_notice, Toast.LENGTH_LONG).show()
                     context.startActivity(Intent(Intent.ACTION_DELETE)
                         .setData(Uri.parse("package:apps.ijp.coveros")))
                 } catch (ignored: Exception) { }

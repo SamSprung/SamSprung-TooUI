@@ -161,11 +161,9 @@ public class WidgetModel {
         private volatile boolean mRunning;
 
         private final WeakReference<SamSprungPanels> mLauncher;
-        private final boolean mIsLaunching;
-        private final int mId;        
+        private final int mId;
 
         DesktopItemsLoader(SamSprungPanels launcher, boolean isLaunching) {
-            mIsLaunching = isLaunching;
             mLauncher = new WeakReference<>(launcher);
             mId = sWorkspaceLoaderCount.getAndIncrement();
         }
@@ -187,7 +185,6 @@ public class WidgetModel {
 
             final SamSprungPanels launcher = mLauncher.get();
             final ContentResolver contentResolver = launcher.getContentResolver();
-            final PackageManager manager = launcher.getPackageManager();
 
             mDesktopItems = new ArrayList<>();
             mDesktopAppWidgets = new ArrayList<>();
@@ -289,15 +286,6 @@ public class WidgetModel {
                 launcherInfo.hostView = null;
             }
         }
-    }
-
-    /**
-     * Remove an item from the desktop
-     * @param info
-     */
-    public void removeDesktopItem(WidgetInfo info) {
-        // TODO: write to DB; figure out if we should remove folder from folders list
-        mDesktopItems.remove(info);
     }
 
     /**

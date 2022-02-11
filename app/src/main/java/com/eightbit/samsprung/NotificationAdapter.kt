@@ -93,16 +93,16 @@ class NotificationAdapter(
         holder.itemView.setOnClickListener {
             if (null != holder.listener)
                 holder.listener.onNoticeClicked(holder.itemView,
-                    holder.bindingAdapterPosition, holder.notice)
+                    holder.absoluteAdapterPosition, holder.notice)
         }
         holder.itemView.setOnLongClickListener {
             if (null != holder.listener)
                 holder.listener.onNoticeLongClicked(holder.itemView,
-                    holder.bindingAdapterPosition, holder.notice)
+                    holder.absoluteAdapterPosition, holder.notice)
             else
                 false
         }
-        holder.bind(getItem(holder.bindingAdapterPosition))
+        holder.bind(getItem(holder.absoluteAdapterPosition))
     }
 
     abstract class NoticeViewHolder(
