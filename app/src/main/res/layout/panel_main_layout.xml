@@ -71,7 +71,8 @@
             <androidx.appcompat.widget.AppCompatImageView
                 android:id="@+id/button_back"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="36dp"
+                android:scaleType="fitCenter"
                 app:srcCompat="@drawable/ic_baseline_samsprung_24"
                 android:layout_weight="1"
                 android:contentDescription="@string/description_icon"/>
@@ -79,7 +80,8 @@
             <androidx.appcompat.widget.AppCompatImageView
                 android:id="@+id/button_delete"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="36dp"
+                android:scaleType="fitCenter"
                 app:srcCompat="@drawable/ic_baseline_delete_forever_24"
                 android:layout_weight="1"
                 android:contentDescription="@string/description_icon"/>
@@ -87,7 +89,8 @@
             <androidx.appcompat.widget.AppCompatImageView
                 android:id="@+id/button_widget"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="36dp"
+                android:scaleType="fitCenter"
                 app:srcCompat="@drawable/ic_baseline_widgets_24"
                 android:layout_weight="1"
                 android:contentDescription="@string/description_icon"/>

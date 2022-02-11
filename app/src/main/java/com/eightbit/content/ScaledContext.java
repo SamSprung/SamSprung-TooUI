@@ -145,10 +145,10 @@ public class ScaledContext extends ContextWrapper {
         metrics.densityDpi = 160; // 160
         if (orientation == Configuration.ORIENTATION_PORTRAIT) {
             metrics.heightPixels = 1536; // 512
-            metrics.widthPixels = 780; // 260
+            metrics.widthPixels = 1040; // 260
         }
         if (orientation == Configuration.ORIENTATION_LANDSCAPE) {
-            metrics.heightPixels = 780; // 260
+            metrics.heightPixels = 1040; // 260
             metrics.widthPixels = 1536; // 512
         }
         metrics.scaledDensity = 1.5f;
