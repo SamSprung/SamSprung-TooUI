@@ -268,7 +268,7 @@ class SamSprungPanels : AppCompatActivity() {
                         appWidgetHost!!.deleteAppWidgetId(widget.appWidgetId)
                     }
                     WidgetModel.deleteItemFromDatabase(
-                        widgetContext, widget
+                        widgetContext!!, widget
                     )
                     workspace.removeView(layout)
                     snapScroller.removeFeatureItem(layout)
@@ -316,7 +316,7 @@ class SamSprungPanels : AppCompatActivity() {
 
         Executors.newSingleThreadExecutor().execute {
             WidgetModel.addItemToDatabase(
-                widgetContext, launcherInfo,
+                widgetContext!!, launcherInfo,
                 Favorites.CONTAINER_DESKTOP,
                 spans[0],  spans[1], false
             )
