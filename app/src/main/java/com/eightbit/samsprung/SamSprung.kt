@@ -71,7 +71,7 @@ class SamSprung : Application() {
     var isKeyguardLocked: Boolean = true
 
     private var mContext: SoftReference<Context>? = null
-    fun getCoverContext(): Context? {
+    fun getScaledContext(): Context? {
         if (null != mContext && null != mContext!!.get()) {
             return ScaledContext.wrap(mContext!!.get())
         }

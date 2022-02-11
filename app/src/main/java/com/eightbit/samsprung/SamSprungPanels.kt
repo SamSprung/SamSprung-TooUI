@@ -71,7 +71,6 @@ import android.Manifest
 import android.annotation.SuppressLint
 import android.app.ActivityOptions
 import android.app.WallpaperManager
-import android.appwidget.AppWidgetHostView
 import android.appwidget.AppWidgetManager
 import android.appwidget.AppWidgetProviderInfo
 import android.content.*
@@ -98,9 +97,11 @@ import androidx.core.view.get
 import com.eightbit.content.ScaledContext
 import com.eightbit.samsprung.panels.*
 import com.eightbit.samsprung.panels.WidgetSettings.Favorites
+import com.eightbit.view.OnSwipeTouchListener
 import com.eightbit.widget.SnapHorizontalScrollView
 import com.eightbitlab.blurview.BlurView
 import com.eightbitlab.blurview.RenderScriptBlur
+import com.google.android.material.bottomsheet.BottomSheetBehavior
 import java.lang.Integer.max
 import java.lang.ref.SoftReference
 import java.util.*
@@ -162,57 +163,74 @@ class SamSprungPanels : AppCompatActivity() {
             .setHasFixedTransformationMatrix(true)
             .setBlurAlgorithm(RenderScriptBlur(this))
 
-        snapScroller = findViewById(R.id.snap_scroller)
-        workspace = findViewById(R.id.workspace)
-        val menuHandle = findViewById<AppCompatImageView>(R.id.menu_zone)
-        menuHandle.setOnClickListener {
-            if (null == widgetDialog || !widgetDialog!!.isShowing) {
-                tactileFeedback()
-                showAddDialog()
-            }
-        }
-        menuHandle.setOnLongClickListener {
-            tactileFeedback()
-            finish()
-            startForegroundService(
-                Intent(
-                    applicationContext,
-                    OnBroadcastService::class.java
-                ).setAction(SamSprung.launcher)
-            )
-            return@setOnLongClickListener true
-        }
+        val menuBack = findViewById<AppCompatImageView>(R.id.button_back)
+        val menuDelete = findViewById<AppCompatImageView>(R.id.button_delete)
+        val menuWidget = findViewById<AppCompatImageView>(R.id.button_widget)
 
-        val deleteHandle = findViewById<AppCompatImageView>(R.id.delete_zone)
-        deleteHandle.setOnClickListener {
-            val layout = getVisibleItem(workspace)
-            if (null != layout) {
-                val widget = layout[0].tag
-                if (widget is CoverWidgetInfo) {
-                    tactileFeedback()
-                    model.removeDesktopAppWidget(widget)
-                    if (null != appWidgetHost) {
-                        appWidgetHost!!.deleteAppWidgetId(widget.appWidgetId)
+        val bottomSheetBehavior: BottomSheetBehavior<View> =
+            BottomSheetBehavior.from(findViewById(R.id.bottom_sheet))
+        bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
+        bottomSheetBehavior.addBottomSheetCallback(object : BottomSheetBehavior.BottomSheetCallback() {
+            override fun onStateChanged(bottomSheet: View, newState: Int) {
+                if (newState == BottomSheetBehavior.STATE_EXPANDED) {
+                    menuBack.setOnClickListener {
+                        tactileFeedback()
+                        finish()
+                        startForegroundService(
+                            Intent(
+                                applicationContext,
+                                OnBroadcastService::class.java
+                            ).setAction(SamSprung.launcher)
+                        )
                     }
-                    WidgetModel.deleteItemFromDatabase(
-                        widgetContext, widget
-                    )
-                    workspace.removeView(layout)
-                    snapScroller.removeFeatureItem(layout)
+                    menuDelete.setOnClickListener {
+                        bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
+                        val layout = getVisibleItem(workspace)
+                        if (null != layout) {
+                            val widget = layout[0].tag
+                            if (widget is CoverWidgetInfo) {
+                                tactileFeedback()
+                                model.removeDesktopAppWidget(widget)
+                                if (null != appWidgetHost) {
+                                    appWidgetHost!!.deleteAppWidgetId(widget.appWidgetId)
+                                }
+                                WidgetModel.deleteItemFromDatabase(
+                                    widgetContext, widget
+                                )
+                                workspace.removeView(layout)
+                                snapScroller.removeFeatureItem(layout)
+                            }
+                        }
+                    }
+                    menuWidget.setOnClickListener {
+                        bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
+                        if (null == widgetDialog || !widgetDialog!!.isShowing) {
+                            tactileFeedback()
+                            showAddDialog()
+                        }
+                    }
+                } else if (newState == BottomSheetBehavior.STATE_COLLAPSED) {
+
                 }
             }
-        }
-        deleteHandle.setOnLongClickListener {
-            tactileFeedback()
-            finish()
-            startForegroundService(
-                Intent(
-                    applicationContext,
-                    OnBroadcastService::class.java
-                ).setAction(SamSprung.services)
-            )
-            return@setOnLongClickListener true
-        }
+
+            override fun onSlide(bottomSheet: View, slideOffset: Float) { }
+        })
+
+        findViewById<View>(R.id.bottom_sheet)!!.setOnTouchListener(
+            object: OnSwipeTouchListener(this@SamSprungPanels) {
+                override fun onSwipeTop() : Boolean {
+                    bottomSheetBehavior.state = BottomSheetBehavior.STATE_EXPANDED
+                    return true
+                }
+                override fun onSwipeBottom() : Boolean {
+                    bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
+                    return true
+                }
+            })
+
+        snapScroller = findViewById(R.id.snap_scroller)
+        workspace = findViewById(R.id.workspace)
 
         contentResolver.registerContentObserver(Favorites.CONTENT_URI, true, mObserver)
         startLoaders()

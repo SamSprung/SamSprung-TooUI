@@ -1,6 +1,8 @@
 package com.eightbit.samsprung;
 
+import android.content.Context;
 import android.content.Intent;
+import android.hardware.display.DisplayManager;
 import android.inputmethodservice.InputMethodService;
 import android.inputmethodservice.Keyboard;
 import android.inputmethodservice.KeyboardView;
@@ -9,9 +11,12 @@ import android.speech.SpeechRecognizer;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.view.animation.Animation;
 import android.view.animation.TranslateAnimation;
 import android.view.inputmethod.InputConnection;
+
+import androidx.appcompat.view.ContextThemeWrapper;
 
 import com.eightbit.content.ScaledContext;
 
@@ -24,7 +29,7 @@ public class SamSprungInput extends InputMethodService
     private static InputMethodListener listener;
     private static SoftReference<ViewGroup> parent;
 
-    private SoftReference<KeyboardView> mKeyboardView;
+    private KeyboardView mKeyboardView;
     private SpeechRecognizer voice;
     private Keyboard mKeyPad;
     private Keyboard mKeyboard;
@@ -44,33 +49,32 @@ public class SamSprungInput extends InputMethodService
 
     private void animateKeyboardShow() {
         TranslateAnimation animate = new TranslateAnimation(
-                0, 0f, mKeyboardView.get().getHeight() + 10, 0f
+                0f, 0f, mKeyboardView.getHeight(), 0f
         );
-        animate.setDuration(250);
-        animate.setFillAfter(false);
+        animate.setDuration(100);
+        animate.setFillAfter(true);
         animate.setAnimationListener(new Animation.AnimationListener() {
             @Override
             public void onAnimationStart(Animation animation) { }
 
             @Override
             public void onAnimationEnd(Animation animation) {
-                mKeyboardView.get().setAnimation(null);
-                mKeyboardView.get().setOnKeyboardActionListener(SamSprungInput.this);
+                animation.setAnimationListener(null);
                 swapKeyboardLayout(kbIndex);
             }
 
             @Override
             public void onAnimationRepeat(Animation animation) { }
         });
-        parent.get().addView(mKeyboardView.get(), 0);
-        mKeyboardView.get().startAnimation(animate);
+        parent.get().addView(mKeyboardView, 0);
+        mKeyboardView.startAnimation(animate);
     }
 
     private void animateKeyboardHide() {
         TranslateAnimation animate = new TranslateAnimation(
-                0, 0f, 0, mKeyboardView.get().getHeight()
+                0f, 0f, 0f, mKeyboardView.getHeight()
         );
-        animate.setDuration(250);
+        animate.setDuration(100);
         animate.setFillAfter(false);
         animate.setAnimationListener(new Animation.AnimationListener() {
             @Override
@@ -78,16 +82,16 @@ public class SamSprungInput extends InputMethodService
 
             @Override
             public void onAnimationEnd(Animation animation) {
-                mKeyboardView.get().setAnimation(null);
-                parent.get().removeView(mKeyboardView.get());
+                animation.setAnimationListener(null);
+                parent.get().removeView(mKeyboardView);
                 if (null != listener)
-                    listener.onKeyboardHidden();
+                    listener.onKeyboardHidden(SamSprungInput.this);
             }
 
             @Override
             public void onAnimationRepeat(Animation animation) { }
         });
-        mKeyboardView.get().startAnimation(animate);
+        mKeyboardView.startAnimation(animate);
     }
 
     private void swapKeyboardLayout(int newIndex) {
@@ -95,24 +99,24 @@ public class SamSprungInput extends InputMethodService
         switch (newIndex) {
             case 0:
                 kbIndex = 0;
-                mKeyboardView.get().setKeyboard(mKeyPad);
+                mKeyboardView.setKeyboard(mKeyPad);
                 break;
             case 1:
                 kbIndex = 1;
-                mKeyboardView.get().setKeyboard(mKeyboard);
+                mKeyboardView.setKeyboard(mKeyboard);
                 break;
             case 2:
                 kbIndex = 2;
-                mKeyboardView.get().setKeyboard(mNumPad);
+                mKeyboardView.setKeyboard(mNumPad);
                 break;
             default:
                 if (newIndex > 2) {
                     kbIndex = 0;
-                    mKeyboardView.get().setKeyboard(mKeyPad);
+                    mKeyboardView.setKeyboard(mKeyPad);
                 }
                 if (newIndex < 0) {
                     kbIndex = 2;
-                    mKeyboardView.get().setKeyboard(mNumPad);
+                    mKeyboardView.setKeyboard(mNumPad);
                 }
                 break;
         }
@@ -137,6 +141,21 @@ public class SamSprungInput extends InputMethodService
         return intent;
     }
 
+    private Context getDisplayContext() {
+        Context displayContext = createDisplayContext(((DisplayManager)
+                getSystemService(Context.DISPLAY_SERVICE)).getDisplay(1));
+        WindowManager wm = (WindowManager) displayContext.getSystemService(WINDOW_SERVICE);
+        return new ContextThemeWrapper(displayContext, R.style.Theme_SecondScreen) {
+            @Override
+            public Object getSystemService(String name) {
+                if (WINDOW_SERVICE.equals(name))
+                    return wm;
+                else
+                    return super.getSystemService(name);
+            }
+        };
+    }
+
     @Override
     public void onInitializeInterface() {
         mKeyPad = new Keyboard(ScaledContext.cover(this), R.xml.keyboard_predictive);
@@ -147,11 +166,12 @@ public class SamSprungInput extends InputMethodService
 
     @Override
     public boolean onShowInputRequested(int flags, boolean configChange) {
-        if (null != listener) mKeyboardView =
-                new SoftReference<>(listener.onInputRequested(this));
+        if (null != listener) mKeyboardView = listener.onInputRequested(this);
+        mKeyboardView.setPreviewEnabled(false);
+        mKeyboardView.setOnKeyboardActionListener(this);
         if (null != mKeyboardView) {
-            if (null != mKeyboardView.get().getParent())
-                ((ViewGroup) mKeyboardView.get().getParent()).removeView(mKeyboardView.get());
+            if (null != mKeyboardView.getParent())
+                ((ViewGroup) mKeyboardView.getParent()).removeView(mKeyboardView);
             if (null != parent) {
                 animateKeyboardShow();
             }
@@ -189,7 +209,7 @@ public class SamSprungInput extends InputMethodService
             case Keyboard.KEYCODE_SHIFT:
                 caps = !caps;
                 mKeyboard.setShifted(caps);
-                mKeyboardView.get().invalidateAllKeys();
+                mKeyboardView.invalidateAllKeys();
                 break;
             case Keyboard.KEYCODE_DONE:
                 ic.sendKeyEvent(new KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_ENTER));
@@ -227,6 +247,6 @@ public class SamSprungInput extends InputMethodService
 
     interface InputMethodListener {
         KeyboardView onInputRequested(SamSprungInput instance);
-        void onKeyboardHidden();
+        void onKeyboardHidden(SamSprungInput instance);
     }
 }

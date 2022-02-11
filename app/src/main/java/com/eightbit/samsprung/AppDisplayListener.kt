@@ -127,7 +127,7 @@ class AppDisplayListener : Service() {
 
         showForegroundNotification(startId)
 
-        val displayContext = (application as SamSprung).getCoverContext()!!
+        val displayContext = (application as SamSprung).getScaledContext()!!
         floatView = LayoutInflater.from(displayContext).inflate(R.layout.navigation_menu, null)
         val params = WindowManager.LayoutParams(
             WindowManager.LayoutParams.MATCH_PARENT,
@@ -166,16 +166,15 @@ class AppDisplayListener : Service() {
             mDisplayListener, Handler(Looper.getMainLooper())
         )
 
-        val keyboardView = getInputMethod()
-
+        AccessibilityObserver.getInstance()?.enableKeyboard(this@AppDisplayListener)
+        val mKeyboardView = LayoutInflater.from(this@AppDisplayListener)
+            .inflate(R.layout.keyboard_layout, null) as KeyboardView
         @Suppress("DEPRECATION")
         SamSprungInput.setInputListener(object : SamSprungInput.InputMethodListener {
-            override fun onInputRequested(instance: SamSprungInput) : KeyboardView? {
-                if (hasAccessibility())
-                    return keyboardView
-                return null
+            override fun onInputRequested(instance: SamSprungInput): KeyboardView {
+                return mKeyboardView
             }
-            override fun onKeyboardHidden() { }
+            override fun onKeyboardHidden(instance: SamSprungInput) { }
         }, floatView.findViewById(R.id.coordinator))
 
         val menu = floatView.findViewById<LinearLayout>(R.id.button_layout)
@@ -260,16 +259,6 @@ class AppDisplayListener : Service() {
         (displayContext.getSystemService(WINDOW_SERVICE)
                 as WindowManager).addView(floatView, params)
         return START_NOT_STICKY
-    }
-
-    @SuppressLint("InflateParams")
-    @Suppress("DEPRECATION")
-    private fun getInputMethod(): KeyboardView {
-        val mKeyboardView = LayoutInflater.from(this@AppDisplayListener)
-            .inflate(R.layout.keyboard_view, null) as KeyboardView
-        mKeyboardView.isPreviewEnabled = false
-        AccessibilityObserver.getInstance()?.enableKeyboard(this@AppDisplayListener)
-        return mKeyboardView
     }
 
     private fun restoreActivityDisplay(
@@ -376,7 +365,7 @@ class AppDisplayListener : Service() {
             (getSystemService(Context.DISPLAY_SERVICE) as DisplayManager)
                 .unregisterDisplayListener(mDisplayListener)
         }
-        val windowService = (application as SamSprung).getCoverContext()?.getSystemService(
+        val windowService = (application as SamSprung).getScaledContext()?.getSystemService(
             Context.WINDOW_SERVICE) as WindowManager
         if (this::floatView.isInitialized && floatView.isAttachedToWindow)
             windowService.removeView(floatView)

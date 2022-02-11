@@ -1,4 +1,9 @@
-package com.eightbit.view;
+package com.eightbit.view
+
+import android.content.Context
+import android.util.AttributeSet
+import android.widget.LinearLayout
+import com.eightbit.view.AnimatedLinearLayout
 
 /* ====================================================================
  * Copyright (c) 2012-2022 AbandonedCart.  All rights reserved.
@@ -51,47 +56,33 @@ package com.eightbit.view;
  * subject to to the terms and conditions of the Apache License, Version 2.0.
  */
 
-import android.content.Context;
-import android.util.AttributeSet;
-import android.widget.LinearLayout;
+class AnimatedLinearLayout : LinearLayout {
+    constructor(context: Context?) : super(context) {}
+    constructor(context: Context?, attrs: AttributeSet?) : super(context, attrs) {}
+    constructor(context: Context?, attrs: AttributeSet?, defStyle: Int) : super(
+        context, attrs, defStyle) { }
 
-public final class AnimatedLinearLayout extends LinearLayout {
-    public AnimatedLinearLayout(Context context) {
-        super(context);
+    interface AnimationListener {
+        fun onAnimationStart(layout: AnimatedLinearLayout)
+        fun onAnimationEnd(layout: AnimatedLinearLayout)
     }
 
-    public AnimatedLinearLayout(Context context, AttributeSet attrs) {
-        super(context, attrs);
+    private var mAnimationListener: AnimationListener? = null
+    fun setAnimationListener(listener: AnimationListener?) {
+        mAnimationListener = listener
     }
 
-    public AnimatedLinearLayout(Context context, AttributeSet attrs, int defStyle) {
-        super(context, attrs, defStyle);
-    }
-
-    public interface AnimationListener {
-        public void onAnimationStart(AnimatedLinearLayout layout);
-        public void onAnimationEnd(AnimatedLinearLayout layout);
-    }
-
-    private AnimationListener mAnimationListener;
-
-    public void setAnimationListener(final AnimationListener listener) {
-        mAnimationListener = listener;
-    }
-
-    @Override
-    protected void onAnimationStart() {
-        super.onAnimationStart();
-        if (mAnimationListener != null) {
-            mAnimationListener.onAnimationStart(this);
+    override fun onAnimationStart() {
+        super.onAnimationStart()
+        if (null != mAnimationListener) {
+            mAnimationListener!!.onAnimationStart(this)
         }
     }
 
-    @Override
-    protected void onAnimationEnd() {
-        super.onAnimationEnd();
-        if (mAnimationListener != null) {
-            mAnimationListener.onAnimationEnd(this);
+    override fun onAnimationEnd() {
+        super.onAnimationEnd()
+        if (null != mAnimationListener) {
+            mAnimationListener!!.onAnimationEnd(this)
         }
     }
 }

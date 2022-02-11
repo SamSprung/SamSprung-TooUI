@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:launcher="http://schemas.android.com/apk/res-auto"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/coordinator"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -10,52 +10,88 @@
         android:id="@+id/blurContainer"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        launcher:blurOverlayColor="@color/bottomSheetTint">
+        app:blurOverlayColor="@color/bottomSheetTint">
 
-            <com.eightbit.widget.SnapHorizontalScrollView
-                android:id="@+id/snap_scroller"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:overScrollMode="never">
-                <LinearLayout
-                    android:id="@+id/workspace"
-                    android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
-                    android:orientation="horizontal">
-                </LinearLayout>
-            </com.eightbit.widget.SnapHorizontalScrollView>
-
+        <com.eightbit.widget.SnapHorizontalScrollView
+            android:id="@+id/snap_scroller"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:overScrollMode="never">
             <LinearLayout
-                android:layout_width="30dip"
+                android:id="@+id/workspace"
+                android:layout_width="wrap_content"
                 android:layout_height="match_parent"
-                android:layout_gravity="end"
-                android:layout_marginTop="10dip"
-                android:layout_marginBottom="10dip"
-                android:orientation="vertical"
-                android:alpha=".6">
-
-            <androidx.appcompat.widget.AppCompatImageView
-                android:id="@+id/menu_zone"
-                android:layout_width="30dip"
-                android:layout_height="wrap_content"
-                android:scaleType="center"
-                android:src="@drawable/ic_baseline_widgets_24"
-                android:background="@drawable/delete_zone_selector"
-                android:layout_gravity="end|top"
-                android:layout_weight="1" />
-
-            <androidx.appcompat.widget.AppCompatImageView
-                android:id="@+id/delete_zone"
-                android:layout_width="30dip"
-                android:layout_height="wrap_content"
-                android:scaleType="center"
-                android:src="@drawable/ic_baseline_delete_forever_24"
-                android:background="@drawable/delete_zone_selector"
-                android:layout_gravity="end|bottom"
-                android:layout_weight="1" />
-
+                android:orientation="horizontal">
             </LinearLayout>
+        </com.eightbit.widget.SnapHorizontalScrollView>
 
     </com.eightbitlab.blurview.BlurView>
+
+    <LinearLayout
+        android:id="@+id/bottom_sheet"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@android:color/transparent"
+        android:orientation="vertical"
+        app:behavior_peekHeight="8dp"
+        app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior">
+
+    <LinearLayout
+            android:id="@+id/fake_overlay"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="bottom|center_horizontal"
+            android:orientation="vertical">
+
+            <View
+                android:layout_width="wrap_content"
+                android:layout_height="6dp"/>
+            <View
+                android:id="@+id/bottom_handle"
+                android:layout_width="wrap_content"
+                android:layout_height="2dp"
+                android:background="@color/primary_dark"
+                android:visibility="invisible"/>
+
+            <View
+                android:layout_width="wrap_content"
+                android:layout_height="8dp" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/icons_layout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@color/bottomSheetTint"
+            android:paddingTop="5dp"
+            android:paddingBottom="5dp"
+            android:gravity="center"
+            android:orientation="horizontal">
+
+            <androidx.appcompat.widget.AppCompatImageView
+                android:id="@+id/button_back"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:srcCompat="@drawable/ic_baseline_samsprung_24"
+                android:layout_weight="1"
+                android:contentDescription="@string/description_icon"/>
+
+            <androidx.appcompat.widget.AppCompatImageView
+                android:id="@+id/button_delete"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:srcCompat="@drawable/ic_baseline_delete_forever_24"
+                android:layout_weight="1"
+                android:contentDescription="@string/description_icon"/>
+
+            <androidx.appcompat.widget.AppCompatImageView
+                android:id="@+id/button_widget"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:srcCompat="@drawable/ic_baseline_widgets_24"
+                android:layout_weight="1"
+                android:contentDescription="@string/description_icon"/>
+        </LinearLayout>
+    </LinearLayout>
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

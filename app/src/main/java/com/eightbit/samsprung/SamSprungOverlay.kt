@@ -531,17 +531,15 @@ class SamSprungOverlay : AppCompatActivity(),
         })
         searchView.visibility = View.GONE
 
-        val keyboardView = getInputMethod()
-
+        AccessibilityObserver.getInstance()?.enableKeyboard(applicationContext)
+        val mKeyboardView = layoutInflater
+            .inflate(R.layout.keyboard_layout, null) as KeyboardView
         @Suppress("DEPRECATION")
         SamSprungInput.setInputListener(object : SamSprungInput.InputMethodListener {
-            override fun onInputRequested(instance: SamSprungInput): KeyboardView? {
-                if (hasAccessibility()) {
-                    return keyboardView
-                }
-                return null
+            override fun onInputRequested(instance: SamSprungInput): KeyboardView {
+                return mKeyboardView
             }
-            override fun onKeyboardHidden() {
+            override fun onKeyboardHidden(instance: SamSprungInput) {
                 if (searchView.isVisible)
                     searchView.visibility = View.GONE
             }
@@ -751,14 +749,14 @@ class SamSprungOverlay : AppCompatActivity(),
         extras.putString("launchPackage", appInfo.activityInfo.packageName)
         extras.putString("launchActivity", appInfo.activityInfo.name)
 
-        val orientationChanger = LinearLayout((application as SamSprung).getCoverContext())
+        val orientationChanger = LinearLayout((application as SamSprung).getScaledContext())
         val orientationLayout = WindowManager.LayoutParams(
             WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY,
             WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL,
             PixelFormat.TRANSPARENT
         )
         orientationLayout.screenOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
-        val windowManager = (application as SamSprung).getCoverContext()?.getSystemService(
+        val windowManager = (application as SamSprung).getScaledContext()?.getSystemService(
             Context.WINDOW_SERVICE) as WindowManager
         windowManager.addView(orientationChanger, orientationLayout)
         orientationChanger.visibility = View.VISIBLE
@@ -770,7 +768,7 @@ class SamSprungOverlay : AppCompatActivity(),
                 startForegroundService(Intent(this,
                     AppDisplayListener::class.java).putExtras(extras))
             }
-        }, 100)
+        }, 50)
     }
 
     private fun processIntentSender(intentSender: IntentSender) {
@@ -914,15 +912,6 @@ class SamSprungOverlay : AppCompatActivity(),
             0, LinearLayout.LayoutParams.WRAP_CONTENT, 1.0f
         ))
         actionsPanel.visibility = View.VISIBLE
-    }
-
-    @SuppressLint("InflateParams")
-    @Suppress("DEPRECATION")
-    private fun getInputMethod(): KeyboardView {
-        val mKeyboardView = layoutInflater.inflate(R.layout.keyboard_view, null) as KeyboardView
-        mKeyboardView.isPreviewEnabled = false
-        AccessibilityObserver.getInstance()?.enableKeyboard(applicationContext)
-        return mKeyboardView
     }
 
     private fun getColumnCount(): Int {

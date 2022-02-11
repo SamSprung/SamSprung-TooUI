@@ -7,7 +7,6 @@
     android:layout_height="wrap_content"
     android:orientation="horizontal"
     android:layout_marginStart="16dp"
-    android:layout_marginEnd="8dp"
     android:layout_gravity="center_vertical">
 
     <TextView
@@ -29,7 +28,6 @@
         app:contentInsetStart="2dp"
         android:layout_marginTop="-4dp"
         android:layout_marginBottom="-2dp"
-        android:layout_marginEnd="-4dp"
         android:gravity="end"
         android:layout_gravity="center_vertical" />
 </LinearLayout>
