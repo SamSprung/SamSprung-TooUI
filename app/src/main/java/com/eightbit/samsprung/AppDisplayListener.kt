@@ -101,6 +101,7 @@ class AppDisplayListener : Service() {
         @Suppress("DEPRECATION")
         mKeyguardLock = (getSystemService(Context.KEYGUARD_SERVICE)
                 as KeyguardManager).newKeyguardLock("cover_lock")
+        @Suppress("DEPRECATION") mKeyguardLock.disableKeyguard()
 
         if (intentSender) {
             componentName = packageManager.getLaunchIntentForPackage(launchPackage!!)?.component
@@ -116,6 +117,8 @@ class AppDisplayListener : Service() {
                     onDismiss()
                     stopForeground(true)
                     stopSelf()
+                    if (!isServiceRunning(applicationContext, OnBroadcastService::class.java))
+                        startForegroundService(Intent(context, OnBroadcastService::class.java))
                 }
             }
         }
@@ -149,12 +152,6 @@ class AppDisplayListener : Service() {
                     onDismiss()
                     stopForeground(true)
                     stopSelf()
-                } else {
-                    if ((application as SamSprung).isKeyguardLocked)
-                        @Suppress("DEPRECATION") mKeyguardLock.disableKeyguard()
-                    if (this@AppDisplayListener::floatView.isInitialized && !floatView.isShown)
-                        (displayContext.getSystemService(WINDOW_SERVICE)
-                                as WindowManager).addView(floatView, params)
                 }
             }
 
@@ -361,6 +358,17 @@ class AppDisplayListener : Service() {
         )
         return serviceString != null && serviceString.contains(packageName
                 + File.separator + AccessibilityObserver::class.java.name)
+    }
+
+    @Suppress("DEPRECATION")
+    private fun isServiceRunning(context: Context, serviceClass: Class<*>): Boolean {
+        for (service in (context.getSystemService(ACTIVITY_SERVICE) as ActivityManager)
+            .getRunningServices(Int.MAX_VALUE)) {
+            if (serviceClass.name == service.service.className) {
+                return true
+            }
+        }
+        return false
     }
 
     override fun onConfigurationChanged(newConfig: Configuration) {
