@@ -62,6 +62,7 @@ import android.content.pm.ResolveInfo
 import android.net.Uri
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import com.eightbit.samsprung.BuildConfig
 import com.eightbit.samsprung.R
 import com.eightbit.samsprung.SamSprung
 import java.util.*
@@ -79,7 +80,8 @@ class PackageRetriever(val context: Context) {
             mainIntent, PackageManager.GET_RESOLVED_FILTER
         )
         packages.removeIf { item ->
-            null != item.filter && item.filter.hasCategory(Intent.CATEGORY_HOME)
+            (null != item.filter && item.filter.hasCategory(Intent.CATEGORY_HOME))
+                    || item.activityInfo.packageName == BuildConfig.APPLICATION_ID + ".ime"
         }
         for (installed in packages) {
             if (installed.resolvePackageName == "apps.ijp.coveros") {
