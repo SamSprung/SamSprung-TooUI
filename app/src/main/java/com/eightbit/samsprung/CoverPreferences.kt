@@ -192,25 +192,6 @@ class CoverPreferences : AppCompatActivity() {
             }
         }
 
-        findViewById<LinearLayout>(R.id.keyboard_layout).setOnClickListener {
-            if (BuildConfig.FLAVOR != "google") {
-                RequestGitHubAPI("https://api.github.com/repos/SamSprung/SamSprung-Keyboard/releases/tags/keyboard")
-                    .setResultListener(object : RequestGitHubAPI.ResultListener {
-                    override fun onResults(result: String) {
-                        val jsonObject = JSONTokener(result).nextValue() as JSONObject
-                        val assets = jsonObject["assets"] as JSONArray
-                        val asset = assets[0] as JSONObject
-                        val downloadUrl = asset["browser_download_url"] as String
-                        startActivity(Intent(this@CoverPreferences,
-                            UpdateShimActivity::class.java).setAction(downloadUrl))
-                    }
-                })
-            } else {
-                startActivity(Intent(Intent.ACTION_VIEW,
-                    Uri.parse("https://github.com/SamSprung/SamSprung-Keyboard/releases")))
-            }
-        }
-
         notifications = findViewById(R.id.notifications_switch)
         notifications.isChecked = hasNotificationListener()
         findViewById<LinearLayout>(R.id.notifications).setOnClickListener {
@@ -251,11 +232,30 @@ class CoverPreferences : AppCompatActivity() {
             ))
         }
 
+        findViewById<LinearLayout>(R.id.keyboard_layout).setOnClickListener {
+            if (BuildConfig.FLAVOR != "google") {
+                RequestGitHubAPI("https://api.github.com/repos/SamSprung/SamSprung-Keyboard/releases/latest")
+                    .setResultListener(object : RequestGitHubAPI.ResultListener {
+                    override fun onResults(result: String) {
+                        val jsonObject = JSONTokener(result).nextValue() as JSONObject
+                        val assets = jsonObject["assets"] as JSONArray
+                        val asset = assets[0] as JSONObject
+                        val downloadUrl = asset["browser_download_url"] as String
+                        startActivity(Intent(this@CoverPreferences,
+                            UpdateShimActivity::class.java).setAction(downloadUrl))
+                    }
+                })
+            } else {
+                startActivity(Intent(Intent.ACTION_VIEW,
+                    Uri.parse("https://github.com/SamSprung/SamSprung-Keyboard/releases")))
+            }
+        }
+
         val updates = findViewById<SwitchCompat>(R.id.updates_switch)
         updates.isChecked = prefs.getBoolean(SamSprung.prefTester, false)
-        updates.setOnCheckedChangeListener { _, _ ->
+        updates.setOnCheckedChangeListener { _, isChecked ->
             with(prefs.edit()) {
-                putBoolean(SamSprung.prefTester, updates.isChecked)
+                putBoolean(SamSprung.prefTester, isChecked)
                 apply()
             }
         }
