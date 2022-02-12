@@ -109,6 +109,10 @@ import java.util.*
 import java.util.concurrent.Executors
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
+import android.content.Intent
+
+
+
 
 class CoverPreferences : AppCompatActivity() {
 
@@ -232,10 +236,10 @@ class CoverPreferences : AppCompatActivity() {
             ))
         }
 
+        val kbRepo = "https://api.github.com/repos/SamSprung/SamSprung-Keyboard/releases/latest"
         findViewById<LinearLayout>(R.id.keyboard_layout).setOnClickListener {
             if (BuildConfig.FLAVOR != "google") {
-                RequestGitHubAPI("https://api.github.com/repos/SamSprung/SamSprung-Keyboard/releases/latest")
-                    .setResultListener(object : RequestGitHubAPI.ResultListener {
+                RequestGitHubAPI(kbRepo).setResultListener(object : RequestGitHubAPI.ResultListener {
                     override fun onResults(result: String) {
                         val jsonObject = JSONTokener(result).nextValue() as JSONObject
                         val assets = jsonObject["assets"] as JSONArray
@@ -246,8 +250,16 @@ class CoverPreferences : AppCompatActivity() {
                     }
                 })
             } else {
-                startActivity(Intent(Intent.ACTION_VIEW,
-                    Uri.parse("https://github.com/SamSprung/SamSprung-Keyboard/releases")))
+                try {
+                    startActivity(Intent(Intent.ACTION_VIEW,
+                            Uri.parse(getString(R.string.keyboard_details, "market://"))
+                    ))
+                } catch (exception: ActivityNotFoundException) {
+                    startActivity(Intent(Intent.ACTION_VIEW,
+                        Uri.parse(getString(R.string.keyboard_details,
+                            "https://play.google.com/store/apps/"))
+                    ))
+                }
             }
         }
 
@@ -991,6 +1003,7 @@ class CoverPreferences : AppCompatActivity() {
                 iapList.add(getIAP(10))
                 iapList.add(getIAP(25))
                 iapList.add(getIAP(50))
+                iapList.add(getIAP(75))
                 iapList.add(getIAP(99))
                 billingClient.querySkuDetailsAsync(
                     SkuDetailsParams.newBuilder()
@@ -1004,6 +1017,7 @@ class CoverPreferences : AppCompatActivity() {
                 subList.add(getSub(10))
                 subList.add(getSub(25))
                 subList.add(getSub(50))
+                subList.add(getSub(75))
                 subList.add(getSub(99))
                 billingClient.querySkuDetailsAsync(
                     SkuDetailsParams.newBuilder()

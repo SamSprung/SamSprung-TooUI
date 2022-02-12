@@ -14,6 +14,8 @@
     <string name="permission_settings">Write Settings</string>
     <string name="permission_usage">Usage Statistics</string>
 
+    <string name="keyboard_details">%1$sdetails?id=com.eightbit.samsprung.ime</string>
+
     <string name="updates_preference">Preview Builds</string>
 
     <string name="aceessibility_details">Accessibility allows SamSprung to simulate the hardware back button.\n\nClick continue to open Settings -> Accessibility.\nClick Installed apps -> SamSprung\n&#160;&#160;&#160;&#160;Toggle switch on -> Allow to enable.</string>

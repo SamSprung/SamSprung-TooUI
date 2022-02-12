@@ -85,7 +85,7 @@ import com.eightbit.samsprung.*
 
 class CheckUpdatesTask(private var activity: AppCompatActivity) {
 
-    private val repository = "https://api.github.com/repos/SamSprung/SamSprung-TooUI/releases/tags/"
+    private val repo = "https://api.github.com/repos/SamSprung/SamSprung-TooUI/releases/tags/"
 
     var listener: CheckUpdateListener? = null
 
@@ -239,7 +239,7 @@ class CheckUpdatesTask(private var activity: AppCompatActivity) {
             }
         } catch (ignored: JSONException) { }
         if (!isPreview && null != lastCommit && null != downloadUrl) {
-            RequestGitHubAPI(repository + "preview").setResultListener(
+            RequestGitHubAPI(repo + "preview").setResultListener(
                 object : RequestGitHubAPI.ResultListener {
                 override fun onResults(result: String) {
                     try {
@@ -259,7 +259,7 @@ class CheckUpdatesTask(private var activity: AppCompatActivity) {
         val prefs = activity.getSharedPreferences(
             SamSprung.prefsValue, AppCompatActivity.MODE_PRIVATE)
         val isPreview = prefs.getBoolean(SamSprung.prefTester, false)
-        RequestGitHubAPI(repository + if (isPreview) "preview" else "sideload")
+        RequestGitHubAPI(repo + if (isPreview) "preview" else "sideload")
             .setResultListener(object : RequestGitHubAPI.ResultListener {
             override fun onResults(result: String) {
                 parseUpdateJSON(result, isPreview)
