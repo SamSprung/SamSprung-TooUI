@@ -44,10 +44,9 @@
  * [including the GNU Public License.] Content not subject to these terms is
  * subject to to the terms and conditions of the Apache License, Version 2.0.
  */
-package com.eightbit.samsprung
+package com.eightbit.samsprung.ime
 
 import android.annotation.SuppressLint
-import com.eightbit.samsprung.VoiceRecognizer.SpeechResultsListener
 import android.speech.RecognitionListener
 import android.os.Bundle
 import android.speech.SpeechRecognizer

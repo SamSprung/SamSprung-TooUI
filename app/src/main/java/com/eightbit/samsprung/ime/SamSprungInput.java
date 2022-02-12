@@ -1,8 +1,6 @@
-package com.eightbit.samsprung;
+package com.eightbit.samsprung.ime;
 
-import android.content.Context;
 import android.content.Intent;
-import android.hardware.display.DisplayManager;
 import android.inputmethodservice.InputMethodService;
 import android.inputmethodservice.Keyboard;
 import android.inputmethodservice.KeyboardView;
@@ -11,14 +9,13 @@ import android.speech.SpeechRecognizer;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.WindowManager;
 import android.view.animation.Animation;
 import android.view.animation.TranslateAnimation;
 import android.view.inputmethod.InputConnection;
 
-import androidx.appcompat.view.ContextThemeWrapper;
-
 import com.eightbit.content.ScaledContext;
+import com.eightbit.samsprung.BuildConfig;
+import com.eightbit.samsprung.R;
 
 import java.lang.ref.SoftReference;
 
@@ -229,7 +226,7 @@ public class SamSprungInput extends InputMethodService
     @Override
     public void swipeUp() { }
 
-    interface InputMethodListener {
+    public interface InputMethodListener {
         KeyboardView onInputRequested(SamSprungInput instance);
         void onKeyboardHidden(SamSprungInput instance);
     }

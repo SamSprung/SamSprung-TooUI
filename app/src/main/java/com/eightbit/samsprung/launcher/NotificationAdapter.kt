@@ -1,4 +1,4 @@
-package com.eightbit.samsprung
+package com.eightbit.samsprung.launcher
 
 /* ====================================================================
  * Copyright (c) 2012-2022 AbandonedCart.  All rights reserved.
@@ -63,6 +63,8 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.AppCompatImageView
 import androidx.core.app.NotificationCompat
 import androidx.recyclerview.widget.RecyclerView
+import com.eightbit.samsprung.NotificationReceiver
+import com.eightbit.samsprung.R
 import java.util.*
 
 class NotificationAdapter(

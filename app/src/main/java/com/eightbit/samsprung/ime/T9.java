@@ -1,6 +1,8 @@
-package com.eightbit.samsprung;
+package com.eightbit.samsprung.ime;
 
 import android.content.Context;
+
+import com.eightbit.samsprung.R;
 
 import java.util.ArrayList;
 import java.util.HashMap;

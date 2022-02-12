@@ -1,4 +1,4 @@
-package com.eightbit.samsprung
+package com.eightbit.samsprung.launcher
 
 /* ====================================================================
  * Copyright (c) 2012-2022 AbandonedCart.  All rights reserved.
@@ -64,7 +64,9 @@ import android.widget.Filter
 import android.widget.TextView
 import androidx.appcompat.widget.AppCompatImageView
 import androidx.recyclerview.widget.RecyclerView
-import com.eightbit.samsprung.DrawerAppAdapater.AppViewHolder
+import com.eightbit.samsprung.R
+import com.eightbit.samsprung.SamSprung
+import com.eightbit.samsprung.launcher.DrawerAppAdapater.AppViewHolder
 import java.util.concurrent.Executors
 
 class DrawerAppAdapater(

@@ -1,4 +1,4 @@
-package com.eightbit.samsprung
+package com.eightbit.pm
 
 
 /* ====================================================================
@@ -62,6 +62,8 @@ import android.content.pm.ResolveInfo
 import android.net.Uri
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import com.eightbit.samsprung.R
+import com.eightbit.samsprung.SamSprung
 import java.util.*
 
 class PackageRetriever(val context: Context) {

@@ -1,4 +1,4 @@
-package com.eightbit.samsprung
+package com.eightbit.samsprung.update
 
 /* ====================================================================
  * Copyright (c) 2012-2022 AbandonedCart.  All rights reserved.
@@ -80,6 +80,7 @@ import java.util.*
 import java.util.concurrent.Executors
 import android.content.ContentResolver
 import android.media.AudioAttributes
+import com.eightbit.samsprung.*
 
 
 class CheckUpdatesTask(private var activity: AppCompatActivity) {
@@ -176,7 +177,8 @@ class CheckUpdatesTask(private var activity: AppCompatActivity) {
                 PendingIntent.FLAG_ONE_SHOT or PendingIntent.FLAG_MUTABLE
             else PendingIntent.FLAG_ONE_SHOT)
         val iconNotification = BitmapFactory.decodeResource(
-            activity.resources, R.drawable.ic_baseline_samsprung_24)
+            activity.resources, R.drawable.ic_baseline_samsprung_24
+        )
         if (null == mNotificationManager) {
             mNotificationManager = activity.getSystemService(
                 Context.NOTIFICATION_SERVICE) as NotificationManager
@@ -188,7 +190,8 @@ class CheckUpdatesTask(private var activity: AppCompatActivity) {
             "Update Notification", NotificationManager.IMPORTANCE_DEFAULT)
         notificationChannel.enableLights(false)
         val soundUri = Uri.parse(ContentResolver.SCHEME_ANDROID_RESOURCE + "://"
-                + activity.packageName + "/" + R.raw.oblige_entry)
+                + activity.packageName + "/" + R.raw.oblige_entry
+        )
         val audioAttributes = AudioAttributes.Builder()
             .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
             .setUsage(AudioAttributes.USAGE_NOTIFICATION).build()

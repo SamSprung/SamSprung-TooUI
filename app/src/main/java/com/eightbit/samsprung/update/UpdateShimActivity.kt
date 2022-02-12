@@ -1,4 +1,4 @@
-package com.eightbit.samsprung
+package com.eightbit.samsprung.update
 
 /* ====================================================================
  * Copyright (c) 2012-2022 AbandonedCart.  All rights reserved.
@@ -51,56 +51,31 @@ package com.eightbit.samsprung
  * subject to to the terms and conditions of the Apache License, Version 2.0.
  */
 
-import java.io.BufferedReader
-import java.io.IOException
-import java.io.InputStreamReader
-import java.net.HttpURLConnection
-import java.net.URL
-import java.nio.charset.StandardCharsets
-import java.util.concurrent.Executors
+import android.content.Intent
+import android.os.Bundle
+import androidx.appcompat.app.AppCompatActivity
+import com.eightbit.content.ScaledContext
+import com.eightbit.samsprung.AccessibilityObserver
+import com.eightbit.samsprung.R
 
-class RequestGitHubAPI(url: String) {
-    private lateinit var listener: ResultListener
 
-    init {
-        Executors.newSingleThreadExecutor().execute {
-            try {
-                var conn = URL(url).openConnection() as HttpURLConnection
-                conn.requestMethod = "GET"
-                conn.useCaches = false
-                conn.defaultUseCaches = false
-                val responseCode = conn.responseCode
-                if (responseCode == HttpURLConnection.HTTP_MOVED_PERM) {
-                    conn.disconnect()
-                    conn = URL(conn.getHeaderField("Location"))
-                        .openConnection() as HttpURLConnection
-                } else if (200 != responseCode) {
-                    conn.disconnect()
-                    return@execute
-                }
-                val `in` = conn.inputStream
-                val streamReader = BufferedReader(
-                    InputStreamReader(`in`, StandardCharsets.UTF_8)
-                )
-                val responseStrBuilder = StringBuilder()
-                var inputStr: String?
-                while (streamReader.readLine().also { inputStr = it } != null
-                ) responseStrBuilder.append(inputStr)
-                listener.onResults(responseStrBuilder.toString())
-                streamReader.close()
-                `in`.close()
-                conn.disconnect()
-            } catch (e: IOException) {
-                e.printStackTrace()
-            }
+class UpdateShimActivity : AppCompatActivity() {
+
+    private var updateCheck : CheckUpdatesTask? = null
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        ScaledContext.screen(this).setTheme(R.style.Theme_SecondScreen)
+        super.onCreate(savedInstanceState)
+        onNewIntent(intent)
+    }
+
+    override fun onNewIntent(intent: Intent?) {
+        super.onNewIntent(intent)
+        if (null != intent?.action) {
+            updateCheck = CheckUpdatesTask(this)
+            AccessibilityObserver.getInstance()?.disableKeyboard(this)
+            updateCheck?.downloadUpdate(intent.action!!)
         }
-    }
-
-    interface ResultListener {
-        fun onResults(result: String)
-    }
-
-    fun setResultListener(listener: ResultListener) {
-        this.listener = listener
+        finish()
     }
 }

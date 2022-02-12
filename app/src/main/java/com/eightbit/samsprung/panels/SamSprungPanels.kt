@@ -1,4 +1,4 @@
-package com.eightbit.samsprung
+package com.eightbit.samsprung.panels
 
 /*
  * Copyright (C) 2008 The Android Open Source Project
@@ -95,6 +95,9 @@ import androidx.core.graphics.drawable.toBitmap
 import androidx.core.view.children
 import androidx.core.view.get
 import com.eightbit.content.ScaledContext
+import com.eightbit.samsprung.OnBroadcastService
+import com.eightbit.samsprung.R
+import com.eightbit.samsprung.SamSprung
 import com.eightbit.samsprung.panels.*
 import com.eightbit.samsprung.panels.WidgetSettings.Favorites
 import com.eightbit.view.OnSwipeTouchListener
@@ -179,7 +182,8 @@ class SamSprungPanels : AppCompatActivity() {
         bottomSheetBehavior.addBottomSheetCallback(object : BottomSheetBehavior.BottomSheetCallback() {
             override fun onStateChanged(bottomSheet: View, newState: Int) {
                 if (newState == BottomSheetBehavior.STATE_EXPANDED) {
-                    val color = prefs.getInt(SamSprung.prefColors,
+                    val color = prefs.getInt(
+                        SamSprung.prefColors,
                         Color.rgb(255, 255, 255))
                     for (i in 0 until icons.childCount) {
                         (icons.getChildAt(i) as AppCompatImageView).setColorFilter(color)
@@ -194,7 +198,8 @@ class SamSprungPanels : AppCompatActivity() {
             override fun onSlide(bottomSheet: View, slideOffset: Float) { }
         })
 
-        val color = prefs.getInt(SamSprung.prefColors,
+        val color = prefs.getInt(
+            SamSprung.prefColors,
             Color.rgb(255, 255, 255))
         for (i in 0 until icons.childCount) {
             (icons.getChildAt(i) as AppCompatImageView).setColorFilter(color)

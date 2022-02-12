@@ -5,6 +5,8 @@
     <color name="primary_dark">#FF10C3CB</color>
     <color name="secondary_dark">#FF1DAEFC</color>
 
+    <color name="appwidget_error_color">#FCCC</color>
+
     <color name="backgroundWhite">#66FFFFFF</color>
     <color name="backgroundBlack">#66000000</color>
     <color name="bottomSheetTint">#A9333333</color>

@@ -1,4 +1,4 @@
-package com.eightbit.samsprung
+package com.eightbit.widget
 
 import android.graphics.Canvas
 import androidx.recyclerview.widget.ItemTouchHelper

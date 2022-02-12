@@ -59,7 +59,6 @@ import android.bluetooth.BluetoothManager
 import android.content.*
 import android.content.ComponentName
 import android.content.pm.*
-import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.PixelFormat
 import android.hardware.camera2.CameraManager
@@ -92,7 +91,13 @@ import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.eightbit.content.ScaledContext
+import com.eightbit.samsprung.ime.SamSprungInput
+import com.eightbit.samsprung.launcher.DrawerAppAdapater
+import com.eightbit.samsprung.launcher.NotificationAdapter
+import com.eightbit.pm.PackageRetriever
+import com.eightbit.samsprung.panels.SamSprungPanels
 import com.eightbit.view.OnSwipeTouchListener
+import com.eightbit.widget.RecyclerViewFondler
 import com.eightbitlab.blurview.BlurView
 import com.eightbitlab.blurview.RenderScriptBlur
 import com.google.android.material.bottomsheet.BottomSheetBehavior
