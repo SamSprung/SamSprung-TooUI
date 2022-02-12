@@ -81,7 +81,7 @@ class PackageRetriever(val context: Context) {
         )
         packages.removeIf { item ->
             (null != item.filter && item.filter.hasCategory(Intent.CATEGORY_HOME))
-                    || item.activityInfo.packageName == BuildConfig.APPLICATION_ID + ".ime"
+                    || item.activityInfo.packageName.startsWith(BuildConfig.APPLICATION_ID)
         }
         for (installed in packages) {
             if (installed.resolvePackageName == "apps.ijp.coveros") {
