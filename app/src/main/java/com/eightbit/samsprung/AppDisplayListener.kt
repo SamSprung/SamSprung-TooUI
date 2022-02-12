@@ -101,7 +101,8 @@ class AppDisplayListener : Service() {
         @Suppress("DEPRECATION")
         mKeyguardLock = (getSystemService(Context.KEYGUARD_SERVICE)
                 as KeyguardManager).newKeyguardLock("cover_lock")
-        @Suppress("DEPRECATION") mKeyguardLock.disableKeyguard()
+        if ((application as SamSprung).isKeyguardLocked)
+            @Suppress("DEPRECATION") mKeyguardLock.disableKeyguard()
 
         if (intentSender) {
             componentName = packageManager.getLaunchIntentForPackage(launchPackage!!)?.component

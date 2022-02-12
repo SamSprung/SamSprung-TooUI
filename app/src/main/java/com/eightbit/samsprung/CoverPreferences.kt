@@ -797,7 +797,7 @@ class CoverPreferences : AppCompatActivity() {
                 ContextThemeWrapper(this, R.style.DialogTheme_NoActionBar)
             )
             val setupDialog: Dialog = dialog.setView(view).show()
-            view.findViewById<AppCompatButton>(R.id.setup_confirm).setOnClickListener {
+            view.findViewById<AppCompatButton>(R.id.button_wiki).setOnClickListener {
                 startActivity(Intent(Intent.ACTION_VIEW,
                     Uri.parse("https://github.com/SamSprung/SamSprung-TooUI/wiki")))
             }
@@ -806,12 +806,12 @@ class CoverPreferences : AppCompatActivity() {
                     putBoolean(SamSprung.prefWarned, true)
                     apply()
                 }
-                verifyCompatibility()
                 setupDialog.dismiss()
             }
-            setupDialog.setOnCancelListener {
+            setupDialog.setOnDismissListener {
                 verifyCompatibility()
             }
+            setupDialog.setCancelable(false)
             setupDialog.window?.setBackgroundDrawableResource(R.drawable.rounded_layout_themed)
             setupDialog.window?.setLayout(
                 ViewGroup.LayoutParams.WRAP_CONTENT,
