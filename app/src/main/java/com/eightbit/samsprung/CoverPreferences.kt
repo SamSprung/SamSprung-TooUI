@@ -90,6 +90,8 @@ import com.eightbit.io.Debug
 import com.eightbit.material.IconifiedSnackbar
 import com.eightbit.pm.PackageRetriever
 import com.eightbit.samsprung.update.CheckUpdatesTask
+import com.eightbit.samsprung.update.RequestGitHubAPI
+import com.eightbit.samsprung.update.UpdateShimActivity
 import com.eightbit.view.AnimatedLinearLayout
 import com.eightbitlab.blurview.BlurView
 import com.eightbitlab.blurview.RenderScriptBlur
@@ -99,6 +101,9 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
+import org.json.JSONArray
+import org.json.JSONObject
+import org.json.JSONTokener
 import java.io.File
 import java.util.*
 import java.util.concurrent.Executors
@@ -188,8 +193,22 @@ class CoverPreferences : AppCompatActivity() {
         }
 
         findViewById<LinearLayout>(R.id.keyboard_layout).setOnClickListener {
-            startActivity(Intent(Intent.ACTION_VIEW,
-                Uri.parse("https://github.com/SamSprung/SamSprung-Keyboard/releases")))
+            if (BuildConfig.FLAVOR != "google") {
+                RequestGitHubAPI("https://api.github.com/repos/SamSprung/SamSprung-Keyboard/releases/tags/keyboard")
+                    .setResultListener(object : RequestGitHubAPI.ResultListener {
+                    override fun onResults(result: String) {
+                        val jsonObject = JSONTokener(result).nextValue() as JSONObject
+                        val assets = jsonObject["assets"] as JSONArray
+                        val asset = assets[0] as JSONObject
+                        val downloadUrl = asset["browser_download_url"] as String
+                        startActivity(Intent(this@CoverPreferences,
+                            UpdateShimActivity::class.java).setAction(downloadUrl))
+                    }
+                })
+            } else {
+                startActivity(Intent(Intent.ACTION_VIEW,
+                    Uri.parse("https://github.com/SamSprung/SamSprung-Keyboard/releases")))
+            }
         }
 
         notifications = findViewById(R.id.notifications_switch)
