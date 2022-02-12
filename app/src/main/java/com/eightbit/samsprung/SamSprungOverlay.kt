@@ -63,7 +63,6 @@ import android.graphics.Color
 import android.graphics.PixelFormat
 import android.hardware.camera2.CameraManager
 import android.hardware.display.DisplayManager
-import android.inputmethodservice.KeyboardView
 import android.media.AudioManager
 import android.net.wifi.WifiManager
 import android.nfc.NfcAdapter
@@ -91,10 +90,9 @@ import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.eightbit.content.ScaledContext
-import com.eightbit.samsprung.ime.SamSprungInput
+import com.eightbit.pm.PackageRetriever
 import com.eightbit.samsprung.launcher.DrawerAppAdapater
 import com.eightbit.samsprung.launcher.NotificationAdapter
-import com.eightbit.pm.PackageRetriever
 import com.eightbit.samsprung.panels.SamSprungPanels
 import com.eightbit.view.OnSwipeTouchListener
 import com.eightbit.widget.RecyclerViewFondler
@@ -342,23 +340,6 @@ class SamSprungOverlay : AppCompatActivity(),
                                 item.icon.setTint(color)
                                 return@setOnMenuItemClickListener true
                             }
-//                            R.id.toggle_rotation -> {
-//                                if (prefs.getInt(application.autoRotate, 1) == 1) {
-//                                    item.setIcon(R.drawable.ic_baseline_screen_lock_rotation_24)
-//                                    with(prefs.edit()) {
-//                                        putInt(application.autoRotate, 0)
-//                                        apply()
-//                                    }
-//                                } else {
-//                                    item.setIcon(R.drawable.ic_baseline_screen_rotation_24)
-//                                    with(prefs.edit()) {
-//                                        putInt(application.autoRotate, 1)
-//                                        apply()
-//                                    }
-//                                }
-//                                item.icon.setTint(color)
-//                                return@setOnMenuItemClickListener true
-//                            }
                             R.id.toggle_torch -> {
                                 if (isTorchEnabled) {
                                     item.setIcon(R.drawable.ic_baseline_flashlight_off_24)
@@ -517,20 +498,6 @@ class SamSprungOverlay : AppCompatActivity(),
         })
         searchView.visibility = View.GONE
 
-        AccessibilityObserver.getInstance()?.enableKeyboard(applicationContext)
-        val mKeyboardView = layoutInflater
-            .inflate(R.layout.keyboard_layout, null) as KeyboardView
-        @Suppress("DEPRECATION")
-        SamSprungInput.setInputListener(object : SamSprungInput.InputMethodListener {
-            override fun onInputRequested(instance: SamSprungInput): KeyboardView {
-                return mKeyboardView
-            }
-            override fun onKeyboardHidden(instance: SamSprungInput) {
-                if (searchView.isVisible)
-                    searchView.visibility = View.GONE
-            }
-        }, findViewById<LinearLayout>(R.id.keyboard_wrapper))
-
         RecyclerViewFondler(launcherView).setSwipeCallback(
             ItemTouchHelper.START or ItemTouchHelper.END,
             object: RecyclerViewFondler.SwipeCallback {
@@ -588,7 +555,9 @@ class SamSprungOverlay : AppCompatActivity(),
     private fun clearSearchOrOpen(searchView: SearchView, anchor: View) {
         if (searchView.query.isNotBlank()) {
             searchView.setQuery("", true)
-        } else if (!searchView.isVisible && hasAccessibility()) {
+            if (searchView.isVisible)
+                searchView.visibility = View.GONE
+        } else if (!searchView.isVisible) {
             searchView.visibility = View.VISIBLE
             animateSearchReveal(searchView, anchor)
         }
@@ -597,6 +566,8 @@ class SamSprungOverlay : AppCompatActivity(),
     private fun clearSearchOrClose(searchView: SearchView) {
         if (searchView.query.isNotBlank()) {
             searchView.setQuery("", true)
+            if (searchView.isVisible)
+                searchView.visibility = View.GONE
         } else {
             onDismiss()
             startActivity(
@@ -678,13 +649,6 @@ class SamSprungOverlay : AppCompatActivity(),
             toolbar.menu.findItem(R.id.toggle_dnd).isVisible = false
         }
 
-//        if (prefs.getInt(application.autoRotate, 1) == 1)
-//            toolbar.menu.findItem(R.id.toggle_rotation)
-//                .setIcon(R.drawable.ic_baseline_screen_rotation_24)
-//        else
-//            toolbar.menu.findItem(R.id.toggle_rotation)
-//                .setIcon(R.drawable.ic_baseline_screen_lock_rotation_24)
-
         if (packageManager.hasSystemFeature(PackageManager.FEATURE_CAMERA_FLASH)) {
             if (isTorchEnabled) {
                 toolbar.menu.findItem(R.id.toggle_torch)
@@ -757,15 +721,11 @@ class SamSprungOverlay : AppCompatActivity(),
                         reply.setOnFocusChangeListener { _, hasFocus ->
                             if (hasFocus) {
                                 toolbar.visibility = View.GONE
-                                SamSprungInput.setParent(actionEntries)
                                 (noticesView.layoutManager as LinearLayoutManager)
                                     .scrollToPositionWithOffset(position,
                                         -(actionButtons.height + reply.height)
                                     )
                             } else {
-                                SamSprungInput.setParent(
-                                    findViewById<LinearLayout>(R.id.keyboard_wrapper)
-                                )
                                 toolbar.visibility = View.VISIBLE
                             }
                         }
@@ -929,7 +889,6 @@ class SamSprungOverlay : AppCompatActivity(),
     }
 
     fun onDismiss() {
-        AccessibilityObserver.getInstance()?.disableKeyboard(this)
         if (null != mDisplayListener) {
             (getSystemService(Context.DISPLAY_SERVICE) as DisplayManager)
                 .unregisterDisplayListener(mDisplayListener)

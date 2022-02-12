@@ -114,7 +114,6 @@ class CoverPreferences : AppCompatActivity() {
     private var hasPremiumSupport = false
     private lateinit var mainSwitch: SwitchCompat
     private lateinit var permissionList: LinearLayout
-    private lateinit var keyboard: LinearLayout
     private lateinit var accessibility: SwitchCompat
     private lateinit var notifications: SwitchCompat
     private lateinit var settings: SwitchCompat
@@ -165,13 +164,6 @@ class CoverPreferences : AppCompatActivity() {
             }
         }
 
-        keyboard = findViewById(R.id.keyboard_layout)
-        keyboard.setOnClickListener {
-            keyboardLauncher.launch(Intent(Settings.ACTION_INPUT_METHOD_SETTINGS))
-        }
-        keyboard.isEnabled = hasAccessibility()
-        keyboard.alpha = if (hasAccessibility()) 1f else 0.5f
-
         accessibility = findViewById(R.id.accessibility_switch)
         accessibility.isChecked = hasAccessibility()
         findViewById<LinearLayout>(R.id.accessibility).setOnClickListener {
@@ -193,6 +185,11 @@ class CoverPreferences : AppCompatActivity() {
                     Settings.ACTION_ACCESSIBILITY_SETTINGS,
                 ))
             }
+        }
+
+        findViewById<LinearLayout>(R.id.keyboard_layout).setOnClickListener {
+            startActivity(Intent(Intent.ACTION_VIEW,
+                Uri.parse("https://github.com/SamSprung/SamSprung-Keyboard/releases")))
         }
 
         notifications = findViewById(R.id.notifications_switch)
@@ -632,11 +629,7 @@ class CoverPreferences : AppCompatActivity() {
         ActivityResultContracts.StartActivityForResult()) {
         if (this::accessibility.isInitialized)
             accessibility.isChecked = hasAccessibility()
-        keyboard.isEnabled = hasAccessibility()
-        keyboard.alpha = if (hasAccessibility()) 1f else 0.5f
     }
-    private val keyboardLauncher = registerForActivityResult(
-        ActivityResultContracts.StartActivityForResult()) { }
 
     private val overlayLauncher = registerForActivityResult(
         ActivityResultContracts.StartActivityForResult()) {

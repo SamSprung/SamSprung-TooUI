@@ -110,7 +110,6 @@ class SamSprung : Application() {
         } else {
             Thread.setDefaultUncaughtExceptionHandler { _: Thread?, error: Throwable ->
                 error.printStackTrace()
-                AccessibilityObserver.getInstance()?.disableKeyboard(this)
                 // Unrecoverable error encountered
                 exitProcess(1)
             }
@@ -135,10 +134,5 @@ class SamSprung : Application() {
     }
     fun getWidgetPreviewCacheDb(): CacheDb? {
         return mWidgetPreviewCacheDb
-    }
-
-    override fun onTerminate() {
-        AccessibilityObserver.getInstance()?.disableKeyboard(this)
-        super.onTerminate()
     }
 }

@@ -53,11 +53,7 @@ package com.eightbit.samsprung
 
 import android.accessibilityservice.AccessibilityService
 import android.accessibilityservice.AccessibilityServiceInfo
-import android.content.ComponentName
-import android.content.Context
-import android.provider.Settings
 import android.view.accessibility.AccessibilityEvent
-import android.view.inputmethod.InputMethodManager
 
 class AccessibilityObserver : AccessibilityService() {
 
@@ -74,44 +70,6 @@ class AccessibilityObserver : AccessibilityService() {
 
     init {
         observerInstance = this
-    }
-
-    private var cachedInputMethod: String? = null
-
-    private fun getDefaultIME(context: Context): String {
-        return Settings.Secure.getString(
-            context.applicationContext.contentResolver,
-            Settings.Secure.DEFAULT_INPUT_METHOD
-        )
-    }
-
-    fun enableKeyboard(context: Context) {
-        if (null == getInstance()) return
-        if (!getDefaultIME(context).startsWith(BuildConfig.APPLICATION_ID, true))
-            cachedInputMethod = getDefaultIME(context)
-        val mInputMethodProperties = (context.getSystemService(INPUT_METHOD_SERVICE)
-                as InputMethodManager).enabledInputMethodList
-        for (i in 0 until mInputMethodProperties.size) {
-            val imi = mInputMethodProperties[i]
-            if (imi.id.startsWith(BuildConfig.APPLICATION_ID, true)) {
-                getInstance()?.softKeyboardController!!.switchToInputMethod(imi.id)
-            }
-        }
-    }
-    fun disableKeyboard(context: Context) {
-        if (null == getInstance() || null == cachedInputMethod) return
-        if (getDefaultIME(context).startsWith(BuildConfig.APPLICATION_ID, true)) {
-            val parameters = cachedInputMethod!!.split('/')
-            val defaultKeyboard = ComponentName(parameters[0], parameters[1])
-            val mInputMethodProperties = (context.getSystemService(INPUT_METHOD_SERVICE)
-                    as InputMethodManager).enabledInputMethodList
-            for (i in 0 until mInputMethodProperties.size) {
-                val imi = mInputMethodProperties[i]
-                if (imi.id.startsWith(defaultKeyboard.packageName, true)) {
-                    getInstance()?.softKeyboardController!!.switchToInputMethod(imi.id)
-                }
-            }
-        }
     }
 
     override fun onServiceConnected() {

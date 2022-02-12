@@ -1,6 +1,4 @@
 <resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="MissingTranslation">
-    <string name="samsprung_ime">SamSprung Keyboard</string>
-
     <string name="setup_notice">This app will NOT appear in the widget list.\n\nEnabling the switch(es) and permission(s) will complete the activation process.\n\nFrom the cover screen, swipe the bar up to reveal the drawer and begin using SamSprung.\n\nThis app is EXPERIMENTAL.\n\nUpdates are posted regularly. Features may be added, removed, or changed at any time for any reason. See the Wiki.\n\nDon\'t pay for cheap imitation.\nWelcome to SamSprung!</string>
 
     <string name="incompatible_notice">Incompatibility Detected!</string>
@@ -18,7 +16,7 @@
 
     <string name="updates_preference">Preview Builds</string>
 
-    <string name="aceessibility_details">Accessibility allows SamSprung to simulate the back button, and set the keyboard.\n\nClick continue to open Settings -> Accessibility.\nClick Installed apps -> SamSprung\n&#160;&#160;&#160;&#160;Toggle switch on -> Allow to enable.</string>
+    <string name="aceessibility_details">Accessibility allows SamSprung to simulate the hardware back button.\n\nClick continue to open Settings -> Accessibility.\nClick Installed apps -> SamSprung\n&#160;&#160;&#160;&#160;Toggle switch on -> Allow to enable.</string>
     <string name="button_confirm">Confirm</string>
     <string name="button_cancel">Cancel</string>
     <string name="button_wiki">Visit Wiki</string>
@@ -58,8 +56,8 @@
 
     <string name="incompatible_device">SamSprung is not intended for use with single screen devices</string>
 
-    <string name="accessibility_service">SamSprung Soft Input</string>
-    <string name="accessibility_details">Enable virtual navigation action and keyboard support.\nWARNING: May reset the default keyboard to Samsung.</string>
+    <string name="accessibility_service">SamSprung Cover Keys</string>
+    <string name="accessibility_details">Enable virtual navigation action and hardware support.</string>
 
     <!-- Error message when user has filled a panel or cancelled configuration -->
     <string name="out_of_space">Cancelled adding widget</string>

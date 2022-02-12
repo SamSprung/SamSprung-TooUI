@@ -33,8 +33,6 @@
     <uses-permission android:name="android.permission.BLUETOOTH_CONNECT"/>
     <uses-permission android:name="android.permission.CAMERA"/>
     <uses-permission android:name="android.permission.FLASHLIGHT"/>
-    <!-- Voice Recognition -->
-    <uses-permission android:name="android.permission.RECORD_AUDIO" />
     <!-- Google Play BS -->
     <permission android:name="intent.redirection.BULLSHIT" />
     <uses-permission android:name="samsprung.permission.WRITE_SETTINGS" />
@@ -135,15 +133,6 @@
             <meta-data
                 android:name="android.accessibilityservice"
                 android:resource="@xml/accessibility_service" />
-        </service>
-        <service android:name=".ime.SamSprungInput"
-            android:exported="false"
-            android:label="@string/app_name"
-            android:permission="android.permission.BIND_INPUT_METHOD">
-            <meta-data android:name="android.view.im" android:resource="@xml/keyboard_method"/>
-            <intent-filter>
-                <action android:name="android.view.InputMethod" />
-            </intent-filter>
         </service>
 
         <meta-data

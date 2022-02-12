@@ -60,7 +60,6 @@ import android.graphics.BitmapFactory
 import android.graphics.Color
 import android.graphics.PixelFormat
 import android.hardware.display.DisplayManager
-import android.inputmethodservice.KeyboardView
 import android.os.*
 import android.provider.Settings
 import android.view.*
@@ -71,7 +70,6 @@ import androidx.appcompat.widget.AppCompatImageView
 import androidx.core.app.NotificationCompat
 import androidx.core.content.ContextCompat
 import androidx.core.view.isVisible
-import com.eightbit.samsprung.ime.SamSprungInput
 import com.eightbit.view.OnSwipeTouchListener
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import java.io.File
@@ -166,17 +164,6 @@ class AppDisplayListener : Service() {
             mDisplayListener, Handler(Looper.getMainLooper())
         )
 
-        AccessibilityObserver.getInstance()?.enableKeyboard(this@AppDisplayListener)
-        val mKeyboardView = LayoutInflater.from(this@AppDisplayListener)
-            .inflate(R.layout.keyboard_layout, null) as KeyboardView
-        @Suppress("DEPRECATION")
-        SamSprungInput.setInputListener(object : SamSprungInput.InputMethodListener {
-            override fun onInputRequested(instance: SamSprungInput): KeyboardView {
-                return mKeyboardView
-            }
-            override fun onKeyboardHidden(instance: SamSprungInput) { }
-        }, floatView.findViewById(R.id.coordinator))
-
         val menu = floatView.findViewById<LinearLayout>(R.id.button_layout)
         val icons = menu.findViewById<LinearLayout>(R.id.icons_layout)
         val menuClose = menu.findViewById<AppCompatImageView>(R.id.retract_drawer)
@@ -209,6 +196,7 @@ class AppDisplayListener : Service() {
             (icons.getChildAt(i) as AppCompatImageView).setColorFilter(color)
         }
         menuClose.setColorFilter(color)
+        if (menu.isVisible) menu.visibility = View.GONE
 
         floatView.findViewById<View>(R.id.bottom_sheet)!!.setOnTouchListener(
             object: OnSwipeTouchListener(this@AppDisplayListener) {
@@ -382,7 +370,6 @@ class AppDisplayListener : Service() {
     }
 
     fun onDismiss() {
-        AccessibilityObserver.getInstance()?.disableKeyboard(this)
         try {
             if (this::offReceiver.isInitialized)
                 unregisterReceiver(offReceiver)

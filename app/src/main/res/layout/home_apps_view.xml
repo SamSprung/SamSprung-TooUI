@@ -28,34 +28,17 @@
                 android:scrollbars="vertical" />
         </FrameLayout>
 
-        <FrameLayout
+        <androidx.appcompat.widget.SearchView
+            android:id="@+id/package_search"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:orientation="vertical"
-            android:fillViewport="true"
+            android:layout_height="26dp"
             android:layout_gravity="bottom"
-            android:gravity="bottom">
-
-            <LinearLayout
-                android:id="@+id/keyboard_wrapper"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:layout_gravity="bottom"
-                android:layout_marginBottom="44dp" />
-
-            <androidx.appcompat.widget.SearchView
-                android:id="@+id/package_search"
-                android:layout_width="match_parent"
-                android:layout_height="26dp"
-                android:layout_gravity="bottom"
-                android:layout_marginBottom="20dp"
-                android:layout_marginStart="-10dp"
-                android:background="@color/bottomSheetTint"
-                android:lineSpacingExtra="0dp"
-                android:lineSpacingMultiplier="0"
-                android:elevation="1dp"/>
-        </FrameLayout>
+            android:gravity="bottom"
+            android:layout_marginBottom="20dp"
+            android:layout_marginStart="-10dp"
+            android:background="@color/bottomSheetTint"
+            android:lineSpacingExtra="0dp"
+            android:lineSpacingMultiplier="0"/>
 
         <LinearLayout
             android:id="@+id/bottom_sheet"
