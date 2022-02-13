@@ -510,17 +510,17 @@ class SamSprungPanels : AppCompatActivity() {
         val previews = view.findViewById<LinearLayout>(R.id.previews_layout)
         dialog.setOnCancelListener {
             for (previewImage in previews.children) {
-                val preview = (previewImage as AppCompatImageView)
-                mWidgetPreviewLoader.recycleBitmap(previewImage.tag, preview.drawable.toBitmap())
-                previews.removeView(preview)
+                mWidgetPreviewLoader.recycleBitmap(previewImage.tag,
+                    (previewImage as AppCompatImageView).drawable.toBitmap())
             }
+            previews.removeAllViewsInLayout()
         }
         dialog.setOnDismissListener {
             for (previewImage in previews.children) {
-                val preview = (previewImage as AppCompatImageView)
-                mWidgetPreviewLoader.recycleBitmap(previewImage.tag, preview.drawable.toBitmap())
-                previews.removeView(preview)
+                mWidgetPreviewLoader.recycleBitmap(previewImage.tag,
+                    (previewImage as AppCompatImageView).drawable.toBitmap())
             }
+            previews.removeAllViewsInLayout()
         }
         widgetDialog = dialog.setView(view).show()
         val infoList: List<AppWidgetProviderInfo> = mAppWidgetManager!!.installedProviders

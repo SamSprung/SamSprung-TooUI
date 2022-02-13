@@ -822,7 +822,7 @@ class SamSprungOverlay : AppCompatActivity(),
         orientationChanger.visibility = View.VISIBLE
         Handler(Looper.getMainLooper()).postDelayed({
             runOnUiThread {
-                windowManager.removeView(orientationChanger)
+                windowManager.removeViewImmediate(orientationChanger)
                 onDismiss()
                 requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
                 startForegroundService(Intent(this,

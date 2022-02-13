@@ -797,8 +797,8 @@ class CoverPreferences : AppCompatActivity() {
                 subscriptions.addView(button)
             }
             dialog.setOnCancelListener {
-                donations.removeAllViews()
-                subscriptions.removeAllViews()
+                donations.removeAllViewsInLayout()
+                subscriptions.removeAllViewsInLayout()
             }
             val donateDialog: Dialog = dialog.setView(view).show()
             donateDialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))

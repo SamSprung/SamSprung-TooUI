@@ -386,10 +386,12 @@ class AppDisplayListener : Service() {
             (getSystemService(Context.DISPLAY_SERVICE) as DisplayManager)
                 .unregisterDisplayListener(mDisplayListener)
         }
-        val windowService = (application as SamSprung).getScaledContext()?.getSystemService(
-            Context.WINDOW_SERVICE) as WindowManager
-        if (this::floatView.isInitialized && floatView.isAttachedToWindow)
-            windowService.removeView(floatView)
+
+        if (this::floatView.isInitialized && floatView.isAttachedToWindow) {
+            val displayContext = (application as SamSprung).getScaledContext()!!
+            (displayContext.getSystemService(WINDOW_SERVICE)
+                    as WindowManager).removeViewImmediate(floatView)
+        }
         if ((application as SamSprung).isKeyguardLocked)
             @Suppress("DEPRECATION") mKeyguardLock.reenableKeyguard()
     }
