@@ -143,7 +143,7 @@ class SnapHorizontalScrollView : HorizontalScrollView {
     }
 
     companion object {
-        private const val SWIPE_THRESHOLD = 10
+        private const val SWIPE_THRESHOLD = 1
         private const val SWIPE_VELOCITY_THRESHOLD = 125
     }
 }

@@ -542,12 +542,6 @@ class SamSprungOverlay : AppCompatActivity(),
         })
         coordinator.visibility = View.GONE
         initializeDrawer(null != intent?.action && SamSprung.launcher == intent.action)
-        if (null != intent?.action && SamSprung.animated == intent.action) {
-            animateBottomSheet(BottomSheetBehavior.STATE_EXPANDED, 400)
-            animateBottomSheet(BottomSheetBehavior.STATE_COLLAPSED, 550)
-            animateBottomSheet(BottomSheetBehavior.STATE_HALF_EXPANDED, 700)
-            animateBottomSheet(BottomSheetBehavior.STATE_COLLAPSED, 900)
-        }
     }
 
     private fun animateSearchReveal(view: View, anchor: View) {
