@@ -6,8 +6,7 @@
     android:layout_width="48dp"
     android:layout_height="48dp"
     android:layout_marginTop="4dp"
-    android:layout_gravity="center"
-    tools:context=".CoverPreferences">
+    android:layout_gravity="center">
 
     <androidx.appcompat.widget.AppCompatImageView
         android:id="@+id/widgetItemImage"

@@ -55,7 +55,7 @@
         <meta-data
             android:name="android.supports_size_changes" android:value="true" />
         <activity
-            android:name=".CoverPreferences"
+            android:name=".settings.CoverPreferences"
             android:launchMode="singleTop"
             android:configChanges="orientation|screenLayout|screenSize|smallestScreenSize"
             android:exported="true">
@@ -74,7 +74,7 @@
             <meta-data android:name="com.samsung.android.activity.showWhenLocked" android:value="true"/>
         </activity>
         <activity
-            android:name=".SamSprungOverlay"
+            android:name=".launcher.SamSprungOverlay"
             android:theme="@style/LauncherTheme.NoActionBar"
             android:configChanges="orientation|screenLayout|screenSize|smallestScreenSize"
             android:exported="true"
@@ -107,7 +107,7 @@
         <service android:name=".OnBroadcastService"
             android:exported="true"
             android:permission="android.permission.FOREGROUND_SERVICE" />
-        <service android:name=".AppDisplayListener"
+        <service android:name=".launcher.AppDisplayListener"
             android:exported="true"
             android:permission="android.permission.FOREGROUND_SERVICE" />
         <service

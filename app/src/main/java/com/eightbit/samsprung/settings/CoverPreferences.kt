@@ -1,4 +1,4 @@
-package com.eightbit.samsprung
+package com.eightbit.samsprung.settings
 
 /* ====================================================================
  * Copyright (c) 2012-2022 AbandonedCart.  All rights reserved.
@@ -110,8 +110,7 @@ import java.util.concurrent.Executors
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
 import android.content.Intent
-
-
+import com.eightbit.samsprung.*
 
 
 class CoverPreferences : AppCompatActivity() {
@@ -246,24 +245,31 @@ class CoverPreferences : AppCompatActivity() {
         keyboard.isEnabled = !isKeyboardInstalled
         keyboard.setOnClickListener {
             if (BuildConfig.FLAVOR != "google") {
-                RequestGitHubAPI(kbRepo).setResultListener(object : RequestGitHubAPI.ResultListener {
-                    override fun onResults(result: String) {
-                        val jsonObject = JSONTokener(result).nextValue() as JSONObject
-                        val assets = jsonObject["assets"] as JSONArray
-                        val asset = assets[0] as JSONObject
-                        val downloadUrl = asset["browser_download_url"] as String
-                        startActivity(Intent(this@CoverPreferences,
-                            UpdateShimActivity::class.java).setAction(downloadUrl))
-                    }
-                })
+                if (packageManager.canRequestPackageInstalls()) {
+                    RequestGitHubAPI(kbRepo).setResultListener(object : RequestGitHubAPI.ResultListener {
+                        override fun onResults(result: String) {
+                            val jsonObject = JSONTokener(result).nextValue() as JSONObject
+                            val assets = jsonObject["assets"] as JSONArray
+                            val asset = assets[0] as JSONObject
+                            val downloadUrl = asset["browser_download_url"] as String
+                            startActivity(Intent(this@CoverPreferences,
+                                UpdateShimActivity::class.java).setAction(downloadUrl))
+                        }
+                    })
+                } else {
+                    startActivity(Intent(Intent.ACTION_VIEW,
+                        Uri.parse("https://github.com/SamSprung/SamSprung-Keyboard/releases")
+                    ))
+                }
             } else {
                 try {
                     startActivity(Intent(Intent.ACTION_VIEW,
-                            Uri.parse(getString(R.string.keyboard_details, "market://"))
+                        Uri.parse(getString(R.string.keyboard_details, "market://"))
                     ))
                 } catch (exception: ActivityNotFoundException) {
                     startActivity(Intent(Intent.ACTION_VIEW,
-                        Uri.parse(getString(R.string.keyboard_details,
+                        Uri.parse(getString(
+                            R.string.keyboard_details,
                             "https://play.google.com/store/apps/"))
                     ))
                 }

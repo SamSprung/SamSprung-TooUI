@@ -81,6 +81,7 @@ import java.util.concurrent.Executors
 import android.content.ContentResolver
 import android.media.AudioAttributes
 import com.eightbit.samsprung.*
+import com.eightbit.samsprung.settings.CoverPreferences
 
 
 class CheckUpdatesTask(private var activity: AppCompatActivity) {

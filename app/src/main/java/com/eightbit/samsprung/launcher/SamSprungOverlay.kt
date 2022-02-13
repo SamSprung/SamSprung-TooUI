@@ -1,4 +1,4 @@
-package com.eightbit.samsprung
+package com.eightbit.samsprung.launcher
 
 /* ====================================================================
  * Copyright (c) 2012-2022 AbandonedCart.  All rights reserved.
@@ -91,8 +91,10 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.eightbit.content.ScaledContext
 import com.eightbit.pm.PackageRetriever
-import com.eightbit.samsprung.launcher.DrawerAppAdapater
-import com.eightbit.samsprung.launcher.NotificationAdapter
+import com.eightbit.samsprung.AccessibilityObserver
+import com.eightbit.samsprung.NotificationReceiver
+import com.eightbit.samsprung.R
+import com.eightbit.samsprung.SamSprung
 import com.eightbit.samsprung.panels.SamSprungPanels
 import com.eightbit.view.OnSwipeTouchListener
 import com.eightbit.widget.RecyclerViewFondler
@@ -178,7 +180,8 @@ class SamSprungOverlay : AppCompatActivity(),
                 }
             }
             override fun onSlide(bottomSheet: View, slideOffset: Float) {
-                val color = prefs.getInt(SamSprung.prefColors,
+                val color = prefs.getInt(
+                    SamSprung.prefColors,
                     Color.rgb(255, 255, 255))
                 if (slideOffset > 0) {
                     coordinator.visibility = View.VISIBLE
@@ -373,7 +376,7 @@ class SamSprungOverlay : AppCompatActivity(),
                         }
                     }
                 } else {
-                    toggleStats.removeAllViewsInLayout()
+                    toggleStats.removeAllViews()
                     for (i in 0 until toolbar.menu.size()) {
                         val enabled = prefs.getBoolean(toolbar.menu.getItem(i).title.toPref(), true)
                         if (enabled) {
@@ -595,7 +598,8 @@ class SamSprungOverlay : AppCompatActivity(),
     }
 
     private fun configureMenuIcons(toolbar: Toolbar) : Int {
-        val color = prefs.getInt(SamSprung.prefColors,
+        val color = prefs.getInt(
+            SamSprung.prefColors,
             Color.rgb(255, 255, 255))
 
         val wifiManager = getSystemService(WIFI_SERVICE) as WifiManager
@@ -704,7 +708,8 @@ class SamSprungOverlay : AppCompatActivity(),
         val actionButtons = actionsPanel.findViewById<LinearLayout>(R.id.actions)
         val actionEntries = actionsPanel.findViewById<LinearLayout>(R.id.entries)
         val button = AppCompatButton(ContextThemeWrapper(this,
-            R.style.Theme_SecondScreen_NoActionBar))
+            R.style.Theme_SecondScreen_NoActionBar
+        ))
         button.setTextSize(TypedValue.COMPLEX_UNIT_SP, 10f)
         button.setSingleLine()
         button.text = action.title
@@ -755,7 +760,8 @@ class SamSprungOverlay : AppCompatActivity(),
     private fun setNotificationCancel(actionsPanel: LinearLayout, sbn: StatusBarNotification) {
         val actionButtons = actionsPanel.findViewById<LinearLayout>(R.id.actions)
         val button = AppCompatButton(ContextThemeWrapper(this,
-            R.style.Theme_SecondScreen_NoActionBar))
+            R.style.Theme_SecondScreen_NoActionBar
+        ))
         button.setTextSize(TypedValue.COMPLEX_UNIT_SP, 10f)
         button.setSingleLine()
         button.text = getString(R.string.notification_dismiss)
@@ -871,7 +877,8 @@ class SamSprungOverlay : AppCompatActivity(),
             runOnUiThread {
                 bottomHandle = findViewById(R.id.bottom_handle)
                 bottomHandle.visibility = View.VISIBLE
-                bottomHandle.setBackgroundColor(prefs.getInt(SamSprung.prefColors,
+                bottomHandle.setBackgroundColor(prefs.getInt(
+                    SamSprung.prefColors,
                     Color.rgb(255, 255, 255)))
                 bottomHandle.alpha = prefs.getFloat(SamSprung.prefAlphas, 1f)
                 if (null != intent?.action && SamSprung.launcher == intent.action)

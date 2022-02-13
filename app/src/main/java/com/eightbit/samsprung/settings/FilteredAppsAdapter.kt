@@ -1,4 +1,4 @@
-package com.eightbit.samsprung
+package com.eightbit.samsprung.settings
 
 /* ====================================================================
  * Copyright (c) 2012-2022 AbandonedCart.  All rights reserved.
@@ -65,6 +65,8 @@ import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.appcompat.widget.AppCompatImageView
 import androidx.appcompat.widget.SwitchCompat
+import com.eightbit.samsprung.R
+import com.eightbit.samsprung.SamSprung
 import java.util.concurrent.Executors
 
 class FilteredAppsAdapter(

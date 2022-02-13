@@ -1,16 +1,8 @@
 <resources>
     <string name="lock_screen_warning">앱을 실행하기 위해서는 잠금화면 해제가 필요합니다.</string>
-    <string name="settings_notice">모든 권한이 허용되었습니다.</string>
-    <string name="open_settings">권한 허용하러 가기</string>
-    <string name="swap_so_system">시스템이 앱 종료를 관리합니다.</string>
-    <string name="swap_so_listen">화면이 꺼지면 앱이 종료됩니다.</string>
     <string name="swap_viewgrid">목록 스타일로 표시</string>
     <string name="swap_viewlist">격자 스타일로 표시</string>
-    <string name="print_logcat">파일로 로그 저장하기</string>
-    <string name="hide_package">%1$s 숨김!</string>
-    <string name="show_package">%1$s 보여짐!</string>
     <string name="display_service">%1$s 화면서비스</string>
-    <string name="click_stop_service">서비스를 중지하려면 클릭하세요</string>
     <string name="update_service">%1$s 서비스 업데이트</string>
     <string name="click_update_app">서비스를 업데이트하려면 클릭하세요</string>
     <string name="loading_text">로딩중&#8230;</string>

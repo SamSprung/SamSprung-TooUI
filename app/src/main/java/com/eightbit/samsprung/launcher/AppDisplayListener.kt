@@ -1,4 +1,4 @@
-package com.eightbit.samsprung
+package com.eightbit.samsprung.launcher
 
 /* ====================================================================
  * Copyright (c) 2012-2022 AbandonedCart.  All rights reserved.
@@ -70,6 +70,10 @@ import androidx.appcompat.widget.AppCompatImageView
 import androidx.core.app.NotificationCompat
 import androidx.core.content.ContextCompat
 import androidx.core.view.isVisible
+import com.eightbit.samsprung.AccessibilityObserver
+import com.eightbit.samsprung.OnBroadcastService
+import com.eightbit.samsprung.R
+import com.eightbit.samsprung.SamSprung
 import com.eightbit.view.OnSwipeTouchListener
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import java.io.File
@@ -171,7 +175,8 @@ class AppDisplayListener : Service() {
         bottomSheetBehavior.addBottomSheetCallback(object : BottomSheetBehavior.BottomSheetCallback() {
             override fun onStateChanged(bottomSheet: View, newState: Int) {
                 if (newState == BottomSheetBehavior.STATE_EXPANDED) {
-                    val color = prefs.getInt(SamSprung.prefColors,
+                    val color = prefs.getInt(
+                        SamSprung.prefColors,
                         Color.rgb(255, 255, 255))
                     if (!menu.isVisible) menu.visibility = View.VISIBLE
                     for (i in 0 until icons.childCount) {
@@ -187,7 +192,8 @@ class AppDisplayListener : Service() {
             override fun onSlide(bottomSheet: View, slideOffset: Float) { }
         })
 
-        val color = prefs.getInt(SamSprung.prefColors,
+        val color = prefs.getInt(
+            SamSprung.prefColors,
             Color.rgb(255, 255, 255))
         if (!menu.isVisible) menu.visibility = View.VISIBLE
         for (i in 0 until icons.childCount) {
@@ -371,12 +377,6 @@ class AppDisplayListener : Service() {
         return false
     }
 
-    override fun onConfigurationChanged(newConfig: Configuration) {
-        super.onConfigurationChanged(newConfig)
-        if (this::floatView.isInitialized && floatView.isAttachedToWindow)
-            floatView.requestLayout()
-    }
-
     fun onDismiss() {
         try {
             if (this::offReceiver.isInitialized)
@@ -387,10 +387,12 @@ class AppDisplayListener : Service() {
                 .unregisterDisplayListener(mDisplayListener)
         }
 
-        if (this::floatView.isInitialized && floatView.isAttachedToWindow) {
-            val displayContext = (application as SamSprung).getScaledContext()!!
-            (displayContext.getSystemService(WINDOW_SERVICE)
-                    as WindowManager).removeViewImmediate(floatView)
+        if (this::floatView.isInitialized) {
+            try {
+                val displayContext = (application as SamSprung).getScaledContext()!!
+                (displayContext.getSystemService(WINDOW_SERVICE)
+                        as WindowManager).removeViewImmediate(floatView)
+            } catch (ignored: Exception) { }
         }
         if ((application as SamSprung).isKeyguardLocked)
             @Suppress("DEPRECATION") mKeyguardLock.reenableKeyguard()
