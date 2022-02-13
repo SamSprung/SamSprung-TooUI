@@ -227,8 +227,24 @@ class CoverPreferences : AppCompatActivity() {
             ))
         }
 
+        val updates = findViewById<SwitchCompat>(R.id.updates_switch)
+        updates.isChecked = prefs.getBoolean(SamSprung.prefTester, false)
+        updates.setOnCheckedChangeListener { _, isChecked ->
+            with(prefs.edit()) {
+                putBoolean(SamSprung.prefTester, isChecked)
+                apply()
+            }
+        }
+        findViewById<LinearLayout>(R.id.updates).setOnClickListener {
+            updates.isChecked = !updates.isChecked
+        }
+
+        val isKeyboardInstalled = hasKeyboardInstalled()
         val kbRepo = "https://api.github.com/repos/SamSprung/SamSprung-Keyboard/releases/latest"
-        findViewById<LinearLayout>(R.id.keyboard_layout).setOnClickListener {
+        val keyboard = findViewById<LinearLayout>(R.id.keyboard_layout)
+        keyboard.alpha = if (isKeyboardInstalled) 0.5f else 1.0f
+        keyboard.isEnabled = !isKeyboardInstalled
+        keyboard.setOnClickListener {
             if (BuildConfig.FLAVOR != "google") {
                 RequestGitHubAPI(kbRepo).setResultListener(object : RequestGitHubAPI.ResultListener {
                     override fun onResults(result: String) {
@@ -252,18 +268,6 @@ class CoverPreferences : AppCompatActivity() {
                     ))
                 }
             }
-        }
-
-        val updates = findViewById<SwitchCompat>(R.id.updates_switch)
-        updates.isChecked = prefs.getBoolean(SamSprung.prefTester, false)
-        updates.setOnCheckedChangeListener { _, isChecked ->
-            with(prefs.edit()) {
-                putBoolean(SamSprung.prefTester, isChecked)
-                apply()
-            }
-        }
-        findViewById<LinearLayout>(R.id.updates).setOnClickListener {
-            updates.isChecked = !updates.isChecked
         }
 
         val isGridView = prefs.getBoolean(SamSprung.prefLayout, true)
@@ -692,6 +696,15 @@ class CoverPreferences : AppCompatActivity() {
             ComponentName.unflattenFromString(it)
         }.any {componentName->
             myNotificationListenerComponentName == componentName
+        }
+    }
+
+    private fun hasKeyboardInstalled(): Boolean {
+        return try {
+            packageManager.getPackageInfo(BuildConfig.APPLICATION_ID + ".ime", 0)
+            true
+        } catch (e: PackageManager.NameNotFoundException) {
+            false
         }
     }
 

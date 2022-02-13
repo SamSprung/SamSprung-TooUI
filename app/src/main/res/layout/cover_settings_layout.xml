@@ -189,6 +189,35 @@
                 android:layout_marginBottom="4dp"/>
 
             <LinearLayout
+                android:id="@+id/updates"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginStart="16dp"
+                android:layout_marginEnd="8dp"
+                android:layout_gravity="center_vertical"
+                tools:ignore="UseCompoundDrawables">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:textSize="28sp"
+                    android:textColor="?android:textColorPrimary"
+                    android:gravity="center_vertical"
+                    android:layout_height="wrap_content"
+                    android:text="@string/updates_preference" />
+
+                <androidx.appcompat.widget.SwitchCompat
+                    android:id="@+id/updates_switch"
+                    android:layout_width="0dp"
+                    android:gravity="center"
+                    android:layout_weight="1"
+                    android:textSize="28sp"
+                    android:textColor="?android:textColorPrimary"
+                    android:layout_height="wrap_content" />
+            </LinearLayout>
+
+            <LinearLayout
                 android:id="@+id/keyboard_layout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -219,35 +248,6 @@
                     android:layout_height="wrap_content"
                     android:contentDescription="@string/description_icon"/>
 
-            </LinearLayout>
-
-            <LinearLayout
-                android:id="@+id/updates"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:layout_marginStart="16dp"
-                android:layout_marginEnd="8dp"
-                android:layout_gravity="center_vertical"
-                tools:ignore="UseCompoundDrawables">
-
-                <TextView
-                    android:layout_width="0dp"
-                    android:layout_weight="1"
-                    android:textSize="28sp"
-                    android:textColor="?android:textColorPrimary"
-                    android:gravity="center_vertical"
-                    android:layout_height="wrap_content"
-                    android:text="@string/updates_preference" />
-
-                <androidx.appcompat.widget.SwitchCompat
-                    android:id="@+id/updates_switch"
-                    android:layout_width="0dp"
-                    android:gravity="center"
-                    android:layout_weight="1"
-                    android:textSize="28sp"
-                    android:textColor="?android:textColorPrimary"
-                    android:layout_height="wrap_content" />
             </LinearLayout>
 
             <include
