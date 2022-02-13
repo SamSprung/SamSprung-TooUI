@@ -83,6 +83,7 @@ class SamSprung : Application() {
         const val updating: String = "com.eightbit.samsprung.UPDATING"
         const val services: String = "com.eightbit.samsprung.SERVICES"
         const val launcher: String = "com.eightbit.samsprung.LAUNCHER"
+        const val animated: String = "com.eightbit.samsprung.ANIMATED"
 
         const val request_code = 8675309
 

@@ -91,7 +91,6 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.eightbit.content.ScaledContext
 import com.eightbit.pm.PackageRetriever
-import com.eightbit.samsprung.AccessibilityObserver
 import com.eightbit.samsprung.NotificationReceiver
 import com.eightbit.samsprung.R
 import com.eightbit.samsprung.SamSprung
@@ -101,7 +100,6 @@ import com.eightbit.widget.RecyclerViewFondler
 import com.eightbitlab.blurview.BlurView
 import com.eightbitlab.blurview.RenderScriptBlur
 import com.google.android.material.bottomsheet.BottomSheetBehavior
-import java.io.File
 import java.util.concurrent.Executors
 
 class SamSprungOverlay : AppCompatActivity(),
@@ -543,9 +541,8 @@ class SamSprungOverlay : AppCompatActivity(),
             }
         })
         coordinator.visibility = View.GONE
-        val launcher = null != intent?.action && SamSprung.launcher == intent.action
-        initializeDrawer(launcher)
-        if (!launcher) {
+        initializeDrawer(null != intent?.action && SamSprung.launcher == intent.action)
+        if (null != intent?.action && SamSprung.animated == intent.action) {
             animateBottomSheet(BottomSheetBehavior.STATE_EXPANDED, 400)
             animateBottomSheet(BottomSheetBehavior.STATE_COLLAPSED, 550)
             animateBottomSheet(BottomSheetBehavior.STATE_HALF_EXPANDED, 700)

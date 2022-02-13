@@ -71,8 +71,13 @@ class OnBroadcastService : Service() {
     private val onReceiver = object : BroadcastReceiver() {
         @SuppressLint("NotifyDataSetChanged")
         override fun onReceive(context: Context, intent: Intent) {
-            if (Intent.ACTION_USER_PRESENT == intent.action
-                || Intent.ACTION_SCREEN_ON == intent.action) {
+            if (Intent.ACTION_USER_PRESENT == intent.action) {
+                context.startActivity(
+                    Intent(context.applicationContext, SamSprungOverlay::class.java)
+                        .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK).setAction(SamSprung.animated),
+                    ActivityOptions.makeBasic().setLaunchDisplayId(1).toBundle()
+                )
+            } else if (Intent.ACTION_SCREEN_ON == intent.action) {
                 context.startActivity(
                     Intent(context.applicationContext, SamSprungOverlay::class.java)
                         .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK),
