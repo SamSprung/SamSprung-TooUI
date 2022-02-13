@@ -164,38 +164,6 @@ class CoverPreferences : AppCompatActivity() {
             .setHasFixedTransformationMatrix(true)
             .setBlurAlgorithm(RenderScriptBlur(this))
 
-        val isGridView = prefs.getBoolean(SamSprung.prefLayout, true)
-        findViewById<ToggleButton>(R.id.swapViewType).isChecked = isGridView
-        findViewById<ToggleButton>(R.id.swapViewType).setOnCheckedChangeListener { _, isChecked ->
-            with (prefs.edit()) {
-                putBoolean(SamSprung.prefLayout, isChecked)
-                apply()
-            }
-        }
-
-        accessibility = findViewById(R.id.accessibility_switch)
-        accessibility.isChecked = hasAccessibility()
-        findViewById<LinearLayout>(R.id.accessibility).setOnClickListener {
-            if (!accessibility.isChecked) {
-                AlertDialog.Builder(this)
-                    .setMessage(getString(R.string.aceessibility_details))
-                    .setPositiveButton(R.string.button_confirm) { dialog, _ ->
-                        accessibilityLauncher.launch(Intent(
-                            Settings.ACTION_ACCESSIBILITY_SETTINGS,
-                        ))
-                        dialog.dismiss()
-                    }
-                    .setNegativeButton(R.string.button_cancel) { dialog, _ ->
-                        accessibility.isChecked = false
-                        dialog.dismiss()
-                    }.show()
-            } else {
-                accessibilityLauncher.launch(Intent(
-                    Settings.ACTION_ACCESSIBILITY_SETTINGS,
-                ))
-            }
-        }
-
         notifications = findViewById(R.id.notifications_switch)
         notifications.isChecked = hasNotificationListener()
         findViewById<LinearLayout>(R.id.notifications).setOnClickListener {
@@ -221,18 +189,41 @@ class CoverPreferences : AppCompatActivity() {
             }
         }
 
+        findViewById<LinearLayout>(R.id.usage_layout).setOnClickListener {
+            usageLauncher.launch(Intent(
+                Settings.ACTION_USAGE_ACCESS_SETTINGS
+            ))
+        }
+
+        accessibility = findViewById(R.id.accessibility_switch)
+        accessibility.isChecked = hasAccessibility()
+        findViewById<LinearLayout>(R.id.accessibility).setOnClickListener {
+            if (!accessibility.isChecked) {
+                AlertDialog.Builder(this)
+                    .setMessage(getString(R.string.aceessibility_details))
+                    .setPositiveButton(R.string.button_confirm) { dialog, _ ->
+                        accessibilityLauncher.launch(Intent(
+                            Settings.ACTION_ACCESSIBILITY_SETTINGS,
+                        ))
+                        dialog.dismiss()
+                    }
+                    .setNegativeButton(R.string.button_cancel) { dialog, _ ->
+                        accessibility.isChecked = false
+                        dialog.dismiss()
+                    }.show()
+            } else {
+                accessibilityLauncher.launch(Intent(
+                    Settings.ACTION_ACCESSIBILITY_SETTINGS,
+                ))
+            }
+        }
+
         settings = findViewById(R.id.settings_switch)
         settings.isChecked = Settings.System.canWrite(applicationContext)
         findViewById<LinearLayout>(R.id.settings).setOnClickListener {
             settingsLauncher.launch(Intent(
                 Settings.ACTION_MANAGE_WRITE_SETTINGS,
                 Uri.parse("package:$packageName")
-            ))
-        }
-
-        findViewById<LinearLayout>(R.id.usage_layout).setOnClickListener {
-            usageLauncher.launch(Intent(
-                Settings.ACTION_USAGE_ACCESS_SETTINGS
             ))
         }
 
@@ -273,6 +264,15 @@ class CoverPreferences : AppCompatActivity() {
         }
         findViewById<LinearLayout>(R.id.updates).setOnClickListener {
             updates.isChecked = !updates.isChecked
+        }
+
+        val isGridView = prefs.getBoolean(SamSprung.prefLayout, true)
+        findViewById<ToggleButton>(R.id.swapViewType).isChecked = isGridView
+        findViewById<ToggleButton>(R.id.swapViewType).setOnCheckedChangeListener { _, isChecked ->
+            with (prefs.edit()) {
+                putBoolean(SamSprung.prefLayout, isChecked)
+                apply()
+            }
         }
 
         val packageRetriever = PackageRetriever(this)

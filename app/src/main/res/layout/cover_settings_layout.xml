@@ -58,36 +58,6 @@
                     android:layout_marginBottom="8dp"/>
 
                 <LinearLayout
-                    android:id="@+id/accessibility"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:layout_marginStart="16dp"
-                    android:layout_marginEnd="8dp"
-                    android:layout_gravity="center_vertical"
-                    tools:ignore="UseCompoundDrawables">
-
-                    <TextView
-                        android:layout_width="0dp"
-                        android:layout_weight="1"
-                        android:textSize="28sp"
-                        android:textColor="?android:textColorPrimary"
-                        android:gravity="center_vertical"
-                        android:layout_height="wrap_content"
-                        android:text="@string/permission_accessibility" />
-
-                    <androidx.appcompat.widget.SwitchCompat
-                        android:id="@+id/accessibility_switch"
-                        android:layout_width="0dp"
-                        android:gravity="center"
-                        android:layout_weight="1"
-                        android:clickable="false"
-                        android:textSize="28sp"
-                        android:textColor="?android:textColorPrimary"
-                        android:layout_height="wrap_content" />
-                </LinearLayout>
-
-                <LinearLayout
                     android:id="@+id/notifications"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -148,6 +118,36 @@
                         android:layout_height="wrap_content"
                         android:contentDescription="@string/description_icon"/>
 
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/accessibility"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:layout_marginStart="16dp"
+                    android:layout_marginEnd="8dp"
+                    android:layout_gravity="center_vertical"
+                    tools:ignore="UseCompoundDrawables">
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_weight="1"
+                        android:textSize="28sp"
+                        android:textColor="?android:textColorPrimary"
+                        android:gravity="center_vertical"
+                        android:layout_height="wrap_content"
+                        android:text="@string/permission_accessibility" />
+
+                    <androidx.appcompat.widget.SwitchCompat
+                        android:id="@+id/accessibility_switch"
+                        android:layout_width="0dp"
+                        android:gravity="center"
+                        android:layout_weight="1"
+                        android:clickable="false"
+                        android:textSize="28sp"
+                        android:textColor="?android:textColorPrimary"
+                        android:layout_height="wrap_content" />
                 </LinearLayout>
 
                 <LinearLayout
