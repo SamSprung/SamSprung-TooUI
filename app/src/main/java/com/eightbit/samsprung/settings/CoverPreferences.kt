@@ -153,7 +153,7 @@ class CoverPreferences : AppCompatActivity() {
             } catch (ignored: ClassCastException) { }
         }
 
-        onNewIntent(intent)
+        initializeLayout()
 
         findViewById<BlurView>(R.id.blurContainer).setupWith(
             window.decorView.findViewById(R.id.coordinator))
@@ -747,8 +747,7 @@ class CoverPreferences : AppCompatActivity() {
         return true
     }
 
-    override fun onNewIntent(intent: Intent?) {
-        super.onNewIntent(intent)
+    private fun initializeLayout() {
         startForegroundService(Intent(this, OnBroadcastService::class.java))
         retrieveDonationMenu()
 
@@ -839,6 +838,11 @@ class CoverPreferences : AppCompatActivity() {
         } else {
             verifyCompatibility()
         }
+    }
+
+    override fun onNewIntent(intent: Intent?) {
+        super.onNewIntent(intent)
+        initializeLayout()
     }
 
     private fun getIAP(amount: Int) : String {

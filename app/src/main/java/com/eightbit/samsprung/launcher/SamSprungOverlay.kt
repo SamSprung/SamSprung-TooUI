@@ -543,7 +543,14 @@ class SamSprungOverlay : AppCompatActivity(),
             }
         })
         coordinator.visibility = View.GONE
-        onNewIntent(intent)
+        val launcher = null != intent?.action && SamSprung.launcher == intent.action
+        initializeDrawer(launcher)
+        if (!launcher) {
+            animateBottomSheet(BottomSheetBehavior.STATE_EXPANDED, 400)
+            animateBottomSheet(BottomSheetBehavior.STATE_COLLAPSED, 550)
+            animateBottomSheet(BottomSheetBehavior.STATE_HALF_EXPANDED, 700)
+            animateBottomSheet(BottomSheetBehavior.STATE_COLLAPSED, 900)
+        }
     }
 
     private fun animateSearchReveal(view: View, anchor: View) {
@@ -780,14 +787,6 @@ class SamSprungOverlay : AppCompatActivity(),
         return (windowManager.currentWindowMetrics.bounds.width() / 96 + 0.5).toInt()
     }
 
-    private fun hasAccessibility(): Boolean {
-        val serviceString = Settings.Secure.getString(contentResolver,
-            Settings.Secure.ENABLED_ACCESSIBILITY_SERVICES
-        )
-        return serviceString != null && serviceString.contains(packageName
-                + File.separator + AccessibilityObserver::class.java.name)
-    }
-
     private fun hasNotificationListener(): Boolean {
         val myNotificationListenerComponentName = ComponentName(
             applicationContext, NotificationReceiver::class.java)
@@ -871,8 +870,15 @@ class SamSprungOverlay : AppCompatActivity(),
         return true
     }
 
-    override fun onNewIntent(intent: Intent?) {
-        super.onNewIntent(intent)
+    private fun animateBottomSheet(state: Int, delay: Long) {
+        Handler(Looper.getMainLooper()).postDelayed({
+            runOnUiThread {
+                bottomSheetBehaviorMain.state = state
+            }
+        }, delay)
+    }
+
+    private fun initializeDrawer(launcher: Boolean) {
         Handler(Looper.getMainLooper()).postDelayed({
             runOnUiThread {
                 bottomHandle = findViewById(R.id.bottom_handle)
@@ -881,8 +887,9 @@ class SamSprungOverlay : AppCompatActivity(),
                     SamSprung.prefColors,
                     Color.rgb(255, 255, 255)))
                 bottomHandle.alpha = prefs.getFloat(SamSprung.prefAlphas, 1f)
-                if (null != intent?.action && SamSprung.launcher == intent.action)
+                if (launcher) {
                     bottomSheetBehaviorMain.state = BottomSheetBehavior.STATE_EXPANDED
+                }
             }
             if (this::noticesView.isInitialized) {
                 if (hasNotificationListener()) {
@@ -891,7 +898,12 @@ class SamSprungOverlay : AppCompatActivity(),
                     )
                 }
             }
-        }, 200)
+        }, 150)
+    }
+
+    override fun onNewIntent(intent: Intent?) {
+        super.onNewIntent(intent)
+        initializeDrawer(null != intent?.action && SamSprung.launcher == intent.action)
     }
 
     fun onDismiss() {
