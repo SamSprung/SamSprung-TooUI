@@ -407,8 +407,7 @@ class SamSprungOverlay : FragmentActivity(), NotificationAdapter.OnNoticeClickLi
                 }
             }
             override fun onSlide(bottomSheet: View, slideOffset: Float) {
-                val color = prefs.getInt(
-                    SamSprung.prefColors,
+                val color = prefs.getInt(SamSprung.prefColors,
                     Color.rgb(255, 255, 255))
                 if (slideOffset > 0) {
                     coordinator.visibility = View.VISIBLE
@@ -486,8 +485,7 @@ class SamSprungOverlay : FragmentActivity(), NotificationAdapter.OnNoticeClickLi
     }
 
     private fun configureMenuIcons(toolbar: Toolbar) : Int {
-        val color = prefs.getInt(
-            SamSprung.prefColors,
+        val color = prefs.getInt(SamSprung.prefColors,
             Color.rgb(255, 255, 255))
 
         val wifiManager = getSystemService(WIFI_SERVICE) as WifiManager

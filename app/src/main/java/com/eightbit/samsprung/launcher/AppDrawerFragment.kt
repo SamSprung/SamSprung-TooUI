@@ -37,6 +37,7 @@ import java.util.concurrent.Executors
 class AppDrawerFragment : Fragment(), DrawerAppAdapater.OnAppClickListener {
 
     private lateinit var searchView: SearchView
+    private lateinit var packReceiver: BroadcastReceiver
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -111,7 +112,7 @@ class AppDrawerFragment : Fragment(), DrawerAppAdapater.OnAppClickListener {
             }
         })
 
-        val viewReceiver = object : BroadcastReceiver() {
+        packReceiver = object : BroadcastReceiver() {
             @SuppressLint("NotifyDataSetChanged")
             override fun onReceive(context: Context?, intent: Intent) {
                 if (intent.action == Intent.ACTION_PACKAGE_FULLY_REMOVED) {
@@ -141,7 +142,7 @@ class AppDrawerFragment : Fragment(), DrawerAppAdapater.OnAppClickListener {
             addAction(Intent.ACTION_PACKAGE_REMOVED)
             addDataScheme("package")
         }.also {
-            requireActivity().registerReceiver(viewReceiver, it)
+            requireActivity().registerReceiver(packReceiver, it)
         }
     }
 
@@ -216,5 +217,13 @@ class AppDrawerFragment : Fragment(), DrawerAppAdapater.OnAppClickListener {
                     AppDisplayListener::class.java).putExtras(extras))
             }
         }, 50)
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        try {
+            if (this::packReceiver.isInitialized)
+                requireActivity().unregisterReceiver(packReceiver)
+        } catch (ignored: Exception) { }
     }
 }
