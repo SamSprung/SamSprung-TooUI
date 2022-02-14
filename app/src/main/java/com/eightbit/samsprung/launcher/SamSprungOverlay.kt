@@ -278,6 +278,34 @@ class SamSprungOverlay : FragmentActivity(), NotificationAdapter.OnNoticeClickLi
             override fun onStateChanged(bottomSheet: View, newState: Int) {
                 if (newState == BottomSheetBehavior.STATE_EXPANDED) {
                     toolbar.setOnMenuItemClickListener { item: MenuItem ->
+                        Handler(Looper.getMainLooper()).post {
+                            val delete: View = findViewById(R.id.toggle_widget)
+                            delete.setOnLongClickListener(View.OnLongClickListener {
+                                if (viewPager.currentItem != 0) {
+                                    toolbar.menu.findItem(R.id.toggle_widget)
+                                        .setIcon(R.drawable.ic_baseline_delete_forever_24)
+                                    tactileFeedback()
+                                    val index = viewPager.currentItem
+                                    val fragment = (pagerAdapter as CoverStateAdapter)
+                                        .getFragment(index)
+                                    val widget = fragment.getLayout()!!.getChildAt(0).tag
+                                    if (widget is CoverWidgetInfo) {
+                                        viewPager.setCurrentItem(index - 1, true)
+                                        model.removeDesktopAppWidget(widget)
+                                        if (null != appWidgetHost) {
+                                            appWidgetHost!!.deleteAppWidgetId(widget.appWidgetId)
+                                        }
+                                        WidgetModel.deleteItemFromDatabase(
+                                            applicationContext, widget
+                                        )
+                                        (pagerAdapter as CoverStateAdapter).removeFragment(index)
+                                    }
+                                    toolbar.menu.findItem(R.id.toggle_widget)
+                                        .setIcon(R.drawable.ic_baseline_widgets_24)
+                                }
+                                return@OnLongClickListener true
+                            })
+                        }
                         when (item.itemId) {
                             R.id.toggle_wifi -> {
                                 wifiEnabler.launch(Intent(Settings.Panel.ACTION_INTERNET_CONNECTIVITY))
@@ -334,25 +362,7 @@ class SamSprungOverlay : FragmentActivity(), NotificationAdapter.OnNoticeClickLi
                                 return@setOnMenuItemClickListener true
                             }
                             R.id.toggle_widget -> {
-                                if (viewPager.currentItem != 0) {
-                                    val index = viewPager.currentItem
-                                    val fragment = (pagerAdapter as CoverStateAdapter)
-                                        .getFragment(index)
-                                    val widget = fragment.getLayout()!!.getChildAt(0).tag
-                                    if (widget is CoverWidgetInfo) {
-                                        viewPager.setCurrentItem(index - 1, true)
-                                        model.removeDesktopAppWidget(widget)
-                                        if (null != appWidgetHost) {
-                                            appWidgetHost!!.deleteAppWidgetId(widget.appWidgetId)
-                                        }
-                                        WidgetModel.deleteItemFromDatabase(
-                                            applicationContext, widget
-                                        )
-                                        (pagerAdapter as CoverStateAdapter).removeFragment(index)
-                                    }
-                                } else {
-                                    showAddDialog()
-                                }
+                                showAddDialog()
                                 bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
                                 return@setOnMenuItemClickListener false
                             }
@@ -379,8 +389,6 @@ class SamSprungOverlay : FragmentActivity(), NotificationAdapter.OnNoticeClickLi
                         }
                     }
                 } else {
-                    toolbar.menu.findItem(R.id.toggle_widget)
-                        .setIcon(R.drawable.ic_baseline_widgets_24)
                     toggleStats.removeAllViews()
                     for (i in 0 until toolbar.menu.size()) {
                         val enabled = prefs.getBoolean(toolbar.menu.getItem(i).title.toPref(), true)
@@ -427,57 +435,10 @@ class SamSprungOverlay : FragmentActivity(), NotificationAdapter.OnNoticeClickLi
             }
         })
 
-        val appDrawer = (pagerAdapter as CoverStateAdapter).getDrawer()
-            appDrawer.setListener( object : AppDrawerFragment.AppDrawerListener {
-            override fun onDrawerCreated(launcherView: RecyclerView) {
-                RecyclerViewFondler(launcherView).setSwipeCallback(
-                    ItemTouchHelper.START or ItemTouchHelper.END or ItemTouchHelper.DOWN,
-                    object: RecyclerViewFondler.SwipeCallback {
-                        override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
-                            if (direction == ItemTouchHelper.START) {
-                                appDrawer.clearSearchOrClose()
-                            }
-                            if (direction == ItemTouchHelper.END) {
-                                appDrawer.clearSearchOrOpen(blurView)
-                            }
-                        }
-                    })
-
-                launcherView.setOnTouchListener(object : OnSwipeTouchListener(this@SamSprungOverlay) {
-                    override fun onSwipeLeft() : Boolean {
-                        appDrawer.clearSearchOrClose()
-                        return true
-                    }
-                    override fun onSwipeRight() : Boolean {
-                        appDrawer.clearSearchOrOpen(blurView)
-                        return true
-                    }
-                    override fun onSwipeBottom() : Boolean {
-                        if (bottomSheetBehavior.state == BottomSheetBehavior.STATE_EXPANDED) return false
-                        if (launcherView.layoutManager is LinearLayoutManager) {
-                            if ((launcherView.layoutManager as LinearLayoutManager)
-                                    .findFirstCompletelyVisibleItemPosition() == 0) {
-                                bottomSheetBehaviorMain.state = BottomSheetBehavior.STATE_COLLAPSED
-                                return true
-                            }
-                        }
-                        if (launcherView.layoutManager is GridLayoutManager) {
-                            if ((launcherView.layoutManager as GridLayoutManager)
-                                    .findFirstCompletelyVisibleItemPosition() == 0) {
-                                bottomSheetBehaviorMain.state = BottomSheetBehavior.STATE_COLLAPSED
-                                return true
-                            }
-                        }
-                        return false
-                    }
-                })
-            }
-        })
-
         contentResolver.registerContentObserver(
             WidgetSettings.Favorites.CONTENT_URI, true, mObserver
         )
-        startLoaders()
+        model.loadUserItems(true, this)
         coordinator.visibility = View.GONE
         initializeDrawer(null != intent?.action && SamSprung.launcher == intent.action)
 
@@ -587,13 +548,6 @@ class SamSprungOverlay : FragmentActivity(), NotificationAdapter.OnNoticeClickLi
         } else {
             toolbar.menu.findItem(R.id.toggle_torch).isVisible = false
         }
-        if (viewPager.currentItem == 0) {
-            toolbar.menu.findItem(R.id.toggle_widget)
-                .setIcon(R.drawable.ic_baseline_widgets_24)
-        } else {
-            toolbar.menu.findItem(R.id.toggle_widget)
-                .setIcon(R.drawable.ic_baseline_delete_forever_24)
-        }
         for (i in 0 until toolbar.menu.size()) {
             toolbar.menu.getItem(i).icon.setTint(color)
         }
@@ -697,10 +651,6 @@ class SamSprungOverlay : FragmentActivity(), NotificationAdapter.OnNoticeClickLi
             0, LinearLayout.LayoutParams.WRAP_CONTENT, 1.0f
         ))
         actionsPanel.visibility = View.VISIBLE
-    }
-
-    private fun startLoaders() {
-        model.loadUserItems(true, this)
     }
 
     private fun tactileFeedback() {
@@ -1039,12 +989,6 @@ class SamSprungOverlay : FragmentActivity(), NotificationAdapter.OnNoticeClickLi
     }
 
     fun onDismiss() {
-        try {
-            appWidgetHost!!.stopListening()
-        } catch (ignored: NullPointerException) { }
-        model.unbind()
-        model.abortLoaders()
-        contentResolver.unregisterContentObserver(mObserver)
         if (null != mDisplayListener) {
             (getSystemService(Context.DISPLAY_SERVICE) as DisplayManager)
                 .unregisterDisplayListener(mDisplayListener)
@@ -1062,8 +1006,14 @@ class SamSprungOverlay : FragmentActivity(), NotificationAdapter.OnNoticeClickLi
 
     public override fun onDestroy() {
         mDestroyed = true
-        super.onDestroy()
         onDismiss()
+        super.onDestroy()
+        try {
+            appWidgetHost!!.stopListening()
+        } catch (ignored: NullPointerException) { }
+        model.unbind()
+        model.abortLoaders()
+        contentResolver.unregisterContentObserver(mObserver)
     }
 
     private inner class FavoritesChangeObserver : ContentObserver(Handler(Looper.getMainLooper())) {

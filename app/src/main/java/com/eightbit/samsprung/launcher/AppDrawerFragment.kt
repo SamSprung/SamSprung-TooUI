@@ -31,14 +31,7 @@ import java.util.concurrent.Executors
 
 class AppDrawerFragment : Fragment(), DrawerAppAdapater.OnAppClickListener {
 
-    private lateinit var launcherView: RecyclerView
     private lateinit var searchView: SearchView
-
-    private var listener: AppDrawerListener? = null
-
-    fun setListener(listener: AppDrawerListener) {
-        this.listener = listener
-    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -55,7 +48,7 @@ class AppDrawerFragment : Fragment(), DrawerAppAdapater.OnAppClickListener {
        val prefs = requireActivity().getSharedPreferences(
            SamSprung.prefsValue, AppCompatActivity.MODE_PRIVATE)
 
-        launcherView = view.findViewById<RecyclerView>(R.id.appsList)
+        val launcherView = view.findViewById<RecyclerView>(R.id.appsList)
 
         val packageRetriever = PackageRetriever(requireActivity())
         var packages = packageRetriever.getFilteredPackageList()
@@ -94,8 +87,6 @@ class AppDrawerFragment : Fragment(), DrawerAppAdapater.OnAppClickListener {
             }
         })
         searchView.visibility = View.GONE
-
-        listener?.onDrawerCreated(launcherView)
 
         val viewReceiver = object : BroadcastReceiver() {
             @SuppressLint("NotifyDataSetChanged")
@@ -215,9 +206,5 @@ class AppDrawerFragment : Fragment(), DrawerAppAdapater.OnAppClickListener {
                     AppDisplayListener::class.java).putExtras(extras))
             }
         }, 50)
-    }
-
-    interface AppDrawerListener {
-        fun onDrawerCreated(launcherView: RecyclerView)
     }
 }
