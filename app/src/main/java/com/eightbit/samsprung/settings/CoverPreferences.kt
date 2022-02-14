@@ -226,23 +226,12 @@ class CoverPreferences : AppCompatActivity() {
             ))
         }
 
-        val updates = findViewById<SwitchCompat>(R.id.updates_switch)
-        updates.isChecked = prefs.getBoolean(SamSprung.prefTester, false)
-        updates.setOnCheckedChangeListener { _, isChecked ->
-            with(prefs.edit()) {
-                putBoolean(SamSprung.prefTester, isChecked)
-                apply()
-            }
-        }
-        findViewById<LinearLayout>(R.id.updates).setOnClickListener {
-            updates.isChecked = !updates.isChecked
-        }
-
         val isKeyboardInstalled = hasKeyboardInstalled()
         val kbRepo = "https://api.github.com/repos/SamSprung/SamSprung-Keyboard/releases/latest"
         val keyboard = findViewById<LinearLayout>(R.id.keyboard_layout)
-        keyboard.alpha = if (isKeyboardInstalled) 0.5f else 1.0f
-        keyboard.isEnabled = !isKeyboardInstalled
+        keyboard.alpha = if (isKeyboardInstalled) 1.0f else 0.5f
+        findViewById<TextView>(R.id.keyboard_text).text = getString(
+            R.string.permission_keyboard, if (isKeyboardInstalled) "\u2713" else "X")
         keyboard.setOnClickListener {
             if (BuildConfig.FLAVOR != "google") {
                 if (packageManager.canRequestPackageInstalls()) {
@@ -268,12 +257,23 @@ class CoverPreferences : AppCompatActivity() {
                     ))
                 } catch (exception: ActivityNotFoundException) {
                     startActivity(Intent(Intent.ACTION_VIEW,
-                        Uri.parse(getString(
-                            R.string.keyboard_details,
+                        Uri.parse(getString(R.string.keyboard_details,
                             "https://play.google.com/store/apps/"))
                     ))
                 }
             }
+        }
+
+        val updates = findViewById<SwitchCompat>(R.id.updates_switch)
+        updates.isChecked = prefs.getBoolean(SamSprung.prefTester, false)
+        updates.setOnCheckedChangeListener { _, isChecked ->
+            with(prefs.edit()) {
+                putBoolean(SamSprung.prefTester, isChecked)
+                apply()
+            }
+        }
+        findViewById<LinearLayout>(R.id.updates).setOnClickListener {
+            updates.isChecked = !updates.isChecked
         }
 
         val isGridView = prefs.getBoolean(SamSprung.prefLayout, true)
