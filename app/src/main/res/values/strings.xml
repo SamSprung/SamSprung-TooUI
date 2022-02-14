@@ -51,6 +51,7 @@
     <string name="toggle_sound">Toggle Sound</string>
     <string name="toggle_dnd">Toggle DnD</string>
     <string name="toggle_torch">Toggle Torch</string>
+    <string name="toggle_widgets">Toggle Widgets</string>
 
     <string name="notification_dismiss">Dismiss</string>
 

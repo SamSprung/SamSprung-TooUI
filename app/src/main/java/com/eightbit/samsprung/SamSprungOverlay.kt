@@ -62,9 +62,10 @@ import java.util.concurrent.Executors
 class SamSprungOverlay : FragmentActivity(), NotificationAdapter.OnNoticeClickListener {
 
     private lateinit var prefs: SharedPreferences
+    private lateinit var displayMetrics: IntArray
+    private var mAppWidgetManager: AppWidgetManager? = null
+    private var appWidgetHost: CoverWidgetHost? = null
     private var mDisplayListener: DisplayManager.DisplayListener? = null
-    private lateinit var bottomHandle: View
-    private lateinit var bottomSheetBehaviorMain: BottomSheetBehavior<View>
 
     private lateinit var wifiManager: WifiManager
     private lateinit var bluetoothAdapter: BluetoothAdapter
@@ -79,20 +80,16 @@ class SamSprungOverlay : FragmentActivity(), NotificationAdapter.OnNoticeClickLi
     private lateinit var offReceiver: BroadcastReceiver
     private lateinit var noticesView: RecyclerView
 
+    private lateinit var bottomHandle: View
+    private lateinit var bottomSheetBehaviorMain: BottomSheetBehavior<View>
+    private lateinit var viewPager: ViewPager2
+    private lateinit var pagerAdapter: FragmentStateAdapter
+
     private val mObserver: ContentObserver = FavoritesChangeObserver()
-
-    private var mAppWidgetManager: AppWidgetManager? = null
-    private var appWidgetHost: CoverWidgetHost? = null
-
     private var widgetDialog: AlertDialog? = null
-
-    private lateinit var displayMetrics: IntArray
 
     private var mDestroyed = false
     private var mBinder: DesktopBinder? = null
-
-    private lateinit var viewPager: ViewPager2
-    private lateinit var pagerAdapter: FragmentStateAdapter
 
     fun getBottomSheetMain() : BottomSheetBehavior<View> {
         return bottomSheetBehaviorMain
@@ -117,12 +114,14 @@ class SamSprungOverlay : FragmentActivity(), NotificationAdapter.OnNoticeClickLi
         prefs = getSharedPreferences(SamSprung.prefsValue, MODE_PRIVATE)
         displayMetrics = ScaledContext.getDisplayParams(this)
 
-        mAppWidgetManager = AppWidgetManager.getInstance(applicationContext)
-        appWidgetHost = CoverWidgetHost(
-            applicationContext,
-            APPWIDGET_HOST_ID
-        )
-        appWidgetHost!!.startListening()
+        if (prefs.getBoolean(getString(R.string.toggle_widgets).toPref(), true)) {
+            mAppWidgetManager = AppWidgetManager.getInstance(applicationContext)
+            appWidgetHost = CoverWidgetHost(
+                applicationContext,
+                APPWIDGET_HOST_ID
+            )
+            appWidgetHost!!.startListening()
+        }
 
         ScaledContext.wrap(this).setTheme(R.style.Theme_SecondScreen_NoActionBar)
         setContentView(R.layout.home_main_view)
@@ -141,52 +140,6 @@ class SamSprungOverlay : FragmentActivity(), NotificationAdapter.OnNoticeClickLi
             mDisplayListener, Handler(Looper.getMainLooper())
         )
 
-        val handler = Handler(Looper.getMainLooper())
-        val fakeOverlay = findViewById<LinearLayout>(R.id.fake_overlay)
-        bottomHandle = findViewById(R.id.bottom_handle)
-        val coordinator = findViewById<CoordinatorLayout>(R.id.coordinator)
-        bottomSheetBehaviorMain = BottomSheetBehavior.from(findViewById(R.id.bottom_sheet_main))
-        bottomSheetBehaviorMain.state = BottomSheetBehavior.STATE_COLLAPSED
-        bottomSheetBehaviorMain.addBottomSheetCallback(object : BottomSheetBehavior.BottomSheetCallback() {
-            override fun onStateChanged(bottomSheet: View, newState: Int) {
-                if (newState == BottomSheetBehavior.STATE_EXPANDED) {
-                    coordinator.keepScreenOn = true
-                    window.clearFlags(WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE)
-                } else if (newState == BottomSheetBehavior.STATE_COLLAPSED) {
-                    window.addFlags(WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE)
-                    coordinator.keepScreenOn = false
-                    coordinator.visibility = View.GONE
-//                    bottomSheetBehaviorMain.isDraggable = true
-                }
-            }
-            override fun onSlide(bottomSheet: View, slideOffset: Float) {
-                val color = prefs.getInt(
-                    SamSprung.prefColors,
-                    Color.rgb(255, 255, 255))
-                if (slideOffset > 0) {
-                    coordinator.visibility = View.VISIBLE
-                    if (slideOffset > 0.5) {
-//                        bottomSheetBehaviorMain.isDraggable = false
-                        fakeOverlay.visibility = View.GONE
-                    }
-                    if (bottomHandle.visibility != View.INVISIBLE) {
-                        handler.removeCallbacksAndMessages(null)
-                        bottomHandle.visibility = View.INVISIBLE
-                    }
-                } else {
-                    fakeOverlay.visibility = View.VISIBLE
-                    bottomHandle.setBackgroundColor(color)
-                    bottomHandle.alpha = prefs.getFloat(SamSprung.prefAlphas, 1f)
-                    if (!bottomHandle.isVisible) {
-                        handler.postDelayed({
-                            runOnUiThread {
-                                bottomHandle.visibility = View.VISIBLE }
-                        }, 250)
-                    }
-                }
-            }
-        })
-
         if (ContextCompat.checkSelfPermission(this,
                 Manifest.permission.READ_EXTERNAL_STORAGE
             ) == PackageManager.PERMISSION_GRANTED) {
@@ -202,10 +155,6 @@ class SamSprungOverlay : FragmentActivity(), NotificationAdapter.OnNoticeClickLi
             .setBlurAutoUpdate(true)
             .setHasFixedTransformationMatrix(true)
             .setBlurAlgorithm(RenderScriptBlur(this))
-
-        viewPager = findViewById(R.id.pager)
-        pagerAdapter = CoverStateAdapter(this)
-        viewPager.adapter = pagerAdapter
 
         wifiManager = getSystemService(WIFI_SERVICE) as WifiManager
         bluetoothAdapter = (getSystemService(Context.BLUETOOTH_SERVICE)
@@ -283,10 +232,10 @@ class SamSprungOverlay : FragmentActivity(), NotificationAdapter.OnNoticeClickLi
                 if (newState == BottomSheetBehavior.STATE_EXPANDED) {
                     toolbar.setOnMenuItemClickListener { item: MenuItem ->
                         Handler(Looper.getMainLooper()).post {
-                            val delete: View = findViewById(R.id.toggle_widget)
+                            val delete: View = findViewById(R.id.toggle_widgets)
                             delete.setOnLongClickListener(View.OnLongClickListener {
                                 if (viewPager.currentItem != 0) {
-                                    toolbar.menu.findItem(R.id.toggle_widget)
+                                    toolbar.menu.findItem(R.id.toggle_widgets)
                                         .setIcon(R.drawable.ic_baseline_delete_forever_24)
                                     tactileFeedback()
                                     val index = viewPager.currentItem
@@ -304,7 +253,7 @@ class SamSprungOverlay : FragmentActivity(), NotificationAdapter.OnNoticeClickLi
                                         )
                                         (pagerAdapter as CoverStateAdapter).removeFragment(index)
                                     }
-                                    toolbar.menu.findItem(R.id.toggle_widget)
+                                    toolbar.menu.findItem(R.id.toggle_widgets)
                                         .setIcon(R.drawable.ic_baseline_widgets_24)
                                 }
                                 return@OnLongClickListener true
@@ -365,7 +314,7 @@ class SamSprungOverlay : FragmentActivity(), NotificationAdapter.OnNoticeClickLi
                                 camManager.setTorchMode(camManager.cameraIdList[0], !isTorchEnabled)
                                 return@setOnMenuItemClickListener true
                             }
-                            R.id.toggle_widget -> {
+                            R.id.toggle_widgets -> {
                                 showAddDialog()
                                 bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
                                 return@setOnMenuItemClickListener false
@@ -439,10 +388,62 @@ class SamSprungOverlay : FragmentActivity(), NotificationAdapter.OnNoticeClickLi
             }
         })
 
-        contentResolver.registerContentObserver(
-            WidgetSettings.Favorites.CONTENT_URI, true, mObserver
-        )
-        model.loadUserItems(true, this)
+        val handler = Handler(Looper.getMainLooper())
+        val fakeOverlay = findViewById<LinearLayout>(R.id.fake_overlay)
+        bottomHandle = findViewById(R.id.bottom_handle)
+        val coordinator = findViewById<CoordinatorLayout>(R.id.coordinator)
+        bottomSheetBehaviorMain = BottomSheetBehavior.from(findViewById(R.id.bottom_sheet_main))
+        bottomSheetBehaviorMain.state = BottomSheetBehavior.STATE_COLLAPSED
+        bottomSheetBehaviorMain.addBottomSheetCallback(object : BottomSheetBehavior.BottomSheetCallback() {
+            override fun onStateChanged(bottomSheet: View, newState: Int) {
+                if (newState == BottomSheetBehavior.STATE_EXPANDED) {
+                    coordinator.keepScreenOn = true
+                    window.clearFlags(WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE)
+                } else if (newState == BottomSheetBehavior.STATE_COLLAPSED) {
+                    window.addFlags(WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE)
+                    coordinator.keepScreenOn = false
+                    coordinator.visibility = View.GONE
+//                    bottomSheetBehaviorMain.isDraggable = true
+                }
+            }
+            override fun onSlide(bottomSheet: View, slideOffset: Float) {
+                val color = prefs.getInt(
+                    SamSprung.prefColors,
+                    Color.rgb(255, 255, 255))
+                if (slideOffset > 0) {
+                    coordinator.visibility = View.VISIBLE
+                    if (slideOffset > 0.5) {
+//                        bottomSheetBehaviorMain.isDraggable = false
+                        fakeOverlay.visibility = View.GONE
+                    }
+                    if (bottomHandle.visibility != View.INVISIBLE) {
+                        handler.removeCallbacksAndMessages(null)
+                        bottomHandle.visibility = View.INVISIBLE
+                    }
+                } else {
+                    fakeOverlay.visibility = View.VISIBLE
+                    bottomHandle.setBackgroundColor(color)
+                    bottomHandle.alpha = prefs.getFloat(SamSprung.prefAlphas, 1f)
+                    if (!bottomHandle.isVisible) {
+                        handler.postDelayed({
+                            runOnUiThread {
+                                bottomHandle.visibility = View.VISIBLE }
+                        }, 250)
+                    }
+                }
+            }
+        })
+
+        viewPager = findViewById(R.id.pager)
+        pagerAdapter = CoverStateAdapter(this)
+        viewPager.adapter = pagerAdapter
+
+        if (prefs.getBoolean(getString(R.string.toggle_widgets).toPref(), true)) {
+            contentResolver.registerContentObserver(
+                WidgetSettings.Favorites.CONTENT_URI, true, mObserver
+            )
+            model.loadUserItems(true, this)
+        }
         coordinator.visibility = View.GONE
         initializeDrawer(null != intent?.action && SamSprung.launcher == intent.action)
 
@@ -968,9 +969,6 @@ class SamSprungOverlay : FragmentActivity(), NotificationAdapter.OnNoticeClickLi
         initializeDrawer(null != intent?.action && SamSprung.launcher == intent.action)
     }
 
-    fun CharSequence.toPref(): String =  this.toString()
-        .lowercase().replace(" ", "_")
-
     private val requestCreateAppWidgetHost = 9001
 
     @Suppress("DEPRECATION")
@@ -1011,13 +1009,19 @@ class SamSprungOverlay : FragmentActivity(), NotificationAdapter.OnNoticeClickLi
         mDestroyed = true
         onDismiss()
         super.onDestroy()
-        try {
-            appWidgetHost!!.stopListening()
-        } catch (ignored: NullPointerException) { }
-        model.unbind()
-        model.abortLoaders()
-        contentResolver.unregisterContentObserver(mObserver)
+        if (prefs.getBoolean(getString(R.string.toggle_widgets).toPref(), true)) {
+            try {
+                appWidgetHost!!.stopListening()
+            } catch (ignored: NullPointerException) {
+            }
+            model.unbind()
+            model.abortLoaders()
+            contentResolver.unregisterContentObserver(mObserver)
+        }
     }
+
+    fun CharSequence.toPref(): String =  this.toString()
+        .lowercase().replace(" ", "_")
 
     private inner class FavoritesChangeObserver : ContentObserver(Handler(Looper.getMainLooper())) {
         override fun onChange(selfChange: Boolean) {
