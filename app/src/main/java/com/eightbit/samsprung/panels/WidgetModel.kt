@@ -23,6 +23,7 @@ import android.content.pm.ActivityInfo
 import android.content.pm.PackageManager
 import android.os.Process
 import android.provider.BaseColumns
+import com.eightbit.samsprung.launcher.SamSprungOverlay
 import com.eightbit.samsprung.panels.WidgetSettings.BaseLauncherColumns
 import com.eightbit.samsprung.panels.WidgetSettings.Favorites
 import java.lang.ref.WeakReference
@@ -56,7 +57,7 @@ class WidgetModel {
      * Loads all of the items on the desktop, in folders, or in the dock.
      * These can be apps, shortcuts or widgets
      */
-    fun loadUserItems(isLaunching: Boolean, launcher: SamSprungPanels) {
+    fun loadUserItems(isLaunching: Boolean, launcher: SamSprungOverlay) {
         if (isLaunching && isDesktopLoaded) {
             // We have already loaded our data from the DB
             launcher.onDesktopItemsLoaded(mDesktopItems, mDesktopAppWidgets)
@@ -79,7 +80,7 @@ class WidgetModel {
     }
 
     private inner class DesktopItemsLoader internal constructor(
-        launcher: SamSprungPanels,
+        launcher: SamSprungOverlay,
         isLaunching: Boolean
     ) : Runnable {
         @Volatile
@@ -88,7 +89,7 @@ class WidgetModel {
         @Volatile
         var isRunning = false
             private set
-        private val mLauncher: WeakReference<SamSprungPanels>
+        private val mLauncher: WeakReference<SamSprungOverlay>
         private val mId: Int
         fun stop() {
             mStopped = true

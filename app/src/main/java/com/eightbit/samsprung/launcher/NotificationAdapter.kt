@@ -52,6 +52,7 @@ package com.eightbit.samsprung.launcher
  */
 
 import android.annotation.SuppressLint
+import android.app.Activity
 import android.graphics.Bitmap
 import android.graphics.Matrix
 import android.service.notification.StatusBarNotification
@@ -59,7 +60,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
-import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.AppCompatImageView
 import androidx.core.app.NotificationCompat
 import androidx.recyclerview.widget.RecyclerView
@@ -68,7 +68,7 @@ import com.eightbit.samsprung.R
 import java.util.*
 
 class NotificationAdapter(
-    private var activity: AppCompatActivity,
+    private var activity: Activity,
     private var listener: OnNoticeClickListener
 ) : RecyclerView.Adapter<NotificationAdapter.NoticeViewHolder>(),
     NotificationReceiver.NotificationsListener {
@@ -108,7 +108,7 @@ class NotificationAdapter(
     }
 
     abstract class NoticeViewHolder(
-        itemView: View, val listener: OnNoticeClickListener?, val activity: AppCompatActivity
+        itemView: View, val listener: OnNoticeClickListener?, val activity: Activity
     ) : RecyclerView.ViewHolder(itemView) {
         private val iconView: AppCompatImageView = itemView.findViewById(R.id.icon)
         private val imageView: AppCompatImageView = itemView.findViewById(R.id.image)
@@ -159,7 +159,7 @@ class NotificationAdapter(
             if (linesText.text.isEmpty()) linesText.text = ""
         }
 
-        private fun getScaledBitmap(activity: AppCompatActivity, bitmap: Bitmap) : Bitmap {
+        private fun getScaledBitmap(activity: Activity, bitmap: Bitmap) : Bitmap {
             val width: Int = bitmap.width
             val height: Int = bitmap.height
             val scaleWidth = activity.window.decorView.width.toFloat() / width
@@ -177,7 +177,7 @@ class NotificationAdapter(
     internal class SimpleViewHolder(
         parent: ViewGroup,
         listener: OnNoticeClickListener?,
-        activity: AppCompatActivity
+        activity: Activity
     ) : NoticeViewHolder(
         LayoutInflater.from(parent.context).inflate(
             R.layout.notification_card,

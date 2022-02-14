@@ -35,6 +35,7 @@ import android.provider.Settings;
 import android.text.TextUtils;
 import android.util.Log;
 
+import com.eightbit.samsprung.launcher.SamSprungOverlay;
 import com.eightbit.samsprung.panels.WidgetSettings.Favorites;
 
 import java.util.ArrayList;
@@ -165,7 +166,7 @@ public class WidgetProvider extends ContentProvider {
         DatabaseHelper(Context context) {
             super(context, DATABASE_NAME, null, DATABASE_VERSION);
             mContext = context;
-            mAppWidgetHost = new AppWidgetHost(context, SamSprungPanels.APPWIDGET_HOST_ID);
+            mAppWidgetHost = new AppWidgetHost(context, SamSprungOverlay.APPWIDGET_HOST_ID);
         }
 
         /**

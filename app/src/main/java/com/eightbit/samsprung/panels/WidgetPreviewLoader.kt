@@ -30,8 +30,7 @@ import java.lang.ref.WeakReference
 import java.util.*
 import java.util.concurrent.Executors
 import android.graphics.Bitmap
-
-
+import com.eightbit.samsprung.launcher.SamSprungOverlay
 
 
 internal abstract class SoftReferenceThreadLocal<T> {
@@ -92,7 +91,7 @@ internal class BitmapFactoryOptionsCache : SoftReferenceThreadLocal<BitmapFactor
     }
 }
 
-class WidgetPreviewLoader(private val mLauncher: SamSprungPanels) {
+class WidgetPreviewLoader(private val mLauncher: SamSprungOverlay) {
     private var mPreviewBitmapWidth = 0
     private var mPreviewBitmapHeight = 0
     private var mSize: String? = null

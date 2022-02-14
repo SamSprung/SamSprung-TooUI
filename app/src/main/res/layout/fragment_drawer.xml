@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- fragment_screen_slide_page.xml -->
+<FrameLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/appsList"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:clipToPadding="false"
+            android:paddingStart="20dp"
+            android:paddingEnd="0dp"
+            android:paddingBottom="24dp"
+            android:scrollbars="vertical" />
+
+    <androidx.appcompat.widget.SearchView
+        android:id="@+id/package_search"
+        android:layout_width="match_parent"
+        android:layout_height="26dp"
+        android:layout_gravity="bottom"
+        android:gravity="bottom"
+        android:layout_marginBottom="20dp"
+        android:layout_marginStart="-10dp"
+        android:background="@color/bottomSheetTint"
+        android:lineSpacingExtra="0dp"
+        android:lineSpacingMultiplier="0"/>
+</FrameLayout>

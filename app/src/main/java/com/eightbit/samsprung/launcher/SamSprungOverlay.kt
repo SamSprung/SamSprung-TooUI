@@ -1,66 +1,19 @@
 package com.eightbit.samsprung.launcher
 
-/* ====================================================================
- * Copyright (c) 2012-2022 AbandonedCart.  All rights reserved.
- *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions
- * are met:
- *
- * 1. Redistributions of source code must retain the above copyright
- *    notice, this list of conditions and the following disclaimer.
- *
- * 2. Redistributions in binary form must reproduce the above copyright
- *    notice, this list of conditions and the following disclaimer in
- *    the documentation and/or other materials provided with the
- *    distribution.
- *
- * 3. All advertising materials mentioning features or use of this
- *    software and redistributions of any form whatsoever
- *    must display the following acknowledgment:
- *    "This product includes software developed by AbandonedCart" unless
- *    otherwise displayed by tagged, public repository entries.
- *
- * 4. The names "8-Bit Dream", "TwistedUmbrella" and "AbandonedCart"
- *    must not be used in any form to endorse or promote products
- *    derived from this software without prior written permission. For
- *    written permission, please contact enderinexiledc@gmail.com
- *
- * 5. Products derived from this software may not be called "8-Bit Dream",
- *    "TwistedUmbrella" or "AbandonedCart" nor may these labels appear
- *    in their names without prior written permission of AbandonedCart.
- *
- * THIS SOFTWARE IS PROVIDED BY AbandonedCart ``AS IS'' AND ANY
- * EXPRESSED OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
- * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
- * PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE OpenSSL PROJECT OR
- * ITS CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
- * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT
- * NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
- * LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
- * HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,
- * STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
- * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
- * OF THE POSSIBILITY OF SUCH DAMAGE.
- * ====================================================================
- *
- * The license and distribution terms for any publicly available version or
- * derivative of this code cannot be changed.  i.e. this code cannot simply be
- * copied and put under another distribution license
- * [including the GNU Public License.] Content not subject to these terms is
- * subject to to the terms and conditions of the Apache License, Version 2.0.
- */
-
 import android.Manifest
 import android.annotation.SuppressLint
 import android.app.*
+import android.appwidget.AppWidgetManager
+import android.appwidget.AppWidgetProviderInfo
 import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothManager
 import android.content.*
-import android.content.ComponentName
-import android.content.pm.*
+import android.content.pm.ActivityInfo
+import android.content.pm.PackageManager
+import android.database.ContentObserver
 import android.graphics.Color
 import android.graphics.PixelFormat
+import android.graphics.drawable.ColorDrawable
 import android.hardware.camera2.CameraManager
 import android.hardware.display.DisplayManager
 import android.media.AudioManager
@@ -72,39 +25,41 @@ import android.provider.Settings
 import android.service.notification.StatusBarNotification
 import android.util.TypedValue
 import android.view.*
-import android.view.animation.TranslateAnimation
-import android.widget.*
+import android.widget.EditText
 import android.widget.LinearLayout
+import android.widget.TextClock
+import android.widget.TextView
+import androidx.activity.result.ActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.view.ContextThemeWrapper
 import androidx.appcompat.widget.AppCompatButton
 import androidx.appcompat.widget.AppCompatImageView
-import androidx.appcompat.widget.SearchView
 import androidx.appcompat.widget.Toolbar
 import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.core.content.ContextCompat
+import androidx.core.graphics.drawable.toBitmap
+import androidx.core.view.children
 import androidx.core.view.isVisible
+import androidx.fragment.app.FragmentActivity
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import androidx.viewpager2.adapter.FragmentStateAdapter
+import androidx.viewpager2.widget.ViewPager2
 import com.eightbit.content.ScaledContext
-import com.eightbit.pm.PackageRetriever
-import com.eightbit.samsprung.NotificationReceiver
-import com.eightbit.samsprung.R
-import com.eightbit.samsprung.SamSprung
-import com.eightbit.samsprung.panels.SamSprungPanels
+import com.eightbit.samsprung.*
+import com.eightbit.samsprung.panels.*
 import com.eightbit.view.OnSwipeTouchListener
 import com.eightbit.widget.RecyclerViewFondler
 import com.eightbitlab.blurview.BlurView
 import com.eightbitlab.blurview.RenderScriptBlur
 import com.google.android.material.bottomsheet.BottomSheetBehavior
+import java.util.*
 import java.util.concurrent.Executors
 
-class SamSprungOverlay : AppCompatActivity(),
-    DrawerAppAdapater.OnAppClickListener,
-    NotificationAdapter.OnNoticeClickListener {
+class SamSprungOverlay : FragmentActivity(), NotificationAdapter.OnNoticeClickListener {
 
     private lateinit var prefs: SharedPreferences
     private var mDisplayListener: DisplayManager.DisplayListener? = null
@@ -121,15 +76,30 @@ class SamSprungOverlay : AppCompatActivity(),
     private var isTorchEnabled = false
 
     private lateinit var battReceiver: BroadcastReceiver
-    private lateinit var viewReceiver: BroadcastReceiver
+    private lateinit var offReceiver: BroadcastReceiver
     private lateinit var noticesView: RecyclerView
 
-    @SuppressLint("ClickableViewAccessibility", "InflateParams")
+    private val mObserver: ContentObserver = FavoritesChangeObserver()
+
+    private var mAppWidgetManager: AppWidgetManager? = null
+    private var appWidgetHost: CoverWidgetHost? = null
+
+    private var widgetDialog: AlertDialog? = null
+
+    private lateinit var displayMetrics: IntArray
+
+    private var mDestroyed = false
+    private var mBinder: DesktopBinder? = null
+
+    private lateinit var viewPager: ViewPager2
+    private lateinit var pagerAdapter: FragmentStateAdapter
+
+    @SuppressLint("ClickableViewAccessibility")
     override fun onCreate(savedInstanceState: Bundle?) {
         setShowWhenLocked(true)
 
         super.onCreate(savedInstanceState)
-        supportActionBar?.hide()
+        actionBar?.hide()
 
         window.setFlags(
             WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or
@@ -141,6 +111,14 @@ class SamSprungOverlay : AppCompatActivity(),
         // window.setBackgroundDrawable(null)
 
         prefs = getSharedPreferences(SamSprung.prefsValue, MODE_PRIVATE)
+        displayMetrics = ScaledContext.getDisplayParams(this)
+
+        mAppWidgetManager = AppWidgetManager.getInstance(applicationContext)
+        appWidgetHost = CoverWidgetHost(
+            applicationContext,
+            APPWIDGET_HOST_ID
+        )
+        appWidgetHost!!.startListening()
 
         ScaledContext.wrap(this).setTheme(R.style.Theme_SecondScreen_NoActionBar)
         setContentView(R.layout.home_main_view)
@@ -174,7 +152,7 @@ class SamSprungOverlay : AppCompatActivity(),
                     window.addFlags(WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE)
                     coordinator.keepScreenOn = false
                     coordinator.visibility = View.GONE
-                    bottomSheetBehaviorMain.isDraggable = true
+//                    bottomSheetBehaviorMain.isDraggable = true
                 }
             }
             override fun onSlide(bottomSheet: View, slideOffset: Float) {
@@ -184,7 +162,7 @@ class SamSprungOverlay : AppCompatActivity(),
                 if (slideOffset > 0) {
                     coordinator.visibility = View.VISIBLE
                     if (slideOffset > 0.5) {
-                        bottomSheetBehaviorMain.isDraggable = false
+//                        bottomSheetBehaviorMain.isDraggable = false
                         fakeOverlay.visibility = View.GONE
                     }
                     if (bottomHandle.visibility != View.INVISIBLE) {
@@ -220,6 +198,10 @@ class SamSprungOverlay : AppCompatActivity(),
             .setBlurAutoUpdate(true)
             .setHasFixedTransformationMatrix(true)
             .setBlurAlgorithm(RenderScriptBlur(this))
+
+        viewPager = findViewById(R.id.pager)
+        pagerAdapter = CoverStateAdapter(this)
+        viewPager.adapter = pagerAdapter
 
         wifiManager = getSystemService(WIFI_SERVICE) as WifiManager
         bluetoothAdapter = (getSystemService(Context.BLUETOOTH_SERVICE)
@@ -351,6 +333,29 @@ class SamSprungOverlay : AppCompatActivity(),
                                 camManager.setTorchMode(camManager.cameraIdList[0], !isTorchEnabled)
                                 return@setOnMenuItemClickListener true
                             }
+                            R.id.toggle_widget -> {
+                                if (viewPager.currentItem != 0) {
+                                    val index = viewPager.currentItem
+                                    val fragment = (pagerAdapter as CoverStateAdapter)
+                                        .getFragment(index)
+                                    val widget = fragment.getLayout()!!.getChildAt(0).tag
+                                    if (widget is CoverWidgetInfo) {
+                                        viewPager.setCurrentItem(index - 1, true)
+                                        model.removeDesktopAppWidget(widget)
+                                        if (null != appWidgetHost) {
+                                            appWidgetHost!!.deleteAppWidgetId(widget.appWidgetId)
+                                        }
+                                        WidgetModel.deleteItemFromDatabase(
+                                            applicationContext, widget
+                                        )
+                                        (pagerAdapter as CoverStateAdapter).removeFragment(index)
+                                    }
+                                } else {
+                                    showAddDialog()
+                                }
+                                bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
+                                return@setOnMenuItemClickListener false
+                            }
                             else -> {
                                 return@setOnMenuItemClickListener false
                             }
@@ -374,6 +379,8 @@ class SamSprungOverlay : AppCompatActivity(),
                         }
                     }
                 } else {
+                    toolbar.menu.findItem(R.id.toggle_widget)
+                        .setIcon(R.drawable.ic_baseline_widgets_24)
                     toggleStats.removeAllViews()
                     for (i in 0 until toolbar.menu.size()) {
                         val enabled = prefs.getBoolean(toolbar.menu.getItem(i).title.toPref(), true)
@@ -420,162 +427,80 @@ class SamSprungOverlay : AppCompatActivity(),
             }
         })
 
-        val launcherView = findViewById<RecyclerView>(R.id.appsList)
+        val appDrawer = (pagerAdapter as CoverStateAdapter).getDrawer()
+            appDrawer.setListener( object : AppDrawerFragment.AppDrawerListener {
+            override fun onDrawerCreated(launcherView: RecyclerView) {
+                RecyclerViewFondler(launcherView).setSwipeCallback(
+                    ItemTouchHelper.START or ItemTouchHelper.END or ItemTouchHelper.DOWN,
+                    object: RecyclerViewFondler.SwipeCallback {
+                        override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
+                            if (direction == ItemTouchHelper.START) {
+                                appDrawer.clearSearchOrClose()
+                            }
+                            if (direction == ItemTouchHelper.END) {
+                                appDrawer.clearSearchOrOpen(blurView)
+                            }
+                        }
+                    })
 
-        val packageRetriever = PackageRetriever(this)
-        var packages = packageRetriever.getFilteredPackageList()
+                launcherView.setOnTouchListener(object : OnSwipeTouchListener(this@SamSprungOverlay) {
+                    override fun onSwipeLeft() : Boolean {
+                        appDrawer.clearSearchOrClose()
+                        return true
+                    }
+                    override fun onSwipeRight() : Boolean {
+                        appDrawer.clearSearchOrOpen(blurView)
+                        return true
+                    }
+                    override fun onSwipeBottom() : Boolean {
+                        if (bottomSheetBehavior.state == BottomSheetBehavior.STATE_EXPANDED) return false
+                        if (launcherView.layoutManager is LinearLayoutManager) {
+                            if ((launcherView.layoutManager as LinearLayoutManager)
+                                    .findFirstCompletelyVisibleItemPosition() == 0) {
+                                bottomSheetBehaviorMain.state = BottomSheetBehavior.STATE_COLLAPSED
+                                return true
+                            }
+                        }
+                        if (launcherView.layoutManager is GridLayoutManager) {
+                            if ((launcherView.layoutManager as GridLayoutManager)
+                                    .findFirstCompletelyVisibleItemPosition() == 0) {
+                                bottomSheetBehaviorMain.state = BottomSheetBehavior.STATE_COLLAPSED
+                                return true
+                            }
+                        }
+                        return false
+                    }
+                })
+            }
+        })
 
-        if (prefs.getBoolean(SamSprung.prefLayout, true))
-            launcherView.layoutManager = GridLayoutManager(this, getColumnCount())
-        else
-            launcherView.layoutManager = LinearLayoutManager(this)
-        launcherView.adapter = DrawerAppAdapater(packages, this, packageManager, prefs)
+        contentResolver.registerContentObserver(
+            WidgetSettings.Favorites.CONTENT_URI, true, mObserver
+        )
+        startLoaders()
+        coordinator.visibility = View.GONE
+        initializeDrawer(null != intent?.action && SamSprung.launcher == intent.action)
 
-        viewReceiver = object : BroadcastReceiver() {
+        offReceiver = object : BroadcastReceiver() {
             @SuppressLint("NotifyDataSetChanged")
             override fun onReceive(context: Context?, intent: Intent) {
                 if (intent.action == Intent.ACTION_SCREEN_OFF) {
                     onDismiss()
-                } else if (intent.action == Intent.ACTION_BATTERY_CHANGED) {
-                    Handler(Looper.getMainLooper()).post {
-                        batteryLevel.text = String.format("%d%%",
-                            intent.getIntExtra(BatteryManager.EXTRA_LEVEL, 100))
-                    }
-                } else if (intent.action == Intent.ACTION_PACKAGE_FULLY_REMOVED) {
-                    Executors.newSingleThreadExecutor().execute {
-                        packages = packageRetriever.getFilteredPackageList()
-                        runOnUiThread {
-                            (launcherView.adapter as DrawerAppAdapater).setPackages(packages)
-                            (launcherView.adapter as DrawerAppAdapater).notifyDataSetChanged()
-                        }
-                    }
-                } else if (intent.action == Intent.ACTION_PACKAGE_ADDED) {
-                    if (!intent.getBooleanExtra(Intent.EXTRA_REPLACING, false)) {
-                        Executors.newSingleThreadExecutor().execute {
-                            packages = packageRetriever.getFilteredPackageList()
-                            runOnUiThread {
-                                (launcherView.adapter as DrawerAppAdapater).setPackages(packages)
-                                (launcherView.adapter as DrawerAppAdapater).notifyDataSetChanged()
-                            }
-                        }
-                    }
                 }
             }
         }
 
         IntentFilter().apply {
-            addAction(Intent.ACTION_PACKAGE_ADDED)
-            addAction(Intent.ACTION_PACKAGE_REMOVED)
             addAction(Intent.ACTION_SCREEN_OFF)
             addDataScheme("package")
         }.also {
-            registerReceiver(viewReceiver, it)
-        }
-
-        val searchView = findViewById<SearchView>(R.id.package_search)
-        searchView.findViewById<LinearLayout>(R.id.search_bar)?.run {
-            this.layoutParams = this.layoutParams.apply {
-                height = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP,
-                    24f, resources.displayMetrics).toInt()
-            }
-        }
-        searchView.gravity = Gravity.CENTER_VERTICAL
-
-        val searchManager = getSystemService(SEARCH_SERVICE) as SearchManager
-        searchView.setSearchableInfo(searchManager.getSearchableInfo(componentName))
-        searchView.isSubmitButtonEnabled = false
-        searchView.setIconifiedByDefault(false)
-        searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
-            override fun onQueryTextSubmit(query: String): Boolean {
-                (launcherView.adapter as DrawerAppAdapater).setQuery(query)
-                searchView.visibility = View.GONE
-                return false
-            }
-
-            override fun onQueryTextChange(query: String): Boolean {
-                (launcherView.adapter as DrawerAppAdapater).setQuery(query)
-                return true
-            }
-        })
-        searchView.visibility = View.GONE
-
-        RecyclerViewFondler(launcherView).setSwipeCallback(
-            ItemTouchHelper.START or ItemTouchHelper.END,
-            object: RecyclerViewFondler.SwipeCallback {
-            override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
-                if (direction == ItemTouchHelper.START) {
-                    clearSearchOrClose(searchView)
-                }
-                if (direction == ItemTouchHelper.END) {
-                    clearSearchOrOpen(searchView, blurView)
-                }
-            }
-        })
-
-        launcherView.setOnTouchListener(object : OnSwipeTouchListener(this@SamSprungOverlay) {
-            override fun onSwipeLeft() : Boolean {
-                clearSearchOrClose(searchView)
-                return true
-            }
-            override fun onSwipeRight() : Boolean {
-                clearSearchOrOpen(searchView, blurView)
-                return true
-            }
-            override fun onSwipeBottom() : Boolean {
-                if (bottomSheetBehavior.state == BottomSheetBehavior.STATE_EXPANDED) return false
-                if (launcherView.layoutManager is LinearLayoutManager) {
-                    if ((launcherView.layoutManager as LinearLayoutManager)
-                            .findFirstCompletelyVisibleItemPosition() == 0) {
-                        bottomSheetBehaviorMain.state = BottomSheetBehavior.STATE_COLLAPSED
-                        return true
-                    }
-                }
-                if (launcherView.layoutManager is GridLayoutManager) {
-                    if ((launcherView.layoutManager as GridLayoutManager)
-                            .findFirstCompletelyVisibleItemPosition() == 0) {
-                        bottomSheetBehaviorMain.state = BottomSheetBehavior.STATE_COLLAPSED
-                        return true
-                    }
-                }
-                return false
-            }
-        })
-        coordinator.visibility = View.GONE
-        initializeDrawer(null != intent?.action && SamSprung.launcher == intent.action)
-    }
-
-    private fun animateSearchReveal(view: View, anchor: View) {
-        val animate = TranslateAnimation(
-            -anchor.width.toFloat(), 0f, 0f, 0f
-        )
-        animate.duration = 500
-        animate.fillAfter = false
-        view.startAnimation(animate)
-    }
-
-    private fun clearSearchOrOpen(searchView: SearchView, anchor: View) {
-        if (searchView.query.isNotBlank()) {
-            searchView.setQuery("", true)
-            if (searchView.isVisible)
-                searchView.visibility = View.GONE
-        } else if (!searchView.isVisible) {
-            searchView.visibility = View.VISIBLE
-            animateSearchReveal(searchView, anchor)
+            registerReceiver(offReceiver, it)
         }
     }
 
-    private fun clearSearchOrClose(searchView: SearchView) {
-        if (searchView.query.isNotBlank()) {
-            searchView.setQuery("", true)
-            if (searchView.isVisible)
-                searchView.visibility = View.GONE
-        } else {
-            onDismiss()
-            startActivity(
-                Intent(applicationContext, SamSprungPanels::class.java),
-                ActivityOptions.makeBasic().setLaunchDisplayId(1).toBundle()
-            )
-        }
+    companion object {
+        val model = WidgetModel()
+        const val APPWIDGET_HOST_ID = SamSprung.request_code
     }
 
     private fun prepareConfiguration() {
@@ -662,6 +587,13 @@ class SamSprungOverlay : AppCompatActivity(),
         } else {
             toolbar.menu.findItem(R.id.toggle_torch).isVisible = false
         }
+        if (viewPager.currentItem == 0) {
+            toolbar.menu.findItem(R.id.toggle_widget)
+                .setIcon(R.drawable.ic_baseline_widgets_24)
+        } else {
+            toolbar.menu.findItem(R.id.toggle_widget)
+                .setIcon(R.drawable.ic_baseline_delete_forever_24)
+        }
         for (i in 0 until toolbar.menu.size()) {
             toolbar.menu.getItem(i).icon.setTint(color)
         }
@@ -681,7 +613,8 @@ class SamSprungOverlay : AppCompatActivity(),
                 extras.putString("launchPackage", intentSender.creatorPackage)
                 extras.putBoolean("intentSender", true)
 
-                startForegroundService(Intent(this,
+                startForegroundService(
+                    Intent(this,
                     AppDisplayListener::class.java).putExtras(extras))
 
                 onDismiss()
@@ -689,25 +622,15 @@ class SamSprungOverlay : AppCompatActivity(),
         }, 100)
     }
 
-    private fun tactileFeedback() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-            (getSystemService(Context.VIBRATOR_MANAGER_SERVICE) as VibratorManager)
-                .defaultVibrator.vibrate(VibrationEffect
-                .createOneShot(20, VibrationEffect.DEFAULT_AMPLITUDE))
-        } else {
-            @Suppress("DEPRECATION")
-            (getSystemService(Context.VIBRATOR_SERVICE) as Vibrator).vibrate(VibrationEffect
-                .createOneShot(20, VibrationEffect.DEFAULT_AMPLITUDE))
-        }
-    }
-
     private fun setNotificationAction(position: Int, actionsPanel: LinearLayout,
                                       action: Notification.Action) {
         val actionButtons = actionsPanel.findViewById<LinearLayout>(R.id.actions)
         val actionEntries = actionsPanel.findViewById<LinearLayout>(R.id.entries)
-        val button = AppCompatButton(ContextThemeWrapper(this,
-            R.style.Theme_SecondScreen_NoActionBar
-        ))
+        val button = AppCompatButton(
+            ContextThemeWrapper(this,
+                R.style.Theme_SecondScreen_NoActionBar
+        )
+        )
         button.setTextSize(TypedValue.COMPLEX_UNIT_SP, 10f)
         button.setSingleLine()
         button.text = action.title
@@ -757,9 +680,11 @@ class SamSprungOverlay : AppCompatActivity(),
 
     private fun setNotificationCancel(actionsPanel: LinearLayout, sbn: StatusBarNotification) {
         val actionButtons = actionsPanel.findViewById<LinearLayout>(R.id.actions)
-        val button = AppCompatButton(ContextThemeWrapper(this,
-            R.style.Theme_SecondScreen_NoActionBar
-        ))
+        val button = AppCompatButton(
+            ContextThemeWrapper(this,
+                R.style.Theme_SecondScreen_NoActionBar
+        )
+        )
         button.setTextSize(TypedValue.COMPLEX_UNIT_SP, 10f)
         button.setSingleLine()
         button.text = getString(R.string.notification_dismiss)
@@ -774,8 +699,22 @@ class SamSprungOverlay : AppCompatActivity(),
         actionsPanel.visibility = View.VISIBLE
     }
 
-    private fun getColumnCount(): Int {
-        return (windowManager.currentWindowMetrics.bounds.width() / 96 + 0.5).toInt()
+    private fun startLoaders() {
+        model.loadUserItems(true, this)
+    }
+
+    private fun tactileFeedback() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            (getSystemService(Context.VIBRATOR_MANAGER_SERVICE) as VibratorManager)
+                .defaultVibrator.vibrate(
+                    VibrationEffect
+                        .createOneShot(20, VibrationEffect.DEFAULT_AMPLITUDE))
+        } else {
+            @Suppress("DEPRECATION")
+            (getSystemService(Context.VIBRATOR_SERVICE) as Vibrator).vibrate(
+                VibrationEffect
+                    .createOneShot(20, VibrationEffect.DEFAULT_AMPLITUDE))
+        }
     }
 
     private fun hasNotificationListener(): Boolean {
@@ -789,42 +728,6 @@ class SamSprungOverlay : AppCompatActivity(),
         }.any {componentName->
             myNotificationListenerComponentName == componentName
         }
-    }
-
-    override fun onAppClicked(appInfo: ResolveInfo, position: Int) {
-        prepareConfiguration()
-
-        (getSystemService(LAUNCHER_APPS_SERVICE) as LauncherApps).startMainActivity(
-            ComponentName(appInfo.activityInfo.packageName, appInfo.activityInfo.name),
-            Process.myUserHandle(),
-            windowManager.currentWindowMetrics.bounds,
-            ActivityOptions.makeBasic().setLaunchDisplayId(1).toBundle()
-        )
-
-        val extras = Bundle()
-        extras.putString("launchPackage", appInfo.activityInfo.packageName)
-        extras.putString("launchActivity", appInfo.activityInfo.name)
-
-        val orientationChanger = LinearLayout((application as SamSprung).getScaledContext())
-        val orientationLayout = WindowManager.LayoutParams(
-            WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY,
-            WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL,
-            PixelFormat.TRANSPARENT
-        )
-        orientationLayout.screenOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
-        val windowManager = (application as SamSprung).getScaledContext()?.getSystemService(
-            Context.WINDOW_SERVICE) as WindowManager
-        windowManager.addView(orientationChanger, orientationLayout)
-        orientationChanger.visibility = View.VISIBLE
-        Handler(Looper.getMainLooper()).postDelayed({
-            runOnUiThread {
-                windowManager.removeViewImmediate(orientationChanger)
-                onDismiss()
-                requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
-                startForegroundService(Intent(this,
-                    AppDisplayListener::class.java).putExtras(extras))
-            }
-        }, 50)
     }
 
     override fun onNoticeClicked(itemView: View, position: Int, notice: StatusBarNotification) {
@@ -855,18 +758,11 @@ class SamSprungOverlay : AppCompatActivity(),
     }
 
     override fun onNoticeLongClicked(itemView: View, position: Int,
-                                     notice: StatusBarNotification) : Boolean {
+                                     notice: StatusBarNotification
+    ) : Boolean {
         tactileFeedback()
         processIntentSender(notice.notification.contentIntent.intentSender)
         return true
-    }
-
-    private fun animateBottomSheet(state: Int, delay: Long) {
-        Handler(Looper.getMainLooper()).postDelayed({
-            runOnUiThread {
-                bottomSheetBehaviorMain.state = state
-            }
-        }, delay)
     }
 
     private fun initializeDrawer(launcher: Boolean) {
@@ -892,12 +788,263 @@ class SamSprungOverlay : AppCompatActivity(),
         }, 150)
     }
 
+    @SuppressLint("InflateParams")
+    private fun completeAddAppWidget(appWidgetId: Int) {
+        val appWidgetInfo = mAppWidgetManager!!.getAppWidgetInfo(appWidgetId)
+
+        // Build Launcher-specific widget info and save to database
+        val launcherInfo = CoverWidgetInfo(appWidgetId)
+
+        var spanX = appWidgetInfo.minWidth
+        var spanY = appWidgetInfo.minHeight
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            spanX = Integer.max(appWidgetInfo.minWidth, appWidgetInfo.maxResizeWidth)
+            spanY = Integer.max(appWidgetInfo.minHeight, appWidgetInfo.maxResizeHeight)
+        }
+        if (spanX > displayMetrics[0])
+            spanX = displayMetrics[0]
+        if (spanY > displayMetrics[1])
+            spanY = displayMetrics[1]
+        val spans = intArrayOf(spanX, spanY)
+
+        launcherInfo.spanX = spans[0]
+        launcherInfo.spanY = spans[1]
+
+        Executors.newSingleThreadExecutor().execute {
+            WidgetModel.addItemToDatabase(
+                applicationContext, launcherInfo,
+                WidgetSettings.Favorites.CONTAINER_DESKTOP,
+                spans[0],  spans[1], false
+            )
+        }
+        model.addDesktopAppWidget(launcherInfo)
+
+        launcherInfo.hostView = appWidgetHost!!.createView(
+            applicationContext, appWidgetId, appWidgetInfo)
+        launcherInfo.hostView!!.setAppWidget(appWidgetId, appWidgetInfo)
+        launcherInfo.hostView!!.tag = launcherInfo
+
+        val id = (pagerAdapter as CoverStateAdapter).addFragment()
+        val fragment = (pagerAdapter as CoverStateAdapter).getFragment(id)
+        val params: LinearLayout.LayoutParams = LinearLayout.LayoutParams(
+            displayMetrics[0], displayMetrics[1]
+        )
+        fragment.setListener(object: PanelViewFragment.ViewCreatedListener {
+            override fun onViewCreated(view: View) {
+                (view as LinearLayout).addView(launcherInfo.hostView, params)
+            }
+        })
+        viewPager.setCurrentItem(id + 1, true)
+    }
+
+    fun getWidgetMaxSize(info: AppWidgetProviderInfo): IntArray {
+        var spanX: Int = info.minWidth
+        var spanY: Int = info.minHeight
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            spanX = Integer.max(info.minWidth, info.maxResizeWidth)
+            spanY = Integer.max(info.minHeight, info.maxResizeHeight)
+        }
+        return intArrayOf(spanX, spanY)
+    }
+
+    private val requestCreateAppWidget = registerForActivityResult(
+        ActivityResultContracts.StartActivityForResult()) { result: ActivityResult ->
+        val appWidgetId = result.data?.getIntExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, -1) ?: -1
+        if (result.resultCode == RESULT_CANCELED) {
+            if (appWidgetId != -1) {
+                appWidgetHost!!.deleteAppWidgetId(appWidgetId)
+            }
+        } else {
+            completeAddAppWidget(appWidgetId)
+        }
+    }
+
+    private fun addAppWidget(appWidgetId: Int) {
+        val appWidget = mAppWidgetManager!!.getAppWidgetInfo(appWidgetId) ?: return
+        if (null != appWidget.configure) {
+            try {
+                appWidgetHost?.startAppWidgetConfigureActivityForResult(
+                    this, appWidgetId, 0, requestCreateAppWidgetHost,
+                    ActivityOptions.makeBasic().setLaunchDisplayId(1).toBundle()
+                )
+            } catch (ignored: ActivityNotFoundException) {
+                // Launch over to configure widget, if needed
+                val intent = Intent(AppWidgetManager.ACTION_APPWIDGET_CONFIGURE)
+                intent.component = appWidget.configure
+                intent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId)
+                requestCreateAppWidget.launch(intent)
+            }
+        } else {
+            completeAddAppWidget(appWidgetId)
+        }
+    }
+
+    @SuppressLint("InflateParams")
+    private fun showAddDialog() {
+        val appWidgetId = appWidgetHost!!.allocateAppWidgetId()
+        val mWidgetPreviewLoader = WidgetPreviewLoader(this)
+
+        val view: View = layoutInflater.inflate(R.layout.panel_picker_view, null)
+        val dialog = AlertDialog.Builder(
+            ContextThemeWrapper(this, R.style.DialogTheme_NoActionBar)
+        )
+        val previews = view.findViewById<LinearLayout>(R.id.previews_layout)
+        dialog.setOnCancelListener {
+            for (previewImage in previews.children) {
+                mWidgetPreviewLoader.recycleBitmap(previewImage.tag,
+                    (previewImage as AppCompatImageView).drawable.toBitmap())
+            }
+            previews.removeAllViewsInLayout()
+        }
+        dialog.setOnDismissListener {
+            for (previewImage in previews.children) {
+                mWidgetPreviewLoader.recycleBitmap(previewImage.tag,
+                    (previewImage as AppCompatImageView).drawable.toBitmap())
+            }
+            previews.removeAllViewsInLayout()
+        }
+        widgetDialog = dialog.setView(view).show()
+        val infoList: List<AppWidgetProviderInfo> = mAppWidgetManager!!.installedProviders
+        for (info: AppWidgetProviderInfo in infoList) {
+            val previewSizeBeforeScale = IntArray(1)
+            val preview = mWidgetPreviewLoader.generateWidgetPreview(
+                info, window.decorView.width, window.decorView.height,
+                null, previewSizeBeforeScale
+            )
+            val previewImage = layoutInflater.inflate(
+                R.layout.widget_preview, null) as AppCompatImageView
+            previewImage.adjustViewBounds = true
+            previewImage.setImageBitmap(preview)
+            previewImage.setOnClickListener {
+                val success = mAppWidgetManager!!.bindAppWidgetIdIfAllowed(appWidgetId, info.provider)
+                if (success) {
+                    addAppWidget(appWidgetId)
+                } else {
+                    val intent = Intent(AppWidgetManager.ACTION_APPWIDGET_BIND)
+                    intent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId)
+                    intent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_PROVIDER, info.provider)
+                    intent.putExtra(
+                        AppWidgetManager.EXTRA_APPWIDGET_PROVIDER_PROFILE, info.profile
+                    )
+                    requestCreateAppWidget.launch(intent)
+                }
+                widgetDialog?.dismiss()
+            }
+            previewImage.tag = info
+            previews.addView(previewImage)
+        }
+        widgetDialog!!.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+    }
+
+    private fun onFavoritesChanged() {
+        model.loadUserItems(false, this)
+    }
+
+    fun onDesktopItemsLoaded(
+    shortcuts: ArrayList<WidgetInfo?>?,
+    appWidgets: ArrayList<CoverWidgetInfo>?
+    ) {
+        if (mDestroyed) {
+            return
+        }
+        // Flag any old binder to terminate early
+        if (mBinder != null) {
+            mBinder!!.mTerminate = true
+        }
+        mBinder = DesktopBinder(this, shortcuts, appWidgets)
+        mBinder!!.startBindingItems()
+    }
+
+    fun bindItems(
+        binder: DesktopBinder,
+        shortcuts: ArrayList<WidgetInfo?>?, start: Int, count: Int
+    ) {
+        val end = (start + DesktopBinder.ITEMS_COUNT).coerceAtMost(count)
+        var i = start
+        while (i < end) {
+            shortcuts!![i]
+            i++
+        }
+        if (end >= count) {
+            binder.startBindingAppWidgetsWhenIdle()
+        } else {
+            binder.obtainMessage(DesktopBinder.MESSAGE_BIND_ITEMS, i, count).sendToTarget()
+        }
+    }
+
+    @SuppressLint("InflateParams")
+    fun bindAppWidgets(
+        binder: DesktopBinder,
+        appWidgets: LinkedList<CoverWidgetInfo>
+    ) {
+        if (!appWidgets.isEmpty()) {
+            val item = appWidgets.removeFirst()
+            val appWidgetId = item.appWidgetId
+            val appWidgetInfo = mAppWidgetManager!!.getAppWidgetInfo(appWidgetId)
+            item.hostView = appWidgetHost!!.createView(
+                applicationContext, appWidgetId, appWidgetInfo)
+            item.hostView!!.setAppWidget(appWidgetId, appWidgetInfo)
+            item.hostView!!.tag = item
+
+            val id = (pagerAdapter as CoverStateAdapter).addFragment()
+            val fragment = (pagerAdapter as CoverStateAdapter).getFragment(id)
+            val params: LinearLayout.LayoutParams = LinearLayout.LayoutParams(
+                displayMetrics[0], displayMetrics[1]
+            )
+            fragment.setListener(object: PanelViewFragment.ViewCreatedListener {
+                override fun onViewCreated(view: View) {
+                    (view as LinearLayout).addView(item.hostView, params)
+                }
+            })
+        }
+        if (!appWidgets.isEmpty()) {
+            binder.obtainMessage(DesktopBinder.MESSAGE_BIND_APPWIDGETS).sendToTarget()
+        }
+    }
+
+    override fun onRetainCustomNonConfigurationInstance(): Any? {
+        if (mBinder != null) {
+            mBinder!!.mTerminate = true
+        }
+        // return lastNonConfigurationInstance
+        return null
+    }
+
     override fun onNewIntent(intent: Intent?) {
         super.onNewIntent(intent)
         initializeDrawer(null != intent?.action && SamSprung.launcher == intent.action)
     }
 
+    fun CharSequence.toPref(): String =  this.toString()
+        .lowercase().replace(" ", "_")
+
+    private val requestCreateAppWidgetHost = 9001
+
+    @Suppress("DEPRECATION")
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+
+        // We have special handling for widgets
+        if (requestCode == requestCreateAppWidgetHost) {
+            val appWidgetId = data?.getIntExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, -1) ?: -1
+            if (resultCode == RESULT_CANCELED) {
+                if (appWidgetId != -1) {
+                    appWidgetHost!!.deleteAppWidgetId(appWidgetId)
+                }
+            } else {
+                completeAddAppWidget(appWidgetId)
+            }
+            return
+        }
+    }
+
     fun onDismiss() {
+        try {
+            appWidgetHost!!.stopListening()
+        } catch (ignored: NullPointerException) { }
+        model.unbind()
+        model.abortLoaders()
+        contentResolver.unregisterContentObserver(mObserver)
         if (null != mDisplayListener) {
             (getSystemService(Context.DISPLAY_SERVICE) as DisplayManager)
                 .unregisterDisplayListener(mDisplayListener)
@@ -907,17 +1054,21 @@ class SamSprungOverlay : AppCompatActivity(),
                 unregisterReceiver(battReceiver)
         } catch (ignored: Exception) { }
         try {
-            if (this::viewReceiver.isInitialized)
-                unregisterReceiver(viewReceiver)
+            if (this::offReceiver.isInitialized)
+                unregisterReceiver(offReceiver)
         } catch (ignored: Exception) { }
         finish()
     }
 
-    override fun onDestroy() {
+    public override fun onDestroy() {
+        mDestroyed = true
         super.onDestroy()
         onDismiss()
     }
 
-    fun CharSequence.toPref(): String =  this.toString()
-        .lowercase().replace(" ", "_")
+    private inner class FavoritesChangeObserver : ContentObserver(Handler(Looper.getMainLooper())) {
+        override fun onChange(selfChange: Boolean) {
+            onFavoritesChanged()
+        }
+    }
 }

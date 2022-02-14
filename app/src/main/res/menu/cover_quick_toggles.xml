@@ -31,4 +31,9 @@
         android:title="@string/toggle_torch"
         android:icon="@drawable/ic_baseline_flashlight_off_24"
         app:showAsAction="always" />
+    <item
+        android:id="@+id/toggle_widget"
+        android:title="@string/toggle_torch"
+        android:icon="@drawable/ic_baseline_widgets_24"
+        app:showAsAction="always" />
 </menu>
