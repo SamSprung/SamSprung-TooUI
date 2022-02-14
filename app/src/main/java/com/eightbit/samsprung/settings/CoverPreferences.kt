@@ -197,7 +197,7 @@ class CoverPreferences : AppCompatActivity() {
         accessibility = findViewById(R.id.accessibility_switch)
         accessibility.isChecked = hasAccessibility()
         findViewById<LinearLayout>(R.id.accessibility).setOnClickListener {
-            if (!accessibility.isChecked) {
+            if (BuildConfig.FLAVOR == "google" && !accessibility.isChecked) {
                 AlertDialog.Builder(this)
                     .setMessage(getString(R.string.aceessibility_details))
                     .setPositiveButton(R.string.button_confirm) { dialog, _ ->

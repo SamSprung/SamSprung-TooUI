@@ -140,6 +140,7 @@ class SamSprungOverlay : FragmentActivity(), NotificationAdapter.OnNoticeClickLi
             mDisplayListener, Handler(Looper.getMainLooper())
         )
 
+        val coordinator = findViewById<CoordinatorLayout>(R.id.coordinator)
         if (ContextCompat.checkSelfPermission(this,
                 Manifest.permission.READ_EXTERNAL_STORAGE
             ) == PackageManager.PERMISSION_GRANTED) {
@@ -391,7 +392,6 @@ class SamSprungOverlay : FragmentActivity(), NotificationAdapter.OnNoticeClickLi
         val handler = Handler(Looper.getMainLooper())
         val fakeOverlay = findViewById<LinearLayout>(R.id.fake_overlay)
         bottomHandle = findViewById(R.id.bottom_handle)
-        val coordinator = findViewById<CoordinatorLayout>(R.id.coordinator)
         bottomSheetBehaviorMain = BottomSheetBehavior.from(findViewById(R.id.bottom_sheet_main))
         bottomSheetBehaviorMain.state = BottomSheetBehavior.STATE_COLLAPSED
         bottomSheetBehaviorMain.addBottomSheetCallback(object : BottomSheetBehavior.BottomSheetCallback() {
