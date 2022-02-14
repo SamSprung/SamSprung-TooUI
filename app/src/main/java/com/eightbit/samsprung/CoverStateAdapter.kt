@@ -1,8 +1,10 @@
-package com.eightbit.samsprung.launcher
+package com.eightbit.samsprung
 
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
 import androidx.viewpager2.adapter.FragmentStateAdapter
+import com.eightbit.samsprung.launcher.AppDrawerFragment
+import com.eightbit.samsprung.panels.PanelViewFragment
 import java.util.ArrayList
 
 class CoverStateAdapter(fragmentActivity: FragmentActivity) :

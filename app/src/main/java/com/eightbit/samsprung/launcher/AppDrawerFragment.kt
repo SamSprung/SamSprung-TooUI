@@ -22,11 +22,16 @@ import androidx.appcompat.widget.SearchView
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.GridLayoutManager
+import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.eightbit.pm.PackageRetriever
 import com.eightbit.samsprung.R
 import com.eightbit.samsprung.SamSprung
+import com.eightbit.samsprung.SamSprungOverlay
+import com.eightbit.view.OnSwipeTouchListener
+import com.eightbit.widget.RecyclerViewFondler
+import com.google.android.material.bottomsheet.BottomSheetBehavior
 import java.util.concurrent.Executors
 
 class AppDrawerFragment : Fragment(), DrawerAppAdapater.OnAppClickListener {
@@ -42,6 +47,7 @@ class AppDrawerFragment : Fragment(), DrawerAppAdapater.OnAppClickListener {
         ) as ViewGroup
     }
 
+    @SuppressLint("ClickableViewAccessibility")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
@@ -65,19 +71,18 @@ class AppDrawerFragment : Fragment(), DrawerAppAdapater.OnAppClickListener {
             this.layoutParams = this.layoutParams.apply {
                 height = TypedValue.applyDimension(
                     TypedValue.COMPLEX_UNIT_DIP,
-                    24f, resources.displayMetrics).toInt()
+                    18f, resources.displayMetrics).toInt()
             }
         }
         searchView.gravity = Gravity.CENTER_VERTICAL
 
         val searchManager = requireActivity().getSystemService(AppCompatActivity.SEARCH_SERVICE) as SearchManager
         searchView.setSearchableInfo(searchManager.getSearchableInfo(requireActivity().componentName))
-        searchView.isSubmitButtonEnabled = false
-        searchView.setIconifiedByDefault(false)
+        searchView.isSubmitButtonEnabled = true
+        searchView.setIconifiedByDefault(true)
         searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
             override fun onQueryTextSubmit(query: String): Boolean {
                 (launcherView.adapter as DrawerAppAdapater).setQuery(query)
-                searchView.visibility = View.GONE
                 return false
             }
 
@@ -86,7 +91,25 @@ class AppDrawerFragment : Fragment(), DrawerAppAdapater.OnAppClickListener {
                 return true
             }
         })
-        searchView.visibility = View.GONE
+
+        val bottomSheetMain = (requireActivity() as SamSprungOverlay).getBottomSheetMain()
+
+        RecyclerViewFondler(launcherView).setSwipeCallback(
+            ItemTouchHelper.END or ItemTouchHelper.DOWN,
+            object: RecyclerViewFondler.SwipeCallback {
+            override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
+                if (direction == ItemTouchHelper.DOWN) {
+                    onSwipeDown(launcherView, bottomSheetMain)
+                }
+            }
+        })
+
+        launcherView.setOnTouchListener(object : OnSwipeTouchListener(requireActivity()) {
+            override fun onSwipeBottom() : Boolean {
+                onSwipeDown(launcherView, bottomSheetMain)
+                return false
+            }
+        })
 
         val viewReceiver = object : BroadcastReceiver() {
             @SuppressLint("NotifyDataSetChanged")
@@ -122,36 +145,23 @@ class AppDrawerFragment : Fragment(), DrawerAppAdapater.OnAppClickListener {
         }
     }
 
+    private fun onSwipeDown(launcherView: RecyclerView, bottomSheet: BottomSheetBehavior<View>) {
+        if (launcherView.layoutManager is LinearLayoutManager) {
+            if ((launcherView.layoutManager as LinearLayoutManager)
+                    .findFirstCompletelyVisibleItemPosition() == 0) {
+                bottomSheet.state = BottomSheetBehavior.STATE_COLLAPSED
+            }
+        }
+        if (launcherView.layoutManager is GridLayoutManager) {
+            if ((launcherView.layoutManager as GridLayoutManager)
+                    .findFirstCompletelyVisibleItemPosition() == 0) {
+                bottomSheet.state = BottomSheetBehavior.STATE_COLLAPSED
+            }
+        }
+    }
+
     private fun getColumnCount(): Int {
         return (requireActivity().windowManager.currentWindowMetrics.bounds.width() / 96 + 0.5).toInt()
-    }
-
-    private fun animateSearchReveal(view: View, anchor: View) {
-        val animate = TranslateAnimation(
-            -anchor.width.toFloat(), 0f, 0f, 0f
-        )
-        animate.duration = 500
-        animate.fillAfter = false
-        view.startAnimation(animate)
-    }
-
-    fun clearSearchOrOpen(anchor: View) {
-        if (searchView.query.isNotBlank()) {
-            searchView.setQuery("", true)
-            if (searchView.isVisible)
-                searchView.visibility = View.GONE
-        } else if (!searchView.isVisible) {
-            searchView.visibility = View.VISIBLE
-            animateSearchReveal(searchView, anchor)
-        }
-    }
-
-    fun clearSearchOrClose() {
-        if (searchView.query.isNotBlank()) {
-            searchView.setQuery("", true)
-            if (searchView.isVisible)
-                searchView.visibility = View.GONE
-        }
     }
 
     private fun prepareConfiguration() {

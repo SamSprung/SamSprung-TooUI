@@ -1,11 +1,10 @@
-package com.eightbit.samsprung.launcher
+package com.eightbit.samsprung.panels
 
 import android.os.Handler
 import android.os.Looper
 import android.os.Message
 import android.os.MessageQueue
-import com.eightbit.samsprung.panels.CoverWidgetInfo
-import com.eightbit.samsprung.panels.WidgetInfo
+import com.eightbit.samsprung.SamSprungOverlay
 import java.lang.ref.SoftReference
 import java.util.*
 

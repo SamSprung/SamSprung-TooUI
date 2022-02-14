@@ -1,4 +1,4 @@
-package com.eightbit.samsprung.launcher
+package com.eightbit.samsprung.panels
 
 import android.os.*
 import android.view.LayoutInflater

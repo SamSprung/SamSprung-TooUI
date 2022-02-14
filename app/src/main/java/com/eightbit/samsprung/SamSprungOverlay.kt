@@ -1,4 +1,4 @@
-package com.eightbit.samsprung.launcher
+package com.eightbit.samsprung
 
 import android.Manifest
 import android.annotation.SuppressLint
@@ -42,7 +42,6 @@ import androidx.core.graphics.drawable.toBitmap
 import androidx.core.view.children
 import androidx.core.view.isVisible
 import androidx.fragment.app.FragmentActivity
-import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -50,8 +49,9 @@ import androidx.viewpager2.adapter.FragmentStateAdapter
 import androidx.viewpager2.widget.ViewPager2
 import com.eightbit.content.ScaledContext
 import com.eightbit.samsprung.*
+import com.eightbit.samsprung.launcher.AppDisplayListener
+import com.eightbit.samsprung.launcher.NotificationAdapter
 import com.eightbit.samsprung.panels.*
-import com.eightbit.view.OnSwipeTouchListener
 import com.eightbit.widget.RecyclerViewFondler
 import com.eightbitlab.blurview.BlurView
 import com.eightbitlab.blurview.RenderScriptBlur
@@ -93,6 +93,10 @@ class SamSprungOverlay : FragmentActivity(), NotificationAdapter.OnNoticeClickLi
 
     private lateinit var viewPager: ViewPager2
     private lateinit var pagerAdapter: FragmentStateAdapter
+
+    fun getBottomSheetMain() : BottomSheetBehavior<View> {
+        return bottomSheetBehaviorMain
+    }
 
     @SuppressLint("ClickableViewAccessibility")
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -453,7 +457,6 @@ class SamSprungOverlay : FragmentActivity(), NotificationAdapter.OnNoticeClickLi
 
         IntentFilter().apply {
             addAction(Intent.ACTION_SCREEN_OFF)
-            addDataScheme("package")
         }.also {
             registerReceiver(offReceiver, it)
         }

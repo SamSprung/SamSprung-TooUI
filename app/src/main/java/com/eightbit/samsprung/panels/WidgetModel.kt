@@ -23,7 +23,7 @@ import android.content.pm.ActivityInfo
 import android.content.pm.PackageManager
 import android.os.Process
 import android.provider.BaseColumns
-import com.eightbit.samsprung.launcher.SamSprungOverlay
+import com.eightbit.samsprung.SamSprungOverlay
 import com.eightbit.samsprung.panels.WidgetSettings.BaseLauncherColumns
 import com.eightbit.samsprung.panels.WidgetSettings.Favorites
 import java.lang.ref.WeakReference

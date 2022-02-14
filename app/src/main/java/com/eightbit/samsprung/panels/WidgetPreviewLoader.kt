@@ -30,7 +30,7 @@ import java.lang.ref.WeakReference
 import java.util.*
 import java.util.concurrent.Executors
 import android.graphics.Bitmap
-import com.eightbit.samsprung.launcher.SamSprungOverlay
+import com.eightbit.samsprung.SamSprungOverlay
 
 
 internal abstract class SoftReferenceThreadLocal<T> {

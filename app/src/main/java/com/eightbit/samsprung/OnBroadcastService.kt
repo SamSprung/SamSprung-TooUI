@@ -64,7 +64,6 @@ import android.os.IBinder
 import android.provider.Settings
 import androidx.core.app.NotificationCompat
 import androidx.core.content.ContextCompat
-import com.eightbit.samsprung.launcher.SamSprungOverlay
 
 class OnBroadcastService : Service() {
 

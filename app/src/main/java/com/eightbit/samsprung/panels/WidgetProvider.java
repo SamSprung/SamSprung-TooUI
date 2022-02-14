@@ -35,7 +35,7 @@ import android.provider.Settings;
 import android.text.TextUtils;
 import android.util.Log;
 
-import com.eightbit.samsprung.launcher.SamSprungOverlay;
+import com.eightbit.samsprung.SamSprungOverlay;
 import com.eightbit.samsprung.panels.WidgetSettings.Favorites;
 
 import java.util.ArrayList;
