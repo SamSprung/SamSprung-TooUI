@@ -114,7 +114,7 @@ class SamSprungOverlay : FragmentActivity(), NotificationAdapter.OnNoticeClickLi
         prefs = getSharedPreferences(SamSprung.prefsValue, MODE_PRIVATE)
         displayMetrics = ScaledContext.getDisplayParams(this)
 
-        if (prefs.getBoolean(getString(R.string.toggle_widgets).toPref(), true)) {
+        if (prefs.getBoolean(getString(R.string.toggle_widgets).toPref, true)) {
             mAppWidgetManager = AppWidgetManager.getInstance(applicationContext)
             appWidgetHost = CoverWidgetHost(
                 applicationContext,
@@ -345,7 +345,7 @@ class SamSprungOverlay : FragmentActivity(), NotificationAdapter.OnNoticeClickLi
                 } else {
                     toggleStats.removeAllViews()
                     for (i in 0 until toolbar.menu.size()) {
-                        val enabled = prefs.getBoolean(toolbar.menu.getItem(i).title.toPref(), true)
+                        val enabled = prefs.getBoolean(toolbar.menu.getItem(i).title.toPref, true)
                         if (enabled) {
                             toolbar.menu.getItem(i).isVisible = true
                             toolbar.menu.getItem(i).icon.setTint(color)
@@ -364,7 +364,7 @@ class SamSprungOverlay : FragmentActivity(), NotificationAdapter.OnNoticeClickLi
         })
 
         for (i in 0 until toolbar.menu.size()) {
-            val enabled = prefs.getBoolean(toolbar.menu.getItem(i).title.toPref(), true)
+            val enabled = prefs.getBoolean(toolbar.menu.getItem(i).title.toPref, true)
             if (enabled) {
                 toolbar.menu.getItem(i).isVisible = true
                 val icon = layoutInflater.inflate(
@@ -407,7 +407,7 @@ class SamSprungOverlay : FragmentActivity(), NotificationAdapter.OnNoticeClickLi
                 }
             }
             override fun onSlide(bottomSheet: View, slideOffset: Float) {
-                val color = prefs.getInt(SamSprung.prefColors,
+                color = prefs.getInt(SamSprung.prefColors,
                     Color.rgb(255, 255, 255))
                 if (slideOffset > 0) {
                     coordinator.visibility = View.VISIBLE
@@ -437,7 +437,7 @@ class SamSprungOverlay : FragmentActivity(), NotificationAdapter.OnNoticeClickLi
         pagerAdapter = CoverStateAdapter(this)
         viewPager.adapter = pagerAdapter
 
-        if (prefs.getBoolean(getString(R.string.toggle_widgets).toPref(), true)) {
+        if (prefs.getBoolean(getString(R.string.toggle_widgets).toPref, true)) {
             contentResolver.registerContentObserver(
                 WidgetSettings.Favorites.CONTENT_URI, true, mObserver
             )
@@ -1007,7 +1007,7 @@ class SamSprungOverlay : FragmentActivity(), NotificationAdapter.OnNoticeClickLi
         mDestroyed = true
         onDismiss()
         super.onDestroy()
-        if (prefs.getBoolean(getString(R.string.toggle_widgets).toPref(), true)) {
+        if (prefs.getBoolean(getString(R.string.toggle_widgets).toPref, true)) {
             try {
                 appWidgetHost!!.stopListening()
             } catch (ignored: NullPointerException) {
@@ -1018,12 +1018,12 @@ class SamSprungOverlay : FragmentActivity(), NotificationAdapter.OnNoticeClickLi
         }
     }
 
-    fun CharSequence.toPref(): String =  this.toString()
-        .lowercase().replace(" ", "_")
-
     private inner class FavoritesChangeObserver : ContentObserver(Handler(Looper.getMainLooper())) {
         override fun onChange(selfChange: Boolean) {
             onFavoritesChanged()
         }
     }
+
+    private val CharSequence.toPref get() = this.toString()
+        .lowercase().replace(" ", "_")
 }

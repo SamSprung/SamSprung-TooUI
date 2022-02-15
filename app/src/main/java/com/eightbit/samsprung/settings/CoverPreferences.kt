@@ -110,6 +110,8 @@ import java.util.concurrent.Executors
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
 import android.content.Intent
+import android.content.res.Resources
+import android.util.TypedValue
 import com.eightbit.samsprung.*
 
 
@@ -493,7 +495,7 @@ class CoverPreferences : AppCompatActivity() {
         val toolbar = findViewById<Toolbar>(R.id.toolbar)
         toolbar.inflateMenu(R.menu.cover_quick_toggles)
         toolbar.setOnMenuItemClickListener { item: MenuItem ->
-            val pref = item.title.toPref()
+            val pref = item.title.toPref
             with(prefs.edit()) {
                 putBoolean(pref, !prefs.getBoolean(pref, true))
                 apply()
@@ -548,37 +550,37 @@ class CoverPreferences : AppCompatActivity() {
         }
 
         val wifi = toolbar.menu.findItem(R.id.toggle_wifi)
-        if (prefs.getBoolean(wifi.title.toPref(), true))
+        if (prefs.getBoolean(wifi.title.toPref, true))
             wifi.setIcon(R.drawable.ic_baseline_wifi_on_24)
         else
             wifi.setIcon(R.drawable.ic_baseline_wifi_off_24)
 
         val bluetooth = toolbar.menu.findItem(R.id.toggle_bluetooth)
-        if (prefs.getBoolean(bluetooth.title.toPref(), true))
+        if (prefs.getBoolean(bluetooth.title.toPref, true))
             bluetooth.setIcon(R.drawable.ic_baseline_bluetooth_on_24)
         else
             bluetooth.setIcon(R.drawable.ic_baseline_bluetooth_off_24)
 
         val nfc = toolbar.menu.findItem(R.id.toggle_nfc)
-        if (prefs.getBoolean(nfc.title.toPref(), true))
+        if (prefs.getBoolean(nfc.title.toPref, true))
             nfc.setIcon(R.drawable.ic_baseline_nfc_on_24)
         else
             nfc.setIcon(R.drawable.ic_baseline_nfc_off_24)
 
         val sound = toolbar.menu.findItem(R.id.toggle_sound)
-        if (prefs.getBoolean(sound.title.toPref(), true))
+        if (prefs.getBoolean(sound.title.toPref, true))
             sound.setIcon(R.drawable.ic_baseline_sound_on_24)
         else
             sound.setIcon(R.drawable.ic_baseline_sound_off_24)
 
         val dnd = toolbar.menu.findItem(R.id.toggle_dnd)
-        if (prefs.getBoolean(dnd.title.toPref(), true))
+        if (prefs.getBoolean(dnd.title.toPref, true))
             dnd.setIcon(R.drawable.ic_baseline_do_not_disturb_on_24)
         else
             dnd.setIcon(R.drawable.ic_baseline_do_not_disturb_off_24)
 
         val torch = toolbar.menu.findItem(R.id.toggle_torch)
-        if (prefs.getBoolean(torch.title.toPref(), true))
+        if (prefs.getBoolean(torch.title.toPref, true))
             torch.setIcon(R.drawable.ic_baseline_flashlight_on_24)
         else
             torch.setIcon(R.drawable.ic_baseline_flashlight_off_24)
@@ -779,6 +781,7 @@ class CoverPreferences : AppCompatActivity() {
             for (skuDetail: SkuDetails in iapSkuDetails) {
                 val button = Button(applicationContext)
                 button.setBackgroundResource(R.drawable.button_rippled)
+                button.elevation = 10f.toPx
                 button.text = getString(R.string.iap_button, skuDetail.price)
                 button.setOnClickListener {
                     billingClient.launchBillingFlow(
@@ -792,6 +795,7 @@ class CoverPreferences : AppCompatActivity() {
             for (skuDetail: SkuDetails in subSkuDetails) {
                 val button = Button(applicationContext)
                 button.setBackgroundResource(R.drawable.button_rippled)
+                button.elevation = 10f.toPx
                 button.text = getString(R.string.sub_button, skuDetail.price)
                 button.setOnClickListener {
                     billingClient.launchBillingFlow(
@@ -1052,6 +1056,11 @@ class CoverPreferences : AppCompatActivity() {
         }
     }
 
-    private fun CharSequence.toPref(): String =  this.toString()
+    private val CharSequence.toPref get() = this.toString()
         .lowercase().replace(" ", "_")
+
+    private val Number.toPx get() = TypedValue.applyDimension(
+        TypedValue.COMPLEX_UNIT_DIP, this.toFloat(),
+        Resources.getSystem().displayMetrics
+    )
 }
