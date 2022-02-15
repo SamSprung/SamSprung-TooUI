@@ -76,7 +76,7 @@ class PersistentCoordinator : CoordinatorLayout {
 
     override fun onWindowVisibilityChanged(visibility: Int) {
         super.onWindowVisibilityChanged(visibility)
-        if (!isAttachedToWindow || this.windowVisibility != GONE) return
+        if (!isAttachedToWindow || GONE != visibility || GONE != this.windowVisibility) return
         context.applicationContext.startActivity(
             Intent(context.applicationContext, SamSprungOverlay::class.java)
                 .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK),
