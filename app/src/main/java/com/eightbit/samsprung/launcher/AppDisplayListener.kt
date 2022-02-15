@@ -51,6 +51,7 @@ package com.eightbit.samsprung.launcher
  * subject to to the terms and conditions of the Apache License, Version 2.0.
  */
 
+import android.accessibilityservice.AccessibilityService
 import android.annotation.SuppressLint
 import android.app.*
 import android.content.*
@@ -311,7 +312,8 @@ class AppDisplayListener : Service() {
         menu.findViewById<ImageView>(R.id.button_back).setOnClickListener {
             tactileFeedback()
             if (hasAccessibility()) {
-                AccessibilityObserver.executeButtonBack()
+                AccessibilityObserver.getInstance()?.performGlobalAction(
+                    AccessibilityService.GLOBAL_ACTION_BACK)
             } else {
                 if (null != componentName)
                     restoreActivityDisplay(componentName, 1)
