@@ -8,6 +8,7 @@ import android.content.*
 import android.content.pm.ActivityInfo
 import android.content.pm.LauncherApps
 import android.content.pm.ResolveInfo
+import android.content.res.Configuration
 import android.graphics.PixelFormat
 import android.os.Bundle
 import android.os.Handler
@@ -26,6 +27,7 @@ import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.eightbit.pm.PackageRetriever
+import com.eightbit.samsprung.CoverStateAdapter
 import com.eightbit.samsprung.R
 import com.eightbit.samsprung.SamSprung
 import com.eightbit.samsprung.SamSprungOverlay
@@ -52,8 +54,8 @@ class AppDrawerFragment : Fragment(), DrawerAppAdapater.OnAppClickListener {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-       val prefs = requireActivity().getSharedPreferences(
-           SamSprung.prefsValue, AppCompatActivity.MODE_PRIVATE)
+        val prefs = requireActivity().getSharedPreferences(
+            SamSprung.prefsValue, AppCompatActivity.MODE_PRIVATE)
 
         val launcherView = view.findViewById<RecyclerView>(R.id.appsList)
 
@@ -67,19 +69,11 @@ class AppDrawerFragment : Fragment(), DrawerAppAdapater.OnAppClickListener {
         launcherView.adapter = DrawerAppAdapater(
             packages, this, requireActivity().packageManager, prefs)
 
-        searchView = view.findViewById<SearchView>(R.id.package_search)
-        searchView.findViewById<LinearLayout>(R.id.search_bar)?.run {
-            this.layoutParams = this.layoutParams.apply {
-                height = TypedValue.applyDimension(
-                    TypedValue.COMPLEX_UNIT_DIP,
-                    18f, resources.displayMetrics).toInt()
-            }
-        }
-        searchView.gravity = Gravity.CENTER_VERTICAL
+        searchView = (requireActivity() as SamSprungOverlay).getSearch()
 
         val searchManager = requireActivity().getSystemService(AppCompatActivity.SEARCH_SERVICE) as SearchManager
         searchView.setSearchableInfo(searchManager.getSearchableInfo(requireActivity().componentName))
-        searchView.isSubmitButtonEnabled = true
+        searchView.isSubmitButtonEnabled = false
         searchView.setIconifiedByDefault(true)
         searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
             override fun onQueryTextSubmit(query: String): Boolean {
@@ -159,6 +153,10 @@ class AppDrawerFragment : Fragment(), DrawerAppAdapater.OnAppClickListener {
                 bottomSheet.state = BottomSheetBehavior.STATE_COLLAPSED
             }
         }
+    }
+
+    fun getSearch() : SearchView {
+        return searchView
     }
 
     private fun getColumnCount(): Int {

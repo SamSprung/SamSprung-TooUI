@@ -123,7 +123,7 @@
                         android:layout_height="wrap_content"
                         android:layout_alignParentEnd="true"
                         android:layout_centerVertical="true"
-                        android:src="@drawable/ic_baseline_send_24" />
+                        app:srcCompat="@drawable/ic_baseline_send_24" />
 
                     <EditText
                         android:id="@+id/reply"

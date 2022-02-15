@@ -49,6 +49,8 @@ import com.google.android.material.bottomsheet.BottomSheetBehavior
 import java.util.*
 import android.speech.tts.TextToSpeech
 import android.widget.*
+import androidx.appcompat.widget.SearchView
+import com.google.android.material.floatingactionbutton.FloatingActionButton
 
 
 class SamSprungOverlay : FragmentActivity(), NotificationAdapter.OnNoticeClickListener {
@@ -74,6 +76,7 @@ class SamSprungOverlay : FragmentActivity(), NotificationAdapter.OnNoticeClickLi
     private lateinit var bottomSheetBehaviorMain: BottomSheetBehavior<View>
     private lateinit var viewPager: ViewPager2
     private lateinit var pagerAdapter: FragmentStateAdapter
+    private lateinit var searchView: SearchView
 
     private val mObserver: ContentObserver = FavoritesChangeObserver()
 
@@ -137,15 +140,6 @@ class SamSprungOverlay : FragmentActivity(), NotificationAdapter.OnNoticeClickLi
             .setBlurAutoUpdate(true)
             .setHasFixedTransformationMatrix(true)
             .setBlurAlgorithm(RenderScriptBlur(this))
-
-        viewPager = findViewById(R.id.pager)
-        pagerAdapter = CoverStateAdapter(this)
-        viewPager.adapter = pagerAdapter
-
-        if (prefs.getBoolean(getString(R.string.toggle_widgets).toPref, true)) {
-            widgetHandler = WidgetHandler(this, viewPager, pagerAdapter as CoverStateAdapter,
-                ScaledContext.getDisplayParams(this))
-        }
 
         wifiManager = getSystemService(WIFI_SERVICE) as WifiManager
         bluetoothAdapter = (getSystemService(Context.BLUETOOTH_SERVICE)
@@ -392,7 +386,49 @@ class SamSprungOverlay : FragmentActivity(), NotificationAdapter.OnNoticeClickLi
             }
         })
 
+        viewPager = findViewById(R.id.pager)
+        pagerAdapter = CoverStateAdapter(this)
+        viewPager.adapter = pagerAdapter
+
+        searchView = findViewById<SearchView>(R.id.package_search)
+        searchView.findViewById<LinearLayout>(R.id.search_bar)?.run {
+            this.layoutParams = this.layoutParams.apply {
+                height = TypedValue.applyDimension(
+                    TypedValue.COMPLEX_UNIT_DIP,
+                    18f, resources.displayMetrics).toInt()
+            }
+        }
+
+        viewPager.registerOnPageChangeCallback(object: ViewPager2.OnPageChangeCallback() {
+            override fun onPageScrollStateChanged(state: Int) {
+                super.onPageScrollStateChanged(state)
+            }
+
+            override fun onPageScrolled(
+                position: Int,
+                positionOffset: Float,
+                positionOffsetPixels: Int
+            ) {
+                super.onPageScrolled(position, positionOffset, positionOffsetPixels)
+            }
+
+            override fun onPageSelected(position: Int) {
+                super.onPageSelected(position)
+                if (position == 0) {
+                    searchView.visibility = View.VISIBLE
+                } else {
+                    searchView.visibility = View.GONE
+                }
+            }
+        })
+
+        if (prefs.getBoolean(getString(R.string.toggle_widgets).toPref, true)) {
+            widgetHandler = WidgetHandler(this, viewPager, pagerAdapter as CoverStateAdapter,
+                ScaledContext.getDisplayParams(this))
+        }
+
         val handler = Handler(Looper.getMainLooper())
+        val menuButton = findViewById<FloatingActionButton>(R.id.menu_fab)
         val fakeOverlay = findViewById<LinearLayout>(R.id.fake_overlay)
         bottomHandle = findViewById(R.id.bottom_handle)
         bottomSheetBehaviorMain = BottomSheetBehavior.from(findViewById(R.id.bottom_sheet_main))
@@ -403,11 +439,12 @@ class SamSprungOverlay : FragmentActivity(), NotificationAdapter.OnNoticeClickLi
                 if (newState == BottomSheetBehavior.STATE_EXPANDED) {
                     coordinator.keepScreenOn = true
                     window.clearFlags(WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE)
+                    menuButton.visibility = View.GONE
                 } else if (newState == BottomSheetBehavior.STATE_COLLAPSED) {
                     window.addFlags(WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE)
                     coordinator.keepScreenOn = false
                     coordinator.visibility = View.GONE
-//                    bottomSheetBehaviorMain.isDraggable = true
+                    bottomSheetBehaviorMain.isDraggable = true
                 }
             }
             override fun onSlide(bottomSheet: View, slideOffset: Float) {
@@ -415,8 +452,9 @@ class SamSprungOverlay : FragmentActivity(), NotificationAdapter.OnNoticeClickLi
                     Color.rgb(255, 255, 255))
                 if (slideOffset > 0) {
                     coordinator.visibility = View.VISIBLE
+                    toggleStats.invalidate()
                     if (slideOffset > 0.5) {
-//                        bottomSheetBehaviorMain.isDraggable = false
+                        bottomSheetBehaviorMain.isDraggable = false
                         fakeOverlay.visibility = View.GONE
                     }
                     if (bottomHandle.visibility != View.INVISIBLE) {
@@ -426,16 +464,25 @@ class SamSprungOverlay : FragmentActivity(), NotificationAdapter.OnNoticeClickLi
                 } else {
                     fakeOverlay.visibility = View.VISIBLE
                     bottomHandle.setBackgroundColor(color)
+                    menuButton.drawable.setTint(color)
                     bottomHandle.alpha = prefs.getFloat(SamSprung.prefAlphas, 1f)
                     if (!bottomHandle.isVisible) {
                         handler.postDelayed({
                             runOnUiThread {
-                                bottomHandle.visibility = View.VISIBLE }
+                                bottomHandle.visibility = View.VISIBLE
+                                menuButton.visibility = View.VISIBLE
+                            }
                         }, 250)
                     }
                 }
             }
         })
+
+
+        menuButton.setOnClickListener {
+            bottomSheetBehaviorMain.state = BottomSheetBehavior.STATE_EXPANDED
+        }
+        menuButton.drawable.setTint(color)
 
         if (prefs.getBoolean(getString(R.string.toggle_widgets).toPref, true)) {
             contentResolver.registerContentObserver(
@@ -460,6 +507,10 @@ class SamSprungOverlay : FragmentActivity(), NotificationAdapter.OnNoticeClickLi
         }.also {
             registerReceiver(offReceiver, it)
         }
+    }
+
+    fun getSearch() : SearchView {
+        return searchView
     }
 
     companion object {
