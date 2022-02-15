@@ -23,10 +23,6 @@ import android.provider.Settings
 import android.service.notification.StatusBarNotification
 import android.util.TypedValue
 import android.view.*
-import android.widget.EditText
-import android.widget.LinearLayout
-import android.widget.TextClock
-import android.widget.TextView
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.view.ContextThemeWrapper
 import androidx.appcompat.widget.AppCompatButton
@@ -51,6 +47,9 @@ import com.eightbitlab.blurview.BlurView
 import com.eightbitlab.blurview.RenderScriptBlur
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import java.util.*
+import android.speech.tts.TextToSpeech
+import android.widget.*
+
 
 class SamSprungOverlay : FragmentActivity(), NotificationAdapter.OnNoticeClickListener {
 
@@ -80,6 +79,8 @@ class SamSprungOverlay : FragmentActivity(), NotificationAdapter.OnNoticeClickLi
 
     private var mDestroyed = false
     private var mBinder: DesktopBinder? = null
+    private var textSpeech: TextToSpeech? = null
+
 
     fun getBottomSheetMain() : BottomSheetBehavior<View> {
         return bottomSheetBehaviorMain
@@ -205,6 +206,17 @@ class SamSprungOverlay : FragmentActivity(), NotificationAdapter.OnNoticeClickLi
             else
                 toolbar.menu.findItem(R.id.toggle_nfc).setIcon(R.drawable.ic_baseline_nfc_off_24)
             toolbar.menu.findItem(R.id.toggle_nfc).icon.setTint(color)
+        }
+
+        textSpeech = TextToSpeech(this) { status ->
+            if (status == TextToSpeech.SUCCESS) {
+                val result: Int? = textSpeech?.setLanguage(Locale.getDefault())
+                if (result == TextToSpeech.LANG_MISSING_DATA ||
+                    result == TextToSpeech.LANG_NOT_SUPPORTED
+                ) {
+                    textSpeech = null
+                }
+            }
         }
 
         noticesView = findViewById(R.id.notificationList)
@@ -384,6 +396,7 @@ class SamSprungOverlay : FragmentActivity(), NotificationAdapter.OnNoticeClickLi
         val fakeOverlay = findViewById<LinearLayout>(R.id.fake_overlay)
         bottomHandle = findViewById(R.id.bottom_handle)
         bottomSheetBehaviorMain = BottomSheetBehavior.from(findViewById(R.id.bottom_sheet_main))
+        bottomSheetBehaviorMain.isHideable = false
         bottomSheetBehaviorMain.state = BottomSheetBehavior.STATE_COLLAPSED
         bottomSheetBehaviorMain.addBottomSheetCallback(object : BottomSheetBehavior.BottomSheetCallback() {
             override fun onStateChanged(bottomSheet: View, newState: Int) {
@@ -543,7 +556,30 @@ class SamSprungOverlay : FragmentActivity(), NotificationAdapter.OnNoticeClickLi
         return color
     }
 
-    private fun processIntentSender(intentSender: IntentSender) {
+    private fun initializeDrawer(launcher: Boolean) {
+        Handler(Looper.getMainLooper()).postDelayed({
+            runOnUiThread {
+                bottomHandle = findViewById(R.id.bottom_handle)
+                bottomHandle.visibility = View.VISIBLE
+                bottomHandle.setBackgroundColor(prefs.getInt(
+                    SamSprung.prefColors,
+                    Color.rgb(255, 255, 255)))
+                bottomHandle.alpha = prefs.getFloat(SamSprung.prefAlphas, 1f)
+                if (launcher) {
+                    bottomSheetBehaviorMain.state = BottomSheetBehavior.STATE_EXPANDED
+                }
+            }
+            if (this::noticesView.isInitialized) {
+                if (hasNotificationListener()) {
+                    NotificationReceiver.getReceiver()?.setNotificationsListener(
+                        noticesView.adapter as NotificationAdapter
+                    )
+                }
+            }
+        }, 150)
+    }
+
+    fun processIntentSender(intentSender: IntentSender) {
         prepareConfiguration()
 
         requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
@@ -618,28 +654,63 @@ class SamSprungOverlay : FragmentActivity(), NotificationAdapter.OnNoticeClickLi
             0, LinearLayout.LayoutParams.WRAP_CONTENT,
             if (action.title.length > 10) 1.5f else 1.0f
         ))
-        actionsPanel.visibility = View.VISIBLE
     }
 
     private fun setNotificationCancel(actionsPanel: LinearLayout, sbn: StatusBarNotification) {
         val actionButtons = actionsPanel.findViewById<LinearLayout>(R.id.actions)
-        val button = AppCompatButton(
+        val button = AppCompatImageView(
             ContextThemeWrapper(this,
-                R.style.Theme_SecondScreen_NoActionBar
+                R.style.Theme_SecondScreen_NoActionBar)
         )
-        )
-        button.setTextSize(TypedValue.COMPLEX_UNIT_SP, 10f)
-        button.setSingleLine()
-        button.text = getString(R.string.notification_dismiss)
+        button.setImageDrawable(ContextCompat
+            .getDrawable(this, R.drawable.ic_baseline_cancel_presentation_24))
         button.setOnClickListener {
             NotificationReceiver.getReceiver()?.setNotificationsShown(arrayOf(sbn.key))
             NotificationReceiver.getReceiver()?.cancelNotification(sbn.key)
             actionsPanel.visibility = View.GONE
         }
-        actionButtons.addView(button, LinearLayout.LayoutParams(
-            0, LinearLayout.LayoutParams.WRAP_CONTENT, 1.0f
-        ))
-        actionsPanel.visibility = View.VISIBLE
+        val params = LinearLayout.LayoutParams(
+            0, LinearLayout.LayoutParams.WRAP_CONTENT, 0.5f
+        )
+        params.gravity = Gravity.CENTER
+        actionButtons.addView(button, params)
+    }
+
+    override fun onNoticeClicked(itemView: View, position: Int, notice: StatusBarNotification) {
+        val actionsPanel = itemView.findViewById<LinearLayout>(R.id.action_panel)
+        if (actionsPanel.isVisible) {
+            actionsPanel.visibility = View.GONE
+        } else {
+            val actionButtons = actionsPanel.findViewById<LinearLayout>(R.id.actions)
+            if (actionButtons.childCount > 0) {
+                actionsPanel.visibility = View.VISIBLE
+            } else {
+                actionsPanel.visibility = View.VISIBLE
+                if (null != notice.notification.actions) {
+                    for (action in notice.notification.actions) {
+                        setNotificationAction(position, actionsPanel, action)
+                    }
+                    (noticesView.layoutManager as LinearLayoutManager)
+                        .scrollToPositionWithOffset(position,
+                            -(actionButtons.height))
+                }
+                if (notice.isClearable) {
+                    setNotificationCancel(actionsPanel, notice)
+                    (noticesView.layoutManager as LinearLayoutManager)
+                        .scrollToPositionWithOffset(position,
+                            -(actionButtons.height))
+                }
+            }
+        }
+    }
+
+    override fun onNoticeLongClicked(itemView: View, position: Int,
+                                     notice: StatusBarNotification
+    ) : Boolean {
+        tactileFeedback()
+        textSpeech?.speak(itemView.findViewById<TextView>(R.id.lines).text,
+            TextToSpeech.QUEUE_ADD, null, SamSprung.notification)
+        return true
     }
 
     private fun tactileFeedback() {
@@ -669,81 +740,16 @@ class SamSprungOverlay : FragmentActivity(), NotificationAdapter.OnNoticeClickLi
         }
     }
 
-    override fun onNoticeClicked(itemView: View, position: Int, notice: StatusBarNotification) {
-        val actionsPanel = itemView.findViewById<LinearLayout>(R.id.action_panel)
-        if (actionsPanel.isVisible) {
-            actionsPanel.visibility = View.GONE
-        } else {
-            val actionButtons = actionsPanel.findViewById<LinearLayout>(R.id.actions)
-            if (actionButtons.childCount > 0) {
-                actionsPanel.visibility = View.VISIBLE
-            } else {
-                if (null != notice.notification.actions) {
-                    for (action in notice.notification.actions) {
-                        setNotificationAction(position, actionsPanel, action)
-                    }
-                    (noticesView.layoutManager as LinearLayoutManager)
-                        .scrollToPositionWithOffset(position,
-                            -(actionButtons.height))
-                }
-                if (notice.isClearable) {
-                    setNotificationCancel(actionsPanel, notice)
-                    (noticesView.layoutManager as LinearLayoutManager)
-                        .scrollToPositionWithOffset(position,
-                            -(actionButtons.height))
-                }
-            }
-        }
-    }
-
-    override fun onNoticeLongClicked(itemView: View, position: Int,
-                                     notice: StatusBarNotification
-    ) : Boolean {
-        tactileFeedback()
-        processIntentSender(notice.notification.contentIntent.intentSender)
-        return true
-    }
-
-    private fun initializeDrawer(launcher: Boolean) {
-        Handler(Looper.getMainLooper()).postDelayed({
-            runOnUiThread {
-                bottomHandle = findViewById(R.id.bottom_handle)
-                bottomHandle.visibility = View.VISIBLE
-                bottomHandle.setBackgroundColor(prefs.getInt(
-                    SamSprung.prefColors,
-                    Color.rgb(255, 255, 255)))
-                bottomHandle.alpha = prefs.getFloat(SamSprung.prefAlphas, 1f)
-                if (launcher) {
-                    bottomSheetBehaviorMain.state = BottomSheetBehavior.STATE_EXPANDED
-                }
-            }
-            if (this::noticesView.isInitialized) {
-                if (hasNotificationListener()) {
-                    NotificationReceiver.getReceiver()?.setNotificationsListener(
-                        noticesView.adapter as NotificationAdapter
-                    )
-                }
-            }
-        }, 150)
-    }
-
     private fun onFavoritesChanged() {
         model.loadUserItems(false, this)
     }
 
-    fun onDesktopItemsLoaded(
-    shortcuts: ArrayList<WidgetInfo?>?,
-    appWidgets: ArrayList<CoverWidgetInfo>?
+    @SuppressLint("InflateParams")
+    fun bindAppWidgets(
+        binder: DesktopBinder,
+        appWidgets: LinkedList<CoverWidgetInfo>
     ) {
-        if (mDestroyed) {
-            return
-        }
-        // Flag any old binder to terminate early
-        if (mBinder != null) {
-            mBinder!!.mTerminate = true
-        }
-        mBinder = DesktopBinder(this, shortcuts, appWidgets)
-        mBinder!!.startBindingItems()
+        widgetHandler?.bindAppWidgets(binder, appWidgets)
     }
 
     fun bindItems(
@@ -763,6 +769,21 @@ class SamSprungOverlay : FragmentActivity(), NotificationAdapter.OnNoticeClickLi
         }
     }
 
+    fun onDesktopItemsLoaded(
+    shortcuts: ArrayList<WidgetInfo?>?,
+    appWidgets: ArrayList<CoverWidgetInfo>?
+    ) {
+        if (mDestroyed) {
+            return
+        }
+        // Flag any old binder to terminate early
+        if (mBinder != null) {
+            mBinder!!.mTerminate = true
+        }
+        mBinder = DesktopBinder(this, shortcuts, appWidgets)
+        mBinder!!.startBindingItems()
+    }
+
     override fun onRetainCustomNonConfigurationInstance(): Any? {
         if (mBinder != null) {
             mBinder!!.mTerminate = true
@@ -774,14 +795,6 @@ class SamSprungOverlay : FragmentActivity(), NotificationAdapter.OnNoticeClickLi
     override fun onNewIntent(intent: Intent?) {
         super.onNewIntent(intent)
         initializeDrawer(null != intent?.action && SamSprung.launcher == intent.action)
-    }
-
-    @SuppressLint("InflateParams")
-    fun bindAppWidgets(
-        binder: DesktopBinder,
-        appWidgets: LinkedList<CoverWidgetInfo>
-    ) {
-        widgetHandler?.bindAppWidgets(binder, appWidgets)
     }
 
     private val requestCreateAppWidgetHost = 9001
@@ -824,6 +837,10 @@ class SamSprungOverlay : FragmentActivity(), NotificationAdapter.OnNoticeClickLi
         mDestroyed = true
         onDismiss()
         super.onDestroy()
+        if (null != textSpeech) {
+            textSpeech?.stop();
+            textSpeech?.shutdown();
+        }
         if (prefs.getBoolean(getString(R.string.toggle_widgets).toPref, true)) {
             widgetHandler?.onDestroy()
             model.unbind()

@@ -86,6 +86,7 @@ class SamSprung : Application() {
         const val animated: String = "com.eightbit.samsprung.ANIMATED"
 
         const val request_code = 8675309
+        const val notification = "8675309"
 
         const val prefsValue: String = "samsprung.preferences"
         const val prefLayout: String = "prefLayout"

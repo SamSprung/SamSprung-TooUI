@@ -12,6 +12,7 @@
         <!-- Status bar color. -->
         <item name="android:statusBarColor" tools:targetApi="l">?attr/colorPrimaryVariant</item>
         <!-- Customize your theme here. -->
+        <item name="android:windowCloseOnTouchOutside">false</item>
         <item name="buttonStyle">@style/SlimButton</item>
         <item name="popupMenuStyle">@style/SlimPopupMenu</item>
     </style>

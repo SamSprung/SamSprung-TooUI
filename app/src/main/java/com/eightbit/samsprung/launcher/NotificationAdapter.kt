@@ -59,12 +59,14 @@ import android.service.notification.StatusBarNotification
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.RelativeLayout
 import android.widget.TextView
 import androidx.appcompat.widget.AppCompatImageView
 import androidx.core.app.NotificationCompat
 import androidx.recyclerview.widget.RecyclerView
 import com.eightbit.samsprung.NotificationReceiver
 import com.eightbit.samsprung.R
+import com.eightbit.samsprung.SamSprungOverlay
 import java.util.*
 
 class NotificationAdapter(
@@ -111,8 +113,10 @@ class NotificationAdapter(
         itemView: View, val listener: OnNoticeClickListener?, val activity: Activity
     ) : RecyclerView.ViewHolder(itemView) {
         private val iconView: AppCompatImageView = itemView.findViewById(R.id.icon)
-        private val imageView: AppCompatImageView = itemView.findViewById(R.id.image)
         private val linesText: TextView = itemView.findViewById(R.id.lines)
+        private val launchIcon: AppCompatImageView = itemView.findViewById(R.id.launch)
+        private val preview: RelativeLayout = itemView.findViewById(R.id.preview)
+        private val imageView: AppCompatImageView = itemView.findViewById(R.id.image)
         lateinit var notice: StatusBarNotification
         fun bind(notice: StatusBarNotification) {
             this.notice = notice
@@ -127,12 +131,12 @@ class NotificationAdapter(
             }
             if (null != notification.extras) {
                 if (notification.extras.containsKey(NotificationCompat.EXTRA_PICTURE)) {
-                    imageView.visibility = View.VISIBLE
+                    preview.visibility = View.VISIBLE
                     val bitmap = getScaledBitmap(activity, notification.extras
                         .get(NotificationCompat.EXTRA_PICTURE) as Bitmap)
                     imageView.setImageBitmap(bitmap)
                 } else {
-                    imageView.visibility = View.GONE
+                    preview.visibility = View.GONE
                 }
                 if (notification.extras.containsKey(NotificationCompat.EXTRA_BIG_TEXT)) {
                     val textBig = notification.extras.get(NotificationCompat.EXTRA_BIG_TEXT)
@@ -157,6 +161,10 @@ class NotificationAdapter(
                 linesText.text = notification.tickerText.toString()
             }
             if (linesText.text.isEmpty()) linesText.text = ""
+            launchIcon.setOnClickListener {
+                (activity as SamSprungOverlay)
+                    .processIntentSender(notification.contentIntent.intentSender)
+            }
         }
 
         private fun getScaledBitmap(activity: Activity, bitmap: Bitmap) : Bitmap {
