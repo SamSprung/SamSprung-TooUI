@@ -277,36 +277,6 @@ class SamSprungOverlay : FragmentActivity(), NotificationAdapter.OnNoticeClickLi
             override fun onStateChanged(bottomSheet: View, newState: Int) {
                 if (newState == BottomSheetBehavior.STATE_EXPANDED) {
                     toolbar.setOnMenuItemClickListener { item: MenuItem ->
-                        Handler(Looper.getMainLooper()).post {
-                            val delete: View = findViewById(R.id.toggle_widgets)
-                            delete.setOnLongClickListener(View.OnLongClickListener {
-                                if (viewPager.currentItem != 0) {
-                                    toolbar.menu.findItem(R.id.toggle_widgets)
-                                        .setIcon(R.drawable.ic_baseline_delete_forever_24)
-                                    tactileFeedback()
-                                    val index = viewPager.currentItem
-                                    val fragment = (pagerAdapter as CoverStateAdapter)
-                                        .getFragment(index)
-                                    val widget = fragment.getLayout()!!.getChildAt(0).tag
-                                    if (widget is CoverWidgetInfo) {
-                                        viewPager.setCurrentItem(index - 1, true)
-                                        model.removeDesktopAppWidget(widget)
-                                        if (null != widgetHandler?.getAppWidgetHost()) {
-                                            widgetHandler!!.getAppWidgetHost()
-                                                .deleteAppWidgetId(widget.appWidgetId)
-                                        }
-                                        WidgetModel.deleteItemFromDatabase(
-                                            applicationContext, widget
-                                        )
-                                        (pagerAdapter as CoverStateAdapter).removeFragment(index)
-                                    }
-                                    bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
-                                    toolbar.menu.findItem(R.id.toggle_widgets)
-                                        .setIcon(R.drawable.ic_baseline_widgets_24)
-                                }
-                                return@OnLongClickListener true
-                            })
-                        }
                         when (item.itemId) {
                             R.id.toggle_wifi -> {
                                 wifiEnabler.launch(Intent(Settings.Panel.ACTION_INTERNET_CONNECTIVITY))
@@ -423,6 +393,35 @@ class SamSprungOverlay : FragmentActivity(), NotificationAdapter.OnNoticeClickLi
                 toolbar.menu.getItem(i).isVisible = false
             }
         }
+
+        val delete: View = toolbar.findViewById(R.id.toggle_widgets)
+        delete.setOnLongClickListener(View.OnLongClickListener {
+            if (viewPager.currentItem != 0) {
+                toolbar.menu.findItem(R.id.toggle_widgets)
+                    .setIcon(R.drawable.ic_baseline_delete_forever_24)
+                tactileFeedback()
+                val index = viewPager.currentItem
+                val fragment = (pagerAdapter as CoverStateAdapter)
+                    .getFragment(index)
+                val widget = fragment.getLayout()!!.getChildAt(0).tag
+                if (widget is CoverWidgetInfo) {
+                    viewPager.setCurrentItem(index - 1, true)
+                    model.removeDesktopAppWidget(widget)
+                    if (null != widgetHandler?.getAppWidgetHost()) {
+                        widgetHandler!!.getAppWidgetHost()
+                            .deleteAppWidgetId(widget.appWidgetId)
+                    }
+                    WidgetModel.deleteItemFromDatabase(
+                        applicationContext, widget
+                    )
+                    (pagerAdapter as CoverStateAdapter).removeFragment(index)
+                }
+                bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
+                toolbar.menu.findItem(R.id.toggle_widgets)
+                    .setIcon(R.drawable.ic_baseline_widgets_24)
+            }
+            return@OnLongClickListener true
+        })
 
         RecyclerViewTouch(noticesView).setSwipeCallback(
             ItemTouchHelper.START or ItemTouchHelper.END,

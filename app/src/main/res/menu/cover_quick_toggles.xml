@@ -33,7 +33,7 @@
         app:showAsAction="always" />
     <item
         android:id="@+id/toggle_widgets"
-        android:title="@string/toggle_torch"
+        android:title="@string/toggle_widgets"
         android:icon="@drawable/ic_baseline_widgets_24"
         app:showAsAction="always" />
 </menu>
