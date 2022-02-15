@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.coordinatorlayout.widget.CoordinatorLayout
+<com.eightbit.widget.PersistentCoordinator
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/coordinator_main"
@@ -27,8 +27,9 @@
         android:id="@+id/bottom_sheet_main"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:clickable="true"
+        android:focusable="true"
         android:background="@android:color/transparent"
-        android:clickable="false"
         android:orientation="vertical"
         app:behavior_peekHeight="8dp"
         app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior">
@@ -59,4 +60,4 @@
         <include layout="@layout/home_apps_view"
             android:id="@+id/coordinator"/>
     </LinearLayout>
-</androidx.coordinatorlayout.widget.CoordinatorLayout>
+</com.eightbit.widget.PersistentCoordinator>

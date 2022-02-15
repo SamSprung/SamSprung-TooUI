@@ -1,4 +1,4 @@
-package com.eightbit.samsprung
+package com.eightbit.widget
 
 /* ====================================================================
  * Copyright (c) 2012-2022 AbandonedCart.  All rights reserved.
@@ -51,58 +51,47 @@ package com.eightbit.samsprung
  * subject to to the terms and conditions of the Apache License, Version 2.0.
  */
 
-import androidx.fragment.app.Fragment
-import androidx.fragment.app.FragmentActivity
-import androidx.viewpager2.adapter.FragmentStateAdapter
-import com.eightbit.samsprung.launcher.AppDrawerFragment
-import com.eightbit.samsprung.panels.PanelViewFragment
-import java.util.ArrayList
+import android.app.ActivityManager
+import android.app.ActivityOptions
+import android.app.Service
+import android.content.Context
+import android.content.Intent
+import android.util.AttributeSet
+import androidx.coordinatorlayout.widget.CoordinatorLayout
+import com.eightbit.samsprung.OnBroadcastService
+import com.eightbit.samsprung.SamSprungOverlay
 
-class CoverStateAdapter(fragmentActivity: FragmentActivity) :
-    FragmentStateAdapter(fragmentActivity) {
-    private val mFragments = ArrayList<PanelViewFragment>()
-    private val mFragmentIDs = ArrayList<Int>()
-    private val appDrawer = AppDrawerFragment()
+class PersistentCoordinator : CoordinatorLayout {
+    constructor(context: Context) : super(context) {}
+    constructor(context: Context, attrs: AttributeSet?) : super(context, attrs) {}
+    constructor(context: Context, attrs: AttributeSet?, defStyle: Int) : super(
+        context, attrs, defStyle) { }
 
-    fun addFragment() : Int {
-        val fragment = PanelViewFragment()
-        val position = mFragmentIDs.size + 1
-        mFragments.add(fragment)
-        notifyItemInserted(position)
-        mFragmentIDs.add(position)
-        return position
+    override fun onDetachedFromWindow() {
+        super.onDetachedFromWindow()
+        if (!isServiceRunning(context.applicationContext, OnBroadcastService::class.java))
+            context.applicationContext.startForegroundService(
+                Intent(context.applicationContext, OnBroadcastService::class.java))
     }
 
-    fun removeFragment(fragmentID: Int) {
-        val position = fragmentID - 1
-        mFragments.removeAt(position)
-        mFragmentIDs.removeAt(position)
-        mFragments.trimToSize()
-        mFragmentIDs.trimToSize()
-        notifyItemRemoved(fragmentID)
+    override fun onWindowVisibilityChanged(visibility: Int) {
+        super.onWindowVisibilityChanged(visibility)
+        if (!isAttachedToWindow || this.windowVisibility != GONE) return
+        context.applicationContext.startActivity(
+            Intent(context.applicationContext, SamSprungOverlay::class.java)
+                .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK),
+            ActivityOptions.makeBasic().setLaunchDisplayId(1).toBundle()
+        )
     }
 
-    fun getFragment(fragmentID: Int) : PanelViewFragment {
-        return mFragments[fragmentID - 1]
-    }
-
-    fun getDrawer() : AppDrawerFragment {
-        return appDrawer
-    }
-
-    override fun createFragment(position: Int): Fragment {
-        return if (position == 0) appDrawer else mFragments[position - 1]
-    }
-
-    override fun getItemId(position: Int): Long {
-        return if (position == 0) 0L else mFragmentIDs[position - 1].toLong()
-    }
-
-    override fun getItemCount(): Int {
-        return mFragmentIDs.size + 1
-    }
-
-    override fun containsItem(itemId: Long): Boolean {
-        return mFragmentIDs.contains(itemId.toInt())
+    @Suppress("DEPRECATION")
+    private fun isServiceRunning(context: Context, serviceClass: Class<*>): Boolean {
+        for (service in (context.getSystemService(Service.ACTIVITY_SERVICE) as ActivityManager)
+            .getRunningServices(Int.MAX_VALUE)) {
+            if (serviceClass.name == service.service.className) {
+                return true
+            }
+        }
+        return false
     }
 }
