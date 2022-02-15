@@ -196,7 +196,7 @@ class CheckUpdatesTask(private var activity: AppCompatActivity) {
             .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
             .setUsage(AudioAttributes.USAGE_NOTIFICATION).build()
         notificationChannel.setSound(soundUri, audioAttributes)
-        // notificationChannel.vibrationPattern = longArrayOf(1000L,1000L,1000L)
+        notificationChannel.vibrationPattern = longArrayOf(0L)
         notificationChannel.lockscreenVisibility = Notification.VISIBILITY_PUBLIC
         mNotificationManager.createNotificationChannel(notificationChannel)
         val builder = NotificationCompat.Builder(
@@ -208,7 +208,7 @@ class CheckUpdatesTask(private var activity: AppCompatActivity) {
             .setContentText(activity.getString(R.string.click_update_app))
             .setSmallIcon(R.drawable.ic_baseline_samsprung_24)
             .setPriority(NotificationCompat.PRIORITY_DEFAULT)
-            // .setVibrate(longArrayOf(1000L,1000L,1000L))
+            .setVibrate(longArrayOf(0L))
             .setSound(soundUri).setWhen(0).setOnlyAlertOnce(true)
             .setContentIntent(pendingIntent).setOngoing(false)
         if (null != iconNotification) {

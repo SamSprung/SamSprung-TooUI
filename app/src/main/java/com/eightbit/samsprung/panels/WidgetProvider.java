@@ -46,7 +46,7 @@ public class WidgetProvider extends ContentProvider {
 
     private static final String DATABASE_NAME = "panels.db";
     
-    private static final int DATABASE_VERSION = 16;
+    private static final int DATABASE_VERSION = 17;
 
     static final String AUTHORITY = "com.eightbit.samsprung.panels";
     static final String EXTRA_BIND_SOURCES = AUTHORITY + ".bindsources";

@@ -36,7 +36,7 @@ class RecyclerViewFondler(var recyclerView: RecyclerView) {
         }
     }
 
-    public fun setSwipeCallback(directions: Int, callback: SwipeCallback) {
+    fun setSwipeCallback(directions: Int, callback: SwipeCallback) {
         swipeDirections = directions
         swipeCallback = callback
         ItemTouchHelper(drawerTouchCallback).attachToRecyclerView(recyclerView)

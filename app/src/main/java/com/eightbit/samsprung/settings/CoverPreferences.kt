@@ -127,6 +127,7 @@ class CoverPreferences : AppCompatActivity() {
     private lateinit var accessibility: SwitchCompat
     private lateinit var notifications: SwitchCompat
     private lateinit var settings: SwitchCompat
+    private lateinit var keyboard: SwitchCompat
 
     private lateinit var hiddenList: ListView
 
@@ -228,13 +229,10 @@ class CoverPreferences : AppCompatActivity() {
             ))
         }
 
-        val isKeyboardInstalled = hasKeyboardInstalled()
         val kbRepo = "https://api.github.com/repos/SamSprung/SamSprung-Keyboard/releases/latest"
-        val keyboard = findViewById<LinearLayout>(R.id.keyboard_layout)
-        keyboard.alpha = if (isKeyboardInstalled) 1.0f else 0.5f
-        findViewById<TextView>(R.id.keyboard_text).text = getString(
-            R.string.permission_keyboard, if (isKeyboardInstalled) "\u2713" else "X")
-        keyboard.setOnClickListener {
+        keyboard = findViewById<SwitchCompat>(R.id.keyboard_switch)
+        keyboard.isChecked = hasKeyboardInstalled()
+            findViewById<LinearLayout>(R.id.keyboard_layout).setOnClickListener {
             if (BuildConfig.FLAVOR != "google") {
                 if (packageManager.canRequestPackageInstalls()) {
                     RequestGitHubAPI(kbRepo).setResultListener(object : RequestGitHubAPI.ResultListener {
@@ -243,22 +241,22 @@ class CoverPreferences : AppCompatActivity() {
                             val assets = jsonObject["assets"] as JSONArray
                             val asset = assets[0] as JSONObject
                             val downloadUrl = asset["browser_download_url"] as String
-                            startActivity(Intent(this@CoverPreferences,
+                            keyboardLauncher.launch(Intent(this@CoverPreferences,
                                 UpdateShimActivity::class.java).setAction(downloadUrl))
                         }
                     })
                 } else {
-                    startActivity(Intent(Intent.ACTION_VIEW,
+                    keyboardLauncher.launch(Intent(Intent.ACTION_VIEW,
                         Uri.parse("https://github.com/SamSprung/SamSprung-Keyboard/releases")
                     ))
                 }
             } else {
                 try {
-                    startActivity(Intent(Intent.ACTION_VIEW,
+                    keyboardLauncher.launch(Intent(Intent.ACTION_VIEW,
                         Uri.parse(getString(R.string.keyboard_details, "market://"))
                     ))
                 } catch (exception: ActivityNotFoundException) {
-                    startActivity(Intent(Intent.ACTION_VIEW,
+                    keyboardLauncher.launch(Intent(Intent.ACTION_VIEW,
                         Uri.parse(getString(R.string.keyboard_details,
                             "https://play.google.com/store/apps/"))
                     ))
@@ -680,6 +678,12 @@ class CoverPreferences : AppCompatActivity() {
             mainSwitch.isChecked = Settings.canDrawOverlays(applicationContext)
             startForegroundService(Intent(this, OnBroadcastService::class.java))
         }
+    }
+
+    private val keyboardLauncher = registerForActivityResult(
+        ActivityResultContracts.StartActivityForResult()) {
+        if (this::keyboard.isInitialized)
+            keyboard.isChecked = hasKeyboardInstalled()
     }
 
     private fun isDeviceSecure(): Boolean {

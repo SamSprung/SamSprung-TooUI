@@ -390,7 +390,7 @@ class SamSprungOverlay : FragmentActivity(), NotificationAdapter.OnNoticeClickLi
         pagerAdapter = CoverStateAdapter(this)
         viewPager.adapter = pagerAdapter
 
-        searchView = findViewById<SearchView>(R.id.package_search)
+        searchView = findViewById(R.id.package_search)
         searchView.findViewById<LinearLayout>(R.id.search_bar)?.run {
             this.layoutParams = this.layoutParams.apply {
                 height = TypedValue.applyDimension(
@@ -400,18 +400,6 @@ class SamSprungOverlay : FragmentActivity(), NotificationAdapter.OnNoticeClickLi
         }
 
         viewPager.registerOnPageChangeCallback(object: ViewPager2.OnPageChangeCallback() {
-            override fun onPageScrollStateChanged(state: Int) {
-                super.onPageScrollStateChanged(state)
-            }
-
-            override fun onPageScrolled(
-                position: Int,
-                positionOffset: Float,
-                positionOffsetPixels: Int
-            ) {
-                super.onPageScrolled(position, positionOffset, positionOffsetPixels)
-            }
-
             override fun onPageSelected(position: Int) {
                 super.onPageSelected(position)
                 if (position == 0) {
@@ -466,6 +454,7 @@ class SamSprungOverlay : FragmentActivity(), NotificationAdapter.OnNoticeClickLi
                     bottomHandle.setBackgroundColor(color)
                     menuButton.drawable.setTint(color)
                     bottomHandle.alpha = prefs.getFloat(SamSprung.prefAlphas, 1f)
+                    menuButton.alpha = prefs.getFloat(SamSprung.prefAlphas, 1f)
                     if (!bottomHandle.isVisible) {
                         handler.postDelayed({
                             runOnUiThread {
@@ -889,8 +878,8 @@ class SamSprungOverlay : FragmentActivity(), NotificationAdapter.OnNoticeClickLi
         onDismiss()
         super.onDestroy()
         if (null != textSpeech) {
-            textSpeech?.stop();
-            textSpeech?.shutdown();
+            textSpeech?.stop()
+            textSpeech?.shutdown()
         }
         if (prefs.getBoolean(getString(R.string.toggle_widgets).toPref, true)) {
             widgetHandler?.onDestroy()

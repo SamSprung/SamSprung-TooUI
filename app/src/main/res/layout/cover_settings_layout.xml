@@ -197,11 +197,9 @@
                 android:layout_marginStart="16dp"
                 android:layout_marginEnd="8dp"
                 android:layout_gravity="center_vertical"
-                tools:ignore="UseCompoundDrawables"
-                android:enabled="false">
+                tools:ignore="UseCompoundDrawables">
 
                 <TextView
-                    android:id="@+id/keyboard_text"
                     android:layout_width="0dp"
                     android:layout_weight="1"
                     android:textSize="28sp"
@@ -210,17 +208,14 @@
                     android:layout_height="wrap_content"
                     android:text="@string/permission_keyboard" />
 
-                <androidx.appcompat.widget.AppCompatImageView
-                    android:id="@+id/keyboard_button"
-                    android:layout_width="wrap_content"
+                <androidx.appcompat.widget.SwitchCompat
+                    android:id="@+id/keyboard_switch"
+                    android:layout_width="0dp"
                     android:gravity="center"
-                    android:layout_gravity="center"
-                    app:srcCompat="@drawable/ic_baseline_keyboard_24"
-                    android:paddingStart="0dp"
-                    android:paddingEnd="4dp"
-                    android:layout_height="wrap_content"
-                    android:contentDescription="@string/description_icon"/>
-
+                    android:layout_weight="1"
+                    android:textSize="28sp"
+                    android:textColor="?android:textColorPrimary"
+                    android:layout_height="wrap_content" />
             </LinearLayout>
 
             <LinearLayout
