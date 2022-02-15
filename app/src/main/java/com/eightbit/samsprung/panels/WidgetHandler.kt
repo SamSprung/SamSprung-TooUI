@@ -10,6 +10,7 @@ import android.content.Intent
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import android.os.Build
+import android.view.Gravity
 import android.view.View
 import android.widget.LinearLayout
 import androidx.activity.result.ActivityResult
@@ -91,6 +92,7 @@ class WidgetHandler(
         val params: LinearLayout.LayoutParams = LinearLayout.LayoutParams(
             displayMetrics[0], displayMetrics[1]
         )
+        params.gravity = Gravity.CENTER
         fragment.setListener(object: PanelViewFragment.ViewCreatedListener {
             override fun onViewCreated(view: View) {
                 (view as LinearLayout).addView(launcherInfo.hostView, params)
@@ -208,6 +210,7 @@ class WidgetHandler(
             val params: LinearLayout.LayoutParams = LinearLayout.LayoutParams(
                 displayMetrics[0], displayMetrics[1]
             )
+            params.gravity = Gravity.CENTER
             fragment.setListener(object: PanelViewFragment.ViewCreatedListener {
                 override fun onViewCreated(view: View) {
                     (view as LinearLayout).addView(item.hostView, params)

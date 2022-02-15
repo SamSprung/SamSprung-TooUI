@@ -54,15 +54,15 @@ package com.eightbit.samsprung.launcher
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.graphics.Bitmap
-import android.graphics.Matrix
+import android.graphics.drawable.Icon
 import android.service.notification.StatusBarNotification
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.RelativeLayout
 import android.widget.TextView
 import androidx.appcompat.widget.AppCompatImageView
 import androidx.core.app.NotificationCompat
+import androidx.core.graphics.drawable.toBitmap
 import androidx.recyclerview.widget.RecyclerView
 import com.eightbit.samsprung.NotificationReceiver
 import com.eightbit.samsprung.R
@@ -115,7 +115,6 @@ class NotificationAdapter(
         private val iconView: AppCompatImageView = itemView.findViewById(R.id.icon)
         private val linesText: TextView = itemView.findViewById(R.id.lines)
         private val launchIcon: AppCompatImageView = itemView.findViewById(R.id.launch)
-        private val preview: RelativeLayout = itemView.findViewById(R.id.preview)
         private val imageView: AppCompatImageView = itemView.findViewById(R.id.image)
         lateinit var notice: StatusBarNotification
         fun bind(notice: StatusBarNotification) {
@@ -130,14 +129,25 @@ class NotificationAdapter(
                 )
             }
             if (null != notification.extras) {
-                if (notification.extras.containsKey(NotificationCompat.EXTRA_PICTURE)) {
-                    preview.visibility = View.VISIBLE
-                    val bitmap = getScaledBitmap(activity, notification.extras
-                        .get(NotificationCompat.EXTRA_PICTURE) as Bitmap)
-                    imageView.setImageBitmap(bitmap)
-                } else {
-                    preview.visibility = View.GONE
+                if (notification.extras.containsKey(NotificationCompat.EXTRA_LARGE_ICON_BIG)) {
+                    val image = notification.extras.get(NotificationCompat.EXTRA_LARGE_ICON_BIG)
+                    var bitmap: Bitmap? = null
+                    if (image is Bitmap)
+                        bitmap = image
+                    else if (image is Icon)
+                        bitmap = image.loadDrawable(activity).toBitmap()
+                    imageView.setImageBitmap(getScaledBitmap(activity, bitmap))
                 }
+                if (notification.extras.containsKey(NotificationCompat.EXTRA_PICTURE)) {
+                    val image = notification.extras.get(NotificationCompat.EXTRA_PICTURE)
+                    var bitmap: Bitmap? = null
+                    if (image is Bitmap)
+                        bitmap = image
+                    else if (image is Icon)
+                        bitmap = image.loadDrawable(activity).toBitmap()
+                    imageView.setImageBitmap(getScaledBitmap(activity, bitmap))
+                }
+
                 if (notification.extras.containsKey(NotificationCompat.EXTRA_BIG_TEXT)) {
                     val textBig = notification.extras.get(NotificationCompat.EXTRA_BIG_TEXT)
                     if (null != textBig) linesText.text = textBig.toString()
@@ -167,18 +177,19 @@ class NotificationAdapter(
             }
         }
 
-        private fun getScaledBitmap(activity: Activity, bitmap: Bitmap) : Bitmap {
-            val width: Int = bitmap.width
-            val height: Int = bitmap.height
-            val scaleWidth = activity.window.decorView.width.toFloat() / width
-            val scaleHeight = activity.window.decorView.height.toFloat() / height
-            val matrix = Matrix()
-            matrix.postScale(scaleWidth, scaleHeight)
-            val scaledBitmap = Bitmap.createBitmap(
-                bitmap, 0, 0, width, height, matrix, false
-            )
-            bitmap.recycle()
-            return scaledBitmap
+        private fun getScaledBitmap(activity: Activity, bitmap: Bitmap?): Bitmap? {
+            if (null == bitmap) return null
+
+//            val width: Int = bitmap.width
+//            val height: Int = bitmap.height
+//            val scaleWidth = activity.window.decorView.width.toFloat() / width
+//            val scaleHeight = activity.window.decorView.height.toFloat() / height
+//            val matrix = Matrix()
+//            matrix.postScale(scaleWidth, scaleHeight)
+//            return Bitmap.createBitmap(
+//                bitmap, 0, 0, width, height, matrix, false
+//            )
+            return bitmap
         }
     }
 

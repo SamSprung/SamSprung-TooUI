@@ -12,7 +12,6 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:outlineProvider="none"
-        android:focusable="false"
         app:srcCompat="@drawable/ic_baseline_samsprung_24"
         app:backgroundTint="@android:color/transparent"
         app:borderWidth="0dp"
@@ -20,7 +19,7 @@
         app:layout_anchor="@+id/bottom_handle"
         app:layout_anchorGravity="top|end"
         app:layout_dodgeInsetEdges="bottom"
-        android:layout_marginBottom="-2dp"
+        android:layout_marginBottom="-4dp"
         android:layout_marginEnd="-8dp"
         android:contentDescription="@string/description_badge" />
 

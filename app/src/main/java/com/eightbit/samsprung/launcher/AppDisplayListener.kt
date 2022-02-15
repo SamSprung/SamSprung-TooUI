@@ -54,7 +54,6 @@ package com.eightbit.samsprung.launcher
 import android.annotation.SuppressLint
 import android.app.*
 import android.content.*
-import android.content.res.Configuration
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.Color

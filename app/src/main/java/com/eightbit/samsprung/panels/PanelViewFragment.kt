@@ -51,10 +51,10 @@ package com.eightbit.samsprung.panels
  * subject to to the terms and conditions of the Apache License, Version 2.0.
  */
 
-import android.os.*
+import android.os.Bundle
 import android.view.LayoutInflater
-import android.view.ViewGroup
 import android.view.View
+import android.view.ViewGroup
 import android.widget.LinearLayout
 import androidx.fragment.app.Fragment
 import com.eightbit.samsprung.R
