@@ -4,7 +4,6 @@ import android.Manifest
 import android.annotation.SuppressLint
 import android.app.*
 import android.appwidget.AppWidgetManager
-import android.appwidget.AppWidgetProviderInfo
 import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothManager
 import android.content.*
@@ -13,7 +12,6 @@ import android.content.pm.PackageManager
 import android.database.ContentObserver
 import android.graphics.Color
 import android.graphics.PixelFormat
-import android.graphics.drawable.ColorDrawable
 import android.hardware.camera2.CameraManager
 import android.hardware.display.DisplayManager
 import android.media.AudioManager
@@ -29,17 +27,13 @@ import android.widget.EditText
 import android.widget.LinearLayout
 import android.widget.TextClock
 import android.widget.TextView
-import androidx.activity.result.ActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.view.ContextThemeWrapper
 import androidx.appcompat.widget.AppCompatButton
 import androidx.appcompat.widget.AppCompatImageView
 import androidx.appcompat.widget.Toolbar
 import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.core.content.ContextCompat
-import androidx.core.graphics.drawable.toBitmap
-import androidx.core.view.children
 import androidx.core.view.isVisible
 import androidx.fragment.app.FragmentActivity
 import androidx.recyclerview.widget.ItemTouchHelper
@@ -57,15 +51,12 @@ import com.eightbitlab.blurview.BlurView
 import com.eightbitlab.blurview.RenderScriptBlur
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import java.util.*
-import java.util.concurrent.Executors
 
 class SamSprungOverlay : FragmentActivity(), NotificationAdapter.OnNoticeClickListener {
 
     private lateinit var prefs: SharedPreferences
-    private lateinit var displayMetrics: IntArray
-    private var mAppWidgetManager: AppWidgetManager? = null
-    private var appWidgetHost: CoverWidgetHost? = null
     private var mDisplayListener: DisplayManager.DisplayListener? = null
+    private var widgetHandler: WidgetHandler? = null
 
     private lateinit var wifiManager: WifiManager
     private lateinit var bluetoothAdapter: BluetoothAdapter
@@ -86,7 +77,6 @@ class SamSprungOverlay : FragmentActivity(), NotificationAdapter.OnNoticeClickLi
     private lateinit var pagerAdapter: FragmentStateAdapter
 
     private val mObserver: ContentObserver = FavoritesChangeObserver()
-    private var widgetDialog: AlertDialog? = null
 
     private var mDestroyed = false
     private var mBinder: DesktopBinder? = null
@@ -112,16 +102,6 @@ class SamSprungOverlay : FragmentActivity(), NotificationAdapter.OnNoticeClickLi
         // window.setBackgroundDrawable(null)
 
         prefs = getSharedPreferences(SamSprung.prefsValue, MODE_PRIVATE)
-        displayMetrics = ScaledContext.getDisplayParams(this)
-
-        if (prefs.getBoolean(getString(R.string.toggle_widgets).toPref, true)) {
-            mAppWidgetManager = AppWidgetManager.getInstance(applicationContext)
-            appWidgetHost = CoverWidgetHost(
-                applicationContext,
-                APPWIDGET_HOST_ID
-            )
-            appWidgetHost!!.startListening()
-        }
 
         ScaledContext.wrap(this).setTheme(R.style.Theme_SecondScreen_NoActionBar)
         setContentView(R.layout.home_main_view)
@@ -156,6 +136,15 @@ class SamSprungOverlay : FragmentActivity(), NotificationAdapter.OnNoticeClickLi
             .setBlurAutoUpdate(true)
             .setHasFixedTransformationMatrix(true)
             .setBlurAlgorithm(RenderScriptBlur(this))
+
+        viewPager = findViewById(R.id.pager)
+        pagerAdapter = CoverStateAdapter(this)
+        viewPager.adapter = pagerAdapter
+
+        if (prefs.getBoolean(getString(R.string.toggle_widgets).toPref, true)) {
+            widgetHandler = WidgetHandler(this, viewPager, pagerAdapter as CoverStateAdapter,
+                ScaledContext.getDisplayParams(this))
+        }
 
         wifiManager = getSystemService(WIFI_SERVICE) as WifiManager
         bluetoothAdapter = (getSystemService(Context.BLUETOOTH_SERVICE)
@@ -246,14 +235,16 @@ class SamSprungOverlay : FragmentActivity(), NotificationAdapter.OnNoticeClickLi
                                     if (widget is CoverWidgetInfo) {
                                         viewPager.setCurrentItem(index - 1, true)
                                         model.removeDesktopAppWidget(widget)
-                                        if (null != appWidgetHost) {
-                                            appWidgetHost!!.deleteAppWidgetId(widget.appWidgetId)
+                                        if (null != widgetHandler?.getAppWidgetHost()) {
+                                            widgetHandler!!.getAppWidgetHost()
+                                                .deleteAppWidgetId(widget.appWidgetId)
                                         }
                                         WidgetModel.deleteItemFromDatabase(
                                             applicationContext, widget
                                         )
                                         (pagerAdapter as CoverStateAdapter).removeFragment(index)
                                     }
+                                    bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
                                     toolbar.menu.findItem(R.id.toggle_widgets)
                                         .setIcon(R.drawable.ic_baseline_widgets_24)
                                 }
@@ -316,7 +307,7 @@ class SamSprungOverlay : FragmentActivity(), NotificationAdapter.OnNoticeClickLi
                                 return@setOnMenuItemClickListener true
                             }
                             R.id.toggle_widgets -> {
-                                showAddDialog()
+                                widgetHandler?.showAddDialog()
                                 bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
                                 return@setOnMenuItemClickListener false
                             }
@@ -432,10 +423,6 @@ class SamSprungOverlay : FragmentActivity(), NotificationAdapter.OnNoticeClickLi
                 }
             }
         })
-
-        viewPager = findViewById(R.id.pager)
-        pagerAdapter = CoverStateAdapter(this)
-        viewPager.adapter = pagerAdapter
 
         if (prefs.getBoolean(getString(R.string.toggle_widgets).toPref, true)) {
             contentResolver.registerContentObserver(
@@ -740,154 +727,6 @@ class SamSprungOverlay : FragmentActivity(), NotificationAdapter.OnNoticeClickLi
         }, 150)
     }
 
-    @SuppressLint("InflateParams")
-    private fun completeAddAppWidget(appWidgetId: Int) {
-        val appWidgetInfo = mAppWidgetManager!!.getAppWidgetInfo(appWidgetId)
-
-        // Build Launcher-specific widget info and save to database
-        val launcherInfo = CoverWidgetInfo(appWidgetId)
-
-        var spanX = appWidgetInfo.minWidth
-        var spanY = appWidgetInfo.minHeight
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-            spanX = Integer.max(appWidgetInfo.minWidth, appWidgetInfo.maxResizeWidth)
-            spanY = Integer.max(appWidgetInfo.minHeight, appWidgetInfo.maxResizeHeight)
-        }
-        if (spanX > displayMetrics[0])
-            spanX = displayMetrics[0]
-        if (spanY > displayMetrics[1])
-            spanY = displayMetrics[1]
-        val spans = intArrayOf(spanX, spanY)
-
-        launcherInfo.spanX = spans[0]
-        launcherInfo.spanY = spans[1]
-
-        Executors.newSingleThreadExecutor().execute {
-            WidgetModel.addItemToDatabase(
-                applicationContext, launcherInfo,
-                WidgetSettings.Favorites.CONTAINER_DESKTOP,
-                spans[0],  spans[1], false
-            )
-        }
-        model.addDesktopAppWidget(launcherInfo)
-
-        launcherInfo.hostView = appWidgetHost!!.createView(
-            applicationContext, appWidgetId, appWidgetInfo)
-        launcherInfo.hostView!!.setAppWidget(appWidgetId, appWidgetInfo)
-        launcherInfo.hostView!!.tag = launcherInfo
-
-        val id = (pagerAdapter as CoverStateAdapter).addFragment()
-        val fragment = (pagerAdapter as CoverStateAdapter).getFragment(id)
-        val params: LinearLayout.LayoutParams = LinearLayout.LayoutParams(
-            displayMetrics[0], displayMetrics[1]
-        )
-        fragment.setListener(object: PanelViewFragment.ViewCreatedListener {
-            override fun onViewCreated(view: View) {
-                (view as LinearLayout).addView(launcherInfo.hostView, params)
-            }
-        })
-        viewPager.setCurrentItem(id + 1, true)
-    }
-
-    fun getWidgetMaxSize(info: AppWidgetProviderInfo): IntArray {
-        var spanX: Int = info.minWidth
-        var spanY: Int = info.minHeight
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-            spanX = Integer.max(info.minWidth, info.maxResizeWidth)
-            spanY = Integer.max(info.minHeight, info.maxResizeHeight)
-        }
-        return intArrayOf(spanX, spanY)
-    }
-
-    private val requestCreateAppWidget = registerForActivityResult(
-        ActivityResultContracts.StartActivityForResult()) { result: ActivityResult ->
-        val appWidgetId = result.data?.getIntExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, -1) ?: -1
-        if (result.resultCode == RESULT_CANCELED) {
-            if (appWidgetId != -1) {
-                appWidgetHost!!.deleteAppWidgetId(appWidgetId)
-            }
-        } else {
-            completeAddAppWidget(appWidgetId)
-        }
-    }
-
-    private fun addAppWidget(appWidgetId: Int) {
-        val appWidget = mAppWidgetManager!!.getAppWidgetInfo(appWidgetId) ?: return
-        if (null != appWidget.configure) {
-            try {
-                appWidgetHost?.startAppWidgetConfigureActivityForResult(
-                    this, appWidgetId, 0, requestCreateAppWidgetHost,
-                    ActivityOptions.makeBasic().setLaunchDisplayId(1).toBundle()
-                )
-            } catch (ignored: ActivityNotFoundException) {
-                // Launch over to configure widget, if needed
-                val intent = Intent(AppWidgetManager.ACTION_APPWIDGET_CONFIGURE)
-                intent.component = appWidget.configure
-                intent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId)
-                requestCreateAppWidget.launch(intent)
-            }
-        } else {
-            completeAddAppWidget(appWidgetId)
-        }
-    }
-
-    @SuppressLint("InflateParams")
-    private fun showAddDialog() {
-        val appWidgetId = appWidgetHost!!.allocateAppWidgetId()
-        val mWidgetPreviewLoader = WidgetPreviewLoader(this)
-
-        val view: View = layoutInflater.inflate(R.layout.panel_picker_view, null)
-        val dialog = AlertDialog.Builder(
-            ContextThemeWrapper(this, R.style.DialogTheme_NoActionBar)
-        )
-        val previews = view.findViewById<LinearLayout>(R.id.previews_layout)
-        dialog.setOnCancelListener {
-            for (previewImage in previews.children) {
-                mWidgetPreviewLoader.recycleBitmap(previewImage.tag,
-                    (previewImage as AppCompatImageView).drawable.toBitmap())
-            }
-            previews.removeAllViewsInLayout()
-        }
-        dialog.setOnDismissListener {
-            for (previewImage in previews.children) {
-                mWidgetPreviewLoader.recycleBitmap(previewImage.tag,
-                    (previewImage as AppCompatImageView).drawable.toBitmap())
-            }
-            previews.removeAllViewsInLayout()
-        }
-        widgetDialog = dialog.setView(view).show()
-        val infoList: List<AppWidgetProviderInfo> = mAppWidgetManager!!.installedProviders
-        for (info: AppWidgetProviderInfo in infoList) {
-            val previewSizeBeforeScale = IntArray(1)
-            val preview = mWidgetPreviewLoader.generateWidgetPreview(
-                info, window.decorView.width, window.decorView.height,
-                null, previewSizeBeforeScale
-            )
-            val previewImage = layoutInflater.inflate(
-                R.layout.widget_preview, null) as AppCompatImageView
-            previewImage.adjustViewBounds = true
-            previewImage.setImageBitmap(preview)
-            previewImage.setOnClickListener {
-                val success = mAppWidgetManager!!.bindAppWidgetIdIfAllowed(appWidgetId, info.provider)
-                if (success) {
-                    addAppWidget(appWidgetId)
-                } else {
-                    val intent = Intent(AppWidgetManager.ACTION_APPWIDGET_BIND)
-                    intent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId)
-                    intent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_PROVIDER, info.provider)
-                    intent.putExtra(
-                        AppWidgetManager.EXTRA_APPWIDGET_PROVIDER_PROFILE, info.profile
-                    )
-                    requestCreateAppWidget.launch(intent)
-                }
-                widgetDialog?.dismiss()
-            }
-            previewImage.tag = info
-            previews.addView(previewImage)
-        }
-        widgetDialog!!.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
-    }
-
     private fun onFavoritesChanged() {
         model.loadUserItems(false, this)
     }
@@ -924,36 +763,6 @@ class SamSprungOverlay : FragmentActivity(), NotificationAdapter.OnNoticeClickLi
         }
     }
 
-    @SuppressLint("InflateParams")
-    fun bindAppWidgets(
-        binder: DesktopBinder,
-        appWidgets: LinkedList<CoverWidgetInfo>
-    ) {
-        if (!appWidgets.isEmpty()) {
-            val item = appWidgets.removeFirst()
-            val appWidgetId = item.appWidgetId
-            val appWidgetInfo = mAppWidgetManager!!.getAppWidgetInfo(appWidgetId)
-            item.hostView = appWidgetHost!!.createView(
-                applicationContext, appWidgetId, appWidgetInfo)
-            item.hostView!!.setAppWidget(appWidgetId, appWidgetInfo)
-            item.hostView!!.tag = item
-
-            val id = (pagerAdapter as CoverStateAdapter).addFragment()
-            val fragment = (pagerAdapter as CoverStateAdapter).getFragment(id)
-            val params: LinearLayout.LayoutParams = LinearLayout.LayoutParams(
-                displayMetrics[0], displayMetrics[1]
-            )
-            fragment.setListener(object: PanelViewFragment.ViewCreatedListener {
-                override fun onViewCreated(view: View) {
-                    (view as LinearLayout).addView(item.hostView, params)
-                }
-            })
-        }
-        if (!appWidgets.isEmpty()) {
-            binder.obtainMessage(DesktopBinder.MESSAGE_BIND_APPWIDGETS).sendToTarget()
-        }
-    }
-
     override fun onRetainCustomNonConfigurationInstance(): Any? {
         if (mBinder != null) {
             mBinder!!.mTerminate = true
@@ -967,6 +776,14 @@ class SamSprungOverlay : FragmentActivity(), NotificationAdapter.OnNoticeClickLi
         initializeDrawer(null != intent?.action && SamSprung.launcher == intent.action)
     }
 
+    @SuppressLint("InflateParams")
+    fun bindAppWidgets(
+        binder: DesktopBinder,
+        appWidgets: LinkedList<CoverWidgetInfo>
+    ) {
+        widgetHandler?.bindAppWidgets(binder, appWidgets)
+    }
+
     private val requestCreateAppWidgetHost = 9001
 
     @Suppress("DEPRECATION")
@@ -978,10 +795,10 @@ class SamSprungOverlay : FragmentActivity(), NotificationAdapter.OnNoticeClickLi
             val appWidgetId = data?.getIntExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, -1) ?: -1
             if (resultCode == RESULT_CANCELED) {
                 if (appWidgetId != -1) {
-                    appWidgetHost!!.deleteAppWidgetId(appWidgetId)
+                    widgetHandler?.getAppWidgetHost()?.deleteAppWidgetId(appWidgetId)
                 }
             } else {
-                completeAddAppWidget(appWidgetId)
+                widgetHandler?.completeAddAppWidget(appWidgetId)
             }
             return
         }
@@ -1008,10 +825,7 @@ class SamSprungOverlay : FragmentActivity(), NotificationAdapter.OnNoticeClickLi
         onDismiss()
         super.onDestroy()
         if (prefs.getBoolean(getString(R.string.toggle_widgets).toPref, true)) {
-            try {
-                appWidgetHost!!.stopListening()
-            } catch (ignored: NullPointerException) {
-            }
+            widgetHandler?.onDestroy()
             model.unbind()
             model.abortLoaders()
             contentResolver.unregisterContentObserver(mObserver)

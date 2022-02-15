@@ -400,19 +400,29 @@ class WidgetPreviewLoader(private val mLauncher: SamSprungOverlay) {
         }
     }
 
-    fun generateWidgetPreview(info: AppWidgetProviderInfo, preview: Bitmap?): Bitmap? {
-        val cellSpans = mLauncher.getWidgetMaxSize(info)
+    private fun getWidgetMaxSize(info: AppWidgetProviderInfo): IntArray {
+        var spanX: Int = info.minWidth
+        var spanY: Int = info.minHeight
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            spanX = Integer.max(info.minWidth, info.maxResizeWidth)
+            spanY = Integer.max(info.minHeight, info.maxResizeHeight)
+        }
+        return intArrayOf(spanX, spanY)
+    }
+
+    private fun generateWidgetPreview(info: AppWidgetProviderInfo, preview: Bitmap?): Bitmap? {
+        val cellSpans = getWidgetMaxSize(info)
         val maxWidth = maxWidthForWidgetPreview(cellSpans[0])
         val maxHeight = maxHeightForWidgetPreview(cellSpans[1])
         return generateWidgetPreview(info, maxWidth, maxHeight, preview, null)
     }
 
-    fun maxWidthForWidgetPreview(spanX: Int): Int {
-        return Math.min(mPreviewBitmapWidth, spanX)
+    private fun maxWidthForWidgetPreview(spanX: Int): Int {
+        return mPreviewBitmapWidth.coerceAtMost(spanX)
     }
 
-    fun maxHeightForWidgetPreview(spanY: Int): Int {
-        return Math.min(mPreviewBitmapHeight, spanY)
+    private fun maxHeightForWidgetPreview(spanY: Int): Int {
+        return mPreviewBitmapHeight.coerceAtMost(spanY)
     }
 
     fun generateWidgetPreview(
