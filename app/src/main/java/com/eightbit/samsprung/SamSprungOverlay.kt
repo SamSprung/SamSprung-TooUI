@@ -422,6 +422,10 @@ class SamSprungOverlay : FragmentActivity(), NotificationAdapter.OnNoticeClickLi
                 bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
                 toolbar.menu.findItem(R.id.toggle_widgets)
                     .setIcon(R.drawable.ic_baseline_widgets_24)
+            } else {
+                Toast.makeText(this,
+                    R.string.incompatible_fragment,
+                    Toast.LENGTH_LONG).show()
             }
             return@OnLongClickListener true
         })
