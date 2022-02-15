@@ -1,4 +1,4 @@
-package com.eightbit.view
+package com.eightbit.widget
 
 /* ====================================================================
  * Copyright (c) 2012-2022 AbandonedCart.  All rights reserved.
@@ -51,38 +51,49 @@ package com.eightbit.view
  * subject to to the terms and conditions of the Apache License, Version 2.0.
  */
 
-import android.content.Context
-import android.util.AttributeSet
-import android.widget.LinearLayout
-import com.eightbit.view.AnimatedLinearLayout
+import android.graphics.Canvas
+import androidx.recyclerview.widget.ItemTouchHelper
+import androidx.recyclerview.widget.RecyclerView
 
-class AnimatedLinearLayout : LinearLayout {
-    constructor(context: Context?) : super(context) {}
-    constructor(context: Context?, attrs: AttributeSet?) : super(context, attrs) {}
-    constructor(context: Context?, attrs: AttributeSet?, defStyle: Int) : super(
-        context, attrs, defStyle) { }
+class RecyclerViewTouch(var recyclerView: RecyclerView) {
 
-    interface AnimationListener {
-        fun onAnimationStart(layout: AnimatedLinearLayout)
-        fun onAnimationEnd(layout: AnimatedLinearLayout)
-    }
+    var swipeCallback: SwipeCallback? = null
+    var swipeDirections: Int? = null
 
-    private var mAnimationListener: AnimationListener? = null
-    fun setAnimationListener(listener: AnimationListener?) {
-        mAnimationListener = listener
-    }
+    private val drawerTouchCallback: ItemTouchHelper.SimpleCallback =
+        object : ItemTouchHelper.SimpleCallback(
+            0, swipeDirections?: ItemTouchHelper.START or ItemTouchHelper.END
+        ) {
+        override fun onMove(
+            recyclerView: RecyclerView,
+            viewHolder: RecyclerView.ViewHolder,
+            target: RecyclerView.ViewHolder
+        ): Boolean {
+            return false
+        }
 
-    override fun onAnimationStart() {
-        super.onAnimationStart()
-        if (null != mAnimationListener) {
-            mAnimationListener!!.onAnimationStart(this)
+        override fun onChildDraw(
+            c: Canvas,
+            recyclerView: RecyclerView,
+            viewHolder: RecyclerView.ViewHolder,
+            dX: Float,
+            dY: Float,
+            actionState: Int,
+            isCurrentlyActive: Boolean
+        ) { }
+
+        override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
+            swipeCallback?.onSwiped(viewHolder, direction)
         }
     }
 
-    override fun onAnimationEnd() {
-        super.onAnimationEnd()
-        if (null != mAnimationListener) {
-            mAnimationListener!!.onAnimationEnd(this)
-        }
+    fun setSwipeCallback(directions: Int, callback: SwipeCallback) {
+        swipeDirections = directions
+        swipeCallback = callback
+        ItemTouchHelper(drawerTouchCallback).attachToRecyclerView(recyclerView)
+    }
+
+    interface SwipeCallback {
+        fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int)
     }
 }

@@ -81,7 +81,7 @@ import com.eightbit.samsprung.R
 import com.eightbit.samsprung.SamSprung
 import com.eightbit.samsprung.SamSprungOverlay
 import com.eightbit.view.OnSwipeTouchListener
-import com.eightbit.widget.RecyclerViewFondler
+import com.eightbit.widget.RecyclerViewTouch
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import java.util.concurrent.Executors
 
@@ -138,9 +138,9 @@ class AppDrawerFragment : Fragment(), DrawerAppAdapater.OnAppClickListener {
 
         val bottomSheetMain = (requireActivity() as SamSprungOverlay).getBottomSheetMain()
 
-        RecyclerViewFondler(launcherView).setSwipeCallback(
+        RecyclerViewTouch(launcherView).setSwipeCallback(
             ItemTouchHelper.END or ItemTouchHelper.DOWN,
-            object: RecyclerViewFondler.SwipeCallback {
+            object: RecyclerViewTouch.SwipeCallback {
             override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
                 if (direction == ItemTouchHelper.DOWN) {
                     onSwipeDown(launcherView, bottomSheetMain)

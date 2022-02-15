@@ -12,6 +12,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:outlineProvider="none"
+        android:focusable="false"
         app:srcCompat="@drawable/ic_baseline_samsprung_24"
         app:backgroundTint="@android:color/transparent"
         app:borderWidth="0dp"

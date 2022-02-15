@@ -93,7 +93,7 @@ import com.eightbit.samsprung.*
 import com.eightbit.samsprung.launcher.AppDisplayListener
 import com.eightbit.samsprung.launcher.NotificationAdapter
 import com.eightbit.samsprung.panels.*
-import com.eightbit.widget.RecyclerViewFondler
+import com.eightbit.widget.RecyclerViewTouch
 import com.eightbitlab.blurview.BlurView
 import com.eightbitlab.blurview.RenderScriptBlur
 import com.google.android.material.bottomsheet.BottomSheetBehavior
@@ -424,9 +424,9 @@ class SamSprungOverlay : FragmentActivity(), NotificationAdapter.OnNoticeClickLi
             }
         }
 
-        RecyclerViewFondler(noticesView).setSwipeCallback(
+        RecyclerViewTouch(noticesView).setSwipeCallback(
             ItemTouchHelper.START or ItemTouchHelper.END,
-            object: RecyclerViewFondler.SwipeCallback {
+            object: RecyclerViewTouch.SwipeCallback {
             override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
                 if (direction == ItemTouchHelper.START || direction == ItemTouchHelper.END) {
                     val notice = (viewHolder as NotificationAdapter.NoticeViewHolder).notice
