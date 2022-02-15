@@ -60,14 +60,16 @@ import android.widget.Toast
 class GitBroadcastReceiver : BroadcastReceiver() {
 
     override fun onReceive(context: Context, intent: Intent) {
+        intent.setPackage(context.packageName)
         intent.flags = 0
+        intent.data = null
         if (Intent.ACTION_BOOT_COMPLETED == intent.action
             || Intent.ACTION_LOCKED_BOOT_COMPLETED == intent.action
             || Intent.ACTION_REBOOT == intent.action
         ) {
             context.startForegroundService(Intent(context, OnBroadcastService::class.java))
         }
-        if (BuildConfig.FLAVOR != "github") return
+        if (BuildConfig.FLAVOR == "google") return
         if (Intent.ACTION_MY_PACKAGE_REPLACED == intent.action) {
             context.startForegroundService(Intent(context, OnBroadcastService::class.java))
         } else if (SamSprung.updating == intent.action) {
