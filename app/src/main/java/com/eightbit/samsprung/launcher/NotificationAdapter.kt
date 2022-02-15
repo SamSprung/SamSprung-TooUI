@@ -68,6 +68,7 @@ import com.eightbit.samsprung.NotificationReceiver
 import com.eightbit.samsprung.R
 import com.eightbit.samsprung.SamSprungOverlay
 import java.util.*
+import java.util.concurrent.Executors
 
 class NotificationAdapter(
     private var activity: Activity,
@@ -112,68 +113,91 @@ class NotificationAdapter(
     abstract class NoticeViewHolder(
         itemView: View, val listener: OnNoticeClickListener?, val activity: Activity
     ) : RecyclerView.ViewHolder(itemView) {
-        private val iconView: AppCompatImageView = itemView.findViewById(R.id.icon)
-        private val linesText: TextView = itemView.findViewById(R.id.lines)
-        private val launchIcon: AppCompatImageView = itemView.findViewById(R.id.launch)
-        private val imageView: AppCompatImageView = itemView.findViewById(R.id.image)
         lateinit var notice: StatusBarNotification
         fun bind(notice: StatusBarNotification) {
             this.notice = notice
             val notification = notice.notification
-            when {
-                null != notification.getLargeIcon() -> iconView.setImageDrawable(
-                    notification.getLargeIcon().loadDrawable(activity)
-                )
-                null != notification.smallIcon -> iconView.setImageDrawable(
-                    notification.smallIcon.loadDrawable(activity)
-                )
-            }
-            if (null != notification.extras) {
-                if (notification.extras.containsKey(NotificationCompat.EXTRA_LARGE_ICON_BIG)) {
-                    val image = notification.extras.get(NotificationCompat.EXTRA_LARGE_ICON_BIG)
-                    var bitmap: Bitmap? = null
-                    if (image is Bitmap)
-                        bitmap = image
-                    else if (image is Icon)
-                        bitmap = image.loadDrawable(activity).toBitmap()
-                    imageView.setImageBitmap(getScaledBitmap(activity, bitmap))
+            Executors.newSingleThreadExecutor().execute {
+                val iconView = itemView.findViewById<AppCompatImageView>(R.id.icon)
+                when {
+                    null != notification.getLargeIcon() -> {
+                        val icon = notification.getLargeIcon().loadDrawable(activity)
+                        activity.runOnUiThread {
+                            iconView.setImageDrawable(icon)
+                        }
+                    }
+                    null != notification.smallIcon -> {
+                        val icon = notification.smallIcon.loadDrawable(activity)
+                        activity.runOnUiThread {
+                            iconView.setImageDrawable(icon)
+                        }
+                    }
                 }
-                if (notification.extras.containsKey(NotificationCompat.EXTRA_PICTURE)) {
-                    val image = notification.extras.get(NotificationCompat.EXTRA_PICTURE)
-                    var bitmap: Bitmap? = null
-                    if (image is Bitmap)
-                        bitmap = image
-                    else if (image is Icon)
-                        bitmap = image.loadDrawable(activity).toBitmap()
-                    imageView.setImageBitmap(getScaledBitmap(activity, bitmap))
+                val linesText = itemView.findViewById<TextView>(R.id.lines)
+                if (null != notification.extras) {
+                    val imageView = itemView.findViewById<AppCompatImageView>(R.id.image)
+                    if (notification.extras.containsKey(NotificationCompat.EXTRA_LARGE_ICON_BIG)) {
+                        val image = notification.extras.get(NotificationCompat.EXTRA_LARGE_ICON_BIG)
+                        var bitmap: Bitmap? = null
+                        if (image is Bitmap)
+                            bitmap = image
+                        else if (image is Icon)
+                            bitmap = image.loadDrawable(activity).toBitmap()
+                        activity.runOnUiThread {
+                            imageView.setImageBitmap(getScaledBitmap(activity, bitmap))
+                        }
+                    }
+                    if (notification.extras.containsKey(NotificationCompat.EXTRA_PICTURE)) {
+                        val image = notification.extras.get(NotificationCompat.EXTRA_PICTURE)
+                        var bitmap: Bitmap? = null
+                        if (image is Bitmap)
+                            bitmap = image
+                        else if (image is Icon)
+                            bitmap = image.loadDrawable(activity).toBitmap()
+                        activity.runOnUiThread {
+                            imageView.setImageBitmap(getScaledBitmap(activity, bitmap))
+                        }
+                    }
+                    if (notification.extras.containsKey(NotificationCompat.EXTRA_BIG_TEXT)) {
+                        val textBig = notification.extras.get(NotificationCompat.EXTRA_BIG_TEXT)
+                        activity.runOnUiThread {
+                            if (null != textBig) linesText.text = textBig.toString()
+                        }
+                    }
+                    if (linesText.text.isEmpty() && notification.extras.containsKey(
+                            NotificationCompat.EXTRA_TEXT_LINES
+                        )
+                    ) {
+                        val textLines = notification.extras.getCharSequenceArray(
+                            NotificationCompat.EXTRA_TEXT_LINES
+                        )
+                        activity.runOnUiThread {
+                            if (null != textLines) linesText.text = Arrays.toString(textLines)
+                        }
+                    }
+                    if (linesText.text.isEmpty() && notification.extras.containsKey(
+                            NotificationCompat.EXTRA_TEXT
+                        )
+                    ) {
+                        val textExtra = notification.extras
+                            .getCharSequence(NotificationCompat.EXTRA_TEXT)
+                        activity.runOnUiThread {
+                            if (null != textExtra) linesText.text = textExtra.toString()
+                        }
+                    }
                 }
-
-                if (notification.extras.containsKey(NotificationCompat.EXTRA_BIG_TEXT)) {
-                    val textBig = notification.extras.get(NotificationCompat.EXTRA_BIG_TEXT)
-                    if (null != textBig) linesText.text = textBig.toString()
+                if (linesText.text.isEmpty() && null != notification.tickerText) {
+                    activity.runOnUiThread {
+                        linesText.text = notification.tickerText.toString()
+                    }
                 }
-                if (linesText.text.isEmpty() && notification.extras.containsKey(
-                        NotificationCompat.EXTRA_TEXT_LINES)
-                ) {
-                    val textLines = notification.extras.getCharSequenceArray(
-                        NotificationCompat.EXTRA_TEXT_LINES)
-                    if (null != textLines) linesText.text = Arrays.toString(textLines)
+                if (linesText.text.isEmpty()) linesText.text = ""
+                activity.runOnUiThread {
+                    itemView.findViewById<AppCompatImageView>(R.id.launch).setOnClickListener {
+                        (activity as SamSprungOverlay)
+                            .processIntentSender(notification.contentIntent.intentSender)
+                    }
                 }
-                if (linesText.text.isEmpty() && notification.extras.containsKey(
-                        NotificationCompat.EXTRA_TEXT)
-                ) {
-                    val textExtra = notification.extras
-                        .getCharSequence(NotificationCompat.EXTRA_TEXT)
-                    if (null != textExtra) linesText.text = textExtra.toString()
-                }
-            }
-            if (linesText.text.isEmpty() && null != notification.tickerText) {
-                linesText.text = notification.tickerText.toString()
-            }
-            if (linesText.text.isEmpty()) linesText.text = ""
-            launchIcon.setOnClickListener {
-                (activity as SamSprungOverlay)
-                    .processIntentSender(notification.contentIntent.intentSender)
             }
         }
 
