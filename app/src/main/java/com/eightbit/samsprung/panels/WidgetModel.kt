@@ -50,7 +50,7 @@ class WidgetModel {
         }
     }
 
-    val isDesktopLoaded: Boolean
+    private val isDesktopLoaded: Boolean
         get() = mDesktopItems != null && mDesktopAppWidgets != null && mDesktopItemsLoaded
 
     /**
@@ -74,14 +74,13 @@ class WidgetModel {
             }
         }
         mDesktopItemsLoaded = false
-        mDesktopItemsLoader = DesktopItemsLoader(launcher, isLaunching)
+        mDesktopItemsLoader = DesktopItemsLoader(launcher)
         mDesktopLoaderThread = Thread(mDesktopItemsLoader, "Desktop Items Loader")
         mDesktopLoaderThread!!.start()
     }
 
-    private inner class DesktopItemsLoader internal constructor(
-        launcher: SamSprungOverlay,
-        isLaunching: Boolean
+    private inner class DesktopItemsLoader(
+        launcher: SamSprungOverlay
     ) : Runnable {
         @Volatile
         private var mStopped = false
@@ -89,8 +88,7 @@ class WidgetModel {
         @Volatile
         var isRunning = false
             private set
-        private val mLauncher: WeakReference<SamSprungOverlay>
-        private val mId: Int
+        private val mLauncher: WeakReference<SamSprungOverlay> = WeakReference(launcher)
         fun stop() {
             mStopped = true
         }
@@ -159,10 +157,6 @@ class WidgetModel {
             isRunning = false
         }
 
-        init {
-            mLauncher = WeakReference(launcher)
-            mId = sWorkspaceLoaderCount.getAndIncrement()
-        }
     }
 
     /**
@@ -203,56 +197,6 @@ class WidgetModel {
 
     companion object {
         private const val APPLICATION_NOT_RESPONDING_TIMEOUT: Long = 5000
-        private val sWorkspaceLoaderCount = AtomicInteger(1)
-        private fun updateShortcutLabels(resolver: ContentResolver, manager: PackageManager) {
-            resolver.query(
-                Favorites.CONTENT_URI, arrayOf(
-                    BaseColumns._ID, BaseLauncherColumns.Companion.TITLE,
-                    BaseLauncherColumns.Companion.INTENT, BaseLauncherColumns.Companion.ITEM_TYPE
-                ),
-                null, null, null
-            ).use { c ->
-                val idIndex = c!!.getColumnIndexOrThrow(BaseColumns._ID)
-                val intentIndex = c.getColumnIndexOrThrow(BaseLauncherColumns.Companion.INTENT)
-                val itemTypeIndex = c.getColumnIndexOrThrow(BaseLauncherColumns.Companion.ITEM_TYPE)
-                val titleIndex = c.getColumnIndexOrThrow(BaseLauncherColumns.Companion.TITLE)
-                while (c.moveToNext()) {
-                    try {
-                        if (c.getInt(itemTypeIndex) !=
-                            BaseLauncherColumns.Companion.ITEM_TYPE_APPLICATION
-                        ) {
-                            continue
-                        }
-                        val intentUri = c.getString(intentIndex)
-                        if (intentUri != null) {
-                            val shortcut = Intent.parseUri(intentUri, 0)
-                            if (Intent.ACTION_MAIN == shortcut.action) {
-                                val name = shortcut.component
-                                if (name != null) {
-                                    val activityInfo = manager.getActivityInfo(name, 0)
-                                    val title = c.getString(titleIndex)
-                                    val label = getLabel(manager, activityInfo)
-                                    if (title == null || title != label) {
-                                        val values = ContentValues()
-                                        values.put(BaseLauncherColumns.Companion.TITLE, label)
-                                        resolver.update(
-                                            Favorites.CONTENT_URI_NO_NOTIFICATION,
-                                            values, "_id=?", arrayOf(c.getLong(idIndex).toString())
-                                        )
-                                    }
-                                }
-                            }
-                        }
-                    } catch (ignored: URISyntaxException) {
-                    } catch (ignored: PackageManager.NameNotFoundException) {
-                    }
-                }
-            }
-        }
-
-        private fun getLabel(manager: PackageManager, activityInfo: ActivityInfo): String {
-            return activityInfo.loadLabel(manager).toString()
-        }
 
         /**
          * Move an item in the DB to a new <container></container>, screen, cellX, cellY>

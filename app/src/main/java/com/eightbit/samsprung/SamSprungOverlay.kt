@@ -101,6 +101,8 @@ import java.util.*
 import android.speech.tts.TextToSpeech
 import android.widget.*
 import androidx.appcompat.widget.SearchView
+import androidx.core.view.WindowCompat
+import androidx.fragment.app.Fragment
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 
 class SamSprungOverlay : FragmentActivity(), NotificationAdapter.OnNoticeClickListener {
@@ -159,6 +161,7 @@ class SamSprungOverlay : FragmentActivity(), NotificationAdapter.OnNoticeClickLi
 
         ScaledContext.wrap(this).setTheme(R.style.Theme_SecondScreen_NoActionBar)
         setContentView(R.layout.home_main_view)
+        WindowCompat.setDecorFitsSystemWindows(window, false)
 
         mDisplayListener = object : DisplayManager.DisplayListener {
             override fun onDisplayAdded(display: Int) {}
@@ -946,4 +949,89 @@ class SamSprungOverlay : FragmentActivity(), NotificationAdapter.OnNoticeClickLi
 
     private val CharSequence.toPref get() = this.toString()
         .lowercase().replace(" ", "_")
+
+    override fun startActivities(intents: Array<out Intent>?, options: Bundle?) {
+        if (null != options)
+            super.startActivities(intents, options)
+        else
+            super.startActivities(intents,
+                ActivityOptions.makeBasic().setLaunchDisplayId(1).toBundle())
+    }
+
+    override fun startActivities(intents: Array<out Intent>?) {
+        super.startActivities(intents,
+            ActivityOptions.makeBasic().setLaunchDisplayId(1).toBundle())
+    }
+
+    override fun startActivityIfNeeded(
+        intent: Intent,
+        requestCode: Int,
+        options: Bundle?
+    ): Boolean {
+        return if (null != options)
+            super.startActivityIfNeeded(intent, requestCode, options)
+        else
+            super.startActivityIfNeeded(intent, requestCode,
+                ActivityOptions.makeBasic().setLaunchDisplayId(1).toBundle())
+    }
+
+    override fun startActivityIfNeeded(intent: Intent, requestCode: Int): Boolean {
+        return super.startActivityIfNeeded(intent, requestCode,
+            ActivityOptions.makeBasic().setLaunchDisplayId(1).toBundle())
+    }
+
+    override fun startActivity(intent: Intent?, options: Bundle?) {
+        if (null != options)
+            super.startActivity(intent, options)
+        else
+            super.startActivity(intent, ActivityOptions.makeBasic().setLaunchDisplayId(1).toBundle())
+    }
+
+    override fun startActivity(intent: Intent?) {
+        super.startActivity(intent, ActivityOptions.makeBasic().setLaunchDisplayId(1).toBundle())
+    }
+
+    override fun startActivityFromFragment(
+        fragment: Fragment,
+        intent: Intent?,
+        requestCode: Int,
+        options: Bundle?
+    ) {
+        if (null != options)
+            super.startActivityFromFragment(fragment, intent, requestCode, options)
+        else
+            super.startActivityFromFragment(fragment, intent, requestCode,
+                ActivityOptions.makeBasic().setLaunchDisplayId(1).toBundle())
+    }
+
+    override fun startActivityFromFragment(fragment: Fragment, intent: Intent?, requestCode: Int) {
+        super.startActivityFromFragment(fragment, intent, requestCode,
+            ActivityOptions.makeBasic().setLaunchDisplayId(1).toBundle())
+    }
+
+    override fun startIntentSender(
+        intent: IntentSender?,
+        fillInIntent: Intent?,
+        flagsMask: Int,
+        flagsValues: Int,
+        extraFlags: Int,
+        options: Bundle?
+    ) {
+        if (null != options)
+            super.startIntentSender(intent, fillInIntent, flagsMask, flagsValues, extraFlags, options)
+        else
+            super.startIntentSender(intent, fillInIntent, flagsMask, flagsValues, extraFlags,
+                ActivityOptions.makeBasic().setLaunchDisplayId(1).toBundle())
+    }
+
+    override fun startIntentSender(
+        intent: IntentSender?,
+        fillInIntent: Intent?,
+        flagsMask: Int,
+        flagsValues: Int,
+        extraFlags: Int
+    ) {
+        super.startIntentSender(intent, fillInIntent, flagsMask, flagsValues, extraFlags,
+            ActivityOptions.makeBasic().setLaunchDisplayId(1).toBundle())
+    }
 }

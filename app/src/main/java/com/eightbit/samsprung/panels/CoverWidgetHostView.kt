@@ -29,7 +29,8 @@ import com.eightbit.samsprung.R
 class CoverWidgetHostView(context: Context) : AppWidgetHostView(context) {
     private var mHasPerformedLongPress = false
     private var mPendingCheckForLongPress: CheckForLongPress? = null
-    private val mInflater: LayoutInflater
+    private val mInflater: LayoutInflater = context.getSystemService(
+        Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
     override fun getErrorView(): View {
         return mInflater.inflate(R.layout.appwidget_error, this, false)
     }
@@ -90,7 +91,4 @@ class CoverWidgetHostView(context: Context) : AppWidgetHostView(context) {
         }
     }
 
-    init {
-        mInflater = context.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
-    }
 }

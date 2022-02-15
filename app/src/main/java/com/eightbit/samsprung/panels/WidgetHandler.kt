@@ -146,7 +146,7 @@ class WidgetHandler(
             previews.removeAllViewsInLayout()
         }
         val widgetDialog = dialog.setView(view).show()
-        val infoList: List<AppWidgetProviderInfo> = mAppWidgetManager!!.installedProviders
+        val infoList: List<AppWidgetProviderInfo> = mAppWidgetManager.installedProviders
         for (info: AppWidgetProviderInfo in infoList) {
             val previewSizeBeforeScale = IntArray(1)
             val preview = mWidgetPreviewLoader.generateWidgetPreview(
@@ -158,7 +158,7 @@ class WidgetHandler(
             previewImage.adjustViewBounds = true
             previewImage.setImageBitmap(preview)
             previewImage.setOnClickListener {
-                val success = mAppWidgetManager!!.bindAppWidgetIdIfAllowed(appWidgetId, info.provider)
+                val success = mAppWidgetManager.bindAppWidgetIdIfAllowed(appWidgetId, info.provider)
                 if (success) {
                     addAppWidget(appWidgetId)
                 } else {

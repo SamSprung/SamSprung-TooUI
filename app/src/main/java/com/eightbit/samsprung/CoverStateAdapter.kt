@@ -58,8 +58,7 @@ import com.eightbit.samsprung.launcher.AppDrawerFragment
 import com.eightbit.samsprung.panels.PanelViewFragment
 import java.util.ArrayList
 
-class CoverStateAdapter(fragmentActivity: FragmentActivity) :
-    FragmentStateAdapter(fragmentActivity) {
+class CoverStateAdapter(fragmentActivity: FragmentActivity) : FragmentStateAdapter(fragmentActivity) {
     private val mFragments = ArrayList<PanelViewFragment>()
     private val mFragmentIDs = ArrayList<Int>()
     private val appDrawer = AppDrawerFragment()

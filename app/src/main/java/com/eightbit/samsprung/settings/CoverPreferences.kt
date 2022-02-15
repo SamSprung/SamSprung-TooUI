@@ -59,6 +59,7 @@ import android.app.WallpaperManager
 import android.content.*
 import android.content.pm.PackageManager
 import android.content.res.ColorStateList
+import android.content.res.Resources
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import android.hardware.display.DisplayManager
@@ -66,10 +67,13 @@ import android.net.Uri
 import android.os.*
 import android.provider.Settings
 import android.service.notification.NotificationListenerService
+import android.util.TypedValue
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
+import android.view.animation.AlphaAnimation
+import android.view.animation.Animation
 import android.view.animation.TranslateAnimation
 import android.widget.*
 import androidx.activity.result.contract.ActivityResultContracts
@@ -89,6 +93,7 @@ import com.eightbit.content.ScaledContext
 import com.eightbit.io.Debug
 import com.eightbit.material.IconifiedSnackbar
 import com.eightbit.pm.PackageRetriever
+import com.eightbit.samsprung.*
 import com.eightbit.samsprung.update.CheckUpdatesTask
 import com.eightbit.samsprung.update.RequestGitHubAPI
 import com.eightbit.samsprung.update.UpdateShimActivity
@@ -109,11 +114,6 @@ import java.util.*
 import java.util.concurrent.Executors
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
-import android.content.Intent
-import android.content.res.Resources
-import android.util.TypedValue
-import com.eightbit.samsprung.*
-
 
 class CoverPreferences : AppCompatActivity() {
 
@@ -633,7 +633,13 @@ class CoverPreferences : AppCompatActivity() {
                 runOnUiThread {
                     val buildInfo = findViewById<TextView>(R.id.build_info)
                     buildInfo.setTextColor(Color.RED)
+                    val anim: Animation = AlphaAnimation(0.2f, 1.0f)
+                    anim.duration = 500
+                    anim.repeatMode = Animation.REVERSE
+                    anim.repeatCount = Animation.INFINITE
+                    buildInfo.startAnimation(anim)
                     buildInfo.setOnClickListener {
+                        anim.cancel()
                         updateCheck?.downloadUpdate(downloadUrl)
                     }
                 }
