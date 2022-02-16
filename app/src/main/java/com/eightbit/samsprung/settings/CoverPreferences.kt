@@ -88,6 +88,9 @@ import androidx.core.graphics.blue
 import androidx.core.graphics.green
 import androidx.core.graphics.red
 import androidx.core.view.isVisible
+import androidx.recyclerview.widget.DividerItemDecoration
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.android.billingclient.api.*
 import com.eightbit.content.ScaledContext
 import com.eightbit.io.Debug
@@ -129,7 +132,7 @@ class CoverPreferences : AppCompatActivity() {
     private lateinit var settings: SwitchCompat
     private lateinit var keyboard: SwitchCompat
 
-    private lateinit var hiddenList: ListView
+    private lateinit var hiddenList: RecyclerView
 
     private lateinit var billingClient: BillingClient
     private val iapList = ArrayList<String>()
@@ -291,7 +294,12 @@ class CoverPreferences : AppCompatActivity() {
         val unlisted = packageRetriever.getHiddenPackages()
 
         hiddenList = findViewById(R.id.app_toggle_list)
-        hiddenList.adapter = FilteredAppsAdapter(this, packages, unlisted, prefs)
+        hiddenList.layoutManager = LinearLayoutManager(this)
+        hiddenList.addItemDecoration(
+            DividerItemDecoration(this,
+            DividerItemDecoration.VERTICAL)
+        )
+        hiddenList.adapter = FilteredAppsAdapter(packageManager, packages, unlisted, prefs)
 
         val color = prefs.getInt(SamSprung.prefColors, Color.rgb(255, 255, 255))
 

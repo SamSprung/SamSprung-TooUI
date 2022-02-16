@@ -51,7 +51,6 @@ package com.eightbit.samsprung.settings
  * subject to to the terms and conditions of the Apache License, Version 2.0.
  */
 
-import android.content.Context
 import android.content.SharedPreferences
 import android.content.pm.PackageManager
 import android.content.pm.ResolveInfo
@@ -60,85 +59,107 @@ import android.os.Looper
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.BaseAdapter
 import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.appcompat.widget.AppCompatImageView
 import androidx.appcompat.widget.SwitchCompat
+import androidx.recyclerview.widget.RecyclerView
 import com.eightbit.samsprung.R
 import com.eightbit.samsprung.SamSprung
 import java.util.concurrent.Executors
 
 class FilteredAppsAdapter(
-    private val context: Context,
+    private val pacMan: PackageManager,
     private var packages: MutableList<ResolveInfo>,
     private var hide: HashSet<String>,
     private val prefs: SharedPreferences
-) : BaseAdapter() {
-    private var pacMan: PackageManager = context.packageManager
+) : RecyclerView.Adapter<FilteredAppsAdapter.HideViewHolder>() {
 
     fun setPackages(packages: MutableList<ResolveInfo>, hide: HashSet<String>) {
         this.packages = packages
         this.hide = hide
     }
 
-    override fun getCount(): Int {
-        return packages.size //returns total of items in the list
+    override fun getItemCount(): Int {
+        return packages.size
     }
 
-    override fun getItem(position: Int): Any {
-        return packages[position] //returns list item at the specified position
+    override fun getItemId(i: Int): Long {
+        return packages[i].labelRes.toLong()
     }
 
-    override fun getItemId(position: Int): Long {
-        return position.toLong()
+    private fun getItem(i: Int): ResolveInfo {
+        return packages[i]
     }
 
-    override fun getView(position: Int, view: View?, parent: ViewGroup): View {
-        var convertView = view
-        if (null == convertView) {
-            convertView = LayoutInflater.from(context)
-                .inflate(R.layout.filtered_apps_item, parent, false)
-        }
+    override fun getItemViewType(position: Int): Int {
+        return position
+    }
 
-        val application = packages[position]
-        val detailView = convertView!!.findViewById<LinearLayout>(R.id.hiddenItemContainer)
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): HideViewHolder {
+        return SimpleViewHolder(parent, pacMan, prefs, hide)
+    }
 
-        Executors.newSingleThreadExecutor().execute {
-            val appName: CharSequence? = try {
-                application.loadLabel(pacMan)
-            } catch (e: Exception) {
-                application.nonLocalizedLabel
-            }
-            val icon = application.loadIcon(pacMan)
+    override fun onBindViewHolder(holder: HideViewHolder, position: Int) {
+        holder.bind(getItem(position))
+    }
 
-            Handler(Looper.getMainLooper()).post {
-                detailView.findViewById<AppCompatImageView>(R.id.hiddenItemImage).setImageDrawable(icon)
-                detailView.findViewById<TextView>(R.id.hiddenItemText).text = appName
-            }
-        }
+    abstract class HideViewHolder(
+        itemView: View,
+        private val packageManager: PackageManager,
+        private val prefs: SharedPreferences,
+        private val hide: HashSet<String>
+    ) : RecyclerView.ViewHolder(itemView) {
+        lateinit var application: ResolveInfo
+        fun bind(appInfo: ResolveInfo) {
+            this.application = appInfo
+            val detailView = itemView.findViewById<LinearLayout>(R.id.hiddenItemContainer)
 
-        val hideSwitch = detailView.findViewById<SwitchCompat>(R.id.hiddenItemSwitch)
-        hideSwitch.isChecked = !hide.contains(application.activityInfo.packageName)
-
-        hideSwitch.setOnClickListener {
-            val packageName = application.activityInfo.packageName
-            if (hide.contains(packageName)) {
-                hide.remove(packageName)
-                with(prefs.edit()) {
-                    putStringSet(SamSprung.prefHidden, hide)
-                    apply()
+            Executors.newSingleThreadExecutor().execute {
+                val appName: CharSequence? = try {
+                    application.loadLabel(packageManager)
+                } catch (e: Exception) {
+                    application.nonLocalizedLabel
                 }
-            } else {
-                hide.add(packageName)
-                with(prefs.edit()) {
-                    putStringSet(SamSprung.prefHidden, hide)
-                    apply()
+                val icon = application.loadIcon(packageManager)
+
+                Handler(Looper.getMainLooper()).post {
+                    detailView.findViewById<AppCompatImageView>(
+                        R.id.hiddenItemImage).setImageDrawable(icon)
+                    detailView.findViewById<TextView>(R.id.hiddenItemText).text = appName
                 }
             }
-            this.notifyDataSetChanged()
-        }
 
-        return convertView
+            val hideSwitch = detailView.findViewById<SwitchCompat>(R.id.hiddenItemSwitch)
+            hideSwitch.isChecked = !hide.contains(application.activityInfo.packageName)
+
+            hideSwitch.setOnClickListener {
+                val packageName = application.activityInfo.packageName
+                if (hide.contains(packageName)) {
+                    hide.remove(packageName)
+                    with(prefs.edit()) {
+                        putStringSet(SamSprung.prefHidden, hide)
+                        apply()
+                    }
+                } else {
+                    hide.add(packageName)
+                    with(prefs.edit()) {
+                        putStringSet(SamSprung.prefHidden, hide)
+                        apply()
+                    }
+                }
+            }
+        }
     }
+
+    internal class SimpleViewHolder(
+        parent: ViewGroup,
+        packageManager: PackageManager,
+        prefs: SharedPreferences,
+        hide: HashSet<String>
+    ) : HideViewHolder(
+        LayoutInflater.from(parent.context).inflate(
+            R.layout.filtered_apps_item, parent, false
+        ), packageManager, prefs, hide
+    )
 }
