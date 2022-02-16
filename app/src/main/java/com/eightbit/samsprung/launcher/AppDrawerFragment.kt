@@ -87,7 +87,6 @@ import java.util.concurrent.Executors
 
 class AppDrawerFragment : Fragment(), DrawerAppAdapater.OnAppClickListener {
 
-    private lateinit var searchView: SearchView
     private lateinit var packReceiver: BroadcastReceiver
 
     override fun onCreateView(
@@ -118,8 +117,7 @@ class AppDrawerFragment : Fragment(), DrawerAppAdapater.OnAppClickListener {
         launcherView.adapter = DrawerAppAdapater(
             packages, this, requireActivity().packageManager, prefs)
 
-        searchView = (requireActivity() as SamSprungOverlay).getSearch()
-
+        val searchView = (requireActivity() as SamSprungOverlay).getSearch()
         val searchManager = requireActivity().getSystemService(AppCompatActivity.SEARCH_SERVICE) as SearchManager
         searchView.setSearchableInfo(searchManager.getSearchableInfo(requireActivity().componentName))
         searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
@@ -200,10 +198,6 @@ class AppDrawerFragment : Fragment(), DrawerAppAdapater.OnAppClickListener {
                 bottomSheet.state = BottomSheetBehavior.STATE_COLLAPSED
             }
         }
-    }
-
-    fun getSearch() : SearchView {
-        return searchView
     }
 
     private fun getColumnCount(): Int {

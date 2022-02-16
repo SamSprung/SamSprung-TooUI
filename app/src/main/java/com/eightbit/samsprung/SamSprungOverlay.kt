@@ -72,16 +72,21 @@ import android.nfc.NfcManager
 import android.os.*
 import android.provider.Settings
 import android.service.notification.StatusBarNotification
+import android.speech.tts.TextToSpeech
 import android.util.TypedValue
 import android.view.*
+import android.widget.*
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.view.ContextThemeWrapper
 import androidx.appcompat.widget.AppCompatButton
 import androidx.appcompat.widget.AppCompatImageView
+import androidx.appcompat.widget.SearchView
 import androidx.appcompat.widget.Toolbar
 import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.core.content.ContextCompat
+import androidx.core.view.WindowCompat
 import androidx.core.view.isVisible
+import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -97,13 +102,8 @@ import com.eightbit.widget.RecyclerViewTouch
 import com.eightbitlab.blurview.BlurView
 import com.eightbitlab.blurview.RenderScriptBlur
 import com.google.android.material.bottomsheet.BottomSheetBehavior
-import java.util.*
-import android.speech.tts.TextToSpeech
-import android.widget.*
-import androidx.appcompat.widget.SearchView
-import androidx.core.view.WindowCompat
-import androidx.fragment.app.Fragment
 import com.google.android.material.floatingactionbutton.FloatingActionButton
+import java.util.*
 
 class SamSprungOverlay : FragmentActivity(), NotificationAdapter.OnNoticeClickListener {
 
@@ -272,6 +272,20 @@ class SamSprungOverlay : FragmentActivity(), NotificationAdapter.OnNoticeClickLi
         noticeAdapter.setHasStableIds(true)
         noticesView.adapter = noticeAdapter
 
+        RecyclerViewTouch(noticesView).setSwipeCallback(
+            ItemTouchHelper.START or ItemTouchHelper.END,
+            object: RecyclerViewTouch.SwipeCallback {
+            override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
+                if (direction == ItemTouchHelper.START || direction == ItemTouchHelper.END) {
+                    val notice = (viewHolder as NotificationAdapter.NoticeViewHolder).notice
+                    if (notice.isClearable) {
+                        NotificationReceiver.getReceiver()?.setNotificationsShown(arrayOf(notice.key))
+                        NotificationReceiver.getReceiver()?.cancelNotification(notice.key)
+                    }
+                }
+            }
+        })
+
         val bottomSheetBehavior: BottomSheetBehavior<View> =
             BottomSheetBehavior.from(findViewById(R.id.bottom_sheet))
         bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
@@ -430,18 +444,6 @@ class SamSprungOverlay : FragmentActivity(), NotificationAdapter.OnNoticeClickLi
             return@OnLongClickListener true
         })
 
-        RecyclerViewTouch(noticesView).setSwipeCallback(
-            ItemTouchHelper.START or ItemTouchHelper.END,
-            object: RecyclerViewTouch.SwipeCallback {
-            override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
-                if (direction == ItemTouchHelper.START || direction == ItemTouchHelper.END) {
-                    val notice = (viewHolder as NotificationAdapter.NoticeViewHolder).notice
-                    if (notice.isClearable)
-                        NotificationReceiver.getReceiver()?.cancelNotification(notice.key)
-                }
-            }
-        })
-
         viewPager = findViewById(R.id.pager)
         pagerAdapter = CoverStateAdapter(this)
         viewPager.adapter = pagerAdapter
@@ -524,7 +526,6 @@ class SamSprungOverlay : FragmentActivity(), NotificationAdapter.OnNoticeClickLi
                 }
             }
         })
-
 
         menuButton.setOnClickListener {
             bottomSheetBehaviorMain.state = BottomSheetBehavior.STATE_EXPANDED
@@ -699,8 +700,8 @@ class SamSprungOverlay : FragmentActivity(), NotificationAdapter.OnNoticeClickLi
         }, 100)
     }
 
-    private fun setNotificationAction(position: Int, actionsPanel: LinearLayout,
-                                      action: Notification.Action) {
+    private fun setNotificationAction(
+        position: Int, actionsPanel: LinearLayout, action: Notification.Action) {
         val actionButtons = actionsPanel.findViewById<LinearLayout>(R.id.actions)
         val actionEntries = actionsPanel.findViewById<LinearLayout>(R.id.entries)
         val button = AppCompatButton(
@@ -750,7 +751,7 @@ class SamSprungOverlay : FragmentActivity(), NotificationAdapter.OnNoticeClickLi
         }
         actionButtons.addView(button, LinearLayout.LayoutParams(
             0, LinearLayout.LayoutParams.WRAP_CONTENT,
-            if (action.title.length > 10) 1.5f else 1.0f
+            if (action.title.length > 10) 1.5f else if (action.title.length > 5) 1.0f else 0.5f
         ))
     }
 
@@ -768,7 +769,7 @@ class SamSprungOverlay : FragmentActivity(), NotificationAdapter.OnNoticeClickLi
             actionsPanel.visibility = View.GONE
         }
         val params = LinearLayout.LayoutParams(
-            0, LinearLayout.LayoutParams.WRAP_CONTENT, 0.5f
+            0, LinearLayout.LayoutParams.WRAP_CONTENT, 0.25f
         )
         params.gravity = Gravity.CENTER
         actionButtons.addView(button, params)
@@ -794,9 +795,6 @@ class SamSprungOverlay : FragmentActivity(), NotificationAdapter.OnNoticeClickLi
                 }
                 if (notice.isClearable) {
                     setNotificationCancel(actionsPanel, notice)
-                    (noticesView.layoutManager as LinearLayoutManager)
-                        .scrollToPositionWithOffset(position,
-                            -(actionButtons.height))
                 }
             }
         }

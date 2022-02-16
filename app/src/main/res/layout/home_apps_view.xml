@@ -8,32 +8,32 @@
         android:orientation="vertical">
 
         <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <com.eightbitlab.blurview.BlurView
+                android:id="@+id/blurContainer"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent">
+                android:layout_height="match_parent"
+                app:blurOverlayColor="@color/bottomSheetTint">
 
-        <com.eightbitlab.blurview.BlurView
-            android:id="@+id/blurContainer"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            app:blurOverlayColor="@color/bottomSheetTint">
+                <androidx.viewpager2.widget.ViewPager2
+                    android:id="@+id/pager"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent" />
+            </com.eightbitlab.blurview.BlurView>
 
-        <androidx.viewpager2.widget.ViewPager2
-            android:id="@+id/pager"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent" />
-        </com.eightbitlab.blurview.BlurView>
-
-        <androidx.appcompat.widget.SearchView
-            android:id="@+id/package_search"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="18dp"
-            android:paddingTop="2dp"
-            android:background="@color/bottomSheetTint"
-            android:lineSpacingExtra="0dp"
-            android:lineSpacingMultiplier="0"
-            android:layout_gravity="bottom"/>
-    </FrameLayout>
+            <androidx.appcompat.widget.SearchView
+                android:id="@+id/package_search"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="20dp"
+                android:paddingTop="2dp"
+                android:background="@color/bottomSheetTint"
+                android:lineSpacingExtra="0dp"
+                android:lineSpacingMultiplier="0"
+                android:layout_gravity="bottom"/>
+        </FrameLayout>
 
         <LinearLayout
             android:id="@+id/bottom_sheet"
