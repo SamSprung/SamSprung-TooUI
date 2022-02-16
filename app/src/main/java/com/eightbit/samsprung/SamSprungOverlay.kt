@@ -755,26 +755,6 @@ class SamSprungOverlay : FragmentActivity(), NotificationAdapter.OnNoticeClickLi
         ))
     }
 
-    private fun setNotificationCancel(actionsPanel: LinearLayout, sbn: StatusBarNotification) {
-        val actionButtons = actionsPanel.findViewById<LinearLayout>(R.id.actions)
-        val button = AppCompatImageView(
-            ContextThemeWrapper(this,
-                R.style.Theme_SecondScreen_NoActionBar)
-        )
-        button.setImageDrawable(ContextCompat
-            .getDrawable(this, R.drawable.ic_baseline_cancel_presentation_24))
-        button.setOnClickListener {
-            NotificationReceiver.getReceiver()?.setNotificationsShown(arrayOf(sbn.key))
-            NotificationReceiver.getReceiver()?.cancelNotification(sbn.key)
-            actionsPanel.visibility = View.GONE
-        }
-        val params = LinearLayout.LayoutParams(
-            0, LinearLayout.LayoutParams.WRAP_CONTENT, 0.25f
-        )
-        params.gravity = Gravity.CENTER
-        actionButtons.addView(button, params)
-    }
-
     override fun onNoticeClicked(itemView: View, position: Int, notice: StatusBarNotification) {
         val actionsPanel = itemView.findViewById<LinearLayout>(R.id.action_panel)
         if (actionsPanel.isVisible) {
@@ -792,9 +772,6 @@ class SamSprungOverlay : FragmentActivity(), NotificationAdapter.OnNoticeClickLi
                     (noticesView.layoutManager as LinearLayoutManager)
                         .scrollToPositionWithOffset(position,
                             -(actionButtons.height))
-                }
-                if (notice.isClearable) {
-                    setNotificationCancel(actionsPanel, notice)
                 }
             }
         }

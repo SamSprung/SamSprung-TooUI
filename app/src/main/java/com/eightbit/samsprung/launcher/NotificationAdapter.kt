@@ -196,10 +196,28 @@ class NotificationAdapter(
                     }
                 }
                 if (linesText.text.isEmpty()) linesText.text = ""
+                val launch = itemView.findViewById<AppCompatImageView>(R.id.launch)
                 activity.runOnUiThread {
-                    itemView.findViewById<AppCompatImageView>(R.id.launch).setOnClickListener {
-                        (activity as SamSprungOverlay)
-                            .processIntentSender(notification.contentIntent.intentSender)
+                    if (null != notification.contentIntent) {
+                        launch.visibility = View.VISIBLE
+                        launch.setOnClickListener {
+                            (activity as SamSprungOverlay).processIntentSender(
+                                notification.contentIntent.intentSender)
+                        }
+                    } else {
+                        launch.visibility = View.GONE
+                    }
+                }
+                val dismiss = itemView.findViewById<AppCompatImageView>(R.id.dismiss)
+                activity.runOnUiThread {
+                    if (notice.isClearable) {
+                        dismiss.visibility = View.VISIBLE
+                        dismiss.setOnClickListener {
+                            NotificationReceiver.getReceiver()?.setNotificationsShown(arrayOf(notice.key))
+                            NotificationReceiver.getReceiver()?.cancelNotification(notice.key)
+                        }
+                    } else {
+                        dismiss.visibility = View.GONE
                     }
                 }
             }

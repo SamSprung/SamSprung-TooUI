@@ -24,14 +24,32 @@
             android:gravity="center_vertical"
             tools:ignore="UseCompoundDrawables">
 
+            <LinearLayout
+                android:id="@+id/quick_panel"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_centerVertical="true"
+                android:layout_alignParentEnd="true"
+                android:orientation="vertical">
+
             <androidx.appcompat.widget.AppCompatImageView
                 android:id="@+id/launch"
                 app:srcCompat="@drawable/ic_baseline_launch_24"
                 android:layout_width="18dp"
                 android:layout_height="18dp"
-                android:layout_centerVertical="true"
-                android:layout_alignParentEnd="true"
+                android:layout_weight="1"
+                android:gravity="center_vertical"
                 android:contentDescription="@string/description_icon" />
+
+                <androidx.appcompat.widget.AppCompatImageView
+                    android:id="@+id/dismiss"
+                    app:srcCompat="@drawable/ic_baseline_cancel_presentation_24"
+                    android:layout_width="18dp"
+                    android:layout_height="18dp"
+                    android:layout_weight="1"
+                    android:gravity="center_vertical"
+                    android:contentDescription="@string/description_icon" />
+            </LinearLayout>
 
             <androidx.appcompat.widget.AppCompatImageView
                 android:id="@+id/icon"
@@ -45,7 +63,7 @@
                 android:id="@+id/lines"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_toStartOf="@+id/launch"
+                android:layout_toStartOf="@+id/quick_panel"
                 android:layout_toEndOf="@+id/icon"
                 android:layout_centerVertical="true"
                 android:layout_marginStart="8dp"
