@@ -26,8 +26,9 @@
         <androidx.appcompat.widget.SearchView
             android:id="@+id/package_search"
             android:layout_width="match_parent"
-            android:layout_height="26dp"
-            android:layout_marginBottom="20dp"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="18dp"
+            android:paddingTop="2dp"
             android:background="@color/bottomSheetTint"
             android:lineSpacingExtra="0dp"
             android:lineSpacingMultiplier="0"

@@ -287,11 +287,11 @@ class AppDisplayListener : Service() {
             else
                 resetRecentActivities(launchPackage, launchActivity)
             onDismiss()
-            stopForeground(true)
-            stopSelf()
             startForegroundService(Intent(
                 applicationContext, OnBroadcastService::class.java
             ).setAction(SamSprung.launcher))
+            stopForeground(true)
+            stopSelf()
         }
         menu.findViewById<ImageView>(R.id.button_home).setOnClickListener {
             tactileFeedback()
@@ -300,14 +300,14 @@ class AppDisplayListener : Service() {
             else
                 resetRecentActivities(launchPackage, launchActivity)
             onDismiss()
-            stopForeground(true)
-            stopSelf()
             startForegroundService(
                 Intent(
                     applicationContext,
                     OnBroadcastService::class.java
                 ).setAction(SamSprung.services)
             )
+            stopForeground(true)
+            stopSelf()
         }
         menu.findViewById<ImageView>(R.id.button_back).setOnClickListener {
             tactileFeedback()

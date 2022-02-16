@@ -447,11 +447,13 @@ class SamSprungOverlay : FragmentActivity(), NotificationAdapter.OnNoticeClickLi
         viewPager.adapter = pagerAdapter
 
         searchView = findViewById(R.id.package_search)
+        searchView.isSubmitButtonEnabled = false
+        searchView.setIconifiedByDefault(true)
         searchView.findViewById<LinearLayout>(R.id.search_bar)?.run {
             this.layoutParams = this.layoutParams.apply {
                 height = TypedValue.applyDimension(
                     TypedValue.COMPLEX_UNIT_DIP,
-                    18f, resources.displayMetrics).toInt()
+                    20f, resources.displayMetrics).toInt()
             }
         }
 
