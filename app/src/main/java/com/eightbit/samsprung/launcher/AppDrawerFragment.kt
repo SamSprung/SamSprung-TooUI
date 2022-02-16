@@ -225,7 +225,8 @@ class AppDrawerFragment : Fragment(), DrawerAppAdapater.OnAppClickListener {
     override fun onAppClicked(appInfo: ResolveInfo, position: Int) {
         prepareConfiguration()
 
-        (requireActivity().getSystemService(AppCompatActivity.LAUNCHER_APPS_SERVICE) as LauncherApps).startMainActivity(
+        (requireActivity().getSystemService(AppCompatActivity
+            .LAUNCHER_APPS_SERVICE) as LauncherApps).startMainActivity(
             ComponentName(appInfo.activityInfo.packageName, appInfo.activityInfo.name),
             Process.myUserHandle(),
             requireActivity().windowManager.currentWindowMetrics.bounds,

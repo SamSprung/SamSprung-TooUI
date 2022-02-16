@@ -931,6 +931,36 @@ class SamSprungOverlay : FragmentActivity(), NotificationAdapter.OnNoticeClickLi
     private val CharSequence.toPref get() = this.toString()
         .lowercase().replace(" ", "_")
 
+    override fun startActivityIfNeeded(
+        intent: Intent,
+        requestCode: Int,
+        options: Bundle?
+    ): Boolean {
+        intent.addFlags(Intent.FLAG_ACTIVITY_FORWARD_RESULT)
+        return if (null != options)
+            super.startActivityIfNeeded(intent, requestCode, options)
+        else
+            super.startActivityIfNeeded(intent, requestCode,
+                ActivityOptions.makeBasic().setLaunchDisplayId(1).toBundle())
+    }
+
+    override fun startActivityIfNeeded(intent: Intent, requestCode: Int): Boolean {
+        return startActivityIfNeeded(intent, requestCode,
+            ActivityOptions.makeBasic().setLaunchDisplayId(1).toBundle())
+    }
+
+    override fun startActivity(intent: Intent?, options: Bundle?) {
+        intent?.addFlags(Intent.FLAG_ACTIVITY_FORWARD_RESULT)
+        if (null != options)
+            super.startActivity(intent, options)
+        else
+            super.startActivity(intent, ActivityOptions.makeBasic().setLaunchDisplayId(1).toBundle())
+    }
+
+    override fun startActivity(intent: Intent?) {
+        startActivity(intent, ActivityOptions.makeBasic().setLaunchDisplayId(1).toBundle())
+    }
+
     override fun startActivities(intents: Array<out Intent>?, options: Bundle?) {
         if (null != options)
             super.startActivities(intents, options)
@@ -940,36 +970,7 @@ class SamSprungOverlay : FragmentActivity(), NotificationAdapter.OnNoticeClickLi
     }
 
     override fun startActivities(intents: Array<out Intent>?) {
-        super.startActivities(intents,
-            ActivityOptions.makeBasic().setLaunchDisplayId(1).toBundle())
-    }
-
-    override fun startActivityIfNeeded(
-        intent: Intent,
-        requestCode: Int,
-        options: Bundle?
-    ): Boolean {
-        return if (null != options)
-            super.startActivityIfNeeded(intent, requestCode, options)
-        else
-            super.startActivityIfNeeded(intent, requestCode,
-                ActivityOptions.makeBasic().setLaunchDisplayId(1).toBundle())
-    }
-
-    override fun startActivityIfNeeded(intent: Intent, requestCode: Int): Boolean {
-        return super.startActivityIfNeeded(intent, requestCode,
-            ActivityOptions.makeBasic().setLaunchDisplayId(1).toBundle())
-    }
-
-    override fun startActivity(intent: Intent?, options: Bundle?) {
-        if (null != options)
-            super.startActivity(intent, options)
-        else
-            super.startActivity(intent, ActivityOptions.makeBasic().setLaunchDisplayId(1).toBundle())
-    }
-
-    override fun startActivity(intent: Intent?) {
-        super.startActivity(intent, ActivityOptions.makeBasic().setLaunchDisplayId(1).toBundle())
+        startActivities(intents, ActivityOptions.makeBasic().setLaunchDisplayId(1).toBundle())
     }
 
     override fun startActivityFromFragment(
@@ -978,6 +979,7 @@ class SamSprungOverlay : FragmentActivity(), NotificationAdapter.OnNoticeClickLi
         requestCode: Int,
         options: Bundle?
     ) {
+        intent?.addFlags(Intent.FLAG_ACTIVITY_FORWARD_RESULT)
         if (null != options)
             super.startActivityFromFragment(fragment, intent, requestCode, options)
         else
@@ -986,7 +988,7 @@ class SamSprungOverlay : FragmentActivity(), NotificationAdapter.OnNoticeClickLi
     }
 
     override fun startActivityFromFragment(fragment: Fragment, intent: Intent?, requestCode: Int) {
-        super.startActivityFromFragment(fragment, intent, requestCode,
+        startActivityFromFragment(fragment, intent, requestCode,
             ActivityOptions.makeBasic().setLaunchDisplayId(1).toBundle())
     }
 
@@ -998,6 +1000,7 @@ class SamSprungOverlay : FragmentActivity(), NotificationAdapter.OnNoticeClickLi
         extraFlags: Int,
         options: Bundle?
     ) {
+        extraFlags.or(Intent.FLAG_ACTIVITY_FORWARD_RESULT)
         if (null != options)
             super.startIntentSender(intent, fillInIntent, flagsMask, flagsValues, extraFlags, options)
         else
@@ -1012,7 +1015,7 @@ class SamSprungOverlay : FragmentActivity(), NotificationAdapter.OnNoticeClickLi
         flagsValues: Int,
         extraFlags: Int
     ) {
-        super.startIntentSender(intent, fillInIntent, flagsMask, flagsValues, extraFlags,
+        startIntentSender(intent, fillInIntent, flagsMask, flagsValues, extraFlags,
             ActivityOptions.makeBasic().setLaunchDisplayId(1).toBundle())
     }
 }

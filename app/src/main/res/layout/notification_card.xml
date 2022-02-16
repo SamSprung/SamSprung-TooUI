@@ -32,22 +32,22 @@
                 android:layout_alignParentEnd="true"
                 android:orientation="vertical">
 
-            <androidx.appcompat.widget.AppCompatImageView
-                android:id="@+id/launch"
-                app:srcCompat="@drawable/ic_baseline_launch_24"
-                android:layout_width="18dp"
-                android:layout_height="18dp"
-                android:layout_weight="1"
-                android:gravity="center_vertical"
-                android:contentDescription="@string/description_icon" />
+                <androidx.appcompat.widget.AppCompatImageView
+                    android:id="@+id/launch"
+                    app:srcCompat="@drawable/ic_baseline_launch_24"
+                    android:layout_width="18dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:gravity="top"
+                    android:contentDescription="@string/description_icon" />
 
                 <androidx.appcompat.widget.AppCompatImageView
                     android:id="@+id/dismiss"
                     app:srcCompat="@drawable/ic_baseline_cancel_presentation_24"
                     android:layout_width="18dp"
-                    android:layout_height="18dp"
+                    android:layout_height="match_parent"
                     android:layout_weight="1"
-                    android:gravity="center_vertical"
+                    android:gravity="bottom"
                     android:contentDescription="@string/description_icon" />
             </LinearLayout>
 
