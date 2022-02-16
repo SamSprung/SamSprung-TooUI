@@ -72,10 +72,7 @@ import android.widget.LinearLayout
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.SearchView
 import androidx.fragment.app.Fragment
-import androidx.recyclerview.widget.GridLayoutManager
-import androidx.recyclerview.widget.ItemTouchHelper
-import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
+import androidx.recyclerview.widget.*
 import com.eightbit.pm.PackageRetriever
 import com.eightbit.samsprung.R
 import com.eightbit.samsprung.SamSprung
@@ -110,10 +107,14 @@ class AppDrawerFragment : Fragment(), DrawerAppAdapater.OnAppClickListener {
         val packageRetriever = PackageRetriever(requireActivity())
         var packages = packageRetriever.getFilteredPackageList()
 
-        if (prefs.getBoolean(SamSprung.prefLayout, true))
+        launcherView.setHasFixedSize(true)
+        if (prefs.getBoolean(SamSprung.prefLayout, true)) {
             launcherView.layoutManager = GridLayoutManager(activity, getColumnCount())
-        else
+        } else {
             launcherView.layoutManager = LinearLayoutManager(activity)
+            launcherView.addItemDecoration(DividerItemDecoration(activity,
+                DividerItemDecoration.VERTICAL))
+        }
         launcherView.adapter = DrawerAppAdapater(
             packages, this, requireActivity().packageManager, prefs)
 

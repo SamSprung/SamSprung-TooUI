@@ -764,8 +764,8 @@ class SamSprungOverlay : FragmentActivity(), NotificationAdapter.OnNoticeClickLi
             if (actionButtons.childCount > 0) {
                 actionsPanel.visibility = View.VISIBLE
             } else {
-                actionsPanel.visibility = View.VISIBLE
                 if (null != notice.notification.actions) {
+                    actionsPanel.visibility = View.VISIBLE
                     for (action in notice.notification.actions) {
                         setNotificationAction(position, actionsPanel, action)
                     }

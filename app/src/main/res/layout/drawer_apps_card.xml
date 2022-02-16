@@ -5,9 +5,7 @@
     android:id="@+id/widgetListContainer"
     android:layout_width="match_parent"
     android:layout_height="48dp"
-    android:layout_marginStart="2dp"
-    android:layout_marginEnd="2dp"
-    android:layout_marginTop="4dp"
+    android:layout_margin="2dp"
     android:layout_gravity="center"
     android:orientation="horizontal"
     tools:ignore="UseCompoundDrawables">
