@@ -90,6 +90,10 @@ class NotificationAdapter(
         return sbNotifications[i]
     }
 
+    override fun getItemViewType(position: Int): Int {
+        return position
+    }
+
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): NoticeViewHolder {
         return SimpleViewHolder(parent, listener, activity)
     }
