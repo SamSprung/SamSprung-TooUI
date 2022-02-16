@@ -77,6 +77,7 @@
             android:name=".SamSprungOverlay"
             android:theme="@style/LauncherTheme.NoActionBar"
             android:configChanges="orientation|screenLayout|screenSize|smallestScreenSize"
+            android:windowSoftInputMode="adjustNothing"
             android:exported="true"
             android:launchMode="singleTop"
             android:showOnLockScreen="true"

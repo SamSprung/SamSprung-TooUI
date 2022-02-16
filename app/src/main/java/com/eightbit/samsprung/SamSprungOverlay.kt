@@ -77,6 +77,7 @@ import android.util.TypedValue
 import android.view.*
 import android.widget.*
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.view.ContextThemeWrapper
 import androidx.appcompat.widget.AppCompatButton
 import androidx.appcompat.widget.AppCompatImageView
@@ -700,10 +701,41 @@ class SamSprungOverlay : FragmentActivity(), NotificationAdapter.OnNoticeClickLi
         }, 100)
     }
 
+    private fun promptNotificationReply(action: Notification.Action) {
+        for (remoteInput in action.remoteInputs) {
+            if (remoteInput.allowFreeFormInput) {
+                var replyDialog: Dialog? = null
+                val view: View = layoutInflater.inflate(R.layout.notification_reply, null)
+                val dialog = AlertDialog.Builder(
+                    ContextThemeWrapper(this, R.style.Theme_SecondScreen_NoActionBar)
+                )
+                val actionEntries = view.findViewById<RelativeLayout>(R.id.entries)
+                val reply = actionEntries.findViewById<EditText>(R.id.reply)
+                actionEntries.findViewById<AppCompatImageView>(R.id.send).setOnClickListener {
+                    val replyIntent = Intent()
+                    val replyBundle = Bundle()
+                    replyBundle.putCharSequence(remoteInput.resultKey, reply.text.toString())
+                    RemoteInput.addResultsToIntent(action.remoteInputs, replyIntent, replyBundle)
+                    startIntentSender(action.actionIntent.intentSender,
+                        replyIntent, 0, 0, 0,
+                        ActivityOptions.makeBasic().setLaunchDisplayId(1).toBundle())
+                    replyDialog?.dismiss()
+                }
+                actionEntries.findViewById<AppCompatImageView>(R.id.cancel).setOnClickListener {
+                    replyDialog?.dismiss()
+                }
+                replyDialog = dialog.setView(view).show()
+                replyDialog.window?.setLayout(
+                    RelativeLayout.LayoutParams.MATCH_PARENT,
+                    RelativeLayout.LayoutParams.WRAP_CONTENT
+                )
+            }
+        }
+    }
+
     private fun setNotificationAction(
         position: Int, actionsPanel: LinearLayout, action: Notification.Action) {
         val actionButtons = actionsPanel.findViewById<LinearLayout>(R.id.actions)
-        val actionEntries = actionsPanel.findViewById<LinearLayout>(R.id.entries)
         val button = AppCompatButton(
             ContextThemeWrapper(this,
                 R.style.Theme_SecondScreen_NoActionBar
@@ -713,41 +745,13 @@ class SamSprungOverlay : FragmentActivity(), NotificationAdapter.OnNoticeClickLi
         button.setSingleLine()
         button.text = action.title
         button.setOnClickListener {
-            actionEntries.visibility = View.GONE
             if (null != action.remoteInputs && action.remoteInputs.isNotEmpty()) {
-                for (remoteInput in action.remoteInputs) {
-                    if (remoteInput.allowFreeFormInput) {
-                        val toolbar = findViewById<Toolbar>(R.id.toolbar)
-                        actionEntries.visibility = View.VISIBLE
-                        val reply = actionEntries.findViewById<EditText>(R.id.reply)
-                        val send = actionEntries.findViewById<AppCompatImageView>(R.id.send)
-                        reply.setOnFocusChangeListener { _, hasFocus ->
-                            if (hasFocus) {
-                                toolbar.visibility = View.GONE
-                                (noticesView.layoutManager as LinearLayoutManager)
-                                    .scrollToPositionWithOffset(position,
-                                        -(actionButtons.height + reply.height)
-                                    )
-                            } else {
-                                toolbar.visibility = View.VISIBLE
-                            }
-                        }
-                        send.setOnClickListener {
-                            val replyIntent = Intent()
-                            val replyBundle = Bundle()
-                            replyBundle.putCharSequence(remoteInput.resultKey, reply.text.toString())
-                            RemoteInput.addResultsToIntent(action.remoteInputs, replyIntent, replyBundle)
-                            startIntentSender(action.actionIntent.intentSender,
-                                replyIntent, 0, 0, 0,
-                                ActivityOptions.makeBasic().setLaunchDisplayId(1).toBundle())
-                            actionEntries.visibility = View.GONE
-                        }
-                    }
-                }
+                promptNotificationReply(action)
             } else {
                 processIntentSender(action.actionIntent.intentSender)
                 actionsPanel.visibility = View.GONE
             }
+            (noticesView.layoutManager as LinearLayoutManager).scrollToPosition(position)
         }
         actionButtons.addView(button, LinearLayout.LayoutParams(
             0, LinearLayout.LayoutParams.WRAP_CONTENT,
