@@ -155,7 +155,6 @@ class SamSprungOverlay : FragmentActivity(), NotificationAdapter.OnNoticeClickLi
         actionBar?.hide()
 
         window.setFlags(
-            WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or
                     WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL or
                     WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN,
             PixelFormat.TRANSPARENT)
@@ -497,10 +496,8 @@ class SamSprungOverlay : FragmentActivity(), NotificationAdapter.OnNoticeClickLi
                     coordinator.keepScreenOn = true
                     bottomSheetBehaviorMain.isDraggable = false
                     fakeOverlay.visibility = View.GONE
-                    window.clearFlags(WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE)
                     menuButton.visibility = View.GONE
                 } else if (newState == BottomSheetBehavior.STATE_COLLAPSED) {
-                    window.addFlags(WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE)
                     coordinator.keepScreenOn = false
                     coordinator.visibility = View.GONE
                     bottomSheetBehaviorMain.isDraggable = true
@@ -623,8 +620,8 @@ class SamSprungOverlay : FragmentActivity(), NotificationAdapter.OnNoticeClickLi
         val orientationChanger = LinearLayout((application as SamSprung).getScaledContext())
         val orientationLayout = WindowManager.LayoutParams(
             WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY,
-            WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or
-                    WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL or
+            WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL or
+                    WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or
                     WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE or
                     WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN,
             PixelFormat.TRANSPARENT
@@ -745,7 +742,7 @@ class SamSprungOverlay : FragmentActivity(), NotificationAdapter.OnNoticeClickLi
 
     private fun initializeDrawer(launcher: Boolean) {
         persistent = findViewById(R.id.coordinator_main)
-        persistent?.setScreenOff(false)
+        persistent?.setDisabled(false)
         Handler(Looper.getMainLooper()).postDelayed({
             runOnUiThread {
                 bottomHandle = findViewById(R.id.bottom_handle)
@@ -1003,7 +1000,7 @@ class SamSprungOverlay : FragmentActivity(), NotificationAdapter.OnNoticeClickLi
     }
 
     fun onDismiss() {
-        persistent?.setScreenOff(true)
+        persistent?.setDisabled(true)
         if (null != mDisplayListener) {
             (getSystemService(Context.DISPLAY_SERVICE) as DisplayManager)
                 .unregisterDisplayListener(mDisplayListener)

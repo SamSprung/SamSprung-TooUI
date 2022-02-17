@@ -89,11 +89,9 @@ class PersistentCoordinator : CoordinatorLayout {
         )
     }
 
-    fun setScreenOff(isOff: Boolean) {
-        isDisabled = isOff
+    fun setDisabled(disabled: Boolean) {
+        isDisabled = disabled
     }
-
-
 
     @Suppress("DEPRECATION")
     private fun isServiceRunning(context: Context, serviceClass: Class<*>): Boolean {
