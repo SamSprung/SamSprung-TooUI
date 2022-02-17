@@ -52,22 +52,13 @@ package com.eightbit.samsprung.launcher
  */
 
 import android.annotation.SuppressLint
-import android.app.ActivityOptions
-import android.app.KeyguardManager
 import android.app.SearchManager
 import android.content.*
-import android.content.pm.ActivityInfo
-import android.content.pm.LauncherApps
 import android.content.pm.ResolveInfo
-import android.graphics.PixelFormat
 import android.os.Bundle
-import android.os.Handler
-import android.os.Looper
-import android.os.Process
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.view.WindowManager
 import android.widget.LinearLayout
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.SearchView
@@ -84,6 +75,7 @@ import java.util.concurrent.Executors
 
 class AppDrawerFragment : Fragment(), DrawerAppAdapater.OnAppClickListener {
 
+    private lateinit var launchManager: LaunchManager
     private lateinit var packReceiver: BroadcastReceiver
 
     override fun onCreateView(
@@ -101,6 +93,8 @@ class AppDrawerFragment : Fragment(), DrawerAppAdapater.OnAppClickListener {
 
         val prefs = requireActivity().getSharedPreferences(
             SamSprung.prefsValue, AppCompatActivity.MODE_PRIVATE)
+
+        launchManager = LaunchManager(requireActivity() as SamSprungOverlay)
 
         val launcherView = view.findViewById<RecyclerView>(R.id.appsList)
 
@@ -205,59 +199,8 @@ class AppDrawerFragment : Fragment(), DrawerAppAdapater.OnAppClickListener {
         return (requireActivity().windowManager.currentWindowMetrics.bounds.width() / 96 + 0.5).toInt()
     }
 
-    override fun onAppClicked(appInfo: ResolveInfo, position: Int) {
-        requireActivity().requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_LOCKED
-        requireActivity().requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_BEHIND
-
-        val mKeyguardManager = (requireActivity().getSystemService(Context.KEYGUARD_SERVICE) as KeyguardManager)
-        @Suppress("DEPRECATION")
-        (requireActivity().application as SamSprung).isKeyguardLocked = mKeyguardManager.inKeyguardRestrictedInputMode()
-
-        if ((requireActivity().application as SamSprung).isKeyguardLocked) {
-            @Suppress("DEPRECATION")
-            mKeyguardManager.newKeyguardLock("cover_lock").disableKeyguard()
-        }
-
-        mKeyguardManager.requestDismissKeyguard(requireActivity(),
-            object : KeyguardManager.KeyguardDismissCallback() { })
-
-        (requireActivity().getSystemService(AppCompatActivity
-            .LAUNCHER_APPS_SERVICE) as LauncherApps).startMainActivity(
-            ComponentName(appInfo.activityInfo.packageName, appInfo.activityInfo.name),
-            Process.myUserHandle(),
-            requireActivity().windowManager.currentWindowMetrics.bounds,
-            ActivityOptions.makeBasic().setLaunchDisplayId(1).toBundle()
-        )
-
-        val extras = Bundle()
-        extras.putString("launchPackage", appInfo.activityInfo.packageName)
-        extras.putString("launchActivity", appInfo.activityInfo.name)
-
-        val orientationChanger = LinearLayout((requireActivity()
-            .application as SamSprung).getScaledContext())
-        val orientationLayout = WindowManager.LayoutParams(
-            WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY,
-            WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL or
-                    WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or
-                    WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE or
-                    WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN,
-            PixelFormat.TRANSPARENT
-        )
-        orientationLayout.screenOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
-        val windowManager = (requireActivity().application as SamSprung).getScaledContext()?.getSystemService(
-            Context.WINDOW_SERVICE) as WindowManager
-        windowManager.addView(orientationChanger, orientationLayout)
-        orientationChanger.visibility = View.VISIBLE
-        Handler(Looper.getMainLooper()).postDelayed({
-            requireActivity().runOnUiThread {
-                windowManager.removeViewImmediate(orientationChanger)
-                (requireActivity() as SamSprungOverlay).onDismiss()
-                requireActivity().requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
-                requireActivity().startForegroundService(
-                    Intent(requireActivity(),
-                    AppDisplayListener::class.java).putExtras(extras))
-            }
-        }, 50)
+    override fun onAppClicked(resolveInfo: ResolveInfo, position: Int) {
+        launchManager.launchApplicationComponent(resolveInfo)
     }
 
     override fun onDestroyView() {

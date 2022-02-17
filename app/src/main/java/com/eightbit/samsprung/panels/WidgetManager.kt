@@ -28,7 +28,7 @@ import com.eightbit.samsprung.SamSprungOverlay
 import java.util.*
 import java.util.concurrent.Executors
 
-class WidgetHandler(
+class WidgetManager(
     private var overlay: SamSprungOverlay,
     private var viewPager: ViewPager2,
     private var pagerAdapter: CoverStateAdapter,

@@ -71,7 +71,6 @@ import android.nfc.NfcManager
 import android.os.*
 import android.provider.Settings
 import android.service.notification.StatusBarNotification
-import android.speech.RecognizerIntent
 import android.speech.SpeechRecognizer
 import android.speech.tts.TextToSpeech
 import android.util.TypedValue
@@ -79,7 +78,6 @@ import android.view.*
 import android.widget.*
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
-import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.view.ContextThemeWrapper
 import androidx.appcompat.widget.AppCompatButton
 import androidx.appcompat.widget.AppCompatImageView
@@ -98,7 +96,7 @@ import androidx.viewpager2.adapter.FragmentStateAdapter
 import androidx.viewpager2.widget.ViewPager2
 import com.eightbit.content.ScaledContext
 import com.eightbit.samsprung.*
-import com.eightbit.samsprung.launcher.AppDisplayListener
+import com.eightbit.samsprung.launcher.LaunchManager
 import com.eightbit.samsprung.launcher.NotificationAdapter
 import com.eightbit.samsprung.panels.*
 import com.eightbit.widget.PersistentCoordinator
@@ -115,7 +113,8 @@ class SamSprungOverlay : FragmentActivity(), NotificationAdapter.OnNoticeClickLi
     private lateinit var prefs: SharedPreferences
     private var persistent: PersistentCoordinator? = null
     private var mDisplayListener: DisplayManager.DisplayListener? = null
-    private var widgetHandler: WidgetHandler? = null
+    lateinit var launchManager: LaunchManager
+    private var widgetManager: WidgetManager? = null
 
     private lateinit var wifiManager: WifiManager
     private lateinit var bluetoothAdapter: BluetoothAdapter
@@ -182,6 +181,23 @@ class SamSprungOverlay : FragmentActivity(), NotificationAdapter.OnNoticeClickLi
         (getSystemService(Context.DISPLAY_SERVICE) as DisplayManager).registerDisplayListener(
             mDisplayListener, Handler(Looper.getMainLooper())
         )
+
+        offReceiver = object : BroadcastReceiver() {
+            @SuppressLint("NotifyDataSetChanged")
+            override fun onReceive(context: Context?, intent: Intent) {
+                if (intent.action == Intent.ACTION_SCREEN_OFF) {
+                    onDismiss()
+                }
+            }
+        }
+
+        IntentFilter().apply {
+            addAction(Intent.ACTION_SCREEN_OFF)
+        }.also {
+            registerReceiver(offReceiver, it)
+        }
+
+        launchManager = LaunchManager(this)
 
         val coordinator = findViewById<CoordinatorLayout>(R.id.coordinator)
         if (ContextCompat.checkSelfPermission(this,
@@ -356,7 +372,7 @@ class SamSprungOverlay : FragmentActivity(), NotificationAdapter.OnNoticeClickLi
                                 return@setOnMenuItemClickListener true
                             }
                             R.id.toggle_widgets -> {
-                                widgetHandler?.showAddDialog()
+                                widgetManager?.showAddDialog()
                                 bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
                                 return@setOnMenuItemClickListener false
                             }
@@ -428,8 +444,8 @@ class SamSprungOverlay : FragmentActivity(), NotificationAdapter.OnNoticeClickLi
                 if (widget is CoverWidgetInfo) {
                     viewPager.setCurrentItem(index - 1, true)
                     model.removeDesktopAppWidget(widget)
-                    if (null != widgetHandler?.getAppWidgetHost()) {
-                        widgetHandler!!.getAppWidgetHost()
+                    if (null != widgetManager?.getAppWidgetHost()) {
+                        widgetManager!!.getAppWidgetHost()
                             .deleteAppWidgetId(widget.appWidgetId)
                     }
                     WidgetModel.deleteItemFromDatabase(
@@ -479,7 +495,7 @@ class SamSprungOverlay : FragmentActivity(), NotificationAdapter.OnNoticeClickLi
         })
 
         if (prefs.getBoolean(getString(R.string.toggle_widgets).toPref, true)) {
-            widgetHandler = WidgetHandler(this, viewPager, pagerAdapter as CoverStateAdapter,
+            widgetManager = WidgetManager(this, viewPager, pagerAdapter as CoverStateAdapter,
                 ScaledContext.getDisplayParams(this))
         }
 
@@ -547,30 +563,18 @@ class SamSprungOverlay : FragmentActivity(), NotificationAdapter.OnNoticeClickLi
         coordinator.visibility = View.GONE
         initializeDrawer(null != intent?.action && SamSprung.launcher == intent.action)
 
-        offReceiver = object : BroadcastReceiver() {
-            @SuppressLint("NotifyDataSetChanged")
-            override fun onReceive(context: Context?, intent: Intent) {
-                if (intent.action == Intent.ACTION_SCREEN_OFF) {
-                    onDismiss()
-                }
-            }
-        }
-
-        IntentFilter().apply {
-            addAction(Intent.ACTION_SCREEN_OFF)
-        }.also {
-            registerReceiver(offReceiver, it)
-        }
-
         val voice = SpeechRecognizer.createSpeechRecognizer(this)
-        voice?.setRecognitionListener(VoiceRecognizer { suggested: String ->
-            menuButton.keepScreenOn = true
-            launchApplication(suggested, menuButton)
+        val recognizer = VoiceRecognizer(object : VoiceRecognizer.SpeechResultsListener {
+            override fun onSpeechResults(suggested: String) {
+                menuButton.keepScreenOn = true
+                launchApplication(suggested, menuButton)
+            }
         })
+        voice?.setRecognitionListener(recognizer)
         if (SpeechRecognizer.isRecognitionAvailable(this)) {
             menuButton.setOnLongClickListener {
                 tactileFeedback()
-                voice?.startListening(getSpeechIntent(false))
+                voice?.startListening(recognizer.getSpeechIntent(false))
                 return@setOnLongClickListener true
             }
         }
@@ -583,62 +587,6 @@ class SamSprungOverlay : FragmentActivity(), NotificationAdapter.OnNoticeClickLi
     companion object {
         val model = WidgetModel()
         const val APPWIDGET_HOST_ID = SamSprung.request_code
-    }
-
-    private fun prepareConfiguration() {
-        requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_LOCKED
-        requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_BEHIND
-
-        val mKeyguardManager = (getSystemService(Context.KEYGUARD_SERVICE) as KeyguardManager)
-        @Suppress("DEPRECATION")
-        (application as SamSprung).isKeyguardLocked = mKeyguardManager.inKeyguardRestrictedInputMode()
-
-        if ((application as SamSprung).isKeyguardLocked) {
-            @Suppress("DEPRECATION")
-            mKeyguardManager.newKeyguardLock("cover_lock").disableKeyguard()
-        }
-
-        mKeyguardManager.requestDismissKeyguard(this,
-            object : KeyguardManager.KeyguardDismissCallback() { })
-    }
-
-    private fun executeLaunchTask(appInfo: ApplicationInfo) {
-        prepareConfiguration()
-
-        (getSystemService(AppCompatActivity.LAUNCHER_APPS_SERVICE) as LauncherApps)
-            .startMainActivity(
-            packageManager.getLaunchIntentForPackage(appInfo.packageName)?.component,
-            Process.myUserHandle(),
-            windowManager.currentWindowMetrics.bounds,
-            ActivityOptions.makeBasic().setLaunchDisplayId(1).toBundle()
-        )
-
-        val extras = Bundle()
-        extras.putString("launchPackage", appInfo.packageName)
-
-        val orientationChanger = LinearLayout((application as SamSprung).getScaledContext())
-        val orientationLayout = WindowManager.LayoutParams(
-            WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY,
-            WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL or
-                    WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or
-                    WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE or
-                    WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN,
-            PixelFormat.TRANSPARENT
-        )
-        orientationLayout.screenOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
-        val windowManager = (application as SamSprung).getScaledContext()?.getSystemService(
-            Context.WINDOW_SERVICE) as WindowManager
-        windowManager.addView(orientationChanger, orientationLayout)
-        orientationChanger.visibility = View.VISIBLE
-        Handler(Looper.getMainLooper()).postDelayed({
-            runOnUiThread {
-                windowManager.removeViewImmediate(orientationChanger)
-                onDismiss()
-                requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
-                startForegroundService(
-                    Intent(this, AppDisplayListener::class.java).putExtras(extras))
-            }
-        }, 50)
     }
 
     private fun launchApplication(launchCommand: String, menuButton: FloatingActionButton) {
@@ -658,7 +606,7 @@ class SamSprungOverlay : FragmentActivity(), NotificationAdapter.OnNoticeClickLi
         }
         if (matchedApps.isNotEmpty()) {
             if (matchedApps.size == 1) {
-                executeLaunchTask(matchedApps[0])
+                launchManager.launchDefaultActivity(matchedApps[0])
             } else {
                 bottomSheetBehaviorMain.state = BottomSheetBehavior.STATE_EXPANDED
                 getSearch().setQuery(launchCommand, true)
@@ -764,27 +712,6 @@ class SamSprungOverlay : FragmentActivity(), NotificationAdapter.OnNoticeClickLi
         }, 150)
     }
 
-    fun processIntentSender(intentSender: IntentSender) {
-        prepareConfiguration()
-
-        requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
-        startIntentSender(intentSender, null, 0, 0, 0,
-            ActivityOptions.makeBasic().setLaunchDisplayId(1).toBundle())
-
-        Handler(Looper.getMainLooper()).postDelayed({
-            runOnUiThread {
-                val extras = Bundle()
-                extras.putString("launchPackage", intentSender.creatorPackage)
-
-                startForegroundService(
-                    Intent(this,
-                    AppDisplayListener::class.java).putExtras(extras))
-
-                onDismiss()
-            }
-        }, 100)
-    }
-
     private fun promptNotificationReply(action: Notification.Action) {
         for (remoteInput in action.remoteInputs) {
             if (remoteInput.allowFreeFormInput) {
@@ -832,7 +759,7 @@ class SamSprungOverlay : FragmentActivity(), NotificationAdapter.OnNoticeClickLi
             if (null != action.remoteInputs && action.remoteInputs.isNotEmpty()) {
                 promptNotificationReply(action)
             } else {
-                processIntentSender(action.actionIntent.intentSender)
+                launchManager.launchIntentSender(action.actionIntent.intentSender)
                 actionsPanel.visibility = View.GONE
             }
             (noticesView.layoutManager as LinearLayoutManager).scrollToPosition(position)
@@ -888,25 +815,6 @@ class SamSprungOverlay : FragmentActivity(), NotificationAdapter.OnNoticeClickLi
         }
     }
 
-    private fun getSpeechIntent(partial: Boolean): Intent {
-        val intent = Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH)
-        intent.putExtra(
-            RecognizerIntent.EXTRA_LANGUAGE_MODEL,
-            RecognizerIntent.LANGUAGE_MODEL_FREE_FORM
-        )
-        intent.putExtra(RecognizerIntent.EXTRA_CALLING_PACKAGE, BuildConfig.APPLICATION_ID)
-        if (partial) {
-            intent.putExtra(RecognizerIntent.EXTRA_PARTIAL_RESULTS, true)
-        } else {
-            intent.putExtra(RecognizerIntent.EXTRA_MAX_RESULTS, 1)
-        }
-        intent.putExtra(
-            RecognizerIntent.EXTRA_SPEECH_INPUT_COMPLETE_SILENCE_LENGTH_MILLIS,
-            java.lang.Long.valueOf(1000)
-        )
-        return intent
-    }
-
     private fun hasNotificationListener(): Boolean {
         val myNotificationListenerComponentName = ComponentName(
             applicationContext, NotificationReceiver::class.java)
@@ -929,7 +837,7 @@ class SamSprungOverlay : FragmentActivity(), NotificationAdapter.OnNoticeClickLi
         binder: DesktopBinder,
         appWidgets: LinkedList<CoverWidgetInfo>
     ) {
-        widgetHandler?.bindAppWidgets(binder, appWidgets)
+        widgetManager?.bindAppWidgets(binder, appWidgets)
     }
 
     fun bindItems(
@@ -988,10 +896,10 @@ class SamSprungOverlay : FragmentActivity(), NotificationAdapter.OnNoticeClickLi
             val appWidgetId = data?.getIntExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, -1) ?: -1
             if (resultCode == RESULT_CANCELED) {
                 if (appWidgetId != -1) {
-                    widgetHandler?.getAppWidgetHost()?.deleteAppWidgetId(appWidgetId)
+                    widgetManager?.getAppWidgetHost()?.deleteAppWidgetId(appWidgetId)
                 }
             } else {
-                widgetHandler?.completeAddAppWidget(appWidgetId)
+                widgetManager?.completeAddAppWidget(appWidgetId)
             }
             return
         }
@@ -1023,7 +931,7 @@ class SamSprungOverlay : FragmentActivity(), NotificationAdapter.OnNoticeClickLi
             textSpeech?.shutdown()
         }
         if (prefs.getBoolean(getString(R.string.toggle_widgets).toPref, true)) {
-            widgetHandler?.onDestroy()
+            widgetManager?.onDestroy()
             model.unbind()
             model.abortLoaders()
             contentResolver.unregisterContentObserver(mObserver)

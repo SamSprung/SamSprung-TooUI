@@ -105,11 +105,11 @@ class DrawerAppAdapater(
     override fun onBindViewHolder(holder: AppViewHolder, position: Int) {
         holder.itemView.setOnClickListener {
             if (null != holder.listener)
-                holder.listener.onAppClicked(holder.appInfo, position)
+                holder.listener.onAppClicked(holder.resolveInfo, position)
         }
         holder.iconView.setOnClickListener {
             if (null != holder.listener)
-                holder.listener.onAppClicked(holder.appInfo, position)
+                holder.listener.onAppClicked(holder.resolveInfo, position)
         }
         holder.bind(getItem(position))
     }
@@ -162,11 +162,11 @@ class DrawerAppAdapater(
         private val prefs: SharedPreferences
     ) : RecyclerView.ViewHolder(itemView) {
         val iconView: AppCompatImageView = itemView.findViewById(R.id.widgetItemImage)
-        lateinit var appInfo: ResolveInfo
-        fun bind(appInfo: ResolveInfo) {
-            this.appInfo = appInfo
+        lateinit var resolveInfo: ResolveInfo
+        fun bind(resolveInfo: ResolveInfo) {
+            this.resolveInfo = resolveInfo
             Executors.newSingleThreadExecutor().execute {
-                val icon = appInfo.loadIcon(packageManager)
+                val icon = resolveInfo.loadIcon(packageManager)
                 if (null != icon) {
                     Handler(Looper.getMainLooper()).post {
                         iconView.setImageDrawable(icon)
@@ -174,9 +174,9 @@ class DrawerAppAdapater(
                 }
                 if (!prefs.getBoolean(SamSprung.prefLayout, true)) {
                     val label: CharSequence? = try {
-                        appInfo.loadLabel(packageManager)
+                        resolveInfo.loadLabel(packageManager)
                     } catch (e: Exception) {
-                        appInfo.nonLocalizedLabel
+                        resolveInfo.nonLocalizedLabel
                     }
                     if (null != label) {
                         Handler(Looper.getMainLooper()).post {
@@ -211,6 +211,6 @@ class DrawerAppAdapater(
     )
 
     interface OnAppClickListener {
-        fun onAppClicked(appInfo: ResolveInfo, position: Int)
+        fun onAppClicked(resolveInfo: ResolveInfo, position: Int)
     }
 }

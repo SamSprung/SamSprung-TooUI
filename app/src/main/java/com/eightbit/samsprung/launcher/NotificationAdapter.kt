@@ -201,8 +201,8 @@ class NotificationAdapter(
                     if (null != notification.contentIntent) {
                         launch.visibility = View.VISIBLE
                         launch.setOnClickListener {
-                            (activity as SamSprungOverlay).processIntentSender(
-                                notification.contentIntent.intentSender)
+                            (activity as SamSprungOverlay).launchManager
+                                .launchIntentSender(notification.contentIntent.intentSender)
                         }
                     } else {
                         launch.visibility = View.GONE

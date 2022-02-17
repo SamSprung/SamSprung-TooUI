@@ -44,77 +44,56 @@
  * [including the GNU Public License.] Content not subject to these terms is
  * subject to to the terms and conditions of the Apache License, Version 2.0.
  */
+package com.eightbit.samsprung
 
-package com.eightbit.samsprung;
-
-import android.annotation.SuppressLint;
-import android.os.Bundle;
-import android.speech.RecognitionListener;
-import android.speech.SpeechRecognizer;
-
-import java.util.ArrayList;
+import android.annotation.SuppressLint
+import android.content.Intent
+import com.eightbit.samsprung.VoiceRecognizer.SpeechResultsListener
+import android.speech.RecognitionListener
+import android.os.Bundle
+import android.speech.RecognizerIntent
+import android.speech.SpeechRecognizer
+import java.lang.StringBuilder
 
 @SuppressLint("SetJavaScriptEnabled")
-public class VoiceRecognizer implements RecognitionListener {
-
-    private final SpeechResultsListener listener;
-
-    public VoiceRecognizer(SpeechResultsListener listener) {
-        this.listener = listener;
+class VoiceRecognizer(private val listener: SpeechResultsListener?) : RecognitionListener {
+    override fun onReadyForSpeech(params: Bundle) {}
+    override fun onBeginningOfSpeech() {}
+    override fun onRmsChanged(rmsdB: Float) {}
+    override fun onBufferReceived(buffer: ByteArray) {}
+    override fun onEndOfSpeech() {}
+    override fun onError(error: Int) {}
+    override fun onResults(results: Bundle) {
+        val data = results.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION)
+        val grammar = StringBuilder()
+        if (data != null) grammar.append(data[0])
+        grammar.setCharAt(0, Character.toUpperCase(grammar[0]))
+        val suggested = grammar.toString()
+        listener?.onSpeechResults(suggested)
     }
 
-    @Override
-    public void onReadyForSpeech(Bundle params) {
-
-    }
-
-    @Override
-    public void onBeginningOfSpeech() {
-
-    }
-
-    @Override
-    public void onRmsChanged(float rmsdB) {
-
-    }
-
-    @Override
-    public void onBufferReceived(byte[] buffer) {
-
-    }
-
-    @Override
-    public void onEndOfSpeech() {
-
-    }
-
-    @Override
-    public void onError(int error) {
-
-    }
-
-    @Override
-    public void onResults(final Bundle results) {
-        ArrayList<String> data = results.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION);
-        StringBuilder grammar = new StringBuilder();
-        if (data != null) grammar.append(data.get(0));
-        grammar.setCharAt(0, Character.toUpperCase(grammar.charAt(0)));
-        final String suggested = grammar.toString();
-        if (null != listener) listener.onSpeechResults(suggested);
-    }
-
-    @Override
-    public void onPartialResults(Bundle partialResults) {
-
-    }
-
-    @Override
-    public void onEvent(int eventType, Bundle params) {
-
-    }
-
+    override fun onPartialResults(partialResults: Bundle) {}
+    override fun onEvent(eventType: Int, params: Bundle) {}
     interface SpeechResultsListener {
-        void onSpeechResults(String suggested);
+        fun onSpeechResults(suggested: String)
     }
 
+    fun getSpeechIntent(partial: Boolean): Intent {
+        val intent = Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH)
+        intent.putExtra(
+            RecognizerIntent.EXTRA_LANGUAGE_MODEL,
+            RecognizerIntent.LANGUAGE_MODEL_FREE_FORM
+        )
+        intent.putExtra(RecognizerIntent.EXTRA_CALLING_PACKAGE, BuildConfig.APPLICATION_ID)
+        if (partial) {
+            intent.putExtra(RecognizerIntent.EXTRA_PARTIAL_RESULTS, true)
+        } else {
+            intent.putExtra(RecognizerIntent.EXTRA_MAX_RESULTS, 1)
+        }
+        intent.putExtra(
+            RecognizerIntent.EXTRA_SPEECH_INPUT_COMPLETE_SILENCE_LENGTH_MILLIS,
+            java.lang.Long.valueOf(1000)
+        )
+        return intent
+    }
 }
