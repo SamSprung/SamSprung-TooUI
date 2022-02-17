@@ -565,13 +565,8 @@ class SamSprungOverlay : FragmentActivity(), NotificationAdapter.OnNoticeClickLi
 
         val voice = SpeechRecognizer.createSpeechRecognizer(this)
         voice?.setRecognitionListener(VoiceRecognizer { suggested: String ->
-            for (execCommand: String in resources.getStringArray(R.array.launch)) {
-                if (suggested.startsWith(execCommand, true)) {
-                    menuButton.keepScreenOn = true
-                    val parameters = suggested.substring(execCommand.length).trim()
-                    launchApplication(parameters)
-                }
-            }
+            menuButton.keepScreenOn = true
+            launchApplication(suggested, menuButton)
         })
         if (SpeechRecognizer.isRecognitionAvailable(this)) {
             menuButton.setOnLongClickListener {
@@ -644,7 +639,7 @@ class SamSprungOverlay : FragmentActivity(), NotificationAdapter.OnNoticeClickLi
         }, 50)
     }
 
-    private fun launchApplication(launchCommand: String) {
+    private fun launchApplication(launchCommand: String, menuButton: FloatingActionButton) {
         val matchedApps: ArrayList<ApplicationInfo> = ArrayList()
         val packages: List<ApplicationInfo> = packageManager
             .getInstalledApplications(PackageManager.GET_META_DATA)
@@ -667,6 +662,7 @@ class SamSprungOverlay : FragmentActivity(), NotificationAdapter.OnNoticeClickLi
                 getSearch().setQuery(launchCommand, true)
             }
         }
+        menuButton.keepScreenOn = false
     }
 
     private fun configureMenuIcons(toolbar: Toolbar) : Int {
