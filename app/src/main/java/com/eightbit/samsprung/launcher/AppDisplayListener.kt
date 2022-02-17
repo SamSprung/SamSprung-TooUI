@@ -55,6 +55,7 @@ import android.accessibilityservice.AccessibilityService
 import android.annotation.SuppressLint
 import android.app.*
 import android.content.*
+import android.content.pm.LauncherApps
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.Color
@@ -66,6 +67,7 @@ import android.view.*
 import android.view.LayoutInflater
 import android.widget.ImageView
 import android.widget.LinearLayout
+import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.AppCompatImageView
 import androidx.core.app.NotificationCompat
 import androidx.core.content.ContextCompat
@@ -98,7 +100,6 @@ class AppDisplayListener : Service() {
 
         val launchPackage = intent.getStringExtra("launchPackage")
         val launchActivity = intent.getStringExtra("launchActivity")
-        val intentSender = intent.getBooleanExtra("intentSender", false)
         var componentName: ComponentName? = null
 
         prefs = getSharedPreferences(SamSprung.prefsValue, MODE_PRIVATE)
@@ -108,7 +109,7 @@ class AppDisplayListener : Service() {
         if ((application as SamSprung).isKeyguardLocked)
             @Suppress("DEPRECATION") mKeyguardLock.disableKeyguard()
 
-        if (intentSender) {
+        if (!intent.hasExtra("launchActivity")) {
             componentName = packageManager.getLaunchIntentForPackage(launchPackage!!)?.component
         }
 
@@ -222,15 +223,14 @@ class AppDisplayListener : Service() {
 
     private fun restoreActivityDisplay(
         componentName: ComponentName, display: Int) {
-            val coverIntent = Intent(Intent.ACTION_MAIN)
-            coverIntent.addCategory(Intent.CATEGORY_LAUNCHER)
-            coverIntent.component = componentName
-            coverIntent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or
-                    Intent.FLAG_ACTIVITY_CLEAR_TASK or
-                    Intent.FLAG_ACTIVITY_FORWARD_RESULT or
-                    Intent.FLAG_ACTIVITY_NO_ANIMATION
-            startActivity(coverIntent, ActivityOptions.makeBasic()
-                .setLaunchDisplayId(display).toBundle())
+
+        (getSystemService(AppCompatActivity.LAUNCHER_APPS_SERVICE) as LauncherApps)
+            .startMainActivity(
+            componentName,
+            Process.myUserHandle(),
+            (getSystemService(WINDOW_SERVICE) as WindowManager).currentWindowMetrics.bounds,
+            ActivityOptions.makeBasic().setLaunchDisplayId(display).toBundle()
+        )
     }
 
     private fun restoreActivityDisplay(

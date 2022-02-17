@@ -615,7 +615,6 @@ class SamSprungOverlay : FragmentActivity(), NotificationAdapter.OnNoticeClickLi
 
         val extras = Bundle()
         extras.putString("launchPackage", appInfo.packageName)
-        extras.putString("launchActivity", appInfo.name)
 
         val orientationChanger = LinearLayout((application as SamSprung).getScaledContext())
         val orientationLayout = WindowManager.LayoutParams(
@@ -776,7 +775,6 @@ class SamSprungOverlay : FragmentActivity(), NotificationAdapter.OnNoticeClickLi
             runOnUiThread {
                 val extras = Bundle()
                 extras.putString("launchPackage", intentSender.creatorPackage)
-                extras.putBoolean("intentSender", true)
 
                 startForegroundService(
                     Intent(this,
