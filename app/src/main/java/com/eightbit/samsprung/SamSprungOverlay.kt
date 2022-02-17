@@ -742,7 +742,7 @@ class SamSprungOverlay : FragmentActivity(), NotificationAdapter.OnNoticeClickLi
 
     private fun initializeDrawer(launcher: Boolean) {
         persistent = findViewById(R.id.coordinator_main)
-        persistent?.setDisabled(false)
+        persistent?.setCancellable(false)
         Handler(Looper.getMainLooper()).postDelayed({
             runOnUiThread {
                 bottomHandle = findViewById(R.id.bottom_handle)
@@ -1000,7 +1000,7 @@ class SamSprungOverlay : FragmentActivity(), NotificationAdapter.OnNoticeClickLi
     }
 
     fun onDismiss() {
-        persistent?.setDisabled(true)
+        persistent?.setCancellable(true)
         if (null != mDisplayListener) {
             (getSystemService(Context.DISPLAY_SERVICE) as DisplayManager)
                 .unregisterDisplayListener(mDisplayListener)
