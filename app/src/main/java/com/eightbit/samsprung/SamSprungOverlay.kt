@@ -474,6 +474,10 @@ class SamSprungOverlay : FragmentActivity(), NotificationAdapter.OnNoticeClickLi
                 } else {
                     searchView.visibility = View.GONE
                 }
+                with(prefs.edit()) {
+                    putInt(SamSprung.prefViewer, position)
+                    apply()
+                }
             }
         })
 
@@ -516,6 +520,8 @@ class SamSprungOverlay : FragmentActivity(), NotificationAdapter.OnNoticeClickLi
                         handler.removeCallbacksAndMessages(null)
                         bottomHandle.visibility = View.INVISIBLE
                     }
+                    viewPager.setCurrentItem(prefs.getInt(SamSprung.prefViewer,
+                        viewPager.currentItem), false)
                 } else {
                     fakeOverlay.visibility = View.VISIBLE
                     bottomHandle.setBackgroundColor(color)
@@ -606,7 +612,8 @@ class SamSprungOverlay : FragmentActivity(), NotificationAdapter.OnNoticeClickLi
     private fun executeLaunchTask(appInfo: ApplicationInfo) {
         prepareConfiguration()
 
-        (getSystemService(AppCompatActivity.LAUNCHER_APPS_SERVICE) as LauncherApps).startMainActivity(
+        (getSystemService(AppCompatActivity.LAUNCHER_APPS_SERVICE) as LauncherApps)
+            .startMainActivity(
             packageManager.getLaunchIntentForPackage(appInfo.packageName)?.component,
             Process.myUserHandle(),
             windowManager.currentWindowMetrics.bounds,
@@ -620,7 +627,10 @@ class SamSprungOverlay : FragmentActivity(), NotificationAdapter.OnNoticeClickLi
         val orientationChanger = LinearLayout((application as SamSprung).getScaledContext())
         val orientationLayout = WindowManager.LayoutParams(
             WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY,
-            WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL,
+            WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or
+                    WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL or
+                    WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE or
+                    WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN,
             PixelFormat.TRANSPARENT
         )
         orientationLayout.screenOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT

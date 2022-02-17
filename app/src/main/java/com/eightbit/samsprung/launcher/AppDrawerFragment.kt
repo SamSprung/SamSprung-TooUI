@@ -205,7 +205,7 @@ class AppDrawerFragment : Fragment(), DrawerAppAdapater.OnAppClickListener {
         return (requireActivity().windowManager.currentWindowMetrics.bounds.width() / 96 + 0.5).toInt()
     }
 
-    private fun prepareConfiguration() {
+    override fun onAppClicked(appInfo: ResolveInfo, position: Int) {
         requireActivity().requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_LOCKED
         requireActivity().requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_BEHIND
 
@@ -220,10 +220,6 @@ class AppDrawerFragment : Fragment(), DrawerAppAdapater.OnAppClickListener {
 
         mKeyguardManager.requestDismissKeyguard(requireActivity(),
             object : KeyguardManager.KeyguardDismissCallback() { })
-    }
-
-    override fun onAppClicked(appInfo: ResolveInfo, position: Int) {
-        prepareConfiguration()
 
         (requireActivity().getSystemService(AppCompatActivity
             .LAUNCHER_APPS_SERVICE) as LauncherApps).startMainActivity(
@@ -241,7 +237,10 @@ class AppDrawerFragment : Fragment(), DrawerAppAdapater.OnAppClickListener {
             .application as SamSprung).getScaledContext())
         val orientationLayout = WindowManager.LayoutParams(
             WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY,
-            WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL,
+            WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or
+                    WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL or
+                    WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE or
+                    WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN,
             PixelFormat.TRANSPARENT
         )
         orientationLayout.screenOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
