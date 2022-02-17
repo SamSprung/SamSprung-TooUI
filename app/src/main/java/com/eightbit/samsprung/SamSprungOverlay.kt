@@ -58,8 +58,7 @@ import android.appwidget.AppWidgetManager
 import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothManager
 import android.content.*
-import android.content.pm.ActivityInfo
-import android.content.pm.PackageManager
+import android.content.pm.*
 import android.database.ContentObserver
 import android.graphics.Color
 import android.graphics.PixelFormat
@@ -72,12 +71,15 @@ import android.nfc.NfcManager
 import android.os.*
 import android.provider.Settings
 import android.service.notification.StatusBarNotification
+import android.speech.RecognizerIntent
+import android.speech.SpeechRecognizer
 import android.speech.tts.TextToSpeech
 import android.util.TypedValue
 import android.view.*
 import android.widget.*
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
+import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.view.ContextThemeWrapper
 import androidx.appcompat.widget.AppCompatButton
 import androidx.appcompat.widget.AppCompatImageView
@@ -99,6 +101,7 @@ import com.eightbit.samsprung.*
 import com.eightbit.samsprung.launcher.AppDisplayListener
 import com.eightbit.samsprung.launcher.NotificationAdapter
 import com.eightbit.samsprung.panels.*
+import com.eightbit.widget.PersistentCoordinator
 import com.eightbit.widget.RecyclerViewTouch
 import com.eightbitlab.blurview.BlurView
 import com.eightbitlab.blurview.RenderScriptBlur
@@ -106,9 +109,11 @@ import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import java.util.*
 
+
 class SamSprungOverlay : FragmentActivity(), NotificationAdapter.OnNoticeClickListener {
 
     private lateinit var prefs: SharedPreferences
+    private var persistent: PersistentCoordinator? = null
     private var mDisplayListener: DisplayManager.DisplayListener? = null
     private var widgetHandler: WidgetHandler? = null
 
@@ -151,7 +156,8 @@ class SamSprungOverlay : FragmentActivity(), NotificationAdapter.OnNoticeClickLi
 
         window.setFlags(
             WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or
-                    WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL,
+                    WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL or
+                    WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN,
             PixelFormat.TRANSPARENT)
 
         window.attributes.width = ViewGroup.LayoutParams.MATCH_PARENT
@@ -556,6 +562,24 @@ class SamSprungOverlay : FragmentActivity(), NotificationAdapter.OnNoticeClickLi
         }.also {
             registerReceiver(offReceiver, it)
         }
+
+        val voice = SpeechRecognizer.createSpeechRecognizer(this)
+        voice?.setRecognitionListener(VoiceRecognizer { suggested: String ->
+            for (execCommand: String in resources.getStringArray(R.array.launch)) {
+                if (suggested.startsWith(execCommand, true)) {
+                    menuButton.keepScreenOn = true
+                    val parameters = suggested.substring(execCommand.length).trim()
+                    launchApplication(parameters)
+                }
+            }
+        })
+        if (SpeechRecognizer.isRecognitionAvailable(this)) {
+            menuButton.setOnLongClickListener {
+                tactileFeedback()
+                voice?.startListening(getSpeechIntent(false))
+                return@setOnLongClickListener true
+            }
+        }
     }
 
     fun getSearch() : SearchView {
@@ -582,6 +606,67 @@ class SamSprungOverlay : FragmentActivity(), NotificationAdapter.OnNoticeClickLi
 
         mKeyguardManager.requestDismissKeyguard(this,
             object : KeyguardManager.KeyguardDismissCallback() { })
+    }
+
+    private fun executeLaunchTask(appInfo: ApplicationInfo) {
+        prepareConfiguration()
+
+        (getSystemService(AppCompatActivity.LAUNCHER_APPS_SERVICE) as LauncherApps).startMainActivity(
+            packageManager.getLaunchIntentForPackage(appInfo.packageName)?.component,
+            Process.myUserHandle(),
+            windowManager.currentWindowMetrics.bounds,
+            ActivityOptions.makeBasic().setLaunchDisplayId(1).toBundle()
+        )
+
+        val extras = Bundle()
+        extras.putString("launchPackage", appInfo.packageName)
+        extras.putString("launchActivity", appInfo.name)
+
+        val orientationChanger = LinearLayout((application as SamSprung).getScaledContext())
+        val orientationLayout = WindowManager.LayoutParams(
+            WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY,
+            WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL,
+            PixelFormat.TRANSPARENT
+        )
+        orientationLayout.screenOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
+        val windowManager = (application as SamSprung).getScaledContext()?.getSystemService(
+            Context.WINDOW_SERVICE) as WindowManager
+        windowManager.addView(orientationChanger, orientationLayout)
+        orientationChanger.visibility = View.VISIBLE
+        Handler(Looper.getMainLooper()).postDelayed({
+            runOnUiThread {
+                windowManager.removeViewImmediate(orientationChanger)
+                onDismiss()
+                requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
+                startForegroundService(
+                    Intent(this, AppDisplayListener::class.java).putExtras(extras))
+            }
+        }, 50)
+    }
+
+    private fun launchApplication(launchCommand: String) {
+        val matchedApps: ArrayList<ApplicationInfo> = ArrayList()
+        val packages: List<ApplicationInfo> = packageManager
+            .getInstalledApplications(PackageManager.GET_META_DATA)
+        for (packageInfo in packages) {
+            var ai: ApplicationInfo
+            try {
+                ai = packageManager.getApplicationInfo(
+                    packageInfo.packageName, 0
+                )
+                if (packageManager.getApplicationLabel(ai).contains(launchCommand, true)) {
+                    matchedApps.add(packageInfo)
+                }
+            } catch (ignored: PackageManager.NameNotFoundException) { }
+        }
+        if (matchedApps.isNotEmpty()) {
+            if (matchedApps.size == 1) {
+                executeLaunchTask(matchedApps[0])
+            } else {
+                bottomSheetBehaviorMain.state = BottomSheetBehavior.STATE_EXPANDED
+                getSearch().setQuery(launchCommand, true)
+            }
+        }
     }
 
     private fun configureMenuIcons(toolbar: Toolbar) : Int {
@@ -657,6 +742,8 @@ class SamSprungOverlay : FragmentActivity(), NotificationAdapter.OnNoticeClickLi
     }
 
     private fun initializeDrawer(launcher: Boolean) {
+        persistent = findViewById(R.id.coordinator_main)
+        persistent?.setScreenOff(false)
         Handler(Looper.getMainLooper()).postDelayed({
             runOnUiThread {
                 bottomHandle = findViewById(R.id.bottom_handle)
@@ -804,6 +891,25 @@ class SamSprungOverlay : FragmentActivity(), NotificationAdapter.OnNoticeClickLi
         }
     }
 
+    private fun getSpeechIntent(partial: Boolean): Intent {
+        val intent = Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH)
+        intent.putExtra(
+            RecognizerIntent.EXTRA_LANGUAGE_MODEL,
+            RecognizerIntent.LANGUAGE_MODEL_FREE_FORM
+        )
+        intent.putExtra(RecognizerIntent.EXTRA_CALLING_PACKAGE, BuildConfig.APPLICATION_ID)
+        if (partial) {
+            intent.putExtra(RecognizerIntent.EXTRA_PARTIAL_RESULTS, true)
+        } else {
+            intent.putExtra(RecognizerIntent.EXTRA_MAX_RESULTS, 1)
+        }
+        intent.putExtra(
+            RecognizerIntent.EXTRA_SPEECH_INPUT_COMPLETE_SILENCE_LENGTH_MILLIS,
+            java.lang.Long.valueOf(1000)
+        )
+        return intent
+    }
+
     private fun hasNotificationListener(): Boolean {
         val myNotificationListenerComponentName = ComponentName(
             applicationContext, NotificationReceiver::class.java)
@@ -895,6 +1001,7 @@ class SamSprungOverlay : FragmentActivity(), NotificationAdapter.OnNoticeClickLi
     }
 
     fun onDismiss() {
+        persistent?.setScreenOff(true)
         if (null != mDisplayListener) {
             (getSystemService(Context.DISPLAY_SERVICE) as DisplayManager)
                 .unregisterDisplayListener(mDisplayListener)

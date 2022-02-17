@@ -68,6 +68,8 @@ class PersistentCoordinator : CoordinatorLayout {
     constructor(context: Context, attrs: AttributeSet?, defStyle: Int) : super(
         context, attrs, defStyle) { }
 
+    private var isDisabled = false
+
     override fun onDetachedFromWindow() {
         super.onDetachedFromWindow()
         if (!isServiceRunning(context.applicationContext, OnBroadcastService::class.java))
@@ -77,7 +79,8 @@ class PersistentCoordinator : CoordinatorLayout {
 
     override fun onWindowVisibilityChanged(visibility: Int) {
         super.onWindowVisibilityChanged(visibility)
-        if (!isAttachedToWindow || GONE != visibility || GONE != this.windowVisibility) return
+        if (!isAttachedToWindow || GONE != visibility
+            || GONE != this.windowVisibility || isDisabled) return
         if (isServiceRunning(context.applicationContext, AppDisplayListener::class.java)) return
         context.applicationContext.startActivity(
             Intent(context.applicationContext, SamSprungOverlay::class.java)
@@ -85,6 +88,12 @@ class PersistentCoordinator : CoordinatorLayout {
             ActivityOptions.makeBasic().setLaunchDisplayId(1).toBundle()
         )
     }
+
+    fun setScreenOff(isOff: Boolean) {
+        isDisabled = isOff
+    }
+
+
 
     @Suppress("DEPRECATION")
     private fun isServiceRunning(context: Context, serviceClass: Class<*>): Boolean {

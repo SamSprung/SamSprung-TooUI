@@ -237,7 +237,8 @@ class AppDrawerFragment : Fragment(), DrawerAppAdapater.OnAppClickListener {
         extras.putString("launchPackage", appInfo.activityInfo.packageName)
         extras.putString("launchActivity", appInfo.activityInfo.name)
 
-        val orientationChanger = LinearLayout((requireActivity().application as SamSprung).getScaledContext())
+        val orientationChanger = LinearLayout((requireActivity()
+            .application as SamSprung).getScaledContext())
         val orientationLayout = WindowManager.LayoutParams(
             WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY,
             WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL,
