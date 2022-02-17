@@ -374,14 +374,12 @@ class SamSprungOverlay : FragmentActivity(), NotificationAdapter.OnNoticeClickLi
             override fun onSlide(bottomSheet: View, slideOffset: Float) {
                 val info = findViewById<LinearLayout>(R.id.bottom_info)
                 if (slideOffset > 0) {
-                    if (slideOffset > 0.75) {
-                        info.visibility = View.GONE
-                        if (!hasConfigured) {
-                            hasConfigured = true
-                            color = configureMenuIcons(toolbar)
-                            batteryLevel.setTextColor(color)
-                            clock.setTextColor(color)
-                        }
+                    info.visibility = View.GONE
+                    if (!hasConfigured) {
+                        hasConfigured = true
+                        color = configureMenuIcons(toolbar)
+                        batteryLevel.setTextColor(color)
+                        clock.setTextColor(color)
                     }
                 } else {
                     toggleStats.removeAllViews()
@@ -497,6 +495,8 @@ class SamSprungOverlay : FragmentActivity(), NotificationAdapter.OnNoticeClickLi
             override fun onStateChanged(bottomSheet: View, newState: Int) {
                 if (newState == BottomSheetBehavior.STATE_EXPANDED) {
                     coordinator.keepScreenOn = true
+                    bottomSheetBehaviorMain.isDraggable = false
+                    fakeOverlay.visibility = View.GONE
                     window.clearFlags(WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE)
                     menuButton.visibility = View.GONE
                 } else if (newState == BottomSheetBehavior.STATE_COLLAPSED) {
@@ -512,10 +512,6 @@ class SamSprungOverlay : FragmentActivity(), NotificationAdapter.OnNoticeClickLi
                 if (slideOffset > 0) {
                     coordinator.visibility = View.VISIBLE
                     toggleStats.invalidate()
-                    if (slideOffset > 0.5) {
-                        bottomSheetBehaviorMain.isDraggable = false
-                        fakeOverlay.visibility = View.GONE
-                    }
                     if (bottomHandle.visibility != View.INVISIBLE) {
                         handler.removeCallbacksAndMessages(null)
                         bottomHandle.visibility = View.INVISIBLE
