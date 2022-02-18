@@ -85,6 +85,7 @@ import androidx.appcompat.widget.SearchView
 import androidx.appcompat.widget.Toolbar
 import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.core.content.ContextCompat
+import androidx.core.view.GravityCompat
 import androidx.core.view.WindowCompat
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
@@ -106,7 +107,6 @@ import com.eightbitlab.blurview.RenderScriptBlur
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import java.util.*
-
 
 class SamSprungOverlay : FragmentActivity(), NotificationAdapter.OnNoticeClickListener {
 
@@ -536,6 +536,7 @@ class SamSprungOverlay : FragmentActivity(), NotificationAdapter.OnNoticeClickLi
                 } else {
                     fakeOverlay.visibility = View.VISIBLE
                     bottomHandle.setBackgroundColor(color)
+                    setMenuButtonGravity(menuButton)
                     menuButton.drawable.setTint(color)
                     bottomHandle.alpha = prefs.getFloat(SamSprung.prefAlphas, 1f)
                     menuButton.alpha = prefs.getFloat(SamSprung.prefAlphas, 1f)
@@ -551,6 +552,7 @@ class SamSprungOverlay : FragmentActivity(), NotificationAdapter.OnNoticeClickLi
             }
         })
 
+        setMenuButtonGravity(menuButton)
         menuButton.setOnClickListener {
             bottomSheetBehaviorMain.state = BottomSheetBehavior.STATE_EXPANDED
         }
@@ -712,6 +714,24 @@ class SamSprungOverlay : FragmentActivity(), NotificationAdapter.OnNoticeClickLi
                 }
             }
         }, 150)
+    }
+
+    private fun setMenuButtonGravity(menuButton: FloatingActionButton) {
+        var gravity = GravityCompat.END
+        when (prefs.getInt(SamSprung.prefShifts, 2)) {
+            0 -> {
+                gravity = GravityCompat.START
+            }
+            1 -> {
+                gravity = Gravity.CENTER_HORIZONTAL
+            }
+            2 -> {
+                gravity = GravityCompat.END
+            }
+        }
+        val menuParams = menuButton.layoutParams as CoordinatorLayout.LayoutParams
+        menuParams.anchorGravity = Gravity.TOP or gravity
+        menuButton.layoutParams = menuParams
     }
 
     private fun promptNotificationReply(action: Notification.Action) {

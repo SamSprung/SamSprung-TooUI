@@ -291,6 +291,21 @@ class CoverPreferences : AppCompatActivity() {
             draggable.isChecked = !draggable.isChecked
         }
 
+        val placementBar = findViewById<SeekBar>(R.id.placement_bar)
+        placementBar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
+            override fun onProgressChanged(seek: SeekBar, progress: Int, fromUser: Boolean) {
+                with(prefs.edit()) {
+                    putInt(SamSprung.prefShifts, progress)
+                    apply()
+                }
+            }
+
+            override fun onStartTrackingTouch(seek: SeekBar) { }
+
+            override fun onStopTrackingTouch(seek: SeekBar) { }
+        })
+        placementBar.progress = prefs.getInt(SamSprung.prefShifts, 2)
+
         val isGridView = prefs.getBoolean(SamSprung.prefLayout, true)
         findViewById<ToggleButton>(R.id.swapViewType).isChecked = isGridView
         findViewById<ToggleButton>(R.id.swapViewType).setOnCheckedChangeListener { _, isChecked ->
@@ -317,21 +332,21 @@ class CoverPreferences : AppCompatActivity() {
 
         val textRed = findViewById<TextView>(R.id.color_red_text)
         val colorRedBar = findViewById<SeekBar>(R.id.color_red_bar)
-        colorRedBar.setProgress(color.red, true)
+        colorRedBar.progress = color.red
 
         colorRedBar.progressTintList = ColorStateList
             .valueOf(Color.rgb(colorRedBar.progress, 0,0))
 
         val textGreen = findViewById<TextView>(R.id.color_green_text)
         val colorGreenBar = findViewById<SeekBar>(R.id.color_green_bar)
-        colorGreenBar.setProgress(color.green, true)
+        colorGreenBar.progress = color.green
 
         colorGreenBar.progressTintList = ColorStateList
             .valueOf(Color.rgb(0, colorGreenBar.progress, 0))
 
         val textBlue = findViewById<TextView>(R.id.color_blue_text)
         val colorBlueBar = findViewById<SeekBar>(R.id.color_blue_bar)
-        colorBlueBar.setProgress(color.blue, true)
+        colorBlueBar.progress = color.blue
 
         colorBlueBar.progressTintList = ColorStateList
             .valueOf(Color.rgb(0, 0, colorBlueBar.progress))
@@ -342,7 +357,7 @@ class CoverPreferences : AppCompatActivity() {
         val colorAlphaBar = findViewById<SeekBar>(R.id.color_alpha_bar)
         alphaPreview.setBackgroundColor(color)
         alphaPreview.alpha = alphaFloat
-        colorAlphaBar.setProgress((alphaFloat * 100).toInt(), true)
+        colorAlphaBar.progress = (alphaFloat * 100).toInt()
 
         val colorPanel = findViewById<AnimatedLinearLayout>(R.id.color_panel)
         val colorComposite = findViewById<View>(R.id.color_composite)

@@ -276,6 +276,13 @@
                     android:layout_height="wrap_content" />
             </LinearLayout>
 
+            <SeekBar
+                android:id="@+id/placement_bar"
+                android:max="2"
+                android:progress="2"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"/>
+
             <include
                 layout="@layout/toolbar_options"
                 android:id="@+id/toolbar_options" />
