@@ -279,6 +279,18 @@ class CoverPreferences : AppCompatActivity() {
             updates.isChecked = !updates.isChecked
         }
 
+        val draggable = findViewById<SwitchCompat>(R.id.draggable_switch)
+        draggable.isChecked = prefs.getBoolean(SamSprung.prefSlider, true)
+        draggable.setOnCheckedChangeListener { _, isChecked ->
+            with(prefs.edit()) {
+                putBoolean(SamSprung.prefSlider, isChecked)
+                apply()
+            }
+        }
+        findViewById<LinearLayout>(R.id.draggable).setOnClickListener {
+            draggable.isChecked = !draggable.isChecked
+        }
+
         val isGridView = prefs.getBoolean(SamSprung.prefLayout, true)
         findViewById<ToggleButton>(R.id.swapViewType).isChecked = isGridView
         findViewById<ToggleButton>(R.id.swapViewType).setOnCheckedChangeListener { _, isChecked ->

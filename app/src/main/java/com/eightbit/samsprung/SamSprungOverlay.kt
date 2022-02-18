@@ -505,6 +505,7 @@ class SamSprungOverlay : FragmentActivity(), NotificationAdapter.OnNoticeClickLi
         bottomHandle = findViewById(R.id.bottom_handle)
         bottomSheetBehaviorMain = BottomSheetBehavior.from(findViewById(R.id.bottom_sheet_main))
         bottomSheetBehaviorMain.isHideable = false
+        bottomSheetBehaviorMain.isDraggable = prefs.getBoolean(SamSprung.prefSlider, true)
         bottomSheetBehaviorMain.state = BottomSheetBehavior.STATE_COLLAPSED
         bottomSheetBehaviorMain.addBottomSheetCallback(object : BottomSheetBehavior.BottomSheetCallback() {
             override fun onStateChanged(bottomSheet: View, newState: Int) {
@@ -516,7 +517,8 @@ class SamSprungOverlay : FragmentActivity(), NotificationAdapter.OnNoticeClickLi
                 } else if (newState == BottomSheetBehavior.STATE_COLLAPSED) {
                     coordinator.keepScreenOn = false
                     coordinator.visibility = View.GONE
-                    bottomSheetBehaviorMain.isDraggable = true
+                    bottomSheetBehaviorMain.isDraggable =
+                        prefs.getBoolean(SamSprung.prefSlider, true)
                 }
             }
             override fun onSlide(bottomSheet: View, slideOffset: Float) {

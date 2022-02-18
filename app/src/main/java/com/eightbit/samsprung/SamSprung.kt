@@ -97,6 +97,7 @@ class SamSprung : Application() {
         const val prefWarned: String = "prefWarned"
         const val prefTester: String = "prefTester"
         const val prefViewer: String = "prefViewer"
+        const val prefSlider: String = "prefSlider"
     }
 
     override fun onCreate() {

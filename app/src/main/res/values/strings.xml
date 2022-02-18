@@ -12,7 +12,8 @@
     <string name="permission_usage">Usage Metrics</string>
     <string name="permission_accessibility">Accessibility</string>
     <string name="permission_settings">Write Settings</string>
-    <string name="permission_keyboard">Keyboard / IME</string>
+    <string name="options_keyboard">Keyboard / IME</string>
+    <string name="options_draggable">Drawer Gesture</string>
 
     <string name="keyboard_details">%1$sdetails?id=com.eightbit.samsprung.ime</string>
 
