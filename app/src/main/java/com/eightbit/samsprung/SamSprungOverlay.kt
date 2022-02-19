@@ -78,6 +78,7 @@ import android.view.*
 import android.widget.*
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
+import androidx.appcompat.app.AppCompatDelegate
 import androidx.appcompat.view.ContextThemeWrapper
 import androidx.appcompat.widget.AppCompatButton
 import androidx.appcompat.widget.AppCompatImageView
@@ -164,8 +165,8 @@ class SamSprungOverlay : FragmentActivity(), NotificationAdapter.OnNoticeClickLi
         // window.setBackgroundDrawable(null)
 
         prefs = getSharedPreferences(SamSprung.prefsValue, MODE_PRIVATE)
-
         ScaledContext.wrap(this).setTheme(R.style.Theme_SecondScreen_NoActionBar)
+        setThemePreference()
         setContentView(R.layout.home_main_view)
         WindowCompat.setDecorFitsSystemWindows(window, false)
 
@@ -587,6 +588,20 @@ class SamSprungOverlay : FragmentActivity(), NotificationAdapter.OnNoticeClickLi
 
     fun getSearch() : SearchView {
         return searchView
+    }
+
+    private fun setThemePreference() {
+        when (prefs.getInt(SamSprung.prefThemes, 0)) {
+            0 -> {
+                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM)
+            }
+            1 -> {
+                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
+            }
+            2 -> {
+                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
+            }
+        }
     }
 
     companion object {

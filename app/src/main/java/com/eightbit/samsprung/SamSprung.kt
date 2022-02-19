@@ -99,11 +99,13 @@ class SamSprung : Application() {
         const val prefViewer: String = "prefViewer"
         const val prefSlider: String = "prefSlider"
         const val prefShifts: String = "prefShifts"
+        const val prefThemes: String = "prefThemes"
     }
 
     override fun onCreate() {
         super.onCreate()
         AppCompatDelegate.setCompatVectorFromResourcesEnabled(true)
+        ScaledContext.screen(this).setTheme(R.style.Theme_SecondScreen)
         if (BuildConfig.FLAVOR == "google"
             && BuildConfig.DEBUG) StrictMode.enableDefaults()
 

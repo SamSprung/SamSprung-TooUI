@@ -9,6 +9,6 @@
 
     <color name="backgroundWhite">#66FFFFFF</color>
     <color name="backgroundBlack">#66000000</color>
-    <color name="bottomSheetTint">#A9333333</color>
+    <color name="bottomSheetTint">#A9CCCCCC</color>
     <color name="backgroundTint">#44FFFFFF</color>
 </resources>

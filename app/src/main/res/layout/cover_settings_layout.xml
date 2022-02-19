@@ -71,7 +71,7 @@
                     <TextView
                         android:layout_width="0dp"
                         android:layout_weight="1"
-                        android:textSize="28sp"
+                        android:textSize="26sp"
                         android:textColor="?android:textColorPrimary"
                         android:gravity="center_vertical"
                         android:layout_height="wrap_content"
@@ -83,7 +83,7 @@
                         android:gravity="center"
                         android:layout_weight="1"
                         android:clickable="false"
-                        android:textSize="28sp"
+                        android:textSize="26sp"
                         android:textColor="?android:textColorPrimary"
                         android:layout_height="wrap_content" />
 
@@ -102,7 +102,7 @@
                     <TextView
                         android:layout_width="0dp"
                         android:layout_weight="1"
-                        android:textSize="28sp"
+                        android:textSize="26sp"
                         android:textColor="?android:textColorPrimary"
                         android:gravity="center_vertical"
                         android:layout_height="wrap_content"
@@ -134,7 +134,7 @@
                     <TextView
                         android:layout_width="0dp"
                         android:layout_weight="1"
-                        android:textSize="28sp"
+                        android:textSize="26sp"
                         android:textColor="?android:textColorPrimary"
                         android:gravity="center_vertical"
                         android:layout_height="wrap_content"
@@ -146,7 +146,7 @@
                         android:gravity="center"
                         android:layout_weight="1"
                         android:clickable="false"
-                        android:textSize="28sp"
+                        android:textSize="26sp"
                         android:textColor="?android:textColorPrimary"
                         android:layout_height="wrap_content" />
                 </LinearLayout>
@@ -164,7 +164,7 @@
                     <TextView
                         android:layout_width="0dp"
                         android:layout_weight="1"
-                        android:textSize="28sp"
+                        android:textSize="26sp"
                         android:textColor="?android:textColorPrimary"
                         android:gravity="center_vertical"
                         android:layout_height="wrap_content"
@@ -176,7 +176,7 @@
                         android:gravity="center"
                         android:layout_weight="1"
                         android:clickable="false"
-                        android:textSize="28sp"
+                        android:textSize="26sp"
                         android:textColor="?android:textColorPrimary"
                         android:layout_height="wrap_content" />
                 </LinearLayout>
@@ -218,7 +218,7 @@
                 <TextView
                     android:layout_width="0dp"
                     android:layout_weight="1"
-                    android:textSize="28sp"
+                    android:textSize="26sp"
                     android:textColor="?android:textColorPrimary"
                     android:gravity="center_vertical"
                     android:layout_height="wrap_content"
@@ -229,7 +229,7 @@
                     android:layout_width="0dp"
                     android:gravity="center"
                     android:layout_weight="1"
-                    android:textSize="28sp"
+                    android:textSize="26sp"
                     android:textColor="?android:textColorPrimary"
                     android:layout_height="wrap_content" />
             </LinearLayout>
@@ -247,7 +247,7 @@
                 <TextView
                     android:layout_width="0dp"
                     android:layout_weight="1"
-                    android:textSize="28sp"
+                    android:textSize="26sp"
                     android:textColor="?android:textColorPrimary"
                     android:gravity="center_vertical"
                     android:layout_height="wrap_content"
@@ -258,7 +258,7 @@
                     android:layout_width="0dp"
                     android:gravity="center"
                     android:layout_weight="1"
-                    android:textSize="28sp"
+                    android:textSize="26sp"
                     android:textColor="?android:textColorPrimary"
                     android:layout_height="wrap_content" />
             </LinearLayout>
@@ -276,7 +276,7 @@
                 <TextView
                     android:layout_width="0dp"
                     android:layout_weight="1"
-                    android:textSize="28sp"
+                    android:textSize="26sp"
                     android:textColor="?android:textColorPrimary"
                     android:gravity="center_vertical"
                     android:layout_height="wrap_content"
@@ -287,7 +287,7 @@
                     android:layout_width="0dp"
                     android:gravity="center"
                     android:layout_weight="1"
-                    android:textSize="28sp"
+                    android:textSize="26sp"
                     android:textColor="?android:textColorPrimary"
                     android:layout_height="wrap_content" />
             </LinearLayout>
@@ -305,7 +305,7 @@
                 <TextView
                     android:layout_width="0dp"
                     android:layout_weight="1"
-                    android:textSize="28sp"
+                    android:textSize="26sp"
                     android:textColor="?android:textColorPrimary"
                     android:gravity="center_vertical"
                     android:layout_height="wrap_content"
@@ -321,6 +321,37 @@
                     android:max="2"
                     android:progress="2"
                     android:thumb="@drawable/ic_baseline_samsprung_24"/>
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/theme"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginStart="16dp"
+                android:layout_marginEnd="6dp"
+                android:layout_gravity="center_vertical"
+                tools:ignore="UseCompoundDrawables">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:textSize="26sp"
+                    android:textColor="?android:textColorPrimary"
+                    android:gravity="center_vertical"
+                    android:layout_gravity="center_vertical"
+                    android:layout_height="wrap_content"
+                    android:text="@string/options_theme" />
+
+                <Spinner
+                    android:id="@+id/theme_spinner"
+                    style="?android:attr/dropDownSpinnerStyle"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:textAlignment="center"
+                    android:background="@android:drawable/btn_dropdown"
+                    android:spinnerMode="dropdown"/>
             </LinearLayout>
 
             <include
@@ -366,10 +397,40 @@
         android:layout_height="wrap_content"
         android:clickable="true"
         android:focusable="true"
-        android:background="@color/backgroundTint"
+        android:layout_marginTop="1dp"
+        android:background="@color/bottomSheetTint"
         android:orientation="vertical"
-        app:behavior_peekHeight="530dp"
+        app:behavior_peekHeight="462dp"
         app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior">
+
+        <LinearLayout
+            android:id="@+id/visibility_handle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:paddingTop="4dp"
+                android:layout_marginBottom="8dp"/>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textSize="16sp"
+                android:layout_marginStart="14dp"
+                android:textColor="?android:textColorPrimary"
+                android:gravity="center_vertical"
+                android:text="@string/visibility_options" />
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="?colorPrimary"
+                android:layout_marginTop="4dp"
+                android:layout_marginBottom="4dp"/>
+        </LinearLayout>
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/app_toggle_list"

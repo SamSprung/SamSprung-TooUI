@@ -16,6 +16,13 @@
     <string name="options_keyboard">Keyboard / IME</string>
     <string name="options_draggable">Drawer Gesture</string>
     <string name="options_placement">Icon Alignment</string>
+    <string name="options_theme">Theme Selection</string>
+    <string-array name="theme_options">
+        <item>Auto</item>
+        <item>Dark</item>
+        <item>Light</item>
+    </string-array>
+    <string name="visibility_options">App Visibility</string>
 
     <string name="keyboard_details">%1$sdetails?id=com.eightbit.samsprung.ime</string>
 

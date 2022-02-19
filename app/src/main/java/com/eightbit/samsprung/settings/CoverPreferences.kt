@@ -79,6 +79,7 @@ import android.widget.*
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.app.AppCompatDelegate
 import androidx.appcompat.view.ContextThemeWrapper
 import androidx.appcompat.widget.AppCompatButton
 import androidx.appcompat.widget.SwitchCompat
@@ -142,11 +143,12 @@ class CoverPreferences : AppCompatActivity() {
     private val subSkuDetails = ArrayList<SkuDetails>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        prefs = getSharedPreferences(SamSprung.prefsValue, MODE_PRIVATE)
         ScaledContext.screen(this).setTheme(R.style.Theme_SecondScreen)
+        setThemePreference()
         super.onCreate(savedInstanceState)
         if ((getSystemService(Context.DISPLAY_SERVICE) as DisplayManager)
                 .getDisplay(1) == null) finishAndRemoveTask()
-        prefs = getSharedPreferences(SamSprung.prefsValue, MODE_PRIVATE)
 
         setContentView(R.layout.cover_settings_layout)
         permissionList = findViewById(R.id.permissions)
@@ -307,6 +309,23 @@ class CoverPreferences : AppCompatActivity() {
         })
         placementBar.progress = prefs.getInt(SamSprung.prefShifts, 2)
 
+        val themeSpinner = findViewById<Spinner>(R.id.theme_spinner)
+        themeSpinner.setSelection(prefs.getInt(SamSprung.prefThemes, 0))
+        val spinnerAdapter = ArrayAdapter(this, android.R.layout.simple_spinner_item,
+            resources.getStringArray(R.array.theme_options))
+        spinnerAdapter.setDropDownViewResource(R.layout.dropdown_item_1)
+        themeSpinner.adapter = spinnerAdapter
+        themeSpinner.onItemSelectedListener = object: AdapterView.OnItemSelectedListener {
+            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
+                with (prefs.edit()) {
+                    putInt(SamSprung.prefThemes, position)
+                    apply()
+                }
+                setThemePreference()
+            }
+            override fun onNothingSelected(parent: AdapterView<*>?) { }
+        }
+
         val isGridView = prefs.getBoolean(SamSprung.prefLayout, true)
         findViewById<ToggleButton>(R.id.swapViewType).isChecked = isGridView
         findViewById<ToggleButton>(R.id.swapViewType).setOnCheckedChangeListener { _, isChecked ->
@@ -333,15 +352,17 @@ class CoverPreferences : AppCompatActivity() {
             BottomSheetBehavior.from(findViewById(R.id.bottom_sheet))
         bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
         bottomSheetBehavior.addBottomSheetCallback(object : BottomSheetBehavior.BottomSheetCallback() {
-            override fun onStateChanged(bottomSheet: View, newState: Int) {
-                if (newState == BottomSheetBehavior.STATE_EXPANDED) {
-
-                }
-            }
-            override fun onSlide(bottomSheet: View, slideOffset: Float) {
-
-            }
+            override fun onStateChanged(bottomSheet: View, newState: Int) { }
+            override fun onSlide(bottomSheet: View, slideOffset: Float) { }
         })
+
+        findViewById<LinearLayout>(R.id.visibility_handle).setOnClickListener {
+            if (bottomSheetBehavior.state == BottomSheetBehavior.STATE_EXPANDED) {
+                bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
+            } else if (bottomSheetBehavior.state == BottomSheetBehavior.STATE_COLLAPSED) {
+                bottomSheetBehavior.state = BottomSheetBehavior.STATE_EXPANDED
+            }
+        }
 
         val color = prefs.getInt(SamSprung.prefColors, Color.rgb(255, 255, 255))
 
@@ -377,6 +398,9 @@ class CoverPreferences : AppCompatActivity() {
         val colorPanel = findViewById<AnimatedLinearLayout>(R.id.color_panel)
         val colorComposite = findViewById<View>(R.id.color_composite)
         colorComposite.setBackgroundColor(color)
+
+        val peekHeight = 462.toScalePx
+        val peekOffset = 422.toScalePx
 
         val colorHandler = Handler(Looper.getMainLooper())
         colorComposite.setOnClickListener {
@@ -430,7 +454,7 @@ class CoverPreferences : AppCompatActivity() {
                     override fun onAnimationEnd(animation: Animation?) {
                         divider.clearAnimation()
                         animation?.setAnimationListener(null)
-                        bottomSheetBehavior.peekHeight = 530.toScalePx.toInt()
+                        bottomSheetBehavior.peekHeight = peekHeight.toInt()
                     }
 
                     override fun onAnimationRepeat(animation: Animation?) {}
@@ -443,25 +467,25 @@ class CoverPreferences : AppCompatActivity() {
                 colorHandler.postDelayed({
                     colorAlphaBar.visibility = View.VISIBLE
                     alphaView.visibility = View.VISIBLE
-                    bottomSheetBehavior.peekHeight = (500.toScalePx - colorPanel.height).toInt()
+                    bottomSheetBehavior.peekHeight = (peekOffset - colorPanel.height).toInt()
                 }, 100)
                 colorHandler.postDelayed({
                     colorBlueBar.visibility = View.VISIBLE
                     textBlue.visibility = View.VISIBLE
-                    bottomSheetBehavior.peekHeight = (500.toScalePx - colorPanel.height).toInt()
+                    bottomSheetBehavior.peekHeight = (peekOffset - colorPanel.height).toInt()
                 }, 200)
                 colorHandler.postDelayed({
                     colorGreenBar.visibility = View.VISIBLE
                     textGreen.visibility = View.VISIBLE
-                    bottomSheetBehavior.peekHeight = (500.toScalePx - colorPanel.height).toInt()
+                    bottomSheetBehavior.peekHeight = (peekOffset - colorPanel.height).toInt()
                 }, 300)
                 colorHandler.postDelayed({
                     colorRedBar.visibility = View.VISIBLE
                     textRed.visibility = View.VISIBLE
-                    bottomSheetBehavior.peekHeight = (500.toScalePx - colorPanel.height).toInt()
+                    bottomSheetBehavior.peekHeight = (peekOffset - colorPanel.height).toInt()
                 }, 400)
                 colorHandler.postDelayed({
-                    bottomSheetBehavior.peekHeight = (530.toScalePx - colorPanel.height).toInt()
+                    bottomSheetBehavior.peekHeight = (peekHeight - colorPanel.height).toInt()
                 }, 450)
             }
         }
@@ -652,6 +676,20 @@ class CoverPreferences : AppCompatActivity() {
             torch.setIcon(R.drawable.ic_baseline_flashlight_off_24)
     }
 
+    private fun setThemePreference() {
+        when (prefs.getInt(SamSprung.prefThemes, 0)) {
+            0 -> {
+                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM)
+            }
+            1 -> {
+                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
+            }
+            2 -> {
+                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
+            }
+        }
+    }
+
     private val permissions =
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S)
             arrayOf(
@@ -727,6 +765,7 @@ class CoverPreferences : AppCompatActivity() {
             settings.isChecked = Settings.System.canWrite(applicationContext)
     }
 
+    @SuppressLint("NotifyDataSetChanged")
     private val usageLauncher = registerForActivityResult(
         ActivityResultContracts.StartActivityForResult()) {
         Executors.newSingleThreadExecutor().execute {
