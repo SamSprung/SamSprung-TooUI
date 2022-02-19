@@ -100,6 +100,7 @@ import com.eightbit.samsprung.*
 import com.eightbit.samsprung.launcher.LaunchManager
 import com.eightbit.samsprung.launcher.NotificationAdapter
 import com.eightbit.samsprung.panels.*
+import com.eightbit.samsprung.update.CheckUpdatesTask
 import com.eightbit.widget.PersistentCoordinator
 import com.eightbit.widget.RecyclerViewTouch
 import com.eightbitlab.blurview.BlurView
@@ -904,6 +905,7 @@ class SamSprungOverlay : FragmentActivity(), NotificationAdapter.OnNoticeClickLi
 
     override fun onNewIntent(intent: Intent?) {
         super.onNewIntent(intent)
+        CheckUpdatesTask(this)
         initializeDrawer(null != intent?.action && SamSprung.launcher == intent.action)
     }
 

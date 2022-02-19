@@ -52,11 +52,13 @@ package com.eightbit.samsprung.update
  */
 
 import android.app.*
+import android.content.ContentResolver
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageInstaller
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.media.AudioAttributes
 import android.net.Uri
 import android.os.Build
 import android.provider.Settings
@@ -65,6 +67,11 @@ import androidx.core.app.NotificationCompat
 import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
 import androidx.documentfile.provider.DocumentFile
+import com.eightbit.samsprung.BuildConfig
+import com.eightbit.samsprung.GitBroadcastReceiver
+import com.eightbit.samsprung.R
+import com.eightbit.samsprung.SamSprung
+import com.eightbit.samsprung.settings.CoverPreferences
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -78,16 +85,10 @@ import java.io.FileOutputStream
 import java.net.URL
 import java.util.*
 import java.util.concurrent.Executors
-import android.content.ContentResolver
-import android.media.AudioAttributes
-import com.eightbit.samsprung.*
-import com.eightbit.samsprung.settings.CoverPreferences
 
-
-class CheckUpdatesTask(private var activity: AppCompatActivity) {
+class CheckUpdatesTask(private var activity: Activity) {
 
     private val repo = "https://api.github.com/repos/SamSprung/SamSprung-TooUI/releases/tags/"
-
     var listener: CheckUpdateListener? = null
 
     init {
