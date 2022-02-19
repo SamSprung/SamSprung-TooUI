@@ -404,7 +404,7 @@ class CoverPreferences : AppCompatActivity() {
 
         findViewById<LinearLayout>(R.id.innerLayout).viewTreeObserver.addOnGlobalLayoutListener {
             bottomSheetBehavior.peekHeight = window.decorView.height -
-                    (findViewById<LinearLayout>(R.id.innerLayout).height + 140.toScalePx.toInt())
+                     (findViewById<LinearLayout>(R.id.innerLayout).height + 140.toScalePx.toInt())
         }
 
         val colorHandler = Handler(Looper.getMainLooper())
@@ -831,7 +831,7 @@ class CoverPreferences : AppCompatActivity() {
     }
 
     private fun captureLogcat(parent: ViewGroup) {
-        if (Debug(this).captureLogcat(hasPremiumSupport) && !hasPremiumSupport) {
+        if (Debug(this).captureLogcat(hasPremiumSupport)) {
             IconifiedSnackbar(this, parent).buildSnackbar(
                 R.string.logcat_written, Snackbar.LENGTH_LONG, null
             ).show()

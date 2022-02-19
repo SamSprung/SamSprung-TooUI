@@ -139,7 +139,8 @@ class Debug(private var context: Context) {
             e.printStackTrace()
             return false
         }
-        if (submitIssue) {
+        val logText = log.toString()
+        if (submitIssue || logText.contains("AndroidRuntime", false)) {
             IssueReporterLauncher.forTarget(project, repository)
                 .theme(R.style.Theme_SecondScreen_NoActionBar)
                 .guestToken(getRepositoryToken())
@@ -147,8 +148,9 @@ class Debug(private var context: Context) {
                 .guestAllowUsername(true)
                 .titleTextDefault(context.getString(R.string.git_issue_title, BuildConfig.COMMIT))
                 .minDescriptionLength(50)
-                .putExtraInfo("logcat", log.toString())
+                .putExtraInfo("logcat", logText)
                 .homeAsUpEnabled(false).launch(context)
+            return false
         } else {
             val contentValues = ContentValues().apply {
                 put(MediaStore.MediaColumns.DISPLAY_NAME, displayName)
@@ -158,10 +160,10 @@ class Debug(private var context: Context) {
             context.contentResolver.insert(
                 MediaStore.Downloads.EXTERNAL_CONTENT_URI, contentValues)?.let {
                 context.contentResolver.openOutputStream(it).use { fos ->
-                    fos?.write(log.toString().toByteArray())
+                    fos?.write(logText.toByteArray())
                 }
             }
+            return true
         }
-        return true
     }
 }
