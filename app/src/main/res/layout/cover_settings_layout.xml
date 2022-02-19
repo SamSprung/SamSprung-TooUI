@@ -186,8 +186,24 @@
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
                 android:background="?colorPrimary"
+                android:paddingTop="4dp"
+                android:layout_marginBottom="8dp"/>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textSize="16sp"
+                android:layout_marginStart="14dp"
+                android:textColor="?android:textColorPrimary"
+                android:gravity="center_vertical"
+                android:text="@string/interface_options" />
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="?colorPrimary"
                 android:layout_marginTop="4dp"
-                android:layout_marginBottom="4dp"/>
+                android:layout_marginBottom="8dp"/>
 
             <LinearLayout
                 android:id="@+id/keyboard_layout"
@@ -276,12 +292,36 @@
                     android:layout_height="wrap_content" />
             </LinearLayout>
 
-            <SeekBar
-                android:id="@+id/placement_bar"
-                android:max="2"
-                android:progress="2"
+            <LinearLayout
+                android:id="@+id/placement"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"/>
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginStart="16dp"
+                android:layout_marginEnd="6dp"
+                android:layout_gravity="center_vertical"
+                tools:ignore="UseCompoundDrawables">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:textSize="28sp"
+                    android:textColor="?android:textColorPrimary"
+                    android:gravity="center_vertical"
+                    android:layout_height="wrap_content"
+                    android:text="@string/options_placement" />
+
+                <SeekBar
+                    android:id="@+id/placement_bar"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:gravity="center"
+                    android:layout_weight="1"
+                    android:max="2"
+                    android:progress="2"
+                    android:thumb="@drawable/ic_baseline_samsprung_24"/>
+            </LinearLayout>
 
             <include
                 layout="@layout/toolbar_options"
@@ -317,16 +357,27 @@
                 android:background="?colorPrimary"
                 android:layout_marginTop="8dp"
                 android:layout_marginBottom="16dp"/>
-
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/app_toggle_list"
-                android:layout_width="match_parent"
-                android:layout_height="0dp"
-                android:clipToPadding="false"
-                android:paddingStart="2dp"
-                android:paddingEnd="0dp"
-                android:layout_weight="1"
-                android:scrollbars="vertical" />
         </LinearLayout>
     </com.eightbitlab.blurview.BlurView>
+
+    <LinearLayout
+        android:id="@+id/bottom_sheet"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:clickable="true"
+        android:focusable="true"
+        android:background="@color/backgroundTint"
+        android:orientation="vertical"
+        app:behavior_peekHeight="530dp"
+        app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior">
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/app_toggle_list"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:clipToPadding="false"
+            android:paddingStart="2dp"
+            android:paddingEnd="0dp"
+            android:scrollbars="vertical" />
+    </LinearLayout>
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

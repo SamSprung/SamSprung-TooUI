@@ -103,6 +103,7 @@ import com.eightbit.samsprung.update.UpdateShimActivity
 import com.eightbit.view.AnimatedLinearLayout
 import com.eightbitlab.blurview.BlurView
 import com.eightbitlab.blurview.RenderScriptBlur
+import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.snackbar.Snackbar
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -328,6 +329,20 @@ class CoverPreferences : AppCompatActivity() {
         )
         hiddenList.adapter = FilteredAppsAdapter(packageManager, packages, unlisted, prefs)
 
+        val bottomSheetBehavior: BottomSheetBehavior<View> =
+            BottomSheetBehavior.from(findViewById(R.id.bottom_sheet))
+        bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
+        bottomSheetBehavior.addBottomSheetCallback(object : BottomSheetBehavior.BottomSheetCallback() {
+            override fun onStateChanged(bottomSheet: View, newState: Int) {
+                if (newState == BottomSheetBehavior.STATE_EXPANDED) {
+
+                }
+            }
+            override fun onSlide(bottomSheet: View, slideOffset: Float) {
+
+            }
+        })
+
         val color = prefs.getInt(SamSprung.prefColors, Color.rgb(255, 255, 255))
 
         val textRed = findViewById<TextView>(R.id.color_red_text)
@@ -391,6 +406,7 @@ class CoverPreferences : AppCompatActivity() {
                         }, 500)
                     }
                     override fun onAnimationEnd(layout: AnimatedLinearLayout) {
+                        colorPanel.clearAnimation()
                         layout.setAnimationListener(null)
                         textRed.visibility = View.GONE
                         colorRedBar.visibility = View.GONE
@@ -404,32 +420,49 @@ class CoverPreferences : AppCompatActivity() {
                     }
                 })
                 colorPanel.startAnimation(animate)
+                val divider = findViewById<View>(R.id.color_divider)
                 val follow = TranslateAnimation(
                     0f, 0f, 0f, -colorPanel.height.toFloat()
                 )
                 follow.duration = 750
                 follow.fillAfter = false
-                findViewById<View>(R.id.color_divider).startAnimation(follow)
+                follow.setAnimationListener(object : Animation.AnimationListener {
+                    override fun onAnimationEnd(animation: Animation?) {
+                        divider.clearAnimation()
+                        animation?.setAnimationListener(null)
+                        bottomSheetBehavior.peekHeight = 530.toScalePx.toInt()
+                    }
 
+                    override fun onAnimationRepeat(animation: Animation?) {}
+
+                    override fun onAnimationStart(animation: Animation?) {}
+                })
+                divider.startAnimation(follow)
             } else {
                 colorPanel.visibility = View.VISIBLE
                 colorHandler.postDelayed({
                     colorAlphaBar.visibility = View.VISIBLE
                     alphaView.visibility = View.VISIBLE
+                    bottomSheetBehavior.peekHeight = (500.toScalePx - colorPanel.height).toInt()
                 }, 100)
                 colorHandler.postDelayed({
                     colorBlueBar.visibility = View.VISIBLE
                     textBlue.visibility = View.VISIBLE
+                    bottomSheetBehavior.peekHeight = (500.toScalePx - colorPanel.height).toInt()
                 }, 200)
                 colorHandler.postDelayed({
                     colorGreenBar.visibility = View.VISIBLE
                     textGreen.visibility = View.VISIBLE
+                    bottomSheetBehavior.peekHeight = (500.toScalePx - colorPanel.height).toInt()
                 }, 300)
                 colorHandler.postDelayed({
                     colorRedBar.visibility = View.VISIBLE
                     textRed.visibility = View.VISIBLE
+                    bottomSheetBehavior.peekHeight = (500.toScalePx - colorPanel.height).toInt()
                 }, 400)
-                colorPanel.visibility = View.VISIBLE
+                colorHandler.postDelayed({
+                    bottomSheetBehavior.peekHeight = (530.toScalePx - colorPanel.height).toInt()
+                }, 450)
             }
         }
 
@@ -1107,5 +1140,10 @@ class CoverPreferences : AppCompatActivity() {
     private val Number.toPx get() = TypedValue.applyDimension(
         TypedValue.COMPLEX_UNIT_DIP, this.toFloat(),
         Resources.getSystem().displayMetrics
+    )
+
+    private val Number.toScalePx get() = TypedValue.applyDimension(
+        TypedValue.COMPLEX_UNIT_DIP, this.toFloat(),
+        ScaledContext.screen(this@CoverPreferences).resources.displayMetrics
     )
 }
