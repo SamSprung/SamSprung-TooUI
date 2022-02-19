@@ -119,6 +119,9 @@ import java.util.*
 import java.util.concurrent.Executors
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
+import android.view.ViewTreeObserver
+import android.view.ViewTreeObserver.OnGlobalLayoutListener
+
 
 class CoverPreferences : AppCompatActivity() {
 
@@ -399,8 +402,10 @@ class CoverPreferences : AppCompatActivity() {
         val colorComposite = findViewById<View>(R.id.color_composite)
         colorComposite.setBackgroundColor(color)
 
-        val peekHeight = 462.toScalePx
-        val peekOffset = 422.toScalePx
+        findViewById<LinearLayout>(R.id.innerLayout).viewTreeObserver.addOnGlobalLayoutListener {
+            bottomSheetBehavior.peekHeight = window.decorView.height -
+                    (findViewById<LinearLayout>(R.id.innerLayout).height + 140.toScalePx.toInt())
+        }
 
         val colorHandler = Handler(Looper.getMainLooper())
         colorComposite.setOnClickListener {
@@ -454,7 +459,6 @@ class CoverPreferences : AppCompatActivity() {
                     override fun onAnimationEnd(animation: Animation?) {
                         divider.clearAnimation()
                         animation?.setAnimationListener(null)
-                        bottomSheetBehavior.peekHeight = peekHeight.toInt()
                     }
 
                     override fun onAnimationRepeat(animation: Animation?) {}
@@ -467,26 +471,19 @@ class CoverPreferences : AppCompatActivity() {
                 colorHandler.postDelayed({
                     colorAlphaBar.visibility = View.VISIBLE
                     alphaView.visibility = View.VISIBLE
-                    bottomSheetBehavior.peekHeight = (peekOffset - colorPanel.height).toInt()
                 }, 100)
                 colorHandler.postDelayed({
                     colorBlueBar.visibility = View.VISIBLE
                     textBlue.visibility = View.VISIBLE
-                    bottomSheetBehavior.peekHeight = (peekOffset - colorPanel.height).toInt()
                 }, 200)
                 colorHandler.postDelayed({
                     colorGreenBar.visibility = View.VISIBLE
                     textGreen.visibility = View.VISIBLE
-                    bottomSheetBehavior.peekHeight = (peekOffset - colorPanel.height).toInt()
                 }, 300)
                 colorHandler.postDelayed({
                     colorRedBar.visibility = View.VISIBLE
                     textRed.visibility = View.VISIBLE
-                    bottomSheetBehavior.peekHeight = (peekOffset - colorPanel.height).toInt()
                 }, 400)
-                colorHandler.postDelayed({
-                    bottomSheetBehavior.peekHeight = (peekHeight - colorPanel.height).toInt()
-                }, 450)
             }
         }
 

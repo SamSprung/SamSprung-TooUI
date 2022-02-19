@@ -16,8 +16,9 @@
         app:blurOverlayColor="@color/backgroundTint">
 
         <LinearLayout
+            android:id="@+id/innerLayout"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_height="wrap_content"
             android:animateLayoutChanges="true"
             android:orientation="vertical">
 
@@ -400,7 +401,6 @@
         android:layout_marginTop="1dp"
         android:background="@color/bottomSheetTint"
         android:orientation="vertical"
-        app:behavior_peekHeight="462dp"
         app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior">
 
         <LinearLayout
