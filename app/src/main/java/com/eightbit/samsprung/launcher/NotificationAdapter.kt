@@ -330,7 +330,7 @@ class NotificationAdapter(
         for (index in 0 until sbNotifications.size) {
             if (sbNotifications[index].key == sbn.key) {
                 sbNotifications[index] = sbn
-                activity.runOnUiThread { this.notifyItemChanged(index) }
+                activity.runOnUiThread { this.notifyItemChanged(index, sbn) }
                 return
             }
         }

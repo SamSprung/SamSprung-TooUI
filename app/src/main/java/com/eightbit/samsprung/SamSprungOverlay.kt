@@ -808,7 +808,12 @@ class SamSprungOverlay : FragmentActivity(), NotificationAdapter.OnNoticeClickLi
         }
         actionButtons.addView(button, LinearLayout.LayoutParams(
             0, LinearLayout.LayoutParams.WRAP_CONTENT,
-            if (action.title.length > 10) 1.5f else if (action.title.length > 5) 1.0f else 0.5f
+            when {
+                action.title.length > 14 -> 1.0f
+                action.title.length > 9 -> 0.8f
+                action.title.length > 4 -> 0.6f
+                else -> 0.5f
+            }
         ))
     }
 
