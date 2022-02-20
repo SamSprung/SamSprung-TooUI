@@ -79,7 +79,6 @@ import android.widget.*
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
-import androidx.appcompat.app.AppCompatDelegate
 import androidx.appcompat.view.ContextThemeWrapper
 import androidx.appcompat.widget.AppCompatButton
 import androidx.appcompat.widget.SwitchCompat
@@ -144,13 +143,12 @@ class CoverPreferences : AppCompatActivity() {
     private val subSkuDetails = ArrayList<SkuDetails>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        prefs = getSharedPreferences(SamSprung.prefsValue, MODE_PRIVATE)
-        ScaledContext.screen(this).setTheme(R.style.Theme_SecondScreen)
-        setThemePreference()
         super.onCreate(savedInstanceState)
         if ((getSystemService(Context.DISPLAY_SERVICE) as DisplayManager)
                 .getDisplay(1) == null) finishAndRemoveTask()
 
+        prefs = getSharedPreferences(SamSprung.prefsValue, MODE_PRIVATE)
+        ScaledContext.screen(this).setTheme(R.style.Theme_SecondScreen)
         setContentView(R.layout.cover_settings_layout)
         permissionList = findViewById(R.id.permissions)
 
@@ -311,18 +309,18 @@ class CoverPreferences : AppCompatActivity() {
         placementBar.progress = prefs.getInt(SamSprung.prefShifts, 2)
 
         val themeSpinner = findViewById<Spinner>(R.id.theme_spinner)
-        themeSpinner.setSelection(prefs.getInt(SamSprung.prefThemes, 0))
         val spinnerAdapter = ArrayAdapter(this, android.R.layout.simple_spinner_item,
             resources.getStringArray(R.array.theme_options))
         spinnerAdapter.setDropDownViewResource(R.layout.dropdown_item_1)
         themeSpinner.adapter = spinnerAdapter
+        themeSpinner.setSelection(prefs.getInt(SamSprung.prefThemes, 0))
         themeSpinner.onItemSelectedListener = object: AdapterView.OnItemSelectedListener {
             override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
                 with (prefs.edit()) {
                     putInt(SamSprung.prefThemes, position)
                     apply()
                 }
-                setThemePreference()
+                (application as SamSprung).setThemePreference()
             }
             override fun onNothingSelected(parent: AdapterView<*>?) { }
         }
@@ -669,20 +667,6 @@ class CoverPreferences : AppCompatActivity() {
             torch.setIcon(R.drawable.ic_baseline_flashlight_on_24)
         else
             torch.setIcon(R.drawable.ic_baseline_flashlight_off_24)
-    }
-
-    private fun setThemePreference() {
-        when (prefs.getInt(SamSprung.prefThemes, 0)) {
-            0 -> {
-                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM)
-            }
-            1 -> {
-                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
-            }
-            2 -> {
-                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
-            }
-        }
     }
 
     private val permissions =

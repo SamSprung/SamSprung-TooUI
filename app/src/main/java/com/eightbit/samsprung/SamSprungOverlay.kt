@@ -78,7 +78,7 @@ import android.view.*
 import android.widget.*
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
-import androidx.appcompat.app.AppCompatDelegate
+import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.view.ContextThemeWrapper
 import androidx.appcompat.widget.AppCompatButton
 import androidx.appcompat.widget.AppCompatImageView
@@ -90,7 +90,6 @@ import androidx.core.view.GravityCompat
 import androidx.core.view.WindowCompat
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.FragmentActivity
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -110,7 +109,7 @@ import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import java.util.*
 
-class SamSprungOverlay : FragmentActivity(), NotificationAdapter.OnNoticeClickListener {
+class SamSprungOverlay : AppCompatActivity(), NotificationAdapter.OnNoticeClickListener {
 
     private lateinit var prefs: SharedPreferences
     private var persistent: PersistentCoordinator? = null
@@ -156,9 +155,10 @@ class SamSprungOverlay : FragmentActivity(), NotificationAdapter.OnNoticeClickLi
         actionBar?.hide()
 
         window.setFlags(
-                    WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL or
+            WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL or
                     WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN,
-            PixelFormat.TRANSPARENT)
+            PixelFormat.TRANSPARENT
+        )
 
         window.attributes.width = ViewGroup.LayoutParams.MATCH_PARENT
         window.attributes.gravity = Gravity.BOTTOM
@@ -166,7 +166,6 @@ class SamSprungOverlay : FragmentActivity(), NotificationAdapter.OnNoticeClickLi
 
         prefs = getSharedPreferences(SamSprung.prefsValue, MODE_PRIVATE)
         ScaledContext.wrap(this).setTheme(R.style.Theme_SecondScreen_NoActionBar)
-        setThemePreference()
         setContentView(R.layout.home_main_view)
         WindowCompat.setDecorFitsSystemWindows(window, false)
 
@@ -588,20 +587,6 @@ class SamSprungOverlay : FragmentActivity(), NotificationAdapter.OnNoticeClickLi
 
     fun getSearch() : SearchView {
         return searchView
-    }
-
-    private fun setThemePreference() {
-        when (prefs.getInt(SamSprung.prefThemes, 0)) {
-            0 -> {
-                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM)
-            }
-            1 -> {
-                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
-            }
-            2 -> {
-                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
-            }
-        }
     }
 
     companion object {

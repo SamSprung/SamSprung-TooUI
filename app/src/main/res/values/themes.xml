@@ -10,6 +10,7 @@
         <item name="colorSecondaryVariant">@color/secondary_light</item>
         <item name="colorOnSecondary">@android:color/black</item>
         <!-- Status bar color. -->
+        <item name="android:windowLightStatusBar">true</item>
         <item name="android:statusBarColor" tools:targetApi="l">?attr/colorPrimaryVariant</item>
         <!-- Customize your theme here. -->
         <item name="android:windowCloseOnTouchOutside">false</item>

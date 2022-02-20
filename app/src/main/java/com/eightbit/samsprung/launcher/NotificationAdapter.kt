@@ -53,6 +53,8 @@ package com.eightbit.samsprung.launcher
 
 import android.annotation.SuppressLint
 import android.app.Activity
+import android.content.SharedPreferences
+import android.content.res.Configuration
 import android.graphics.Bitmap
 import android.graphics.Color
 import android.graphics.drawable.Icon
@@ -61,12 +63,17 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
+import androidx.annotation.ColorInt
 import androidx.appcompat.widget.AppCompatImageView
+import androidx.cardview.widget.CardView
 import androidx.core.app.NotificationCompat
+import androidx.core.graphics.ColorUtils
 import androidx.core.graphics.drawable.toBitmap
+import androidx.fragment.app.FragmentActivity
 import androidx.recyclerview.widget.RecyclerView
 import com.eightbit.samsprung.NotificationReceiver
 import com.eightbit.samsprung.R
+import com.eightbit.samsprung.SamSprung
 import java.util.*
 import java.util.concurrent.Executors
 
@@ -117,8 +124,15 @@ class NotificationAdapter(
     abstract class NoticeViewHolder(
         itemView: View, val listener: OnNoticeClickListener?, val activity: Activity
     ) : RecyclerView.ViewHolder(itemView) {
+        val prefs: SharedPreferences = activity.getSharedPreferences(
+            SamSprung.prefsValue, FragmentActivity.MODE_PRIVATE
+        )
         lateinit var notice: StatusBarNotification
         fun bind(notice: StatusBarNotification) {
+            val color = prefs.getInt(SamSprung.prefColors,
+                Color.rgb(255, 255, 255))
+            (itemView as CardView).setCardBackgroundColor(
+                if (isDarkTheme()) color.darken else color.lighten)
             this.notice = notice
             val notification = notice.notification
             Executors.newSingleThreadExecutor().execute {
@@ -127,12 +141,14 @@ class NotificationAdapter(
                     null != notification.getLargeIcon() -> {
                         val icon = notification.getLargeIcon().loadDrawable(activity)
                         activity.runOnUiThread {
+                            icon.applyTheme(activity.theme)
                             iconView.setImageDrawable(icon)
                         }
                     }
                     null != notification.smallIcon -> {
                         val icon = notification.smallIcon.loadDrawable(activity)
                         activity.runOnUiThread {
+                            icon.applyTheme(activity.theme)
                             iconView.setImageDrawable(icon)
                         }
                     }
@@ -230,6 +246,19 @@ class NotificationAdapter(
             }
         }
 
+        private inline val @receiver:ColorInt Int.darken
+            @ColorInt
+            get() = ColorUtils.blendARGB(this, Color.BLACK, 0.4f)
+
+        private inline val @receiver:ColorInt Int.lighten
+            @ColorInt
+            get() = ColorUtils.blendARGB(this, Color.WHITE, 0.4f)
+
+        private fun isDarkTheme(): Boolean {
+            return (activity.resources.configuration.uiMode and
+                    Configuration.UI_MODE_NIGHT_MASK) == Configuration.UI_MODE_NIGHT_YES
+        }
+
         private fun Bitmap.trimBorders(): Bitmap {
             val color = Color.TRANSPARENT
             var startX = 0
@@ -319,8 +348,9 @@ class NotificationAdapter(
                 }
             }
             if (!isRecent) {
+                val index = sbNotifications.size
                 sbNotifications.add(sbn)
-                activity.runOnUiThread { this.notifyItemInserted(sbNotifications.size - 1) }
+                activity.runOnUiThread { this.notifyItemInserted(index) }
             }
         }
     }

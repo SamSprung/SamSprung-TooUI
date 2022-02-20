@@ -60,11 +60,10 @@ import android.view.WindowManager
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatDelegate
 import com.eightbit.content.ScaledContext
-import java.lang.ref.SoftReference
-import kotlin.system.exitProcess
 import com.eightbit.samsprung.panels.WidgetPreviewLoader.CacheDb
+import java.lang.ref.SoftReference
 import java.util.concurrent.Executors
-
+import kotlin.system.exitProcess
 
 class SamSprung : Application() {
 
@@ -76,6 +75,20 @@ class SamSprung : Application() {
             return ScaledContext.wrap(mContext!!.get())
         }
         return null
+    }
+
+    fun setThemePreference() {
+        when (getSharedPreferences(prefsValue, MODE_PRIVATE).getInt(prefThemes, 0)) {
+            0 -> {
+                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM)
+            }
+            1 -> {
+                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
+            }
+            2 -> {
+                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
+            }
+        }
     }
 
     companion object {
@@ -105,6 +118,7 @@ class SamSprung : Application() {
     override fun onCreate() {
         super.onCreate()
         AppCompatDelegate.setCompatVectorFromResourcesEnabled(true)
+        setThemePreference()
         ScaledContext.screen(this).setTheme(R.style.Theme_SecondScreen)
         if (BuildConfig.FLAVOR == "google"
             && BuildConfig.DEBUG) StrictMode.enableDefaults()
