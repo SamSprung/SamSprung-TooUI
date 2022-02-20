@@ -1,12 +1,10 @@
 package com.eightbit.samsprung.launcher
 
-import android.app.Activity
 import android.app.ActivityOptions
 import android.app.KeyguardManager
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
-import android.content.IntentSender
 import android.content.pm.ActivityInfo
 import android.content.pm.ApplicationInfo
 import android.content.pm.LauncherApps
@@ -101,26 +99,5 @@ class LaunchManager(private val overlay: SamSprungOverlay) {
         extras.putString("launchPackage", appInfo.packageName)
 
         getOrientationManager(extras)
-    }
-
-    fun launchIntentSender(intentSender: IntentSender) {
-        prepareConfiguration()
-
-        overlay.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
-        overlay.startIntentSender(intentSender, null, 0, 0, 0,
-            ActivityOptions.makeBasic().setLaunchDisplayId(1).toBundle())
-
-        Handler(Looper.getMainLooper()).postDelayed({
-            overlay.runOnUiThread {
-                val extras = Bundle()
-                extras.putString("launchPackage", intentSender.creatorPackage)
-
-                overlay.startForegroundService(
-                    Intent(overlay,
-                        AppDisplayListener::class.java).putExtras(extras))
-
-                overlay.onDismiss()
-            }
-        }, 100)
     }
 }

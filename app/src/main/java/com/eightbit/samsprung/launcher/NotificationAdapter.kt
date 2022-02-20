@@ -54,6 +54,7 @@ package com.eightbit.samsprung.launcher
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.graphics.Bitmap
+import android.graphics.Color
 import android.graphics.drawable.Icon
 import android.service.notification.StatusBarNotification
 import android.view.LayoutInflater
@@ -66,7 +67,6 @@ import androidx.core.graphics.drawable.toBitmap
 import androidx.recyclerview.widget.RecyclerView
 import com.eightbit.samsprung.NotificationReceiver
 import com.eightbit.samsprung.R
-import com.eightbit.samsprung.SamSprungOverlay
 import java.util.*
 import java.util.concurrent.Executors
 
@@ -141,25 +141,29 @@ class NotificationAdapter(
                 if (null != notification.extras) {
                     val imageView = itemView.findViewById<AppCompatImageView>(R.id.image)
                     if (notification.extras.containsKey(NotificationCompat.EXTRA_LARGE_ICON_BIG)) {
-                        val image = notification.extras.get(NotificationCompat.EXTRA_LARGE_ICON_BIG)
-                        var bitmap: Bitmap? = null
-                        if (image is Bitmap)
-                            bitmap = image
-                        else if (image is Icon)
-                            bitmap = image.loadDrawable(activity).toBitmap()
-                        activity.runOnUiThread {
-                            imageView.setImageBitmap(getScaledBitmap(activity, bitmap))
+                        val bitmap: Bitmap? = when (val image = notification.extras.get(
+                            NotificationCompat.EXTRA_LARGE_ICON_BIG)) {
+                            is Bitmap -> image
+                            is Icon -> image.loadDrawable(activity).toBitmap()
+                            else -> null
+                        }
+                        if (null != bitmap) {
+                            activity.runOnUiThread {
+                                imageView.setImageBitmap(getScaledBitmap(activity, bitmap))
+                            }
                         }
                     }
                     if (notification.extras.containsKey(NotificationCompat.EXTRA_PICTURE)) {
-                        val image = notification.extras.get(NotificationCompat.EXTRA_PICTURE)
-                        var bitmap: Bitmap? = null
-                        if (image is Bitmap)
-                            bitmap = image
-                        else if (image is Icon)
-                            bitmap = image.loadDrawable(activity).toBitmap()
-                        activity.runOnUiThread {
-                            imageView.setImageBitmap(getScaledBitmap(activity, bitmap))
+                        val bitmap: Bitmap? = when (val image = notification.extras.get(
+                            NotificationCompat.EXTRA_PICTURE)) {
+                            is Bitmap -> image
+                            is Icon -> image.loadDrawable(activity).toBitmap()
+                            else -> null
+                        }
+                        if (null != bitmap) {
+                            activity.runOnUiThread {
+                                imageView.setImageBitmap(getScaledBitmap(activity, bitmap))
+                            }
                         }
                     }
                     if (notification.extras.containsKey(NotificationCompat.EXTRA_BIG_TEXT)) {
@@ -201,8 +205,11 @@ class NotificationAdapter(
                     if (null != notification.contentIntent) {
                         launch.visibility = View.VISIBLE
                         launch.setOnClickListener {
-                            (activity as SamSprungOverlay).launchManager
-                                .launchIntentSender(notification.contentIntent.intentSender)
+                            try {
+                                notification.contentIntent.send()
+                            } catch (ex: Exception) {
+                                ex.printStackTrace()
+                            }
                         }
                     } else {
                         launch.visibility = View.GONE
@@ -223,19 +230,70 @@ class NotificationAdapter(
             }
         }
 
-        private fun getScaledBitmap(activity: Activity, bitmap: Bitmap?): Bitmap? {
-            if (null == bitmap) return null
+        private fun Bitmap.trimBorders(): Bitmap {
+            val color = Color.TRANSPARENT
+            var startX = 0
+            loop@ for (x in 0 until width) {
+                for (y in 0 until height) {
+                    if (getPixel(x, y) != color) {
+                        startX = x
+                        break@loop
+                    }
+                }
+            }
+            var startY = 0
+            loop@ for (y in 0 until height) {
+                for (x in 0 until width) {
+                    if (getPixel(x, y) != color) {
+                        startY = y
+                        break@loop
+                    }
+                }
+            }
+            var endX = width - 1
+            loop@ for (x in endX downTo 0) {
+                for (y in 0 until height) {
+                    if (getPixel(x, y) != color) {
+                        endX = x
+                        break@loop
+                    }
+                }
+            }
+            var endY = height - 1
+            loop@ for (y in endY downTo 0) {
+                for (x in 0 until width) {
+                    if (getPixel(x, y) != color) {
+                        endY = y
+                        break@loop
+                    }
+                }
+            }
 
-//            val width: Int = bitmap.width
-//            val height: Int = bitmap.height
-//            val scaleWidth = activity.window.decorView.width.toFloat() / width
-//            val scaleHeight = activity.window.decorView.height.toFloat() / height
-//            val matrix = Matrix()
-//            matrix.postScale(scaleWidth, scaleHeight)
-//            return Bitmap.createBitmap(
-//                bitmap, 0, 0, width, height, matrix, false
-//            )
-            return bitmap
+            return Bitmap.createBitmap(
+                this, startX, startY, endX - startX + 1, endY - startY + 1
+            )
+        }
+
+        private  fun getScaledBitmap(activity: Activity, original: Bitmap): Bitmap {
+            val maxWidth = activity.window.decorView.width
+            val maxHeight = activity.window.decorView.height
+            val bitmap = original.trimBorders()
+            return if (bitmap.width > activity.window.decorView.width) {
+                val width = bitmap.width
+                val height = bitmap.height
+                val ratioBitmap = width.toFloat() / height.toFloat()
+                val ratioMax = maxWidth.toFloat() / maxHeight.toFloat()
+                var finalWidth = maxWidth
+                var finalHeight = maxHeight
+                if (ratioMax > ratioBitmap) {
+                    finalWidth = (maxHeight.toFloat() * ratioBitmap).toInt()
+                } else {
+                    finalHeight = (maxWidth.toFloat() / ratioBitmap).toInt()
+                }
+                Bitmap.createScaledBitmap(bitmap, finalWidth, finalHeight, true)
+            } else {
+                bitmap
+            }
         }
     }
 
@@ -269,20 +327,15 @@ class NotificationAdapter(
     @SuppressLint("NotifyDataSetChanged")
     override fun onNotificationPosted(sbn: StatusBarNotification?) {
         if (null == sbn) return
-        var current = -1
         for (index in 0 until sbNotifications.size) {
             if (sbNotifications[index].key == sbn.key) {
-                current = index
-                break
+                sbNotifications[index] = sbn
+                activity.runOnUiThread { this.notifyItemChanged(index) }
+                return
             }
         }
-        if (-1 == current) {
-            sbNotifications.add(0, sbn)
-            activity.runOnUiThread { this.notifyItemInserted(0) }
-        } else {
-            sbNotifications[current] = sbn
-            activity.runOnUiThread { this.notifyItemChanged(current) }
-        }
+        sbNotifications.add(0, sbn)
+        activity.runOnUiThread { this.notifyItemInserted(0) }
     }
     @SuppressLint("NotifyDataSetChanged")
     override fun onNotificationRemoved(sbn: StatusBarNotification?) {

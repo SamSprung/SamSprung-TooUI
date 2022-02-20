@@ -797,7 +797,11 @@ class SamSprungOverlay : FragmentActivity(), NotificationAdapter.OnNoticeClickLi
             if (null != action.remoteInputs && action.remoteInputs.isNotEmpty()) {
                 promptNotificationReply(action)
             } else {
-                launchManager.launchIntentSender(action.actionIntent.intentSender)
+                try {
+                    action.actionIntent.send()
+                } catch (ex: Exception) {
+                    ex.printStackTrace()
+                }
                 actionsPanel.visibility = View.GONE
             }
             (noticesView.layoutManager as LinearLayoutManager).scrollToPosition(position)
@@ -1044,33 +1048,6 @@ class SamSprungOverlay : FragmentActivity(), NotificationAdapter.OnNoticeClickLi
 
     override fun startActivityFromFragment(fragment: Fragment, intent: Intent?, requestCode: Int) {
         startActivityFromFragment(fragment, intent, requestCode,
-            ActivityOptions.makeBasic().setLaunchDisplayId(1).toBundle())
-    }
-
-    override fun startIntentSender(
-        intent: IntentSender?,
-        fillInIntent: Intent?,
-        flagsMask: Int,
-        flagsValues: Int,
-        extraFlags: Int,
-        options: Bundle?
-    ) {
-        extraFlags.or(Intent.FLAG_ACTIVITY_FORWARD_RESULT)
-        if (null != options)
-            super.startIntentSender(intent, fillInIntent, flagsMask, flagsValues, extraFlags, options)
-        else
-            super.startIntentSender(intent, fillInIntent, flagsMask, flagsValues, extraFlags,
-                ActivityOptions.makeBasic().setLaunchDisplayId(1).toBundle())
-    }
-
-    override fun startIntentSender(
-        intent: IntentSender?,
-        fillInIntent: Intent?,
-        flagsMask: Int,
-        flagsValues: Int,
-        extraFlags: Int
-    ) {
-        startIntentSender(intent, fillInIntent, flagsMask, flagsValues, extraFlags,
             ActivityOptions.makeBasic().setLaunchDisplayId(1).toBundle())
     }
 }
