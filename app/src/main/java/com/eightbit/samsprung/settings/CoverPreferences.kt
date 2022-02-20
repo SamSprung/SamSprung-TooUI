@@ -400,7 +400,7 @@ class CoverPreferences : AppCompatActivity() {
 
         findViewById<LinearLayout>(R.id.innerLayout).viewTreeObserver.addOnGlobalLayoutListener {
             bottomSheetBehavior.peekHeight = window.decorView.height -
-                     (findViewById<LinearLayout>(R.id.innerLayout).height + 140.toScalePx.toInt())
+                     (findViewById<LinearLayout>(R.id.innerLayout).height + 141.toScalePx.toInt())
         }
 
         val colorHandler = Handler(Looper.getMainLooper())
@@ -574,7 +574,6 @@ class CoverPreferences : AppCompatActivity() {
         colorAlphaBar.visibility = View.GONE
         colorPanel.visibility = View.GONE
 
-
         val toolbar = findViewById<Toolbar>(R.id.toolbar)
         toolbar.inflateMenu(R.menu.cover_quick_toggles)
         toolbar.setOnMenuItemClickListener { item: MenuItem ->
@@ -626,6 +625,13 @@ class CoverPreferences : AppCompatActivity() {
                         item.setIcon(R.drawable.ic_baseline_flashlight_off_24)
                     return@setOnMenuItemClickListener true
                 }
+                R.id.toggle_widgets -> {
+                    if (prefs.getBoolean(pref, true))
+                        item.setIcon(R.drawable.ic_baseline_widgets_24)
+                    else
+                        item.setIcon(R.drawable.ic_baseline_insert_page_break_24)
+                    return@setOnMenuItemClickListener true
+                }
                 else -> {
                     return@setOnMenuItemClickListener false
                 }
@@ -667,6 +673,12 @@ class CoverPreferences : AppCompatActivity() {
             torch.setIcon(R.drawable.ic_baseline_flashlight_on_24)
         else
             torch.setIcon(R.drawable.ic_baseline_flashlight_off_24)
+
+        val widgets = toolbar.menu.findItem(R.id.toggle_widgets)
+        if (prefs.getBoolean(widgets.title.toPref, true))
+            widgets.setIcon(R.drawable.ic_baseline_widgets_24)
+        else
+            widgets.setIcon(R.drawable.ic_baseline_insert_page_break_24)
     }
 
     private val permissions =

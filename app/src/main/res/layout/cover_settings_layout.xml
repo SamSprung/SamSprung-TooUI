@@ -96,7 +96,7 @@
                     android:layout_height="wrap_content"
                     android:orientation="horizontal"
                     android:layout_marginStart="16dp"
-                    android:layout_marginEnd="8dp"
+                    android:layout_marginEnd="6dp"
                     android:layout_gravity="center_vertical"
                     tools:ignore="UseCompoundDrawables">
 
@@ -299,7 +299,7 @@
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
                 android:layout_marginStart="16dp"
-                android:layout_marginEnd="6dp"
+                android:layout_marginEnd="8dp"
                 android:layout_gravity="center_vertical"
                 tools:ignore="UseCompoundDrawables">
 
@@ -330,7 +330,7 @@
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
                 android:layout_marginStart="16dp"
-                android:layout_marginEnd="6dp"
+                android:layout_marginEnd="8dp"
                 android:layout_gravity="center_vertical"
                 tools:ignore="UseCompoundDrawables">
 
@@ -399,7 +399,7 @@
         android:clickable="true"
         android:focusable="true"
         android:layout_marginTop="1dp"
-        android:background="@color/bottomSheetTint"
+        android:background="@color/backgroundFlat"
         android:orientation="vertical"
         app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior">
 
