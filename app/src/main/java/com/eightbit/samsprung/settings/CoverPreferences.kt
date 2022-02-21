@@ -253,9 +253,11 @@ class CoverPreferences : AppCompatActivity() {
                 apply()
             }
         }
-        findViewById<LinearLayout>(R.id.updates).setOnClickListener {
+        val updatesPanel = findViewById<LinearLayout>(R.id.updates)
+        updatesPanel.setOnClickListener {
             updates.isChecked = !updates.isChecked
         }
+        updatesPanel.isVisible = BuildConfig.FLAVOR != "google"
 
         val draggable = findViewById<SwitchCompat>(R.id.draggable_switch)
         draggable.isChecked = prefs.getBoolean(SamSprung.prefSlider, true)
@@ -700,6 +702,7 @@ class CoverPreferences : AppCompatActivity() {
                 requestUnchecked.launch(Manifest.permission.RECORD_AUDIO)
             }
         }
+        if (BuildConfig.FLAVOR == "google") return@registerForActivityResult
         updateCheck = CheckUpdatesTask(this@CoverPreferences)
         updateCheck?.setUpdateListener(object: CheckUpdatesTask.CheckUpdateListener {
             override fun onUpdateFound(downloadUrl: String) {

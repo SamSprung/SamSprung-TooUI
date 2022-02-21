@@ -114,7 +114,7 @@ class SamSprung : Application() {
         AppCompatDelegate.setCompatVectorFromResourcesEnabled(true)
         setThemePreference()
         ScaledContext.screen(this).setTheme(R.style.Theme_SecondScreen)
-        if (BuildConfig.FLAVOR == "google"
+        if (BuildConfig.FLAVOR == "github"
             && BuildConfig.DEBUG) StrictMode.enableDefaults()
 
         val displayManager = getSystemService(Context.DISPLAY_SERVICE) as DisplayManager

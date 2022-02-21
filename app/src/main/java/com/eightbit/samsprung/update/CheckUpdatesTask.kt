@@ -92,34 +92,32 @@ class CheckUpdatesTask(private var activity: Activity) {
     var listener: CheckUpdateListener? = null
 
     init {
-        if (BuildConfig.FLAVOR != "google") {
-            try {
-                (activity.getSystemService(AppCompatActivity.NOTIFICATION_SERVICE)
-                        as NotificationManager).cancel(SamSprung.request_code)
-            } catch (ignored: Exception) { }
-            if (activity is UpdateShimActivity) {
-                val installer = activity.applicationContext.packageManager.packageInstaller
-                for (session: PackageInstaller.SessionInfo in installer.mySessions) {
-                    installer.abandonSession(session.sessionId)
+        try {
+            (activity.getSystemService(AppCompatActivity.NOTIFICATION_SERVICE)
+                    as NotificationManager).cancel(SamSprung.request_code)
+        } catch (ignored: Exception) { }
+        if (activity is UpdateShimActivity) {
+            val installer = activity.applicationContext.packageManager.packageInstaller
+            for (session: PackageInstaller.SessionInfo in installer.mySessions) {
+                installer.abandonSession(session.sessionId)
+            }
+        } else {
+            Executors.newSingleThreadExecutor().execute {
+                val files: Array<File>? = activity.externalCacheDir?.listFiles { _, name ->
+                    name.lowercase(Locale.getDefault()).endsWith(".apk")
                 }
-            } else {
-                Executors.newSingleThreadExecutor().execute {
-                    val files: Array<File>? = activity.externalCacheDir?.listFiles { _, name ->
-                        name.lowercase(Locale.getDefault()).endsWith(".apk")
-                    }
-                    if (null != files) {
-                        for (file in files) {
-                            if (!file.isDirectory) file.delete()
-                        }
+                if (null != files) {
+                    for (file in files) {
+                        if (!file.isDirectory) file.delete()
                     }
                 }
-                if (activity.packageManager.canRequestPackageInstalls()) {
-                    retrieveUpdate()
-                } else if (activity is CoverPreferences) {
-                    (activity as CoverPreferences).updateLauncher.launch(
-                        Intent(Settings.ACTION_MANAGE_UNKNOWN_APP_SOURCES).setData(
-                            Uri.parse(String.format("package:%s", activity.packageName))))
-                }
+            }
+            if (activity.packageManager.canRequestPackageInstalls()) {
+                retrieveUpdate()
+            } else if (activity is CoverPreferences) {
+                (activity as CoverPreferences).updateLauncher.launch(
+                    Intent(Settings.ACTION_MANAGE_UNKNOWN_APP_SOURCES).setData(
+                        Uri.parse(String.format("package:%s", activity.packageName))))
             }
         }
     }
