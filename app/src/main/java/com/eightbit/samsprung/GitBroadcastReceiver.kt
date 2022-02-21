@@ -69,25 +69,27 @@ class GitBroadcastReceiver : BroadcastReceiver() {
         ) {
             context.startForegroundService(Intent(context, OnBroadcastService::class.java))
         }
-        if (BuildConfig.FLAVOR == "google") return
-        if (Intent.ACTION_MY_PACKAGE_REPLACED == intent.action) {
-            context.startForegroundService(Intent(context, OnBroadcastService::class.java))
-        } else if (SamSprung.updating == intent.action) {
-            when (intent.getIntExtra(PackageInstaller.EXTRA_STATUS, -1)) {
-                PackageInstaller.STATUS_PENDING_USER_ACTION -> {
-                    val activityIntent = intent.getParcelableExtra<Intent>(Intent.EXTRA_INTENT)
-                    if (null != activityIntent)
-                        context.startActivity(activityIntent.addFlags(
-                            Intent.FLAG_ACTIVITY_NEW_TASK))
+        when {
+            Intent.ACTION_MY_PACKAGE_REPLACED == intent.action ->
+                context.startForegroundService(Intent(context, OnBroadcastService::class.java))
+            BuildConfig.FLAVOR == "google" -> return
+            SamSprung.updating == intent.action -> {
+                when (intent.getIntExtra(PackageInstaller.EXTRA_STATUS, -1)) {
+                    PackageInstaller.STATUS_PENDING_USER_ACTION -> {
+                        val activityIntent = intent.getParcelableExtra<Intent>(Intent.EXTRA_INTENT)
+                        if (null != activityIntent)
+                            context.startActivity(activityIntent.addFlags(
+                                Intent.FLAG_ACTIVITY_NEW_TASK))
+                    }
+                    PackageInstaller.STATUS_SUCCESS -> {
+                        // Installation was successful
+                    } else -> {
+                    val error = intent.getStringExtra(PackageInstaller.EXTRA_STATUS_MESSAGE)
+                    if (!error!!.contains("Session was abandoned", true))
+                        Toast.makeText(
+                            context.applicationContext, error, Toast.LENGTH_LONG
+                        ).show()
                 }
-                PackageInstaller.STATUS_SUCCESS -> {
-                    // Installation was successful
-                } else -> {
-                val error = intent.getStringExtra(PackageInstaller.EXTRA_STATUS_MESSAGE)
-                if (!error!!.contains("Session was abandoned", true))
-                    Toast.makeText(
-                        context.applicationContext, error, Toast.LENGTH_LONG
-                    ).show()
                 }
             }
         }

@@ -150,6 +150,7 @@ class SamSprungOverlay : AppCompatActivity(), NotificationAdapter.OnNoticeClickL
     @SuppressLint("ClickableViewAccessibility")
     override fun onCreate(savedInstanceState: Bundle?) {
         setShowWhenLocked(true)
+        // setTurnScreenOn(true)
 
         super.onCreate(savedInstanceState)
         actionBar?.hide()
@@ -977,67 +978,21 @@ class SamSprungOverlay : AppCompatActivity(), NotificationAdapter.OnNoticeClickL
         }
     }
 
-    private val CharSequence.toPref get() = this.toString()
-        .lowercase().replace(" ", "_")
-
-    override fun startActivityIfNeeded(
-        intent: Intent,
-        requestCode: Int,
-        options: Bundle?
-    ): Boolean {
-        intent.addFlags(Intent.FLAG_ACTIVITY_FORWARD_RESULT)
-        return if (null != options)
-            super.startActivityIfNeeded(intent, requestCode, options)
-        else
-            super.startActivityIfNeeded(intent, requestCode,
-                ActivityOptions.makeBasic().setLaunchDisplayId(1).toBundle())
-    }
-
     override fun startActivityIfNeeded(intent: Intent, requestCode: Int): Boolean {
         return startActivityIfNeeded(intent, requestCode,
             ActivityOptions.makeBasic().setLaunchDisplayId(1).toBundle())
     }
-
-    override fun startActivity(intent: Intent?, options: Bundle?) {
-        intent?.addFlags(Intent.FLAG_ACTIVITY_FORWARD_RESULT)
-        if (null != options)
-            super.startActivity(intent, options)
-        else
-            super.startActivity(intent, ActivityOptions.makeBasic().setLaunchDisplayId(1).toBundle())
-    }
-
     override fun startActivity(intent: Intent?) {
         startActivity(intent, ActivityOptions.makeBasic().setLaunchDisplayId(1).toBundle())
     }
-
-    override fun startActivities(intents: Array<out Intent>?, options: Bundle?) {
-        if (null != options)
-            super.startActivities(intents, options)
-        else
-            super.startActivities(intents,
-                ActivityOptions.makeBasic().setLaunchDisplayId(1).toBundle())
-    }
-
     override fun startActivities(intents: Array<out Intent>?) {
         startActivities(intents, ActivityOptions.makeBasic().setLaunchDisplayId(1).toBundle())
     }
-
-    override fun startActivityFromFragment(
-        fragment: Fragment,
-        intent: Intent?,
-        requestCode: Int,
-        options: Bundle?
-    ) {
-        intent?.addFlags(Intent.FLAG_ACTIVITY_FORWARD_RESULT)
-        if (null != options)
-            super.startActivityFromFragment(fragment, intent, requestCode, options)
-        else
-            super.startActivityFromFragment(fragment, intent, requestCode,
-                ActivityOptions.makeBasic().setLaunchDisplayId(1).toBundle())
-    }
-
     override fun startActivityFromFragment(fragment: Fragment, intent: Intent?, requestCode: Int) {
         startActivityFromFragment(fragment, intent, requestCode,
             ActivityOptions.makeBasic().setLaunchDisplayId(1).toBundle())
     }
+
+    private val CharSequence.toPref get() = this.toString()
+        .lowercase().replace(" ", "_")
 }

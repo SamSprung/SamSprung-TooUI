@@ -129,10 +129,8 @@ class NotificationAdapter(
         )
         lateinit var notice: StatusBarNotification
         fun bind(notice: StatusBarNotification) {
-            val color = prefs.getInt(SamSprung.prefColors,
-                Color.rgb(255, 255, 255))
-            (itemView as CardView).setCardBackgroundColor(
-                if (isDarkTheme()) color.darken else color.lighten)
+            (itemView as CardView).setCardBackgroundColor(prefs.getInt(SamSprung.prefColors,
+                Color.rgb(255, 255, 255)).blended)
             this.notice = notice
             val notification = notice.notification
             Executors.newSingleThreadExecutor().execute {
@@ -246,18 +244,11 @@ class NotificationAdapter(
             }
         }
 
-        private inline val @receiver:ColorInt Int.darken
+        private inline val @receiver:ColorInt Int.blended
             @ColorInt
-            get() = ColorUtils.blendARGB(this, Color.BLACK, 0.4f)
-
-        private inline val @receiver:ColorInt Int.lighten
-            @ColorInt
-            get() = ColorUtils.blendARGB(this, Color.WHITE, 0.4f)
-
-        private fun isDarkTheme(): Boolean {
-            return (activity.resources.configuration.uiMode and
-                    Configuration.UI_MODE_NIGHT_MASK) == Configuration.UI_MODE_NIGHT_YES
-        }
+            get() = ColorUtils.blendARGB(this,
+                if ((activity.resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK)
+                    == Configuration.UI_MODE_NIGHT_YES) Color.BLACK else Color.WHITE, 0.4f)
 
         private fun Bitmap.trimBorders(): Bitmap {
             val color = Color.TRANSPARENT

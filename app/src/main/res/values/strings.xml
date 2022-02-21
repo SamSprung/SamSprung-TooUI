@@ -4,6 +4,8 @@
     <string name="incompatible_notice">Incompatibility Detected!</string>
     <string name="lock_screen_warning">Lock screen must be bypassed or disabled to launch apps. Bixby unlock can be used as a workaround.</string>
 
+    <string name="lock_enabled">Device is locked!</string>
+
     <string name="swap_viewgrid">Display as ListView Widget Style</string>
     <string name="swap_viewlist">Display as GridView Widget Style</string>
 
@@ -23,8 +25,6 @@
         <item>Light</item>
     </string-array>
     <string name="visibility_options">App Visibility</string>
-
-    <string name="keyboard_details">%1$sdetails?id=com.eightbit.samsprung.ime</string>
 
     <string name="updates_preference">Preview Builds</string>
 

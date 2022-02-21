@@ -79,15 +79,9 @@ class SamSprung : Application() {
 
     fun setThemePreference() {
         when (getSharedPreferences(prefsValue, MODE_PRIVATE).getInt(prefThemes, 0)) {
-            0 -> {
-                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM)
-            }
-            1 -> {
-                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
-            }
-            2 -> {
-                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
-            }
+            0 -> AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM)
+            1 -> AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
+            2 -> AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
         }
     }
 
@@ -133,15 +127,7 @@ class SamSprung : Application() {
                 // Unrecoverable error encountered
                 exitProcess(1)
             }
-            val displayContext = createDisplayContext(displayManager.getDisplay(1))
-            val wm = displayContext.getSystemService(WINDOW_SERVICE) as WindowManager
-            mContext = SoftReference<Context>(object : ContextThemeWrapper(
-                displayContext, R.style.Theme_SecondScreen
-            ) {
-                override fun getSystemService(name: String): Any? {
-                    return if (WINDOW_SERVICE == name) wm else super.getSystemService(name)
-                }
-            })
+            mContext = SoftReference<Context>(this.cover)
             Executors.newSingleThreadExecutor().execute {
                 recreateWidgetPreviewDb()
             }
@@ -154,5 +140,20 @@ class SamSprung : Application() {
     }
     fun getWidgetPreviewCacheDb(): CacheDb? {
         return mWidgetPreviewCacheDb
+    }
+
+    private val Context.cover: Context get() = run {
+        val displayManager = getSystemService(Context.DISPLAY_SERVICE) as DisplayManager
+        val displayContext = createDisplayContext(displayManager.getDisplay(1))
+        val wm = displayContext.getSystemService(WINDOW_SERVICE) as WindowManager
+        return object : ContextThemeWrapper(displayContext, theme) {
+            override fun getSystemService(name: String): Any? {
+                return if (WINDOW_SERVICE == name) wm else super.getSystemService(name)
+            }
+        }
+    }
+
+    override fun getApplicationContext(): Context {
+        return super.getApplicationContext().cover
     }
 }

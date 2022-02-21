@@ -64,6 +64,7 @@ class UpdateShimActivity : AppCompatActivity() {
     private var updateCheck : CheckUpdatesTask? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        setVisible(false)
         ScaledContext.screen(this).setTheme(R.style.Theme_SecondScreen)
         super.onCreate(savedInstanceState)
         onNewIntent(intent)

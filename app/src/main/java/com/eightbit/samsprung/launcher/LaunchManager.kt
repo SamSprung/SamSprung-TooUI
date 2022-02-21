@@ -17,27 +17,34 @@ import android.os.Process
 import android.view.View
 import android.view.WindowManager
 import android.widget.LinearLayout
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import com.eightbit.samsprung.R
 import com.eightbit.samsprung.SamSprung
 import com.eightbit.samsprung.SamSprungOverlay
 
 class LaunchManager(private val overlay: SamSprungOverlay) {
 
-    private fun prepareConfiguration() {
+    private fun prepareConfiguration() : Boolean {
         overlay.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_LOCKED
         overlay.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_BEHIND
 
-        val mKeyguardManager = (overlay.getSystemService(Context.KEYGUARD_SERVICE) as KeyguardManager)
-        @Suppress("DEPRECATION")
-        (overlay.application as SamSprung).isKeyguardLocked = mKeyguardManager.inKeyguardRestrictedInputMode()
-
-        if ((overlay.application as SamSprung).isKeyguardLocked) {
-            @Suppress("DEPRECATION")
-            mKeyguardManager.newKeyguardLock("cover_lock").disableKeyguard()
+        val keyguardManager = (overlay.getSystemService(Context.KEYGUARD_SERVICE) as KeyguardManager)
+        if (keyguardManager.isDeviceLocked) {
+            Toast.makeText(overlay, R.string.lock_enabled, Toast.LENGTH_LONG).show()
+            return false
         }
 
-        mKeyguardManager.requestDismissKeyguard(overlay,
+        @Suppress("DEPRECATION")
+        (overlay.application as SamSprung).isKeyguardLocked =
+            keyguardManager.inKeyguardRestrictedInputMode()
+
+        overlay.setTurnScreenOn(true)
+
+        keyguardManager.requestDismissKeyguard(overlay,
             object : KeyguardManager.KeyguardDismissCallback() { })
+
+        return true
     }
 
     private fun getOrientationManager(extras: Bundle) {
@@ -67,7 +74,7 @@ class LaunchManager(private val overlay: SamSprungOverlay) {
     }
 
     fun launchApplicationComponent(resolveInfo: ResolveInfo) {
-        prepareConfiguration()
+        if (!prepareConfiguration()) return
 
         (overlay.getSystemService(AppCompatActivity
             .LAUNCHER_APPS_SERVICE) as LauncherApps).startMainActivity(
@@ -85,7 +92,7 @@ class LaunchManager(private val overlay: SamSprungOverlay) {
     }
 
     fun launchDefaultActivity(appInfo: ApplicationInfo) {
-        prepareConfiguration()
+        if (!prepareConfiguration()) return
 
         (overlay.getSystemService(AppCompatActivity.LAUNCHER_APPS_SERVICE) as LauncherApps)
             .startMainActivity(

@@ -103,11 +103,13 @@ class AppDisplayListener : Service() {
         var componentName: ComponentName? = null
 
         prefs = getSharedPreferences(SamSprung.prefsValue, MODE_PRIVATE)
+
         @Suppress("DEPRECATION")
-        mKeyguardLock = (getSystemService(Context.KEYGUARD_SERVICE)
-                as KeyguardManager).newKeyguardLock("cover_lock")
-        if ((application as SamSprung).isKeyguardLocked)
-            @Suppress("DEPRECATION") mKeyguardLock.disableKeyguard()
+        if ((application as SamSprung).isKeyguardLocked) {
+            mKeyguardLock = (getSystemService(Context.KEYGUARD_SERVICE)
+                    as KeyguardManager).newKeyguardLock("cover_lock")
+            mKeyguardLock.disableKeyguard()
+        }
 
         if (!intent.hasExtra("launchActivity")) {
             componentName = packageManager.getLaunchIntentForPackage(launchPackage!!)?.component
@@ -394,8 +396,8 @@ class AppDisplayListener : Service() {
             (displayContext.getSystemService(WINDOW_SERVICE)
                     as WindowManager).removeViewImmediate(floatView)
         } catch (ignored: Exception) { }
-        if ((application as SamSprung).isKeyguardLocked)
-            @Suppress("DEPRECATION") mKeyguardLock.reenableKeyguard()
+        @Suppress("DEPRECATION")
+        if ((application as SamSprung).isKeyguardLocked) mKeyguardLock.reenableKeyguard()
     }
 
     override fun onDestroy() {

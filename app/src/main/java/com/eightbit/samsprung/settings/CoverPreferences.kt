@@ -230,6 +230,7 @@ class CoverPreferences : AppCompatActivity() {
         }
 
         keyboard = findViewById(R.id.keyboard_switch)
+        keyboard.isEnabled = false
         keyboard.isChecked = hasKeyboardInstalled()
         findViewById<LinearLayout>(R.id.keyboard_layout).setOnClickListener {
             try {

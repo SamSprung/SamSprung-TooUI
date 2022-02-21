@@ -12,6 +12,6 @@
             android:clipToPadding="false"
             android:paddingStart="20dp"
             android:paddingEnd="0dp"
-            android:paddingBottom="42dp"
+            android:paddingBottom="28dp"
             android:scrollbars="vertical" />
 </androidx.constraintlayout.widget.ConstraintLayout>

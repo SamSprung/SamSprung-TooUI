@@ -13,4 +13,6 @@
 
     <string name="description_icon" translatable="false">Icon</string>
     <string name="description_badge" translatable="false">Badge</string>
+
+    <string name="keyboard_details">%1$sdetails?id=com.eightbit.samsprung.ime</string>
 </resources>
