@@ -52,10 +52,15 @@ package com.eightbit.samsprung
  */
 
 import android.content.BroadcastReceiver
+import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageInstaller
+import android.content.pm.PackageManager
+import android.provider.Settings
+import android.service.notification.NotificationListenerService
 import android.widget.Toast
+import java.util.concurrent.Executors
 
 class GitBroadcastReceiver : BroadcastReceiver() {
 
@@ -70,8 +75,28 @@ class GitBroadcastReceiver : BroadcastReceiver() {
             context.startForegroundService(Intent(context, OnBroadcastService::class.java))
         }
         when {
-            Intent.ACTION_MY_PACKAGE_REPLACED == intent.action ->
+            Intent.ACTION_MY_PACKAGE_REPLACED == intent.action -> {
+                if (hasNotificationListener(context)) {
+                    Executors.newSingleThreadExecutor().execute {
+                        val componentName = ComponentName(
+                            context.applicationContext,
+                            NotificationReceiver::class.java
+                        )
+                        context.packageManager.setComponentEnabledSetting(
+                            componentName,
+                            PackageManager.COMPONENT_ENABLED_STATE_DISABLED, PackageManager.DONT_KILL_APP
+                        )
+                        context.packageManager.setComponentEnabledSetting(
+                            componentName,
+                            PackageManager.COMPONENT_ENABLED_STATE_ENABLED, PackageManager.DONT_KILL_APP
+                        )
+                        try {
+                            NotificationListenerService.requestRebind(componentName)
+                        } catch(ignored: Exception) { }
+                    }
+                }
                 context.startForegroundService(Intent(context, OnBroadcastService::class.java))
+            }
             BuildConfig.FLAVOR == "google" -> return
             SamSprung.updating == intent.action -> {
                 when (intent.getIntExtra(PackageInstaller.EXTRA_STATUS, -1)) {
@@ -92,6 +117,19 @@ class GitBroadcastReceiver : BroadcastReceiver() {
                 }
                 }
             }
+        }
+    }
+
+    private fun hasNotificationListener(context: Context): Boolean {
+        val myNotificationListenerComponentName = ComponentName(
+            context.applicationContext, NotificationReceiver::class.java)
+        val enabledListeners = Settings.Secure.getString(
+            context.contentResolver, "enabled_notification_listeners")
+        if (enabledListeners.isEmpty()) return false
+        return enabledListeners.split(":").map {
+            ComponentName.unflattenFromString(it)
+        }.any {componentName->
+            myNotificationListenerComponentName == componentName
         }
     }
 }

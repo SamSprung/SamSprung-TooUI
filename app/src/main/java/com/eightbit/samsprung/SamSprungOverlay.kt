@@ -166,26 +166,6 @@ class SamSprungOverlay : AppCompatActivity(), NotificationAdapter.OnNoticeClickL
         ScaledContext.wrap(this).setTheme(R.style.Theme_SecondScreen_NoActionBar)
         setContentView(R.layout.home_main_view)
 
-        if (hasNotificationListener()) {
-            Executors.newSingleThreadExecutor().execute {
-                val componentName = ComponentName(
-                    applicationContext,
-                    NotificationReceiver::class.java
-                )
-                packageManager.setComponentEnabledSetting(
-                    componentName,
-                    PackageManager.COMPONENT_ENABLED_STATE_DISABLED, PackageManager.DONT_KILL_APP
-                )
-                packageManager.setComponentEnabledSetting(
-                    componentName,
-                    PackageManager.COMPONENT_ENABLED_STATE_ENABLED, PackageManager.DONT_KILL_APP
-                )
-                try {
-                    NotificationListenerService.requestRebind(componentName)
-                } catch(ignored: Exception) { }
-            }
-        }
-
         mDisplayListener = object : DisplayManager.DisplayListener {
             override fun onDisplayAdded(display: Int) {}
             override fun onDisplayChanged(display: Int) {
