@@ -70,13 +70,6 @@ class PersistentCoordinator : CoordinatorLayout {
 
     private var isCancellable = false
 
-    override fun onDetachedFromWindow() {
-        super.onDetachedFromWindow()
-        if (!isServiceRunning(context.applicationContext, OnBroadcastService::class.java))
-            context.applicationContext.startForegroundService(
-                Intent(context.applicationContext, OnBroadcastService::class.java))
-    }
-
     override fun onWindowVisibilityChanged(visibility: Int) {
         super.onWindowVisibilityChanged(visibility)
         if (!isAttachedToWindow || GONE != visibility

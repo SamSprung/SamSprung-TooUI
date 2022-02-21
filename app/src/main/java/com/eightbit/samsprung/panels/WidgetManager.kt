@@ -6,20 +6,16 @@ import android.appwidget.AppWidgetHost
 import android.appwidget.AppWidgetManager
 import android.appwidget.AppWidgetProviderInfo
 import android.content.ActivityNotFoundException
-import android.content.Context
 import android.content.Intent
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
-import android.hardware.display.DisplayManager
 import android.os.Build
 import android.view.Gravity
 import android.view.View
-import android.view.WindowManager
 import android.widget.LinearLayout
 import androidx.activity.result.ActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
-import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.view.ContextThemeWrapper
 import androidx.appcompat.widget.AppCompatImageView
 import androidx.core.graphics.drawable.toBitmap
@@ -40,9 +36,9 @@ class WidgetManager(
 ) {
 
     private var mAppWidgetManager: AppWidgetManager =
-        AppWidgetManager.getInstance(overlay.applicationContext.cover)
+        AppWidgetManager.getInstance(overlay.applicationContext)
     private var appWidgetHost: AppWidgetHost = CoverWidgetHost(
-        overlay.applicationContext.cover,
+        overlay.applicationContext,
         SamSprungOverlay.APPWIDGET_HOST_ID
     )
     private val requestCreateAppWidgetHost = 9001
@@ -87,7 +83,7 @@ class WidgetManager(
         SamSprungOverlay.model.addDesktopAppWidget(launcherInfo)
 
         launcherInfo.hostView = appWidgetHost.createView(
-            overlay.applicationContext.cover, appWidgetId, appWidgetInfo)
+            overlay.applicationContext, appWidgetId, appWidgetInfo)
         launcherInfo.hostView!!.setAppWidget(appWidgetId, appWidgetInfo)
         launcherInfo.hostView!!.tag = launcherInfo
 
@@ -205,7 +201,7 @@ class WidgetManager(
             val appWidgetId = item.appWidgetId
             val appWidgetInfo = mAppWidgetManager.getAppWidgetInfo(appWidgetId)
             item.hostView = appWidgetHost.createView(
-                overlay.applicationContext.cover, appWidgetId, appWidgetInfo)
+                overlay.applicationContext, appWidgetId, appWidgetInfo)
             item.hostView!!.setAppWidget(appWidgetId, appWidgetInfo)
             item.hostView!!.tag = item
 
@@ -230,16 +226,5 @@ class WidgetManager(
         try {
             appWidgetHost.stopListening()
         } catch (ignored: NullPointerException) { }
-    }
-
-    private val Context.cover: Context get() = run {
-        val displayManager = getSystemService(Context.DISPLAY_SERVICE) as DisplayManager
-        val displayContext = createDisplayContext(displayManager.getDisplay(1))
-        val wm = displayContext.getSystemService(AppCompatActivity.WINDOW_SERVICE) as WindowManager
-        return object : android.view.ContextThemeWrapper(displayContext, theme) {
-            override fun getSystemService(name: String): Any? {
-                return if (WINDOW_SERVICE == name) wm else super.getSystemService(name)
-            }
-        }
     }
 }

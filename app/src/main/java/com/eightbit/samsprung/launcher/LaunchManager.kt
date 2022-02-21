@@ -19,6 +19,7 @@ import android.view.WindowManager
 import android.widget.LinearLayout
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import com.eightbit.content.ScaledContext
 import com.eightbit.samsprung.R
 import com.eightbit.samsprung.SamSprung
 import com.eightbit.samsprung.SamSprungOverlay
@@ -31,6 +32,7 @@ class LaunchManager(private val overlay: SamSprungOverlay) {
 
         val keyguardManager = (overlay.getSystemService(Context.KEYGUARD_SERVICE) as KeyguardManager)
         if (keyguardManager.isDeviceLocked) {
+            overlay.setTurnScreenOn(true)
             Toast.makeText(overlay, R.string.lock_enabled, Toast.LENGTH_LONG).show()
             return false
         }
@@ -39,8 +41,6 @@ class LaunchManager(private val overlay: SamSprungOverlay) {
         (overlay.application as SamSprung).isKeyguardLocked =
             keyguardManager.inKeyguardRestrictedInputMode()
 
-        overlay.setTurnScreenOn(true)
-
         keyguardManager.requestDismissKeyguard(overlay,
             object : KeyguardManager.KeyguardDismissCallback() { })
 
@@ -48,7 +48,8 @@ class LaunchManager(private val overlay: SamSprungOverlay) {
     }
 
     private fun getOrientationManager(extras: Bundle) {
-        val orientationChanger = LinearLayout((overlay.application as SamSprung).getScaledContext())
+        val context = ScaledContext.wrap(overlay.application as SamSprung)
+        val orientationChanger = LinearLayout(context)
         val orientationLayout = WindowManager.LayoutParams(
             WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY,
             WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL or
@@ -58,7 +59,7 @@ class LaunchManager(private val overlay: SamSprungOverlay) {
             PixelFormat.TRANSPARENT
         )
         orientationLayout.screenOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
-        val windowManager = (overlay.application as SamSprung).getScaledContext()?.getSystemService(
+        val windowManager = context.getSystemService(
             Context.WINDOW_SERVICE) as WindowManager
         windowManager.addView(orientationChanger, orientationLayout)
         orientationChanger.visibility = View.VISIBLE

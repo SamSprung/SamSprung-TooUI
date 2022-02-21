@@ -173,23 +173,6 @@ class CoverPreferences : AppCompatActivity() {
                 Settings.ACTION_NOTIFICATION_LISTENER_SETTINGS
             ))
         }
-        if (notifications.isChecked) {
-            Executors.newSingleThreadExecutor().execute {
-                val componentName = ComponentName(
-                    applicationContext,
-                    NotificationReceiver::class.java
-                )
-                packageManager.setComponentEnabledSetting(
-                    componentName,
-                    PackageManager.COMPONENT_ENABLED_STATE_DISABLED, PackageManager.DONT_KILL_APP
-                )
-                packageManager.setComponentEnabledSetting(
-                    componentName,
-                    PackageManager.COMPONENT_ENABLED_STATE_ENABLED, PackageManager.DONT_KILL_APP
-                )
-                NotificationListenerService.requestRebind(componentName)
-            }
-        }
 
         findViewById<LinearLayout>(R.id.usage_layout).setOnClickListener {
             usageLauncher.launch(Intent(

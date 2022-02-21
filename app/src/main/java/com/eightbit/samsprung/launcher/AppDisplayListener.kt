@@ -72,6 +72,7 @@ import androidx.appcompat.widget.AppCompatImageView
 import androidx.core.app.NotificationCompat
 import androidx.core.content.ContextCompat
 import androidx.core.view.isVisible
+import com.eightbit.content.ScaledContext
 import com.eightbit.samsprung.AccessibilityObserver
 import com.eightbit.samsprung.OnBroadcastService
 import com.eightbit.samsprung.R
@@ -136,7 +137,7 @@ class AppDisplayListener : Service() {
 
         showForegroundNotification(startId)
 
-        val displayContext = (application as SamSprung).getScaledContext()!!
+        val displayContext = ScaledContext.wrap(application as SamSprung)
         floatView = LayoutInflater.from(displayContext).inflate(R.layout.navigation_menu, null)
         val params = WindowManager.LayoutParams(
             WindowManager.LayoutParams.MATCH_PARENT,
@@ -166,9 +167,8 @@ class AppDisplayListener : Service() {
 
             override fun onDisplayRemoved(display: Int) {}
         }
-        (getSystemService(Context.DISPLAY_SERVICE) as DisplayManager).registerDisplayListener(
-            mDisplayListener, Handler(Looper.getMainLooper())
-        )
+        (getSystemService(Context.DISPLAY_SERVICE) as DisplayManager)
+            .registerDisplayListener(mDisplayListener, null)
 
         val menu = floatView.findViewById<LinearLayout>(R.id.button_layout)
         val icons = menu.findViewById<LinearLayout>(R.id.icons_layout)
@@ -392,7 +392,7 @@ class AppDisplayListener : Service() {
         }
 
         try {
-            val displayContext = (application as SamSprung).getScaledContext()!!
+            val displayContext = ScaledContext.wrap(application as SamSprung)
             (displayContext.getSystemService(WINDOW_SERVICE)
                     as WindowManager).removeViewImmediate(floatView)
         } catch (ignored: Exception) { }

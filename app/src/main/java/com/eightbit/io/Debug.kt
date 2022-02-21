@@ -147,7 +147,7 @@ class Debug(private var context: Context) {
                 .guestEmailRequired(true)
                 .guestAllowUsername(true)
                 .titleTextDefault(context.getString(R.string.git_issue_title, BuildConfig.COMMIT))
-                .minDescriptionLength(50)
+                .minDescriptionLength(0)
                 .putExtraInfo("logcat", logText)
                 .homeAsUpEnabled(false).launch(context)
             return false

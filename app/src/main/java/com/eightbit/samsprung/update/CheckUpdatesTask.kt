@@ -92,6 +92,10 @@ class CheckUpdatesTask(private var activity: Activity) {
     var listener: CheckUpdateListener? = null
 
     init {
+        if (BuildConfig.FLAVOR != "google") configureUpdates()
+    }
+
+    private fun configureUpdates() {
         try {
             (activity.getSystemService(AppCompatActivity.NOTIFICATION_SERVICE)
                     as NotificationManager).cancel(SamSprung.request_code)

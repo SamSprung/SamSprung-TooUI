@@ -54,28 +54,16 @@ package com.eightbit.samsprung
 import android.app.Application
 import android.content.Context
 import android.hardware.display.DisplayManager
-import android.os.StrictMode
-import android.view.ContextThemeWrapper
-import android.view.WindowManager
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatDelegate
 import com.eightbit.content.ScaledContext
 import com.eightbit.samsprung.panels.WidgetPreviewLoader.CacheDb
-import java.lang.ref.SoftReference
 import java.util.concurrent.Executors
 import kotlin.system.exitProcess
 
 class SamSprung : Application() {
 
     var isKeyguardLocked: Boolean = true
-
-    private var mContext: SoftReference<Context>? = null
-    fun getScaledContext(): Context? {
-        if (null != mContext && null != mContext!!.get()) {
-            return ScaledContext.wrap(mContext!!.get())
-        }
-        return null
-    }
 
     fun setThemePreference() {
         when (getSharedPreferences(prefsValue, MODE_PRIVATE).getInt(prefThemes, 0)) {
@@ -114,8 +102,6 @@ class SamSprung : Application() {
         AppCompatDelegate.setCompatVectorFromResourcesEnabled(true)
         setThemePreference()
         ScaledContext.screen(this).setTheme(R.style.Theme_SecondScreen)
-        if (BuildConfig.FLAVOR == "github"
-            && BuildConfig.DEBUG) StrictMode.enableDefaults()
 
         val displayManager = getSystemService(Context.DISPLAY_SERVICE) as DisplayManager
         if (displayManager.getDisplay(1) == null) {
@@ -127,7 +113,6 @@ class SamSprung : Application() {
                 // Unrecoverable error encountered
                 exitProcess(1)
             }
-            mContext = SoftReference<Context>(this.cover)
             Executors.newSingleThreadExecutor().execute {
                 recreateWidgetPreviewDb()
             }
@@ -142,18 +127,7 @@ class SamSprung : Application() {
         return mWidgetPreviewCacheDb
     }
 
-    private val Context.cover: Context get() = run {
-        val displayManager = getSystemService(Context.DISPLAY_SERVICE) as DisplayManager
-        val displayContext = createDisplayContext(displayManager.getDisplay(1))
-        val wm = displayContext.getSystemService(WINDOW_SERVICE) as WindowManager
-        return object : ContextThemeWrapper(displayContext, theme) {
-            override fun getSystemService(name: String): Any? {
-                return if (WINDOW_SERVICE == name) wm else super.getSystemService(name)
-            }
-        }
-    }
-
     override fun getApplicationContext(): Context {
-        return super.getApplicationContext().cover
+        return ScaledContext.cover(super.getApplicationContext())
     }
 }

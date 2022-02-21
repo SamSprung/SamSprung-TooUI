@@ -53,11 +53,12 @@ package com.eightbit.samsprung.launcher
 
 import android.annotation.SuppressLint
 import android.app.Activity
-import android.content.SharedPreferences
 import android.content.res.Configuration
 import android.graphics.Bitmap
 import android.graphics.Color
 import android.graphics.drawable.Icon
+import android.os.Handler
+import android.os.Looper
 import android.service.notification.StatusBarNotification
 import android.view.LayoutInflater
 import android.view.View
@@ -124,17 +125,23 @@ class NotificationAdapter(
     abstract class NoticeViewHolder(
         itemView: View, val listener: OnNoticeClickListener?, val activity: Activity
     ) : RecyclerView.ViewHolder(itemView) {
-        val prefs: SharedPreferences = activity.getSharedPreferences(
+        lateinit var notice: StatusBarNotification
+        private val prefs = activity.getSharedPreferences(
             SamSprung.prefsValue, FragmentActivity.MODE_PRIVATE
         )
-        lateinit var notice: StatusBarNotification
         fun bind(notice: StatusBarNotification) {
-            (itemView as CardView).setCardBackgroundColor(prefs.getInt(SamSprung.prefColors,
-                Color.rgb(255, 255, 255)).blended)
+            (itemView as CardView).setCardBackgroundColor(prefs.getInt(
+                SamSprung.prefColors, Color.rgb(255, 255, 255)).blended)
             this.notice = notice
             val notification = notice.notification
+            val iconView = itemView.findViewById<AppCompatImageView>(R.id.icon)
+            val imageView = itemView.findViewById<AppCompatImageView>(R.id.image)
+            val linesText = itemView.findViewById<TextView>(R.id.lines)
+            val launch = itemView.findViewById<AppCompatImageView>(R.id.launch)
+            val dismiss = itemView.findViewById<AppCompatImageView>(R.id.dismiss)
+
+            linesText.text = ""
             Executors.newSingleThreadExecutor().execute {
-                val iconView = itemView.findViewById<AppCompatImageView>(R.id.icon)
                 when {
                     null != notification.getLargeIcon() -> {
                         val icon = notification.getLargeIcon().loadDrawable(activity)
@@ -151,9 +158,7 @@ class NotificationAdapter(
                         }
                     }
                 }
-                val linesText = itemView.findViewById<TextView>(R.id.lines)
                 if (null != notification.extras) {
-                    val imageView = itemView.findViewById<AppCompatImageView>(R.id.image)
                     if (notification.extras.containsKey(NotificationCompat.EXTRA_LARGE_ICON_BIG)) {
                         val bitmap: Bitmap? = when (val image = notification.extras.get(
                             NotificationCompat.EXTRA_LARGE_ICON_BIG)) {
@@ -180,67 +185,50 @@ class NotificationAdapter(
                             }
                         }
                     }
-                    if (notification.extras.containsKey(NotificationCompat.EXTRA_BIG_TEXT)) {
-                        val textBig = notification.extras.get(NotificationCompat.EXTRA_BIG_TEXT)
-                        activity.runOnUiThread {
+                    activity.runOnUiThread {
+                        if (notification.extras.containsKey(NotificationCompat.EXTRA_BIG_TEXT)) {
+                            val textBig = notification.extras.get(NotificationCompat.EXTRA_BIG_TEXT)
                             if (null != textBig) linesText.text = textBig.toString()
                         }
-                    }
-                    if (linesText.text.isEmpty() && notification.extras.containsKey(
-                            NotificationCompat.EXTRA_TEXT_LINES
-                        )
-                    ) {
-                        val textLines = notification.extras.getCharSequenceArray(
-                            NotificationCompat.EXTRA_TEXT_LINES
-                        )
-                        activity.runOnUiThread {
+                        if (linesText.text.isEmpty() && notification.extras
+                                .containsKey(NotificationCompat.EXTRA_TEXT_LINES)) {
+                            val textLines = notification.extras.getCharSequenceArray(
+                                NotificationCompat.EXTRA_TEXT_LINES
+                            )
                             if (null != textLines) linesText.text = Arrays.toString(textLines)
                         }
-                    }
-                    if (linesText.text.isEmpty() && notification.extras.containsKey(
-                            NotificationCompat.EXTRA_TEXT
-                        )
-                    ) {
-                        val textExtra = notification.extras
-                            .getCharSequence(NotificationCompat.EXTRA_TEXT)
-                        activity.runOnUiThread {
+                        if (linesText.text.isEmpty() && notification.extras
+                                .containsKey(NotificationCompat.EXTRA_TEXT)) {
+                            val textExtra = notification.extras
+                                .getCharSequence(NotificationCompat.EXTRA_TEXT)
                             if (null != textExtra) linesText.text = textExtra.toString()
                         }
                     }
                 }
-                if (linesText.text.isEmpty() && null != notification.tickerText) {
-                    activity.runOnUiThread {
-                        linesText.text = notification.tickerText.toString()
+            }
+            if (linesText.text.isEmpty() && null != notification.tickerText) {
+                linesText.text = notification.tickerText.toString()
+            }
+            if (null != notification.contentIntent) {
+                launch.visibility = View.VISIBLE
+                launch.setOnClickListener {
+                    try {
+                        notification.contentIntent.send()
+                    } catch (ex: Exception) {
+                        ex.printStackTrace()
                     }
                 }
-                if (linesText.text.isEmpty()) linesText.text = ""
-                val launch = itemView.findViewById<AppCompatImageView>(R.id.launch)
-                activity.runOnUiThread {
-                    if (null != notification.contentIntent) {
-                        launch.visibility = View.VISIBLE
-                        launch.setOnClickListener {
-                            try {
-                                notification.contentIntent.send()
-                            } catch (ex: Exception) {
-                                ex.printStackTrace()
-                            }
-                        }
-                    } else {
-                        launch.visibility = View.GONE
-                    }
+            } else {
+                launch.visibility = View.GONE
+            }
+            if (notice.isClearable) {
+                dismiss.visibility = View.VISIBLE
+                dismiss.setOnClickListener {
+                    NotificationReceiver.getReceiver()?.setNotificationsShown(arrayOf(notice.key))
+                    NotificationReceiver.getReceiver()?.cancelNotification(notice.key)
                 }
-                val dismiss = itemView.findViewById<AppCompatImageView>(R.id.dismiss)
-                activity.runOnUiThread {
-                    if (notice.isClearable) {
-                        dismiss.visibility = View.VISIBLE
-                        dismiss.setOnClickListener {
-                            NotificationReceiver.getReceiver()?.setNotificationsShown(arrayOf(notice.key))
-                            NotificationReceiver.getReceiver()?.cancelNotification(notice.key)
-                        }
-                    } else {
-                        dismiss.visibility = View.GONE
-                    }
-                }
+            } else {
+                dismiss.visibility = View.GONE
             }
         }
 

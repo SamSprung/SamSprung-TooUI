@@ -70,6 +70,7 @@ import android.nfc.NfcAdapter
 import android.nfc.NfcManager
 import android.os.*
 import android.provider.Settings
+import android.service.notification.NotificationListenerService
 import android.service.notification.StatusBarNotification
 import android.speech.SpeechRecognizer
 import android.speech.tts.TextToSpeech
@@ -108,6 +109,7 @@ import com.eightbitlab.blurview.RenderScriptBlur
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import java.util.*
+import java.util.concurrent.Executors
 
 class SamSprungOverlay : AppCompatActivity(), NotificationAdapter.OnNoticeClickListener {
 
@@ -142,18 +144,13 @@ class SamSprungOverlay : AppCompatActivity(), NotificationAdapter.OnNoticeClickL
     private var mBinder: DesktopBinder? = null
     private var textSpeech: TextToSpeech? = null
 
-
-    fun getBottomSheetMain() : BottomSheetBehavior<View> {
-        return bottomSheetBehaviorMain
-    }
-
     @SuppressLint("ClickableViewAccessibility")
     override fun onCreate(savedInstanceState: Bundle?) {
         setShowWhenLocked(true)
         // setTurnScreenOn(true)
 
         super.onCreate(savedInstanceState)
-        actionBar?.hide()
+        supportActionBar?.hide()
 
         window.setFlags(
             WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL or
@@ -168,7 +165,26 @@ class SamSprungOverlay : AppCompatActivity(), NotificationAdapter.OnNoticeClickL
         prefs = getSharedPreferences(SamSprung.prefsValue, MODE_PRIVATE)
         ScaledContext.wrap(this).setTheme(R.style.Theme_SecondScreen_NoActionBar)
         setContentView(R.layout.home_main_view)
-        WindowCompat.setDecorFitsSystemWindows(window, false)
+
+        if (hasNotificationListener()) {
+            Executors.newSingleThreadExecutor().execute {
+                val componentName = ComponentName(
+                    applicationContext,
+                    NotificationReceiver::class.java
+                )
+                packageManager.setComponentEnabledSetting(
+                    componentName,
+                    PackageManager.COMPONENT_ENABLED_STATE_DISABLED, PackageManager.DONT_KILL_APP
+                )
+                packageManager.setComponentEnabledSetting(
+                    componentName,
+                    PackageManager.COMPONENT_ENABLED_STATE_ENABLED, PackageManager.DONT_KILL_APP
+                )
+                try {
+                    NotificationListenerService.requestRebind(componentName)
+                } catch(ignored: Exception) { }
+            }
+        }
 
         mDisplayListener = object : DisplayManager.DisplayListener {
             override fun onDisplayAdded(display: Int) {}
@@ -180,9 +196,8 @@ class SamSprungOverlay : AppCompatActivity(), NotificationAdapter.OnNoticeClickL
 
             override fun onDisplayRemoved(display: Int) {}
         }
-        (getSystemService(Context.DISPLAY_SERVICE) as DisplayManager).registerDisplayListener(
-            mDisplayListener, Handler(Looper.getMainLooper())
-        )
+        (getSystemService(Context.DISPLAY_SERVICE) as DisplayManager)
+            .registerDisplayListener(mDisplayListener, null)
 
         offReceiver = object : BroadcastReceiver() {
             @SuppressLint("NotifyDataSetChanged")
@@ -198,8 +213,6 @@ class SamSprungOverlay : AppCompatActivity(), NotificationAdapter.OnNoticeClickL
         }.also {
             registerReceiver(offReceiver, it)
         }
-
-        launchManager = LaunchManager(this)
 
         val coordinator = findViewById<CoordinatorLayout>(R.id.coordinator)
         if (ContextCompat.checkSelfPermission(this,
@@ -219,12 +232,10 @@ class SamSprungOverlay : AppCompatActivity(), NotificationAdapter.OnNoticeClickL
             .setBlurAlgorithm(RenderScriptBlur(this))
 
         wifiManager = getSystemService(WIFI_SERVICE) as WifiManager
-        bluetoothAdapter = (getSystemService(Context.BLUETOOTH_SERVICE)
-                as BluetoothManager).adapter
+        bluetoothAdapter = (getSystemService(Context.BLUETOOTH_SERVICE) as BluetoothManager).adapter
         nfcAdapter = (getSystemService(NFC_SERVICE) as NfcManager).defaultAdapter
         audioManager = getSystemService(AUDIO_SERVICE) as AudioManager
-        notificationManager = getSystemService(NOTIFICATION_SERVICE)
-                as NotificationManager
+        notificationManager = getSystemService(NOTIFICATION_SERVICE) as NotificationManager
         camManager = getSystemService(CAMERA_SERVICE) as CameraManager
         camManager.registerTorchCallback(object: CameraManager.TorchCallback() {
             override fun onTorchModeChanged(cameraId: String, enabled: Boolean) {
@@ -251,6 +262,7 @@ class SamSprungOverlay : AppCompatActivity(), NotificationAdapter.OnNoticeClickL
         }.also {
             registerReceiver(battReceiver, it)
         }
+
         val toggleStats = findViewById<LinearLayout>(R.id.toggle_status)
         val clock = findViewById<TextClock>(R.id.clock_status)
 
@@ -279,7 +291,7 @@ class SamSprungOverlay : AppCompatActivity(), NotificationAdapter.OnNoticeClickL
             toolbar.menu.findItem(R.id.toggle_nfc).icon.setTint(color)
         }
 
-        textSpeech = TextToSpeech(this) { status ->
+        textSpeech = TextToSpeech(applicationContext) { status ->
             if (status == TextToSpeech.SUCCESS) {
                 val result: Int? = textSpeech?.setLanguage(Locale.getDefault())
                 if (result == TextToSpeech.LANG_MISSING_DATA ||
@@ -291,10 +303,13 @@ class SamSprungOverlay : AppCompatActivity(), NotificationAdapter.OnNoticeClickL
         }
 
         noticesView = findViewById(R.id.notificationList)
-        noticesView.layoutManager = LinearLayoutManager(this)
-        val noticeAdapter = NotificationAdapter(this, this@SamSprungOverlay)
-        noticeAdapter.setHasStableIds(true)
-        noticesView.adapter = noticeAdapter
+        if (hasNotificationListener()) {
+            noticesView.layoutManager = LinearLayoutManager(this)
+            val noticeAdapter = NotificationAdapter(this, this@SamSprungOverlay)
+            noticeAdapter.setHasStableIds(true)
+            NotificationReceiver.getReceiver()?.setNotificationsListener(noticeAdapter)
+            noticesView.adapter = noticeAdapter
+        }
 
         RecyclerViewTouch(noticesView).setSwipeCallback(
             ItemTouchHelper.START or ItemTouchHelper.END,
@@ -466,6 +481,8 @@ class SamSprungOverlay : AppCompatActivity(), NotificationAdapter.OnNoticeClickL
             return@OnLongClickListener true
         })
 
+        launchManager = LaunchManager(this)
+
         viewPager = findViewById(R.id.pager)
         pagerAdapter = CoverStateAdapter(this)
         viewPager.adapter = pagerAdapter
@@ -567,9 +584,8 @@ class SamSprungOverlay : AppCompatActivity(), NotificationAdapter.OnNoticeClickL
             model.loadUserItems(true, this)
         }
         coordinator.visibility = View.GONE
-        initializeDrawer(null != intent?.action && SamSprung.launcher == intent.action)
 
-        val voice = SpeechRecognizer.createSpeechRecognizer(this)
+        val voice = SpeechRecognizer.createSpeechRecognizer(applicationContext)
         val recognizer = VoiceRecognizer(object : VoiceRecognizer.SpeechResultsListener {
             override fun onSpeechResults(suggested: String) {
                 menuButton.keepScreenOn = true
@@ -577,13 +593,31 @@ class SamSprungOverlay : AppCompatActivity(), NotificationAdapter.OnNoticeClickL
             }
         })
         voice?.setRecognitionListener(recognizer)
-        if (SpeechRecognizer.isRecognitionAvailable(this)) {
+        if (SpeechRecognizer.isRecognitionAvailable(applicationContext)) {
             menuButton.setOnLongClickListener {
                 tactileFeedback()
                 voice?.startListening(recognizer.getSpeechIntent(false))
                 return@setOnLongClickListener true
             }
         }
+
+        persistent = findViewById(R.id.coordinator_main)
+        persistent?.setCancellable(false)
+        Handler(Looper.getMainLooper()).postDelayed({
+            runOnUiThread {
+                bottomHandle = findViewById(R.id.bottom_handle)
+                bottomHandle.visibility = View.VISIBLE
+                bottomHandle.setBackgroundColor(prefs.getInt(
+                    SamSprung.prefColors,
+                    Color.rgb(255, 255, 255)))
+                bottomHandle.alpha = prefs.getFloat(SamSprung.prefAlphas, 1f)
+
+            }
+        }, 150)
+    }
+
+    fun getBottomSheetMain() : BottomSheetBehavior<View> {
+        return bottomSheetBehaviorMain
     }
 
     fun getSearch() : SearchView {
@@ -691,31 +725,6 @@ class SamSprungOverlay : AppCompatActivity(), NotificationAdapter.OnNoticeClickL
             toolbar.menu.getItem(i).icon.setTint(color)
         }
         return color
-    }
-
-    private fun initializeDrawer(launcher: Boolean) {
-        persistent = findViewById(R.id.coordinator_main)
-        persistent?.setCancellable(false)
-        Handler(Looper.getMainLooper()).postDelayed({
-            runOnUiThread {
-                bottomHandle = findViewById(R.id.bottom_handle)
-                bottomHandle.visibility = View.VISIBLE
-                bottomHandle.setBackgroundColor(prefs.getInt(
-                    SamSprung.prefColors,
-                    Color.rgb(255, 255, 255)))
-                bottomHandle.alpha = prefs.getFloat(SamSprung.prefAlphas, 1f)
-                if (launcher) {
-                    bottomSheetBehaviorMain.state = BottomSheetBehavior.STATE_EXPANDED
-                }
-            }
-            if (this::noticesView.isInitialized) {
-                if (hasNotificationListener()) {
-                    NotificationReceiver.getReceiver()?.setNotificationsListener(
-                        noticesView.adapter as NotificationAdapter
-                    )
-                }
-            }
-        }, 150)
     }
 
     private fun setMenuButtonGravity(menuButton: FloatingActionButton) {
@@ -916,7 +925,9 @@ class SamSprungOverlay : AppCompatActivity(), NotificationAdapter.OnNoticeClickL
     override fun onNewIntent(intent: Intent?) {
         super.onNewIntent(intent)
         CheckUpdatesTask(this)
-        initializeDrawer(null != intent?.action && SamSprung.launcher == intent.action)
+        if (null != intent?.action && SamSprung.launcher == intent.action) {
+            bottomSheetBehaviorMain.state = BottomSheetBehavior.STATE_EXPANDED
+        }
     }
 
     private val requestCreateAppWidgetHost = 9001
