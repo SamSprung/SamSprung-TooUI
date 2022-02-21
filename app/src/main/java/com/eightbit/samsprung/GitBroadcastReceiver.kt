@@ -70,8 +70,7 @@ class GitBroadcastReceiver : BroadcastReceiver() {
         intent.data = null
         if (Intent.ACTION_BOOT_COMPLETED == intent.action
             || Intent.ACTION_LOCKED_BOOT_COMPLETED == intent.action
-            || Intent.ACTION_REBOOT == intent.action
-        ) {
+            || Intent.ACTION_REBOOT == intent.action) {
             context.startForegroundService(Intent(context, OnBroadcastService::class.java))
         }
         when {

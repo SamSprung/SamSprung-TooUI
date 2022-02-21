@@ -66,7 +66,6 @@ import android.hardware.display.DisplayManager
 import android.net.Uri
 import android.os.*
 import android.provider.Settings
-import android.service.notification.NotificationListenerService
 import android.util.TypedValue
 import android.view.Menu
 import android.view.MenuItem
@@ -81,9 +80,11 @@ import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.view.ContextThemeWrapper
 import androidx.appcompat.widget.AppCompatButton
+import androidx.appcompat.widget.AppCompatImageView
 import androidx.appcompat.widget.SwitchCompat
 import androidx.appcompat.widget.Toolbar
 import androidx.coordinatorlayout.widget.CoordinatorLayout
+import androidx.core.content.ContextCompat
 import androidx.core.graphics.blue
 import androidx.core.graphics.green
 import androidx.core.graphics.red
@@ -690,6 +691,9 @@ class CoverPreferences : AppCompatActivity() {
         updateCheck?.setUpdateListener(object: CheckUpdatesTask.CheckUpdateListener {
             override fun onUpdateFound(downloadUrl: String) {
                 runOnUiThread {
+                    val buildIcon = findViewById<AppCompatImageView>(R.id.build_icon)
+                    buildIcon.setImageDrawable(ContextCompat.getDrawable(
+                        this@CoverPreferences, R.drawable.ic_baseline_browser_updated_24))
                     val buildInfo = findViewById<TextView>(R.id.build_info)
                     buildInfo.setTextColor(Color.RED)
                     val anim: Animation = AlphaAnimation(0.2f, 1.0f)
@@ -698,6 +702,8 @@ class CoverPreferences : AppCompatActivity() {
                     anim.repeatCount = Animation.INFINITE
                     buildInfo.startAnimation(anim)
                     buildInfo.setOnClickListener {
+                        buildIcon.setImageDrawable(ContextCompat.getDrawable(
+                            this@CoverPreferences, R.drawable.ic_github_octocat_24dp))
                         anim.cancel()
                         updateCheck?.downloadUpdate(downloadUrl)
                     }
@@ -837,7 +843,7 @@ class CoverPreferences : AppCompatActivity() {
         }
         paypal.isVisible = BuildConfig.FLAVOR != "google"
 
-        findViewById<LinearLayout>(R.id.github).setOnClickListener {
+        findViewById<LinearLayout>(R.id.logcat).setOnClickListener {
             captureLogcat(findViewById(R.id.coordinator))
         }
 
