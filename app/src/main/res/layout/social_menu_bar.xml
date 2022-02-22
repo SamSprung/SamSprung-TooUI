@@ -37,28 +37,6 @@
         </LinearLayout>
 
         <LinearLayout
-            android:id="@+id/logcat"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:gravity="center"
-            android:orientation="horizontal">
-            <androidx.appcompat.widget.AppCompatImageView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                app:srcCompat="@drawable/ic_baseline_bug_report_24"
-                android:contentDescription="@string/description_icon"/>
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textSize="14sp"
-                android:layout_marginStart="8dp"
-                android:textColor="?android:textColorPrimary"
-                android:gravity="center_vertical"
-                android:text="@string/logcat_link" />
-        </LinearLayout>
-
-        <LinearLayout
             android:id="@+id/paypal"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
@@ -85,7 +63,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:gravity="end|center_vertical"
+            android:gravity="center"
             android:orientation="horizontal">
             <androidx.appcompat.widget.AppCompatImageView
                 android:layout_width="wrap_content"
@@ -100,6 +78,28 @@
                 android:textColor="?android:textColorPrimary"
                 android:gravity="center_vertical"
                 android:text="@string/google_play_link" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/logcat"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="end|center_vertical"
+            android:orientation="horizontal">
+            <androidx.appcompat.widget.AppCompatImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:srcCompat="@drawable/ic_github_report_24dp"
+                android:contentDescription="@string/description_icon"/>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="14sp"
+                android:layout_marginStart="8dp"
+                android:textColor="?android:textColorPrimary"
+                android:gravity="center_vertical"
+                android:text="@string/logcat_link" />
         </LinearLayout>
     </LinearLayout>
 </merge>

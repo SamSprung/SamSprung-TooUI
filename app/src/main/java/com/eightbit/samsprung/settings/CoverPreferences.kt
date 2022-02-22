@@ -843,10 +843,6 @@ class CoverPreferences : AppCompatActivity() {
         }
         paypal.isVisible = BuildConfig.FLAVOR != "google"
 
-        findViewById<LinearLayout>(R.id.logcat).setOnClickListener {
-            captureLogcat(findViewById(R.id.coordinator))
-        }
-
         val googlePlay = findViewById<LinearLayout>(R.id.google_play)
         googlePlay.setOnClickListener {
             val view: View = layoutInflater.inflate(R.layout.donation_layout, null)
@@ -887,6 +883,10 @@ class CoverPreferences : AppCompatActivity() {
             }
             val donateDialog: Dialog = dialog.setView(view).show()
             donateDialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+        }
+
+        findViewById<LinearLayout>(R.id.logcat).setOnClickListener {
+            captureLogcat(findViewById(R.id.coordinator))
         }
 
         if (!prefs.getBoolean(SamSprung.prefWarned, false)) {
