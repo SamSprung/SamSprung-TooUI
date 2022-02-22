@@ -77,7 +77,7 @@ open class WidgetInfo {
      * @param values
      */
     open fun onAddToDatabase(values: ContentValues) {
-        values.put(BaseLauncherColumns.Companion.ITEM_TYPE, itemType)
+        values.put(BaseLauncherColumns.ITEM_TYPE, itemType)
         if (!isGesture) {
             values.put(Favorites.CONTAINER, container)
             values.put(Favorites.SPANX, spanX)
@@ -97,7 +97,7 @@ open class WidgetInfo {
                     bitmap.compress(Bitmap.CompressFormat.PNG, 100, out)
                     out.flush()
                     out.close()
-                    values.put(BaseLauncherColumns.Companion.ICON, out.toByteArray())
+                    values.put(BaseLauncherColumns.ICON, out.toByteArray())
                 } catch (e: IOException) {
                     Log.w("Favorite", "Could not write icon")
                 }

@@ -39,7 +39,7 @@ class CoverWidgetInfo(appWidgetId: Int) : WidgetInfo() {
     }
 
     override fun toString(): String {
-        return Integer.toString(appWidgetId)
+        return appWidgetId.toString()
     }
 
     init {

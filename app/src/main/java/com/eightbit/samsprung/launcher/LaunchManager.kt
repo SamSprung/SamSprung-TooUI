@@ -1,7 +1,9 @@
 package com.eightbit.samsprung.launcher
 
+import android.app.Activity
 import android.app.ActivityOptions
 import android.app.KeyguardManager
+import android.app.PendingIntent
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
@@ -105,6 +107,19 @@ class LaunchManager(private val overlay: SamSprungOverlay) {
 
         val extras = Bundle()
         extras.putString("launchPackage", appInfo.packageName)
+
+        getOrientationManager(extras)
+    }
+
+    fun launchPendingActivity(pendingIntent: PendingIntent) {
+        if (!prepareConfiguration()) return
+
+        pendingIntent.send(
+            ScaledContext.cover(overlay), SamSprung.request_code, Intent()
+        )
+
+        val extras = Bundle()
+        extras.putString("launchPackage", pendingIntent.creatorPackage)
 
         getOrientationManager(extras)
     }

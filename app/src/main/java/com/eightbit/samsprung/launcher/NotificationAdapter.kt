@@ -53,6 +53,8 @@ package com.eightbit.samsprung.launcher
 
 import android.annotation.SuppressLint
 import android.app.Activity
+import android.app.PendingIntent
+import android.content.Intent
 import android.content.res.Configuration
 import android.graphics.Bitmap
 import android.graphics.Color
@@ -72,6 +74,7 @@ import androidx.core.graphics.ColorUtils
 import androidx.core.graphics.drawable.toBitmap
 import androidx.fragment.app.FragmentActivity
 import androidx.recyclerview.widget.RecyclerView
+import com.eightbit.content.ScaledContext
 import com.eightbit.samsprung.NotificationReceiver
 import com.eightbit.samsprung.R
 import com.eightbit.samsprung.SamSprung
@@ -212,11 +215,7 @@ class NotificationAdapter(
             if (null != notification.contentIntent) {
                 launch.visibility = View.VISIBLE
                 launch.setOnClickListener {
-                    try {
-                        notification.contentIntent.send()
-                    } catch (ex: Exception) {
-                        ex.printStackTrace()
-                    }
+                    listener?.onLaunchClicked(notification.contentIntent)
                 }
             } else {
                 launch.visibility = View.GONE
@@ -361,5 +360,6 @@ class NotificationAdapter(
     interface OnNoticeClickListener {
         fun onNoticeClicked(itemView: View, position: Int, notice: StatusBarNotification)
         fun onNoticeLongClicked(itemView: View, position: Int, notice: StatusBarNotification) : Boolean
+        fun onLaunchClicked(pendingIntent: PendingIntent)
     }
 }

@@ -104,7 +104,10 @@
             android:permission="android.permission.FOREGROUND_SERVICE" />
         <service android:name=".launcher.AppDisplayListener"
             android:exported="true"
-            android:permission="android.permission.FOREGROUND_SERVICE" />
+            android:permission="android.permission.FOREGROUND_SERVICE"
+            android:showWhenLocked="true">
+            <meta-data android:name="com.samsung.android.activity.showWhenLocked" android:value="true"/>
+        </service>
         <service
             android:name=".NotificationReceiver"
             android:exported="true"

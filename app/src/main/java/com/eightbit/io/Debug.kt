@@ -52,6 +52,8 @@ package com.eightbit.io
 import android.content.ContentValues
 import android.content.Context
 import android.content.SharedPreferences
+import android.os.Build
+import android.os.Build.VERSION_CODES
 import android.os.Environment
 import android.provider.MediaStore
 import com.eightbit.samsprung.BuildConfig
@@ -121,6 +123,23 @@ class Debug(private var context: Context) {
         val log = StringBuilder()
         val separator = System.getProperty("line.separator")
         log.append(context.getString(R.string.build_hash_full, BuildConfig.COMMIT))
+        log.append(separator)
+        log.append("Android ")
+        val fields = VERSION_CODES::class.java.fields
+        var codeName = "UNKNOWN"
+        for (field in fields) {
+            try {
+                if (field.getInt(VERSION_CODES::class.java) == Build.VERSION.SDK_INT) {
+                    codeName = field.name
+                }
+            } catch (e: IllegalAccessException) {
+                e.printStackTrace()
+            }
+        }
+        log.append(codeName)
+        log.append(" (")
+        log.append(Build.VERSION.RELEASE)
+        log.append(")")
         try {
             var line: String?
             val mLogcatProc: Process = Runtime.getRuntime().exec(arrayOf(

@@ -34,7 +34,7 @@ import com.eightbit.samsprung.SamSprungOverlay
 
 
 internal abstract class SoftReferenceThreadLocal<T> {
-    private val mThreadLocal: ThreadLocal<SoftReference<T?>>
+    private val mThreadLocal: ThreadLocal<SoftReference<T?>> = ThreadLocal()
     abstract fun initialValue(): T
     fun set(t: T) {
         mThreadLocal.set(SoftReference(t))
@@ -56,9 +56,6 @@ internal abstract class SoftReferenceThreadLocal<T> {
         return obj
     }
 
-    init {
-        mThreadLocal = ThreadLocal()
-    }
 }
 
 internal class CanvasCache : SoftReferenceThreadLocal<Canvas>() {
@@ -126,13 +123,11 @@ class WidgetPreviewLoader(private val mLauncher: SamSprungOverlay) {
         private fun getObjectName(o: Any): String {
             // should cache the string builder
             val sb = StringBuilder()
-            val output: String
             if (o is AppWidgetProviderInfo) {
-                val info = o
                 sb.append(WIDGET_PREFIX)
-                sb.append(info.profile)
+                sb.append(o.profile)
                 sb.append('/')
-                sb.append(info.provider.flattenToString())
+                sb.append(o.provider.flattenToString())
             } else {
                 sb.append(SHORTCUT_PREFIX)
                 val info = o as ResolveInfo
@@ -143,7 +138,7 @@ class WidgetPreviewLoader(private val mLauncher: SamSprungOverlay) {
                     ).flattenToString()
                 )
             }
-            output = sb.toString()
+            val output: String = sb.toString()
             sb.setLength(0)
             return output
         }

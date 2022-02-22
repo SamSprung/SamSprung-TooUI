@@ -823,6 +823,10 @@ class SamSprungOverlay : AppCompatActivity(), NotificationAdapter.OnNoticeClickL
         return true
     }
 
+    override fun onLaunchClicked(pendingIntent: PendingIntent) {
+        launchManager.launchPendingActivity(pendingIntent)
+    }
+
     private fun tactileFeedback() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
             (getSystemService(Context.VIBRATOR_MANAGER_SERVICE) as VibratorManager)
