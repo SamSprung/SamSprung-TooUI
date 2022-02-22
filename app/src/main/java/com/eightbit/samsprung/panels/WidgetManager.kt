@@ -39,8 +39,7 @@ class WidgetManager(
     private var mAppWidgetManager: AppWidgetManager =
         AppWidgetManager.getInstance(overlay.applicationContext)
     private var appWidgetHost: AppWidgetHost = CoverWidgetHost(
-        ScaledContext.cover(overlay.applicationContext),
-        SamSprungOverlay.APPWIDGET_HOST_ID
+        overlay.applicationContext, SamSprungOverlay.APPWIDGET_HOST_ID
     )
     private val requestCreateAppWidgetHost = 9001
 
