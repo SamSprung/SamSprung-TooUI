@@ -237,7 +237,7 @@ class CheckUpdatesTask(private var activity: Activity) {
             downloadUrl = asset["browser_download_url"] as String
             if (isPreview && BuildConfig.COMMIT != lastCommit) {
                 if (null != listener) listener?.onUpdateFound(downloadUrl)
-                showUpdateNotification(downloadUrl)
+                if (activity !is CoverPreferences) showUpdateNotification(downloadUrl)
             }
         } catch (ignored: JSONException) { }
         if (!isPreview && null != lastCommit && null != downloadUrl) {
@@ -249,7 +249,7 @@ class CheckUpdatesTask(private var activity: Activity) {
                         val extraCommit = (jsonObject["name"] as String).substring(offset)
                         if (BuildConfig.COMMIT != extraCommit && BuildConfig.COMMIT != lastCommit) {
                             if (null != listener) listener?.onUpdateFound(downloadUrl)
-                            showUpdateNotification(downloadUrl)
+                            if (activity !is CoverPreferences) showUpdateNotification(downloadUrl)
                         }
                     } catch (ignored: JSONException) { }
                 }
