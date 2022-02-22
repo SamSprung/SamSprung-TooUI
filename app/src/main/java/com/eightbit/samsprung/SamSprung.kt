@@ -126,8 +126,4 @@ class SamSprung : Application() {
     fun getWidgetPreviewCacheDb(): CacheDb? {
         return mWidgetPreviewCacheDb
     }
-
-    override fun getApplicationContext(): Context {
-        return ScaledContext.cover(super.getApplicationContext())
-    }
 }

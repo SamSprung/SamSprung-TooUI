@@ -37,7 +37,7 @@ class WidgetManager(
 ) {
 
     private var mAppWidgetManager: AppWidgetManager =
-        AppWidgetManager.getInstance(ScaledContext.cover(overlay.applicationContext))
+        AppWidgetManager.getInstance(overlay.applicationContext)
     private var appWidgetHost: AppWidgetHost = CoverWidgetHost(
         ScaledContext.cover(overlay.applicationContext),
         SamSprungOverlay.APPWIDGET_HOST_ID
