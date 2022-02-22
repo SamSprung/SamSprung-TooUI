@@ -48,7 +48,7 @@ class LaunchManager(private val overlay: SamSprungOverlay) {
     }
 
     private fun getOrientationManager(extras: Bundle) {
-        val context = ScaledContext.wrap(overlay.application as SamSprung)
+        val context = ScaledContext.cover(overlay.applicationContext)
         val orientationChanger = LinearLayout(context)
         val orientationLayout = WindowManager.LayoutParams(
             WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY,

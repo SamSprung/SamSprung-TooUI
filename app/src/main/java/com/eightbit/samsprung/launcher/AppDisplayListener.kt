@@ -137,7 +137,7 @@ class AppDisplayListener : Service() {
 
         showForegroundNotification(startId)
 
-        val displayContext = ScaledContext.wrap(application as SamSprung)
+        val displayContext = ScaledContext.wrap(ScaledContext.cover(applicationContext))
         floatView = LayoutInflater.from(displayContext).inflate(R.layout.navigation_menu, null)
         val params = WindowManager.LayoutParams(
             WindowManager.LayoutParams.MATCH_PARENT,
@@ -392,7 +392,7 @@ class AppDisplayListener : Service() {
         }
 
         try {
-            val displayContext = ScaledContext.wrap(application as SamSprung)
+            val displayContext = ScaledContext.wrap(ScaledContext.cover(applicationContext))
             (displayContext.getSystemService(WINDOW_SERVICE)
                     as WindowManager).removeViewImmediate(floatView)
         } catch (ignored: Exception) { }

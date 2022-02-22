@@ -22,6 +22,7 @@ import androidx.core.graphics.drawable.toBitmap
 import androidx.core.view.children
 import androidx.fragment.app.FragmentActivity
 import androidx.viewpager2.widget.ViewPager2
+import com.eightbit.content.ScaledContext
 import com.eightbit.samsprung.CoverStateAdapter
 import com.eightbit.samsprung.R
 import com.eightbit.samsprung.SamSprungOverlay
@@ -36,9 +37,9 @@ class WidgetManager(
 ) {
 
     private var mAppWidgetManager: AppWidgetManager =
-        AppWidgetManager.getInstance(overlay.applicationContext)
+        AppWidgetManager.getInstance(ScaledContext.cover(overlay.applicationContext))
     private var appWidgetHost: AppWidgetHost = CoverWidgetHost(
-        overlay.applicationContext,
+        ScaledContext.cover(overlay.applicationContext),
         SamSprungOverlay.APPWIDGET_HOST_ID
     )
     private val requestCreateAppWidgetHost = 9001
@@ -83,7 +84,7 @@ class WidgetManager(
         SamSprungOverlay.model.addDesktopAppWidget(launcherInfo)
 
         launcherInfo.hostView = appWidgetHost.createView(
-            overlay.applicationContext, appWidgetId, appWidgetInfo)
+            ScaledContext.cover(overlay.applicationContext), appWidgetId, appWidgetInfo)
         launcherInfo.hostView!!.setAppWidget(appWidgetId, appWidgetInfo)
         launcherInfo.hostView!!.tag = launcherInfo
 
@@ -201,7 +202,7 @@ class WidgetManager(
             val appWidgetId = item.appWidgetId
             val appWidgetInfo = mAppWidgetManager.getAppWidgetInfo(appWidgetId)
             item.hostView = appWidgetHost.createView(
-                overlay.applicationContext, appWidgetId, appWidgetInfo)
+                ScaledContext.cover(overlay.applicationContext), appWidgetId, appWidgetInfo)
             item.hostView!!.setAppWidget(appWidgetId, appWidgetInfo)
             item.hostView!!.tag = item
 
