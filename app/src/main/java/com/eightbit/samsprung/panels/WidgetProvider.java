@@ -41,12 +41,9 @@ import com.eightbit.samsprung.panels.WidgetSettings.Favorites;
 import java.util.ArrayList;
 
 public class WidgetProvider extends ContentProvider {
-    private static final String LOG_TAG = WidgetProvider.class.getName();
-    private static final boolean LOGD = true;
-
-    private static final String DATABASE_NAME = "panels.db";
+    private static final String DATABASE_NAME = "samsprung.db";
     
-    private static final int DATABASE_VERSION = 17;
+    private static final int DATABASE_VERSION = 1;
 
     static final String AUTHORITY = "com.eightbit.samsprung.panels";
     static final String EXTRA_BIND_SOURCES = AUTHORITY + ".bindsources";
@@ -182,8 +179,6 @@ public class WidgetProvider extends ContentProvider {
 
         @Override
         public void onCreate(SQLiteDatabase db) {
-            if (LOGD) Log.d(LOG_TAG, "creating new launcher database");
-            
             db.execSQL("CREATE TABLE favorites (" +
                     "_id INTEGER PRIMARY KEY," +
                     "title TEXT," +
@@ -212,7 +207,6 @@ public class WidgetProvider extends ContentProvider {
         }
 
         private void convertDatabase(SQLiteDatabase db) {
-            if (LOGD) Log.d(LOG_TAG, "converting database from an older format, but not onUpgrade");
             boolean converted = false;
 
             final Uri uri = Uri.parse("content://" + Settings.AUTHORITY +
@@ -241,7 +235,6 @@ public class WidgetProvider extends ContentProvider {
             
             if (converted) {
                 // Convert widgets from this import into widgets
-                if (LOGD) Log.d(LOG_TAG, "converted and now triggering widget upgrade");
                 convertWidgets(db);
             }
 
@@ -294,8 +287,6 @@ public class WidgetProvider extends ContentProvider {
 
         @Override
         public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-            if (LOGD) Log.d(LOG_TAG, "onUpgrade triggered");
-            
             int version = oldVersion;
             if (version < 3) {
                 // upgrade 1,2 -> 3 added appWidgetId column
@@ -308,7 +299,7 @@ public class WidgetProvider extends ContentProvider {
                     version = 3;
                 } catch (SQLException ex) {
                     // Old version remains, which means we wipe old data
-                    Log.e(LOG_TAG, ex.getMessage(), ex);
+                    Log.e(WidgetProvider.class.getName(), ex.getMessage(), ex);
                 } finally {
                     db.endTransaction();
                 }
@@ -320,7 +311,7 @@ public class WidgetProvider extends ContentProvider {
             }
             
             if (version != DATABASE_VERSION) {
-                Log.w(LOG_TAG, "Destroying all old data.");
+                Log.w(WidgetProvider.class.getName(), "Destroying all old data.");
                 db.execSQL("DROP TABLE IF EXISTS " + TABLE_FAVORITES);
                 onCreate(db);
             }
@@ -354,8 +345,6 @@ public class WidgetProvider extends ContentProvider {
                 c = db.query(TABLE_FAVORITES, new String[] { Favorites._ID },
                         selectWhere, null, null, null, null);
                 
-                if (LOGD) Log.d(LOG_TAG, "found upgrade cursor count="+c.getCount());
-                
                 final ContentValues values = new ContentValues();
                 while (c != null && c.moveToNext()) {
                     long favoriteId = c.getLong(0);
@@ -363,9 +352,7 @@ public class WidgetProvider extends ContentProvider {
                     // Allocate and update database with new appWidgetId
                     try {
                         int appWidgetId = mAppWidgetHost.allocateAppWidgetId();
-                        
-                        if (LOGD) Log.d(LOG_TAG, "allocated appWidgetId="+appWidgetId+" for favoriteId="+favoriteId);
-                        
+
                         values.clear();
                         values.put(WidgetSettings.Favorites.APPWIDGET_ID, appWidgetId);
                         
@@ -378,13 +365,15 @@ public class WidgetProvider extends ContentProvider {
                         
                         allocatedAppWidgets = true;
                     } catch (RuntimeException ex) {
-                        Log.e(LOG_TAG, "Problem allocating appWidgetId", ex);
+                        Log.e(WidgetProvider.class.getName(),
+                                "Problem allocating appWidgetId", ex);
                     }
                 }
                 
                 db.setTransactionSuccessful();
             } catch (SQLException ex) {
-                Log.w(LOG_TAG, "Problem while allocating appWidgetIds for existing widgets", ex);
+                Log.w(WidgetProvider.class.getName(),
+                        "Problem while allocating appWidgetIds for existing widgets", ex);
             } finally {
                 db.endTransaction();
                 if (c != null) {

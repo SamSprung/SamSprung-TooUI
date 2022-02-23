@@ -1,3 +1,5 @@
 <resources>
-    <string name="lock_screen_warning">アプリを起動するには、画面のロックを無効にする必要があります</string>
+    <string name="lock_screen_warning">アプリを起動するには、ロック画面をバイパスするか無効にする必要があります。 Bixby unlockは回避策として使用できます。</string>
+    <string name="lock_enabled">デバイスがロックされています！</string>
+    <string name="click_update_app">クリックしてパッケージを更新します</string>
 </resources>

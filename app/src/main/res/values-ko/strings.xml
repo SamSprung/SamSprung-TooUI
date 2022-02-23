@@ -1,9 +1,10 @@
 <resources>
-    <string name="lock_screen_warning">앱을 실행하기 위해서는 잠금화면 해제가 필요합니다.</string>
+    <string name="lock_screen_warning">앱을 실행하려면 잠금 화면을 무시하거나 비활성화해야합니다. 빅스 잠금 해제는 해결 방법으로 사용할 수 있습니다.</string>
     <string name="swap_viewgrid">목록 스타일로 표시</string>
     <string name="swap_viewlist">격자 스타일로 표시</string>
     <string name="display_service">%1$s 화면서비스</string>
     <string name="update_service">%1$s 서비스 업데이트</string>
     <string name="click_update_app">서비스를 업데이트하려면 클릭하세요</string>
     <string name="loading_text">로딩중&#8230;</string>
+    <string name="lock_enabled">장치가 잠겨 있습니다!</string>
 </resources>

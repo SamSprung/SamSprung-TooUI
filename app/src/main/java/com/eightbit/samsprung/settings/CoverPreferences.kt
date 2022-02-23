@@ -127,7 +127,6 @@ class CoverPreferences : AppCompatActivity() {
     private lateinit var permissionList: LinearLayout
     private lateinit var accessibility: SwitchCompat
     private lateinit var notifications: SwitchCompat
-    private lateinit var settings: SwitchCompat
     private lateinit var keyboard: SwitchCompat
 
     private lateinit var hiddenList: RecyclerView
@@ -186,7 +185,7 @@ class CoverPreferences : AppCompatActivity() {
         findViewById<LinearLayout>(R.id.accessibility).setOnClickListener {
             if (BuildConfig.FLAVOR == "google" && !accessibility.isChecked) {
                 AlertDialog.Builder(this)
-                    .setMessage(getString(R.string.aceessibility_details))
+                    .setMessage(getString(R.string.accessibility_disclaimer))
                     .setPositiveButton(R.string.button_confirm) { dialog, _ ->
                         accessibilityLauncher.launch(Intent(
                             Settings.ACTION_ACCESSIBILITY_SETTINGS,
@@ -202,15 +201,6 @@ class CoverPreferences : AppCompatActivity() {
                     Settings.ACTION_ACCESSIBILITY_SETTINGS,
                 ))
             }
-        }
-
-        settings = findViewById(R.id.settings_switch)
-        settings.isChecked = Settings.System.canWrite(applicationContext)
-        findViewById<LinearLayout>(R.id.settings).setOnClickListener {
-            settingsLauncher.launch(Intent(
-                Settings.ACTION_MANAGE_WRITE_SETTINGS,
-                Uri.parse("package:$packageName")
-            ))
         }
 
         keyboard = findViewById(R.id.keyboard_switch)
@@ -726,12 +716,6 @@ class CoverPreferences : AppCompatActivity() {
         ActivityResultContracts.StartActivityForResult()) {
         if (this::notifications.isInitialized)
             notifications.isChecked = hasNotificationListener()
-    }
-
-    private val settingsLauncher = registerForActivityResult(
-        ActivityResultContracts.StartActivityForResult()) {
-        if (this::settings.isInitialized)
-            settings.isChecked = Settings.System.canWrite(applicationContext)
     }
 
     @SuppressLint("NotifyDataSetChanged")

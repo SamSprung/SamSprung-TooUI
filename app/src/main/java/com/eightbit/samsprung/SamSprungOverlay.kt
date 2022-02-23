@@ -432,15 +432,13 @@ class SamSprungOverlay : AppCompatActivity(), NotificationAdapter.OnNoticeClickL
                     .setIcon(R.drawable.ic_baseline_delete_forever_24)
                 tactileFeedback()
                 val index = viewPager.currentItem
-                val fragment = (pagerAdapter as CoverStateAdapter)
-                    .getFragment(index)
+                val fragment = (pagerAdapter as CoverStateAdapter).getFragment(index)
                 val widget = fragment.getLayout()!!.getChildAt(0).tag
                 if (widget is CoverWidgetInfo) {
                     viewPager.setCurrentItem(index - 1, true)
                     model.removeDesktopAppWidget(widget)
                     if (null != widgetManager?.getAppWidgetHost()) {
-                        widgetManager!!.getAppWidgetHost()
-                            .deleteAppWidgetId(widget.appWidgetId)
+                        widgetManager!!.getAppWidgetHost().deleteAppWidgetId(widget.appWidgetId)
                     }
                     WidgetModel.deleteItemFromDatabase(
                         applicationContext, widget
@@ -825,16 +823,13 @@ class SamSprungOverlay : AppCompatActivity(), NotificationAdapter.OnNoticeClickL
     }
 
     private fun tactileFeedback() {
+        val vibe = VibrationEffect.createOneShot(20, VibrationEffect.DEFAULT_AMPLITUDE)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
             (getSystemService(Context.VIBRATOR_MANAGER_SERVICE) as VibratorManager)
-                .defaultVibrator.vibrate(
-                    VibrationEffect
-                        .createOneShot(20, VibrationEffect.DEFAULT_AMPLITUDE))
+                .defaultVibrator.vibrate(vibe)
         } else {
             @Suppress("DEPRECATION")
-            (getSystemService(Context.VIBRATOR_SERVICE) as Vibrator).vibrate(
-                VibrationEffect
-                    .createOneShot(20, VibrationEffect.DEFAULT_AMPLITUDE))
+            (getSystemService(Context.VIBRATOR_SERVICE) as Vibrator).vibrate(vibe)
         }
     }
 
