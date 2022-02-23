@@ -99,9 +99,11 @@ class AppDisplayListener : Service() {
     override fun onStartCommand(intent: Intent, flags: Int, startId: Int): Int {
         super.onStartCommand(intent, flags, startId)
 
-        val launchPackage = intent.getStringExtra("launchPackage")
-        val launchActivity = intent.getStringExtra("launchActivity")
-        var componentName: ComponentName? = null
+        val launchPackage = intent.getStringExtra("launchPackage")!!
+        val launchActivity: String? = if (intent.hasExtra("launchActivity"))
+            intent.getStringExtra("launchActivity") else null
+        val componentName: ComponentName? = if (null == launchActivity)
+            packageManager.getLaunchIntentForPackage(launchPackage)?.component else null
 
         prefs = getSharedPreferences(SamSprung.prefsValue, MODE_PRIVATE)
 
@@ -110,10 +112,6 @@ class AppDisplayListener : Service() {
             mKeyguardLock = (getSystemService(Context.KEYGUARD_SERVICE)
                     as KeyguardManager).newKeyguardLock("cover_lock")
             mKeyguardLock.disableKeyguard()
-        }
-
-        if (!intent.hasExtra("launchActivity")) {
-            componentName = packageManager.getLaunchIntentForPackage(launchPackage!!)?.component
         }
 
         offReceiver = object : BroadcastReceiver() {
@@ -278,8 +276,9 @@ class AppDisplayListener : Service() {
         }
     }
 
-    private fun setClickListeners(menu: LinearLayout, componentName: ComponentName?,
-                                  launchPackage: String?, launchActivity: String?) {
+    private fun setClickListeners(
+        menu: LinearLayout, componentName: ComponentName?,
+        launchPackage: String?, launchActivity: String?) {
         menu.findViewById<AppCompatImageView>(R.id.retract_drawer).setOnClickListener {
             bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
         }

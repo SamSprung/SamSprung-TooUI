@@ -63,10 +63,9 @@ import com.eightbit.samsprung.SamSprungOverlay
 import com.eightbit.samsprung.launcher.AppDisplayListener
 
 class PersistentCoordinator : CoordinatorLayout {
-    constructor(context: Context) : super(context) {}
-    constructor(context: Context, attrs: AttributeSet?) : super(context, attrs) {}
-    constructor(context: Context, attrs: AttributeSet?, defStyle: Int) : super(
-        context, attrs, defStyle) { }
+    constructor(context: Context) : super(context)
+    constructor(context: Context, attrs: AttributeSet?) : super(context, attrs)
+    constructor(context: Context, attrs: AttributeSet?, defStyle: Int) : super(context, attrs, defStyle)
 
     private var isCancellable = false
 
@@ -80,6 +79,13 @@ class PersistentCoordinator : CoordinatorLayout {
                 .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK),
             ActivityOptions.makeBasic().setLaunchDisplayId(1).toBundle()
         )
+    }
+
+    override fun onDetachedFromWindow() {
+        super.onDetachedFromWindow()
+        if (!isServiceRunning(context.applicationContext, OnBroadcastService::class.java))
+            context.applicationContext.startForegroundService(
+                Intent(context.applicationContext, OnBroadcastService::class.java))
     }
 
     fun setCancellable(isCancellable: Boolean) {

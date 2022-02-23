@@ -119,7 +119,7 @@ class LaunchManager(private val overlay: SamSprungOverlay) {
         )
 
         val extras = Bundle()
-        extras.putString("launchPackage", pendingIntent.creatorPackage)
+        extras.putString("launchPackage", pendingIntent.intentSender.creatorPackage)
 
         getOrientationManager(extras)
     }

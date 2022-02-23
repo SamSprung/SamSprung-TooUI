@@ -27,68 +27,20 @@ import com.eightbit.samsprung.R
  * {@inheritDoc}
  */
 class CoverWidgetHostView(context: Context) : AppWidgetHostView(context) {
-    private var mHasPerformedLongPress = false
-    private var mPendingCheckForLongPress: CheckForLongPress? = null
     private val mInflater: LayoutInflater = context.getSystemService(
         Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
     override fun getErrorView(): View {
         return mInflater.inflate(R.layout.appwidget_error, this, false)
     }
-
     override fun onInterceptTouchEvent(ev: MotionEvent): Boolean {
-        // Consume any touch events for ourselves after longpress is triggered
-        if (mHasPerformedLongPress) {
-            mHasPerformedLongPress = false
-            return true
-        }
         when (ev.action) {
             MotionEvent.ACTION_DOWN -> {
-                postCheckForLongClick()
+
             }
             MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL -> {
-                mHasPerformedLongPress = false
-                if (mPendingCheckForLongPress != null) {
-                    removeCallbacks(mPendingCheckForLongPress)
-                }
+
             }
         }
-
-        // Otherwise continue letting touch events fall through to children
         return false
     }
-
-    internal inner class CheckForLongPress : Runnable {
-        private var mOriginalWindowAttachCount = 0
-        override fun run() {
-            if (parent != null && hasWindowFocus()
-                && mOriginalWindowAttachCount == windowAttachCount && !mHasPerformedLongPress
-            ) {
-                if (performLongClick()) {
-                    mHasPerformedLongPress = true
-                }
-            }
-        }
-
-        fun rememberWindowAttachCount() {
-            mOriginalWindowAttachCount = windowAttachCount
-        }
-    }
-
-    private fun postCheckForLongClick() {
-        mHasPerformedLongPress = false
-        if (mPendingCheckForLongPress == null) {
-            mPendingCheckForLongPress = CheckForLongPress()
-        }
-        mPendingCheckForLongPress!!.rememberWindowAttachCount()
-        postDelayed(mPendingCheckForLongPress, ViewConfiguration.getLongPressTimeout().toLong())
-    }
-
-    override fun cancelLongPress() {
-        super.cancelLongPress()
-        mHasPerformedLongPress = false
-        if (mPendingCheckForLongPress != null) {
-            removeCallbacks(mPendingCheckForLongPress)
-        }
-    }
-
 }

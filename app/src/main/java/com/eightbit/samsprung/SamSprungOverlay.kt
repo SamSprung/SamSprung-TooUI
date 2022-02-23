@@ -70,7 +70,6 @@ import android.nfc.NfcAdapter
 import android.nfc.NfcManager
 import android.os.*
 import android.provider.Settings
-import android.service.notification.NotificationListenerService
 import android.service.notification.StatusBarNotification
 import android.speech.SpeechRecognizer
 import android.speech.tts.TextToSpeech
@@ -88,7 +87,6 @@ import androidx.appcompat.widget.Toolbar
 import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.core.content.ContextCompat
 import androidx.core.view.GravityCompat
-import androidx.core.view.WindowCompat
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.ItemTouchHelper
@@ -109,7 +107,6 @@ import com.eightbitlab.blurview.RenderScriptBlur
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import java.util.*
-import java.util.concurrent.Executors
 
 class SamSprungOverlay : AppCompatActivity(), NotificationAdapter.OnNoticeClickListener {
 

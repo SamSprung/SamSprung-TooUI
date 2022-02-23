@@ -313,8 +313,18 @@ class CoverPreferences : AppCompatActivity() {
             BottomSheetBehavior.from(findViewById(R.id.bottom_sheet))
         bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
         bottomSheetBehavior.addBottomSheetCallback(object : BottomSheetBehavior.BottomSheetCallback() {
-            override fun onStateChanged(bottomSheet: View, newState: Int) { }
-            override fun onSlide(bottomSheet: View, slideOffset: Float) { }
+            override fun onStateChanged(bottomSheet: View, newState: Int) {
+                if (bottomSheetBehavior.state == BottomSheetBehavior.STATE_COLLAPSED) {
+                    findViewById<LinearLayout>(R.id.bottom_sheet)
+                        .setBackgroundColor(Color.TRANSPARENT)
+                }
+            }
+            override fun onSlide(bottomSheet: View, slideOffset: Float) {
+                if (slideOffset > 0.1) {
+                    findViewById<LinearLayout>(R.id.bottom_sheet)
+                        .setBackgroundColor(getColor(R.color.backgroundFlat))
+                }
+            }
         })
 
         findViewById<LinearLayout>(R.id.visibility_handle).setOnClickListener {

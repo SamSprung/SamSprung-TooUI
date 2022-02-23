@@ -399,7 +399,6 @@
         android:clickable="true"
         android:focusable="true"
         android:layout_marginTop="1dp"
-        android:background="@color/backgroundFlat"
         android:orientation="vertical"
         app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior">
 
