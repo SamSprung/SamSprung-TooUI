@@ -118,9 +118,8 @@ class NotificationReceiver : NotificationListenerService() {
     fun setNotificationsListener(listener: NotificationsListener?) {
         getReceiver()?.mNotificationsListener = listener
         val notifications: ArrayList<StatusBarNotification> = arrayListOf()
-        notifications.addAll(activeNotifications)
-        // notifications.removeAll(snoozedNotifications.toSet())
-        getReceiver()?.mNotificationsListener?.onActiveNotifications(notifications)
+        if (notifications.addAll(activeNotifications))
+            getReceiver()?.mNotificationsListener?.onActiveNotifications(notifications)
     }
 
     interface NotificationsListener {

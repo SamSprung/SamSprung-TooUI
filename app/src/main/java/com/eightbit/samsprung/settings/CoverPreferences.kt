@@ -66,6 +66,7 @@ import android.hardware.display.DisplayManager
 import android.net.Uri
 import android.os.*
 import android.provider.Settings
+import android.service.notification.NotificationListenerService
 import android.util.TypedValue
 import android.view.Menu
 import android.view.MenuItem

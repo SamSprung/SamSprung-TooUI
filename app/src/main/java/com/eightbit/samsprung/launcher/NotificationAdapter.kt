@@ -237,54 +237,9 @@ class NotificationAdapter(
                 if ((activity.resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK)
                     == Configuration.UI_MODE_NIGHT_YES) Color.BLACK else Color.WHITE, 0.4f)
 
-        private fun Bitmap.trimBorders(): Bitmap {
-            val color = Color.TRANSPARENT
-            var startX = 0
-            loop@ for (x in 0 until width) {
-                for (y in 0 until height) {
-                    if (getPixel(x, y) != color) {
-                        startX = x
-                        break@loop
-                    }
-                }
-            }
-            var startY = 0
-            loop@ for (y in 0 until height) {
-                for (x in 0 until width) {
-                    if (getPixel(x, y) != color) {
-                        startY = y
-                        break@loop
-                    }
-                }
-            }
-            var endX = width - 1
-            loop@ for (x in endX downTo 0) {
-                for (y in 0 until height) {
-                    if (getPixel(x, y) != color) {
-                        endX = x
-                        break@loop
-                    }
-                }
-            }
-            var endY = height - 1
-            loop@ for (y in endY downTo 0) {
-                for (x in 0 until width) {
-                    if (getPixel(x, y) != color) {
-                        endY = y
-                        break@loop
-                    }
-                }
-            }
-
-            return Bitmap.createBitmap(
-                this, startX, startY, endX - startX + 1, endY - startY + 1
-            )
-        }
-
-        private  fun getScaledBitmap(activity: Activity, original: Bitmap): Bitmap {
+        private  fun getScaledBitmap(activity: Activity, bitmap: Bitmap): Bitmap {
             val maxWidth = activity.window.decorView.width
             val maxHeight = activity.window.decorView.height
-            val bitmap = original.trimBorders()
             return if (bitmap.width > activity.window.decorView.width) {
                 val width = bitmap.width
                 val height = bitmap.height
@@ -317,22 +272,10 @@ class NotificationAdapter(
 
     @SuppressLint("NotifyDataSetChanged")
     override fun onActiveNotifications(activeNotifications: ArrayList<StatusBarNotification>) {
-        for (sbn: StatusBarNotification in activeNotifications) {
-            var isRecent = false
-            for (current in sbNotifications) {
-                if (current.key == sbn.key) {
-                    isRecent = true
-                    break
-                }
-            }
-            if (!isRecent) {
-                val index = sbNotifications.size
-                sbNotifications.add(sbn)
-                activity.runOnUiThread { this.notifyItemInserted(index) }
-            }
-        }
+        sbNotifications = activeNotifications
+        this.notifyDataSetChanged()
     }
-    @SuppressLint("NotifyDataSetChanged")
+
     override fun onNotificationPosted(sbn: StatusBarNotification?) {
         if (null == sbn) return
         var update = -1
@@ -344,13 +287,13 @@ class NotificationAdapter(
         }
         if (update != -1) {
             sbNotifications[update] = sbn
-            activity.runOnUiThread { this.notifyItemChanged(update, sbn) }
+            this.notifyItemChanged(update, sbn)
         } else {
             sbNotifications.add(0, sbn)
-            activity.runOnUiThread { this.notifyItemInserted(0) }
+            this.notifyItemInserted(0)
         }
     }
-    @SuppressLint("NotifyDataSetChanged")
+
     override fun onNotificationRemoved(sbn: StatusBarNotification?) {
         if (null == sbn) return
         var remove = -1
@@ -362,7 +305,7 @@ class NotificationAdapter(
         }
         if (remove != -1) {
             sbNotifications.remove(sbNotifications[remove])
-            activity.runOnUiThread { this.notifyItemRemoved(remove) }
+            this.notifyItemRemoved(remove)
         }
     }
 

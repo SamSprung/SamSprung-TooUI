@@ -169,6 +169,16 @@ class SamSprungOverlay : AppCompatActivity(), NotificationAdapter.OnNoticeClickL
         ScaledContext.wrap(this).setTheme(R.style.Theme_SecondScreen_NoActionBar)
         setContentView(R.layout.home_main_view)
 
+        if (hasNotificationListener()) {
+            val componentName = ComponentName(applicationContext, NotificationReceiver::class.java)
+            packageManager.setComponentEnabledSetting(componentName,
+                PackageManager.COMPONENT_ENABLED_STATE_DISABLED, PackageManager.DONT_KILL_APP
+            )
+            packageManager.setComponentEnabledSetting(componentName,
+                PackageManager.COMPONENT_ENABLED_STATE_ENABLED, PackageManager.DONT_KILL_APP
+            )
+        }
+
         val mAppWidgetManager = AppWidgetManager.getInstance(applicationContext)
         val appWidgetHost = CoverWidgetHost(applicationContext, APPWIDGET_HOST_ID)
         if (prefs.getBoolean(getString(R.string.toggle_widgets).toPref, true)) {
@@ -250,57 +260,6 @@ class SamSprungOverlay : AppCompatActivity(), NotificationAdapter.OnNoticeClickL
                 toolbar.menu.findItem(R.id.toggle_nfc).setIcon(R.drawable.ic_baseline_nfc_off_24)
             toolbar.menu.findItem(R.id.toggle_nfc).icon.setTint(color)
         }
-
-        textSpeech = TextToSpeech(applicationContext) { status ->
-            if (status == TextToSpeech.SUCCESS) {
-                val result: Int? = textSpeech?.setLanguage(Locale.getDefault())
-                if (result == TextToSpeech.LANG_MISSING_DATA ||
-                    result == TextToSpeech.LANG_NOT_SUPPORTED
-                ) {
-                    textSpeech = null
-                }
-            }
-        }
-
-        noticesView = findViewById(R.id.notificationList)
-        if (hasNotificationListener()) {
-            Executors.newSingleThreadExecutor().execute {
-                val componentName = ComponentName(
-                    applicationContext,
-                    NotificationReceiver::class.java
-                )
-                packageManager.setComponentEnabledSetting(
-                    componentName,
-                    PackageManager.COMPONENT_ENABLED_STATE_DISABLED, PackageManager.DONT_KILL_APP
-                )
-                packageManager.setComponentEnabledSetting(
-                    componentName,
-                    PackageManager.COMPONENT_ENABLED_STATE_ENABLED, PackageManager.DONT_KILL_APP
-                )
-                try {
-                    NotificationListenerService.requestRebind(componentName)
-                } catch(ignored: Exception) { }
-            }
-            noticesView.layoutManager = LinearLayoutManager(this)
-            val noticeAdapter = NotificationAdapter(this, this@SamSprungOverlay)
-            // noticeAdapter.setHasStableIds(true)
-            noticesView.adapter = noticeAdapter
-            NotificationReceiver.getReceiver()?.setNotificationsListener(noticeAdapter)
-        }
-
-        RecyclerViewTouch(noticesView).setSwipeCallback(
-            ItemTouchHelper.START or ItemTouchHelper.END,
-            object: RecyclerViewTouch.SwipeCallback {
-            override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
-                if (direction == ItemTouchHelper.START || direction == ItemTouchHelper.END) {
-                    val notice = (viewHolder as NotificationAdapter.NoticeViewHolder).notice
-                    if (notice.isClearable) {
-                        NotificationReceiver.getReceiver()?.setNotificationsShown(arrayOf(notice.key))
-                        NotificationReceiver.getReceiver()?.cancelNotification(notice.key)
-                    }
-                }
-            }
-        })
 
         val toggleStats = findViewById<LinearLayout>(R.id.toggle_status)
         val info = findViewById<LinearLayout>(R.id.bottom_info)
@@ -459,6 +418,36 @@ class SamSprungOverlay : AppCompatActivity(), NotificationAdapter.OnNoticeClickL
                 }
             }
         })
+
+        textSpeech = TextToSpeech(applicationContext) { status ->
+            if (status == TextToSpeech.SUCCESS) {
+                val result: Int? = textSpeech?.setLanguage(Locale.getDefault())
+                if (result == TextToSpeech.LANG_MISSING_DATA ||
+                    result == TextToSpeech.LANG_NOT_SUPPORTED
+                ) {
+                    textSpeech = null
+                }
+            }
+        }
+        noticesView = findViewById(R.id.notificationList)
+        noticesView.layoutManager = LinearLayoutManager(this)
+        noticesView.adapter = NotificationAdapter(this, this@SamSprungOverlay)
+        NotificationReceiver.getReceiver()?.setNotificationsListener(
+            noticesView.adapter as NotificationAdapter
+        )
+
+        RecyclerViewTouch(noticesView).setSwipeCallback(
+            ItemTouchHelper.START or ItemTouchHelper.END, object: RecyclerViewTouch.SwipeCallback {
+                override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
+                    if (direction == ItemTouchHelper.START || direction == ItemTouchHelper.END) {
+                        val notice = (viewHolder as NotificationAdapter.NoticeViewHolder).notice
+                        if (notice.isClearable) {
+                            NotificationReceiver.getReceiver()?.setNotificationsShown(arrayOf(notice.key))
+                            NotificationReceiver.getReceiver()?.cancelNotification(notice.key)
+                        }
+                    }
+                }
+            })
 
         if (prefs.getBoolean(getString(R.string.toggle_widgets).toPref, true)) {
             widgetManager = WidgetManager(this, mAppWidgetManager,
