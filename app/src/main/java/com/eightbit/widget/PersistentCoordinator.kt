@@ -58,6 +58,7 @@ import android.content.Context
 import android.content.Intent
 import android.util.AttributeSet
 import androidx.coordinatorlayout.widget.CoordinatorLayout
+import com.eightbit.samsprung.OnBroadcastService
 import com.eightbit.samsprung.SamSprungOverlay
 import com.eightbit.samsprung.launcher.AppDisplayListener
 
@@ -69,6 +70,22 @@ class PersistentCoordinator : CoordinatorLayout {
     override fun onWindowVisibilityChanged(visibility: Int) {
         super.onWindowVisibilityChanged(visibility)
         if (!isAttachedToWindow || GONE != visibility || GONE != this.windowVisibility) return
-//        (context as SamSprungOverlay).recreate()
+
+    }
+
+    override fun onDetachedFromWindow() {
+        super.onDetachedFromWindow()
+        if (!isServiceRunning(context.applicationContext, OnBroadcastService::class.java))
+            context.applicationContext.startForegroundService(
+                Intent(context.applicationContext, OnBroadcastService::class.java))
+    }
+
+    @Suppress("DEPRECATION")
+    private fun isServiceRunning(context: Context, serviceClass: Class<*>): Boolean {
+        for (service in (context.getSystemService(Service.ACTIVITY_SERVICE) as ActivityManager)
+            .getRunningServices(Int.MAX_VALUE)) {
+            if (serviceClass.name == service.service.className) return true
+        }
+        return false
     }
 }

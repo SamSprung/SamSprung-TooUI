@@ -163,6 +163,7 @@ class SamSprungOverlay : AppCompatActivity(), NotificationAdapter.OnNoticeClickL
         )
 
         window.attributes.width = ViewGroup.LayoutParams.MATCH_PARENT
+        window.attributes.gravity = Gravity.BOTTOM
         // window.setBackgroundDrawable(null)
 
         prefs = getSharedPreferences(SamSprung.prefsValue, MODE_PRIVATE)
@@ -385,7 +386,7 @@ class SamSprungOverlay : AppCompatActivity(), NotificationAdapter.OnNoticeClickL
             }
             return@OnLongClickListener true
         })
-        coordinator.visibility = View.INVISIBLE
+        coordinator.visibility = View.GONE
 
         launchManager = LaunchManager(this)
 
@@ -475,7 +476,7 @@ class SamSprungOverlay : AppCompatActivity(), NotificationAdapter.OnNoticeClickL
                     bottomHandle.visibility = View.INVISIBLE
                 } else if (newState == BottomSheetBehavior.STATE_COLLAPSED) {
                     bottomSheet.keepScreenOn = false
-                    coordinator.visibility = View.INVISIBLE
+                    coordinator.visibility = View.GONE
                     bottomSheetBehaviorMain.isDraggable =
                         prefs.getBoolean(SamSprung.prefSlider, true)
                     hasConfigured = false

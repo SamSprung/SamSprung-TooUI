@@ -372,9 +372,7 @@ class AppDisplayListener : Service() {
     private fun isServiceRunning(context: Context, serviceClass: Class<*>): Boolean {
         for (service in (context.getSystemService(ACTIVITY_SERVICE) as ActivityManager)
             .getRunningServices(Int.MAX_VALUE)) {
-            if (serviceClass.name == service.service.className) {
-                return true
-            }
+            if (serviceClass.name == service.service.className) return true
         }
         return false
     }
