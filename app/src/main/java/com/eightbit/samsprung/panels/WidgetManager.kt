@@ -1,11 +1,9 @@
 package com.eightbit.samsprung.panels
 
 import android.annotation.SuppressLint
-import android.app.ActivityOptions
 import android.appwidget.AppWidgetHost
 import android.appwidget.AppWidgetManager
 import android.appwidget.AppWidgetProviderInfo
-import android.content.ActivityNotFoundException
 import android.content.Intent
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
@@ -13,14 +11,11 @@ import android.os.Build
 import android.view.Gravity
 import android.view.View
 import android.widget.LinearLayout
-import androidx.activity.result.ActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.view.ContextThemeWrapper
 import androidx.appcompat.widget.AppCompatImageView
 import androidx.core.graphics.drawable.toBitmap
 import androidx.core.view.children
-import androidx.fragment.app.FragmentActivity
 import androidx.viewpager2.widget.ViewPager2
 import com.eightbit.content.ScaledContext
 import com.eightbit.samsprung.CoverStateAdapter
@@ -31,28 +26,14 @@ import java.util.concurrent.Executors
 
 class WidgetManager(
     private var overlay: SamSprungOverlay,
-    private var viewPager: ViewPager2,
+    private var mAppWidgetManager: AppWidgetManager,
+    private var appWidgetHost: AppWidgetHost,
     private var pagerAdapter: CoverStateAdapter,
-    private var displayMetrics: IntArray
 ) {
-
-    private var mAppWidgetManager: AppWidgetManager =
-        AppWidgetManager.getInstance(overlay.applicationContext)
-    private var appWidgetHost: AppWidgetHost = CoverWidgetHost(
-        overlay.applicationContext, SamSprungOverlay.APPWIDGET_HOST_ID
-    )
-    private val requestCreateAppWidgetHost = 9001
-
-    init {
-        appWidgetHost.startListening()
-    }
-
-    fun getAppWidgetHost() : AppWidgetHost {
-        return appWidgetHost
-    }
+    private var displayMetrics: IntArray = ScaledContext.getDisplayParams(overlay)
 
     @SuppressLint("InflateParams")
-    fun completeAddAppWidget(appWidgetId: Int) {
+    fun completeAddAppWidget(appWidgetId: Int, viewPager: ViewPager2) {
         val appWidgetInfo = mAppWidgetManager.getAppWidgetInfo(appWidgetId)
 
         // Build Launcher-specific widget info and save to database
@@ -80,7 +61,7 @@ class WidgetManager(
                 spans[0],  spans[1], false
             )
         }
-        SamSprungOverlay.model.addDesktopAppWidget(launcherInfo)
+        overlay.model.addDesktopAppWidget(launcherInfo)
 
         launcherInfo.hostView = appWidgetHost.createView(
             ScaledContext.cover(overlay.applicationContext), appWidgetId, appWidgetInfo)
@@ -101,28 +82,20 @@ class WidgetManager(
         viewPager.setCurrentItem(id + 1, true)
     }
 
-    private fun addAppWidget(appWidgetId: Int) {
+    private fun addAppWidget(appWidgetId: Int, viewPager: ViewPager2) {
         val appWidget = mAppWidgetManager.getAppWidgetInfo(appWidgetId) ?: return
         if (null != appWidget.configure) {
-            try {
-                appWidgetHost.startAppWidgetConfigureActivityForResult(
-                    overlay, appWidgetId, 0, requestCreateAppWidgetHost,
-                    ActivityOptions.makeBasic().setLaunchDisplayId(1).toBundle()
-                )
-            } catch (ignored: ActivityNotFoundException) {
-                // Launch over to configure widget, if needed
-                val intent = Intent(AppWidgetManager.ACTION_APPWIDGET_CONFIGURE)
-                intent.component = appWidget.configure
-                intent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId)
-                requestCreateAppWidget.launch(intent)
-            }
+            val intent = Intent(AppWidgetManager.ACTION_APPWIDGET_CONFIGURE)
+            intent.component = appWidget.configure
+            intent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId)
+            overlay.requestCreateAppWidget.launch(intent)
         } else {
-            completeAddAppWidget(appWidgetId)
+            completeAddAppWidget(appWidgetId, viewPager)
         }
     }
 
     @SuppressLint("InflateParams")
-    fun showAddDialog() {
+    fun showAddDialog(viewPager: ViewPager2) {
         val appWidgetId = appWidgetHost.allocateAppWidgetId()
         val mWidgetPreviewLoader = WidgetPreviewLoader(overlay)
 
@@ -160,7 +133,7 @@ class WidgetManager(
             previewImage.setOnClickListener {
                 val success = mAppWidgetManager.bindAppWidgetIdIfAllowed(appWidgetId, info.provider)
                 if (success) {
-                    addAppWidget(appWidgetId)
+                    addAppWidget(appWidgetId, viewPager)
                 } else {
                     val intent = Intent(AppWidgetManager.ACTION_APPWIDGET_BIND)
                     intent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId)
@@ -168,7 +141,7 @@ class WidgetManager(
                     intent.putExtra(
                         AppWidgetManager.EXTRA_APPWIDGET_PROVIDER_PROFILE, info.profile
                     )
-                    requestCreateAppWidget.launch(intent)
+                    overlay.requestCreateAppWidget.launch(intent)
                 }
                 widgetDialog?.dismiss()
             }
@@ -176,19 +149,6 @@ class WidgetManager(
             previews.addView(previewImage)
         }
         widgetDialog!!.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
-    }
-
-    private val requestCreateAppWidget = overlay.registerForActivityResult(
-        ActivityResultContracts.StartActivityForResult()) { result: ActivityResult ->
-        val appWidgetId = result.data?.getIntExtra(
-            AppWidgetManager.EXTRA_APPWIDGET_ID, -1) ?: -1
-        if (result.resultCode == FragmentActivity.RESULT_CANCELED) {
-            if (appWidgetId != -1) {
-                appWidgetHost.deleteAppWidgetId(appWidgetId)
-            }
-        } else {
-            completeAddAppWidget(appWidgetId)
-        }
     }
 
     @SuppressLint("InflateParams")
@@ -220,11 +180,5 @@ class WidgetManager(
         if (!appWidgets.isEmpty()) {
             binder.obtainMessage(DesktopBinder.MESSAGE_BIND_APPWIDGETS).sendToTarget()
         }
-    }
-
-    fun onDestroy() {
-        try {
-            appWidgetHost.stopListening()
-        } catch (ignored: NullPointerException) { }
     }
 }

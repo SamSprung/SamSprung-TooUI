@@ -79,7 +79,6 @@
             android:name=".SamSprungOverlay"
             android:theme="@style/LauncherTheme.NoActionBar"
             android:configChanges="orientation|screenLayout|screenSize|smallestScreenSize"
-            android:windowSoftInputMode="adjustNothing"
             android:exported="true"
             android:launchMode="singleTop"
             android:showOnLockScreen="true"
@@ -105,6 +104,7 @@
         <service android:name=".launcher.AppDisplayListener"
             android:exported="true"
             android:permission="android.permission.FOREGROUND_SERVICE"
+            android:showOnLockScreen="true"
             android:showWhenLocked="true">
             <meta-data android:name="com.samsung.android.activity.showWhenLocked" android:value="true"/>
         </service>

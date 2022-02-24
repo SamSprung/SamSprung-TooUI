@@ -390,9 +390,8 @@ class AppDisplayListener : Service() {
         }
 
         try {
-            val displayContext = ScaledContext.wrap(ScaledContext.cover(applicationContext))
-            (displayContext.getSystemService(WINDOW_SERVICE)
-                    as WindowManager).removeViewImmediate(floatView)
+            (ScaledContext.wrap(ScaledContext.cover(applicationContext))
+                .getSystemService(WINDOW_SERVICE) as WindowManager).removeViewImmediate(floatView)
         } catch (ignored: Exception) { }
         @Suppress("DEPRECATION")
         if ((application as SamSprung).isKeyguardLocked) mKeyguardLock.reenableKeyguard()

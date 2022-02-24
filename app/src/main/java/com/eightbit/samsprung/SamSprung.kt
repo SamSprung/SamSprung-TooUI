@@ -113,17 +113,8 @@ class SamSprung : Application() {
                 // Unrecoverable error encountered
                 exitProcess(1)
             }
-            Executors.newSingleThreadExecutor().execute {
-                recreateWidgetPreviewDb()
-            }
         }
     }
 
-    private var mWidgetPreviewCacheDb: CacheDb? = null
-    fun recreateWidgetPreviewDb() {
-        mWidgetPreviewCacheDb = CacheDb(this)
-    }
-    fun getWidgetPreviewCacheDb(): CacheDb? {
-        return mWidgetPreviewCacheDb
-    }
+
 }

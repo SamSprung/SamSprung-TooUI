@@ -56,8 +56,7 @@ class LaunchManager(private val overlay: SamSprungOverlay) {
             WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY,
             WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL or
                     WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or
-                    WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE or
-                    WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN,
+                    WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE,
             PixelFormat.TRANSPARENT
         )
         orientationLayout.screenOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
@@ -66,13 +65,11 @@ class LaunchManager(private val overlay: SamSprungOverlay) {
         windowManager.addView(orientationChanger, orientationLayout)
         orientationChanger.visibility = View.VISIBLE
         Handler(Looper.getMainLooper()).postDelayed({
-            overlay.runOnUiThread {
-                windowManager.removeViewImmediate(orientationChanger)
-                overlay.onDismiss()
-                overlay.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
-                overlay.startForegroundService(
-                    Intent(overlay, AppDisplayListener::class.java).putExtras(extras))
-            }
+            windowManager.removeViewImmediate(orientationChanger)
+            overlay.onDismiss()
+            overlay.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
+            overlay.startForegroundService(
+                Intent(overlay, AppDisplayListener::class.java).putExtras(extras))
         }, 50)
     }
 

@@ -188,9 +188,8 @@ class WidgetPreviewLoader(private val mLauncher: SamSprungOverlay) {
     }
 
     private fun recreateDb() {
-        val app = mLauncher.application as SamSprung
-        app.recreateWidgetPreviewDb()
-        mDb = app.getWidgetPreviewCacheDb()
+        mLauncher.recreateWidgetPreviewDb()
+        mDb = mLauncher.getWidgetPreviewCacheDb()
     }
 
     fun setPreviewSize(previewWidth: Int, previewHeight: Int) {
@@ -572,7 +571,7 @@ class WidgetPreviewLoader(private val mLauncher: SamSprungOverlay) {
         return preview
     }
 
-    val fullResDefaultActivityIcon: Drawable
+    private val fullResDefaultActivityIcon: Drawable
         get() = getFullResIcon(
             Resources.getSystem(),
             android.R.mipmap.sym_def_app_icon, Process.myUserHandle()
@@ -682,8 +681,7 @@ class WidgetPreviewLoader(private val mLauncher: SamSprungOverlay) {
         mProfileBadgeMargin = mContext.resources.getDimensionPixelSize(
             R.dimen.profile_badge_margin
         )
-        val app = mLauncher.applicationContext as SamSprung
-        mDb = app.getWidgetPreviewCacheDb()
+        mDb = mLauncher.getWidgetPreviewCacheDb()
         mLoadedPreviews = HashMap()
         mUnusedBitmaps = ArrayList()
         val sp = mLauncher.getSharedPreferences(

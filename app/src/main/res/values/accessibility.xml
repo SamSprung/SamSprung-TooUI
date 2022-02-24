@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="description_icon">Icon</string>
+    <string name="description_badge">Badge</string>
+</resources>

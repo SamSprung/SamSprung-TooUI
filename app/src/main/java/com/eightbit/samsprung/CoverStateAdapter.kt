@@ -51,14 +51,14 @@ package com.eightbit.samsprung
  * subject to to the terms and conditions of the Apache License, Version 2.0.
  */
 
+import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.FragmentActivity
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import com.eightbit.samsprung.launcher.AppDrawerFragment
 import com.eightbit.samsprung.panels.PanelViewFragment
-import java.util.ArrayList
+import java.util.*
 
-class CoverStateAdapter(fragmentActivity: FragmentActivity) : FragmentStateAdapter(fragmentActivity) {
+class CoverStateAdapter(fragmentActivity: AppCompatActivity) : FragmentStateAdapter(fragmentActivity) {
     private val mFragments = ArrayList<PanelViewFragment>()
     private val mFragmentIDs = ArrayList<Int>()
     private val appDrawer = AppDrawerFragment()
@@ -83,10 +83,6 @@ class CoverStateAdapter(fragmentActivity: FragmentActivity) : FragmentStateAdapt
 
     fun getFragment(fragmentID: Int) : PanelViewFragment {
         return mFragments[fragmentID - 1]
-    }
-
-    fun getDrawer() : AppDrawerFragment {
-        return appDrawer
     }
 
     override fun createFragment(position: Int): Fragment {

@@ -58,7 +58,6 @@ import android.content.Context
 import android.content.Intent
 import android.util.AttributeSet
 import androidx.coordinatorlayout.widget.CoordinatorLayout
-import com.eightbit.samsprung.OnBroadcastService
 import com.eightbit.samsprung.SamSprungOverlay
 import com.eightbit.samsprung.launcher.AppDisplayListener
 
@@ -67,39 +66,9 @@ class PersistentCoordinator : CoordinatorLayout {
     constructor(context: Context, attrs: AttributeSet?) : super(context, attrs)
     constructor(context: Context, attrs: AttributeSet?, defStyle: Int) : super(context, attrs, defStyle)
 
-    private var isCancellable = false
-
     override fun onWindowVisibilityChanged(visibility: Int) {
         super.onWindowVisibilityChanged(visibility)
-        if (!isAttachedToWindow || GONE != visibility
-            || GONE != this.windowVisibility || isCancellable) return
-        if (isServiceRunning(context.applicationContext, AppDisplayListener::class.java)) return
-        context.applicationContext.startActivity(
-            Intent(context.applicationContext, SamSprungOverlay::class.java)
-                .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK),
-            ActivityOptions.makeBasic().setLaunchDisplayId(1).toBundle()
-        )
-    }
-
-    override fun onDetachedFromWindow() {
-        super.onDetachedFromWindow()
-        if (!isServiceRunning(context.applicationContext, OnBroadcastService::class.java))
-            context.applicationContext.startForegroundService(
-                Intent(context.applicationContext, OnBroadcastService::class.java))
-    }
-
-    fun setCancellable(isCancellable: Boolean) {
-        this.isCancellable = isCancellable
-    }
-
-    @Suppress("DEPRECATION")
-    private fun isServiceRunning(context: Context, serviceClass: Class<*>): Boolean {
-        for (service in (context.getSystemService(Service.ACTIVITY_SERVICE) as ActivityManager)
-            .getRunningServices(Int.MAX_VALUE)) {
-            if (serviceClass.name == service.service.className) {
-                return true
-            }
-        }
-        return false
+        if (!isAttachedToWindow || GONE != visibility || GONE != this.windowVisibility) return
+//        (context as SamSprungOverlay).recreate()
     }
 }

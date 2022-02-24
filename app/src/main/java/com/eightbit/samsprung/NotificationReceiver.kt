@@ -119,7 +119,7 @@ class NotificationReceiver : NotificationListenerService() {
         getReceiver()?.mNotificationsListener = listener
         val notifications: ArrayList<StatusBarNotification> = arrayListOf()
         notifications.addAll(activeNotifications)
-        notifications.removeAll(snoozedNotifications.toSet())
+        // notifications.removeAll(snoozedNotifications.toSet())
         getReceiver()?.mNotificationsListener?.onActiveNotifications(notifications)
     }
 

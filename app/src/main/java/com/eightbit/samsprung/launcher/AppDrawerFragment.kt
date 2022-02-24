@@ -75,8 +75,8 @@ import java.util.concurrent.Executors
 
 class AppDrawerFragment : Fragment(), DrawerAppAdapater.OnAppClickListener {
 
-    private lateinit var launchManager: LaunchManager
-    private lateinit var packReceiver: BroadcastReceiver
+    private var launchManager: LaunchManager? = null
+    private var packReceiver: BroadcastReceiver? = null
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -200,14 +200,13 @@ class AppDrawerFragment : Fragment(), DrawerAppAdapater.OnAppClickListener {
     }
 
     override fun onAppClicked(resolveInfo: ResolveInfo, position: Int) {
-        launchManager.launchApplicationComponent(resolveInfo)
+        launchManager?.launchApplicationComponent(resolveInfo)
     }
 
     override fun onDestroyView() {
         super.onDestroyView()
         try {
-            if (this::packReceiver.isInitialized)
-                requireActivity().unregisterReceiver(packReceiver)
+            if (null != packReceiver) requireActivity().unregisterReceiver(packReceiver)
         } catch (ignored: Exception) { }
     }
 }

@@ -75,25 +75,6 @@ class GitBroadcastReceiver : BroadcastReceiver() {
         }
         when {
             Intent.ACTION_MY_PACKAGE_REPLACED == intent.action -> {
-                if (hasNotificationListener(context)) {
-                    Executors.newSingleThreadExecutor().execute {
-                        val componentName = ComponentName(
-                            context.applicationContext,
-                            NotificationReceiver::class.java
-                        )
-                        context.packageManager.setComponentEnabledSetting(
-                            componentName,
-                            PackageManager.COMPONENT_ENABLED_STATE_DISABLED, PackageManager.DONT_KILL_APP
-                        )
-                        context.packageManager.setComponentEnabledSetting(
-                            componentName,
-                            PackageManager.COMPONENT_ENABLED_STATE_ENABLED, PackageManager.DONT_KILL_APP
-                        )
-                        try {
-                            NotificationListenerService.requestRebind(componentName)
-                        } catch(ignored: Exception) { }
-                    }
-                }
                 context.startForegroundService(Intent(context, OnBroadcastService::class.java))
             }
             BuildConfig.FLAVOR == "google" -> return

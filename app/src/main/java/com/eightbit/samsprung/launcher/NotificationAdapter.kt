@@ -335,25 +335,34 @@ class NotificationAdapter(
     @SuppressLint("NotifyDataSetChanged")
     override fun onNotificationPosted(sbn: StatusBarNotification?) {
         if (null == sbn) return
+        var update = -1
         for (index in 0 until sbNotifications.size) {
             if (sbNotifications[index].key == sbn.key) {
-                sbNotifications[index] = sbn
-                activity.runOnUiThread { this.notifyItemChanged(index, sbn) }
-                return
+                update = index
+                break
             }
         }
-        sbNotifications.add(0, sbn)
-        activity.runOnUiThread { this.notifyItemInserted(0) }
+        if (update != -1) {
+            sbNotifications[update] = sbn
+            activity.runOnUiThread { this.notifyItemChanged(update, sbn) }
+        } else {
+            sbNotifications.add(0, sbn)
+            activity.runOnUiThread { this.notifyItemInserted(0) }
+        }
     }
     @SuppressLint("NotifyDataSetChanged")
     override fun onNotificationRemoved(sbn: StatusBarNotification?) {
         if (null == sbn) return
+        var remove = -1
         for (index in 0 until sbNotifications.size) {
             if (sbNotifications[index].key == sbn.key) {
-                sbNotifications.remove(sbNotifications[index])
-                activity.runOnUiThread { this.notifyItemRemoved(index) }
+                remove = index
                 break
             }
+        }
+        if (remove != -1) {
+            sbNotifications.remove(sbNotifications[remove])
+            activity.runOnUiThread { this.notifyItemRemoved(remove) }
         }
     }
 

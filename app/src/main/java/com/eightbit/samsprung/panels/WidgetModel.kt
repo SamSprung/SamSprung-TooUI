@@ -135,8 +135,7 @@ class WidgetModel {
                             appWidgetInfo.container = c.getInt(containerIndex).toLong()
                             desktopAppWidgets.add(appWidgetInfo)
                         }
-                    } catch (ignored: Exception) {
-                    }
+                    } catch (ignored: Exception) { }
                 }
             }
             if (!mStopped) {
