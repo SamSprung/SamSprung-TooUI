@@ -1,4 +1,4 @@
-package com.eightbit.samsprung.panels
+package com.eightbit.samsprung.launcher
 
 /* ====================================================================
  * Copyright (c) 2012-2022 AbandonedCart.  All rights reserved.

@@ -144,8 +144,7 @@
                         app:contentInsetStart="2dp"
                         android:layout_gravity="top|center_horizontal" />
 
-                    <androidx.recyclerview.widget.RecyclerView
-                        android:id="@+id/notificationList"
+                    <View
                         android:layout_below="@id/toolbar"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"

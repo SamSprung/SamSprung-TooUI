@@ -54,13 +54,10 @@ package com.eightbit.samsprung.launcher
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.app.PendingIntent
-import android.content.Intent
 import android.content.res.Configuration
 import android.graphics.Bitmap
 import android.graphics.Color
 import android.graphics.drawable.Icon
-import android.os.Handler
-import android.os.Looper
 import android.service.notification.StatusBarNotification
 import android.view.LayoutInflater
 import android.view.View
@@ -74,7 +71,6 @@ import androidx.core.graphics.ColorUtils
 import androidx.core.graphics.drawable.toBitmap
 import androidx.fragment.app.FragmentActivity
 import androidx.recyclerview.widget.RecyclerView
-import com.eightbit.content.ScaledContext
 import com.eightbit.samsprung.NotificationReceiver
 import com.eightbit.samsprung.R
 import com.eightbit.samsprung.SamSprung

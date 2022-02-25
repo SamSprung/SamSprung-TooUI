@@ -148,5 +148,10 @@ class ScaledContext(base: Context) : ContextWrapper(base) {
         fun cover(context: Context) : Context {
             return context.cover
         }
+
+        fun cover(context: Context, theme: Int) : Context {
+            context.setTheme(theme)
+            return context.cover
+        }
     }
 }

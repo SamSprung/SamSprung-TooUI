@@ -161,7 +161,7 @@ class CoverPreferences : AppCompatActivity() {
         buildInfo.text = (getString(R.string.build_hash, BuildConfig.COMMIT))
         buildInfo.setOnClickListener {
             startActivity(Intent(Intent.ACTION_VIEW,
-                Uri.parse("https://github.com/SamSprung/SamSprung-TooUI")))
+                Uri.parse("https://github.com/SamSprung/SamSprung-TooUI/wiki")))
         }
 
         initializeLayout()

@@ -85,7 +85,6 @@ class SamSprung : Application() {
         const val prefsValue: String = "samsprung.preferences"
         const val prefLayout: String = "prefLayout"
         const val prefHidden: String = "prefHidden"
-        const val autoRotate: String = "autoRotate"
         const val prefSecure: String = "prefSecure"
         const val prefColors: String = "prefColors"
         const val prefAlphas: String = "prefAlphas"

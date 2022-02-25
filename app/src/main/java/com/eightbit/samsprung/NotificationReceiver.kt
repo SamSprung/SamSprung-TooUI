@@ -87,7 +87,9 @@ class NotificationReceiver : NotificationListenerService() {
     override fun onListenerDisconnected() {
         super.onListenerDisconnected()
         isConnected = false
-        requestRebind(ComponentName(applicationContext, NotificationReceiver::class.java))
+        try {
+            requestRebind(ComponentName(applicationContext, NotificationReceiver::class.java))
+        } catch (ignored: Exception) { }
     }
 
     override fun onNotificationPosted(sbn: StatusBarNotification?) {

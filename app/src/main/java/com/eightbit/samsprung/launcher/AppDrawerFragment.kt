@@ -59,7 +59,6 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.LinearLayout
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.SearchView
 import androidx.fragment.app.Fragment
@@ -127,21 +126,19 @@ class AppDrawerFragment : Fragment(), DrawerAppAdapater.OnAppClickListener {
             }
         })
 
-        val bottomSheetMain = (requireActivity() as SamSprungOverlay).getBottomSheetMain()
-
         RecyclerViewTouch(launcherView).setSwipeCallback(
             ItemTouchHelper.END or ItemTouchHelper.DOWN,
             object: RecyclerViewTouch.SwipeCallback {
             override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
                 if (direction == ItemTouchHelper.DOWN) {
-                    onSwipeDown(launcherView, bottomSheetMain)
+                    onSwipeClosed(launcherView)
                 }
             }
         })
 
         launcherView.setOnTouchListener(object : OnSwipeTouchListener(requireActivity()) {
             override fun onSwipeBottom() : Boolean {
-                onSwipeDown(launcherView, bottomSheetMain)
+                onSwipeClosed(launcherView)
                 return false
             }
         })
@@ -180,16 +177,17 @@ class AppDrawerFragment : Fragment(), DrawerAppAdapater.OnAppClickListener {
         }
     }
 
-    private fun onSwipeDown(launcherView: RecyclerView, bottomSheet: BottomSheetBehavior<View>) {
-        if (launcherView.layoutManager is LinearLayoutManager) {
-            if ((launcherView.layoutManager as LinearLayoutManager)
-                    .findFirstCompletelyVisibleItemPosition() == 0) {
+    private fun onSwipeClosed(recyclerView: RecyclerView) {
+        val bottomSheet = (requireActivity() as SamSprungOverlay).getBottomSheetMain()
+        if (recyclerView.layoutManager is LinearLayoutManager) {
+            val manager = recyclerView.layoutManager as LinearLayoutManager
+            if (manager.itemCount == 0 || manager.findFirstCompletelyVisibleItemPosition() == 0) {
                 bottomSheet.state = BottomSheetBehavior.STATE_COLLAPSED
             }
         }
-        if (launcherView.layoutManager is GridLayoutManager) {
-            if ((launcherView.layoutManager as GridLayoutManager)
-                    .findFirstCompletelyVisibleItemPosition() == 0) {
+        if (recyclerView.layoutManager is GridLayoutManager) {
+            val manager = recyclerView.layoutManager as GridLayoutManager
+            if (manager.itemCount == 0 || manager.findFirstCompletelyVisibleItemPosition() == 0) {
                 bottomSheet.state = BottomSheetBehavior.STATE_COLLAPSED
             }
         }

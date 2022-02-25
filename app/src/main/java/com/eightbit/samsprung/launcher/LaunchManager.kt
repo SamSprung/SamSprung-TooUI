@@ -1,6 +1,5 @@
 package com.eightbit.samsprung.launcher
 
-import android.app.Activity
 import android.app.ActivityOptions
 import android.app.KeyguardManager
 import android.app.PendingIntent

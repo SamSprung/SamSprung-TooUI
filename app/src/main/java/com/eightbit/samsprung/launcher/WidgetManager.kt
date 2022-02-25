@@ -1,4 +1,4 @@
-package com.eightbit.samsprung.panels
+package com.eightbit.samsprung.launcher
 
 import android.annotation.SuppressLint
 import android.appwidget.AppWidgetHost
@@ -18,9 +18,9 @@ import androidx.core.graphics.drawable.toBitmap
 import androidx.core.view.children
 import androidx.viewpager2.widget.ViewPager2
 import com.eightbit.content.ScaledContext
-import com.eightbit.samsprung.CoverStateAdapter
 import com.eightbit.samsprung.R
 import com.eightbit.samsprung.SamSprungOverlay
+import com.eightbit.samsprung.panels.*
 import java.util.*
 import java.util.concurrent.Executors
 
@@ -58,7 +58,7 @@ class WidgetManager(
             WidgetModel.addItemToDatabase(
                 overlay.applicationContext, launcherInfo,
                 WidgetSettings.Favorites.CONTAINER_DESKTOP,
-                spans[0],  spans[1], false
+                spans[0], spans[1], false
             )
         }
         overlay.model.addDesktopAppWidget(launcherInfo)
@@ -79,7 +79,7 @@ class WidgetManager(
                 (view as LinearLayout).addView(launcherInfo.hostView, params)
             }
         })
-        viewPager.setCurrentItem(id + 1, true)
+        viewPager.setCurrentItem(id, true)
     }
 
     private fun addAppWidget(appWidgetId: Int, viewPager: ViewPager2) {
