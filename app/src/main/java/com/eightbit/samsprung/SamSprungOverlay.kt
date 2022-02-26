@@ -129,7 +129,7 @@ class SamSprungOverlay : AppCompatActivity() {
 
     private inner class FavoritesChangeObserver : ContentObserver(Handler(Looper.getMainLooper())) {
         override fun onChange(selfChange: Boolean) {
-            model.loadUserItems(false, this@SamSprungOverlay)
+            onFavoritesChanged()
         }
     }
     private val mObserver: ContentObserver = FavoritesChangeObserver()
@@ -690,6 +690,10 @@ class SamSprungOverlay : AppCompatActivity() {
         }.any {componentName->
             myNotificationListenerComponentName == componentName
         }
+    }
+
+    private fun onFavoritesChanged() {
+        model.loadUserItems(false, this)
     }
 
     @SuppressLint("InflateParams")

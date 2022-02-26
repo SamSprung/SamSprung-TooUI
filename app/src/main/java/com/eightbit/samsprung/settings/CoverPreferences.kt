@@ -776,7 +776,8 @@ class CoverPreferences : AppCompatActivity() {
         ActivityResultContracts.StartActivityForResult()) {
         Executors.newSingleThreadExecutor().execute {
             val packageRetriever = PackageRetriever(this)
-            val packages = packageRetriever.getRecentPackageList(false)
+            // val packages = packageRetriever.getRecentPackageList(false)
+            val packages = packageRetriever.getPackageList()
             val unlisted = packageRetriever.getHiddenPackages()
             runOnUiThread {
                 (hiddenList.adapter as FilteredAppsAdapter).setPackages(packages, unlisted)

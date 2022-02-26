@@ -32,7 +32,7 @@ class DesktopBinder(
         return false
     }
 
-    fun startBindingAppWidgets() {
+    private fun startBindingAppWidgets() {
         obtainMessage(MESSAGE_BIND_APPWIDGETS).sendToTarget()
     }
 
