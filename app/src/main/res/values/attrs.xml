@@ -1,11 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <declare-styleable name="VerticalStrokeTextView" parent="android:Widget.TextView">
-        <attr name="text_direction" format="integer"/>
-        <attr name="stroke_width" format="dimension"/>
-        <attr name="stroke_color" format="integer"/>
-    </declare-styleable>
-
     <declare-styleable name="BlurView">
         <attr name="blurOverlayColor" format="color"/>
     </declare-styleable>
