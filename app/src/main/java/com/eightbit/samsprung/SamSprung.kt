@@ -57,8 +57,6 @@ import android.hardware.display.DisplayManager
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatDelegate
 import com.eightbit.content.ScaledContext
-import com.eightbit.samsprung.panels.WidgetPreviewLoader.CacheDb
-import java.util.concurrent.Executors
 import kotlin.system.exitProcess
 
 class SamSprung : Application() {

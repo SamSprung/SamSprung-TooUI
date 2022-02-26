@@ -15,21 +15,15 @@
  */
 package com.eightbit.samsprung.panels
 
-import android.content.ContentResolver
 import android.content.ContentValues
 import android.content.Context
-import android.content.Intent
-import android.content.pm.ActivityInfo
-import android.content.pm.PackageManager
 import android.os.Process
 import android.provider.BaseColumns
 import com.eightbit.samsprung.SamSprungOverlay
 import com.eightbit.samsprung.panels.WidgetSettings.BaseLauncherColumns
 import com.eightbit.samsprung.panels.WidgetSettings.Favorites
 import java.lang.ref.WeakReference
-import java.net.URISyntaxException
 import java.util.*
-import java.util.concurrent.atomic.AtomicInteger
 
 /**
  * Maintains in-memory state of the Launcher. It is expected that there should be only one
@@ -39,7 +33,7 @@ import java.util.concurrent.atomic.AtomicInteger
 class WidgetModel {
     private var mDesktopItemsLoaded = false
     private var mDesktopItems: ArrayList<WidgetInfo?>? = null
-    private var mDesktopAppWidgets: ArrayList<CoverWidgetInfo>? = null
+    private var mDesktopAppWidgets: ArrayList<PanelWidgetInfo>? = null
     private var mDesktopItemsLoader: DesktopItemsLoader? = null
     private var mDesktopLoaderThread: Thread? = null
     @Synchronized
@@ -117,14 +111,14 @@ class WidgetModel {
                 val spanXIndex = c.getColumnIndexOrThrow(Favorites.SPANX)
                 val spanYIndex = c.getColumnIndexOrThrow(Favorites.SPANY)
                 val uriIndex = c.getColumnIndexOrThrow(Favorites.URI)
-                var appWidgetInfo: CoverWidgetInfo
+                var appWidgetInfo: PanelWidgetInfo
                 var container: Int
                 while (!mStopped && c.moveToNext()) {
                     try {
                         val itemType = c.getInt(itemTypeIndex)
                         if (itemType == Favorites.ITEM_TYPE_APPWIDGET) { // Read all Launcher-specific widget details
                             val appWidgetId = c.getInt(appWidgetIdIndex)
-                            appWidgetInfo = CoverWidgetInfo(appWidgetId)
+                            appWidgetInfo = PanelWidgetInfo(appWidgetId)
                             appWidgetInfo.id = c.getLong(idIndex)
                             appWidgetInfo.spanX = c.getInt(spanXIndex)
                             appWidgetInfo.spanY = c.getInt(spanYIndex)
@@ -168,9 +162,9 @@ class WidgetModel {
     }
 
     /**
-     * Remove any [CoverWidgetHostView] references in our widgets.
+     * Remove any [WidgetHostView] references in our widgets.
      */
-    private fun unbindAppWidgetHostViews(appWidgets: ArrayList<CoverWidgetInfo>?) {
+    private fun unbindAppWidgetHostViews(appWidgets: ArrayList<PanelWidgetInfo>?) {
         if (appWidgets != null) {
             val count = appWidgets.size
             for (i in 0 until count) {
@@ -183,14 +177,14 @@ class WidgetModel {
     /**
      * Add a widget to the desktop
      */
-    fun addDesktopAppWidget(info: CoverWidgetInfo) {
+    fun addDesktopAppWidget(info: PanelWidgetInfo) {
         mDesktopAppWidgets!!.add(info)
     }
 
     /**
      * Remove a widget from the desktop
      */
-    fun removeDesktopAppWidget(info: CoverWidgetInfo) {
+    fun removeDesktopAppWidget(info: PanelWidgetInfo) {
         mDesktopAppWidgets!!.remove(info)
     }
 

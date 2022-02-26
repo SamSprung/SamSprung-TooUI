@@ -10,10 +10,10 @@ import java.util.*
 
 class DesktopBinder(
     launcher: SamSprungOverlay, shortcuts: ArrayList<WidgetInfo?>?,
-    appWidgets: ArrayList<CoverWidgetInfo>?
+    appWidgets: ArrayList<PanelWidgetInfo>?
 ) : Handler(Looper.getMainLooper()), MessageQueue.IdleHandler {
     private val mShortcuts: ArrayList<WidgetInfo?>? = shortcuts
-    private val mAppWidgets: LinkedList<CoverWidgetInfo>
+    private val mAppWidgets: LinkedList<PanelWidgetInfo>
     private val mLauncher: SoftReference<SamSprungOverlay> = SoftReference(launcher)
     var mTerminate = false
     fun startBindingItems() {

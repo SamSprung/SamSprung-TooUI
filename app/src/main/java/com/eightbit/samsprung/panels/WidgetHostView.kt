@@ -26,7 +26,7 @@ import com.eightbit.samsprung.R
 /**
  * {@inheritDoc}
  */
-class CoverWidgetHostView(context: Context) : AppWidgetHostView(context) {
+class WidgetHostView(context: Context) : AppWidgetHostView(context) {
     private val mInflater: LayoutInflater = context.getSystemService(
         Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
     override fun getErrorView(): View {

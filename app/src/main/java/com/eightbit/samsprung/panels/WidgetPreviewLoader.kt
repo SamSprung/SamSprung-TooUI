@@ -32,62 +32,6 @@ import java.util.concurrent.Executors
 import android.graphics.Bitmap
 import com.eightbit.samsprung.SamSprungOverlay
 
-
-internal abstract class SoftReferenceThreadLocal<T> {
-    private val mThreadLocal: ThreadLocal<SoftReference<T?>> = ThreadLocal()
-    abstract fun initialValue(): T
-    fun set(t: T) {
-        mThreadLocal.set(SoftReference(t))
-    }
-
-    fun get(): T? {
-        val reference = mThreadLocal.get()
-        var obj: T?
-        if (reference == null) {
-            obj = initialValue()
-            mThreadLocal.set(SoftReference(obj))
-        } else {
-            obj = reference.get()
-            if (obj == null) {
-                obj = initialValue()
-                mThreadLocal.set(SoftReference(obj))
-            }
-        }
-        return obj
-    }
-
-}
-
-internal class CanvasCache : SoftReferenceThreadLocal<Canvas>() {
-    override fun initialValue(): Canvas {
-        return Canvas()
-    }
-}
-
-internal class PaintCache : SoftReferenceThreadLocal<Paint?>() {
-    override fun initialValue(): Paint? {
-        return null
-    }
-}
-
-internal class BitmapCache : SoftReferenceThreadLocal<Bitmap?>() {
-    override fun initialValue(): Bitmap? {
-        return null
-    }
-}
-
-internal class RectCache : SoftReferenceThreadLocal<Rect>() {
-    override fun initialValue(): Rect {
-        return Rect()
-    }
-}
-
-internal class BitmapFactoryOptionsCache : SoftReferenceThreadLocal<BitmapFactory.Options>() {
-    override fun initialValue(): BitmapFactory.Options {
-        return BitmapFactory.Options()
-    }
-}
-
 class WidgetPreviewLoader(private val mLauncher: SamSprungOverlay) {
     private var mPreviewBitmapWidth = 0
     private var mPreviewBitmapHeight = 0
@@ -115,7 +59,6 @@ class WidgetPreviewLoader(private val mLauncher: SamSprungOverlay) {
     private val mUnusedBitmaps: ArrayList<SoftReference<Bitmap?>>
 
     companion object {
-        const val TAG = "WidgetPreviewLoader"
         const val ANDROID_INCREMENTAL_VERSION_NAME_KEY = "android.incremental.version"
         private var sInvalidPackages: HashSet<String> = hashSetOf()
         private const val WIDGET_PREFIX = "Widget:"
@@ -696,6 +639,61 @@ class WidgetPreviewLoader(private val mLauncher: SamSprungOverlay) {
             val editor = sp.edit()
             editor.putString(ANDROID_INCREMENTAL_VERSION_NAME_KEY, versionName)
             editor.apply()
+        }
+    }
+
+    internal abstract class SoftReferenceThreadLocal<T> {
+        private val mThreadLocal: ThreadLocal<SoftReference<T?>> = ThreadLocal()
+        abstract fun initialValue(): T
+        fun set(t: T) {
+            mThreadLocal.set(SoftReference(t))
+        }
+
+        fun get(): T? {
+            val reference = mThreadLocal.get()
+            var obj: T?
+            if (reference == null) {
+                obj = initialValue()
+                mThreadLocal.set(SoftReference(obj))
+            } else {
+                obj = reference.get()
+                if (obj == null) {
+                    obj = initialValue()
+                    mThreadLocal.set(SoftReference(obj))
+                }
+            }
+            return obj
+        }
+
+    }
+
+    internal class CanvasCache : SoftReferenceThreadLocal<Canvas>() {
+        override fun initialValue(): Canvas {
+            return Canvas()
+        }
+    }
+
+    internal class PaintCache : SoftReferenceThreadLocal<Paint?>() {
+        override fun initialValue(): Paint? {
+            return null
+        }
+    }
+
+    internal class BitmapCache : SoftReferenceThreadLocal<Bitmap?>() {
+        override fun initialValue(): Bitmap? {
+            return null
+        }
+    }
+
+    internal class RectCache : SoftReferenceThreadLocal<Rect>() {
+        override fun initialValue(): Rect {
+            return Rect()
+        }
+    }
+
+    internal class BitmapFactoryOptionsCache : SoftReferenceThreadLocal<BitmapFactory.Options>() {
+        override fun initialValue(): BitmapFactory.Options {
+            return BitmapFactory.Options()
         }
     }
 }

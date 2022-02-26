@@ -191,7 +191,7 @@ class CheckUpdatesTask(private var activity: Activity) {
             NotificationChannelGroup("services_group", "Services")
         )
         val notificationChannel = NotificationChannel("update_channel",
-            "Update Notification", NotificationManager.IMPORTANCE_DEFAULT)
+            "Update Notification", NotificationManager.IMPORTANCE_LOW)
         notificationChannel.enableLights(false)
         notificationChannel.enableVibration(false)
         val soundUri = Uri.parse(ContentResolver.SCHEME_ANDROID_RESOURCE
@@ -200,7 +200,7 @@ class CheckUpdatesTask(private var activity: Activity) {
             .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
             .setUsage(AudioAttributes.USAGE_NOTIFICATION).build()
         notificationChannel.setSound(soundUri, audioAttributes)
-        notificationChannel.lockscreenVisibility = Notification.VISIBILITY_PUBLIC
+        notificationChannel.lockscreenVisibility = Notification.VISIBILITY_PRIVATE
         mNotificationManager.createNotificationChannel(notificationChannel)
         val builder = NotificationCompat.Builder(
             activity, "update_channel")
@@ -210,7 +210,7 @@ class CheckUpdatesTask(private var activity: Activity) {
         builder.setContentTitle(notificationText).setTicker(notificationText)
             .setContentText(activity.getString(R.string.click_update_app))
             .setSmallIcon(R.drawable.ic_baseline_samsprung_24)
-            .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+            .setPriority(NotificationCompat.PRIORITY_LOW)
             .setSound(soundUri).setWhen(0).setOnlyAlertOnce(true)
             .setContentIntent(pendingIntent).setOngoing(false)
         if (null != iconNotification) {

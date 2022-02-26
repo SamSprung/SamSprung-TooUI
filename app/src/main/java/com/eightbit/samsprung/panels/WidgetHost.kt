@@ -19,18 +19,17 @@ import android.appwidget.AppWidgetHost
 import android.appwidget.AppWidgetProviderInfo
 import android.appwidget.AppWidgetHostView
 import android.content.Context
-import com.eightbit.samsprung.panels.CoverWidgetHostView
 
 /**
- * Specific [AppWidgetHost] that creates our [CoverWidgetHostView]
+ * Specific [AppWidgetHost] that creates our [WidgetHostView]
  * which correctly captures all long-press events. This ensures that users can
  * always pick up and move widgets.
  */
-class CoverWidgetHost(context: Context?, hostId: Int) : AppWidgetHost(context, hostId) {
+class WidgetHost(context: Context?, hostId: Int) : AppWidgetHost(context, hostId) {
     override fun onCreateView(
         context: Context, appWidgetId: Int,
         appWidget: AppWidgetProviderInfo
     ): AppWidgetHostView {
-        return CoverWidgetHostView(context)
+        return WidgetHostView(context)
     }
 }

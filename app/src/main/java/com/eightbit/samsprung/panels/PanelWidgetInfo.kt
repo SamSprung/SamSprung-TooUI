@@ -22,7 +22,7 @@ import com.eightbit.samsprung.panels.WidgetSettings.Favorites
 /**
  * Represents a widget, which just contains an identifier.
  */
-class CoverWidgetInfo(appWidgetId: Int) : WidgetInfo() {
+class PanelWidgetInfo(appWidgetId: Int) : WidgetInfo() {
     /**
      * Identifier for this widget when talking with [android.appwidget.AppWidgetManager] for updates.
      */

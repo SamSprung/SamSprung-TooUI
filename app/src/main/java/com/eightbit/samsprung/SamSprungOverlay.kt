@@ -91,7 +91,7 @@ import com.eightbit.content.ScaledContext
 import com.eightbit.samsprung.*
 import com.eightbit.samsprung.launcher.CoverStateAdapter
 import com.eightbit.samsprung.launcher.LaunchManager
-import com.eightbit.samsprung.launcher.WidgetManager
+import com.eightbit.samsprung.launcher.CoverWidgetManager
 import com.eightbit.samsprung.panels.*
 import com.eightbit.samsprung.update.CheckUpdatesTask
 import com.eightbitlab.blurview.BlurView
@@ -106,9 +106,9 @@ class SamSprungOverlay : AppCompatActivity() {
     private lateinit var prefs: SharedPreferences
     private var mDisplayListener: DisplayManager.DisplayListener? = null
     private var launchManager: LaunchManager? = null
-    private var widgetManager: WidgetManager? = null
+    private var widgetManager: CoverWidgetManager? = null
     val model = WidgetModel()
-    private var appWidgetHost: CoverWidgetHost? = null
+    private var appWidgetHost: WidgetHost? = null
 
     private lateinit var wifiManager: WifiManager
     private lateinit var bluetoothAdapter: BluetoothAdapter
@@ -169,7 +169,7 @@ class SamSprungOverlay : AppCompatActivity() {
         setContentView(R.layout.home_main_view)
 
         val mAppWidgetManager = AppWidgetManager.getInstance(applicationContext)
-        val appWidgetHost = CoverWidgetHost(applicationContext, APPWIDGET_HOST_ID)
+        val appWidgetHost = WidgetHost(applicationContext, APPWIDGET_HOST_ID)
         if (prefs.getBoolean(getString(R.string.toggle_widgets).toPref, true)) {
             Executors.newSingleThreadExecutor().execute {
                 recreateWidgetPreviewDb()
@@ -356,7 +356,7 @@ class SamSprungOverlay : AppCompatActivity() {
                 val index = viewPager.currentItem
                 val fragment = (pagerAdapter as CoverStateAdapter).getFragment(index)
                 val widget = fragment.getLayout()!!.getChildAt(0).tag
-                if (widget is CoverWidgetInfo) {
+                if (widget is PanelWidgetInfo) {
                     viewPager.setCurrentItem(index - 1, true)
                     model.removeDesktopAppWidget(widget)
                     appWidgetHost.deleteAppWidgetId(widget.appWidgetId)
@@ -413,7 +413,7 @@ class SamSprungOverlay : AppCompatActivity() {
         })
 
         if (prefs.getBoolean(getString(R.string.toggle_widgets).toPref, true)) {
-            widgetManager = WidgetManager(this, mAppWidgetManager,
+            widgetManager = CoverWidgetManager(this, mAppWidgetManager,
                 appWidgetHost, pagerAdapter as CoverStateAdapter
             )
             contentResolver.registerContentObserver(
@@ -699,7 +699,7 @@ class SamSprungOverlay : AppCompatActivity() {
     @SuppressLint("InflateParams")
     fun bindAppWidgets(
         binder: DesktopBinder,
-        appWidgets: LinkedList<CoverWidgetInfo>
+        appWidgets: LinkedList<PanelWidgetInfo>
     ) {
         widgetManager?.bindAppWidgets(binder, appWidgets)
     }
@@ -723,7 +723,7 @@ class SamSprungOverlay : AppCompatActivity() {
 
     fun onDesktopItemsLoaded(
     shortcuts: ArrayList<WidgetInfo?>?,
-    appWidgets: ArrayList<CoverWidgetInfo>?
+    appWidgets: ArrayList<PanelWidgetInfo>?
     ) {
         if (mDestroyed) {
             return

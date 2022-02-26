@@ -24,7 +24,7 @@ import com.eightbit.samsprung.panels.*
 import java.util.*
 import java.util.concurrent.Executors
 
-class WidgetManager(
+class CoverWidgetManager(
     private var overlay: SamSprungOverlay,
     private var mAppWidgetManager: AppWidgetManager,
     private var appWidgetHost: AppWidgetHost,
@@ -37,7 +37,7 @@ class WidgetManager(
         val appWidgetInfo = mAppWidgetManager.getAppWidgetInfo(appWidgetId)
 
         // Build Launcher-specific widget info and save to database
-        val launcherInfo = CoverWidgetInfo(appWidgetId)
+        val launcherInfo = PanelWidgetInfo(appWidgetId)
 
         var spanX = appWidgetInfo.minWidth
         var spanY = appWidgetInfo.minHeight
@@ -154,7 +154,7 @@ class WidgetManager(
     @SuppressLint("InflateParams")
     fun bindAppWidgets(
         binder: DesktopBinder,
-        appWidgets: LinkedList<CoverWidgetInfo>
+        appWidgets: LinkedList<PanelWidgetInfo>
     ) {
         if (!appWidgets.isEmpty()) {
             val item = appWidgets.removeFirst()
