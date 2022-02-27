@@ -85,7 +85,6 @@ class AppDisplayListener : Service() {
 
     private lateinit var prefs: SharedPreferences
     private lateinit var offReceiver: BroadcastReceiver
-    private var isDisplayInitialized = false
     private lateinit var mDisplayListener: DisplayManager.DisplayListener
     @Suppress("DEPRECATION")
     private lateinit var mKeyguardLock: KeyguardManager.KeyguardLock
@@ -132,6 +131,7 @@ class AppDisplayListener : Service() {
             registerReceiver(offReceiver, it)
         }
 
+        var isDisplayInitialized = false
         mDisplayListener = object : DisplayManager.DisplayListener {
             override fun onDisplayAdded(display: Int) {}
             override fun onDisplayChanged(display: Int) {
@@ -141,6 +141,12 @@ class AppDisplayListener : Service() {
                         restoreActivityDisplay(componentName, display)
                     else
                         restoreActivityDisplay(launchPackage, launchActivity, display)
+                    if (this@AppDisplayListener::floatView.isInitialized
+                        && !floatView.isAttachedToWindow) {
+                        onDismiss()
+                        stopForeground(true)
+                        stopSelf()
+                    }
                 } else if (display == 1) {
                     isDisplayInitialized = true
                 }
@@ -223,11 +229,13 @@ class AppDisplayListener : Service() {
     private fun restoreActivityDisplay(
         componentName: ComponentName, display: Int) {
 
-        (getSystemService(AppCompatActivity.LAUNCHER_APPS_SERVICE) as LauncherApps)
-            .startMainActivity(
+        val baseContext = ScaledContext.restore(applicationContext)
+        (baseContext.getSystemService(AppCompatActivity
+            .LAUNCHER_APPS_SERVICE) as LauncherApps).startMainActivity(
             componentName,
             Process.myUserHandle(),
-            (getSystemService(WINDOW_SERVICE) as WindowManager).currentWindowMetrics.bounds,
+            (baseContext.getSystemService(WINDOW_SERVICE) as WindowManager)
+                .maximumWindowMetrics.bounds,
             ActivityOptions.makeBasic().setLaunchDisplayId(display).toBundle()
         )
     }
