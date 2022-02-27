@@ -85,6 +85,7 @@ class AppDisplayListener : Service() {
 
     private lateinit var prefs: SharedPreferences
     private lateinit var offReceiver: BroadcastReceiver
+    private var isDisplayInitialized = false
     private lateinit var mDisplayListener: DisplayManager.DisplayListener
     @Suppress("DEPRECATION")
     private lateinit var mKeyguardLock: KeyguardManager.KeyguardLock
@@ -124,14 +125,31 @@ class AppDisplayListener : Service() {
                     onDismiss()
                     stopForeground(true)
                     stopSelf()
-                    if (!isServiceRunning(applicationContext, OnBroadcastService::class.java))
-                        startForegroundService(Intent(context, OnBroadcastService::class.java))
                 }
             }
         }
         IntentFilter(Intent.ACTION_SCREEN_OFF).also {
             registerReceiver(offReceiver, it)
         }
+
+        mDisplayListener = object : DisplayManager.DisplayListener {
+            override fun onDisplayAdded(display: Int) {}
+            override fun onDisplayChanged(display: Int) {
+                if (display == 0 && isDisplayInitialized) {
+                    isDisplayInitialized = false
+                    if (null != componentName)
+                        restoreActivityDisplay(componentName, display)
+                    else
+                        restoreActivityDisplay(launchPackage, launchActivity, display)
+                } else if (display == 1) {
+                    isDisplayInitialized = true
+                }
+            }
+
+            override fun onDisplayRemoved(display: Int) {}
+        }
+        (getSystemService(Context.DISPLAY_SERVICE) as DisplayManager)
+            .registerDisplayListener(mDisplayListener, null)
 
         showForegroundNotification(startId)
 
@@ -148,25 +166,6 @@ class AppDisplayListener : Service() {
         )
         params.gravity = Gravity.BOTTOM
         floatView.keepScreenOn = true
-
-        mDisplayListener = object : DisplayManager.DisplayListener {
-            override fun onDisplayAdded(display: Int) {}
-            override fun onDisplayChanged(display: Int) {
-                if (display == 0) {
-                    if (null != componentName)
-                        restoreActivityDisplay(componentName, display)
-                    else
-                        restoreActivityDisplay(launchPackage, launchActivity, display)
-                    onDismiss()
-                    stopForeground(true)
-                    stopSelf()
-                }
-            }
-
-            override fun onDisplayRemoved(display: Int) {}
-        }
-        (getSystemService(Context.DISPLAY_SERVICE) as DisplayManager)
-            .registerDisplayListener(mDisplayListener, null)
 
         val menu = floatView.findViewById<LinearLayout>(R.id.button_layout)
         val icons = menu.findViewById<LinearLayout>(R.id.icons_layout)
@@ -355,7 +354,8 @@ class AppDisplayListener : Service() {
             .setGroup("services_group")
         if (null != iconNotification) {
             builder.setLargeIcon(Bitmap.createScaledBitmap(
-                iconNotification, 128, 128, false))
+                iconNotification, 128, 128, false
+            ))
         }
         builder.color = ContextCompat.getColor(this, R.color.primary_light)
         startForeground(startId, builder.build())
@@ -367,15 +367,6 @@ class AppDisplayListener : Service() {
         )
         return serviceString != null && serviceString.contains(packageName
                 + File.separator + AccessibilityObserver::class.java.name)
-    }
-
-    @Suppress("DEPRECATION")
-    private fun isServiceRunning(context: Context, serviceClass: Class<*>): Boolean {
-        for (service in (context.getSystemService(ACTIVITY_SERVICE) as ActivityManager)
-            .getRunningServices(Int.MAX_VALUE)) {
-            if (serviceClass.name == service.service.className) return true
-        }
-        return false
     }
 
     fun onDismiss() {

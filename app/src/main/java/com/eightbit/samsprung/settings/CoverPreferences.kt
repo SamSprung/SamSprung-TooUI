@@ -144,6 +144,14 @@ class CoverPreferences : AppCompatActivity() {
         setContentView(R.layout.cover_settings_layout)
         permissionList = findViewById(R.id.permissions)
 
+        val componentName = ComponentName(applicationContext, NotificationReceiver::class.java)
+        packageManager.setComponentEnabledSetting(componentName,
+            PackageManager.COMPONENT_ENABLED_STATE_DISABLED, PackageManager.DONT_KILL_APP
+        )
+        packageManager.setComponentEnabledSetting(componentName,
+            PackageManager.COMPONENT_ENABLED_STATE_ENABLED, PackageManager.DONT_KILL_APP
+        )
+
         retrieveDonationMenu()
 
         coordinator = findViewById(R.id.coordinator)

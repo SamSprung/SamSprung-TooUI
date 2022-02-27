@@ -214,9 +214,9 @@ class CheckUpdatesTask(private var activity: Activity) {
             .setSound(soundUri).setWhen(0).setOnlyAlertOnce(true)
             .setContentIntent(pendingIntent).setOngoing(false)
         if (null != iconNotification) {
-            builder.setLargeIcon(
-                Bitmap.createScaledBitmap(
-                    iconNotification, 128, 128, false))
+            builder.setLargeIcon(Bitmap.createScaledBitmap(
+                iconNotification, 128, 128, false
+            ))
         }
         builder.color = ContextCompat.getColor(activity, R.color.secondary_dark)
 

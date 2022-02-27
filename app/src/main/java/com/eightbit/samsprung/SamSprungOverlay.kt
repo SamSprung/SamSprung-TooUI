@@ -134,7 +134,6 @@ class SamSprungOverlay : AppCompatActivity() {
     }
     private val mObserver: ContentObserver = FavoritesChangeObserver()
 
-    private var mDestroyed = false
     private var mBinder: DesktopBinder? = null
 
     @SuppressLint("ClickableViewAccessibility")
@@ -159,6 +158,19 @@ class SamSprungOverlay : AppCompatActivity() {
         prefs = getSharedPreferences(SamSprung.prefsValue, MODE_PRIVATE)
         ScaledContext.wrap(this).setTheme(R.style.Theme_SecondScreen_NoActionBar)
         setContentView(R.layout.home_main_view)
+
+        offReceiver = object : BroadcastReceiver() {
+            @SuppressLint("NotifyDataSetChanged")
+            override fun onReceive(context: Context?, intent: Intent) {
+                if (intent.action == Intent.ACTION_SCREEN_OFF) onDismiss()
+            }
+        }
+
+        IntentFilter().apply {
+            addAction(Intent.ACTION_SCREEN_OFF)
+        }.also {
+            registerReceiver(offReceiver, it)
+        }
 
         val mAppWidgetManager = AppWidgetManager.getInstance(applicationContext)
         val appWidgetHost = WidgetHost(applicationContext, APPWIDGET_HOST_ID)
@@ -429,7 +441,7 @@ class SamSprungOverlay : AppCompatActivity() {
                 if (newState == BottomSheetBehavior.STATE_EXPANDED) {
                     bottomSheet.keepScreenOn = true
                     bottomSheetBehaviorMain.isDraggable = false
-                    toggleStats.invalidate()
+                    toggleStats.requestLayout()
                     bottomHandle.visibility = View.INVISIBLE
                 } else if (newState == BottomSheetBehavior.STATE_COLLAPSED) {
                     hasConfigured = false
@@ -493,32 +505,10 @@ class SamSprungOverlay : AppCompatActivity() {
             }
         }
 
-        mDisplayListener = object : DisplayManager.DisplayListener {
-            override fun onDisplayAdded(display: Int) {}
-            override fun onDisplayChanged(display: Int) {
-                if (display == 0) {
-                    onDismiss()
-                }
-            }
-
-            override fun onDisplayRemoved(display: Int) {}
-        }
-        (getSystemService(Context.DISPLAY_SERVICE) as DisplayManager)
-            .registerDisplayListener(mDisplayListener, null)
-
-        offReceiver = object : BroadcastReceiver() {
-            @SuppressLint("NotifyDataSetChanged")
-            override fun onReceive(context: Context?, intent: Intent) {
-                if (intent.action == Intent.ACTION_SCREEN_OFF) {
-                    onDismiss()
-                }
-            }
-        }
-
-        IntentFilter().apply {
-            addAction(Intent.ACTION_SCREEN_OFF)
-        }.also {
-            registerReceiver(offReceiver, it)
+        if (null != intent?.action && SamSprung.launcher == intent.action) {
+            Handler(Looper.getMainLooper()).postDelayed({
+                bottomSheetBehaviorMain.state = BottomSheetBehavior.STATE_EXPANDED
+            }, 150)
         }
     }
 
@@ -718,9 +708,6 @@ class SamSprungOverlay : AppCompatActivity() {
     shortcuts: ArrayList<WidgetInfo?>?,
     appWidgets: ArrayList<PanelWidgetInfo>?
     ) {
-        if (mDestroyed) {
-            return
-        }
         // Flag any old binder to terminate early
         if (mBinder != null) {
             mBinder!!.mTerminate = true
@@ -770,9 +757,8 @@ class SamSprungOverlay : AppCompatActivity() {
     }
 
     public override fun onDestroy() {
-        mDestroyed = true
-        onDismiss()
         super.onDestroy()
+        onDismiss()
         if (prefs.getBoolean(getString(R.string.toggle_widgets).toPref, true)) {
             try {
                 appWidgetHost?.stopListening()
