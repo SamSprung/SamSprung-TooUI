@@ -66,7 +66,6 @@ import android.hardware.display.DisplayManager
 import android.net.Uri
 import android.os.*
 import android.provider.Settings
-import android.service.notification.NotificationListenerService
 import android.util.TypedValue
 import android.view.Menu
 import android.view.MenuItem
@@ -116,11 +115,10 @@ import java.util.concurrent.Executors
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
 
-
 class CoverPreferences : AppCompatActivity() {
 
     private lateinit var prefs: SharedPreferences
-
+    private lateinit var coordinator: CoordinatorLayout
     private var updateCheck : CheckUpdatesTask? = null
 
     private var hasPremiumSupport = false
@@ -140,8 +138,6 @@ class CoverPreferences : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        if ((getSystemService(Context.DISPLAY_SERVICE) as DisplayManager)
-                .getDisplay(1) == null) finishAndRemoveTask()
 
         prefs = getSharedPreferences(SamSprung.prefsValue, MODE_PRIVATE)
         ScaledContext.screen(this).setTheme(R.style.Theme_SecondScreen)
@@ -150,7 +146,7 @@ class CoverPreferences : AppCompatActivity() {
 
         retrieveDonationMenu()
 
-        val coordinator = findViewById<CoordinatorLayout>(R.id.coordinator)
+        coordinator = findViewById(R.id.coordinator)
         findViewById<BlurView>(R.id.blurContainer).setupWith(coordinator)
             .setFrameClearDrawable(window.decorView.background)
             .setBlurRadius(10f).setBlurAutoUpdate(true)
@@ -717,8 +713,7 @@ class CoverPreferences : AppCompatActivity() {
     @SuppressLint("MissingPermission")
     private val requestStorage = registerForActivityResult(
         ActivityResultContracts.RequestPermission()) {
-        if (it) findViewById<CoordinatorLayout>(R.id.coordinator).background =
-            WallpaperManager.getInstance(this).drawable
+        if (it) coordinator.background = WallpaperManager.getInstance(this).drawable
     }
 
     @SuppressLint("MissingPermission")
@@ -731,8 +726,7 @@ class CoverPreferences : AppCompatActivity() {
                 }
             } else if (it.key == Manifest.permission.READ_EXTERNAL_STORAGE) {
                 if (it.value)
-                    findViewById<CoordinatorLayout>(R.id.coordinator).background =
-                        WallpaperManager.getInstance(this@CoverPreferences).drawable
+                    coordinator.background = WallpaperManager.getInstance(this).drawable
                 else
                     requestStorage.launch(Manifest.permission.READ_EXTERNAL_STORAGE)
             } else if (it.key == Manifest.permission.RECORD_AUDIO && !it.value) {

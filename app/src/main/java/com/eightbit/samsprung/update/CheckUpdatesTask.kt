@@ -206,7 +206,7 @@ class CheckUpdatesTask(private var activity: Activity) {
             activity, "update_channel")
 
         val notificationText = activity.getString(
-            R.string.update_service, activity.getString(R.string.samsprung))
+            R.string.update_service, activity.getString(R.string.app_name))
         builder.setContentTitle(notificationText).setTicker(notificationText)
             .setContentText(activity.getString(R.string.click_update_app))
             .setSmallIcon(R.drawable.ic_baseline_samsprung_24)

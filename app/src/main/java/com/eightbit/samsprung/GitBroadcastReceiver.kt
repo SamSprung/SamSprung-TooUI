@@ -75,6 +75,14 @@ class GitBroadcastReceiver : BroadcastReceiver() {
         }
         when {
             Intent.ACTION_MY_PACKAGE_REPLACED == intent.action -> {
+                val componentName = ComponentName(context
+                    .applicationContext, NotificationReceiver::class.java)
+                context.packageManager.setComponentEnabledSetting(componentName,
+                    PackageManager.COMPONENT_ENABLED_STATE_DISABLED, PackageManager.DONT_KILL_APP
+                )
+                context.packageManager.setComponentEnabledSetting(componentName,
+                    PackageManager.COMPONENT_ENABLED_STATE_ENABLED, PackageManager.DONT_KILL_APP
+                )
                 context.startForegroundService(Intent(context, OnBroadcastService::class.java))
             }
             BuildConfig.FLAVOR == "google" -> return
@@ -97,19 +105,6 @@ class GitBroadcastReceiver : BroadcastReceiver() {
                 }
                 }
             }
-        }
-    }
-
-    private fun hasNotificationListener(context: Context): Boolean {
-        val myNotificationListenerComponentName = ComponentName(
-            context.applicationContext, NotificationReceiver::class.java)
-        val enabledListeners = Settings.Secure.getString(
-            context.contentResolver, "enabled_notification_listeners")
-        if (enabledListeners.isEmpty()) return false
-        return enabledListeners.split(":").map {
-            ComponentName.unflattenFromString(it)
-        }.any {componentName->
-            myNotificationListenerComponentName == componentName
         }
     }
 }

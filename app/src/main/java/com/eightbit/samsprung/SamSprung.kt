@@ -100,16 +100,10 @@ class SamSprung : Application() {
         setThemePreference()
         ScaledContext.screen(this).setTheme(R.style.Theme_SecondScreen)
 
-        val displayManager = getSystemService(Context.DISPLAY_SERVICE) as DisplayManager
-        if (displayManager.getDisplay(1) == null) {
-            Toast.makeText(this,
-                R.string.incompatible_device, Toast.LENGTH_LONG).show()
-        } else {
-            Thread.setDefaultUncaughtExceptionHandler { _: Thread?, error: Throwable ->
-                error.printStackTrace()
-                // Unrecoverable error encountered
-                exitProcess(1)
-            }
+        Thread.setDefaultUncaughtExceptionHandler { _: Thread?, error: Throwable ->
+            error.printStackTrace()
+            // Unrecoverable error encountered
+            exitProcess(1)
         }
     }
 

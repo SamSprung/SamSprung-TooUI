@@ -127,17 +127,10 @@ class NotificationFragment : Fragment(), NotificationAdapter.OnNoticeClickListen
             )
         }
 
-        RecyclerViewTouch(noticesView).setSwipeCallback(
-            ItemTouchHelper.START or ItemTouchHelper.END or ItemTouchHelper.DOWN,
+        RecyclerViewTouch(noticesView).setSwipeCallback(ItemTouchHelper.DOWN,
             object: RecyclerViewTouch.SwipeCallback {
             override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
-                if (direction == ItemTouchHelper.START || direction == ItemTouchHelper.END) {
-                    val notice = (viewHolder as NotificationAdapter.NoticeViewHolder).notice
-                    if (notice.isClearable) {
-                        NotificationReceiver.getReceiver()?.setNotificationsShown(arrayOf(notice.key))
-                        NotificationReceiver.getReceiver()?.cancelNotification(notice.key)
-                    }
-                } else if (direction == ItemTouchHelper.DOWN) {
+               if (direction == ItemTouchHelper.DOWN) {
                     onSwipeClosed(noticesView)
                 }
             }

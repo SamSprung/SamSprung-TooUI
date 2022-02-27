@@ -126,8 +126,7 @@ class AppDrawerFragment : Fragment(), DrawerAppAdapater.OnAppClickListener {
             }
         })
 
-        RecyclerViewTouch(launcherView).setSwipeCallback(
-            ItemTouchHelper.END or ItemTouchHelper.DOWN,
+        RecyclerViewTouch(launcherView).setSwipeCallback(ItemTouchHelper.DOWN,
             object: RecyclerViewTouch.SwipeCallback {
             override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
                 if (direction == ItemTouchHelper.DOWN) {

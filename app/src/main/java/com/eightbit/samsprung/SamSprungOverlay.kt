@@ -145,14 +145,6 @@ class SamSprungOverlay : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         supportActionBar?.hide()
 
-        val componentName = ComponentName(applicationContext, NotificationReceiver::class.java)
-        packageManager.setComponentEnabledSetting(componentName,
-            PackageManager.COMPONENT_ENABLED_STATE_DISABLED, PackageManager.DONT_KILL_APP
-        )
-        packageManager.setComponentEnabledSetting(componentName,
-            PackageManager.COMPONENT_ENABLED_STATE_ENABLED, PackageManager.DONT_KILL_APP
-        )
-
         window.setFlags(
             WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL or
                     WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN,
@@ -181,7 +173,8 @@ class SamSprungOverlay : AppCompatActivity() {
         if (ContextCompat.checkSelfPermission(this,
                 Manifest.permission.READ_EXTERNAL_STORAGE
             ) == PackageManager.PERMISSION_GRANTED) {
-            coordinator.background = WallpaperManager.getInstance(this).drawable
+            coordinator.background = WallpaperManager
+                .getInstance(ScaledContext.cover(this)).drawable
         }
 
         val blurView = findViewById<BlurView>(R.id.blurContainer)
