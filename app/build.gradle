@@ -10,8 +10,8 @@ android {
         applicationId "com.eightbit.samsprung"
         minSdk 30
         targetSdk 31
-        versionCode 121
-        versionName "1.2.1"
+        versionCode 122
+        versionName "1.2.2"
 
         vectorDrawables {
             useSupportLibrary = true
@@ -90,5 +90,7 @@ dependencies {
     api 'androidx.cardview:cardview:1.0.0'
     api 'androidx.activity:activity-ktx:1.5.0-alpha02'
     implementation 'com.android.billingclient:billing:4.0.0'
+    implementation 'com.google.android.play:core:1.10.3'
+    implementation 'com.google.android.play:core-ktx:1.8.1'
     implementation 'com.github.SamSprung:android-issue-reporter:24b48a8'
 }

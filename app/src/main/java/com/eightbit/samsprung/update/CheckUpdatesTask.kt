@@ -72,6 +72,11 @@ import com.eightbit.samsprung.GitBroadcastReceiver
 import com.eightbit.samsprung.R
 import com.eightbit.samsprung.SamSprung
 import com.eightbit.samsprung.settings.CoverPreferences
+import com.google.android.play.core.appupdate.AppUpdateInfo
+import com.google.android.play.core.appupdate.AppUpdateManager
+import com.google.android.play.core.appupdate.AppUpdateManagerFactory
+import com.google.android.play.core.install.model.AppUpdateType
+import com.google.android.play.core.install.model.UpdateAvailability
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -90,9 +95,26 @@ class CheckUpdatesTask(private var activity: Activity) {
 
     private val repo = "https://api.github.com/repos/SamSprung/SamSprung-TooUI/releases/tags/"
     var listener: CheckUpdateListener? = null
+    var listenerPlay: CheckPlayUpdateListener? = null
+    private var appUpdateManager: AppUpdateManager? = null
 
     init {
-        if (BuildConfig.FLAVOR != "google") configureUpdates()
+        if (BuildConfig.FLAVOR == "google") {
+            appUpdateManager = AppUpdateManagerFactory.create(activity)
+            val appUpdateInfoTask = appUpdateManager?.appUpdateInfo
+            // Checks that the platform will allow the specified type of update.
+            appUpdateInfoTask?.addOnSuccessListener { appUpdateInfo ->
+                if (appUpdateInfo.updateAvailability() == UpdateAvailability.UPDATE_AVAILABLE
+                    // This example applies an immediate update. To apply a flexible update
+                    // instead, pass in AppUpdateType.FLEXIBLE
+                    && appUpdateInfo.isUpdateTypeAllowed(AppUpdateType.IMMEDIATE)
+                ) {
+                    if (null != listenerPlay) listenerPlay?.onPlayUpdateFound(appUpdateInfo)
+                }
+            }
+        } else {
+            configureUpdates()
+        }
     }
 
     private fun configureUpdates() {
@@ -155,8 +177,7 @@ class CheckUpdatesTask(private var activity: Activity) {
     }
 
     fun downloadUpdate(link: String) {
-        val download: String = link.substring(
-            link.lastIndexOf(File.separator) + 1)
+        val download: String = link.substring(link.lastIndexOf(File.separator) + 1)
         val apk = File(activity.externalCacheDir, download)
         CoroutineScope(Dispatchers.IO).launch(Dispatchers.IO) {
             URL(link).openStream().use { input ->
@@ -170,6 +191,19 @@ class CheckUpdatesTask(private var activity: Activity) {
                 }
             }
         }
+    }
+
+    fun downloadPlayUpdate(appUpdateInfo: AppUpdateInfo) {
+        appUpdateManager?.startUpdateFlowForResult(
+            // Pass the intent that is returned by 'getAppUpdateInfo()'.
+            appUpdateInfo,
+            // Or 'AppUpdateType.FLEXIBLE' for flexible updates.
+            AppUpdateType.IMMEDIATE,
+            // The current activity making the update request.
+            activity,
+            // Include a request code to later monitor this update request.
+            SamSprung.request_code)
+
     }
 
     private fun showUpdateNotification(downloadUrl: String) {
@@ -236,8 +270,10 @@ class CheckUpdatesTask(private var activity: Activity) {
             val asset = assets[0] as JSONObject
             downloadUrl = asset["browser_download_url"] as String
             if (isPreview && BuildConfig.COMMIT != lastCommit) {
-                if (null != listener) listener?.onUpdateFound(downloadUrl)
-                if (activity !is CoverPreferences) showUpdateNotification(downloadUrl)
+                if (null != listener)
+                    listener?.onUpdateFound(downloadUrl)
+                else if (activity !is CoverPreferences)
+                    showUpdateNotification(downloadUrl)
             }
         } catch (ignored: JSONException) { }
         if (!isPreview && null != lastCommit && null != downloadUrl) {
@@ -248,8 +284,10 @@ class CheckUpdatesTask(private var activity: Activity) {
                         val jsonObject = JSONTokener(result).nextValue() as JSONObject
                         val extraCommit = (jsonObject["name"] as String).substring(offset)
                         if (BuildConfig.COMMIT != extraCommit && BuildConfig.COMMIT != lastCommit) {
-                            if (null != listener) listener?.onUpdateFound(downloadUrl)
-                            if (activity !is CoverPreferences) showUpdateNotification(downloadUrl)
+                            if (null != listener)
+                                listener?.onUpdateFound(downloadUrl)
+                            else if (activity !is CoverPreferences)
+                                showUpdateNotification(downloadUrl)
                         }
                     } catch (ignored: JSONException) { }
                 }
@@ -273,7 +311,15 @@ class CheckUpdatesTask(private var activity: Activity) {
         this.listener = listener
     }
 
+    fun setPlayUpdateListener(listenerPlay: CheckPlayUpdateListener) {
+        this.listenerPlay = listenerPlay
+    }
+
     interface CheckUpdateListener {
         fun onUpdateFound(downloadUrl: String)
+    }
+
+    interface CheckPlayUpdateListener {
+        fun onPlayUpdateFound(appUpdateInfo: AppUpdateInfo)
     }
 }

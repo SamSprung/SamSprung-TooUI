@@ -62,7 +62,6 @@ import android.content.res.ColorStateList
 import android.content.res.Resources
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
-import android.hardware.display.DisplayManager
 import android.net.Uri
 import android.os.*
 import android.provider.Settings
@@ -104,6 +103,7 @@ import com.eightbitlab.blurview.BlurView
 import com.eightbitlab.blurview.RenderScriptBlur
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.snackbar.Snackbar
+import com.google.android.play.core.appupdate.AppUpdateInfo
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -724,6 +724,31 @@ class CoverPreferences : AppCompatActivity() {
         if (it) coordinator.background = WallpaperManager.getInstance(this).drawable
     }
 
+    private fun setAnimatedUpdateNotice(appUpdateInfo: AppUpdateInfo?, downloadUrl: String?) {
+        runOnUiThread {
+            val buildIcon = findViewById<AppCompatImageView>(R.id.build_icon)
+            buildIcon.setImageDrawable(ContextCompat.getDrawable(
+                this@CoverPreferences, R.drawable.ic_baseline_browser_updated_24))
+            val buildInfo = findViewById<TextView>(R.id.build_info)
+            buildInfo.setTextColor(Color.RED)
+            val anim: Animation = AlphaAnimation(0.2f, 1.0f)
+            anim.duration = 500
+            anim.repeatMode = Animation.REVERSE
+            anim.repeatCount = Animation.INFINITE
+            buildInfo.startAnimation(anim)
+            buildInfo.setOnClickListener {
+                buildIcon.setImageDrawable(ContextCompat.getDrawable(
+                    this@CoverPreferences, R.drawable.ic_github_octocat_24dp))
+                anim.cancel()
+                if (null != appUpdateInfo) {
+                    updateCheck?.downloadPlayUpdate(appUpdateInfo)
+                } else if (null != downloadUrl) {
+                    updateCheck?.downloadUpdate(downloadUrl)
+                }
+            }
+        }
+    }
+
     @SuppressLint("MissingPermission")
     private val requestPermissions = registerForActivityResult(
         ActivityResultContracts.RequestMultiplePermissions()) { permissions ->
@@ -741,30 +766,21 @@ class CoverPreferences : AppCompatActivity() {
                 requestUnchecked.launch(Manifest.permission.RECORD_AUDIO)
             }
         }
-        if (BuildConfig.FLAVOR == "google") return@registerForActivityResult
+
         updateCheck = CheckUpdatesTask(this@CoverPreferences)
-        updateCheck?.setUpdateListener(object: CheckUpdatesTask.CheckUpdateListener {
-            override fun onUpdateFound(downloadUrl: String) {
-                runOnUiThread {
-                    val buildIcon = findViewById<AppCompatImageView>(R.id.build_icon)
-                    buildIcon.setImageDrawable(ContextCompat.getDrawable(
-                        this@CoverPreferences, R.drawable.ic_baseline_browser_updated_24))
-                    val buildInfo = findViewById<TextView>(R.id.build_info)
-                    buildInfo.setTextColor(Color.RED)
-                    val anim: Animation = AlphaAnimation(0.2f, 1.0f)
-                    anim.duration = 500
-                    anim.repeatMode = Animation.REVERSE
-                    anim.repeatCount = Animation.INFINITE
-                    buildInfo.startAnimation(anim)
-                    buildInfo.setOnClickListener {
-                        buildIcon.setImageDrawable(ContextCompat.getDrawable(
-                            this@CoverPreferences, R.drawable.ic_github_octocat_24dp))
-                        anim.cancel()
-                        updateCheck?.downloadUpdate(downloadUrl)
-                    }
+        if (BuildConfig.FLAVOR == "google") {
+            updateCheck?.setPlayUpdateListener(object: CheckUpdatesTask.CheckPlayUpdateListener {
+                override fun onPlayUpdateFound(appUpdateInfo: AppUpdateInfo) {
+                    setAnimatedUpdateNotice(appUpdateInfo, null)
                 }
-            }
-        })
+            })
+        } else {
+            updateCheck?.setUpdateListener(object: CheckUpdatesTask.CheckUpdateListener {
+                override fun onUpdateFound(downloadUrl: String) {
+                    setAnimatedUpdateNotice(null, downloadUrl)
+                }
+            })
+        }
     }
 
     private val notificationLauncher = registerForActivityResult(

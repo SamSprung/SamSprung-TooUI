@@ -141,8 +141,7 @@ class AppDisplayListener : Service() {
                         restoreActivityDisplay(componentName, display)
                     else
                         restoreActivityDisplay(launchPackage, launchActivity, display)
-                    if (this@AppDisplayListener::floatView.isInitialized
-                        && !floatView.isAttachedToWindow) {
+                    if (this@AppDisplayListener::floatView.isInitialized) {
                         onDismiss()
                         stopForeground(true)
                         stopSelf()
