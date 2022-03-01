@@ -63,7 +63,6 @@ import android.database.ContentObserver
 import android.graphics.Color
 import android.graphics.PixelFormat
 import android.hardware.camera2.CameraManager
-import android.hardware.display.DisplayManager
 import android.media.AudioManager
 import android.net.wifi.WifiManager
 import android.nfc.NfcAdapter
@@ -105,7 +104,6 @@ import java.util.concurrent.Executors
 class SamSprungOverlay : AppCompatActivity() {
 
     private lateinit var prefs: SharedPreferences
-    private var mDisplayListener: DisplayManager.DisplayListener? = null
     private var launchManager: LaunchManager? = null
     private var widgetManager: PanelWidgetManager? = null
     val model = WidgetModel()
@@ -157,13 +155,13 @@ class SamSprungOverlay : AppCompatActivity() {
         WindowCompat.setDecorFitsSystemWindows(window, false)
 
         prefs = getSharedPreferences(SamSprung.prefsValue, MODE_PRIVATE)
-        ScaledContext.wrap(this).setTheme(R.style.Theme_SecondScreen_NoActionBar)
+        ScaledContext.wrap(this).setTheme(R.style.Theme_Launcher_NoActionBar)
         setContentView(R.layout.home_main_view)
 
         offReceiver = object : BroadcastReceiver() {
             @SuppressLint("NotifyDataSetChanged")
             override fun onReceive(context: Context?, intent: Intent) {
-                if (intent.action == Intent.ACTION_SCREEN_OFF) onDismiss()
+                if (intent.action == Intent.ACTION_SCREEN_OFF) onStopOverlay()
             }
         }
 
@@ -741,11 +739,7 @@ class SamSprungOverlay : AppCompatActivity() {
         }, 150)
     }
 
-    fun onDismiss() {
-        if (null != mDisplayListener) {
-            (getSystemService(Context.DISPLAY_SERVICE) as DisplayManager)
-                .unregisterDisplayListener(mDisplayListener)
-        }
+    fun onStopOverlay() {
         try {
             if (this::battReceiver.isInitialized)
                 unregisterReceiver(battReceiver)
@@ -759,7 +753,7 @@ class SamSprungOverlay : AppCompatActivity() {
 
     public override fun onDestroy() {
         super.onDestroy()
-        onDismiss()
+        onStopOverlay()
         if (prefs.getBoolean(getString(R.string.toggle_widgets).toPref, true)) {
             try {
                 appWidgetHost?.stopListening()

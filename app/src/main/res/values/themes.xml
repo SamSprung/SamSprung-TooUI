@@ -24,12 +24,12 @@
     </style>
 
     <style name="DialogTheme" parent="Theme.AppCompat.DayNight.Dialog.MinWidth">
-        <item name="buttonStyle">@style/SlimButton</item>
-        <item name="android:windowCloseOnTouchOutside">false</item>
         <item name="android:windowIsTranslucent">true</item>
         <item name="android:windowIsFloating">true</item>
         <item name="android:backgroundDimEnabled">true</item>
         <item name="android:windowBackground">@drawable/rounded_layout_themed</item>
+        <item name="buttonStyle">@style/SlimButton</item>
+        <item name="popupMenuStyle">@style/SlimPopupMenu</item>
     </style>
 
     <style name="DialogTheme.NoActionBar">
@@ -37,15 +37,12 @@
         <item name="windowNoTitle">true</item>
     </style>
 
-    <style name="LauncherTheme" parent="Theme.AppCompat.DayNight.Dialog.MinWidth">
-        <item name="buttonStyle">@style/SlimButton</item>
-        <item name="android:windowIsTranslucent">true</item>
-        <item name="android:windowIsFloating">true</item>
-        <item name="android:backgroundDimEnabled">true</item>
+    <style name="Theme.Launcher" parent="DialogTheme">
         <item name="android:windowBackground">@android:color/transparent</item>
+        <item name="android:windowCloseOnTouchOutside">false</item>
     </style>
 
-    <style name="LauncherTheme.NoActionBar">
+    <style name="Theme.Launcher.NoActionBar">
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
     </style>

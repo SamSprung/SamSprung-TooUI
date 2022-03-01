@@ -84,8 +84,8 @@ import java.io.File
 class AppDisplayListener : Service() {
 
     private lateinit var prefs: SharedPreferences
-    private lateinit var offReceiver: BroadcastReceiver
-    private lateinit var mDisplayListener: DisplayManager.DisplayListener
+    private var offReceiver: BroadcastReceiver? = null
+    private var mDisplayListener: DisplayManager.DisplayListener? = null
     @Suppress("DEPRECATION")
     private lateinit var mKeyguardLock: KeyguardManager.KeyguardLock
     private lateinit var floatView: View
@@ -121,9 +121,7 @@ class AppDisplayListener : Service() {
                         resetRecentActivities(componentName)
                     else
                         resetRecentActivities(launchPackage, launchActivity)
-                    onDismiss()
-                    stopForeground(true)
-                    stopSelf()
+                    onDismissOverlay()
                 }
             }
         }
@@ -135,16 +133,16 @@ class AppDisplayListener : Service() {
         mDisplayListener = object : DisplayManager.DisplayListener {
             override fun onDisplayAdded(display: Int) {}
             override fun onDisplayChanged(display: Int) {
-                if (display == 0 && isDisplayInitialized) {
-                    isDisplayInitialized = false
-                    if (null != componentName)
-                        restoreActivityDisplay(componentName, display)
-                    else
-                        restoreActivityDisplay(launchPackage, launchActivity, display)
-                    if (this@AppDisplayListener::floatView.isInitialized) {
-                        onDismiss()
-                        stopForeground(true)
-                        stopSelf()
+                if (display == 0) {
+                    if (isDisplayInitialized) {
+                        if (null != componentName)
+                            restoreActivityDisplay(componentName, display)
+                        else
+                            restoreActivityDisplay(launchPackage, launchActivity, display)
+                        if (this@AppDisplayListener::floatView.isInitialized) {
+                            onDismissOverlay()
+                        }
+                        isDisplayInitialized = false
                     }
                 } else if (display == 1) {
                     isDisplayInitialized = true
@@ -293,12 +291,10 @@ class AppDisplayListener : Service() {
                 resetRecentActivities(componentName)
             else
                 resetRecentActivities(launchPackage, launchActivity)
-            onDismiss()
+            onDismissOverlay()
             startForegroundService(Intent(
                 applicationContext, OnBroadcastService::class.java
             ).setAction(SamSprung.launcher))
-            stopForeground(true)
-            stopSelf()
         }
         menu.findViewById<ImageView>(R.id.button_home).setOnClickListener {
             tactileFeedback()
@@ -306,15 +302,13 @@ class AppDisplayListener : Service() {
                 resetRecentActivities(componentName)
             else
                 resetRecentActivities(launchPackage, launchActivity)
-            onDismiss()
+            onDismissOverlay()
             startForegroundService(
                 Intent(
                     applicationContext,
                     OnBroadcastService::class.java
                 ).setAction(SamSprung.services)
             )
-            stopForeground(true)
-            stopSelf()
         }
         menu.findViewById<ImageView>(R.id.button_back).setOnClickListener {
             tactileFeedback()
@@ -376,26 +370,27 @@ class AppDisplayListener : Service() {
                 + File.separator + AccessibilityObserver::class.java.name)
     }
 
-    fun onDismiss() {
-        try {
-            if (this::offReceiver.isInitialized)
-                unregisterReceiver(offReceiver)
-        } catch (ignored: Exception) { }
-        if (this::mDisplayListener.isInitialized) {
+    fun onDismissOverlay() {
+        if (null != mDisplayListener) {
             (getSystemService(Context.DISPLAY_SERVICE) as DisplayManager)
                 .unregisterDisplayListener(mDisplayListener)
         }
-
         try {
-            (ScaledContext.wrap(ScaledContext.cover(applicationContext))
-                .getSystemService(WINDOW_SERVICE) as WindowManager).removeViewImmediate(floatView)
+            if (null != offReceiver) unregisterReceiver(offReceiver)
+        } catch (ignored: Exception) { }
+        val windowManager = (ScaledContext.wrap(ScaledContext.cover(applicationContext,
+            R.style.Theme_SecondScreen)).getSystemService(WINDOW_SERVICE) as WindowManager)
+        try {
+            windowManager.removeViewImmediate(floatView)
         } catch (ignored: Exception) { }
         @Suppress("DEPRECATION")
         if ((application as SamSprung).isKeyguardLocked) mKeyguardLock.reenableKeyguard()
+        stopForeground(true)
+        stopSelf()
     }
 
     override fun onDestroy() {
         super.onDestroy()
-        onDismiss()
+        onDismissOverlay()
     }
 }

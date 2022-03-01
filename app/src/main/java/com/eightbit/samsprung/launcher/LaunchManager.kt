@@ -65,7 +65,7 @@ class LaunchManager(private val overlay: SamSprungOverlay) {
         orientationChanger.visibility = View.VISIBLE
         Handler(Looper.getMainLooper()).postDelayed({
             windowManager.removeViewImmediate(orientationChanger)
-            overlay.onDismiss()
+            overlay.onStopOverlay()
             overlay.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
             overlay.startForegroundService(
                 Intent(overlay, AppDisplayListener::class.java).putExtras(extras))
