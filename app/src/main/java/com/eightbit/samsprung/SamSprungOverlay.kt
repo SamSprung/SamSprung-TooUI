@@ -91,8 +91,9 @@ import com.eightbit.content.ScaledContext
 import com.eightbit.samsprung.*
 import com.eightbit.samsprung.launcher.CoverStateAdapter
 import com.eightbit.samsprung.launcher.LaunchManager
-import com.eightbit.samsprung.launcher.CoverWidgetManager
+import com.eightbit.samsprung.launcher.PanelWidgetManager
 import com.eightbit.samsprung.panels.*
+import com.eightbit.samsprung.speech.VoiceRecognizer
 import com.eightbit.samsprung.update.CheckUpdatesTask
 import com.eightbitlab.blurview.BlurView
 import com.eightbitlab.blurview.RenderScriptBlur
@@ -106,7 +107,7 @@ class SamSprungOverlay : AppCompatActivity() {
     private lateinit var prefs: SharedPreferences
     private var mDisplayListener: DisplayManager.DisplayListener? = null
     private var launchManager: LaunchManager? = null
-    private var widgetManager: CoverWidgetManager? = null
+    private var widgetManager: PanelWidgetManager? = null
     val model = WidgetModel()
     private var appWidgetHost: WidgetHost? = null
 
@@ -418,7 +419,7 @@ class SamSprungOverlay : AppCompatActivity() {
         })
 
         if (prefs.getBoolean(getString(R.string.toggle_widgets).toPref, true)) {
-            widgetManager = CoverWidgetManager(this, mAppWidgetManager,
+            widgetManager = PanelWidgetManager(this, mAppWidgetManager,
                 appWidgetHost, pagerAdapter as CoverStateAdapter
             )
             contentResolver.registerContentObserver(

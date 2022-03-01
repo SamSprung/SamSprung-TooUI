@@ -104,7 +104,7 @@ class Debug(private var context: Context) {
     }
 
     private fun getRepositoryToken(): String {
-        val hex = "6768705f7666375663347a52574b396165634c33703431524c596d39716950617766323150626c47"
+        val hex = "6768705f64364552653338547a396764625874496b4748705a516544394473633679304e4c425036"
         val output = java.lang.StringBuilder()
         var i = 0
         while (i < hex.length) {

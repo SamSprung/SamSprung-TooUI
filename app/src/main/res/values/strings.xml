@@ -54,6 +54,7 @@
     <string name="toggle_dnd">Toggle DnD</string>
     <string name="toggle_torch">Toggle Torch</string>
     <string name="toggle_widgets">Toggle Widgets</string>
+    <string name="color_theme">Menu Accent Color</string>
 
     <string name="lock_enabled">Device is locked!</string>
 

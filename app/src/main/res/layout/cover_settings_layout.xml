@@ -339,13 +339,24 @@
                 android:textOff="@string/swap_viewgrid"
                 android:textOn="@string/swap_viewlist"
                 android:layout_marginStart="2dp"
-                android:layout_marginEnd="2dp"/>
+                android:layout_marginEnd="2dp"
+                android:layout_marginBottom="2dp"/>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textSize="16sp"
+                android:layout_marginStart="16dp"
+                android:layout_marginEnd="16dp"
+                android:textColor="?android:textColorPrimary"
+                android:gravity="center"
+                android:text="@string/color_theme" />
 
             <View
                 android:id="@+id/color_composite"
                 android:layout_width="match_parent"
                 android:layout_height="18dp"
-                android:layout_marginTop="12dp"
+                android:layout_marginTop="10dp"
                 android:layout_marginBottom="8dp"
                 android:layout_marginStart="8dp"
                 android:layout_marginEnd="10dp" />

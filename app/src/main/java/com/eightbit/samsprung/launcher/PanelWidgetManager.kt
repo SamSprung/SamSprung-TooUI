@@ -24,7 +24,7 @@ import com.eightbit.samsprung.panels.*
 import java.util.*
 import java.util.concurrent.Executors
 
-class CoverWidgetManager(
+class PanelWidgetManager(
     private var overlay: SamSprungOverlay,
     private var mAppWidgetManager: AppWidgetManager,
     private var appWidgetHost: AppWidgetHost,

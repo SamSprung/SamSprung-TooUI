@@ -156,7 +156,7 @@ class CoverPreferences : AppCompatActivity() {
 
         coordinator = findViewById(R.id.coordinator)
         findViewById<BlurView>(R.id.blurContainer).setupWith(coordinator)
-            .setFrameClearDrawable(window.decorView.background)
+            .setFrameClearDrawable(coordinator.background)
             .setBlurRadius(10f).setBlurAutoUpdate(true)
             .setHasFixedTransformationMatrix(false)
             .setBlurAlgorithm(RenderScriptBlur(this))

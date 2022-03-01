@@ -44,16 +44,15 @@
  * [including the GNU Public License.] Content not subject to these terms is
  * subject to to the terms and conditions of the Apache License, Version 2.0.
  */
-package com.eightbit.samsprung
+package com.eightbit.samsprung.speech
 
 import android.annotation.SuppressLint
 import android.content.Intent
-import com.eightbit.samsprung.VoiceRecognizer.SpeechResultsListener
-import android.speech.RecognitionListener
 import android.os.Bundle
+import android.speech.RecognitionListener
 import android.speech.RecognizerIntent
 import android.speech.SpeechRecognizer
-import java.lang.StringBuilder
+import com.eightbit.samsprung.BuildConfig
 
 @SuppressLint("SetJavaScriptEnabled")
 class VoiceRecognizer(private val listener: SpeechResultsListener?) : RecognitionListener {
