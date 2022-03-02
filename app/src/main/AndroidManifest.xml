@@ -69,6 +69,7 @@
         <activity
             android:name=".update.UpdateShimActivity"
             android:launchMode="singleTop"
+            android:theme="@style/Theme.Launcher.NoActionBar"
             android:configChanges="orientation|screenLayout|screenSize|smallestScreenSize"
             android:exported="false"
             android:showOnLockScreen="true"

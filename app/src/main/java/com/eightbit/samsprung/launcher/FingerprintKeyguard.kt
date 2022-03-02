@@ -61,7 +61,6 @@ import com.eightbit.samsprung.R
 import java.lang.reflect.InvocationTargetException
 import java.lang.reflect.Method
 
-
 class FingerprintKeyguard : AppCompatActivity() {
 
     @SuppressLint("ClickableViewAccessibility")

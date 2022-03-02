@@ -129,12 +129,12 @@ class AppDisplayListener : Service() {
             registerReceiver(offReceiver, it)
         }
 
-        var isDisplayInitialized = false
+        val displayManager = getSystemService(Context.DISPLAY_SERVICE) as DisplayManager
         mDisplayListener = object : DisplayManager.DisplayListener {
             override fun onDisplayAdded(display: Int) {}
             override fun onDisplayChanged(display: Int) {
-                if (display == 0) {
-                    if (isDisplayInitialized) {
+                if (display == 0 && displayManager
+                        .getDisplay(0).state == Display.STATE_ON) {
                         if (null != componentName)
                             restoreActivityDisplay(componentName, display)
                         else
@@ -142,17 +142,12 @@ class AppDisplayListener : Service() {
                         if (this@AppDisplayListener::floatView.isInitialized) {
                             onDismissOverlay()
                         }
-                        isDisplayInitialized = false
-                    }
-                } else if (display == 1) {
-                    isDisplayInitialized = true
                 }
             }
 
             override fun onDisplayRemoved(display: Int) {}
         }
-        (getSystemService(Context.DISPLAY_SERVICE) as DisplayManager)
-            .registerDisplayListener(mDisplayListener, null)
+        displayManager.registerDisplayListener(mDisplayListener, null)
 
         showForegroundNotification(startId)
 
