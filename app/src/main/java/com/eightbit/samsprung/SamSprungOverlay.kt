@@ -89,6 +89,7 @@ import androidx.viewpager2.widget.ViewPager2
 import com.eightbit.content.ScaledContext
 import com.eightbit.samsprung.*
 import com.eightbit.samsprung.launcher.CoverStateAdapter
+import com.eightbit.samsprung.launcher.FingerprintKeyguard
 import com.eightbit.samsprung.launcher.LaunchManager
 import com.eightbit.samsprung.launcher.PanelWidgetManager
 import com.eightbit.samsprung.panels.*
@@ -517,6 +518,39 @@ class SamSprungOverlay : AppCompatActivity() {
 
     fun getSearch() : SearchView {
         return searchView
+    }
+
+    private var keyguardListener: KeyguardListener? = null
+
+    interface KeyguardListener {
+        fun onKeyguardCheck(unlocked: Boolean)
+    }
+
+    fun setKeyguardListener(listener: KeyguardListener) {
+        this.keyguardListener = listener
+        requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_LOCKED
+        requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_BEHIND
+
+        val keyguardManager = (getSystemService(Context.KEYGUARD_SERVICE) as KeyguardManager)
+        if (keyguardManager.isDeviceLocked) {
+            fingerprint.launch(Intent(this, FingerprintKeyguard::class.java))
+        } else {
+            @Suppress("DEPRECATION")
+            (application as SamSprung).isKeyguardLocked =
+                keyguardManager.inKeyguardRestrictedInputMode()
+
+            listener.onKeyguardCheck(true)
+        }
+    }
+
+    private val fingerprint = registerForActivityResult(
+        ActivityResultContracts.StartActivityForResult()) {
+        if (it.resultCode == Activity.RESULT_OK) {
+            keyguardListener?.onKeyguardCheck(true)
+        } else {
+            Toast.makeText(this, R.string.lock_enabled, Toast.LENGTH_LONG).show()
+            keyguardListener?.onKeyguardCheck(false)
+        }
     }
 
     companion object {

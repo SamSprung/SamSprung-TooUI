@@ -1046,7 +1046,7 @@ class CoverPreferences : AppCompatActivity() {
     private fun verifyCompatibility() {
         if (isDeviceSecure() && !prefs.getBoolean(SamSprung.prefSecure, false)) {
             AlertDialog.Builder(this)
-                .setTitle(R.string.incompatible_notice)
+                .setTitle(R.string.secure_notice)
                 .setMessage(R.string.lock_screen_warning)
                 .setPositiveButton(R.string.button_confirm) { dialog, _ ->
                     with (prefs.edit()) {

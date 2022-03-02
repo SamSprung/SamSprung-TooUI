@@ -1,7 +1,6 @@
 package com.eightbit.samsprung.launcher
 
 import android.app.ActivityOptions
-import android.app.KeyguardManager
 import android.app.PendingIntent
 import android.content.ComponentName
 import android.content.Context
@@ -18,35 +17,12 @@ import android.os.Process
 import android.view.View
 import android.view.WindowManager
 import android.widget.LinearLayout
-import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.eightbit.content.ScaledContext
-import com.eightbit.samsprung.R
 import com.eightbit.samsprung.SamSprung
 import com.eightbit.samsprung.SamSprungOverlay
 
 class LaunchManager(private val overlay: SamSprungOverlay) {
-
-    private fun prepareConfiguration() : Boolean {
-        overlay.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_LOCKED
-        overlay.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_BEHIND
-
-        val keyguardManager = (overlay.getSystemService(Context.KEYGUARD_SERVICE) as KeyguardManager)
-        if (keyguardManager.isDeviceLocked) {
-            overlay.setTurnScreenOn(true)
-            Toast.makeText(overlay, R.string.lock_enabled, Toast.LENGTH_LONG).show()
-            return false
-        }
-
-        @Suppress("DEPRECATION")
-        (overlay.application as SamSprung).isKeyguardLocked =
-            keyguardManager.inKeyguardRestrictedInputMode()
-
-        keyguardManager.requestDismissKeyguard(overlay,
-            object : KeyguardManager.KeyguardDismissCallback() { })
-
-        return true
-    }
 
     private fun getOrientationManager(extras: Bundle) {
         val context = ScaledContext.cover(overlay.applicationContext)
@@ -73,50 +49,63 @@ class LaunchManager(private val overlay: SamSprungOverlay) {
     }
 
     fun launchApplicationComponent(resolveInfo: ResolveInfo) {
-        if (!prepareConfiguration()) return
+        overlay.setKeyguardListener(object: SamSprungOverlay.KeyguardListener {
+            override fun onKeyguardCheck(unlocked: Boolean) {
+                if (!unlocked) return
+                (overlay.getSystemService(AppCompatActivity
+                    .LAUNCHER_APPS_SERVICE) as LauncherApps).startMainActivity(
+                    ComponentName(
+                        resolveInfo.activityInfo.packageName,
+                        resolveInfo.activityInfo.name
+                    ),
+                    Process.myUserHandle(),
+                    overlay.windowManager.currentWindowMetrics.bounds,
+                    ActivityOptions.makeBasic().setLaunchDisplayId(1).toBundle()
+                )
 
-        (overlay.getSystemService(AppCompatActivity
-            .LAUNCHER_APPS_SERVICE) as LauncherApps).startMainActivity(
-            ComponentName(resolveInfo.activityInfo.packageName, resolveInfo.activityInfo.name),
-            Process.myUserHandle(),
-            overlay.windowManager.currentWindowMetrics.bounds,
-            ActivityOptions.makeBasic().setLaunchDisplayId(1).toBundle()
-        )
+                val extras = Bundle()
+                extras.putString("launchPackage", resolveInfo.activityInfo.packageName)
+                extras.putString("launchActivity", resolveInfo.activityInfo.name)
 
-        val extras = Bundle()
-        extras.putString("launchPackage", resolveInfo.activityInfo.packageName)
-        extras.putString("launchActivity", resolveInfo.activityInfo.name)
-
-        getOrientationManager(extras)
+                getOrientationManager(extras)
+            }
+        })
     }
 
     fun launchDefaultActivity(appInfo: ApplicationInfo) {
-        if (!prepareConfiguration()) return
+        overlay.setKeyguardListener(object: SamSprungOverlay.KeyguardListener {
+            override fun onKeyguardCheck(unlocked: Boolean) {
+                if (!unlocked) return
+                (overlay.getSystemService(AppCompatActivity.LAUNCHER_APPS_SERVICE) as LauncherApps)
+                    .startMainActivity(overlay.packageManager
+                        .getLaunchIntentForPackage(appInfo.packageName)?.component,
+                        Process.myUserHandle(),
+                        overlay.windowManager.currentWindowMetrics.bounds,
+                        ActivityOptions.makeBasic().setLaunchDisplayId(1).toBundle()
+                    )
 
-        (overlay.getSystemService(AppCompatActivity.LAUNCHER_APPS_SERVICE) as LauncherApps)
-            .startMainActivity(
-                overlay.packageManager.getLaunchIntentForPackage(appInfo.packageName)?.component,
-                Process.myUserHandle(),
-                overlay.windowManager.currentWindowMetrics.bounds,
-                ActivityOptions.makeBasic().setLaunchDisplayId(1).toBundle()
-            )
+                val extras = Bundle()
+                extras.putString("launchPackage", appInfo.packageName)
 
-        val extras = Bundle()
-        extras.putString("launchPackage", appInfo.packageName)
-
-        getOrientationManager(extras)
+                getOrientationManager(extras)
+            }
+        })
     }
 
     fun launchPendingActivity(pendingIntent: PendingIntent) {
-        if (!prepareConfiguration()) return
+        overlay.setKeyguardListener(object: SamSprungOverlay.KeyguardListener {
+            override fun onKeyguardCheck(unlocked: Boolean) {
+                if (!unlocked) return
 
-        pendingIntent.send(
-            ScaledContext.cover(overlay), SamSprung.request_code, Intent()
-        )
+                pendingIntent.send(
+                    ScaledContext.cover(overlay), SamSprung.request_code, Intent()
+                )
 
-        val extras = Bundle()
-        extras.putString("launchPackage", pendingIntent.intentSender.creatorPackage)
+                val extras = Bundle()
+                extras.putString("launchPackage", pendingIntent.intentSender.creatorPackage)
 
-        getOrientationManager(extras)
+                getOrientationManager(extras)
+            }
+        })
     }
 }
