@@ -86,14 +86,6 @@
             android:showWhenLocked="true">
             <meta-data android:name="com.samsung.android.activity.showWhenLocked" android:value="true"/>
         </activity>
-        <activity
-            android:name=".launcher.FingerprintKeyguard"
-            android:configChanges="orientation|screenLayout|screenSize|smallestScreenSize"
-            android:exported="true"
-            android:showOnLockScreen="true"
-            android:showWhenLocked="true">
-            <meta-data android:name="com.samsung.android.activity.showWhenLocked" android:value="true"/>
-        </activity>
         <receiver android:name=".GitBroadcastReceiver"
             android:exported="true"
             android:permission="intent.redirection.BULLSHIT">

@@ -144,11 +144,23 @@
                         app:contentInsetStart="2dp"
                         android:layout_gravity="top|center_horizontal" />
 
-                    <View
-                        android:layout_below="@id/toolbar"
+                    <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
-                        android:layout_marginBottom="2dp" />
+                        android:layout_centerInParent="true"
+                        android:layout_marginBottom="2dp"
+                        android:orientation="vertical">
+
+                        <androidx.appcompat.widget.AppCompatImageView
+                            android:id="@+id/button_auth"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:layout_margin="?attr/actionBarSize"
+                            android:layout_gravity="center"
+                            app:srcCompat="@drawable/ic_baseline_fingerprint_24"
+                            android:contentDescription="@string/description_icon" />
+
+                    </LinearLayout>
                 </RelativeLayout>
             </LinearLayout>
         </androidx.coordinatorlayout.widget.CoordinatorLayout>

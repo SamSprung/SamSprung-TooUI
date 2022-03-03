@@ -62,6 +62,7 @@ import android.content.pm.*
 import android.database.ContentObserver
 import android.graphics.Color
 import android.graphics.PixelFormat
+import android.graphics.drawable.ColorDrawable
 import android.hardware.camera2.CameraManager
 import android.media.AudioManager
 import android.net.wifi.WifiManager
@@ -75,7 +76,9 @@ import android.view.*
 import android.widget.*
 import androidx.activity.result.ActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.view.ContextThemeWrapper
 import androidx.appcompat.widget.AppCompatImageView
 import androidx.appcompat.widget.SearchView
 import androidx.appcompat.widget.Toolbar
@@ -89,7 +92,6 @@ import androidx.viewpager2.widget.ViewPager2
 import com.eightbit.content.ScaledContext
 import com.eightbit.samsprung.*
 import com.eightbit.samsprung.launcher.CoverStateAdapter
-import com.eightbit.samsprung.launcher.FingerprintKeyguard
 import com.eightbit.samsprung.launcher.LaunchManager
 import com.eightbit.samsprung.launcher.PanelWidgetManager
 import com.eightbit.samsprung.panels.*
@@ -99,6 +101,8 @@ import com.eightbitlab.blurview.BlurView
 import com.eightbitlab.blurview.RenderScriptBlur
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.floatingactionbutton.FloatingActionButton
+import java.lang.reflect.InvocationTargetException
+import java.lang.reflect.Method
 import java.util.*
 import java.util.concurrent.Executors
 
@@ -352,6 +356,18 @@ class SamSprungOverlay : AppCompatActivity() {
 
         configureMenuVisibility(toolbar)
 
+        val buttonAuth = findViewById<AppCompatImageView>(R.id.button_auth)
+        val keyguardManager = (getSystemService(Context.KEYGUARD_SERVICE) as KeyguardManager)
+        buttonAuth.isEnabled = keyguardManager.isDeviceLocked
+        buttonAuth.setOnClickListener {
+            bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
+            setKeyguardListener(object: KeyguardListener {
+                override fun onKeyguardCheck(unlocked: Boolean) {
+                    buttonAuth.isEnabled = !unlocked
+                }
+            })
+        }
+
         val delete: View = toolbar.findViewById(R.id.toggle_widgets)
         delete.setOnLongClickListener(View.OnLongClickListener {
             if (viewPager.currentItem > 1) {
@@ -528,28 +544,60 @@ class SamSprungOverlay : AppCompatActivity() {
 
     fun setKeyguardListener(listener: KeyguardListener) {
         this.keyguardListener = listener
-        requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_LOCKED
-        requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_BEHIND
 
         val keyguardManager = (getSystemService(Context.KEYGUARD_SERVICE) as KeyguardManager)
         if (keyguardManager.isDeviceLocked) {
-            fingerprint.launch(Intent(this, FingerprintKeyguard::class.java))
+            setTurnScreenOn(true)
+
+            val authDialog = AlertDialog.Builder(ContextThemeWrapper(
+                this, R.style.DialogTheme_NoActionBar
+            )).setView(layoutInflater.inflate(R.layout.fingerprint_auth, null)).show()
+            authDialog!!.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+
+            val c = Class.forName("android.app.KeyguardManager")
+            val allMethods: Array<Method> = c.declaredMethods
+            for (m in allMethods) {
+                if (m.name == "semStartLockscreenFingerprintAuth") {
+                    try {
+                        m.isAccessible = true
+                        m.invoke(keyguardManager)
+                    } catch (ignored: InvocationTargetException) { }
+                    break
+                }
+            }
+
+            keyguardManager.requestDismissKeyguard(this,
+                object : KeyguardManager.KeyguardDismissCallback() {
+                override fun onDismissCancelled() {
+                    super.onDismissCancelled()
+                    authDialog.dismiss()
+                    keyguardListener?.onKeyguardCheck(true)
+                }
+
+                override fun onDismissError() {
+                    super.onDismissError()
+                    authDialog.dismiss()
+                    keyguardListener?.onKeyguardCheck(false)
+                }
+
+                override fun onDismissSucceeded() {
+                    super.onDismissSucceeded()
+                    authDialog.dismiss()
+                    keyguardListener?.onKeyguardCheck(true)
+                }
+            })
         } else {
             @Suppress("DEPRECATION")
             (application as SamSprung).isKeyguardLocked =
                 keyguardManager.inKeyguardRestrictedInputMode()
 
-            listener.onKeyguardCheck(true)
-        }
-    }
+            @Suppress("DEPRECATION")
+            val mKeyguardLock = (getSystemService(Context.KEYGUARD_SERVICE)
+                    as KeyguardManager).newKeyguardLock("cover_lock")
+            @Suppress("DEPRECATION")
+            mKeyguardLock.disableKeyguard()
 
-    private val fingerprint = registerForActivityResult(
-        ActivityResultContracts.StartActivityForResult()) {
-        if (it.resultCode == Activity.RESULT_OK) {
-            keyguardListener?.onKeyguardCheck(true)
-        } else {
-            Toast.makeText(this, R.string.lock_enabled, Toast.LENGTH_LONG).show()
-            keyguardListener?.onKeyguardCheck(false)
+            listener.onKeyguardCheck(true)
         }
     }
 

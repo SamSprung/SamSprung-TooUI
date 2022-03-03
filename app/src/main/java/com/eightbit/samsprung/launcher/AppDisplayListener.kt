@@ -87,7 +87,6 @@ class AppDisplayListener : Service() {
     private var offReceiver: BroadcastReceiver? = null
     private var mDisplayListener: DisplayManager.DisplayListener? = null
     @Suppress("DEPRECATION")
-    private lateinit var mKeyguardLock: KeyguardManager.KeyguardLock
     private lateinit var floatView: View
     private lateinit var bottomSheetBehavior: BottomSheetBehavior<View>
 
@@ -106,13 +105,6 @@ class AppDisplayListener : Service() {
             packageManager.getLaunchIntentForPackage(launchPackage)?.component else null
 
         prefs = getSharedPreferences(SamSprung.prefsValue, MODE_PRIVATE)
-
-        @Suppress("DEPRECATION")
-        if ((application as SamSprung).isKeyguardLocked) {
-            mKeyguardLock = (getSystemService(Context.KEYGUARD_SERVICE)
-                    as KeyguardManager).newKeyguardLock("cover_lock")
-            mKeyguardLock.disableKeyguard()
-        }
 
         offReceiver = object : BroadcastReceiver() {
             override fun onReceive(context: Context?, intent: Intent) {
@@ -169,7 +161,7 @@ class AppDisplayListener : Service() {
         val icons = menu.findViewById<LinearLayout>(R.id.icons_layout)
         val menuClose = menu.findViewById<AppCompatImageView>(R.id.retract_drawer)
 
-        bottomSheetBehavior = BottomSheetBehavior.from(floatView.findViewById(R.id.bottom_sheet)!!)
+        bottomSheetBehavior = BottomSheetBehavior.from(floatView.findViewById(R.id.bottom_sheet_nav)!!)
         bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
         bottomSheetBehavior.addBottomSheetCallback(object : BottomSheetBehavior.BottomSheetCallback() {
             override fun onStateChanged(bottomSheet: View, newState: Int) {
@@ -201,7 +193,7 @@ class AppDisplayListener : Service() {
         menuClose.setColorFilter(color)
         if (menu.isVisible) menu.visibility = View.GONE
 
-        floatView.findViewById<View>(R.id.bottom_sheet)!!.setOnTouchListener(
+        floatView.findViewById<View>(R.id.bottom_sheet_nav)!!.setOnTouchListener(
             object: OnSwipeTouchListener(this@AppDisplayListener) {
             override fun onSwipeTop() : Boolean {
                 bottomSheetBehavior.state = BottomSheetBehavior.STATE_EXPANDED
@@ -379,7 +371,11 @@ class AppDisplayListener : Service() {
             windowManager.removeViewImmediate(floatView)
         } catch (ignored: Exception) { }
         @Suppress("DEPRECATION")
-        if ((application as SamSprung).isKeyguardLocked) mKeyguardLock.reenableKeyguard()
+        if ((application as SamSprung).isKeyguardLocked) {
+            val mKeyguardLock = (getSystemService(Context.KEYGUARD_SERVICE)
+                    as KeyguardManager).newKeyguardLock("cover_lock")
+            mKeyguardLock.reenableKeyguard()
+        }
         stopForeground(true)
         stopSelf()
     }

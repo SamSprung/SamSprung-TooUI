@@ -41,10 +41,10 @@ class LaunchManager(private val overlay: SamSprungOverlay) {
         orientationChanger.visibility = View.VISIBLE
         Handler(Looper.getMainLooper()).postDelayed({
             windowManager.removeViewImmediate(orientationChanger)
-            overlay.onStopOverlay()
             overlay.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
-            overlay.startForegroundService(
-                Intent(overlay, AppDisplayListener::class.java).putExtras(extras))
+            overlay.onStopOverlay()
+            overlay.startForegroundService(Intent(overlay.applicationContext,
+                AppDisplayListener::class.java).putExtras(extras))
         }, 50)
     }
 
@@ -52,6 +52,8 @@ class LaunchManager(private val overlay: SamSprungOverlay) {
         overlay.setKeyguardListener(object: SamSprungOverlay.KeyguardListener {
             override fun onKeyguardCheck(unlocked: Boolean) {
                 if (!unlocked) return
+                overlay.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_LOCKED
+                overlay.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_BEHIND
                 (overlay.getSystemService(AppCompatActivity
                     .LAUNCHER_APPS_SERVICE) as LauncherApps).startMainActivity(
                     ComponentName(
@@ -76,6 +78,8 @@ class LaunchManager(private val overlay: SamSprungOverlay) {
         overlay.setKeyguardListener(object: SamSprungOverlay.KeyguardListener {
             override fun onKeyguardCheck(unlocked: Boolean) {
                 if (!unlocked) return
+                overlay.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_LOCKED
+                overlay.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_BEHIND
                 (overlay.getSystemService(AppCompatActivity.LAUNCHER_APPS_SERVICE) as LauncherApps)
                     .startMainActivity(overlay.packageManager
                         .getLaunchIntentForPackage(appInfo.packageName)?.component,
@@ -96,6 +100,8 @@ class LaunchManager(private val overlay: SamSprungOverlay) {
         overlay.setKeyguardListener(object: SamSprungOverlay.KeyguardListener {
             override fun onKeyguardCheck(unlocked: Boolean) {
                 if (!unlocked) return
+                overlay.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_LOCKED
+                overlay.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_BEHIND
 
                 pendingIntent.send(
                     ScaledContext.cover(overlay), SamSprung.request_code, Intent()

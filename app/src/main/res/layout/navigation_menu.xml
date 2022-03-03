@@ -2,18 +2,17 @@
 <androidx.coordinatorlayout.widget.CoordinatorLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:id="@+id/coordinator"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical">
 
     <LinearLayout
-        android:id="@+id/bottom_sheet"
+        android:id="@+id/bottom_sheet_nav"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="@android:color/transparent"
         android:orientation="vertical"
-        app:behavior_peekHeight="6dp"
+        app:behavior_peekHeight="8dp"
         app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior">
 
         <LinearLayout
@@ -24,23 +23,19 @@
 
             <View
                 android:layout_width="wrap_content"
-                android:layout_height="4dp"/>
-            <View
-                android:layout_width="wrap_content"
-                android:layout_height="2dp"
-                android:background="@color/primary_dark"
+                android:layout_height="8dp"
+                android:background="@color/bottomSheetTint"
                 android:visibility="invisible"/>
             <View
                 android:layout_width="wrap_content"
-                android:layout_height="6dp" />
+                android:layout_height="8dp" />
         </LinearLayout>
 
         <LinearLayout
             android:id="@+id/button_layout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:visibility="gone">
+            android:orientation="vertical">
 
             <androidx.appcompat.widget.AppCompatImageView
                 android:id="@+id/retract_drawer"

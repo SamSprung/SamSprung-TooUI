@@ -69,7 +69,7 @@
     <string name="accessibility_service">SamSprung Navigation</string>
     <string name="accessibility_details">Enable virtual navigation action and hardware support.</string>
 
-    <string name="fingerprint_required">Please unlock the device via fingerprint</string>
+    <string name="fingerprint_required">Please unlock the device\nwith your fingerprint</string>
 
     <!-- Error message when user has filled a panel or cancelled configuration -->
     <string name="out_of_space">Cancelled adding widget</string>

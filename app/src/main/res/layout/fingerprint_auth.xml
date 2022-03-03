@@ -1,28 +1,31 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <LinearLayout
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_centerInParent="true"
-        android:gravity="center_vertical"
-        android:orientation="horizontal">
+        android:gravity="center"
+        android:orientation="horizontal"
+        tools:ignore="UselessParent">
 
-        <ImageView
-            android:layout_width="50.0dip"
-            android:layout_height="50.0dip"
-            android:layout_marginStart="40.0dip"
-            android:src="@drawable/ic_baseline_swipe_down_24"
+        <androidx.appcompat.widget.AppCompatImageView
+            android:layout_width="60.0dip"
+            android:layout_height="60.0dip"
+            app:srcCompat="@drawable/ic_baseline_fingerprint_24"
             android:contentDescription="@string/description_icon" />
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginHorizontal="20.0dip"
+            android:layout_marginStart="10.0dip"
+            android:gravity="center"
             android:text="@string/fingerprint_required"
             android:textColor="?android:textColorPrimary"
-            android:textSize="25.0sp" />
+            android:textSize="20.0sp" />
     </LinearLayout>
 </RelativeLayout>
