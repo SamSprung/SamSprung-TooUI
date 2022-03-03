@@ -572,18 +572,21 @@ class SamSprungOverlay : AppCompatActivity() {
                     super.onDismissCancelled()
                     authDialog.dismiss()
                     keyguardListener?.onKeyguardCheck(true)
+                    setTurnScreenOn(false)
                 }
 
                 override fun onDismissError() {
                     super.onDismissError()
                     authDialog.dismiss()
                     keyguardListener?.onKeyguardCheck(false)
+                    setTurnScreenOn(false)
                 }
 
                 override fun onDismissSucceeded() {
                     super.onDismissSucceeded()
                     authDialog.dismiss()
                     keyguardListener?.onKeyguardCheck(true)
+                    setTurnScreenOn(false)
                 }
             })
         } else {
