@@ -7,8 +7,6 @@
 
     <color name="appwidget_error_color">#FCCC</color>
 
-    <color name="backgroundWhite">#66FFFFFF</color>
-    <color name="backgroundBlack">#66000000</color>
     <color name="bottomSheetTint">#BABBBBBB</color>
     <color name="backgroundTint">#22FFFFFF</color>
     <color name="backgroundFlat">#BBFFFFFF</color>
