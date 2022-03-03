@@ -157,9 +157,8 @@ class AppDisplayListener : Service() {
         params.gravity = Gravity.BOTTOM
         floatView.keepScreenOn = true
 
-        val menu = floatView.findViewById<LinearLayout>(R.id.button_layout)
-        val icons = menu.findViewById<LinearLayout>(R.id.icons_layout)
-        val menuClose = menu.findViewById<AppCompatImageView>(R.id.retract_drawer)
+        val icons = floatView.findViewById<LinearLayout>(R.id.icons_layout)
+        val menuClose = icons.findViewById<AppCompatImageView>(R.id.retract_drawer)
 
         bottomSheetBehavior = BottomSheetBehavior.from(floatView.findViewById(R.id.bottom_sheet_nav)!!)
         bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
@@ -169,14 +168,14 @@ class AppDisplayListener : Service() {
                     val color = prefs.getInt(
                         SamSprung.prefColors,
                         Color.rgb(255, 255, 255))
-                    if (!menu.isVisible) menu.visibility = View.VISIBLE
+                    if (!icons.isVisible) icons.visibility = View.VISIBLE
                     for (i in 0 until icons.childCount) {
                         (icons.getChildAt(i) as AppCompatImageView).setColorFilter(color)
                     }
                     menuClose.setColorFilter(color)
-                    setClickListeners(menu, componentName, launchPackage, launchActivity)
+                    setClickListeners(icons, componentName, launchPackage, launchActivity)
                 } else if (newState == BottomSheetBehavior.STATE_COLLAPSED) {
-                    if (menu.isVisible) menu.visibility = View.GONE
+                    if (icons.isVisible) icons.visibility = View.GONE
                 }
             }
 
@@ -186,12 +185,12 @@ class AppDisplayListener : Service() {
         val color = prefs.getInt(
             SamSprung.prefColors,
             Color.rgb(255, 255, 255))
-        if (!menu.isVisible) menu.visibility = View.VISIBLE
+        if (!icons.isVisible) icons.visibility = View.VISIBLE
         for (i in 0 until icons.childCount) {
             (icons.getChildAt(i) as AppCompatImageView).setColorFilter(color)
         }
         menuClose.setColorFilter(color)
-        if (menu.isVisible) menu.visibility = View.GONE
+        if (icons.isVisible) icons.visibility = View.GONE
 
         floatView.findViewById<View>(R.id.bottom_sheet_nav)!!.setOnTouchListener(
             object: OnSwipeTouchListener(this@AppDisplayListener) {
@@ -272,17 +271,6 @@ class AppDisplayListener : Service() {
         menu.findViewById<AppCompatImageView>(R.id.retract_drawer).setOnClickListener {
             bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
         }
-        menu.findViewById<ImageView>(R.id.button_recent).setOnClickListener {
-            tactileFeedback()
-            if (null != componentName)
-                resetRecentActivities(componentName)
-            else
-                resetRecentActivities(launchPackage, launchActivity)
-            onDismissOverlay()
-            startForegroundService(Intent(
-                applicationContext, OnBroadcastService::class.java
-            ).setAction(SamSprung.launcher))
-        }
         menu.findViewById<ImageView>(R.id.button_home).setOnClickListener {
             tactileFeedback()
             if (null != componentName)
@@ -308,6 +296,17 @@ class AppDisplayListener : Service() {
                 else
                     restoreActivityDisplay(launchPackage, launchActivity, 1)
             }
+        }
+        menu.findViewById<ImageView>(R.id.button_recent).setOnClickListener {
+            tactileFeedback()
+            if (null != componentName)
+                resetRecentActivities(componentName)
+            else
+                resetRecentActivities(launchPackage, launchActivity)
+            onDismissOverlay()
+            startForegroundService(Intent(
+                applicationContext, OnBroadcastService::class.java
+            ).setAction(SamSprung.launcher))
         }
     }
 
