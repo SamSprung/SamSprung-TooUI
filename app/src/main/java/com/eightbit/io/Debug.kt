@@ -115,7 +115,7 @@ class Debug(private var context: Context) {
         return output.toString()
     }
 
-    fun captureLogcat(submitIssue: Boolean) : Boolean {
+    fun captureLogcat(hasPremiumSupport: Boolean, isSecureDevice: Boolean) : Boolean {
         val displayName = "samsprung_logcat"
         val project = context.getString(R.string.samsprung)
         val repository = "SamSprung-TooUI"
@@ -140,6 +140,7 @@ class Debug(private var context: Context) {
         log.append(" (")
         log.append(Build.VERSION.RELEASE)
         log.append(")")
+        if (isSecureDevice) log.append(separator).append("Secure Lock Screen")
         try {
             var line: String?
             val mLogcatProc: Process = Runtime.getRuntime().exec(arrayOf(
@@ -159,7 +160,7 @@ class Debug(private var context: Context) {
             return false
         }
         val logText = log.toString()
-        if (submitIssue || logText.contains("AndroidRuntime", false)) {
+        if (hasPremiumSupport || logText.contains("AndroidRuntime", false)) {
             IssueReporterLauncher.forTarget(project, repository)
                 .theme(R.style.Theme_SecondScreen_NoActionBar)
                 .guestToken(getRepositoryToken())

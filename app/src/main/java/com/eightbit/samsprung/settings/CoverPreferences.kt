@@ -879,7 +879,7 @@ class CoverPreferences : AppCompatActivity() {
     }
 
     private fun captureLogcat(parent: ViewGroup) {
-        if (Debug(this).captureLogcat(hasPremiumSupport)) {
+        if (Debug(this).captureLogcat(hasPremiumSupport, isDeviceSecure())) {
             IconifiedSnackbar(this, parent).buildSnackbar(
                 R.string.logcat_written, Snackbar.LENGTH_LONG, null
             ).show()

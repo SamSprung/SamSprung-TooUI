@@ -84,10 +84,8 @@ import androidx.appcompat.widget.SearchView
 import androidx.appcompat.widget.Toolbar
 import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.core.content.ContextCompat
-import androidx.core.graphics.drawable.toBitmap
 import androidx.core.view.GravityCompat
 import androidx.core.view.WindowCompat
-import androidx.core.view.children
 import androidx.fragment.app.FragmentActivity
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import androidx.viewpager2.widget.ViewPager2
@@ -595,14 +593,8 @@ class SamSprungOverlay : AppCompatActivity() {
             @Suppress("DEPRECATION")
             (application as SamSprung).isKeyguardLocked =
                 keyguardManager.inKeyguardRestrictedInputMode()
-
-            @Suppress("DEPRECATION")
-            val mKeyguardLock = (getSystemService(Context.KEYGUARD_SERVICE)
-                    as KeyguardManager).newKeyguardLock("cover_lock")
-            @Suppress("DEPRECATION")
-            mKeyguardLock.disableKeyguard()
-
-            listener.onKeyguardCheck(true)
+            keyguardManager.requestDismissKeyguard(this, null)
+            keyguardListener?.onKeyguardCheck(true)
         }
     }
 

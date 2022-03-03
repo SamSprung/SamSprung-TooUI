@@ -106,6 +106,12 @@ class AppDisplayListener : Service() {
 
         prefs = getSharedPreferences(SamSprung.prefsValue, MODE_PRIVATE)
 
+        @Suppress("DEPRECATION")
+        if ((application as SamSprung).isKeyguardLocked) {
+            (getSystemService(Context.KEYGUARD_SERVICE) as KeyguardManager)
+                .newKeyguardLock("cover_lock").disableKeyguard()
+        }
+
         offReceiver = object : BroadcastReceiver() {
             override fun onReceive(context: Context?, intent: Intent) {
                 if (intent.action == Intent.ACTION_SCREEN_OFF) {
