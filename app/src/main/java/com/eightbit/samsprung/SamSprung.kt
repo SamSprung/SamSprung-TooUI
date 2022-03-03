@@ -52,9 +52,6 @@ package com.eightbit.samsprung
  */
 
 import android.app.Application
-import android.content.Context
-import android.hardware.display.DisplayManager
-import android.widget.Toast
 import androidx.appcompat.app.AppCompatDelegate
 import com.eightbit.content.ScaledContext
 import kotlin.system.exitProcess

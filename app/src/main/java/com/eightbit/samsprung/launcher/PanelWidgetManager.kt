@@ -85,10 +85,15 @@ class PanelWidgetManager(
     private fun addAppWidget(appWidgetId: Int, viewPager: ViewPager2) {
         val appWidget = mAppWidgetManager.getAppWidgetInfo(appWidgetId) ?: return
         if (null != appWidget.configure) {
-            val intent = Intent(AppWidgetManager.ACTION_APPWIDGET_CONFIGURE)
-            intent.component = appWidget.configure
-            intent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId)
-            overlay.requestCreateAppWidget.launch(intent)
+            overlay.setKeyguardListener(object: SamSprungOverlay.KeyguardListener {
+                override fun onKeyguardCheck(unlocked: Boolean) {
+                    if (!unlocked) return
+                    val intent = Intent(AppWidgetManager.ACTION_APPWIDGET_CONFIGURE)
+                    intent.component = appWidget.configure
+                    intent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId)
+                    overlay.requestCreateAppWidget.launch(intent)
+                }
+            })
         } else {
             completeAddAppWidget(appWidgetId, viewPager)
         }

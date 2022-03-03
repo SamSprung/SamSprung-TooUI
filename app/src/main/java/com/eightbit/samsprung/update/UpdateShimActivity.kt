@@ -55,7 +55,6 @@ import android.content.Intent
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import com.eightbit.content.ScaledContext
-import com.eightbit.samsprung.AccessibilityObserver
 import com.eightbit.samsprung.R
 
 

@@ -54,9 +54,6 @@ package com.eightbit.samsprung.launcher
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.viewpager2.adapter.FragmentStateAdapter
-import com.eightbit.samsprung.launcher.AppDrawerFragment
-import com.eightbit.samsprung.launcher.NotificationFragment
-import com.eightbit.samsprung.launcher.PanelViewFragment
 import java.util.*
 
 class CoverStateAdapter(fragmentActivity: AppCompatActivity) : FragmentStateAdapter(fragmentActivity) {

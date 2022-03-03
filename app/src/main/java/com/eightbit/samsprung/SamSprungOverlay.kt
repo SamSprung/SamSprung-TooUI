@@ -84,8 +84,10 @@ import androidx.appcompat.widget.SearchView
 import androidx.appcompat.widget.Toolbar
 import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.core.content.ContextCompat
+import androidx.core.graphics.drawable.toBitmap
 import androidx.core.view.GravityCompat
 import androidx.core.view.WindowCompat
+import androidx.core.view.children
 import androidx.fragment.app.FragmentActivity
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import androidx.viewpager2.widget.ViewPager2
@@ -547,50 +549,48 @@ class SamSprungOverlay : AppCompatActivity() {
 
         val keyguardManager = (getSystemService(Context.KEYGUARD_SERVICE) as KeyguardManager)
         if (keyguardManager.isDeviceLocked) {
-            setTurnScreenOn(true)
-
-            val authDialog = AlertDialog.Builder(ContextThemeWrapper(
-                this, R.style.DialogTheme_NoActionBar
-            )).setView(layoutInflater.inflate(R.layout.fingerprint_auth, null)).show()
-            authDialog!!.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
-
             val c = Class.forName("android.app.KeyguardManager")
             val allMethods: Array<Method> = c.declaredMethods
             for (m in allMethods) {
                 if (m.name == "semStartLockscreenFingerprintAuth") {
+                    setTurnScreenOn(true)
+                    val dialog = AlertDialog.Builder(ContextThemeWrapper(
+                        this, R.style.DialogTheme_NoActionBar
+                    )).setOnDismissListener { setTurnScreenOn(false) }
+                    val authDialog = dialog.setView(layoutInflater
+                        .inflate(R.layout.fingerprint_auth, null)).show()
+                    authDialog!!.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
                     try {
                         m.isAccessible = true
                         m.invoke(keyguardManager)
+                        keyguardManager.requestDismissKeyguard(this,
+                            object : KeyguardManager.KeyguardDismissCallback() {
+                            override fun onDismissCancelled() {
+                                super.onDismissCancelled()
+                                authDialog.dismiss()
+                                keyguardListener?.onKeyguardCheck(true)
+                            }
+
+                            override fun onDismissError() {
+                                super.onDismissError()
+                                authDialog.dismiss()
+                                keyguardListener?.onKeyguardCheck(false)
+                            }
+
+                            override fun onDismissSucceeded() {
+                                super.onDismissSucceeded()
+                                authDialog.dismiss()
+                                keyguardListener?.onKeyguardCheck(true)
+                            }
+                        })
                     } catch (ite: InvocationTargetException) {
                         ite.printStackTrace()
+                        authDialog.dismiss()
+                        keyguardListener?.onKeyguardCheck(false)
                     }
                     break
                 }
             }
-
-            keyguardManager.requestDismissKeyguard(this,
-                object : KeyguardManager.KeyguardDismissCallback() {
-                override fun onDismissCancelled() {
-                    super.onDismissCancelled()
-                    authDialog.dismiss()
-                    keyguardListener?.onKeyguardCheck(true)
-                    setTurnScreenOn(false)
-                }
-
-                override fun onDismissError() {
-                    super.onDismissError()
-                    authDialog.dismiss()
-                    keyguardListener?.onKeyguardCheck(false)
-                    setTurnScreenOn(false)
-                }
-
-                override fun onDismissSucceeded() {
-                    super.onDismissSucceeded()
-                    authDialog.dismiss()
-                    keyguardListener?.onKeyguardCheck(true)
-                    setTurnScreenOn(false)
-                }
-            })
         } else {
             @Suppress("DEPRECATION")
             (application as SamSprung).isKeyguardLocked =

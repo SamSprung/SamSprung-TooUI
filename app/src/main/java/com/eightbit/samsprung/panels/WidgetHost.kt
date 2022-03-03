@@ -16,8 +16,8 @@
 package com.eightbit.samsprung.panels
 
 import android.appwidget.AppWidgetHost
-import android.appwidget.AppWidgetProviderInfo
 import android.appwidget.AppWidgetHostView
+import android.appwidget.AppWidgetProviderInfo
 import android.content.Context
 
 /**

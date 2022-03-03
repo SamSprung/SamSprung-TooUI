@@ -23,14 +23,13 @@ import android.view.View
 import androidx.core.content.res.ResourcesCompat
 import com.eightbit.samsprung.R
 import com.eightbit.samsprung.SamSprung
+import com.eightbit.samsprung.SamSprungOverlay
 import java.io.ByteArrayOutputStream
 import java.io.File
 import java.lang.ref.SoftReference
 import java.lang.ref.WeakReference
 import java.util.*
 import java.util.concurrent.Executors
-import android.graphics.Bitmap
-import com.eightbit.samsprung.SamSprungOverlay
 
 class WidgetPreviewLoader(private val mLauncher: SamSprungOverlay) {
     private var mPreviewBitmapWidth = 0

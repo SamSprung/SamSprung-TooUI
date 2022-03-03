@@ -73,11 +73,13 @@ import androidx.appcompat.widget.AppCompatButton
 import androidx.appcompat.widget.AppCompatImageView
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
-import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.eightbit.samsprung.*
+import com.eightbit.samsprung.NotificationReceiver
+import com.eightbit.samsprung.R
+import com.eightbit.samsprung.SamSprung
+import com.eightbit.samsprung.SamSprungOverlay
 import com.eightbit.view.OnSwipeTouchListener
 import com.eightbit.widget.RecyclerViewTouch
 import com.google.android.material.bottomsheet.BottomSheetBehavior

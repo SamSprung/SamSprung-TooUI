@@ -161,9 +161,8 @@ class CoverPreferences : AppCompatActivity() {
             .setHasFixedTransformationMatrix(false)
             .setBlurAlgorithm(RenderScriptBlur(this))
 
-        val buildInfo = findViewById<TextView>(R.id.build_info)
-        buildInfo.text = (getString(R.string.build_hash, BuildConfig.COMMIT))
-        buildInfo.setOnClickListener {
+        findViewById<TextView>(R.id.build_info).text = (getString(R.string.build_hash, BuildConfig.COMMIT))
+        findViewById<LinearLayout>(R.id.build_layout).setOnClickListener {
             startActivity(Intent(Intent.ACTION_VIEW,
                 Uri.parse("https://github.com/SamSprung/SamSprung-TooUI/wiki")))
         }
@@ -736,7 +735,7 @@ class CoverPreferences : AppCompatActivity() {
             anim.repeatMode = Animation.REVERSE
             anim.repeatCount = Animation.INFINITE
             buildInfo.startAnimation(anim)
-            buildInfo.setOnClickListener {
+            findViewById<LinearLayout>(R.id.build_layout).setOnClickListener {
                 buildIcon.setImageDrawable(ContextCompat.getDrawable(
                     this@CoverPreferences, R.drawable.ic_github_octocat_24dp))
                 anim.cancel()

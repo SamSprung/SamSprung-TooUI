@@ -53,7 +53,10 @@ package com.eightbit.samsprung.launcher
 
 import android.annotation.SuppressLint
 import android.app.SearchManager
-import android.content.*
+import android.content.BroadcastReceiver
+import android.content.Context
+import android.content.Intent
+import android.content.IntentFilter
 import android.content.pm.ResolveInfo
 import android.os.Bundle
 import android.view.LayoutInflater
