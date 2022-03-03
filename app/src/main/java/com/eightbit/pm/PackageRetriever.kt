@@ -82,15 +82,6 @@ class PackageRetriever(val context: Context) {
             (null != item.filter && item.filter.hasCategory(Intent.CATEGORY_HOME))
                     || item.activityInfo.packageName.startsWith(BuildConfig.APPLICATION_ID)
         }
-        for (installed in packages) {
-            if (installed.resolvePackageName == "apps.ijp.coveros") {
-                try {
-                    Toast.makeText(context, R.string.incompatible_notice, Toast.LENGTH_LONG).show()
-                    context.startActivity(Intent(Intent.ACTION_DELETE)
-                        .setData(Uri.parse("package:apps.ijp.coveros")))
-                } catch (ignored: Exception) { }
-            }
-        }
         Collections.sort(packages, ResolveInfo.DisplayNameComparator(context.packageManager))
         return packages
     }

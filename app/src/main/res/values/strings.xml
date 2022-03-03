@@ -58,7 +58,7 @@
 
     <string name="lock_enabled">Device is locked!</string>
 
-    <string name="incompatible_notice">Incompatibility Detected!</string>
+    <string name="incompatibility_warning">SamSprung is not compatible with apps that block the entire screen.\nPlease remove or disable this app to continue</string>
     <string name="secure_notice">Secure Lock Detected!</string>
     <string name="lock_screen_warning">Fingerprint authentication must be enabled for compatibility with a secure lock screen.</string>
 

@@ -345,6 +345,23 @@ class CoverPreferences : AppCompatActivity() {
         val packageRetriever = PackageRetriever(this)
         // val packages = packageRetriever.getRecentPackageList(false)
         val packages = packageRetriever.getPackageList()
+        for (installed in packages) {
+            if (installed.resolvePackageName == "apps.ijp.coveros") {
+                val compatDialog = AlertDialog.Builder(this)
+                    .setMessage(getString(R.string.incompatibility_warning))
+                    .setPositiveButton(R.string.button_confirm) { dialog, _ ->
+                        try {
+                            startActivity(Intent(Intent.ACTION_DELETE)
+                                .setData(Uri.parse("package:apps.ijp.coveros")))
+                            dialog.dismiss()
+                        } catch (ignored: Exception) { }
+                    }
+                    .setNegativeButton(R.string.button_cancel) { dialog, _ ->
+                        dialog.dismiss()
+                    }.show()
+                compatDialog.setCancelable(false)
+            }
+        }
         val unlisted = packageRetriever.getHiddenPackages()
 
         hiddenList = findViewById(R.id.app_toggle_list)
