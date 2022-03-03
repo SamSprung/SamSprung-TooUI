@@ -561,7 +561,9 @@ class SamSprungOverlay : AppCompatActivity() {
                     try {
                         m.isAccessible = true
                         m.invoke(keyguardManager)
-                    } catch (ignored: InvocationTargetException) { }
+                    } catch (ite: InvocationTargetException) {
+                        ite.printStackTrace()
+                    }
                     break
                 }
             }

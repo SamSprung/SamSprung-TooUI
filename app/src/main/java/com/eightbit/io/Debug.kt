@@ -144,7 +144,7 @@ class Debug(private var context: Context) {
             var line: String?
             val mLogcatProc: Process = Runtime.getRuntime().exec(arrayOf(
                 "logcat", "-d", "-t", "256", BuildConfig.APPLICATION_ID,
-                "AndroidRuntime", "System.err",
+                "AndroidRuntime", "InvocationTargetException", "System.err",
                 "AppIconSolution:S", "ViewRootImpl:S", "IssueReporterActivity:S",
             ))
             val reader = BufferedReader(InputStreamReader(mLogcatProc.inputStream))
