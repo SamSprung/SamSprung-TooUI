@@ -349,14 +349,18 @@ class CoverPreferences : AppCompatActivity() {
             if (installed.resolvePackageName == "apps.ijp.coveros") {
                 val compatDialog = AlertDialog.Builder(this)
                     .setMessage(getString(R.string.incompatibility_warning))
-                    .setPositiveButton(R.string.button_confirm) { dialog, _ ->
+                    .setPositiveButton(R.string.button_uninstall) { dialog, _ ->
                         try {
                             startActivity(Intent(Intent.ACTION_DELETE)
                                 .setData(Uri.parse("package:apps.ijp.coveros")))
                             dialog.dismiss()
                         } catch (ignored: Exception) { }
                     }
-                    .setNegativeButton(R.string.button_cancel) { dialog, _ ->
+                    .setNegativeButton(R.string.button_disable) { dialog, _ ->
+                        startActivity(Intent(
+                            Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
+                            Uri.parse("package:apps.ijp.coveros")
+                        ))
                         dialog.dismiss()
                     }.show()
                 compatDialog.setCancelable(false)

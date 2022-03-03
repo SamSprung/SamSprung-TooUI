@@ -23,6 +23,8 @@
     <string name="button_confirm">Confirm</string>
     <string name="button_cancel">Cancel</string>
     <string name="button_wiki">Visit Wiki</string>
+    <string name="button_uninstall">Uninstall</string>
+    <string name="button_disable">Disable</string>
 
     <string name="color_red">Red</string>
     <string name="color_green">Green</string>
