@@ -83,12 +83,12 @@ android {
 }
 
 dependencies {
-    api 'com.google.android.material:material:1.5.0'
-    api 'androidx.core:core-ktx:1.7.0'
-    api 'androidx.appcompat:appcompat:1.4.1'
-    api 'androidx.recyclerview:recyclerview:1.2.1'
-    api 'androidx.cardview:cardview:1.0.0'
-    api 'androidx.activity:activity-ktx:1.5.0-alpha03'
+    implementation 'com.google.android.material:material:1.5.0'
+    implementation 'androidx.core:core-ktx:1.7.0'
+    implementation 'androidx.appcompat:appcompat:1.4.1'
+    implementation 'androidx.recyclerview:recyclerview:1.2.1'
+    implementation 'androidx.cardview:cardview:1.0.0'
+    implementation 'androidx.activity:activity-ktx:1.5.0-alpha03'
     implementation 'com.android.billingclient:billing:4.1.0'
     implementation 'com.google.android.play:core:1.10.3'
     implementation 'com.google.android.play:core-ktx:1.8.1'

@@ -277,6 +277,17 @@ class AppDisplayListener : Service() {
         menu.findViewById<AppCompatImageView>(R.id.retract_drawer).setOnClickListener {
             bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
         }
+        menu.findViewById<ImageView>(R.id.button_recent).setOnClickListener {
+            tactileFeedback()
+            if (null != componentName)
+                resetRecentActivities(componentName)
+            else
+                resetRecentActivities(launchPackage, launchActivity)
+            onDismissOverlay()
+            startForegroundService(Intent(
+                applicationContext, OnBroadcastService::class.java
+            ).setAction(SamSprung.launcher))
+        }
         menu.findViewById<ImageView>(R.id.button_home).setOnClickListener {
             tactileFeedback()
             if (null != componentName)
@@ -302,17 +313,6 @@ class AppDisplayListener : Service() {
                 else
                     restoreActivityDisplay(launchPackage, launchActivity, 1)
             }
-        }
-        menu.findViewById<ImageView>(R.id.button_recent).setOnClickListener {
-            tactileFeedback()
-            if (null != componentName)
-                resetRecentActivities(componentName)
-            else
-                resetRecentActivities(launchPackage, launchActivity)
-            onDismissOverlay()
-            startForegroundService(Intent(
-                applicationContext, OnBroadcastService::class.java
-            ).setAction(SamSprung.launcher))
         }
     }
 
