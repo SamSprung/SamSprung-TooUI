@@ -98,10 +98,10 @@ class AppDisplayListener : Service() {
     override fun onStartCommand(intent: Intent, flags: Int, startId: Int): Int {
         super.onStartCommand(intent, flags, startId)
 
-        val launchPackage = intent.getStringExtra("launchPackage")!!
+        var launchPackage: String? = intent.getStringExtra("launchPackage")!!
         val launchActivity: String? = if (intent.hasExtra("launchActivity"))
             intent.getStringExtra("launchActivity") else null
-        val componentName: ComponentName? = if (null == launchActivity)
+        var componentName: ComponentName? = if (null == launchActivity && null != launchPackage)
             packageManager.getLaunchIntentForPackage(launchPackage)?.component else null
 
         prefs = getSharedPreferences(SamSprung.prefsValue, MODE_PRIVATE)
@@ -120,6 +120,8 @@ class AppDisplayListener : Service() {
                     else
                         resetRecentActivities(launchPackage, launchActivity)
                     onDismissOverlay()
+                    componentName = null
+                    launchPackage = null
                 }
             }
         }
@@ -133,13 +135,15 @@ class AppDisplayListener : Service() {
             override fun onDisplayChanged(display: Int) {
                 if (display == 0 && displayManager
                         .getDisplay(0).state == Display.STATE_ON) {
-                        if (null != componentName)
-                            restoreActivityDisplay(componentName, display)
-                        else
-                            restoreActivityDisplay(launchPackage, launchActivity, display)
-                        if (this@AppDisplayListener::floatView.isInitialized) {
-                            onDismissOverlay()
-                        }
+                    if (null != componentName)
+                        restoreActivityDisplay(componentName, display)
+                    else
+                        restoreActivityDisplay(launchPackage, launchActivity, display)
+                    if (this@AppDisplayListener::floatView.isInitialized) {
+                        onDismissOverlay()
+                    }
+                    componentName = null
+                    launchPackage = null
                 }
             }
 
@@ -215,8 +219,7 @@ class AppDisplayListener : Service() {
         return START_NOT_STICKY
     }
 
-    private fun restoreActivityDisplay(
-        componentName: ComponentName, display: Int) {
+    private fun restoreActivityDisplay(componentName: ComponentName?, display: Int) {
 
         val baseContext = ScaledContext.restore(applicationContext)
         (baseContext.getSystemService(AppCompatActivity
@@ -229,8 +232,7 @@ class AppDisplayListener : Service() {
         )
     }
 
-    private fun restoreActivityDisplay(
-        pkg: String?, cls: String?, display: Int) {
+    private fun restoreActivityDisplay(pkg: String?, cls: String?, display: Int) {
         if (null != pkg && null != cls) {
             restoreActivityDisplay(ComponentName(pkg, cls), display)
         }
@@ -248,7 +250,7 @@ class AppDisplayListener : Service() {
             .makeBasic().setLaunchDisplayId(0).toBundle())
     }
 
-    private fun resetRecentActivities(componentName: ComponentName) {
+    private fun resetRecentActivities(componentName: ComponentName?) {
         restoreActivityDisplay(componentName, 0)
 
         val homeLauncher = Intent(Intent.ACTION_MAIN)
