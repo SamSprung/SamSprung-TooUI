@@ -58,8 +58,8 @@ import android.content.res.Configuration
 import android.graphics.Bitmap
 import android.graphics.Color
 import android.graphics.drawable.Icon
+import android.os.Bundle
 import android.service.notification.StatusBarNotification
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -205,10 +205,13 @@ class NotificationAdapter(
                         }
                         if (linesText.text.isEmpty() && notification.extras
                                 .containsKey(NotificationCompat.EXTRA_TEXT_LINES)) {
-                            val textLines = notification.extras.getCharSequenceArray(
+                            val textArray = notification.extras.getCharSequenceArray(
                                 NotificationCompat.EXTRA_TEXT_LINES
                             )
-                            if (null != textLines) linesText.text = Arrays.toString(textLines)
+                            if (null != textArray) {
+                                val textLines = Arrays.toString(textArray)
+                                if (textLines != "[]") linesText.text = textLines
+                            }
                         }
                         if (linesText.text.isEmpty() && notification.extras
                                 .containsKey(NotificationCompat.EXTRA_TEXT)) {
@@ -219,9 +222,9 @@ class NotificationAdapter(
                     }
                 }
             }
-            if (linesText.text.isEmpty() && null != notification.tickerText) {
-                linesText.text = notification.tickerText.toString()
-            }
+//            if (linesText.text.isEmpty() && null != notification.tickerText) {
+//                linesText.text = notification.tickerText.toString()
+//            }
             if (null != notification.contentIntent) {
                 launch.visibility = View.VISIBLE
                 launch.setOnClickListener {
@@ -280,14 +283,43 @@ class NotificationAdapter(
         ), listener, activity
     )
 
+    private fun validateTextExtras(extras: Bundle, extra: String) : Boolean {
+        return extras.containsKey(extra) &&
+                extras.get(extra).toString().trim().isNotEmpty()
+    }
+    private fun validateCharExtras(extras: Bundle, extra: String) : Boolean {
+        return extras.containsKey(extra) &&
+                extras.getCharSequence(extra).toString().trim().isNotEmpty()
+    }
+    private fun validateArrayExtras(extras: Bundle, extra: String) : Boolean {
+        if (extras.containsKey(extra)) {
+            val textArray = extras.getCharSequenceArray(extra)
+            if (null != textArray && Arrays.toString(textArray) != "[]") return true
+        }
+        return false
+    }
+
+    private fun isValidNotification(extras: Bundle?) : Boolean {
+        return null != extras && (
+                validateTextExtras(extras, NotificationCompat.EXTRA_TITLE_BIG) ||
+                validateCharExtras(extras, NotificationCompat.EXTRA_TITLE) ||
+                validateTextExtras(extras, NotificationCompat.EXTRA_BIG_TEXT) ||
+                validateArrayExtras(extras, NotificationCompat.EXTRA_TEXT_LINES) ||
+                validateCharExtras(extras, NotificationCompat.EXTRA_TEXT)
+        )
+    }
+
     @SuppressLint("NotifyDataSetChanged")
     override fun onActiveNotifications(activeNotifications: ArrayList<StatusBarNotification>) {
-        sbNotifications = activeNotifications
+        for (sbn in activeNotifications) {
+            if (isValidNotification(sbn.notification.extras))
+                sbNotifications.add(sbn)
+        }
         this.notifyDataSetChanged()
     }
 
     override fun onNotificationPosted(sbn: StatusBarNotification?) {
-        if (null == sbn) return
+        if (null == sbn || !isValidNotification(sbn.notification.extras)) return
         var update = -1
         for (index in 0 until sbNotifications.size) {
             if (sbNotifications[index].key == sbn.key) {
