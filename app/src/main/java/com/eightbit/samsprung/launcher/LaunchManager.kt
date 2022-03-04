@@ -71,7 +71,7 @@ class LaunchManager(private val overlay: SamSprungOverlay) {
 
                 getOrientationManager(extras)
             }
-        })
+        }, true)
     }
 
     fun launchDefaultActivity(appInfo: ApplicationInfo) {
@@ -93,7 +93,7 @@ class LaunchManager(private val overlay: SamSprungOverlay) {
 
                 getOrientationManager(extras)
             }
-        })
+        }, true)
     }
 
     fun launchPendingActivity(pendingIntent: PendingIntent) {
@@ -112,6 +112,6 @@ class LaunchManager(private val overlay: SamSprungOverlay) {
 
                 getOrientationManager(extras)
             }
-        })
+        }, true)
     }
 }

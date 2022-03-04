@@ -202,7 +202,10 @@ class NotificationFragment : Fragment(), NotificationAdapter.OnNoticeClickListen
                 promptNotificationReply(action)
             } else {
                 try {
-                    action.actionIntent.send()
+                    action.actionIntent.send(requireContext(), SamSprung.request_code,
+                        Intent().setFlags(Intent.FLAG_ACTIVITY_NEW_TASK),
+                        null, null, null,
+                        ActivityOptions.makeBasic().setLaunchDisplayId(1).toBundle())
                 } catch (ex: Exception) {
                     ex.printStackTrace()
                 }

@@ -93,7 +93,7 @@ class PanelWidgetManager(
                     intent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId)
                     overlay.requestCreateAppWidget.launch(intent)
                 }
-            })
+            }, true)
         } else {
             completeAddAppWidget(appWidgetId, viewPager)
         }

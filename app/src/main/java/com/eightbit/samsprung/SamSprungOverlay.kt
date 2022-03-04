@@ -86,6 +86,8 @@ import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.core.content.ContextCompat
 import androidx.core.view.GravityCompat
 import androidx.core.view.WindowCompat
+import androidx.core.view.isGone
+import androidx.core.view.isVisible
 import androidx.fragment.app.FragmentActivity
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import androidx.viewpager2.widget.ViewPager2
@@ -258,6 +260,10 @@ class SamSprungOverlay : AppCompatActivity() {
             toolbar.menu.findItem(R.id.toggle_nfc).icon.setTint(color)
         }
 
+        val buttonAuth = findViewById<AppCompatImageView>(R.id.button_auth)
+        val keyguardManager = (getSystemService(Context.KEYGUARD_SERVICE) as KeyguardManager)
+        buttonAuth.isVisible = keyguardManager.isDeviceLocked
+
         val toggleStats = findViewById<LinearLayout>(R.id.toggle_status)
         val info = findViewById<LinearLayout>(R.id.bottom_info)
         val bottomSheetBehavior: BottomSheetBehavior<View> =
@@ -267,6 +273,13 @@ class SamSprungOverlay : AppCompatActivity() {
             var hasConfigured = false
             override fun onStateChanged(bottomSheet: View, newState: Int) {
                 if (newState == BottomSheetBehavior.STATE_EXPANDED) {
+                    if (buttonAuth.isVisible) {
+                        setKeyguardListener(object: KeyguardListener {
+                            override fun onKeyguardCheck(unlocked: Boolean) {
+                                buttonAuth.isGone = unlocked
+                            }
+                        }, false)
+                    }
                     toolbar.setOnMenuItemClickListener { item: MenuItem ->
                         when (item.itemId) {
                             R.id.toggle_wifi -> {
@@ -334,6 +347,7 @@ class SamSprungOverlay : AppCompatActivity() {
                         }
                     }
                 } else if (newState == BottomSheetBehavior.STATE_COLLAPSED) {
+                    setKeyguardListener(null, false)
                     hasConfigured = false
                     toggleStats.removeAllViews()
                     configureMenuVisibility(toolbar)
@@ -355,18 +369,6 @@ class SamSprungOverlay : AppCompatActivity() {
         })
 
         configureMenuVisibility(toolbar)
-
-        val buttonAuth = findViewById<AppCompatImageView>(R.id.button_auth)
-        val keyguardManager = (getSystemService(Context.KEYGUARD_SERVICE) as KeyguardManager)
-        buttonAuth.isEnabled = keyguardManager.isDeviceLocked
-        buttonAuth.setOnClickListener {
-            bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
-            setKeyguardListener(object: KeyguardListener {
-                override fun onKeyguardCheck(unlocked: Boolean) {
-                    buttonAuth.isEnabled = !unlocked
-                }
-            })
-        }
 
         val delete: View = toolbar.findViewById(R.id.toggle_widgets)
         delete.setOnLongClickListener(View.OnLongClickListener {
@@ -425,6 +427,13 @@ class SamSprungOverlay : AppCompatActivity() {
                     searchView.visibility = View.VISIBLE
                 } else {
                     searchView.visibility = View.GONE
+                    if (position == 0) {
+                        setKeyguardListener(object : KeyguardListener {
+                            override fun onKeyguardCheck(unlocked: Boolean) {
+                                if (!unlocked) viewPager.setCurrentItem(1, true)
+                            }
+                        }, true)
+                    }
                 }
                 with(prefs.edit()) {
                     putInt(SamSprung.prefViewer, position)
@@ -542,7 +551,7 @@ class SamSprungOverlay : AppCompatActivity() {
         fun onKeyguardCheck(unlocked: Boolean)
     }
 
-    fun setKeyguardListener(listener: KeyguardListener) {
+    fun setKeyguardListener(listener: KeyguardListener?, isVisible: Boolean) {
         this.keyguardListener = listener
 
         val keyguardManager = (getSystemService(Context.KEYGUARD_SERVICE) as KeyguardManager)
@@ -552,12 +561,15 @@ class SamSprungOverlay : AppCompatActivity() {
             for (m in allMethods) {
                 if (m.name == "semStartLockscreenFingerprintAuth") {
                     setTurnScreenOn(true)
-                    val dialog = AlertDialog.Builder(ContextThemeWrapper(
-                        this, R.style.DialogTheme_NoActionBar
-                    )).setOnDismissListener { setTurnScreenOn(false) }
-                    val authDialog = dialog.setView(layoutInflater
-                        .inflate(R.layout.fingerprint_auth, null)).show()
-                    authDialog!!.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+                    var authDialog: AlertDialog? = null
+                    if (isVisible) {
+                        val dialog = AlertDialog.Builder(ContextThemeWrapper(
+                            this, R.style.DialogTheme_NoActionBar
+                        )).setOnDismissListener { setTurnScreenOn(false) }
+                        authDialog = dialog.setView(layoutInflater
+                            .inflate(R.layout.fingerprint_auth, null)).show()
+                        authDialog!!.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+                    }
                     try {
                         m.isAccessible = true
                         m.invoke(keyguardManager)
@@ -565,25 +577,25 @@ class SamSprungOverlay : AppCompatActivity() {
                             object : KeyguardManager.KeyguardDismissCallback() {
                             override fun onDismissCancelled() {
                                 super.onDismissCancelled()
-                                authDialog.dismiss()
+                                if (isVisible) authDialog?.dismiss()
                                 keyguardListener?.onKeyguardCheck(true)
                             }
 
                             override fun onDismissError() {
                                 super.onDismissError()
-                                authDialog.dismiss()
+                                if (isVisible) authDialog?.dismiss()
                                 keyguardListener?.onKeyguardCheck(false)
                             }
 
                             override fun onDismissSucceeded() {
                                 super.onDismissSucceeded()
-                                authDialog.dismiss()
+                                if (isVisible) authDialog?.dismiss()
                                 keyguardListener?.onKeyguardCheck(true)
                             }
                         })
                     } catch (ite: InvocationTargetException) {
                         ite.printStackTrace()
-                        authDialog.dismiss()
+                        if (isVisible) authDialog?.dismiss()
                         keyguardListener?.onKeyguardCheck(false)
                     }
                     break
