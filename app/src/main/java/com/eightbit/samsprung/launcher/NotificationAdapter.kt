@@ -59,6 +59,7 @@ import android.graphics.Bitmap
 import android.graphics.Color
 import android.graphics.drawable.Icon
 import android.service.notification.StatusBarNotification
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -135,10 +136,12 @@ class NotificationAdapter(
             val notification = notice.notification
             val iconView = itemView.findViewById<AppCompatImageView>(R.id.icon)
             val imageView = itemView.findViewById<AppCompatImageView>(R.id.image)
+            val titleText = itemView.findViewById<TextView>(R.id.title)
             val linesText = itemView.findViewById<TextView>(R.id.lines)
             val launch = itemView.findViewById<AppCompatImageView>(R.id.launch)
             val dismiss = itemView.findViewById<AppCompatImageView>(R.id.dismiss)
 
+            titleText.text = ""
             linesText.text = ""
             Executors.newSingleThreadExecutor().execute {
                 when {
@@ -185,6 +188,17 @@ class NotificationAdapter(
                         }
                     }
                     activity.runOnUiThread {
+                        if (notification.extras.containsKey(NotificationCompat.EXTRA_TITLE_BIG)) {
+                            val titleBig = notification.extras.get(NotificationCompat.EXTRA_TITLE_BIG)
+                            if (null != titleBig) titleText.text = titleBig.toString()
+                        }
+                        if (titleText.text.isEmpty() && notification.extras
+                                .containsKey(NotificationCompat.EXTRA_TITLE)) {
+                            val textTitle = notification.extras.getCharSequence(
+                                NotificationCompat.EXTRA_TITLE
+                            )
+                            if (null != textTitle) titleText.text = textTitle.toString()
+                        }
                         if (notification.extras.containsKey(NotificationCompat.EXTRA_BIG_TEXT)) {
                             val textBig = notification.extras.get(NotificationCompat.EXTRA_BIG_TEXT)
                             if (null != textBig) linesText.text = textBig.toString()
