@@ -94,7 +94,7 @@ import androidx.viewpager2.widget.ViewPager2
 import com.eightbit.content.ScaledContext
 import com.eightbit.samsprung.*
 import com.eightbit.samsprung.launcher.CoverStateAdapter
-import com.eightbit.samsprung.launcher.LaunchManager
+import com.eightbit.samsprung.launcher.LauncherManager
 import com.eightbit.samsprung.launcher.PanelWidgetManager
 import com.eightbit.samsprung.panels.*
 import com.eightbit.samsprung.speech.VoiceRecognizer
@@ -111,7 +111,7 @@ import java.util.concurrent.Executors
 class SamSprungOverlay : AppCompatActivity() {
 
     private lateinit var prefs: SharedPreferences
-    private var launchManager: LaunchManager? = null
+    private var launcherManager: LauncherManager? = null
     private var widgetManager: PanelWidgetManager? = null
     val model = WidgetModel()
     private var appWidgetHost: WidgetHost? = null
@@ -403,7 +403,7 @@ class SamSprungOverlay : AppCompatActivity() {
             bottomSheetBehavior.state = BottomSheetBehavior.STATE_EXPANDED
         }
 
-        launchManager = LaunchManager(this)
+        launcherManager = LauncherManager(this)
 
         viewPager = findViewById(R.id.pager)
         pagerAdapter = CoverStateAdapter(this)
@@ -631,7 +631,7 @@ class SamSprungOverlay : AppCompatActivity() {
         }
         if (matchedApps.isNotEmpty()) {
             if (matchedApps.size == 1) {
-                launchManager?.launchDefaultActivity(matchedApps[0])
+                launcherManager?.launchDefaultActivity(matchedApps[0])
             } else {
                 bottomSheetBehaviorMain.state = BottomSheetBehavior.STATE_EXPANDED
                 getSearch().setQuery(launchCommand, true)

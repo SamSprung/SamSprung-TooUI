@@ -77,7 +77,7 @@ import java.util.concurrent.Executors
 
 class AppDrawerFragment : Fragment(), DrawerAppAdapater.OnAppClickListener {
 
-    private var launchManager: LaunchManager? = null
+    private var launcherManager: LauncherManager? = null
     private var packReceiver: BroadcastReceiver? = null
 
     override fun onCreateView(
@@ -96,7 +96,7 @@ class AppDrawerFragment : Fragment(), DrawerAppAdapater.OnAppClickListener {
         val prefs = requireActivity().getSharedPreferences(
             SamSprung.prefsValue, AppCompatActivity.MODE_PRIVATE)
 
-        launchManager = LaunchManager(requireActivity() as SamSprungOverlay)
+        launcherManager = LauncherManager(requireActivity() as SamSprungOverlay)
 
         val launcherView = view.findViewById<RecyclerView>(R.id.appsList)
 
@@ -200,7 +200,7 @@ class AppDrawerFragment : Fragment(), DrawerAppAdapater.OnAppClickListener {
     }
 
     override fun onAppClicked(resolveInfo: ResolveInfo, position: Int) {
-        launchManager?.launchApplicationComponent(resolveInfo)
+        launcherManager?.launchApplicationComponent(resolveInfo)
     }
 
     override fun onDestroyView() {

@@ -22,7 +22,7 @@ import com.eightbit.content.ScaledContext
 import com.eightbit.samsprung.SamSprung
 import com.eightbit.samsprung.SamSprungOverlay
 
-class LaunchManager(private val overlay: SamSprungOverlay) {
+class LauncherManager(private val overlay: SamSprungOverlay) {
 
     private fun getOrientationManager(extras: Bundle) {
         val context = ScaledContext.cover(overlay.applicationContext)
@@ -45,7 +45,7 @@ class LaunchManager(private val overlay: SamSprungOverlay) {
             overlay.onStopOverlay()
             overlay.startForegroundService(Intent(overlay.applicationContext,
                 AppDisplayListener::class.java).putExtras(extras))
-        }, 50)
+        }, 20)
     }
 
     fun launchApplicationComponent(resolveInfo: ResolveInfo) {

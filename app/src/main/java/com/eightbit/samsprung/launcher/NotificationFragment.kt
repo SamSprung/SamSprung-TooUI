@@ -87,7 +87,7 @@ import java.util.*
 
 class NotificationFragment : Fragment(), NotificationAdapter.OnNoticeClickListener {
 
-    private var launchManager: LaunchManager? = null
+    private var launcherManager: LauncherManager? = null
     private lateinit var noticesView: RecyclerView
     private var textSpeech: TextToSpeech? = null
 
@@ -107,7 +107,7 @@ class NotificationFragment : Fragment(), NotificationAdapter.OnNoticeClickListen
         val prefs = requireActivity().getSharedPreferences(
             SamSprung.prefsValue, AppCompatActivity.MODE_PRIVATE)
 
-        launchManager = LaunchManager(requireActivity() as SamSprungOverlay)
+        launcherManager = LauncherManager(requireActivity() as SamSprungOverlay)
 
         textSpeech = TextToSpeech(requireContext().applicationContext) { status ->
             if (status == TextToSpeech.SUCCESS) {
@@ -256,7 +256,7 @@ class NotificationFragment : Fragment(), NotificationAdapter.OnNoticeClickListen
     }
 
     override fun onLaunchClicked(pendingIntent: PendingIntent) {
-        launchManager?.launchPendingActivity(pendingIntent)
+        launcherManager?.launchPendingActivity(pendingIntent)
     }
 
     private fun tactileFeedback() {
