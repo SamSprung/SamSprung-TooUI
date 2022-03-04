@@ -301,6 +301,7 @@ class NotificationAdapter(
 
     private fun isValidNotification(extras: Bundle?) : Boolean {
         return null != extras && (
+                extras.containsKey(NotificationCompat.EXTRA_PICTURE) ||
                 validateTextExtras(extras, NotificationCompat.EXTRA_TITLE_BIG) ||
                 validateCharExtras(extras, NotificationCompat.EXTRA_TITLE) ||
                 validateTextExtras(extras, NotificationCompat.EXTRA_BIG_TEXT) ||
