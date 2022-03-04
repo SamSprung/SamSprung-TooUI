@@ -262,7 +262,6 @@ class SamSprungOverlay : AppCompatActivity() {
 
         val buttonAuth = findViewById<AppCompatImageView>(R.id.button_auth)
         val keyguardManager = (getSystemService(Context.KEYGUARD_SERVICE) as KeyguardManager)
-        buttonAuth.isVisible = keyguardManager.isDeviceLocked
 
         val toggleStats = findViewById<LinearLayout>(R.id.toggle_status)
         val info = findViewById<LinearLayout>(R.id.bottom_info)
@@ -277,6 +276,7 @@ class SamSprungOverlay : AppCompatActivity() {
                         setKeyguardListener(object: KeyguardListener {
                             override fun onKeyguardCheck(unlocked: Boolean) {
                                 buttonAuth.isGone = unlocked
+                                bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
                             }
                         }, false)
                     }
@@ -363,6 +363,7 @@ class SamSprungOverlay : AppCompatActivity() {
                         color = configureMenuIcons(toolbar)
                         batteryLevel.setTextColor(color)
                         clock.setTextColor(color)
+                        buttonAuth.isVisible = keyguardManager.isDeviceLocked
                     }
                 }
             }
@@ -578,18 +579,21 @@ class SamSprungOverlay : AppCompatActivity() {
                             override fun onDismissCancelled() {
                                 super.onDismissCancelled()
                                 if (isVisible) authDialog?.dismiss()
+                                tactileFeedback()
                                 keyguardListener?.onKeyguardCheck(true)
                             }
 
                             override fun onDismissError() {
                                 super.onDismissError()
                                 if (isVisible) authDialog?.dismiss()
+                                tactileFeedback()
                                 keyguardListener?.onKeyguardCheck(false)
                             }
 
                             override fun onDismissSucceeded() {
                                 super.onDismissSucceeded()
                                 if (isVisible) authDialog?.dismiss()
+                                tactileFeedback()
                                 keyguardListener?.onKeyguardCheck(true)
                             }
                         })
