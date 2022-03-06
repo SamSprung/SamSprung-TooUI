@@ -73,6 +73,7 @@ import android.provider.Settings
 import android.speech.SpeechRecognizer
 import android.util.TypedValue
 import android.view.*
+import android.view.animation.TranslateAnimation
 import android.widget.*
 import androidx.activity.result.ActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -92,6 +93,7 @@ import androidx.fragment.app.FragmentActivity
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import androidx.viewpager2.widget.ViewPager2
 import com.eightbit.content.ScaledContext
+import com.eightbit.material.IconifiedSnackbar
 import com.eightbit.samsprung.*
 import com.eightbit.samsprung.launcher.CoverStateAdapter
 import com.eightbit.samsprung.launcher.LauncherManager
@@ -99,10 +101,13 @@ import com.eightbit.samsprung.launcher.PanelWidgetManager
 import com.eightbit.samsprung.panels.*
 import com.eightbit.samsprung.speech.VoiceRecognizer
 import com.eightbit.samsprung.update.CheckUpdatesTask
+import com.eightbit.view.AnimatedLinearLayout
 import com.eightbitlab.blurview.BlurView
 import com.eightbitlab.blurview.RenderScriptBlur
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.floatingactionbutton.FloatingActionButton
+import com.google.android.material.snackbar.Snackbar
+import com.google.android.play.core.appupdate.AppUpdateInfo
 import java.lang.reflect.InvocationTargetException
 import java.lang.reflect.Method
 import java.util.*
@@ -482,7 +487,7 @@ class SamSprungOverlay : AppCompatActivity() {
                     handler.postDelayed({
                         bottomHandle.visibility = View.VISIBLE
                         menuButton.visibility = View.VISIBLE
-                    }, 150)
+                    }, 250)
                     bottomSheetBehaviorMain.isDraggable =
                         prefs.getBoolean(SamSprung.prefSlider, true)
                 }
@@ -531,6 +536,8 @@ class SamSprungOverlay : AppCompatActivity() {
             }
         }
 
+        findViewById<AnimatedLinearLayout>(R.id.update_notice).visibility = View.GONE
+
         if (null != intent?.action && SamSprung.launcher == intent.action) {
             Handler(Looper.getMainLooper()).postDelayed({
                 bottomSheetBehaviorMain.state = BottomSheetBehavior.STATE_EXPANDED
@@ -559,8 +566,10 @@ class SamSprungOverlay : AppCompatActivity() {
         if (keyguardManager.isDeviceLocked) {
             val c = Class.forName("android.app.KeyguardManager")
             val allMethods: Array<Method> = c.declaredMethods
+            var isMethodAvailable = false
             for (m in allMethods) {
                 if (m.name == "semStartLockscreenFingerprintAuth") {
+                    isMethodAvailable = true
                     setTurnScreenOn(true)
                     var authDialog: AlertDialog? = null
                     if (isVisible) {
@@ -579,7 +588,6 @@ class SamSprungOverlay : AppCompatActivity() {
                             override fun onDismissCancelled() {
                                 super.onDismissCancelled()
                                 if (isVisible) authDialog?.dismiss()
-                                tactileFeedback()
                                 keyguardListener?.onKeyguardCheck(true)
                             }
 
@@ -604,6 +612,13 @@ class SamSprungOverlay : AppCompatActivity() {
                     }
                     break
                 }
+            }
+            if (!isMethodAvailable) {
+                IconifiedSnackbar(this@SamSprungOverlay, viewPager).buildTickerBar(
+                    getString(R.string.auth_unavailable),
+                    R.drawable.ic_baseline_fingerprint_24,
+                    Snackbar.LENGTH_LONG
+                ).show()
             }
         } else {
             @Suppress("DEPRECATION")
@@ -818,9 +833,29 @@ class SamSprungOverlay : AppCompatActivity() {
         return null
     }
 
+    fun showUpdateNotice() {
+        runOnUiThread {
+            val fakeSnackbar = findViewById<AnimatedLinearLayout>(R.id.update_notice)
+            findViewById<TextView>(R.id.update_text).text =
+                getString(R.string.update_service, getString(R.string.samsprung))
+            val animate = TranslateAnimation(
+                0f, 0f, 0f, -fakeSnackbar.height.toFloat()
+            )
+            animate.duration = 500
+            animate.fillAfter = true
+            fakeSnackbar.setAnimationListener(object : AnimatedLinearLayout.AnimationListener {
+                override fun onAnimationStart(layout: AnimatedLinearLayout) {}
+                override fun onAnimationEnd(layout: AnimatedLinearLayout) {
+                    layout.setAnimationListener(null)
+                }
+            })
+            fakeSnackbar.visibility = View.VISIBLE
+            fakeSnackbar.startAnimation(animate)
+        }
+    }
+
     override fun onNewIntent(intent: Intent?) {
         super.onNewIntent(intent)
-        CheckUpdatesTask(this)
         Handler(Looper.getMainLooper()).postDelayed({
             val bottomHandle = findViewById<View>(R.id.bottom_handle)
             bottomHandle.visibility = View.VISIBLE
@@ -832,9 +867,24 @@ class SamSprungOverlay : AppCompatActivity() {
                 bottomSheetBehaviorMain.state = BottomSheetBehavior.STATE_EXPANDED
             }
         }, 150)
+        val updateCheck = CheckUpdatesTask(this)
+        if (BuildConfig.FLAVOR == "google") {
+            updateCheck.setPlayUpdateListener(object: CheckUpdatesTask.CheckPlayUpdateListener {
+                override fun onPlayUpdateFound(appUpdateInfo: AppUpdateInfo) {
+                    showUpdateNotice()
+                }
+            })
+        } else {
+            updateCheck.setUpdateListener(object: CheckUpdatesTask.CheckUpdateListener {
+                override fun onUpdateFound(downloadUrl: String) {
+                    showUpdateNotice()
+                }
+            })
+        }
     }
 
     fun onStopOverlay() {
+        findViewById<View>(R.id.bottom_sheet_main).keepScreenOn = false
         try {
             if (this::battReceiver.isInitialized)
                 unregisterReceiver(battReceiver)
@@ -857,6 +907,10 @@ class SamSprungOverlay : AppCompatActivity() {
             model.abortLoaders()
             contentResolver.unregisterContentObserver(mObserver)
         }
+    }
+
+    public override fun onUserLeaveHint() {
+        super.onUserLeaveHint()
     }
 
     private val CharSequence.toPref get() = this.toString()

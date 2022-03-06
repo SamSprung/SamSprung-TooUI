@@ -91,9 +91,9 @@ class OnBroadcastService : Service() {
 
         showForegroundNotification(startId)
 
-        if (!Settings.canDrawOverlays(applicationContext) || SamSprung.updating == intent?.action)
+        if (!Settings.canDrawOverlays(applicationContext) || SamSprung.updating == intent?.action) {
             return dismissOverlayService()
-        if (SamSprung.services == intent?.action) {
+        } else if (SamSprung.services == intent?.action) {
             startActivity(
                 Intent(applicationContext, SamSprungOverlay::class.java)
                     .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK),
@@ -162,5 +162,10 @@ class OnBroadcastService : Service() {
         stopForeground(true)
         stopSelf()
         return START_NOT_STICKY
+    }
+
+    override fun onTaskRemoved(rootIntent: Intent?) {
+        super.onTaskRemoved(rootIntent)
+        startForegroundService(Intent(this, OnBroadcastService::class.java))
     }
 }

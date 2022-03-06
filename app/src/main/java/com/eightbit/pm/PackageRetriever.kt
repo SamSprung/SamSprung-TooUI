@@ -86,7 +86,15 @@ class PackageRetriever(val context: Context) {
         return packages
     }
 
-    fun getRecentPackageList(recentFirst: Boolean) : MutableList<ResolveInfo> {
+    fun getHiddenPackages() : HashSet<String> {
+        val unlisted: HashSet<String> = HashSet()
+        val hide: Set<String> = prefs.getStringSet(
+            SamSprung.prefHidden, setOf<String>()) as Set<String>
+        unlisted.addAll(hide)
+        return unlisted
+    }
+
+    fun getFilteredPackageList(): MutableList<ResolveInfo> {
         val packages = getPackageList()
         val statsManager =
             context.getSystemService(Context.USAGE_STATS_SERVICE) as UsageStatsManager
@@ -114,23 +122,7 @@ class PackageRetriever(val context: Context) {
                 }
             }
         }
-        if (recentFirst)
-            packages.addAll(0, recent)
-        else
-            packages.addAll(recent.reversed())
-        return packages
-    }
-
-    fun getHiddenPackages() : HashSet<String> {
-        val unlisted: HashSet<String> = HashSet()
-        val hide: Set<String> = prefs.getStringSet(
-            SamSprung.prefHidden, setOf<String>()) as Set<String>
-        unlisted.addAll(hide)
-        return unlisted
-    }
-
-    fun getFilteredPackageList(): MutableList<ResolveInfo> {
-        val packages = getRecentPackageList(true)
+        packages.addAll(0, recent)
         packages.removeIf { item ->
             prefs.getStringSet(SamSprung.prefHidden, HashSet())!!
                 .contains(item.activityInfo.packageName)

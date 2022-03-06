@@ -343,7 +343,6 @@ class CoverPreferences : AppCompatActivity() {
         }
 
         val packageRetriever = PackageRetriever(this)
-        // val packages = packageRetriever.getRecentPackageList(false)
         val packages = packageRetriever.getPackageList()
         for (installed in packages) {
             if (installed.resolvePackageName == "apps.ijp.coveros") {
@@ -750,6 +749,7 @@ class CoverPreferences : AppCompatActivity() {
             buildIcon.setImageDrawable(ContextCompat.getDrawable(
                 this@CoverPreferences, R.drawable.ic_baseline_browser_updated_24))
             val buildInfo = findViewById<TextView>(R.id.build_info)
+            val colorStateList = buildInfo.textColors
             buildInfo.setTextColor(Color.RED)
             val anim: Animation = AlphaAnimation(0.2f, 1.0f)
             anim.duration = 500
@@ -760,6 +760,7 @@ class CoverPreferences : AppCompatActivity() {
                 buildIcon.setImageDrawable(ContextCompat.getDrawable(
                     this@CoverPreferences, R.drawable.ic_github_octocat_24dp))
                 anim.cancel()
+                buildInfo.setTextColor(colorStateList)
                 if (null != appUpdateInfo) {
                     updateCheck?.downloadPlayUpdate(appUpdateInfo)
                 } else if (null != downloadUrl) {
@@ -814,7 +815,6 @@ class CoverPreferences : AppCompatActivity() {
         ActivityResultContracts.StartActivityForResult()) {
         Executors.newSingleThreadExecutor().execute {
             val packageRetriever = PackageRetriever(this)
-            // val packages = packageRetriever.getRecentPackageList(false)
             val packages = packageRetriever.getPackageList()
             val unlisted = packageRetriever.getHiddenPackages()
             runOnUiThread {
@@ -881,7 +881,7 @@ class CoverPreferences : AppCompatActivity() {
     private fun captureLogcat(parent: ViewGroup) {
         if (Debug(this).captureLogcat(hasPremiumSupport, isDeviceSecure())) {
             IconifiedSnackbar(this, parent).buildSnackbar(
-                R.string.logcat_written, Snackbar.LENGTH_LONG, null
+                R.string.logcat_written, R.drawable.ic_github_report_24dp, Snackbar.LENGTH_LONG
             ).show()
         }
     }

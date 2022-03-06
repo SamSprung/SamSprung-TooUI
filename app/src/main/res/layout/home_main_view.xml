@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<com.eightbit.widget.PersistentCoordinator
+<androidx.coordinatorlayout.widget.CoordinatorLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/coordinator_main"
@@ -61,6 +61,37 @@
                         android:layout_height="match_parent" />
                 </com.eightbitlab.blurview.BlurView>
 
+                <com.eightbit.view.AnimatedLinearLayout
+                    android:id="@+id/update_notice"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:paddingHorizontal="6dp"
+                    android:paddingVertical="2dp"
+                    android:gravity="center"
+                    android:visibility="invisible"
+                    android:background="@color/bottomSheetTint"
+                    android:orientation="horizontal">
+                    <androidx.appcompat.widget.AppCompatImageView
+                        android:id="@+id/update_icon"
+                        app:srcCompat="@drawable/ic_baseline_browser_updated_24"
+                        android:layout_width="18dp"
+                        android:layout_marginHorizontal="4dp"
+                        android:layout_height="match_parent"
+                        android:layout_gravity="center_vertical"
+                        android:gravity="center_vertical"
+                        android:contentDescription="@string/description_icon" />
+                    <TextView
+                        android:id="@+id/update_text"
+                        android:layout_width="wrap_content"
+                        android:textSize="16sp"
+                        android:layout_marginHorizontal="4dp"
+                        android:textColor="?android:textColorPrimary"
+                        android:layout_gravity="center_vertical"
+                        android:gravity="center_vertical"
+                        android:layout_height="wrap_content"
+                        android:text="@string/update_service" />
+                </com.eightbit.view.AnimatedLinearLayout>
+
                 <androidx.appcompat.widget.SearchView
                     android:id="@+id/package_search"
                     android:layout_width="match_parent"
@@ -89,8 +120,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:gravity="center"
-                    android:paddingStart="10dp"
-                    android:paddingEnd="10dp"
+                    android:paddingHorizontal="10dp"
                     android:orientation="horizontal">
 
                     <TextView
@@ -181,4 +211,4 @@
         android:layout_marginStart="-4dp"
         android:layout_marginEnd="-4dp"
         android:contentDescription="@string/description_badge" />
-</com.eightbit.widget.PersistentCoordinator>
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

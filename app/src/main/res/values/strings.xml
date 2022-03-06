@@ -33,8 +33,7 @@
 
     <string name="overlay_service">%1$s Overlay Service</string>
     <string name="display_service">%1$s Display Service</string>
-    <string name="update_service">%1$s Update</string>
-    <string name="click_update_app">Click to Update Package</string>
+    <string name="update_service">%1$s Update Available</string>
 
     <string name="loading_text">Loading&#8230;</string>
 
@@ -71,7 +70,8 @@
     <string name="accessibility_service">SamSprung Navigation</string>
     <string name="accessibility_details">Enable virtual navigation action and hardware support.</string>
 
-    <string name="fingerprint_required">Please unlock the device\nwith your fingerprint</string>
+    <string name="fingerprint_required">Please unlock device\nwith your fingerprint</string>
+    <string name="auth_unavailable">Fingerprint Auth Unavailable!</string>
 
     <!-- Error message when user has filled a panel or cancelled configuration -->
     <string name="out_of_space">Cancelled adding widget</string>

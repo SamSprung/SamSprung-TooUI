@@ -51,20 +51,15 @@ package com.eightbit.samsprung.update
  * subject to to the terms and conditions of the Apache License, Version 2.0.
  */
 
-import android.app.*
-import android.content.ContentResolver
-import android.content.Context
+import android.app.Activity
+import android.app.NotificationManager
+import android.app.PendingIntent
 import android.content.Intent
 import android.content.pm.PackageInstaller
-import android.graphics.Bitmap
-import android.graphics.BitmapFactory
-import android.media.AudioAttributes
 import android.net.Uri
 import android.os.Build
 import android.provider.Settings
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.app.NotificationCompat
-import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
 import androidx.documentfile.provider.DocumentFile
 import com.eightbit.samsprung.BuildConfig
@@ -206,59 +201,6 @@ class CheckUpdatesTask(private var activity: Activity) {
 
     }
 
-    private fun showUpdateNotification(downloadUrl: String) {
-        var mNotificationManager: NotificationManager? = null
-
-        val pendingIntent = PendingIntent.getActivity(activity, 0,
-            Intent(activity, UpdateShimActivity::class.java).setAction(downloadUrl),
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S)
-                PendingIntent.FLAG_ONE_SHOT or PendingIntent.FLAG_MUTABLE
-            else PendingIntent.FLAG_ONE_SHOT)
-        val iconNotification = BitmapFactory.decodeResource(
-            activity.resources, R.drawable.ic_baseline_samsprung_24
-        )
-        if (null == mNotificationManager) {
-            mNotificationManager = activity.getSystemService(
-                Context.NOTIFICATION_SERVICE) as NotificationManager
-        }
-        mNotificationManager.createNotificationChannelGroup(
-            NotificationChannelGroup("services_group", "Services")
-        )
-        val notificationChannel = NotificationChannel("update_channel",
-            "Update Notification", NotificationManager.IMPORTANCE_LOW)
-        notificationChannel.enableLights(false)
-        notificationChannel.enableVibration(false)
-        val soundUri = Uri.parse(ContentResolver.SCHEME_ANDROID_RESOURCE
-                + "://" + activity.packageName + "/" + R.raw.update_notice)
-        val audioAttributes = AudioAttributes.Builder()
-            .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
-            .setUsage(AudioAttributes.USAGE_NOTIFICATION).build()
-        notificationChannel.setSound(soundUri, audioAttributes)
-        notificationChannel.lockscreenVisibility = Notification.VISIBILITY_PRIVATE
-        mNotificationManager.createNotificationChannel(notificationChannel)
-        val builder = NotificationCompat.Builder(
-            activity, "update_channel")
-
-        val notificationText = activity.getString(
-            R.string.update_service, activity.getString(R.string.app_name))
-        builder.setContentTitle(notificationText).setTicker(notificationText)
-            .setContentText(activity.getString(R.string.click_update_app))
-            .setSmallIcon(R.drawable.ic_baseline_samsprung_24)
-            .setPriority(NotificationCompat.PRIORITY_LOW)
-            .setSound(soundUri).setWhen(0).setOnlyAlertOnce(true)
-            .setContentIntent(pendingIntent).setOngoing(false)
-        if (null != iconNotification) {
-            builder.setLargeIcon(Bitmap.createScaledBitmap(
-                iconNotification, 128, 128, false
-            ))
-        }
-        builder.color = ContextCompat.getColor(activity, R.color.secondary_dark)
-
-        val notification: Notification = builder.build()
-        notification.flags = notification.flags or Notification.FLAG_AUTO_CANCEL
-        mNotificationManager.notify(SamSprung.request_code, notification)
-    }
-
     private fun parseUpdateJSON(result: String, isPreview: Boolean) {
         val offset = activity.getString(R.string.samsprung).length + 1
         var lastCommit: String? = null
@@ -270,10 +212,7 @@ class CheckUpdatesTask(private var activity: Activity) {
             val asset = assets[0] as JSONObject
             downloadUrl = asset["browser_download_url"] as String
             if (isPreview && BuildConfig.COMMIT != lastCommit) {
-                if (null != listener)
-                    listener?.onUpdateFound(downloadUrl)
-                else if (activity !is CoverPreferences)
-                    showUpdateNotification(downloadUrl)
+                if (null != listener) listener?.onUpdateFound(downloadUrl)
             }
         } catch (ignored: JSONException) { }
         if (!isPreview && null != lastCommit && null != downloadUrl) {
@@ -284,10 +223,7 @@ class CheckUpdatesTask(private var activity: Activity) {
                         val jsonObject = JSONTokener(result).nextValue() as JSONObject
                         val extraCommit = (jsonObject["name"] as String).substring(offset)
                         if (BuildConfig.COMMIT != extraCommit && BuildConfig.COMMIT != lastCommit) {
-                            if (null != listener)
-                                listener?.onUpdateFound(downloadUrl)
-                            else if (activity !is CoverPreferences)
-                                showUpdateNotification(downloadUrl)
+                            if (null != listener) listener?.onUpdateFound(downloadUrl)
                         }
                     } catch (ignored: JSONException) { }
                 }

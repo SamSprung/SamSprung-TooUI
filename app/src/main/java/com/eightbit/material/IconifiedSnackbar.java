@@ -78,14 +78,14 @@ public class IconifiedSnackbar {
         this(activity, null);
     }
 
-    public Snackbar buildSnackbar(String msg, int length, View anchor) {
+    public Snackbar buildSnackbar(String msg, int drawable, int length, View anchor) {
         Snackbar snackbar = Snackbar.make(mActivity.get()
                 .findViewById(R.id.coordinator), msg, length);
         View snackbarLayout = snackbar.getView();
         TextView textView = snackbarLayout.findViewById(
                 com.google.android.material.R.id.snackbar_text);
         textView.setCompoundDrawablesRelativeWithIntrinsicBounds(
-                R.drawable.ic_baseline_samsprung_24, 0, 0, 0);
+                drawable, 0, 0, 0);
         textView.setGravity(Gravity.CENTER_VERTICAL);
         textView.setCompoundDrawablePadding(textView.getResources()
                 .getDimensionPixelOffset(R.dimen.snackbar_icon_padding));
@@ -97,13 +97,16 @@ public class IconifiedSnackbar {
         return snackbar;
     }
 
-    public Snackbar buildSnackbar(int msgRes, int length, View anchor) {
-        return buildSnackbar(mActivity.get().getString(msgRes), length, anchor);
+    public Snackbar buildSnackbar(int msgRes, int drawable, int length) {
+        return buildSnackbar(mActivity.get().getString(msgRes), drawable, length, null);
     }
 
-    public Snackbar buildTickerBar(String msg) {
-        Snackbar snackbar = buildSnackbar(msg, Snackbar.LENGTH_LONG, null)
+    public Snackbar buildTickerBar(String msg, int drawable, int length) {
+        Snackbar snackbar = buildSnackbar(msg, drawable, length, null)
                 .addCallback(new Snackbar.Callback() {
+            final int top = null != layout ? layout.getPaddingTop() : 0;
+            final int bottom = null != layout ? layout.getPaddingBottom() : 0;
+
             @Override
             public void onDismissed(Snackbar snackbar, int event) {
                 if (null == layout) {
@@ -111,7 +114,7 @@ public class IconifiedSnackbar {
                     return;
                 }
                 TransitionManager.beginDelayedTransition(layout);
-                layout.setPadding(0, 0, 0, 0);
+                layout.setPadding(0, top, 0, bottom);
                 super.onDismissed(snackbar, event);
             }
 
@@ -121,8 +124,10 @@ public class IconifiedSnackbar {
                     super.onShown(snackbar);
                     return;
                 }
-                layout.setPadding(0, snackbar.getView().getMeasuredHeight(),
-                        0, 0);
+                layout.setPadding(
+                        0, top + snackbar.getView().getMeasuredHeight(),
+                        0, bottom
+                );
                 super.onShown(snackbar);
             }
         });
@@ -131,5 +136,13 @@ public class IconifiedSnackbar {
         params.gravity = Gravity.TOP;
         snackbar.getView().setLayoutParams(params);
         return snackbar;
+    }
+
+    public Snackbar buildTickerBar(int msgRes, int drawable, int length) {
+        return buildTickerBar(mActivity.get().getString(msgRes), drawable, length);
+    }
+
+    public Snackbar buildTickerBar(String msg) {
+        return buildTickerBar(msg, R.drawable.ic_baseline_samsprung_24, Snackbar.LENGTH_LONG);
     }
 }
