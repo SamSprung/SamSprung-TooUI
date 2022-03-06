@@ -71,7 +71,7 @@
     <string name="accessibility_details">Enable virtual navigation action and hardware support.</string>
 
     <string name="fingerprint_required">Please unlock device\nwith your fingerprint</string>
-    <string name="auth_unavailable">Fingerprint Auth Unavailable!</string>
+    <string name="auth_unavailable">Bixby unlock required to continue!</string>
 
     <!-- Error message when user has filled a panel or cancelled configuration -->
     <string name="out_of_space">Cancelled adding widget</string>

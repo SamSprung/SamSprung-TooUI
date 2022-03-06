@@ -487,7 +487,7 @@ class SamSprungOverlay : AppCompatActivity() {
                     handler.postDelayed({
                         bottomHandle.visibility = View.VISIBLE
                         menuButton.visibility = View.VISIBLE
-                    }, 250)
+                    }, 200)
                     bottomSheetBehaviorMain.isDraggable =
                         prefs.getBoolean(SamSprung.prefSlider, true)
                 }
@@ -559,61 +559,92 @@ class SamSprungOverlay : AppCompatActivity() {
         fun onKeyguardCheck(unlocked: Boolean)
     }
 
+    private fun getFingerprintAuth() : Method? {
+        val c = Class.forName("android.app.KeyguardManager")
+        val allMethods: Array<Method> = c.declaredMethods
+        for (m in allMethods) {
+            if (m.name == "semStartLockscreenFingerprintAuth") {
+                return m
+            }
+        }
+        return null
+    }
+
+    private fun getFingerprintAuth(keyguardManager: KeyguardManager) : Method? {
+        val allMethods: Array<Method> = keyguardManager.javaClass.declaredMethods
+        for (m in allMethods) {
+            if (m.name == "semStartLockscreenFingerprintAuth") {
+                return m
+            }
+        }
+        return null
+    }
+
+    fun dismissKeyguard(keyguardManager: KeyguardManager, authDialog: AlertDialog?) {
+        keyguardManager.requestDismissKeyguard(this,
+            object : KeyguardManager.KeyguardDismissCallback() {
+            override fun onDismissCancelled() {
+                super.onDismissCancelled()
+                authDialog?.dismiss()
+                keyguardListener?.onKeyguardCheck(true)
+            }
+
+            override fun onDismissError() {
+                super.onDismissError()
+                authDialog?.dismiss()
+                tactileFeedback()
+                keyguardListener?.onKeyguardCheck(false)
+            }
+
+            override fun onDismissSucceeded() {
+                super.onDismissSucceeded()
+                authDialog?.dismiss()
+                tactileFeedback()
+                keyguardListener?.onKeyguardCheck(true)
+            }
+        })
+    }
+
     fun setKeyguardListener(listener: KeyguardListener?, isVisible: Boolean) {
         this.keyguardListener = listener
 
         val keyguardManager = (getSystemService(Context.KEYGUARD_SERVICE) as KeyguardManager)
         if (keyguardManager.isDeviceLocked) {
-            val c = Class.forName("android.app.KeyguardManager")
-            val allMethods: Array<Method> = c.declaredMethods
-            var isMethodAvailable = false
-            for (m in allMethods) {
-                if (m.name == "semStartLockscreenFingerprintAuth") {
-                    isMethodAvailable = true
-                    setTurnScreenOn(true)
-                    var authDialog: AlertDialog? = null
-                    if (isVisible) {
-                        val dialog = AlertDialog.Builder(ContextThemeWrapper(
+            var method = getFingerprintAuth(keyguardManager)
+            if (null == method) {
+                method = getFingerprintAuth()
+            }
+            if (null != method) {
+                setTurnScreenOn(true)
+                var authDialog: AlertDialog? = null
+                if (isVisible) {
+                    val dialog = AlertDialog.Builder(
+                        ContextThemeWrapper(
                             this, R.style.DialogTheme_NoActionBar
-                        )).setOnDismissListener { setTurnScreenOn(false) }
-                        authDialog = dialog.setView(layoutInflater
-                            .inflate(R.layout.fingerprint_auth, null)).show()
-                        authDialog!!.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
-                    }
+                        )
+                    ).setOnDismissListener { setTurnScreenOn(false) }
+                    authDialog = dialog.setView(
+                        layoutInflater
+                            .inflate(R.layout.fingerprint_auth, null)
+                    ).show()
+                    authDialog!!.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+                }
+                try {
+                    method.isAccessible = true
+                    method.invoke(keyguardManager)
+                    dismissKeyguard(keyguardManager, authDialog)
+                } catch (ite: InvocationTargetException) {
                     try {
-                        m.isAccessible = true
-                        m.invoke(keyguardManager)
-                        keyguardManager.requestDismissKeyguard(this,
-                            object : KeyguardManager.KeyguardDismissCallback() {
-                            override fun onDismissCancelled() {
-                                super.onDismissCancelled()
-                                if (isVisible) authDialog?.dismiss()
-                                keyguardListener?.onKeyguardCheck(true)
-                            }
-
-                            override fun onDismissError() {
-                                super.onDismissError()
-                                if (isVisible) authDialog?.dismiss()
-                                tactileFeedback()
-                                keyguardListener?.onKeyguardCheck(false)
-                            }
-
-                            override fun onDismissSucceeded() {
-                                super.onDismissSucceeded()
-                                if (isVisible) authDialog?.dismiss()
-                                tactileFeedback()
-                                keyguardListener?.onKeyguardCheck(true)
-                            }
-                        })
+                        method.isAccessible = true
+                        method.invoke(Class.forName("android.app.KeyguardManager"))
+                        dismissKeyguard(keyguardManager, authDialog)
                     } catch (ite: InvocationTargetException) {
                         ite.printStackTrace()
                         if (isVisible) authDialog?.dismiss()
                         keyguardListener?.onKeyguardCheck(false)
                     }
-                    break
                 }
-            }
-            if (!isMethodAvailable) {
+            } else {
                 IconifiedSnackbar(this@SamSprungOverlay, viewPager).buildTickerBar(
                     getString(R.string.auth_unavailable),
                     R.drawable.ic_baseline_fingerprint_24,

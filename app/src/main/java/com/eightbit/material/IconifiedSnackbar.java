@@ -124,10 +124,8 @@ public class IconifiedSnackbar {
                     super.onShown(snackbar);
                     return;
                 }
-                layout.setPadding(
-                        0, top + snackbar.getView().getMeasuredHeight(),
-                        0, bottom
-                );
+                int adjusted = top + snackbar.getView().getMeasuredHeight();
+                layout.setPadding(0, adjusted, 0, bottom);
                 super.onShown(snackbar);
             }
         });
@@ -136,10 +134,6 @@ public class IconifiedSnackbar {
         params.gravity = Gravity.TOP;
         snackbar.getView().setLayoutParams(params);
         return snackbar;
-    }
-
-    public Snackbar buildTickerBar(int msgRes, int drawable, int length) {
-        return buildTickerBar(mActivity.get().getString(msgRes), drawable, length);
     }
 
     public Snackbar buildTickerBar(String msg) {
