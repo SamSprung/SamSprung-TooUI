@@ -560,24 +560,21 @@ class SamSprungOverlay : AppCompatActivity() {
     }
 
     private fun getFingerprintAuth() : Method? {
-        val c = Class.forName("android.app.KeyguardManager")
-        val allMethods: Array<Method> = c.declaredMethods
-        for (m in allMethods) {
-            if (m.name == "semStartLockscreenFingerprintAuth") {
-                return m
+        val keyguard = Class.forName("android.app.KeyguardManager")
+        try {
+            return keyguard.getDeclaredMethod(
+                "semStartLockscreenFingerprintAuth", keyguard
+            )
+        } catch (tim: Exception) {
+            tim.printStackTrace()
+            val allMethods: Array<Method> = keyguard.declaredMethods
+            for (m in allMethods) {
+                if (m.name == "semStartLockscreenFingerprintAuth") {
+                    return m
+                }
             }
+            return null
         }
-        return null
-    }
-
-    private fun getFingerprintAuth(keyguardManager: KeyguardManager) : Method? {
-        val allMethods: Array<Method> = keyguardManager.javaClass.declaredMethods
-        for (m in allMethods) {
-            if (m.name == "semStartLockscreenFingerprintAuth") {
-                return m
-            }
-        }
-        return null
     }
 
     private fun dismissKeyguard(keyguardManager: KeyguardManager, authDialog: AlertDialog?) {
@@ -611,10 +608,7 @@ class SamSprungOverlay : AppCompatActivity() {
         setTurnScreenOn(true)
         val keyguardManager = (getSystemService(Context.KEYGUARD_SERVICE) as KeyguardManager)
         if (keyguardManager.isDeviceLocked) {
-            var method = getFingerprintAuth(keyguardManager)
-            if (null == method) {
-                method = getFingerprintAuth()
-            }
+            val method = getFingerprintAuth()
             if (null != method) {
                 var authDialog: AlertDialog? = null
                 if (isVisible) {
@@ -625,22 +619,17 @@ class SamSprungOverlay : AppCompatActivity() {
                     ).show()
                     authDialog!!.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
                 }
+                method.isAccessible = true
                 try {
-                    method.isAccessible = true
                     method.invoke(keyguardManager)
                     dismissKeyguard(keyguardManager, authDialog)
                 } catch (ite: InvocationTargetException) {
-                    try {
-                        method.isAccessible = true
-                        method.invoke(Class.forName("android.app.KeyguardManager"))
-                        dismissKeyguard(keyguardManager, authDialog)
-                    } catch (ite: InvocationTargetException) {
-                        ite.printStackTrace()
-                        if (isVisible) authDialog?.dismiss()
-                        keyguardListener?.onKeyguardCheck(false)
-                    }
+                    ite.printStackTrace()
+                    if (isVisible) authDialog?.dismiss()
+                    keyguardListener?.onKeyguardCheck(false)
                 }
             } else {
+                keyguardListener?.onKeyguardCheck(false)
                 IconifiedSnackbar(this@SamSprungOverlay, viewPager).buildTickerBar(
                     getString(R.string.auth_unavailable),
                     R.drawable.ic_baseline_fingerprint_24,
