@@ -559,24 +559,6 @@ class SamSprungOverlay : AppCompatActivity() {
         fun onKeyguardCheck(unlocked: Boolean)
     }
 
-    private fun getFingerprintAuth() : Method? {
-        val keyguard = Class.forName("android.app.KeyguardManager")
-        try {
-            return keyguard.getDeclaredMethod(
-                "semStartLockscreenFingerprintAuth", keyguard
-            )
-        } catch (tim: Exception) {
-            tim.printStackTrace()
-            val allMethods: Array<Method> = keyguard.declaredMethods
-            for (m in allMethods) {
-                if (m.name == "semStartLockscreenFingerprintAuth") {
-                    return m
-                }
-            }
-            return null
-        }
-    }
-
     private fun dismissKeyguard(keyguardManager: KeyguardManager, authDialog: AlertDialog?) {
         keyguardManager.requestDismissKeyguard(this,
             object : KeyguardManager.KeyguardDismissCallback() {
@@ -603,38 +585,58 @@ class SamSprungOverlay : AppCompatActivity() {
         setTurnScreenOn(false)
     }
 
+    private fun invokePublicFingerprintAuth(keyguardManager: KeyguardManager) {
+        val keyguard = Class.forName("android.app.KeyguardManager")
+        val keyguardMethod = keyguard.methods.first {
+            it.name == "semStartLockscreenFingerprintAuth" }
+        keyguardMethod.isAccessible = true
+        keyguardMethod.invoke(keyguardManager)
+    }
+
+    private fun invokeHiddenFingerprintAuth(keyguardManager: KeyguardManager) {
+        val forName = Class::class.java.getDeclaredMethod("forName", String::class.java)
+        val getDeclaredMethod = Class::class.java.getDeclaredMethod("getDeclaredMethod",
+            String::class.java, arrayOf<Class<*>>()::class.java)
+        val vmRuntimeClass = forName.invoke(null, "dalvik.system.VMRuntime") as Class<*>
+        val getRuntime = getDeclaredMethod.invoke(vmRuntimeClass, "getRuntime", null) as Method
+        val setHiddenApiExemptions = getDeclaredMethod.invoke(vmRuntimeClass,
+            "setHiddenApiExemptions", arrayOf(arrayOf<String>()::class.java)) as Method
+        val vmRuntime = getRuntime.invoke(null)
+        setHiddenApiExemptions.invoke(vmRuntime, arrayOf("L"))
+        invokePublicFingerprintAuth(keyguardManager)
+    }
+
     fun setKeyguardListener(listener: KeyguardListener?, isVisible: Boolean) {
         this.keyguardListener = listener
         setTurnScreenOn(true)
         val keyguardManager = (getSystemService(Context.KEYGUARD_SERVICE) as KeyguardManager)
         if (keyguardManager.isDeviceLocked) {
-            val method = getFingerprintAuth()
-            if (null != method) {
-                var authDialog: AlertDialog? = null
-                if (isVisible) {
-                    authDialog = AlertDialog.Builder(
-                        ContextThemeWrapper(this, R.style.DialogTheme_NoActionBar)
-                    ).setView(
-                        layoutInflater.inflate(R.layout.fingerprint_auth, null)
-                    ).show()
-                    authDialog!!.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
-                }
-                method.isAccessible = true
+            var authDialog: AlertDialog? = null
+            if (isVisible) {
+                authDialog = AlertDialog.Builder(
+                    ContextThemeWrapper(this, R.style.DialogTheme_NoActionBar)
+                ).setView(
+                    layoutInflater.inflate(R.layout.fingerprint_auth, null)
+                ).show()
+                authDialog!!.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+            }
+            try {
+                invokePublicFingerprintAuth(keyguardManager)
+                dismissKeyguard(keyguardManager, authDialog)
+            } catch (tim : Exception) {
                 try {
-                    method.invoke(keyguardManager)
+                    invokeHiddenFingerprintAuth(keyguardManager)
                     dismissKeyguard(keyguardManager, authDialog)
-                } catch (ite: InvocationTargetException) {
+                } catch (ite: Exception) {
                     ite.printStackTrace()
                     if (isVisible) authDialog?.dismiss()
                     keyguardListener?.onKeyguardCheck(false)
+                    IconifiedSnackbar(this@SamSprungOverlay, viewPager).buildTickerBar(
+                        getString(R.string.auth_unavailable),
+                        R.drawable.ic_baseline_fingerprint_24,
+                        Snackbar.LENGTH_LONG
+                    ).show()
                 }
-            } else {
-                keyguardListener?.onKeyguardCheck(false)
-                IconifiedSnackbar(this@SamSprungOverlay, viewPager).buildTickerBar(
-                    getString(R.string.auth_unavailable),
-                    R.drawable.ic_baseline_fingerprint_24,
-                    Snackbar.LENGTH_LONG
-                ).show()
             }
         } else {
             dismissKeyguard(keyguardManager, null)
