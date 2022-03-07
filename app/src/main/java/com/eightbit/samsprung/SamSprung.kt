@@ -58,8 +58,6 @@ import kotlin.system.exitProcess
 
 class SamSprung : Application() {
 
-    var isKeyguardLocked: Boolean = true
-
     fun setThemePreference() {
         when (getSharedPreferences(prefsValue, MODE_PRIVATE).getInt(prefThemes, 0)) {
             0 -> AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM)

@@ -580,7 +580,7 @@ class SamSprungOverlay : AppCompatActivity() {
         return null
     }
 
-    fun dismissKeyguard(keyguardManager: KeyguardManager, authDialog: AlertDialog?) {
+    private fun dismissKeyguard(keyguardManager: KeyguardManager, authDialog: AlertDialog?) {
         keyguardManager.requestDismissKeyguard(this,
             object : KeyguardManager.KeyguardDismissCallback() {
             override fun onDismissCancelled() {
@@ -603,11 +603,12 @@ class SamSprungOverlay : AppCompatActivity() {
                 keyguardListener?.onKeyguardCheck(true)
             }
         })
+        setTurnScreenOn(false)
     }
 
     fun setKeyguardListener(listener: KeyguardListener?, isVisible: Boolean) {
         this.keyguardListener = listener
-
+        setTurnScreenOn(true)
         val keyguardManager = (getSystemService(Context.KEYGUARD_SERVICE) as KeyguardManager)
         if (keyguardManager.isDeviceLocked) {
             var method = getFingerprintAuth(keyguardManager)
@@ -615,17 +616,12 @@ class SamSprungOverlay : AppCompatActivity() {
                 method = getFingerprintAuth()
             }
             if (null != method) {
-                setTurnScreenOn(true)
                 var authDialog: AlertDialog? = null
                 if (isVisible) {
-                    val dialog = AlertDialog.Builder(
-                        ContextThemeWrapper(
-                            this, R.style.DialogTheme_NoActionBar
-                        )
-                    ).setOnDismissListener { setTurnScreenOn(false) }
-                    authDialog = dialog.setView(
-                        layoutInflater
-                            .inflate(R.layout.fingerprint_auth, null)
+                    authDialog = AlertDialog.Builder(
+                        ContextThemeWrapper(this, R.style.DialogTheme_NoActionBar)
+                    ).setView(
+                        layoutInflater.inflate(R.layout.fingerprint_auth, null)
                     ).show()
                     authDialog!!.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
                 }
@@ -652,10 +648,7 @@ class SamSprungOverlay : AppCompatActivity() {
                 ).show()
             }
         } else {
-            @Suppress("DEPRECATION")
-            (application as SamSprung).isKeyguardLocked =
-                keyguardManager.inKeyguardRestrictedInputMode()
-            keyguardManager.requestDismissKeyguard(this, null)
+            dismissKeyguard(keyguardManager, null)
             keyguardListener?.onKeyguardCheck(true)
         }
     }
