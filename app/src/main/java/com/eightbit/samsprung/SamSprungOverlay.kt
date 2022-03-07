@@ -108,6 +108,7 @@ import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.snackbar.Snackbar
 import com.google.android.play.core.appupdate.AppUpdateInfo
+import org.lsposed.hiddenapibypass.HiddenApiBypass
 import java.lang.reflect.InvocationTargetException
 import java.lang.reflect.Method
 import java.util.*
@@ -585,27 +586,6 @@ class SamSprungOverlay : AppCompatActivity() {
         setTurnScreenOn(false)
     }
 
-    private fun invokePublicFingerprintAuth(keyguardManager: KeyguardManager) {
-        val keyguard = Class.forName("android.app.KeyguardManager")
-        val keyguardMethod = keyguard.methods.first {
-            it.name == "semStartLockscreenFingerprintAuth" }
-        keyguardMethod.isAccessible = true
-        keyguardMethod.invoke(keyguardManager)
-    }
-
-    private fun invokeHiddenFingerprintAuth(keyguardManager: KeyguardManager) {
-        val forName = Class::class.java.getDeclaredMethod("forName", String::class.java)
-        val getDeclaredMethod = Class::class.java.getDeclaredMethod("getDeclaredMethod",
-            String::class.java, arrayOf<Class<*>>()::class.java)
-        val vmRuntimeClass = forName.invoke(null, "dalvik.system.VMRuntime") as Class<*>
-        val getRuntime = getDeclaredMethod.invoke(vmRuntimeClass, "getRuntime", null) as Method
-        val setHiddenApiExemptions = getDeclaredMethod.invoke(vmRuntimeClass,
-            "setHiddenApiExemptions", arrayOf(arrayOf<String>()::class.java)) as Method
-        val vmRuntime = getRuntime.invoke(null)
-        setHiddenApiExemptions.invoke(vmRuntime, arrayOf("L"))
-        invokePublicFingerprintAuth(keyguardManager)
-    }
-
     fun setKeyguardListener(listener: KeyguardListener?, isVisible: Boolean) {
         this.keyguardListener = listener
         setTurnScreenOn(true)
@@ -621,22 +601,18 @@ class SamSprungOverlay : AppCompatActivity() {
                 authDialog!!.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
             }
             try {
-                invokePublicFingerprintAuth(keyguardManager)
+                HiddenApiBypass.invoke(Class.forName("android.app.KeyguardManager"),
+                    keyguardManager, "semStartLockscreenFingerprintAuth")
                 dismissKeyguard(keyguardManager, authDialog)
-            } catch (tim : Exception) {
-                try {
-                    invokeHiddenFingerprintAuth(keyguardManager)
-                    dismissKeyguard(keyguardManager, authDialog)
-                } catch (ite: Exception) {
-                    ite.printStackTrace()
-                    if (isVisible) authDialog?.dismiss()
-                    keyguardListener?.onKeyguardCheck(false)
-                    IconifiedSnackbar(this@SamSprungOverlay, viewPager).buildTickerBar(
-                        getString(R.string.auth_unavailable),
-                        R.drawable.ic_baseline_fingerprint_24,
-                        Snackbar.LENGTH_LONG
-                    ).show()
-                }
+            } catch (ite: Exception) {
+                ite.printStackTrace()
+                if (isVisible) authDialog?.dismiss()
+                keyguardListener?.onKeyguardCheck(false)
+                IconifiedSnackbar(this@SamSprungOverlay, viewPager).buildTickerBar(
+                    getString(R.string.auth_unavailable),
+                    R.drawable.ic_baseline_fingerprint_24,
+                    Snackbar.LENGTH_LONG
+                ).show()
             }
         } else {
             dismissKeyguard(keyguardManager, null)
