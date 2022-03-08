@@ -521,6 +521,14 @@ class SamSprungOverlay : AppCompatActivity() {
         }
         menuButton.drawable.setTint(color)
 
+        findViewById<AnimatedLinearLayout>(R.id.update_notice).visibility = View.GONE
+
+        if (null != intent?.action && SamSprung.launcher == intent.action) {
+            Handler(Looper.getMainLooper()).postDelayed({
+                bottomSheetBehaviorMain.state = BottomSheetBehavior.STATE_EXPANDED
+            }, 150)
+        }
+
         val voice = SpeechRecognizer.createSpeechRecognizer(applicationContext)
         val recognizer = VoiceRecognizer(object : VoiceRecognizer.SpeechResultsListener {
             override fun onSpeechResults(suggested: String) {
@@ -535,14 +543,6 @@ class SamSprungOverlay : AppCompatActivity() {
                 voice?.startListening(recognizer.getSpeechIntent(false))
                 return@setOnLongClickListener true
             }
-        }
-
-        findViewById<AnimatedLinearLayout>(R.id.update_notice).visibility = View.GONE
-
-        if (null != intent?.action && SamSprung.launcher == intent.action) {
-            Handler(Looper.getMainLooper()).postDelayed({
-                bottomSheetBehaviorMain.state = BottomSheetBehavior.STATE_EXPANDED
-            }, 150)
         }
     }
 
@@ -571,15 +571,19 @@ class SamSprungOverlay : AppCompatActivity() {
 
             override fun onDismissError() {
                 super.onDismissError()
-                authDialog?.dismiss()
-                tactileFeedback()
+                if (null != authDialog) {
+                    tactileFeedback()
+                    authDialog.dismiss()
+                }
                 keyguardListener?.onKeyguardCheck(false)
             }
 
             override fun onDismissSucceeded() {
                 super.onDismissSucceeded()
-                authDialog?.dismiss()
-                tactileFeedback()
+                if (null != authDialog) {
+                    tactileFeedback()
+                    authDialog.dismiss()
+                }
                 keyguardListener?.onKeyguardCheck(true)
             }
         })
@@ -607,12 +611,12 @@ class SamSprungOverlay : AppCompatActivity() {
             } catch (ite: Exception) {
                 ite.printStackTrace()
                 if (isVisible) authDialog?.dismiss()
-                keyguardListener?.onKeyguardCheck(false)
                 IconifiedSnackbar(this@SamSprungOverlay, viewPager).buildTickerBar(
                     getString(R.string.auth_unavailable),
                     R.drawable.ic_baseline_fingerprint_24,
                     Snackbar.LENGTH_LONG
                 ).show()
+                keyguardListener?.onKeyguardCheck(false)
             }
         } else {
             dismissKeyguard(keyguardManager, null)

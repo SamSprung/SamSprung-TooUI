@@ -111,11 +111,11 @@ class AppDisplayListener : Service() {
                 if (intent.action == Intent.ACTION_SCREEN_OFF) {
                     if (null != componentName)
                         resetRecentActivities(componentName)
-                    else
+                    else if (null != launchPackage)
                         resetRecentActivities(launchPackage, launchActivity)
-                    onDismissOverlay()
                     componentName = null
                     launchPackage = null
+                    onDismissOverlay()
                 }
             }
         }
@@ -131,13 +131,11 @@ class AppDisplayListener : Service() {
                         .getDisplay(0).state == Display.STATE_ON) {
                     if (null != componentName)
                         restoreActivityDisplay(componentName, display)
-                    else
+                    else if (null != launchPackage)
                         restoreActivityDisplay(launchPackage, launchActivity, display)
-                    if (this@AppDisplayListener::floatView.isInitialized) {
-                        onDismissOverlay()
-                    }
                     componentName = null
                     launchPackage = null
+                    onDismissOverlay()
                 }
             }
 
@@ -214,7 +212,6 @@ class AppDisplayListener : Service() {
     }
 
     private fun restoreActivityDisplay(componentName: ComponentName?, display: Int) {
-
         val baseContext = ScaledContext.restore(applicationContext)
         (baseContext.getSystemService(AppCompatActivity
             .LAUNCHER_APPS_SERVICE) as LauncherApps).startMainActivity(

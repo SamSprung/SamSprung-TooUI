@@ -75,7 +75,13 @@ class GitBroadcastReceiver : BroadcastReceiver() {
         }
         when {
             Intent.ACTION_MY_PACKAGE_REPLACED == intent.action -> {
-                context.startForegroundService(Intent(context, OnBroadcastService::class.java))
+                if (BuildConfig.FLAVOR == "google") {
+                    context.startForegroundService(Intent(context, OnBroadcastService::class.java))
+                } else {
+                    context.startActivity(context.packageManager
+                        .getLaunchIntentForPackage(BuildConfig.APPLICATION_ID)
+                        ?.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
+                }
             }
             BuildConfig.FLAVOR == "google" -> return
             SamSprung.updating == intent.action -> {
