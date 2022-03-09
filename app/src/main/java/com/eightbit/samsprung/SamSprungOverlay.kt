@@ -268,6 +268,7 @@ class SamSprungOverlay : AppCompatActivity() {
 
         val buttonAuth = findViewById<AppCompatImageView>(R.id.button_auth)
         val keyguardManager = (getSystemService(Context.KEYGUARD_SERVICE) as KeyguardManager)
+        buttonAuth.isVisible = keyguardManager.isDeviceLocked
 
         val toggleStats = findViewById<LinearLayout>(R.id.toggle_status)
         val info = findViewById<LinearLayout>(R.id.bottom_info)
@@ -278,14 +279,6 @@ class SamSprungOverlay : AppCompatActivity() {
             var hasConfigured = false
             override fun onStateChanged(bottomSheet: View, newState: Int) {
                 if (newState == BottomSheetBehavior.STATE_EXPANDED) {
-                    if (buttonAuth.isVisible) {
-                        setKeyguardListener(object: KeyguardListener {
-                            override fun onKeyguardCheck(unlocked: Boolean) {
-                                buttonAuth.isGone = unlocked
-                                bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
-                            }
-                        }, false)
-                    }
                     toolbar.setOnMenuItemClickListener { item: MenuItem ->
                         when (item.itemId) {
                             R.id.toggle_wifi -> {
@@ -353,7 +346,6 @@ class SamSprungOverlay : AppCompatActivity() {
                         }
                     }
                 } else if (newState == BottomSheetBehavior.STATE_COLLAPSED) {
-                    setKeyguardListener(null, false)
                     hasConfigured = false
                     toggleStats.removeAllViews()
                     configureMenuVisibility(toolbar)
@@ -439,7 +431,7 @@ class SamSprungOverlay : AppCompatActivity() {
                             override fun onKeyguardCheck(unlocked: Boolean) {
                                 if (!unlocked) viewPager.setCurrentItem(1, true)
                             }
-                        }, true)
+                        })
                     }
                 }
                 with(prefs.edit()) {
@@ -590,27 +582,25 @@ class SamSprungOverlay : AppCompatActivity() {
         setTurnScreenOn(false)
     }
 
-    fun setKeyguardListener(listener: KeyguardListener?, isVisible: Boolean) {
+    fun setKeyguardListener(listener: KeyguardListener?) {
         this.keyguardListener = listener
         setTurnScreenOn(true)
         val keyguardManager = (getSystemService(Context.KEYGUARD_SERVICE) as KeyguardManager)
         if (keyguardManager.isDeviceLocked) {
-            var authDialog: AlertDialog? = null
-            if (isVisible) {
-                authDialog = AlertDialog.Builder(
-                    ContextThemeWrapper(this, R.style.DialogTheme_NoActionBar)
-                ).setView(
-                    layoutInflater.inflate(R.layout.fingerprint_auth, null)
-                ).show()
-                authDialog!!.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
-            }
+            val authDialog = AlertDialog.Builder(
+                ContextThemeWrapper(this, R.style.DialogTheme_NoActionBar)
+            ).setView(
+                layoutInflater.inflate(R.layout.fingerprint_auth, null)
+            ).show()
+            authDialog.setCancelable(false)
+            authDialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
             try {
                 HiddenApiBypass.invoke(Class.forName("android.app.KeyguardManager"),
                     keyguardManager, "semStartLockscreenFingerprintAuth")
                 dismissKeyguard(keyguardManager, authDialog)
             } catch (ite: Exception) {
                 ite.printStackTrace()
-                if (isVisible) authDialog?.dismiss()
+                authDialog.dismiss()
                 IconifiedSnackbar(this@SamSprungOverlay, viewPager).buildTickerBar(
                     getString(R.string.auth_unavailable),
                     R.drawable.ic_baseline_fingerprint_24,
@@ -813,17 +803,13 @@ class SamSprungOverlay : AppCompatActivity() {
     appWidgets: ArrayList<PanelWidgetInfo>?
     ) {
         // Flag any old binder to terminate early
-        if (mBinder != null) {
-            mBinder!!.mTerminate = true
-        }
+        if (null != mBinder) mBinder!!.mTerminate = true
         mBinder = DesktopBinder(this, shortcuts, appWidgets)
         mBinder!!.startBindingItems()
     }
 
     override fun onRetainCustomNonConfigurationInstance(): Any? {
-        if (mBinder != null) {
-            mBinder!!.mTerminate = true
-        }
+        if (null != mBinder) mBinder!!.mTerminate = true
         // return lastNonConfigurationInstance
         return null
     }
