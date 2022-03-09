@@ -60,16 +60,17 @@ import android.widget.Toast
 class GitBroadcastReceiver : BroadcastReceiver() {
 
     override fun onReceive(context: Context, intent: Intent) {
+        val action = intent.action
         intent.setPackage(context.packageName)
         intent.flags = 0
         intent.data = null
-        if (Intent.ACTION_BOOT_COMPLETED == intent.action
-            || Intent.ACTION_LOCKED_BOOT_COMPLETED == intent.action
-            || Intent.ACTION_REBOOT == intent.action) {
-            context.startForegroundService(Intent(context, OnBroadcastService::class.java))
-        }
         when {
-            Intent.ACTION_MY_PACKAGE_REPLACED == intent.action -> {
+            Intent.ACTION_BOOT_COMPLETED == action
+                    || Intent.ACTION_LOCKED_BOOT_COMPLETED == action
+                    || Intent.ACTION_REBOOT == action -> {
+                context.startForegroundService(Intent(context, OnBroadcastService::class.java))
+            }
+            Intent.ACTION_MY_PACKAGE_REPLACED == action -> {
                 if (BuildConfig.FLAVOR == "google") {
                     context.startForegroundService(Intent(context, OnBroadcastService::class.java))
                 } else {
@@ -78,8 +79,8 @@ class GitBroadcastReceiver : BroadcastReceiver() {
                         ?.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
                 }
             }
-            BuildConfig.FLAVOR == "google" -> return
-            SamSprung.updating == intent.action -> {
+            SamSprung.updating == action -> {
+                if (BuildConfig.FLAVOR == "google") return
                 when (intent.getIntExtra(PackageInstaller.EXTRA_STATUS, -1)) {
                     PackageInstaller.STATUS_PENDING_USER_ACTION -> {
                         val activityIntent = intent.getParcelableExtra<Intent>(Intent.EXTRA_INTENT)
@@ -95,7 +96,7 @@ class GitBroadcastReceiver : BroadcastReceiver() {
                         Toast.makeText(
                             context.applicationContext, error, Toast.LENGTH_LONG
                         ).show()
-                }
+                    }
                 }
             }
         }
