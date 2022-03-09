@@ -110,9 +110,9 @@ class AppDisplayListener : Service() {
             override fun onReceive(context: Context?, intent: Intent) {
                 if (intent.action == Intent.ACTION_SCREEN_OFF) {
                     if (null != componentName)
-                        resetRecentActivities(componentName)
+                        resetRecentActivities(componentName, 0)
                     else if (null != launchPackage)
-                        resetRecentActivities(launchPackage, launchActivity)
+                        resetRecentActivities(launchPackage, launchActivity, 0)
                     componentName = null
                     launchPackage = null
                     onDismissOverlay()
@@ -229,19 +229,7 @@ class AppDisplayListener : Service() {
         }
     }
 
-    private fun resetRecentActivities(pkg: String?, cls: String?) {
-        restoreActivityDisplay(pkg, cls, 0)
-
-        val homeLauncher = Intent(Intent.ACTION_MAIN)
-        homeLauncher.addCategory(Intent.CATEGORY_HOME)
-        homeLauncher.flags = Intent.FLAG_ACTIVITY_NEW_TASK or
-                Intent.FLAG_ACTIVITY_FORWARD_RESULT or
-                Intent.FLAG_ACTIVITY_NO_ANIMATION
-        startActivity(homeLauncher, ActivityOptions
-            .makeBasic().setLaunchDisplayId(0).toBundle())
-    }
-
-    private fun resetRecentActivities(componentName: ComponentName?) {
+    private fun resetRecentActivities(componentName: ComponentName?, display: Int) {
         restoreActivityDisplay(componentName, 0)
 
         val homeLauncher = Intent(Intent.ACTION_MAIN)
@@ -250,7 +238,13 @@ class AppDisplayListener : Service() {
                 Intent.FLAG_ACTIVITY_FORWARD_RESULT or
                 Intent.FLAG_ACTIVITY_NO_ANIMATION
         startActivity(homeLauncher, ActivityOptions
-            .makeBasic().setLaunchDisplayId(0).toBundle())
+            .makeBasic().setLaunchDisplayId(display).toBundle())
+    }
+
+    private fun resetRecentActivities(pkg: String?, cls: String?, display: Int) {
+        if (null != pkg && null != cls) {
+            resetRecentActivities(ComponentName(pkg, cls), display)
+        }
     }
 
     private fun tactileFeedback() {
@@ -273,9 +267,9 @@ class AppDisplayListener : Service() {
         menu.findViewById<ImageView>(R.id.button_recent).setOnClickListener {
             tactileFeedback()
             if (null != componentName)
-                resetRecentActivities(componentName)
+                resetRecentActivities(componentName, 1)
             else
-                resetRecentActivities(launchPackage, launchActivity)
+                resetRecentActivities(launchPackage, launchActivity, 1)
             onDismissOverlay()
             startForegroundService(Intent(
                 applicationContext, OnBroadcastService::class.java
@@ -284,14 +278,13 @@ class AppDisplayListener : Service() {
         menu.findViewById<ImageView>(R.id.button_home).setOnClickListener {
             tactileFeedback()
             if (null != componentName)
-                resetRecentActivities(componentName)
+                resetRecentActivities(componentName, 1)
             else
-                resetRecentActivities(launchPackage, launchActivity)
+                resetRecentActivities(launchPackage, launchActivity, 1)
             onDismissOverlay()
             startForegroundService(
                 Intent(
-                    applicationContext,
-                    OnBroadcastService::class.java
+                    applicationContext, OnBroadcastService::class.java
                 ).setAction(SamSprung.services)
             )
         }
