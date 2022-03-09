@@ -55,6 +55,10 @@ import android.annotation.SuppressLint
 import android.app.*
 import android.content.Context
 import android.content.Intent
+import android.content.res.ColorStateList
+import android.content.res.Configuration
+import android.graphics.BlendMode
+import android.graphics.Color
 import android.os.*
 import android.service.notification.StatusBarNotification
 import android.speech.tts.TextToSpeech
@@ -66,11 +70,13 @@ import android.widget.EditText
 import android.widget.LinearLayout
 import android.widget.RelativeLayout
 import android.widget.TextView
+import androidx.annotation.ColorInt
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.view.ContextThemeWrapper
 import androidx.appcompat.widget.AppCompatButton
 import androidx.appcompat.widget.AppCompatImageView
+import androidx.core.graphics.ColorUtils
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.ItemTouchHelper
@@ -103,9 +109,6 @@ class NotificationFragment : Fragment(), NotificationAdapter.OnNoticeClickListen
     @SuppressLint("ClickableViewAccessibility")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
-        val prefs = requireActivity().getSharedPreferences(
-            SamSprung.prefsValue, AppCompatActivity.MODE_PRIVATE)
 
         launcherManager = LauncherManager(requireActivity() as SamSprungOverlay)
 
@@ -187,16 +190,16 @@ class NotificationFragment : Fragment(), NotificationAdapter.OnNoticeClickListen
     }
 
     private fun setNotificationAction(
-        position: Int, actionsPanel: LinearLayout, action: Notification.Action) {
+        position: Int, actionsPanel: LinearLayout, action: Notification.Action, color: Int) {
         val actionButtons = actionsPanel.findViewById<LinearLayout>(R.id.actions)
         val button = AppCompatButton(
-            ContextThemeWrapper(requireActivity(),
-                R.style.Theme_SecondScreen_NoActionBar
-            )
+            ContextThemeWrapper(requireActivity(), R.style.Theme_SecondScreen_NoActionBar)
         )
         button.setTextSize(TypedValue.COMPLEX_UNIT_SP, 10f)
         button.setSingleLine()
         button.text = action.title
+        button.backgroundTintBlendMode = BlendMode.MODULATE
+        button.backgroundTintList = ColorStateList.valueOf(color)
         button.setOnClickListener {
             if (null != action.remoteInputs && action.remoteInputs.isNotEmpty()) {
                 promptNotificationReply(action)
@@ -235,8 +238,12 @@ class NotificationFragment : Fragment(), NotificationAdapter.OnNoticeClickListen
             } else {
                 if (null != notice.notification.actions) {
                     actionsPanel.visibility = View.VISIBLE
+                    val prefs = requireActivity().getSharedPreferences(
+                        SamSprung.prefsValue, AppCompatActivity.MODE_PRIVATE)
                     for (action in notice.notification.actions) {
-                        setNotificationAction(position, actionsPanel, action)
+                        setNotificationAction(position, actionsPanel, action, prefs.getInt(
+                            SamSprung.prefColors, Color.rgb(255, 255, 255)
+                        ).blended)
                     }
                     (noticesView.layoutManager as LinearLayoutManager)
                         .scrollToPositionWithOffset(position,
@@ -277,4 +284,10 @@ class NotificationFragment : Fragment(), NotificationAdapter.OnNoticeClickListen
             textSpeech?.shutdown()
         }
     }
+
+    private inline val @receiver:ColorInt Int.blended
+        @ColorInt
+        get() = ColorUtils.blendARGB(this,
+            if ((requireActivity().resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK)
+                == Configuration.UI_MODE_NIGHT_YES) Color.BLACK else Color.WHITE, 0.6f)
 }
