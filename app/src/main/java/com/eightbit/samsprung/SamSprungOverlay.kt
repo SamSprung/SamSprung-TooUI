@@ -426,7 +426,8 @@ class SamSprungOverlay : AppCompatActivity() {
                     searchView.visibility = View.VISIBLE
                 } else {
                     searchView.visibility = View.GONE
-                    if (position == 0) {
+                    if (position == 0 && (getSystemService(Context.KEYGUARD_SERVICE)
+                                as KeyguardManager).isDeviceLocked) {
                         setKeyguardListener(object : KeyguardListener {
                             override fun onKeyguardCheck(unlocked: Boolean) {
                                 if (!unlocked) viewPager.setCurrentItem(1, true)
