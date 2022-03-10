@@ -120,7 +120,9 @@ class CheckUpdatesTask(private var activity: Activity) {
         if (activity is UpdateShimActivity) {
             val installer = activity.applicationContext.packageManager.packageInstaller
             for (session: PackageInstaller.SessionInfo in installer.mySessions) {
-                installer.abandonSession(session.sessionId)
+                try {
+                    installer.abandonSession(session.sessionId)
+                } catch (ignored: Exception) { }
             }
         } else {
             Executors.newSingleThreadExecutor().execute {
