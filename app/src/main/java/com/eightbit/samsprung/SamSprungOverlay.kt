@@ -464,7 +464,8 @@ class SamSprungOverlay : AppCompatActivity() {
             val handler = Handler(Looper.getMainLooper())
             override fun onStateChanged(bottomSheet: View, newState: Int) {
                 if (newState == BottomSheetBehavior.STATE_EXPANDED) {
-                    bottomSheet.keepScreenOn = true
+                    if (viewPager.currentItem != 1)
+                        bottomSheet.keepScreenOn = true
                     bottomSheetBehaviorMain.isDraggable = false
                     toggleStats.requestLayout()
                     bottomHandle.visibility = View.INVISIBLE
