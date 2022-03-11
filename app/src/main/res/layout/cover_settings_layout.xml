@@ -42,7 +42,7 @@
                     android:background="?colorPrimary"
                     android:layout_marginTop="4dp"
                     android:paddingTop="4dp"
-                    android:layout_marginBottom="8dp"/>
+                    android:layout_marginBottom="4dp"/>
 
                 <TextView
                     android:layout_width="match_parent"
@@ -115,7 +115,7 @@
                         android:layout_width="wrap_content"
                         android:gravity="center"
                         android:layout_gravity="center"
-                        app:srcCompat="@drawable/ic_baseline_data_usage_24"
+                        app:srcCompat="@drawable/ic_baseline_data_usage_24dp"
                         android:paddingStart="0dp"
                         android:paddingEnd="4dp"
                         android:layout_height="wrap_content"
@@ -160,7 +160,7 @@
                 android:background="?colorPrimary"
                 android:layout_marginTop="4dp"
                 android:paddingTop="4dp"
-                android:layout_marginBottom="8dp"/>
+                android:layout_marginBottom="4dp"/>
 
             <TextView
                 android:layout_width="match_parent"
@@ -293,7 +293,7 @@
                     android:layout_weight="1"
                     android:max="2"
                     android:progress="2"
-                    android:thumb="@drawable/ic_baseline_samsprung_24"/>
+                    android:thumb="@drawable/ic_baseline_samsprung_24dp"/>
             </LinearLayout>
 
             <LinearLayout
@@ -395,7 +395,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
                 android:paddingTop="4dp"
-                android:layout_marginBottom="8dp"/>
+                android:layout_marginBottom="4dp"/>
 
             <TextView
                 android:layout_width="match_parent"
@@ -410,7 +410,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
                 android:background="?colorPrimary"
-                android:layout_marginTop="4dp"
+                android:layout_marginTop="6dp"
                 android:layout_marginBottom="4dp"/>
         </LinearLayout>
 

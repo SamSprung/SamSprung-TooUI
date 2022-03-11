@@ -16,7 +16,7 @@
         <androidx.appcompat.widget.AppCompatImageView
             android:layout_width="60.0dip"
             android:layout_height="60.0dip"
-            app:srcCompat="@drawable/ic_baseline_fingerprint_24"
+            app:srcCompat="@drawable/ic_baseline_fingerprint_24dp"
             android:contentDescription="@string/description_icon" />
 
         <TextView

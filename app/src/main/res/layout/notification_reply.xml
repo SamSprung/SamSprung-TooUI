@@ -15,7 +15,7 @@
         android:layout_height="wrap_content"
         android:layout_alignParentEnd="true"
         android:layout_centerVertical="true"
-        app:srcCompat="@drawable/ic_baseline_send_24" />
+        app:srcCompat="@drawable/ic_baseline_send_24dp" />
 
     <androidx.appcompat.widget.AppCompatImageView
         android:id="@+id/cancel"
@@ -23,7 +23,7 @@
         android:layout_height="wrap_content"
         android:layout_alignParentStart="true"
         android:layout_centerVertical="true"
-        app:srcCompat="@drawable/ic_baseline_cancel_presentation_24" />
+        app:srcCompat="@drawable/ic_baseline_cancel_presentation_24dp" />
 
     <EditText
         android:id="@+id/reply"

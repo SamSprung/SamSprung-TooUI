@@ -326,7 +326,7 @@ class AppDisplayListener : Service() {
 
         val notificationText = getString(R.string.display_service, getString(R.string.samsprung))
         builder.setContentTitle(notificationText).setTicker(notificationText)
-            .setSmallIcon(R.drawable.ic_baseline_samsprung_24)
+            .setSmallIcon(R.drawable.ic_baseline_samsprung_24dp)
             .setPriority(NotificationCompat.PRIORITY_LOW)
             .setWhen(0).setOnlyAlertOnce(true)
             .setContentIntent(pendingIntent).setOngoing(true)

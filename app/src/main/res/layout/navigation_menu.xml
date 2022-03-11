@@ -45,7 +45,7 @@
                 android:id="@+id/retract_drawer"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                app:srcCompat="@drawable/ic_baseline_swipe_down_24"
+                app:srcCompat="@drawable/ic_baseline_swipe_down_24dp"
                 android:scaleType="fitCenter"
                 android:layout_weight="1"
                 android:contentDescription="@string/description_icon"/>
@@ -54,7 +54,7 @@
                 android:id="@+id/button_recent"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                app:srcCompat="@drawable/ic_baseline_samsprung_24"
+                app:srcCompat="@drawable/ic_baseline_samsprung_24dp"
                 android:scaleType="fitCenter"
                 android:layout_weight="1"
                 android:contentDescription="@string/description_icon"/>
@@ -63,7 +63,7 @@
                 android:id="@+id/button_home"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                app:srcCompat="@drawable/ic_baseline_home_24"
+                app:srcCompat="@drawable/ic_baseline_home_24dp"
                 android:scaleType="fitCenter"
                 android:layout_weight="1"
                 android:contentDescription="@string/description_icon"/>
@@ -72,7 +72,7 @@
                 android:id="@+id/button_back"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                app:srcCompat="@drawable/ic_baseline_arrow_back_24"
+                app:srcCompat="@drawable/ic_baseline_arrow_back_24dp"
                 android:scaleType="fitCenter"
                 android:layout_weight="1"
                 android:contentDescription="@string/description_icon"/>

@@ -81,6 +81,6 @@ class IconifiedSnackbar {
     }
 
     fun buildTickerBar(msg: String?): Snackbar {
-        return buildTickerBar(msg, R.drawable.ic_baseline_samsprung_24, Snackbar.LENGTH_LONG)
+        return buildTickerBar(msg, R.drawable.ic_baseline_samsprung_24dp, Snackbar.LENGTH_LONG)
     }
 }

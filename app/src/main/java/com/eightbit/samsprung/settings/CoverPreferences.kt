@@ -623,51 +623,51 @@ class CoverPreferences : AppCompatActivity() {
             when (item.itemId) {
                 R.id.toggle_wifi -> {
                     if (prefs.getBoolean(pref, true))
-                        item.setIcon(R.drawable.ic_baseline_wifi_on_24)
+                        item.setIcon(R.drawable.ic_baseline_wifi_on_24dp)
                     else
-                        item.setIcon(R.drawable.ic_baseline_wifi_off_24)
+                        item.setIcon(R.drawable.ic_baseline_wifi_off_24dp)
                     return@setOnMenuItemClickListener true
                 }
                 R.id.toggle_bluetooth -> {
                     if (prefs.getBoolean(pref, true))
-                        item.setIcon(R.drawable.ic_baseline_bluetooth_on_24)
+                        item.setIcon(R.drawable.ic_baseline_bluetooth_on_24dp)
                     else
-                        item.setIcon(R.drawable.ic_baseline_bluetooth_off_24)
+                        item.setIcon(R.drawable.ic_baseline_bluetooth_off_24dp)
                     return@setOnMenuItemClickListener true
                 }
                 R.id.toggle_nfc -> {
                     if (prefs.getBoolean(pref, true))
-                        item.setIcon(R.drawable.ic_baseline_nfc_on_24)
+                        item.setIcon(R.drawable.ic_baseline_nfc_on_24dp)
                     else
-                        item.setIcon(R.drawable.ic_baseline_nfc_off_24)
+                        item.setIcon(R.drawable.ic_baseline_nfc_off_24dp)
                     return@setOnMenuItemClickListener true
                 }
                 R.id.toggle_sound -> {
                     if (prefs.getBoolean(pref, true))
-                        item.setIcon(R.drawable.ic_baseline_sound_on_24)
+                        item.setIcon(R.drawable.ic_baseline_sound_on_24dp)
                     else
-                        item.setIcon(R.drawable.ic_baseline_sound_off_24)
+                        item.setIcon(R.drawable.ic_baseline_sound_off_24dp)
                     return@setOnMenuItemClickListener true
                 }
                 R.id.toggle_dnd -> {
                     if (prefs.getBoolean(pref, true))
-                        item.setIcon(R.drawable.ic_baseline_do_not_disturb_on_24)
+                        item.setIcon(R.drawable.ic_baseline_do_not_disturb_on_24dp)
                     else
-                        item.setIcon(R.drawable.ic_baseline_do_not_disturb_off_24)
+                        item.setIcon(R.drawable.ic_baseline_do_not_disturb_off_24dp)
                     return@setOnMenuItemClickListener true
                 }
                 R.id.toggle_torch -> {
                     if (prefs.getBoolean(pref, true))
-                        item.setIcon(R.drawable.ic_baseline_flashlight_on_24)
+                        item.setIcon(R.drawable.ic_baseline_flashlight_on_24dp)
                     else
-                        item.setIcon(R.drawable.ic_baseline_flashlight_off_24)
+                        item.setIcon(R.drawable.ic_baseline_flashlight_off_24dp)
                     return@setOnMenuItemClickListener true
                 }
                 R.id.toggle_widgets -> {
                     if (prefs.getBoolean(pref, true))
-                        item.setIcon(R.drawable.ic_baseline_widgets_24)
+                        item.setIcon(R.drawable.ic_baseline_widgets_24dp)
                     else
-                        item.setIcon(R.drawable.ic_baseline_insert_page_break_24)
+                        item.setIcon(R.drawable.ic_baseline_insert_page_break_24dp)
                     return@setOnMenuItemClickListener true
                 }
                 else -> {
@@ -678,45 +678,45 @@ class CoverPreferences : AppCompatActivity() {
 
         val wifi = toolbar.menu.findItem(R.id.toggle_wifi)
         if (prefs.getBoolean(wifi.title.toPref, true))
-            wifi.setIcon(R.drawable.ic_baseline_wifi_on_24)
+            wifi.setIcon(R.drawable.ic_baseline_wifi_on_24dp)
         else
-            wifi.setIcon(R.drawable.ic_baseline_wifi_off_24)
+            wifi.setIcon(R.drawable.ic_baseline_wifi_off_24dp)
 
         val bluetooth = toolbar.menu.findItem(R.id.toggle_bluetooth)
         if (prefs.getBoolean(bluetooth.title.toPref, true))
-            bluetooth.setIcon(R.drawable.ic_baseline_bluetooth_on_24)
+            bluetooth.setIcon(R.drawable.ic_baseline_bluetooth_on_24dp)
         else
-            bluetooth.setIcon(R.drawable.ic_baseline_bluetooth_off_24)
+            bluetooth.setIcon(R.drawable.ic_baseline_bluetooth_off_24dp)
 
         val nfc = toolbar.menu.findItem(R.id.toggle_nfc)
         if (prefs.getBoolean(nfc.title.toPref, true))
-            nfc.setIcon(R.drawable.ic_baseline_nfc_on_24)
+            nfc.setIcon(R.drawable.ic_baseline_nfc_on_24dp)
         else
-            nfc.setIcon(R.drawable.ic_baseline_nfc_off_24)
+            nfc.setIcon(R.drawable.ic_baseline_nfc_off_24dp)
 
         val sound = toolbar.menu.findItem(R.id.toggle_sound)
         if (prefs.getBoolean(sound.title.toPref, true))
-            sound.setIcon(R.drawable.ic_baseline_sound_on_24)
+            sound.setIcon(R.drawable.ic_baseline_sound_on_24dp)
         else
-            sound.setIcon(R.drawable.ic_baseline_sound_off_24)
+            sound.setIcon(R.drawable.ic_baseline_sound_off_24dp)
 
         val dnd = toolbar.menu.findItem(R.id.toggle_dnd)
         if (prefs.getBoolean(dnd.title.toPref, true))
-            dnd.setIcon(R.drawable.ic_baseline_do_not_disturb_on_24)
+            dnd.setIcon(R.drawable.ic_baseline_do_not_disturb_on_24dp)
         else
-            dnd.setIcon(R.drawable.ic_baseline_do_not_disturb_off_24)
+            dnd.setIcon(R.drawable.ic_baseline_do_not_disturb_off_24dp)
 
         val torch = toolbar.menu.findItem(R.id.toggle_torch)
         if (prefs.getBoolean(torch.title.toPref, true))
-            torch.setIcon(R.drawable.ic_baseline_flashlight_on_24)
+            torch.setIcon(R.drawable.ic_baseline_flashlight_on_24dp)
         else
-            torch.setIcon(R.drawable.ic_baseline_flashlight_off_24)
+            torch.setIcon(R.drawable.ic_baseline_flashlight_off_24dp)
 
         val widgets = toolbar.menu.findItem(R.id.toggle_widgets)
         if (prefs.getBoolean(widgets.title.toPref, true))
-            widgets.setIcon(R.drawable.ic_baseline_widgets_24)
+            widgets.setIcon(R.drawable.ic_baseline_widgets_24dp)
         else
-            widgets.setIcon(R.drawable.ic_baseline_insert_page_break_24)
+            widgets.setIcon(R.drawable.ic_baseline_insert_page_break_24dp)
     }
 
     private val permissions =
@@ -747,7 +747,7 @@ class CoverPreferences : AppCompatActivity() {
         runOnUiThread {
             val buildIcon = findViewById<AppCompatImageView>(R.id.build_icon)
             buildIcon.setImageDrawable(ContextCompat.getDrawable(
-                this@CoverPreferences, R.drawable.ic_baseline_browser_updated_24))
+                this@CoverPreferences, R.drawable.ic_baseline_browser_updated_24dp))
             val buildInfo = findViewById<TextView>(R.id.build_info)
             val colorStateList = buildInfo.textColors
             buildInfo.setTextColor(Color.RED)
@@ -881,7 +881,7 @@ class CoverPreferences : AppCompatActivity() {
     private fun captureLogcat(parent: ViewGroup) {
         if (Debug(this).captureLogcat(hasPremiumSupport, isDeviceSecure())) {
             IconifiedSnackbar(this, parent).buildSnackbar(
-                R.string.logcat_written, R.drawable.ic_github_report_24dp, Snackbar.LENGTH_LONG
+                R.string.logcat_written, R.drawable.ic_android_studio_24dp, Snackbar.LENGTH_LONG
             ).show()
         }
     }

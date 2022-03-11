@@ -4,36 +4,36 @@
     <item
         android:id="@+id/toggle_wifi"
         android:title="@string/toggle_wifi"
-        android:icon="@drawable/ic_baseline_wifi_on_24"
+        android:icon="@drawable/ic_baseline_wifi_on_24dp"
         app:showAsAction="always" />
     <item
         android:id="@+id/toggle_bluetooth"
         android:title="@string/toggle_bluetooth"
-        android:icon="@drawable/ic_baseline_bluetooth_on_24"
+        android:icon="@drawable/ic_baseline_bluetooth_on_24dp"
         app:showAsAction="always" />
     <item
         android:id="@+id/toggle_nfc"
         android:title="@string/toggle_nfc"
-        android:icon="@drawable/ic_baseline_nfc_on_24"
+        android:icon="@drawable/ic_baseline_nfc_on_24dp"
         app:showAsAction="always" />
     <item
         android:id="@+id/toggle_sound"
         android:title="@string/toggle_sound"
-        android:icon="@drawable/ic_baseline_sound_on_24"
+        android:icon="@drawable/ic_baseline_sound_on_24dp"
         app:showAsAction="always" />
     <item
         android:id="@+id/toggle_dnd"
         android:title="@string/toggle_dnd"
-        android:icon="@drawable/ic_baseline_do_not_disturb_off_24"
+        android:icon="@drawable/ic_baseline_do_not_disturb_off_24dp"
         app:showAsAction="always" />
     <item
         android:id="@+id/toggle_torch"
         android:title="@string/toggle_torch"
-        android:icon="@drawable/ic_baseline_flashlight_off_24"
+        android:icon="@drawable/ic_baseline_flashlight_off_24dp"
         app:showAsAction="always" />
     <item
         android:id="@+id/toggle_widgets"
         android:title="@string/toggle_widgets"
-        android:icon="@drawable/ic_baseline_widgets_24"
+        android:icon="@drawable/ic_baseline_widgets_24dp"
         app:showAsAction="always" />
 </menu>
