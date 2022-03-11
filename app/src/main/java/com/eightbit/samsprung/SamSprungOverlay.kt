@@ -87,7 +87,6 @@ import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.core.content.ContextCompat
 import androidx.core.view.GravityCompat
 import androidx.core.view.WindowCompat
-import androidx.core.view.isGone
 import androidx.core.view.isVisible
 import androidx.fragment.app.FragmentActivity
 import androidx.viewpager2.adapter.FragmentStateAdapter
@@ -109,8 +108,6 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.snackbar.Snackbar
 import com.google.android.play.core.appupdate.AppUpdateInfo
 import org.lsposed.hiddenapibypass.HiddenApiBypass
-import java.lang.reflect.InvocationTargetException
-import java.lang.reflect.Method
 import java.util.*
 import java.util.concurrent.Executors
 
@@ -369,34 +366,36 @@ class SamSprungOverlay : AppCompatActivity() {
 
         configureMenuVisibility(toolbar)
 
-        val delete: View = toolbar.findViewById(R.id.toggle_widgets)
-        delete.setOnLongClickListener(View.OnLongClickListener {
-            if (viewPager.currentItem > 1) {
-                toolbar.menu.findItem(R.id.toggle_widgets)
-                    .setIcon(R.drawable.ic_baseline_delete_forever_24)
-                tactileFeedback()
-                val index = viewPager.currentItem
-                val fragment = (pagerAdapter as CoverStateAdapter).getFragment(index)
-                val widget = fragment.getLayout()!!.getChildAt(0).tag
-                if (widget is PanelWidgetInfo) {
-                    viewPager.setCurrentItem(index - 1, true)
-                    model.removeDesktopAppWidget(widget)
-                    appWidgetHost.deleteAppWidgetId(widget.appWidgetId)
-                    WidgetModel.deleteItemFromDatabase(
-                        applicationContext, widget
-                    )
-                    (pagerAdapter as CoverStateAdapter).removeFragment(index)
+        if (prefs.getBoolean(getString(R.string.toggle_widgets).toPref, true)) {
+            toolbar.findViewById<View>(R.id.toggle_widgets)
+                .setOnLongClickListener(View.OnLongClickListener {
+                if (viewPager.currentItem > 1) {
+                    toolbar.menu.findItem(R.id.toggle_widgets)
+                        .setIcon(R.drawable.ic_baseline_delete_forever_24)
+                    tactileFeedback()
+                    val index = viewPager.currentItem
+                    val fragment = (pagerAdapter as CoverStateAdapter).getFragment(index)
+                    val widget = fragment.getLayout()!!.getChildAt(0).tag
+                    if (widget is PanelWidgetInfo) {
+                        viewPager.setCurrentItem(index - 1, true)
+                        model.removeDesktopAppWidget(widget)
+                        appWidgetHost.deleteAppWidgetId(widget.appWidgetId)
+                        WidgetModel.deleteItemFromDatabase(
+                            applicationContext, widget
+                        )
+                        (pagerAdapter as CoverStateAdapter).removeFragment(index)
+                    }
+                    bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
+                    toolbar.menu.findItem(R.id.toggle_widgets)
+                        .setIcon(R.drawable.ic_baseline_widgets_24)
+                } else {
+                    Toast.makeText(this,
+                        R.string.incompatible_fragment,
+                        Toast.LENGTH_LONG).show()
                 }
-                bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
-                toolbar.menu.findItem(R.id.toggle_widgets)
-                    .setIcon(R.drawable.ic_baseline_widgets_24)
-            } else {
-                Toast.makeText(this,
-                    R.string.incompatible_fragment,
-                    Toast.LENGTH_LONG).show()
-            }
-            return@OnLongClickListener true
-        })
+                return@OnLongClickListener true
+            })
+        }
         coordinator.visibility = View.GONE
         info.setOnClickListener {
             bottomSheetBehavior.state = BottomSheetBehavior.STATE_EXPANDED
@@ -467,7 +466,6 @@ class SamSprungOverlay : AppCompatActivity() {
                     if (viewPager.currentItem != 1)
                         bottomSheet.keepScreenOn = true
                     bottomSheetBehaviorMain.isDraggable = false
-                    toggleStats.requestLayout()
                     bottomHandle.visibility = View.INVISIBLE
                 } else if (newState == BottomSheetBehavior.STATE_COLLAPSED) {
                     hasConfigured = false
@@ -584,6 +582,7 @@ class SamSprungOverlay : AppCompatActivity() {
         setTurnScreenOn(false)
     }
 
+    @SuppressLint("InflateParams")
     fun setKeyguardListener(listener: KeyguardListener?) {
         this.keyguardListener = listener
         setTurnScreenOn(true)
@@ -652,15 +651,15 @@ class SamSprungOverlay : AppCompatActivity() {
             val enabled = prefs.getBoolean(toolbar.menu.getItem(i).title.toPref, true)
             if (enabled) {
                 toolbar.menu.getItem(i).isVisible = true
-                val icon = layoutInflater.inflate(
-                    R.layout.toggle_state_icon, null) as AppCompatImageView
-                icon.findViewById<AppCompatImageView>(R.id.toggle_icon)
+                val icon = layoutInflater.inflate(R.layout.toggle_state_icon, toggleStats,
+                    false).findViewById<AppCompatImageView>(R.id.toggle_icon)
                 icon.setImageDrawable(toolbar.menu.getItem(i).icon)
                 toggleStats.addView(icon)
             } else {
                 toolbar.menu.getItem(i).isVisible = false
             }
         }
+        toggleStats.requestLayout()
     }
 
     private fun configureMenuIcons(toolbar: Toolbar) : Int {

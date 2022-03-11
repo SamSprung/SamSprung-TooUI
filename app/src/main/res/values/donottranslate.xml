@@ -10,6 +10,4 @@
     <string name="build_hash" translatable="false">#%1$s</string>
     <string name="build_hash_full" translatable="false">SamSprung - #%1$s</string>
     <string name="git_issue_title" translatable="false">Logcat - SamSprung #%1$s</string>
-
-    <string name="keyboard_details">%1$sdetails?id=com.eightbit.samsprung.ime</string>
 </resources>

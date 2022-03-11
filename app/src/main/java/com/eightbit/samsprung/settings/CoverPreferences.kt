@@ -264,14 +264,14 @@ class CoverPreferences : AppCompatActivity() {
         keyboard.isChecked = hasKeyboardInstalled()
         findViewById<LinearLayout>(R.id.keyboard_layout).setOnClickListener {
             try {
-                keyboardLauncher.launch(Intent(Intent.ACTION_VIEW,
-                    Uri.parse(getString(R.string.keyboard_details, "market://"))
-                ))
+                keyboardLauncher.launch(Intent(Intent.ACTION_VIEW, Uri.parse(
+                    "market://details?id=" + BuildConfig.APPLICATION_ID + ".ime"
+                )))
             } catch (exception: ActivityNotFoundException) {
-                keyboardLauncher.launch(Intent(Intent.ACTION_VIEW,
-                    Uri.parse(getString(R.string.keyboard_details,
-                        "https://play.google.com/store/apps/"))
-                ))
+                keyboardLauncher.launch(Intent(Intent.ACTION_VIEW, Uri.parse(
+                        "https://play.google.com/store/apps/details?id="
+                                + BuildConfig.APPLICATION_ID + ".ime"
+                )))
             }
         }
 
