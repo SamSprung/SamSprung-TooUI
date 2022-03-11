@@ -1,4 +1,4 @@
-package com.eightbit.samsprung.update
+package com.eightbit.samsprung.settings
 
 /* ====================================================================
  * Copyright (c) 2012-2022 AbandonedCart.  All rights reserved.
@@ -66,7 +66,6 @@ import com.eightbit.samsprung.BuildConfig
 import com.eightbit.samsprung.GitBroadcastReceiver
 import com.eightbit.samsprung.R
 import com.eightbit.samsprung.SamSprung
-import com.eightbit.samsprung.settings.CoverPreferences
 import com.google.android.play.core.appupdate.AppUpdateInfo
 import com.google.android.play.core.appupdate.AppUpdateManager
 import com.google.android.play.core.appupdate.AppUpdateManagerFactory

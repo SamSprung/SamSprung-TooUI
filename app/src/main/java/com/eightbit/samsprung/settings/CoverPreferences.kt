@@ -97,7 +97,6 @@ import com.eightbit.io.Debug
 import com.eightbit.material.IconifiedSnackbar
 import com.eightbit.pm.PackageRetriever
 import com.eightbit.samsprung.*
-import com.eightbit.samsprung.update.CheckUpdatesTask
 import com.eightbit.view.AnimatedLinearLayout
 import com.eightbitlab.blurview.BlurView
 import com.eightbitlab.blurview.RenderScriptBlur

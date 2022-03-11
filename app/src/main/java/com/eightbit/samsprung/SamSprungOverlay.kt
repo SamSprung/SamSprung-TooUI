@@ -93,13 +93,12 @@ import androidx.viewpager2.adapter.FragmentStateAdapter
 import androidx.viewpager2.widget.ViewPager2
 import com.eightbit.content.ScaledContext
 import com.eightbit.material.IconifiedSnackbar
-import com.eightbit.samsprung.*
 import com.eightbit.samsprung.launcher.CoverStateAdapter
 import com.eightbit.samsprung.launcher.LauncherManager
 import com.eightbit.samsprung.launcher.PanelWidgetManager
 import com.eightbit.samsprung.panels.*
 import com.eightbit.samsprung.speech.VoiceRecognizer
-import com.eightbit.samsprung.update.CheckUpdatesTask
+import com.eightbit.samsprung.settings.CheckUpdatesTask
 import com.eightbit.view.AnimatedLinearLayout
 import com.eightbitlab.blurview.BlurView
 import com.eightbitlab.blurview.RenderScriptBlur

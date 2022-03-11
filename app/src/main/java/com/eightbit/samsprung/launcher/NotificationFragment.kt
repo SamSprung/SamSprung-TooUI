@@ -62,6 +62,7 @@ import android.graphics.Color
 import android.os.*
 import android.service.notification.StatusBarNotification
 import android.speech.tts.TextToSpeech
+import android.util.Log
 import android.util.TypedValue
 import android.view.LayoutInflater
 import android.view.View
@@ -82,10 +83,7 @@ import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.eightbit.samsprung.NotificationReceiver
-import com.eightbit.samsprung.R
-import com.eightbit.samsprung.SamSprung
-import com.eightbit.samsprung.SamSprungOverlay
+import com.eightbit.samsprung.*
 import com.eightbit.view.OnSwipeTouchListener
 import com.eightbit.widget.RecyclerViewTouch
 import com.google.android.material.bottomsheet.BottomSheetBehavior
@@ -205,6 +203,9 @@ class NotificationFragment : Fragment(), NotificationAdapter.OnNoticeClickListen
                 promptNotificationReply(action)
             } else {
                 try {
+                    if (action.actionIntent.creatorPackage.toString() == "com.android.systemui") {
+                        // We know what happens here, but can't seem to prevent it
+                    }
                     action.actionIntent.send(requireContext(), SamSprung.request_code,
                         Intent().setFlags(Intent.FLAG_ACTIVITY_NEW_TASK),
                         null, null, null,

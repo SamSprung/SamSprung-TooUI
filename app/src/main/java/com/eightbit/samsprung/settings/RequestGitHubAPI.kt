@@ -1,4 +1,4 @@
-package com.eightbit.samsprung.update
+package com.eightbit.samsprung.settings
 
 /* ====================================================================
  * Copyright (c) 2012-2022 AbandonedCart.  All rights reserved.

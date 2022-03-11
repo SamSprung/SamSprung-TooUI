@@ -66,7 +66,7 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".update.UpdateShimActivity"
+            android:name=".settings.UpdateShimActivity"
             android:launchMode="singleTop"
             android:theme="@style/Theme.Launcher.NoActionBar"
             android:configChanges="orientation|screenLayout|screenSize|smallestScreenSize"
