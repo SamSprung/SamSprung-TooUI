@@ -2,8 +2,6 @@ name: Bug Report
 description: File a bug report
 title: "[Bug]: "
 labels: ["logcat"]
-assignees:
-  - AbandonedCart
 body:
   - type: markdown
     attributes:
@@ -14,21 +12,14 @@ body:
     attributes:
       label: Issue Description
       description: Please describe the issue in your own words
-      placeholder: Detailed Description
-      value: "Error messages, steps to reproduce, etc."
+      placeholder: Issues without a meaningful description are closed
     validations:
       required: true
   - type: textarea
     id: logs
     attributes:
       label: Logcat Output
-      description: |
-          Logs are saved to the public Download folder
-
-          Perform the action causing a crash or issue
-          Select the "Logcat" item from the menu bar
-          Log will be saved as "samsprung_logcat.txt"
-
+      description: Long press inside this box and select "Paste"
       render: shell
     validations:
       required: true
