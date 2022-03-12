@@ -52,8 +52,11 @@ package com.eightbit.samsprung
  */
 
 import android.app.Application
+import android.util.Log
 import androidx.appcompat.app.AppCompatDelegate
 import com.eightbit.content.ScaledContext
+import java.io.PrintWriter
+import java.io.StringWriter
 import kotlin.system.exitProcess
 
 class SamSprung : Application() {
@@ -96,6 +99,9 @@ class SamSprung : Application() {
         ScaledContext.screen(this).setTheme(R.style.Theme_SecondScreen)
 
         Thread.setDefaultUncaughtExceptionHandler { _: Thread?, error: Throwable ->
+            val exception = StringWriter()
+            error.printStackTrace(PrintWriter(exception))
+            Log.e("UncaughtException", exception.toString())
             error.printStackTrace()
             // Unrecoverable error encountered
             exitProcess(1)

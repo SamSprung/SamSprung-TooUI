@@ -41,7 +41,7 @@
     <string name="iap_button">%1$s Donation</string>
     <string name="donation_thanks">Thank you for your support!</string>
 
-    <string name="logcat_written">Logcat file saved to Downloads</string>
+    <string name="logcat_written">Logcat copied to Clipboard</string>
 
     <string name="menu_recent">Recent</string>
     <string name="menu_home">Home</string>

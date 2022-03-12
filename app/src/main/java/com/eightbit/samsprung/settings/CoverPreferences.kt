@@ -878,10 +878,14 @@ class CoverPreferences : AppCompatActivity() {
     }
 
     private fun captureLogcat(parent: ViewGroup) {
-        if (Debug(this).captureLogcat(hasPremiumSupport, isDeviceSecure())) {
+        if (Debug(this).captureLogcat(isDeviceSecure())) {
             IconifiedSnackbar(this, parent).buildSnackbar(
                 R.string.logcat_written, R.drawable.ic_android_studio_24dp, Snackbar.LENGTH_LONG
             ).show()
+            startActivity(Intent(Intent.ACTION_VIEW,
+                Uri.parse("https://github.com/SamSprung/SamSprung-TooUI/issues/"
+                        + "new?labels=logcat&template=bug_report.yml&title=[Bug]%3A+"))
+            )
         }
     }
 

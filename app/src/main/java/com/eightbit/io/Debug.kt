@@ -49,9 +49,7 @@
  */
 package com.eightbit.io
 
-import android.content.ContentValues
-import android.content.Context
-import android.content.SharedPreferences
+import android.content.*
 import android.os.Build
 import android.os.Build.VERSION_CODES
 import android.os.Environment
@@ -115,8 +113,7 @@ class Debug(private var context: Context) {
         return output.toString()
     }
 
-    fun captureLogcat(hasPremiumSupport: Boolean, isSecureDevice: Boolean) : Boolean {
-        val displayName = "samsprung_logcat"
+    fun captureLogcat(isSecureDevice: Boolean) : Boolean {
         val project = context.getString(R.string.samsprung)
         val repository = "SamSprung-TooUI"
 
@@ -159,7 +156,7 @@ class Debug(private var context: Context) {
             return false
         }
         val logText = log.toString()
-        if (hasPremiumSupport || logText.contains("AndroidRuntime", false)) {
+        try {
             IssueReporterLauncher.forTarget(project, repository)
                 .theme(R.style.Theme_SecondScreen_NoActionBar)
                 .guestToken(getRepositoryToken())
@@ -170,18 +167,10 @@ class Debug(private var context: Context) {
                 .putExtraInfo("logcat", logText)
                 .homeAsUpEnabled(false).launch(context)
             return false
-        } else {
-            val contentValues = ContentValues().apply {
-                put(MediaStore.MediaColumns.DISPLAY_NAME, displayName)
-                put(MediaStore.MediaColumns.MIME_TYPE, "text/plain")
-                put(MediaStore.MediaColumns.RELATIVE_PATH, Environment.DIRECTORY_DOWNLOADS)
-            }
-            context.contentResolver.insert(
-                MediaStore.Downloads.EXTERNAL_CONTENT_URI, contentValues)?.let {
-                context.contentResolver.openOutputStream(it).use { fos ->
-                    fos?.write(logText.toByteArray())
-                }
-            }
+        } catch (ignored: Exception) {
+            val clipboard: ClipboardManager = context.getSystemService(
+                Context.CLIPBOARD_SERVICE) as ClipboardManager
+            clipboard.setPrimaryClip(ClipData.newPlainText("logcat", logText))
             return true
         }
     }
