@@ -205,9 +205,12 @@ class NotificationFragment : Fragment(), NotificationAdapter.OnNoticeClickListen
                             R.string.incompatible_activity,
                             Toast.LENGTH_LONG).show()
                     }
+                    val intent = Intent()
+                    intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or
+                            Intent.FLAG_ACTIVITY_FORWARD_RESULT or
+                            Intent.FLAG_ACTIVITY_NO_ANIMATION
                     action.actionIntent.send(requireContext(), SamSprung.request_code,
-                        Intent().setFlags(Intent.FLAG_ACTIVITY_NEW_TASK),
-                        null, null, null,
+                        intent, null, null, null,
                         ActivityOptions.makeBasic().setLaunchDisplayId(1).toBundle())
                 } catch (ex: Exception) {
                     ex.printStackTrace()

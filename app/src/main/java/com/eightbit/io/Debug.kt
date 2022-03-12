@@ -155,25 +155,24 @@ class Debug(private var context: Context) {
             return false
         }
         val logText = log.toString()
+        val issueUrl = "https://github.com/SamSprung/SamSprung-TooUI/issues/" +
+                "new?labels=logcat&template=bug_report.yml&title=[Bug]%3A+"
         try {
             IssueReporterLauncher.forTarget(project, repository)
                 .theme(R.style.Theme_SecondScreen_NoActionBar)
                 .guestToken(getRepositoryToken())
-                .guestEmailRequired(true)
-                .guestAllowUsername(true)
+                .guestEmailRequired(false)
+                .publicIssueUrl(issueUrl)
                 .titleTextDefault(context.getString(R.string.git_issue_title, BuildConfig.COMMIT))
                 .minDescriptionLength(0)
                 .putExtraInfo("logcat", logText)
                 .homeAsUpEnabled(false).launch(context)
-            return false
+            return true
         } catch (ignored: Exception) {
             val clipboard: ClipboardManager = context.getSystemService(
                 Context.CLIPBOARD_SERVICE) as ClipboardManager
             clipboard.setPrimaryClip(ClipData.newPlainText("logcat", logText))
-            context.startActivity(Intent(Intent.ACTION_VIEW,
-                Uri.parse("https://github.com/SamSprung/SamSprung-TooUI/issues/"
-                        + "new?labels=logcat&template=bug_report.yml&title=[Bug]%3A+"))
-            )
+            context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(issueUrl)))
             return true
         }
     }
