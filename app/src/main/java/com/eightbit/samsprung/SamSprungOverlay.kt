@@ -273,6 +273,7 @@ class SamSprungOverlay : AppCompatActivity() {
         bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
         bottomSheetBehavior.addBottomSheetCallback(object : BottomSheetBehavior.BottomSheetCallback() {
             var hasConfigured = false
+            @SuppressLint("MissingPermission")
             override fun onStateChanged(bottomSheet: View, newState: Int) {
                 if (newState == BottomSheetBehavior.STATE_EXPANDED) {
                     toolbar.setOnMenuItemClickListener { item: MenuItem ->
@@ -479,7 +480,7 @@ class SamSprungOverlay : AppCompatActivity() {
                     handler.postDelayed({
                         bottomHandle.visibility = View.VISIBLE
                         menuButton.visibility = View.VISIBLE
-                    }, 200)
+                    }, 500)
                     bottomSheetBehaviorMain.isDraggable =
                         prefs.getBoolean(SamSprung.prefSlider, true)
                 }

@@ -50,10 +50,9 @@
 package com.eightbit.io
 
 import android.content.*
+import android.net.Uri
 import android.os.Build
 import android.os.Build.VERSION_CODES
-import android.os.Environment
-import android.provider.MediaStore
 import com.eightbit.samsprung.BuildConfig
 import com.eightbit.samsprung.R
 import com.heinrichreimersoftware.androidissuereporter.IssueReporterLauncher
@@ -171,6 +170,10 @@ class Debug(private var context: Context) {
             val clipboard: ClipboardManager = context.getSystemService(
                 Context.CLIPBOARD_SERVICE) as ClipboardManager
             clipboard.setPrimaryClip(ClipData.newPlainText("logcat", logText))
+            context.startActivity(Intent(Intent.ACTION_VIEW,
+                Uri.parse("https://github.com/SamSprung/SamSprung-TooUI/issues/"
+                        + "new?labels=logcat&template=bug_report.yml&title=[Bug]%3A+"))
+            )
             return true
         }
     }
