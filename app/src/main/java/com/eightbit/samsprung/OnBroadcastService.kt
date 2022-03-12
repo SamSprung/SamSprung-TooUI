@@ -166,6 +166,6 @@ class OnBroadcastService : Service() {
 
     override fun onTaskRemoved(rootIntent: Intent?) {
         super.onTaskRemoved(rootIntent)
-        startForegroundService(Intent(applicationContext, OnBroadcastService::class.java))
+        startForegroundService(Intent(application, OnBroadcastService::class.java))
     }
 }
