@@ -67,10 +67,7 @@ import android.util.TypedValue
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.EditText
-import android.widget.LinearLayout
-import android.widget.RelativeLayout
-import android.widget.TextView
+import android.widget.*
 import androidx.annotation.ColorInt
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
@@ -204,7 +201,9 @@ class NotificationFragment : Fragment(), NotificationAdapter.OnNoticeClickListen
             } else {
                 try {
                     if (action.actionIntent.creatorPackage.toString() == "com.android.systemui") {
-                        // We know what happens here, but can't seem to prevent it
+                        Toast.makeText(requireContext(),
+                            R.string.incompatible_activity,
+                            Toast.LENGTH_LONG).show()
                     }
                     action.actionIntent.send(requireContext(), SamSprung.request_code,
                         Intent().setFlags(Intent.FLAG_ACTIVITY_NEW_TASK),
