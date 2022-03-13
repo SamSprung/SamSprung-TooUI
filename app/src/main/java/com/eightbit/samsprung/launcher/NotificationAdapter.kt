@@ -53,6 +53,7 @@ package com.eightbit.samsprung.launcher
 
 import android.annotation.SuppressLint
 import android.app.Activity
+import android.app.Notification
 import android.app.PendingIntent
 import android.content.res.Configuration
 import android.graphics.Bitmap
@@ -310,17 +311,21 @@ class NotificationAdapter(
         )
     }
 
+    private fun isGroupSummary(sbn: StatusBarNotification) : Boolean {
+        return (sbn.notification.flags and Notification.FLAG_GROUP_SUMMARY) != 0
+    }
+
     @SuppressLint("NotifyDataSetChanged")
     override fun onActiveNotifications(activeNotifications: ArrayList<StatusBarNotification>) {
         for (sbn in activeNotifications) {
-            if (isValidNotification(sbn.notification.extras))
+            if (isValidNotification(sbn.notification.extras) && !isGroupSummary(sbn))
                 sbNotifications.add(sbn)
         }
         this.notifyDataSetChanged()
     }
 
-    override fun onNotificationPosted(sbn: StatusBarNotification?) {
-        if (null == sbn || !isValidNotification(sbn.notification.extras)) return
+    override fun onNotificationPosted(sbn: StatusBarNotification) {
+        if (isGroupSummary(sbn) || !isValidNotification(sbn.notification.extras)) return
         var update = -1
         for (index in 0 until sbNotifications.size) {
             if (sbNotifications[index].key == sbn.key) {
@@ -337,8 +342,8 @@ class NotificationAdapter(
         }
     }
 
-    override fun onNotificationRemoved(sbn: StatusBarNotification?) {
-        if (null == sbn) return
+    override fun onNotificationRemoved(sbn: StatusBarNotification) {
+        if (isGroupSummary(sbn) || !isValidNotification(sbn.notification.extras)) return
         var remove = -1
         for (index in 0 until sbNotifications.size) {
             if (sbNotifications[index].key == sbn.key) {

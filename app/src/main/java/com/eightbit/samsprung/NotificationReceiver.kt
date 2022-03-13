@@ -92,7 +92,7 @@ class NotificationReceiver : NotificationListenerService() {
         } catch (ignored: Exception) { }
     }
 
-    override fun onNotificationPosted(sbn: StatusBarNotification?) {
+    override fun onNotificationPosted(sbn: StatusBarNotification) {
         super.onNotificationPosted(sbn)
         getReceiver()?.mNotificationsListener?.onNotificationPosted(sbn)
     }
@@ -126,7 +126,7 @@ class NotificationReceiver : NotificationListenerService() {
 
     interface NotificationsListener {
         fun onActiveNotifications(activeNotifications: ArrayList<StatusBarNotification>)
-        fun onNotificationPosted(sbn: StatusBarNotification?)
-        fun onNotificationRemoved(sbn: StatusBarNotification?)
+        fun onNotificationPosted(sbn: StatusBarNotification)
+        fun onNotificationRemoved(sbn: StatusBarNotification)
     }
 }
