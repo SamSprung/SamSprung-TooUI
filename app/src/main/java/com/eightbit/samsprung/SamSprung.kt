@@ -102,9 +102,8 @@ class SamSprung : Application() {
             val exception = StringWriter()
             error.printStackTrace(PrintWriter(exception))
             Log.e("UncaughtException", exception.toString())
-            error.printStackTrace()
             // Unrecoverable error encountered
-            exitProcess(1)
+            exitProcess(0)
         }
     }
 
