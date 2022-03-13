@@ -87,6 +87,7 @@ import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.core.content.ContextCompat
 import androidx.core.view.GravityCompat
 import androidx.core.view.WindowCompat
+import androidx.core.view.isGone
 import androidx.core.view.isVisible
 import androidx.fragment.app.FragmentActivity
 import androidx.viewpager2.adapter.FragmentStateAdapter
@@ -421,18 +422,17 @@ class SamSprungOverlay : AppCompatActivity() {
         viewPager.registerOnPageChangeCallback(object: ViewPager2.OnPageChangeCallback() {
             override fun onPageSelected(position: Int) {
                 super.onPageSelected(position)
-                if (position == 1) {
-                    searchView.visibility = View.VISIBLE
-                } else {
-                    searchView.visibility = View.GONE
-                    if (position == 0 && (getSystemService(Context.KEYGUARD_SERVICE)
-                                as KeyguardManager).isDeviceLocked) {
-                        setKeyguardListener(object : KeyguardListener {
-                            override fun onKeyguardCheck(unlocked: Boolean) {
-                                if (!unlocked) viewPager.setCurrentItem(1, true)
-                            }
-                        })
-                    }
+                val isNotDrawer = position != 1
+                searchView.isGone = isNotDrawer
+                if (bottomSheetBehaviorMain.state == BottomSheetBehavior.STATE_EXPANDED)
+                    findViewById<View>(R.id.bottom_sheet_main).keepScreenOn = isNotDrawer
+                if (position == 0 && (getSystemService(Context.KEYGUARD_SERVICE)
+                            as KeyguardManager).isDeviceLocked) {
+                    setKeyguardListener(object : KeyguardListener {
+                        override fun onKeyguardCheck(unlocked: Boolean) {
+                            if (!unlocked) viewPager.setCurrentItem(1, true)
+                        }
+                    })
                 }
                 with(prefs.edit()) {
                     putInt(SamSprung.prefViewer, position)
@@ -463,8 +463,7 @@ class SamSprungOverlay : AppCompatActivity() {
             val handler = Handler(Looper.getMainLooper())
             override fun onStateChanged(bottomSheet: View, newState: Int) {
                 if (newState == BottomSheetBehavior.STATE_EXPANDED) {
-                    if (viewPager.currentItem != 1)
-                        bottomSheet.keepScreenOn = true
+                    if (viewPager.currentItem != 1) bottomSheet.keepScreenOn = true
                     bottomSheetBehaviorMain.isDraggable = false
                     bottomHandle.visibility = View.INVISIBLE
                 } else if (newState == BottomSheetBehavior.STATE_COLLAPSED) {

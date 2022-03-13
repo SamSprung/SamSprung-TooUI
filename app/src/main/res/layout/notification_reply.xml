@@ -5,8 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="horizontal"
-    android:paddingStart="4dp"
-    android:paddingEnd="4dp"
+    android:paddingHorizontal="4dp"
     android:gravity="bottom|center_vertical">
 
     <androidx.appcompat.widget.AppCompatImageView
@@ -29,10 +28,11 @@
         android:id="@+id/reply"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:singleLine="true"
-        android:layout_toEndOf="@+id/cancel"
+        android:paddingVertical="0dp"
         android:layout_toStartOf="@+id/send"
+        android:layout_toEndOf="@+id/cancel"
         android:autofillHints=""
-        android:textSize="14sp"
-        android:inputType="textShortMessage"/>
+        android:inputType="textShortMessage"
+        android:singleLine="true"
+        android:textSize="14sp" />
 </RelativeLayout>
