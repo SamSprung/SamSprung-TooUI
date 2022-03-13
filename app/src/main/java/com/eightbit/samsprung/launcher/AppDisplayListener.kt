@@ -64,7 +64,6 @@ import android.hardware.display.DisplayManager
 import android.os.*
 import android.provider.Settings
 import android.view.*
-import android.view.LayoutInflater
 import android.widget.ImageView
 import android.widget.LinearLayout
 import androidx.appcompat.app.AppCompatActivity
@@ -86,7 +85,6 @@ class AppDisplayListener : Service() {
     private lateinit var prefs: SharedPreferences
     private var offReceiver: BroadcastReceiver? = null
     private var mDisplayListener: DisplayManager.DisplayListener? = null
-    @Suppress("DEPRECATION")
     private lateinit var floatView: View
     private lateinit var bottomSheetBehavior: BottomSheetBehavior<View>
 

@@ -62,7 +62,6 @@ import android.graphics.Color
 import android.os.*
 import android.service.notification.StatusBarNotification
 import android.speech.tts.TextToSpeech
-import android.util.Log
 import android.util.TypedValue
 import android.view.LayoutInflater
 import android.view.View
@@ -80,7 +79,10 @@ import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.eightbit.samsprung.*
+import com.eightbit.samsprung.NotificationReceiver
+import com.eightbit.samsprung.R
+import com.eightbit.samsprung.SamSprung
+import com.eightbit.samsprung.SamSprungOverlay
 import com.eightbit.view.OnSwipeTouchListener
 import com.eightbit.widget.RecyclerViewTouch
 import com.google.android.material.bottomsheet.BottomSheetBehavior
@@ -89,8 +91,8 @@ import java.util.*
 class NotificationFragment : Fragment(), NotificationAdapter.OnNoticeClickListener {
 
     private var launcherManager: LauncherManager? = null
-    private lateinit var noticesView: RecyclerView
     private var textSpeech: TextToSpeech? = null
+    private var layoutManager: LinearLayoutManager? = null
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -118,8 +120,9 @@ class NotificationFragment : Fragment(), NotificationAdapter.OnNoticeClickListen
             }
         }
 
-        noticesView = view.findViewById(R.id.notificationList)
-        noticesView.layoutManager = LinearLayoutManager(requireContext())
+        val noticesView = view.findViewById<RecyclerView>(R.id.notificationList)
+        layoutManager = LinearLayoutManager(requireContext())
+        noticesView.layoutManager = layoutManager
         noticesView.adapter = NotificationAdapter(requireActivity(), this)
         if ((requireActivity() as SamSprungOverlay).hasNotificationListener()) {
             NotificationReceiver.getReceiver()?.setNotificationsListener(
@@ -217,7 +220,7 @@ class NotificationFragment : Fragment(), NotificationAdapter.OnNoticeClickListen
                 }
                 actionsPanel.visibility = View.GONE
             }
-            (noticesView.layoutManager as LinearLayoutManager).scrollToPosition(position)
+            layoutManager?.scrollToPosition(position)
         }
         actionButtons.addView(button, LinearLayout.LayoutParams(
             0, LinearLayout.LayoutParams.WRAP_CONTENT,
@@ -248,9 +251,7 @@ class NotificationFragment : Fragment(), NotificationAdapter.OnNoticeClickListen
                             SamSprung.prefColors, Color.rgb(255, 255, 255)
                         ).blended)
                     }
-                    (noticesView.layoutManager as LinearLayoutManager)
-                        .scrollToPositionWithOffset(position,
-                            -(actionButtons.height))
+                    layoutManager?.scrollToPositionWithOffset(position, -(actionButtons.height))
                 }
             }
         }

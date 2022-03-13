@@ -132,23 +132,26 @@ class OnBroadcastService : Service() {
             mNotificationManager = getSystemService(
                 Context.NOTIFICATION_SERVICE) as NotificationManager
         }
-        mNotificationManager.createNotificationChannelGroup(
-            NotificationChannelGroup("services_group", "Services")
-        )
-        val notificationChannel = NotificationChannel("overlay_channel",
-            "Overlay Notification", NotificationManager.IMPORTANCE_LOW)
+        var group = mNotificationManager.getNotificationChannelGroup("samsprung_services")
+        if (null == group) {
+            mNotificationManager.createNotificationChannelGroup(
+                NotificationChannelGroup("samsprung_services", "SamSprung Services")
+            )
+            group = mNotificationManager.getNotificationChannelGroup("samsprung_services")
+        }
+        val notificationChannel = NotificationChannel("tooui_overlay_channel",
+            "TooUI Overlay Notification", NotificationManager.IMPORTANCE_LOW)
         notificationChannel.enableLights(false)
         notificationChannel.lockscreenVisibility = Notification.VISIBILITY_SECRET
         mNotificationManager.createNotificationChannel(notificationChannel)
-        val builder = NotificationCompat.Builder(this, "overlay_channel")
+        val builder = NotificationCompat.Builder(this, "tooui_overlay_channel")
 
         val notificationText = getString(R.string.overlay_service, getString(R.string.samsprung))
         builder.setContentTitle(notificationText).setTicker(notificationText)
             .setSmallIcon(R.drawable.ic_baseline_samsprung_24dp)
             .setPriority(NotificationCompat.PRIORITY_LOW)
-            .setWhen(0).setOnlyAlertOnce(true)
+            .setWhen(0).setOnlyAlertOnce(true).setGroup(group.id)
             .setContentIntent(pendingIntent).setOngoing(true)
-            .setGroup("services_group")
         if (null != iconNotification) {
             builder.setLargeIcon(Bitmap.createScaledBitmap(
                 iconNotification, 128, 128, false
