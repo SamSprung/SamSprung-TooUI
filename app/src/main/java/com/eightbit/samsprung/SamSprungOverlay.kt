@@ -193,7 +193,8 @@ class SamSprungOverlay : AppCompatActivity() {
         val coordinator = findViewById<CoordinatorLayout>(R.id.coordinator)
         if (ContextCompat.checkSelfPermission(this,
                 Manifest.permission.READ_EXTERNAL_STORAGE
-            ) == PackageManager.PERMISSION_GRANTED) {
+            ) == PackageManager.PERMISSION_GRANTED
+        ) {
             coordinator.background = WallpaperManager
                 .getInstance(ScaledContext.cover(this)).drawable
         }
@@ -426,14 +427,6 @@ class SamSprungOverlay : AppCompatActivity() {
                 searchView.isGone = isNotDrawer
                 if (bottomSheetBehaviorMain.state == BottomSheetBehavior.STATE_EXPANDED)
                     findViewById<View>(R.id.bottom_sheet_main).keepScreenOn = isNotDrawer
-                if (position == 0 && (getSystemService(Context.KEYGUARD_SERVICE)
-                            as KeyguardManager).isDeviceLocked) {
-                    setKeyguardListener(object : KeyguardListener {
-                        override fun onKeyguardCheck(unlocked: Boolean) {
-                            if (!unlocked) viewPager.setCurrentItem(1, true)
-                        }
-                    })
-                }
                 with(prefs.edit()) {
                     putInt(SamSprung.prefViewer, position)
                     apply()
@@ -587,13 +580,23 @@ class SamSprungOverlay : AppCompatActivity() {
         setTurnScreenOn(true)
         val keyguardManager = (getSystemService(Context.KEYGUARD_SERVICE) as KeyguardManager)
         if (keyguardManager.isDeviceLocked) {
+            val authView = layoutInflater.inflate(R.layout.fingerprint_auth, null)
             val authDialog = AlertDialog.Builder(
                 ContextThemeWrapper(this, R.style.DialogTheme_NoActionBar)
-            ).setView(
-                layoutInflater.inflate(R.layout.fingerprint_auth, null)
-            ).show()
+            ).setView(authView).show()
             authDialog.setCancelable(false)
             authDialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+            authDialog.window?.setLayout(
+                RelativeLayout.LayoutParams.MATCH_PARENT,
+                RelativeLayout.LayoutParams.MATCH_PARENT
+            )
+            if (ContextCompat.checkSelfPermission(this,
+                    Manifest.permission.READ_EXTERNAL_STORAGE
+                ) == PackageManager.PERMISSION_GRANTED
+            ) {
+                authView.findViewById<RelativeLayout>(R.id.auth_view).background =
+                    WallpaperManager.getInstance(ScaledContext.cover(this)).drawable
+            }
             try {
                 HiddenApiBypass.invoke(Class.forName("android.app.KeyguardManager"),
                     keyguardManager, "semStartLockscreenFingerprintAuth")

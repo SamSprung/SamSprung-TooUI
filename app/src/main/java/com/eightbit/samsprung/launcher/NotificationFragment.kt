@@ -234,7 +234,7 @@ class NotificationFragment : Fragment(), NotificationAdapter.OnNoticeClickListen
         ))
     }
 
-    override fun onNoticeClicked(itemView: View, position: Int, notice: StatusBarNotification) {
+    fun onNoticeExpanded(itemView: View, position: Int, notice: StatusBarNotification) {
         val actionsPanel = itemView.findViewById<LinearLayout>(R.id.action_panel)
         val linesText = itemView.findViewById<TextView>(R.id.lines)
         if (actionsPanel.isVisible) {
@@ -261,6 +261,16 @@ class NotificationFragment : Fragment(), NotificationAdapter.OnNoticeClickListen
                 }
             }
         }
+    }
+
+    override fun onNoticeClicked(itemView: View, position: Int, notice: StatusBarNotification) {
+        (requireActivity() as SamSprungOverlay)
+            .setKeyguardListener(object: SamSprungOverlay.KeyguardListener {
+            override fun onKeyguardCheck(unlocked: Boolean) {
+                if (!unlocked) return
+                onNoticeExpanded(itemView, position, notice)
+            }
+        })
     }
 
     override fun onNoticeLongClicked(
