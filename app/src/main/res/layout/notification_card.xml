@@ -5,11 +5,12 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_margin="4dp"
+    android:layout_marginHorizontal="4dp"
+    android:layout_marginVertical="3dp"
     android:clickable="true"
     android:focusable="true"
     android:foreground="@drawable/card_foreground"
-    app:cardCornerRadius="@dimen/card_radius">
+    app:cardCornerRadius="@dimen/card_corner_radius">
 
     <LinearLayout
         android:layout_width="match_parent"

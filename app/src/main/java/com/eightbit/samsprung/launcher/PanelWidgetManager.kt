@@ -123,7 +123,7 @@ class PanelWidgetManager(
             }
             previews.removeAllViewsInLayout()
         }
-        val widgetDialog = dialog.setView(view).show()
+        val widgetDialog = dialog.setView(view).create()
         val infoList: List<AppWidgetProviderInfo> = mAppWidgetManager.installedProviders
         for (info: AppWidgetProviderInfo in infoList) {
             val previewSizeBeforeScale = IntArray(1)
@@ -148,12 +148,13 @@ class PanelWidgetManager(
                     )
                     overlay.requestCreateAppWidget.launch(intent)
                 }
-                widgetDialog?.dismiss()
+                widgetDialog.dismiss()
             }
             previewImage.tag = info
             previews.addView(previewImage)
         }
-        widgetDialog!!.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+        widgetDialog.show()
+        widgetDialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
     }
 
     @SuppressLint("InflateParams")

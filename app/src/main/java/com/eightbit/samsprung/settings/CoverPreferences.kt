@@ -360,8 +360,9 @@ class CoverPreferences : AppCompatActivity() {
                             Uri.parse("package:apps.ijp.coveros")
                         ))
                         dialog.dismiss()
-                    }.show()
+                    }.create()
                 compatDialog.setCancelable(false)
+                compatDialog.show()
             }
         }
         val unlisted = packageRetriever.getHiddenPackages()
@@ -918,7 +919,7 @@ class CoverPreferences : AppCompatActivity() {
             val dialog = AlertDialog.Builder(
                 ContextThemeWrapper(this, R.style.DialogTheme_NoActionBar)
             )
-            val setupDialog: Dialog = dialog.setView(view).show()
+            val setupDialog: Dialog = dialog.setView(view).create()
             view.findViewById<AppCompatButton>(R.id.button_wiki).setOnClickListener {
                 startActivity(Intent(Intent.ACTION_VIEW,
                     Uri.parse("https://github.com/SamSprung/SamSprung-TooUI/wiki")))
@@ -934,6 +935,7 @@ class CoverPreferences : AppCompatActivity() {
                 verifyCompatibility()
             }
             setupDialog.setCancelable(false)
+            setupDialog.show()
             setupDialog.window?.setBackgroundDrawableResource(R.drawable.rounded_layout_themed)
             setupDialog.window?.setLayout(
                 ViewGroup.LayoutParams.WRAP_CONTENT,

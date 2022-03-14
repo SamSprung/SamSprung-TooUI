@@ -37,7 +37,7 @@
             android:layout_height="wrap_content"
             android:background="@color/bottomSheetTint"
             android:paddingTop="4dp"
-            android:paddingBottom="8dp"
+            android:paddingBottom="6dp"
             android:gravity="center"
             android:orientation="horizontal">
 

@@ -58,7 +58,9 @@ import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.content.pm.ResolveInfo
+import android.content.res.Resources
 import android.os.Bundle
+import android.util.TypedValue
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -196,7 +198,8 @@ class AppDrawerFragment : Fragment(), DrawerAppAdapater.OnAppClickListener {
     }
 
     private fun getColumnCount(): Int {
-        return (requireActivity().windowManager.currentWindowMetrics.bounds.width() / 96 + 0.5).toInt()
+        return (requireActivity().windowManager.currentWindowMetrics
+            .bounds.width() / 92.toPx + 0.5).toInt()
     }
 
     override fun onAppClicked(resolveInfo: ResolveInfo, position: Int) {
@@ -209,4 +212,9 @@ class AppDrawerFragment : Fragment(), DrawerAppAdapater.OnAppClickListener {
             if (null != packReceiver) requireActivity().unregisterReceiver(packReceiver)
         } catch (ignored: Exception) { }
     }
+
+    private val Number.toPx get() = TypedValue.applyDimension(
+        TypedValue.COMPLEX_UNIT_DIP, this.toFloat(),
+        Resources.getSystem().displayMetrics
+    )
 }

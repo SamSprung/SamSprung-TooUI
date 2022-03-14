@@ -549,26 +549,22 @@ class SamSprungOverlay : AppCompatActivity() {
             object : KeyguardManager.KeyguardDismissCallback() {
             override fun onDismissCancelled() {
                 super.onDismissCancelled()
-                authDialog?.dismiss()
                 keyguardListener?.onKeyguardCheck(true)
+                authDialog?.dismiss()
             }
 
             override fun onDismissError() {
                 super.onDismissError()
-                if (null != authDialog) {
-                    tactileFeedback()
-                    authDialog.dismiss()
-                }
+                tactileFeedback()
                 keyguardListener?.onKeyguardCheck(false)
+                authDialog?.dismiss()
             }
 
             override fun onDismissSucceeded() {
                 super.onDismissSucceeded()
-                if (null != authDialog) {
-                    tactileFeedback()
-                    authDialog.dismiss()
-                }
+                tactileFeedback()
                 keyguardListener?.onKeyguardCheck(true)
+                authDialog?.dismiss()
             }
         })
         setTurnScreenOn(false)
@@ -583,8 +579,10 @@ class SamSprungOverlay : AppCompatActivity() {
             val authView = layoutInflater.inflate(R.layout.fingerprint_auth, null)
             val authDialog = AlertDialog.Builder(
                 ContextThemeWrapper(this, R.style.DialogTheme_NoActionBar)
-            ).setView(authView).show()
+            ).setView(authView).create()
             authDialog.setCancelable(false)
+            authDialog.window?.attributes?.windowAnimations = R.style.SlidingDialogAnimation
+            authDialog.show()
             authDialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
             authDialog.window?.setLayout(
                 RelativeLayout.LayoutParams.MATCH_PARENT,
