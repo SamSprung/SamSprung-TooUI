@@ -62,6 +62,7 @@ import android.graphics.Color
 import android.os.*
 import android.service.notification.StatusBarNotification
 import android.speech.tts.TextToSpeech
+import android.text.TextUtils
 import android.util.TypedValue
 import android.view.LayoutInflater
 import android.view.View
@@ -235,9 +236,14 @@ class NotificationFragment : Fragment(), NotificationAdapter.OnNoticeClickListen
 
     override fun onNoticeClicked(itemView: View, position: Int, notice: StatusBarNotification) {
         val actionsPanel = itemView.findViewById<LinearLayout>(R.id.action_panel)
+        val linesText = itemView.findViewById<TextView>(R.id.lines)
         if (actionsPanel.isVisible) {
+            linesText.maxLines = 3
+            linesText.ellipsize = TextUtils.TruncateAt.END
             actionsPanel.visibility = View.GONE
         } else {
+            linesText.maxLines = Integer.MAX_VALUE
+            linesText.ellipsize = null
             val actionButtons = actionsPanel.findViewById<LinearLayout>(R.id.actions)
             if (actionButtons.childCount > 0) {
                 actionsPanel.visibility = View.VISIBLE

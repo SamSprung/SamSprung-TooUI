@@ -61,6 +61,7 @@ import android.graphics.Color
 import android.graphics.drawable.Icon
 import android.os.Bundle
 import android.service.notification.StatusBarNotification
+import android.text.TextUtils
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -142,6 +143,8 @@ class NotificationAdapter(
             val launch = itemView.findViewById<AppCompatImageView>(R.id.launch)
             val dismiss = itemView.findViewById<AppCompatImageView>(R.id.dismiss)
 
+            linesText.maxLines = 3
+            linesText.ellipsize = TextUtils.TruncateAt.END
             titleText.text = ""
             linesText.text = ""
             Executors.newSingleThreadExecutor().execute {
