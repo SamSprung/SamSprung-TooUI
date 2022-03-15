@@ -300,6 +300,18 @@ class CoverPreferences : AppCompatActivity() {
             draggable.isChecked = !draggable.isChecked
         }
 
+        val vibration = findViewById<SwitchCompat>(R.id.vibration_switch)
+        vibration.isChecked = prefs.getBoolean(SamSprung.prefReacts, true)
+        vibration.setOnCheckedChangeListener { _, isChecked ->
+            with(prefs.edit()) {
+                putBoolean(SamSprung.prefReacts, isChecked)
+                apply()
+            }
+        }
+        findViewById<LinearLayout>(R.id.vibration).setOnClickListener {
+            vibration.isChecked = !vibration.isChecked
+        }
+
         val placementBar = findViewById<SeekBar>(R.id.placement_bar)
         placementBar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
             override fun onProgressChanged(seek: SeekBar, progress: Int, fromUser: Boolean) {

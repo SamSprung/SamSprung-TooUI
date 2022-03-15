@@ -287,6 +287,9 @@ class NotificationFragment : Fragment(), NotificationAdapter.OnNoticeClickListen
     }
 
     private fun tactileFeedback() {
+        val prefs = requireActivity().getSharedPreferences(
+            SamSprung.prefsValue, AppCompatActivity.MODE_PRIVATE)
+        if (!prefs.getBoolean(SamSprung.prefReacts, true)) return
         val vibe = VibrationEffect.createOneShot(20, VibrationEffect.DEFAULT_AMPLITUDE)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
             (requireActivity().getSystemService(Context.VIBRATOR_MANAGER_SERVICE) as VibratorManager)

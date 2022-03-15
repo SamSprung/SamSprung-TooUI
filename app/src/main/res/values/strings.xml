@@ -8,6 +8,7 @@
     <string name="options_keyboard">Keyboard / IME</string>
     <string name="updates_preference">Preview Builds</string>
     <string name="options_draggable">Drawer Gesture</string>
+    <string name="options_vibration">Touch Feedback</string>
     <string name="options_placement">Icon Alignment</string>
     <string name="options_theme">Theme Selection</string>
     <string-array name="theme_options">

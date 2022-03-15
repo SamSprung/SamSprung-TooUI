@@ -90,6 +90,7 @@ class SamSprung : Application() {
         const val prefSlider: String = "prefSlider"
         const val prefShifts: String = "prefShifts"
         const val prefThemes: String = "prefThemes"
+        const val prefReacts: String = "prefReacts"
     }
 
     override fun onCreate() {

@@ -747,6 +747,7 @@ class SamSprungOverlay : AppCompatActivity() {
     }
 
     private fun tactileFeedback() {
+        if (!prefs.getBoolean(SamSprung.prefReacts, true)) return
         val vibe = VibrationEffect.createOneShot(20, VibrationEffect.DEFAULT_AMPLITUDE)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
             (getSystemService(Context.VIBRATOR_MANAGER_SERVICE) as VibratorManager)
