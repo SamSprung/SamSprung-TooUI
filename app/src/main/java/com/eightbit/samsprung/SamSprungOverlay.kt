@@ -549,22 +549,26 @@ class SamSprungOverlay : AppCompatActivity() {
             object : KeyguardManager.KeyguardDismissCallback() {
             override fun onDismissCancelled() {
                 super.onDismissCancelled()
-                keyguardListener?.onKeyguardCheck(true)
                 authDialog?.dismiss()
+                keyguardListener?.onKeyguardCheck(true)
             }
 
             override fun onDismissError() {
                 super.onDismissError()
-                tactileFeedback()
+                if (null != authDialog) {
+                    tactileFeedback()
+                    authDialog.dismiss()
+                }
                 keyguardListener?.onKeyguardCheck(false)
-                authDialog?.dismiss()
             }
 
             override fun onDismissSucceeded() {
                 super.onDismissSucceeded()
-                tactileFeedback()
+                if (null != authDialog) {
+                    tactileFeedback()
+                    authDialog.dismiss()
+                }
                 keyguardListener?.onKeyguardCheck(true)
-                authDialog?.dismiss()
             }
         })
         setTurnScreenOn(false)
