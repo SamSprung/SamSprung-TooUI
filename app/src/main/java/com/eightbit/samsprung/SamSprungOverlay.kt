@@ -456,6 +456,7 @@ class SamSprungOverlay : AppCompatActivity() {
             val handler = Handler(Looper.getMainLooper())
             override fun onStateChanged(bottomSheet: View, newState: Int) {
                 if (newState == BottomSheetBehavior.STATE_EXPANDED) {
+                    checkUpdatesWithDelay()
                     if (viewPager.currentItem != 1) bottomSheet.keepScreenOn = true
                     bottomSheetBehaviorMain.isDraggable = false
                     bottomHandle.visibility = View.INVISIBLE
@@ -472,7 +473,7 @@ class SamSprungOverlay : AppCompatActivity() {
                     handler.postDelayed({
                         bottomHandle.visibility = View.VISIBLE
                         menuButton.visibility = View.VISIBLE
-                    }, 500)
+                    }, 300)
                     bottomSheetBehaviorMain.isDraggable =
                         prefs.getBoolean(SamSprung.prefSlider, true)
                 }
@@ -536,6 +537,31 @@ class SamSprungOverlay : AppCompatActivity() {
 
     fun getSearch() : SearchView {
         return searchView
+    }
+
+    private var skipUpdateCheck = false
+    private fun checkUpdatesWithDelay() {
+        if (findViewById<AnimatedLinearLayout>(R.id.update_notice).isVisible
+            || skipUpdateCheck) return
+        skipUpdateCheck = true
+        val updateCheck = CheckUpdatesTask(this)
+        if (BuildConfig.FLAVOR == "google") {
+            updateCheck.setPlayUpdateListener(object :
+                CheckUpdatesTask.CheckPlayUpdateListener {
+                override fun onPlayUpdateFound(appUpdateInfo: AppUpdateInfo) {
+                    showUpdateNotice()
+                }
+            })
+        } else {
+            updateCheck.setUpdateListener(object : CheckUpdatesTask.CheckUpdateListener {
+                override fun onUpdateFound(downloadUrl: String) {
+                    showUpdateNotice()
+                }
+            })
+        }
+        Handler(Looper.getMainLooper()).postDelayed({
+            skipUpdateCheck = false
+        }, 14400000)
     }
 
     private var keyguardListener: KeyguardListener? = null
@@ -854,20 +880,6 @@ class SamSprungOverlay : AppCompatActivity() {
                 bottomSheetBehaviorMain.state = BottomSheetBehavior.STATE_EXPANDED
             }
         }, 150)
-        val updateCheck = CheckUpdatesTask(this)
-        if (BuildConfig.FLAVOR == "google") {
-            updateCheck.setPlayUpdateListener(object: CheckUpdatesTask.CheckPlayUpdateListener {
-                override fun onPlayUpdateFound(appUpdateInfo: AppUpdateInfo) {
-                    showUpdateNotice()
-                }
-            })
-        } else {
-            updateCheck.setUpdateListener(object: CheckUpdatesTask.CheckUpdateListener {
-                override fun onUpdateFound(downloadUrl: String) {
-                    showUpdateNotice()
-                }
-            })
-        }
     }
 
     fun onStopOverlay() {
