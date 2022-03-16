@@ -100,17 +100,35 @@ class LauncherManager(private val overlay: SamSprungOverlay) {
         overlay.setKeyguardListener(object: SamSprungOverlay.KeyguardListener {
             override fun onKeyguardCheck(unlocked: Boolean) {
                 if (!unlocked) return
-                overlay.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_LOCKED
-                overlay.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_BEHIND
+                var onFinished: PendingIntent.OnFinished? = null
+                if (pendingIntent.creatorPackage.toString() == "com.android.systemui") {
+                    onFinished = PendingIntent.OnFinished { pendingIntent, _, _, _, _ ->
+                        val extras = Bundle()
+                        extras.putString("launchPackage", pendingIntent.creatorPackage)
+                        overlay.startForegroundService(Intent(
+                            overlay.applicationContext, AppDisplayListener::class.java
+                        ).putExtras(extras))
+                    }
+                } else {
+                    overlay.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_LOCKED
+                    overlay.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_BEHIND
+                }
 
                 pendingIntent.send(
-                    ScaledContext.cover(overlay), SamSprung.request_code, Intent()
+                    ScaledContext.cover(overlay), SamSprung.request_code,
+                    Intent().setFlags(Intent.FLAG_ACTIVITY_NEW_TASK or
+                            Intent.FLAG_ACTIVITY_NO_ANIMATION or
+                            Intent.FLAG_ACTIVITY_FORWARD_RESULT
+                    ), onFinished, null, null,
+                    ActivityOptions.makeBasic().setLaunchDisplayId(1).toBundle()
                 )
 
-                val extras = Bundle()
-                extras.putString("launchPackage", pendingIntent.intentSender.creatorPackage)
+                if (null == onFinished) {
+                    val extras = Bundle()
+                    extras.putString("launchPackage", pendingIntent.intentSender.creatorPackage)
 
-                getOrientationManager(extras)
+                    getOrientationManager(extras)
+                }
             }
         })
     }

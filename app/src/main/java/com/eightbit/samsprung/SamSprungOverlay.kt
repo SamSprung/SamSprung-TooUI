@@ -764,6 +764,10 @@ class SamSprungOverlay : AppCompatActivity() {
         return color
     }
 
+    fun closeBottomSheetMain() {
+        bottomSheetBehaviorMain.state = BottomSheetBehavior.STATE_COLLAPSED
+    }
+
     private fun setMenuButtonGravity(menuButton: FloatingActionButton) {
         var gravity = GravityCompat.END
         when (prefs.getInt(SamSprung.prefShifts, 2)) {
@@ -785,19 +789,6 @@ class SamSprungOverlay : AppCompatActivity() {
         } else {
             @Suppress("DEPRECATION")
             (getSystemService(Context.VIBRATOR_SERVICE) as Vibrator).vibrate(vibe)
-        }
-    }
-
-    fun hasNotificationListener(): Boolean {
-        val myNotificationListenerComponentName = ComponentName(
-            applicationContext, NotificationReceiver::class.java)
-        val enabledListeners = Settings.Secure.getString(
-            contentResolver, "enabled_notification_listeners")
-        if (enabledListeners.isEmpty()) return false
-        return enabledListeners.split(":").map {
-            ComponentName.unflattenFromString(it)
-        }.any {componentName->
-            myNotificationListenerComponentName == componentName
         }
     }
 

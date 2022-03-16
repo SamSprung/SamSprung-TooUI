@@ -53,6 +53,7 @@ package com.eightbit.samsprung.launcher
 
 import android.annotation.SuppressLint
 import android.app.*
+import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.content.res.ColorStateList
@@ -60,6 +61,7 @@ import android.content.res.Configuration
 import android.graphics.BlendMode
 import android.graphics.Color
 import android.os.*
+import android.provider.Settings
 import android.service.notification.StatusBarNotification
 import android.speech.tts.TextToSpeech
 import android.text.TextUtils
@@ -125,7 +127,7 @@ class NotificationFragment : Fragment(), NotificationAdapter.OnNoticeClickListen
         layoutManager = LinearLayoutManager(requireContext())
         noticesView.layoutManager = layoutManager
         noticesView.adapter = NotificationAdapter(requireActivity(), this)
-        if ((requireActivity() as SamSprungOverlay).hasNotificationListener()) {
+        if (hasNotificationListener(requireContext())) {
             NotificationReceiver.getReceiver()?.setNotificationsListener(
                 noticesView.adapter as NotificationAdapter
             )
@@ -204,17 +206,21 @@ class NotificationFragment : Fragment(), NotificationAdapter.OnNoticeClickListen
                 promptNotificationReply(action)
             } else {
                 try {
+                    var onFinished: PendingIntent.OnFinished? = null
                     if (action.actionIntent.creatorPackage.toString() == "com.android.systemui") {
-                        Toast.makeText(requireContext(),
-                            R.string.incompatible_activity,
-                            Toast.LENGTH_LONG).show()
+                        onFinished = PendingIntent.OnFinished { pendingIntent, _, _, _, _ ->
+                            val extras = Bundle()
+                            extras.putString("launchPackage", pendingIntent.creatorPackage)
+                            requireContext().startForegroundService(Intent(
+                                requireContext().applicationContext, AppDisplayListener::class.java
+                            ).putExtras(extras))
+                        }
                     }
-                    val intent = Intent()
-                    intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or
-                            Intent.FLAG_ACTIVITY_FORWARD_RESULT or
-                            Intent.FLAG_ACTIVITY_NO_ANIMATION
                     action.actionIntent.send(requireContext(), SamSprung.request_code,
-                        intent, null, null, null,
+                        Intent().setFlags(Intent.FLAG_ACTIVITY_NEW_TASK or
+                                Intent.FLAG_ACTIVITY_NO_ANIMATION or
+                                Intent.FLAG_ACTIVITY_FORWARD_RESULT
+                        ), onFinished, null, null,
                         ActivityOptions.makeBasic().setLaunchDisplayId(1).toBundle())
                 } catch (ex: Exception) {
                     ex.printStackTrace()
@@ -283,15 +289,7 @@ class NotificationFragment : Fragment(), NotificationAdapter.OnNoticeClickListen
     }
 
     override fun onLaunchClicked(pendingIntent: PendingIntent) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-            if (pendingIntent.isActivity)
-                launcherManager?.launchPendingActivity(pendingIntent)
-            else
-                pendingIntent.send()
-        } else {
-            launcherManager?.launchPendingActivity(pendingIntent)
-        }
-
+        launcherManager?.launchPendingActivity(pendingIntent)
     }
 
     private fun tactileFeedback() {
@@ -305,6 +303,19 @@ class NotificationFragment : Fragment(), NotificationAdapter.OnNoticeClickListen
         } else {
             @Suppress("DEPRECATION")
             (requireActivity().getSystemService(Context.VIBRATOR_SERVICE) as Vibrator).vibrate(vibe)
+        }
+    }
+
+    fun hasNotificationListener(context: Context): Boolean {
+        val myNotificationListenerComponentName = ComponentName(
+            context.applicationContext, NotificationReceiver::class.java)
+        val enabledListeners = Settings.Secure.getString(
+            context.contentResolver, "enabled_notification_listeners")
+        if (enabledListeners.isEmpty()) return false
+        return enabledListeners.split(":").map {
+            ComponentName.unflattenFromString(it)
+        }.any {componentName->
+            myNotificationListenerComponentName == componentName
         }
     }
 
