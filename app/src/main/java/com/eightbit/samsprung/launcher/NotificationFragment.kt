@@ -80,6 +80,7 @@ import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.eightbit.content.ScaledContext
 import com.eightbit.samsprung.NotificationReceiver
 import com.eightbit.samsprung.R
 import com.eightbit.samsprung.SamSprung
@@ -283,7 +284,15 @@ class NotificationFragment : Fragment(), NotificationAdapter.OnNoticeClickListen
     }
 
     override fun onLaunchClicked(pendingIntent: PendingIntent) {
-        launcherManager?.launchPendingActivity(pendingIntent)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            if (pendingIntent.isActivity)
+                launcherManager?.launchPendingActivity(pendingIntent)
+            else
+                pendingIntent.send()
+        } else {
+            launcherManager?.launchPendingActivity(pendingIntent)
+        }
+
     }
 
     private fun tactileFeedback() {
