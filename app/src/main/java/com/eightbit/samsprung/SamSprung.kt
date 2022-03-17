@@ -97,7 +97,6 @@ class SamSprung : Application() {
         super.onCreate()
         AppCompatDelegate.setCompatVectorFromResourcesEnabled(true)
         setThemePreference()
-        ScaledContext.screen(this).setTheme(R.style.Theme_SecondScreen)
 
         Thread.setDefaultUncaughtExceptionHandler { _: Thread?, error: Throwable ->
             val exception = StringWriter()

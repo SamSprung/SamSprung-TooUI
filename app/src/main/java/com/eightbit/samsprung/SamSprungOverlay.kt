@@ -63,6 +63,7 @@ import android.database.ContentObserver
 import android.graphics.Color
 import android.graphics.PixelFormat
 import android.graphics.drawable.ColorDrawable
+import android.graphics.drawable.Drawable
 import android.hardware.camera2.CameraManager
 import android.media.AudioManager
 import android.net.wifi.WifiManager
@@ -118,6 +119,8 @@ class SamSprungOverlay : AppCompatActivity() {
     private var widgetManager: PanelWidgetManager? = null
     val model = WidgetModel()
     private var appWidgetHost: WidgetHost? = null
+
+    private var background: Drawable? = null
 
     private lateinit var wifiManager: WifiManager
     private lateinit var bluetoothAdapter: BluetoothAdapter
@@ -195,8 +198,8 @@ class SamSprungOverlay : AppCompatActivity() {
                 Manifest.permission.READ_EXTERNAL_STORAGE
             ) == PackageManager.PERMISSION_GRANTED
         ) {
-            coordinator.background = WallpaperManager
-                .getInstance(ScaledContext.cover(this)).drawable
+            background = WallpaperManager.getInstance(ScaledContext.cover(this)).drawable
+            coordinator.background = background
         }
 
         val blurView = findViewById<BlurView>(R.id.blurContainer)
@@ -499,6 +502,10 @@ class SamSprungOverlay : AppCompatActivity() {
             SamSprung.prefColors,
             Color.rgb(255, 255, 255)))
         bottomHandle.alpha = prefs.getFloat(SamSprung.prefAlphas, 1f)
+        bottomHandle.keepScreenOn = true
+        Handler(Looper.getMainLooper()).postDelayed({
+            bottomHandle.keepScreenOn = false
+        }, 30000)
 
         setMenuButtonGravity(menuButton)
         menuButton.setOnClickListener {
@@ -618,13 +625,8 @@ class SamSprungOverlay : AppCompatActivity() {
                 RelativeLayout.LayoutParams.MATCH_PARENT,
                 RelativeLayout.LayoutParams.MATCH_PARENT
             )
-            if (ContextCompat.checkSelfPermission(this,
-                    Manifest.permission.READ_EXTERNAL_STORAGE
-                ) == PackageManager.PERMISSION_GRANTED
-            ) {
-                authView.findViewById<RelativeLayout>(R.id.auth_view).background =
-                    WallpaperManager.getInstance(ScaledContext.cover(this)).drawable
-            }
+            if (null != background)
+                authView.findViewById<RelativeLayout>(R.id.auth_view).background = background
             try {
                 HiddenApiBypass.invoke(Class.forName("android.app.KeyguardManager"),
                     keyguardManager, "semStartLockscreenFingerprintAuth")
@@ -764,10 +766,6 @@ class SamSprungOverlay : AppCompatActivity() {
         return color
     }
 
-    fun closeBottomSheetMain() {
-        bottomSheetBehaviorMain.state = BottomSheetBehavior.STATE_COLLAPSED
-    }
-
     private fun setMenuButtonGravity(menuButton: FloatingActionButton) {
         var gravity = GravityCompat.END
         when (prefs.getInt(SamSprung.prefShifts, 2)) {
@@ -860,8 +858,8 @@ class SamSprungOverlay : AppCompatActivity() {
 
     override fun onNewIntent(intent: Intent?) {
         super.onNewIntent(intent)
+        val bottomHandle = findViewById<View>(R.id.bottom_handle)
         Handler(Looper.getMainLooper()).postDelayed({
-            val bottomHandle = findViewById<View>(R.id.bottom_handle)
             bottomHandle.visibility = View.VISIBLE
             bottomHandle.setBackgroundColor(prefs.getInt(
                 SamSprung.prefColors,
@@ -871,6 +869,10 @@ class SamSprungOverlay : AppCompatActivity() {
                 bottomSheetBehaviorMain.state = BottomSheetBehavior.STATE_EXPANDED
             }
         }, 150)
+        bottomHandle.keepScreenOn = true
+        Handler(Looper.getMainLooper()).postDelayed({
+            bottomHandle.keepScreenOn = false
+        }, 30000)
     }
 
     fun onStopOverlay() {

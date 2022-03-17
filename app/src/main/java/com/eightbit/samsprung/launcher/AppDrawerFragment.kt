@@ -68,6 +68,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.SearchView
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.*
+import com.eightbit.content.ScaledContext
 import com.eightbit.pm.PackageRetriever
 import com.eightbit.samsprung.R
 import com.eightbit.samsprung.SamSprung
@@ -215,6 +216,6 @@ class AppDrawerFragment : Fragment(), DrawerAppAdapater.OnAppClickListener {
 
     private val Number.toPx get() = TypedValue.applyDimension(
         TypedValue.COMPLEX_UNIT_DIP, this.toFloat(),
-        Resources.getSystem().displayMetrics
+        ScaledContext.cover(requireActivity()).resources.displayMetrics
     )
 }

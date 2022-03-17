@@ -846,7 +846,9 @@ class CoverPreferences : AppCompatActivity() {
         ActivityResultContracts.StartActivityForResult()) {
         if (this::mainSwitch.isInitialized) {
             mainSwitch.isChecked = Settings.canDrawOverlays(applicationContext)
-            startForegroundService(Intent(this, OnBroadcastService::class.java))
+            startForegroundService(Intent(
+                ScaledContext.cover(this), OnBroadcastService::class.java
+            ))
         }
     }
 
@@ -924,7 +926,9 @@ class CoverPreferences : AppCompatActivity() {
     }
 
     private fun initializeLayout() {
-        startForegroundService(Intent(this, OnBroadcastService::class.java))
+        startForegroundService(Intent(
+            ScaledContext.cover(this), OnBroadcastService::class.java
+        ))
 
         if (!prefs.getBoolean(SamSprung.prefWarned, false)) {
             val view: View = layoutInflater.inflate(R.layout.setup_notice_view, null)
