@@ -66,11 +66,11 @@ class ScaledContext(base: Context) : ContextWrapper(base) {
             return intArrayOf(metrics.width(), metrics.height())
         }
 
-        fun wrap(context: Context): ScaledContext {
+        fun screen(context: Context, density: Float): ScaledContext {
             val resources = context.resources
             val metrics = resources.displayMetrics
             val orientation = resources.configuration.orientation
-            metrics.density = 1.5f // 2
+            metrics.density = density // 2
             metrics.densityDpi = 360 // 360
             if (orientation == Configuration.ORIENTATION_PORTRAIT) {
                 metrics.heightPixels = 2640 // 2640
@@ -80,28 +80,7 @@ class ScaledContext(base: Context) : ContextWrapper(base) {
                 metrics.heightPixels = 1080 // 1080
                 metrics.widthPixels = 2640 // 2640
             }
-            metrics.scaledDensity = 1.5f // 2
-            metrics.xdpi = 425f // 425
-            metrics.ydpi = 425f // 425
-            metrics.setTo(metrics)
-            return ScaledContext(context)
-        }
-
-        fun screen(context: Context): ScaledContext {
-            val resources = context.resources
-            val metrics = resources.displayMetrics
-            val orientation = resources.configuration.orientation
-            metrics.density = 2f // 2
-            metrics.densityDpi = 360 // 360
-            if (orientation == Configuration.ORIENTATION_PORTRAIT) {
-                metrics.heightPixels = 2640 // 2640
-                metrics.widthPixels = 1080 // 1080
-            }
-            if (orientation == Configuration.ORIENTATION_LANDSCAPE) {
-                metrics.heightPixels = 1080 // 1080
-                metrics.widthPixels = 2640 // 2640
-            }
-            metrics.scaledDensity = 2f // 2
+            metrics.scaledDensity = density // 2
             metrics.xdpi = 425f // 425
             metrics.ydpi = 425f // 425
             metrics.setTo(metrics)

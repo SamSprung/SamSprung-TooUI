@@ -54,7 +54,6 @@ package com.eightbit.samsprung
 import android.app.Application
 import android.util.Log
 import androidx.appcompat.app.AppCompatDelegate
-import com.eightbit.content.ScaledContext
 import java.io.PrintWriter
 import java.io.StringWriter
 import kotlin.system.exitProcess

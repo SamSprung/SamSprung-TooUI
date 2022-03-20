@@ -139,7 +139,7 @@ class CoverPreferences : AppCompatActivity() {
         super.onCreate(savedInstanceState)
 
         prefs = getSharedPreferences(SamSprung.prefsValue, MODE_PRIVATE)
-        ScaledContext.screen(this).setTheme(R.style.Theme_SecondScreen)
+        ScaledContext.screen(this, 2f).setTheme(R.style.Theme_SecondScreen)
         setContentView(R.layout.cover_settings_layout)
         permissionList = findViewById(R.id.permissions)
 
@@ -1184,6 +1184,6 @@ class CoverPreferences : AppCompatActivity() {
 
     private val Number.toScalePx get() = TypedValue.applyDimension(
         TypedValue.COMPLEX_UNIT_DIP, this.toFloat(),
-        ScaledContext.screen(this@CoverPreferences).resources.displayMetrics
+        ScaledContext.screen(this@CoverPreferences, 2f).resources.displayMetrics
     )
 }
