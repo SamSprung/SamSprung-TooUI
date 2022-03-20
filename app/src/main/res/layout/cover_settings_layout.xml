@@ -266,6 +266,38 @@
             </LinearLayout>
 
             <LinearLayout
+                android:id="@+id/timeout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginStart="16dp"
+                android:layout_marginEnd="8dp"
+                android:layout_gravity="center_vertical"
+                tools:ignore="UseCompoundDrawables">
+
+                <TextView
+                    android:id="@+id/timeout_text"
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:textSize="26sp"
+                    android:textColor="?android:textColorPrimary"
+                    android:gravity="center_vertical"
+                    android:layout_height="wrap_content"
+                    android:text="@string/options_timeout" />
+
+                <SeekBar
+                    android:id="@+id/timeout_bar"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:gravity="center"
+                    android:layout_weight="1"
+                    android:min="4"
+                    android:max="60"
+                    android:progress="5"/>
+            </LinearLayout>
+
+            <LinearLayout
                 android:id="@+id/vibration"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"

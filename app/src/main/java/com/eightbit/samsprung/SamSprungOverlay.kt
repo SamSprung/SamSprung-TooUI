@@ -426,10 +426,15 @@ class SamSprungOverlay : AppCompatActivity() {
         viewPager.registerOnPageChangeCallback(object: ViewPager2.OnPageChangeCallback() {
             override fun onPageSelected(position: Int) {
                 super.onPageSelected(position)
-                val isNotDrawer = position != 1
-                searchView.isGone = isNotDrawer
-                if (bottomSheetBehaviorMain.state == BottomSheetBehavior.STATE_EXPANDED)
-                    findViewById<View>(R.id.bottom_sheet_main).keepScreenOn = isNotDrawer
+                searchView.isGone = position != 1
+                if (bottomSheetBehaviorMain.state == BottomSheetBehavior.STATE_EXPANDED) {
+                    val bottomSheetMain = findViewById<View>(R.id.bottom_sheet_main)
+                    if (position == 1) {
+                        setScreenTimeout(bottomSheetMain)
+                    } else {
+                        bottomSheetMain.keepScreenOn = true
+                    }
+                }
                 with(prefs.edit()) {
                     putInt(SamSprung.prefViewer, position)
                     apply()
@@ -460,7 +465,11 @@ class SamSprungOverlay : AppCompatActivity() {
             override fun onStateChanged(bottomSheet: View, newState: Int) {
                 if (newState == BottomSheetBehavior.STATE_EXPANDED) {
                     checkUpdatesWithDelay()
-                    if (viewPager.currentItem != 1) bottomSheet.keepScreenOn = true
+                    if (viewPager.currentItem == 1) {
+                        setScreenTimeout(bottomSheet)
+                    } else {
+                        bottomSheet.keepScreenOn = true
+                    }
                     bottomSheetBehaviorMain.isDraggable = false
                     bottomHandle.visibility = View.INVISIBLE
                 } else if (newState == BottomSheetBehavior.STATE_COLLAPSED) {
@@ -498,14 +507,11 @@ class SamSprungOverlay : AppCompatActivity() {
             }
         })
         bottomHandle.visibility = View.VISIBLE
+        setScreenTimeout(bottomHandle)
         bottomHandle.setBackgroundColor(prefs.getInt(
             SamSprung.prefColors,
             Color.rgb(255, 255, 255)))
         bottomHandle.alpha = prefs.getFloat(SamSprung.prefAlphas, 1f)
-        bottomHandle.keepScreenOn = true
-        Handler(Looper.getMainLooper()).postDelayed({
-            bottomHandle.keepScreenOn = false
-        }, 30000)
 
         setMenuButtonGravity(menuButton)
         menuButton.setOnClickListener {
@@ -859,6 +865,7 @@ class SamSprungOverlay : AppCompatActivity() {
     override fun onNewIntent(intent: Intent?) {
         super.onNewIntent(intent)
         val bottomHandle = findViewById<View>(R.id.bottom_handle)
+        setScreenTimeout(bottomHandle)
         Handler(Looper.getMainLooper()).postDelayed({
             bottomHandle.visibility = View.VISIBLE
             bottomHandle.setBackgroundColor(prefs.getInt(
@@ -869,10 +876,20 @@ class SamSprungOverlay : AppCompatActivity() {
                 bottomSheetBehaviorMain.state = BottomSheetBehavior.STATE_EXPANDED
             }
         }, 150)
-        bottomHandle.keepScreenOn = true
-        Handler(Looper.getMainLooper()).postDelayed({
-            bottomHandle.keepScreenOn = false
-        }, 30000)
+    }
+
+    private val timeoutHandler = Handler(Looper.getMainLooper())
+    private fun setScreenTimeout(anchorView: View) {
+        timeoutHandler.removeCallbacksAndMessages(null)
+        val timeout = prefs.getInt(SamSprung.prefDelays, 5)
+        if (timeout == 4) {
+            anchorView.keepScreenOn = true
+        } else if (timeout > 5) {
+            anchorView.keepScreenOn = true
+            timeoutHandler.postDelayed({
+                anchorView.keepScreenOn = false
+            }, (timeout * 1000).toLong())
+        }
     }
 
     fun onStopOverlay() {

@@ -62,6 +62,7 @@ import android.content.res.ColorStateList
 import android.content.res.Resources
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
+import android.icu.text.DecimalFormatSymbols
 import android.net.Uri
 import android.os.*
 import android.provider.Settings
@@ -300,6 +301,29 @@ class CoverPreferences : AppCompatActivity() {
             draggable.isChecked = !draggable.isChecked
         }
 
+        val timeoutBar = findViewById<SeekBar>(R.id.timeout_bar)
+        val timeoutText = findViewById<TextView>(R.id.timeout_text)
+        timeoutBar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
+            override fun onProgressChanged(seek: SeekBar, progress: Int, fromUser: Boolean) {
+                if (!fromUser) return
+                with(prefs.edit()) {
+                    putInt(SamSprung.prefDelays, progress)
+                    apply()
+                }
+                val textDelay = (if (timeoutBar.progress > 4) timeoutBar.progress else
+                    DecimalFormatSymbols.getInstance().infinity).toString()
+                timeoutText.text = getString(R.string.options_timeout, textDelay)
+            }
+
+            override fun onStartTrackingTouch(seek: SeekBar) { }
+
+            override fun onStopTrackingTouch(seek: SeekBar) { }
+        })
+        timeoutBar.progress = prefs.getInt(SamSprung.prefDelays, 5)
+        val textDelay = (if (timeoutBar.progress > 4) timeoutBar.progress else
+            DecimalFormatSymbols.getInstance().infinity).toString()
+        timeoutText.text = getString(R.string.options_timeout, textDelay)
+
         val vibration = findViewById<SwitchCompat>(R.id.vibration_switch)
         vibration.isChecked = prefs.getBoolean(SamSprung.prefReacts, true)
         vibration.setOnCheckedChangeListener { _, isChecked ->
@@ -315,6 +339,7 @@ class CoverPreferences : AppCompatActivity() {
         val placementBar = findViewById<SeekBar>(R.id.placement_bar)
         placementBar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
             override fun onProgressChanged(seek: SeekBar, progress: Int, fromUser: Boolean) {
+                if (!fromUser) return
                 with(prefs.edit()) {
                     putInt(SamSprung.prefShifts, progress)
                     apply()
