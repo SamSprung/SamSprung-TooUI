@@ -427,14 +427,13 @@ class SamSprungOverlay : AppCompatActivity() {
             override fun onPageSelected(position: Int) {
                 super.onPageSelected(position)
                 searchView.isGone = position != 1
-                if (bottomSheetBehaviorMain.state == BottomSheetBehavior.STATE_EXPANDED) {
-                    val bottomSheetMain = findViewById<View>(R.id.bottom_sheet_main)
-                    if (position != 0) {
-                        setScreenTimeout(bottomSheetMain)
-                    } else {
-                        timeoutHandler.removeCallbacksAndMessages(null)
-                        bottomSheetMain.keepScreenOn = true
-                    }
+                val bottomSheetMain = findViewById<View>(R.id.bottom_sheet_main)
+                if (position == 0 && bottomSheetBehaviorMain.state
+                    == BottomSheetBehavior.STATE_EXPANDED) {
+                    timeoutHandler.removeCallbacksAndMessages(null)
+                    bottomSheetMain.keepScreenOn = true
+                } else {
+                    setScreenTimeout(bottomSheetMain)
                 }
                 with(prefs.edit()) {
                     putInt(SamSprung.prefViewer, position)
@@ -466,17 +465,10 @@ class SamSprungOverlay : AppCompatActivity() {
             override fun onStateChanged(bottomSheet: View, newState: Int) {
                 if (newState == BottomSheetBehavior.STATE_EXPANDED) {
                     checkUpdatesWithDelay()
-                    if (viewPager.currentItem != 0) {
-                        setScreenTimeout(bottomSheet)
-                    } else {
-                        timeoutHandler.removeCallbacksAndMessages(null)
-                        bottomSheet.keepScreenOn = true
-                    }
                     bottomSheetBehaviorMain.isDraggable = false
                     bottomHandle.visibility = View.INVISIBLE
                 } else if (newState == BottomSheetBehavior.STATE_COLLAPSED) {
                     hasConfigured = false
-                    bottomSheet.keepScreenOn = false
                     coordinator.visibility = View.GONE
                     fakeOverlay.visibility = View.VISIBLE
                     bottomHandle.setBackgroundColor(color)
@@ -509,7 +501,7 @@ class SamSprungOverlay : AppCompatActivity() {
             }
         })
         bottomHandle.visibility = View.VISIBLE
-        setScreenTimeout(bottomHandle)
+        setScreenTimeout(findViewById(R.id.bottom_sheet_main))
         bottomHandle.setBackgroundColor(prefs.getInt(
             SamSprung.prefColors,
             Color.rgb(255, 255, 255)))
@@ -866,9 +858,9 @@ class SamSprungOverlay : AppCompatActivity() {
 
     override fun onNewIntent(intent: Intent?) {
         super.onNewIntent(intent)
-        val bottomHandle = findViewById<View>(R.id.bottom_handle)
-        setScreenTimeout(bottomHandle)
+        setScreenTimeout(findViewById(R.id.bottom_sheet_main))
         Handler(Looper.getMainLooper()).postDelayed({
+            val bottomHandle = findViewById<View>(R.id.bottom_handle)
             bottomHandle.visibility = View.VISIBLE
             bottomHandle.setBackgroundColor(prefs.getInt(
                 SamSprung.prefColors,
@@ -895,6 +887,7 @@ class SamSprungOverlay : AppCompatActivity() {
     }
 
     fun onStopOverlay() {
+        timeoutHandler.removeCallbacksAndMessages(null)
         findViewById<View>(R.id.bottom_sheet_main).keepScreenOn = false
         try {
             if (this::battReceiver.isInitialized)
@@ -922,6 +915,18 @@ class SamSprungOverlay : AppCompatActivity() {
 
     public override fun onUserLeaveHint() {
         super.onUserLeaveHint()
+    }
+
+    override fun onUserInteraction() {
+        super.onUserInteraction()
+        val bottomSheetMain = findViewById<View>(R.id.bottom_sheet_main)
+        if (viewPager.currentItem == 0 && bottomSheetBehaviorMain.state
+            == BottomSheetBehavior.STATE_EXPANDED) {
+            timeoutHandler.removeCallbacksAndMessages(null)
+            bottomSheetMain.keepScreenOn = true
+        } else {
+            setScreenTimeout(bottomSheetMain)
+        }
     }
 
     private val CharSequence.toPref get() = this.toString()
