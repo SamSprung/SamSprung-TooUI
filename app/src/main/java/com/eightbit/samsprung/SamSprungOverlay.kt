@@ -429,9 +429,10 @@ class SamSprungOverlay : AppCompatActivity() {
                 searchView.isGone = position != 1
                 if (bottomSheetBehaviorMain.state == BottomSheetBehavior.STATE_EXPANDED) {
                     val bottomSheetMain = findViewById<View>(R.id.bottom_sheet_main)
-                    if (position == 1) {
+                    if (position != 0) {
                         setScreenTimeout(bottomSheetMain)
                     } else {
+                        timeoutHandler.removeCallbacksAndMessages(null)
                         bottomSheetMain.keepScreenOn = true
                     }
                 }
@@ -465,9 +466,10 @@ class SamSprungOverlay : AppCompatActivity() {
             override fun onStateChanged(bottomSheet: View, newState: Int) {
                 if (newState == BottomSheetBehavior.STATE_EXPANDED) {
                     checkUpdatesWithDelay()
-                    if (viewPager.currentItem == 1) {
+                    if (viewPager.currentItem != 0) {
                         setScreenTimeout(bottomSheet)
                     } else {
+                        timeoutHandler.removeCallbacksAndMessages(null)
                         bottomSheet.keepScreenOn = true
                     }
                     bottomSheetBehaviorMain.isDraggable = false
