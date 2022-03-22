@@ -151,10 +151,9 @@ class NotificationFragment : Fragment(), NotificationAdapter.OnNoticeClickListen
     }
 
     private fun onSwipeClosed(recyclerView: RecyclerView) {
-        val bottomSheet = (requireActivity() as SamSprungOverlay).getBottomSheetMain()
         val manager = recyclerView.layoutManager as LinearLayoutManager
         if (manager.itemCount == 0 || manager.findFirstCompletelyVisibleItemPosition() == 0) {
-            bottomSheet.state = BottomSheetBehavior.STATE_COLLAPSED
+            (requireActivity() as SamSprungOverlay).closeMainDrawer()
         }
     }
 

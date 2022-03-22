@@ -99,8 +99,8 @@ import com.eightbit.samsprung.launcher.CoverStateAdapter
 import com.eightbit.samsprung.launcher.LauncherManager
 import com.eightbit.samsprung.launcher.PanelWidgetManager
 import com.eightbit.samsprung.panels.*
-import com.eightbit.samsprung.speech.VoiceRecognizer
 import com.eightbit.samsprung.settings.CheckUpdatesTask
+import com.eightbit.samsprung.speech.VoiceRecognizer
 import com.eightbit.view.AnimatedLinearLayout
 import com.eightbitlab.blurview.BlurView
 import com.eightbitlab.blurview.RenderScriptBlur
@@ -111,6 +111,7 @@ import com.google.android.play.core.appupdate.AppUpdateInfo
 import org.lsposed.hiddenapibypass.HiddenApiBypass
 import java.util.*
 import java.util.concurrent.Executors
+
 
 class SamSprungOverlay : AppCompatActivity() {
 
@@ -452,8 +453,8 @@ class SamSprungOverlay : AppCompatActivity() {
             model.loadUserItems(true, this)
         }
 
-        val menuButton = findViewById<FloatingActionButton>(R.id.menu_fab)
         val fakeOverlay = findViewById<LinearLayout>(R.id.fake_overlay)
+        val menuButton = findViewById<FloatingActionButton>(R.id.menu_fab)
         val bottomHandle = findViewById<View>(R.id.bottom_handle)
         bottomSheetBehaviorMain = BottomSheetBehavior.from(findViewById(R.id.bottom_sheet_main))
         bottomSheetBehaviorMain.isFitToContents = false
@@ -466,19 +467,13 @@ class SamSprungOverlay : AppCompatActivity() {
                 if (newState == BottomSheetBehavior.STATE_EXPANDED) {
                     checkUpdatesWithDelay()
                     bottomSheetBehaviorMain.isDraggable = false
-                    bottomHandle.visibility = View.INVISIBLE
+                    setActionButtonTimeout()
                 } else if (newState == BottomSheetBehavior.STATE_COLLAPSED) {
                     hasConfigured = false
                     coordinator.visibility = View.GONE
-                    fakeOverlay.visibility = View.VISIBLE
-                    bottomHandle.setBackgroundColor(color)
-                    setMenuButtonGravity(menuButton)
-                    menuButton.drawable.setTint(color)
-                    bottomHandle.alpha = prefs.getFloat(SamSprung.prefAlphas, 1f)
-                    menuButton.alpha = prefs.getFloat(SamSprung.prefAlphas, 1f)
+                    setBottomTheme(bottomHandle, menuButton)
                     handler.postDelayed({
-                        bottomHandle.visibility = View.VISIBLE
-                        menuButton.visibility = View.VISIBLE
+                        setActionButtonTimeout()
                     }, 300)
                     bottomSheetBehaviorMain.isDraggable =
                         prefs.getBoolean(SamSprung.prefSlider, true)
@@ -491,8 +486,8 @@ class SamSprungOverlay : AppCompatActivity() {
                     if (!hasConfigured) {
                         hasConfigured = true
                         handler.removeCallbacksAndMessages(null)
-                        menuButton.visibility = View.GONE
                         fakeOverlay.visibility = View.GONE
+                        menuButton.hide()
                         coordinator.visibility = View.VISIBLE
                         val index = prefs.getInt(SamSprung.prefViewer, viewPager.currentItem)
                         viewPager.setCurrentItem(if (index < 2) 1 else index, false)
@@ -500,18 +495,8 @@ class SamSprungOverlay : AppCompatActivity() {
                 }
             }
         })
-        bottomHandle.visibility = View.VISIBLE
         setScreenTimeout(findViewById(R.id.bottom_sheet_main))
-        bottomHandle.setBackgroundColor(prefs.getInt(
-            SamSprung.prefColors,
-            Color.rgb(255, 255, 255)))
-        bottomHandle.alpha = prefs.getFloat(SamSprung.prefAlphas, 1f)
-
-        setMenuButtonGravity(menuButton)
-        menuButton.setOnClickListener {
-            bottomSheetBehaviorMain.state = BottomSheetBehavior.STATE_EXPANDED
-        }
-        menuButton.drawable.setTint(color)
+        showBottomHandle(bottomHandle, menuButton)
 
         findViewById<AnimatedLinearLayout>(R.id.update_notice).visibility = View.GONE
 
@@ -538,11 +523,29 @@ class SamSprungOverlay : AppCompatActivity() {
         }
     }
 
-    fun getBottomSheetMain() : BottomSheetBehavior<View> {
-        return bottomSheetBehaviorMain
+    private fun setBottomTheme(bottomHandle: View, menuButton: FloatingActionButton) {
+        val color = prefs.getInt(SamSprung.prefColors,
+            Color.rgb(255, 255, 255))
+        bottomHandle.setBackgroundColor(color)
+        bottomHandle.alpha = prefs.getFloat(SamSprung.prefAlphas, 1f)
+        setMenuButtonGravity(menuButton)
+        menuButton.drawable.setTint(color)
+        menuButton.alpha = prefs.getFloat(SamSprung.prefAlphas, 1f)
     }
 
-    fun getSearch() : SearchView {
+    private fun showBottomHandle(bottomHandle: View, menuButton: FloatingActionButton) {
+        setBottomTheme(bottomHandle, menuButton)
+        menuButton.setOnClickListener {
+            bottomSheetBehaviorMain.state = BottomSheetBehavior.STATE_EXPANDED
+        }
+        setActionButtonTimeout()
+    }
+
+    fun closeMainDrawer() {
+        bottomSheetBehaviorMain.state = BottomSheetBehavior.STATE_COLLAPSED
+    }
+
+    fun getSearchView() : SearchView {
         return searchView
     }
 
@@ -671,7 +674,7 @@ class SamSprungOverlay : AppCompatActivity() {
                 launcherManager?.launchDefaultActivity(matchedApps[0])
             } else {
                 bottomSheetBehaviorMain.state = BottomSheetBehavior.STATE_EXPANDED
-                getSearch().setQuery(launchCommand, true)
+                getSearchView().setQuery(launchCommand, true)
             }
         }
         menuButton.keepScreenOn = false
@@ -860,12 +863,7 @@ class SamSprungOverlay : AppCompatActivity() {
         super.onNewIntent(intent)
         setScreenTimeout(findViewById(R.id.bottom_sheet_main))
         Handler(Looper.getMainLooper()).postDelayed({
-            val bottomHandle = findViewById<View>(R.id.bottom_handle)
-            bottomHandle.visibility = View.VISIBLE
-            bottomHandle.setBackgroundColor(prefs.getInt(
-                SamSprung.prefColors,
-                Color.rgb(255, 255, 255)))
-            bottomHandle.alpha = prefs.getFloat(SamSprung.prefAlphas, 1f)
+            showBottomHandle(findViewById(R.id.bottom_handle), findViewById(R.id.menu_fab))
             if (null != intent?.action && SamSprung.launcher == intent.action) {
                 bottomSheetBehaviorMain.state = BottomSheetBehavior.STATE_EXPANDED
             }
@@ -882,12 +880,27 @@ class SamSprungOverlay : AppCompatActivity() {
             anchorView.keepScreenOn = true
             timeoutHandler.postDelayed({
                 anchorView.keepScreenOn = false
-            }, (timeout * 1000).toLong())
+            }, (timeout * 1000 + 300).toLong())
         }
+    }
+
+    private val fabShowHandler = Handler(Looper.getMainLooper())
+    private fun setActionButtonTimeout() {
+        fabShowHandler.removeCallbacksAndMessages(null)
+        if (bottomSheetBehaviorMain.state == BottomSheetBehavior.STATE_EXPANDED) return
+        val fakeOverlay = findViewById<LinearLayout>(R.id.fake_overlay)
+        val menuButton = findViewById<FloatingActionButton>(R.id.menu_fab)
+        menuButton.show()
+        fakeOverlay.visibility = View.VISIBLE
+        fabShowHandler.postDelayed({
+            fakeOverlay.visibility = View.INVISIBLE
+            menuButton.hide()
+        }, 3300)
     }
 
     fun onStopOverlay() {
         timeoutHandler.removeCallbacksAndMessages(null)
+        fabShowHandler.removeCallbacksAndMessages(null)
         findViewById<View>(R.id.bottom_sheet_main).keepScreenOn = false
         try {
             if (this::battReceiver.isInitialized)
@@ -919,6 +932,7 @@ class SamSprungOverlay : AppCompatActivity() {
 
     override fun onUserInteraction() {
         super.onUserInteraction()
+        setActionButtonTimeout()
         val bottomSheetMain = findViewById<View>(R.id.bottom_sheet_main)
         if (viewPager.currentItem == 0 && bottomSheetBehaviorMain.state
             == BottomSheetBehavior.STATE_EXPANDED) {

@@ -58,7 +58,6 @@ import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.content.pm.ResolveInfo
-import android.content.res.Resources
 import android.os.Bundle
 import android.util.TypedValue
 import android.view.LayoutInflater
@@ -75,7 +74,6 @@ import com.eightbit.samsprung.SamSprung
 import com.eightbit.samsprung.SamSprungOverlay
 import com.eightbit.view.OnSwipeTouchListener
 import com.eightbit.widget.RecyclerViewTouch
-import com.google.android.material.bottomsheet.BottomSheetBehavior
 import java.util.concurrent.Executors
 
 class AppDrawerFragment : Fragment(), DrawerAppAdapater.OnAppClickListener {
@@ -117,7 +115,7 @@ class AppDrawerFragment : Fragment(), DrawerAppAdapater.OnAppClickListener {
         launcherView.adapter = DrawerAppAdapater(
             packages, this, requireActivity().packageManager, prefs)
 
-        val searchView = (requireActivity() as SamSprungOverlay).getSearch()
+        val searchView = (requireActivity() as SamSprungOverlay).getSearchView()
         val searchManager = requireActivity().getSystemService(AppCompatActivity.SEARCH_SERVICE) as SearchManager
         searchView.setSearchableInfo(searchManager.getSearchableInfo(requireActivity().componentName))
         searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
@@ -183,17 +181,16 @@ class AppDrawerFragment : Fragment(), DrawerAppAdapater.OnAppClickListener {
     }
 
     private fun onSwipeClosed(recyclerView: RecyclerView) {
-        val bottomSheet = (requireActivity() as SamSprungOverlay).getBottomSheetMain()
         if (recyclerView.layoutManager is LinearLayoutManager) {
             val manager = recyclerView.layoutManager as LinearLayoutManager
             if (manager.itemCount == 0 || manager.findFirstCompletelyVisibleItemPosition() == 0) {
-                bottomSheet.state = BottomSheetBehavior.STATE_COLLAPSED
+                (requireActivity() as SamSprungOverlay).closeMainDrawer()
             }
         }
         if (recyclerView.layoutManager is GridLayoutManager) {
             val manager = recyclerView.layoutManager as GridLayoutManager
             if (manager.itemCount == 0 || manager.findFirstCompletelyVisibleItemPosition() == 0) {
-                bottomSheet.state = BottomSheetBehavior.STATE_COLLAPSED
+                (requireActivity() as SamSprungOverlay).closeMainDrawer()
             }
         }
     }
