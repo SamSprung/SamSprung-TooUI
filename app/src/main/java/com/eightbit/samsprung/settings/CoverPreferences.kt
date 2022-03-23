@@ -141,7 +141,7 @@ class CoverPreferences : AppCompatActivity() {
 
         prefs = getSharedPreferences(SamSprung.prefsValue, MODE_PRIVATE)
         ScaledContext.screen(this, 2f).setTheme(R.style.Theme_SecondScreen)
-        setContentView(R.layout.cover_settings_layout)
+        setContentView(R.layout.preferences_layout)
         permissionList = findViewById(R.id.permissions)
 
         val componentName = ComponentName(applicationContext, NotificationReceiver::class.java)

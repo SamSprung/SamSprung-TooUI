@@ -68,25 +68,28 @@ class GitBroadcastReceiver : BroadcastReceiver() {
             Intent.ACTION_BOOT_COMPLETED == action
                     || Intent.ACTION_LOCKED_BOOT_COMPLETED == action
                     || Intent.ACTION_REBOOT == action -> {
-                context.startForegroundService(Intent(context, OnBroadcastService::class.java))
+                startBroadcastService(context)
             }
             Intent.ACTION_MY_PACKAGE_REPLACED == action -> {
-                if (BuildConfig.FLAVOR == "google") {
-                    context.startForegroundService(Intent(context, OnBroadcastService::class.java))
-                } else {
-                    context.startActivity(context.packageManager
+                if (BuildConfig.FLAVOR == "google")
+                    startBroadcastService(context)
+                else
+                    startLauncherActivity(context, context.packageManager
                         .getLaunchIntentForPackage(BuildConfig.APPLICATION_ID)
                         ?.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
-                }
             }
             SamSprung.updating == action -> {
                 if (BuildConfig.FLAVOR == "google") return
                 when (intent.getIntExtra(PackageInstaller.EXTRA_STATUS, -1)) {
                     PackageInstaller.STATUS_PENDING_USER_ACTION -> {
                         val activityIntent = intent.getParcelableExtra<Intent>(Intent.EXTRA_INTENT)
-                        if (null != activityIntent)
-                            context.startActivity(activityIntent.addFlags(
-                                Intent.FLAG_ACTIVITY_NEW_TASK))
+                        if (null != activityIntent) {
+                            val intentUri = activityIntent.toUri(0)
+                            startLauncherActivity(context, Intent
+                                .parseUri(intentUri, Intent.URI_INTENT_SCHEME)
+                                .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                            )
+                        }
                     }
                     PackageInstaller.STATUS_SUCCESS -> {
                         // Installation was successful
@@ -100,5 +103,14 @@ class GitBroadcastReceiver : BroadcastReceiver() {
                 }
             }
         }
+        abortBroadcast()
+    }
+
+    private fun startBroadcastService(context: Context) {
+        context.startForegroundService(Intent(context, OnBroadcastService::class.java))
+    }
+
+    private fun startLauncherActivity(context: Context, intent: Intent?) {
+        context.startActivity(intent)
     }
 }
