@@ -84,11 +84,7 @@ class GitBroadcastReceiver : BroadcastReceiver() {
                     PackageInstaller.STATUS_PENDING_USER_ACTION -> {
                         val activityIntent = intent.getParcelableExtra<Intent>(Intent.EXTRA_INTENT)
                         if (null != activityIntent) {
-                            val intentUri = activityIntent.toUri(0)
-                            startLauncherActivity(context, Intent
-                                .parseUri(intentUri, Intent.URI_INTENT_SCHEME)
-                                .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                            )
+                            startUpdateActivity(context, activityIntent)
                         }
                     }
                     PackageInstaller.STATUS_SUCCESS -> {
@@ -111,5 +107,9 @@ class GitBroadcastReceiver : BroadcastReceiver() {
 
     private fun startLauncherActivity(context: Context, intent: Intent?) {
         context.startActivity(intent)
+    }
+
+    private fun startUpdateActivity(context: Context, intent: Intent) {
+        context.startActivity(intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
     }
 }
