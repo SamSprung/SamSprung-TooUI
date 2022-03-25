@@ -103,7 +103,6 @@ class GitBroadcastReceiver : BroadcastReceiver() {
                 }
             }
         }
-        abortBroadcast()
     }
 
     private fun startBroadcastService(context: Context) {

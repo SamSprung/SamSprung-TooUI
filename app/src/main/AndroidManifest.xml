@@ -35,7 +35,6 @@
     <!-- Voice Recognition -->
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
     <!-- Google Play BS -->
-    <permission android:name="intent.redirection.BULLSHIT" />
     <uses-permission android:name="samsprung.permission.WRITE_SETTINGS" />
     <uses-permission android:name="samsprung.permission.READ_SETTINGS" />
 
@@ -58,7 +57,7 @@
         <activity
             android:name=".settings.CoverPreferences"
             android:launchMode="singleTop"
-            android:configChanges="orientation|screenLayout|screenSize|smallestScreenSize"
+            android:configChanges="orientation"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -69,7 +68,7 @@
             android:name=".settings.UpdateShimActivity"
             android:launchMode="singleTop"
             android:theme="@style/Theme.Launcher.NoActionBar"
-            android:configChanges="orientation|screenLayout|screenSize|smallestScreenSize"
+            android:configChanges="orientation"
             android:exported="false"
             android:showOnLockScreen="true"
             android:showWhenLocked="true">
@@ -78,7 +77,7 @@
         <activity
             android:name=".SamSprungOverlay"
             android:theme="@style/Theme.Launcher.NoActionBar"
-            android:configChanges="orientation|screenLayout|screenSize|smallestScreenSize"
+            android:configChanges="orientation"
             android:exported="true"
             android:launchMode="singleTop"
             android:showOnLockScreen="true"
@@ -86,8 +85,7 @@
             <meta-data android:name="com.samsung.android.activity.showWhenLocked" android:value="true"/>
         </activity>
         <receiver android:name=".GitBroadcastReceiver"
-            android:exported="true"
-            android:permission="intent.redirection.BULLSHIT">
+            android:exported="true">
             <intent-filter android:directBootAware="true" android:priority="999">
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
                 <action android:name="android.intent.action.LOCKED_BOOT_COMPLETED" />

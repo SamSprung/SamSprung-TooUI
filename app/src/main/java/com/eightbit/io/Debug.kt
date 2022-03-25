@@ -164,7 +164,7 @@ class Debug(private var context: Context) {
                 .guestEmailRequired(false)
                 .publicIssueUrl(issueUrl)
                 .titleTextDefault(context.getString(R.string.git_issue_title, BuildConfig.COMMIT))
-                .minDescriptionLength(0)
+                .minDescriptionLength(1)
                 .putExtraInfo("logcat", logText)
                 .homeAsUpEnabled(false).launch(context)
             return true
