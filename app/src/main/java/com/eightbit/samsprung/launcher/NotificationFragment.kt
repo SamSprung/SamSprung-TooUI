@@ -82,13 +82,13 @@ import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.eightbit.app.CoverOptions
 import com.eightbit.samsprung.NotificationReceiver
 import com.eightbit.samsprung.R
 import com.eightbit.samsprung.SamSprung
 import com.eightbit.samsprung.SamSprungOverlay
 import com.eightbit.view.OnSwipeTouchListener
 import com.eightbit.widget.RecyclerViewTouch
-import com.google.android.material.bottomsheet.BottomSheetBehavior
 import java.util.*
 
 class NotificationFragment : Fragment(), NotificationAdapter.OnNoticeClickListener {
@@ -174,7 +174,7 @@ class NotificationFragment : Fragment(), NotificationAdapter.OnNoticeClickListen
                     RemoteInput.addResultsToIntent(action.remoteInputs, replyIntent, replyBundle)
                     requireActivity().startIntentSender(action.actionIntent.intentSender,
                         replyIntent, 0, 0, 0,
-                        ActivityOptions.makeBasic().setLaunchDisplayId(1).toBundle())
+                        CoverOptions.getActivityOptions(1).toBundle())
                     replyDialog?.dismiss()
                 }
                 actionEntries.findViewById<AppCompatImageView>(R.id.cancel).setOnClickListener {
@@ -220,7 +220,7 @@ class NotificationFragment : Fragment(), NotificationAdapter.OnNoticeClickListen
                                 Intent.FLAG_ACTIVITY_NO_ANIMATION or
                                 Intent.FLAG_ACTIVITY_FORWARD_RESULT
                         ), onFinished, null, null,
-                        ActivityOptions.makeBasic().setLaunchDisplayId(1).toBundle())
+                        CoverOptions.getActivityOptions(1).toBundle())
                 } catch (ex: Exception) {
                     ex.printStackTrace()
                 }

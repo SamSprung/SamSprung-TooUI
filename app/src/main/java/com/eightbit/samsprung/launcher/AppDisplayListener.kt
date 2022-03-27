@@ -71,6 +71,7 @@ import androidx.appcompat.widget.AppCompatImageView
 import androidx.core.app.NotificationCompat
 import androidx.core.content.ContextCompat
 import androidx.core.view.isVisible
+import com.eightbit.app.CoverOptions
 import com.eightbit.content.ScaledContext
 import com.eightbit.samsprung.AccessibilityObserver
 import com.eightbit.samsprung.OnBroadcastService
@@ -217,7 +218,7 @@ class AppDisplayListener : Service() {
             Process.myUserHandle(),
             (baseContext.getSystemService(WINDOW_SERVICE) as WindowManager)
                 .maximumWindowMetrics.bounds,
-            ActivityOptions.makeBasic().setLaunchDisplayId(display).toBundle()
+            CoverOptions.getActivityOptions(display).toBundle()
         )
     }
 

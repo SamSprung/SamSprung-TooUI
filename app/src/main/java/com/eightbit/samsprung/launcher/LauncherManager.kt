@@ -1,6 +1,5 @@
 package com.eightbit.samsprung.launcher
 
-import android.app.ActivityOptions
 import android.app.PendingIntent
 import android.content.ComponentName
 import android.content.Context
@@ -18,6 +17,7 @@ import android.view.View
 import android.view.WindowManager
 import android.widget.LinearLayout
 import androidx.appcompat.app.AppCompatActivity
+import com.eightbit.app.CoverOptions
 import com.eightbit.content.ScaledContext
 import com.eightbit.samsprung.SamSprung
 import com.eightbit.samsprung.SamSprungOverlay
@@ -62,7 +62,7 @@ class LauncherManager(private val overlay: SamSprungOverlay) {
                     ),
                     Process.myUserHandle(),
                     overlay.windowManager.currentWindowMetrics.bounds,
-                    ActivityOptions.makeBasic().setLaunchDisplayId(1).toBundle()
+                    CoverOptions.getActivityOptions(1).toBundle()
                 )
 
                 val extras = Bundle()
@@ -80,12 +80,15 @@ class LauncherManager(private val overlay: SamSprungOverlay) {
                 if (!unlocked) return
                 overlay.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_LOCKED
                 overlay.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_BEHIND
+                val intent = overlay.packageManager
+                    .getLaunchIntentForPackage(appInfo.packageName)
                 (overlay.getSystemService(AppCompatActivity.LAUNCHER_APPS_SERVICE) as LauncherApps)
-                    .startMainActivity(overlay.packageManager
-                        .getLaunchIntentForPackage(appInfo.packageName)?.component,
+                    .startMainActivity(intent?.component,
                         Process.myUserHandle(),
                         overlay.windowManager.currentWindowMetrics.bounds,
-                        ActivityOptions.makeBasic().setLaunchDisplayId(1).toBundle()
+                        CoverOptions.getAnimatedOptions(
+                            1, overlay.getCoordinator(), intent
+                        ).toBundle()
                     )
 
                 val extras = Bundle()
@@ -100,18 +103,12 @@ class LauncherManager(private val overlay: SamSprungOverlay) {
         overlay.setKeyguardListener(object: SamSprungOverlay.KeyguardListener {
             override fun onKeyguardCheck(unlocked: Boolean) {
                 if (!unlocked) return
-                var onFinished: PendingIntent.OnFinished? = null
-                if (pendingIntent.creatorPackage.toString() == "com.android.systemui") {
-                    onFinished = PendingIntent.OnFinished { pendingIntent, _, _, _, _ ->
-                        val extras = Bundle()
-                        extras.putString("launchPackage", pendingIntent.creatorPackage)
-                        overlay.startForegroundService(Intent(
-                            overlay.applicationContext, AppDisplayListener::class.java
-                        ).putExtras(extras))
-                    }
-                } else {
-                    overlay.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_LOCKED
-                    overlay.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_BEHIND
+                val onFinished = PendingIntent.OnFinished { pendingIntent, _, _, _, _ ->
+                    val extras = Bundle()
+                    extras.putString("launchPackage", pendingIntent.creatorPackage)
+                    overlay.startForegroundService(Intent(
+                        overlay.applicationContext, AppDisplayListener::class.java
+                    ).putExtras(extras))
                 }
 
                 pendingIntent.send(
@@ -120,15 +117,13 @@ class LauncherManager(private val overlay: SamSprungOverlay) {
                             Intent.FLAG_ACTIVITY_NO_ANIMATION or
                             Intent.FLAG_ACTIVITY_FORWARD_RESULT
                     ), onFinished, null, null,
-                    ActivityOptions.makeBasic().setLaunchDisplayId(1).toBundle()
+                    CoverOptions.getActivityOptions(1).toBundle()
                 )
 
-                if (null == onFinished) {
-                    val extras = Bundle()
-                    extras.putString("launchPackage", pendingIntent.intentSender.creatorPackage)
+                val extras = Bundle()
+                extras.putString("launchPackage", pendingIntent.intentSender.creatorPackage)
 
-                    getOrientationManager(extras)
-                }
+                getOrientationManager(extras)
             }
         })
     }

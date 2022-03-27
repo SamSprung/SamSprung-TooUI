@@ -545,6 +545,10 @@ class SamSprungOverlay : AppCompatActivity() {
         bottomSheetBehaviorMain.state = BottomSheetBehavior.STATE_COLLAPSED
     }
 
+    fun getCoordinator() : CoordinatorLayout {
+        return findViewById(R.id.coordinator)
+    }
+
     fun getSearchView() : SearchView {
         return searchView
     }
