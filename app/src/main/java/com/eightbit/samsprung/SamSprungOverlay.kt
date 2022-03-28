@@ -884,7 +884,7 @@ class SamSprungOverlay : AppCompatActivity() {
             anchorView.keepScreenOn = true
             timeoutHandler.postDelayed({
                 anchorView.keepScreenOn = false
-            }, (timeout * 1000 + 300).toLong())
+            }, (timeout * 1000).toLong() + 300)
         }
     }
 
