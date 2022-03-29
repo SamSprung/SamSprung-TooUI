@@ -856,6 +856,9 @@ class SamSprungOverlay : AppCompatActivity() {
                 override fun onAnimationStart(layout: AnimatedLinearLayout) {}
                 override fun onAnimationEnd(layout: AnimatedLinearLayout) {
                     layout.setAnimationListener(null)
+                    Handler(Looper.getMainLooper()).postDelayed({
+                        fakeSnackbar.visibility = View.INVISIBLE
+                    }, 3500)
                 }
             })
             fakeSnackbar.visibility = View.VISIBLE
