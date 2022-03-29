@@ -10,12 +10,16 @@ public class CoverOptions {
     }
 
     public static ActivityOptions getAnimatedOptions(int display, View anchor, Intent intent) {
-        return ActivityOptions.makeScaleUpAnimation(anchor,
-                intent.getSourceBounds().left,
-                intent.getSourceBounds().top,
-                intent.getSourceBounds().width(),
-                intent.getSourceBounds().height()
-        ).setLaunchDisplayId(display).setLaunchBounds(null);
+        if (null != intent.getSourceBounds()) {
+            return ActivityOptions.makeScaleUpAnimation(anchor,
+                    intent.getSourceBounds().left,
+                    intent.getSourceBounds().top,
+                    intent.getSourceBounds().width(),
+                    intent.getSourceBounds().height()
+            ).setLaunchDisplayId(display).setLaunchBounds(null);
+        } else {
+            return getActivityOptions(display);
+        }
     }
 }
 
