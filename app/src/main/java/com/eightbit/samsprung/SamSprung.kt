@@ -91,6 +91,7 @@ class SamSprung : Application() {
         const val prefThemes: String = "prefThemes"
         const val prefDelays: String = "prefDelays"
         const val prefReacts: String = "prefReacts"
+        const val prefSearch: String = "prefSearch"
     }
 
     override fun onCreate() {

@@ -116,19 +116,23 @@ class AppDrawerFragment : Fragment(), DrawerAppAdapater.OnAppClickListener {
             packages, this, requireActivity().packageManager, prefs)
 
         val searchView = (requireActivity() as SamSprungOverlay).getSearchView()
-        val searchManager = requireActivity().getSystemService(AppCompatActivity.SEARCH_SERVICE) as SearchManager
-        searchView.setSearchableInfo(searchManager.getSearchableInfo(requireActivity().componentName))
-        searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
-            override fun onQueryTextSubmit(query: String): Boolean {
-                (launcherView.adapter as DrawerAppAdapater).setQuery(query)
-                return false
-            }
+        if (null != searchView) {
+            val searchManager = requireActivity()
+                .getSystemService(AppCompatActivity.SEARCH_SERVICE) as SearchManager
+            searchView.setSearchableInfo(searchManager
+                .getSearchableInfo(requireActivity().componentName))
+            searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
+                override fun onQueryTextSubmit(query: String): Boolean {
+                    (launcherView.adapter as DrawerAppAdapater).setQuery(query)
+                    return false
+                }
 
-            override fun onQueryTextChange(query: String): Boolean {
-                (launcherView.adapter as DrawerAppAdapater).setQuery(query)
-                return true
-            }
-        })
+                override fun onQueryTextChange(query: String): Boolean {
+                    (launcherView.adapter as DrawerAppAdapater).setQuery(query)
+                    return true
+                }
+            })
+        }
 
         RecyclerViewTouch(launcherView).setSwipeCallback(ItemTouchHelper.DOWN,
             object: RecyclerViewTouch.SwipeCallback {

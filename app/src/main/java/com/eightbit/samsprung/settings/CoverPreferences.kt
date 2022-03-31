@@ -88,6 +88,7 @@ import androidx.core.content.ContextCompat
 import androidx.core.graphics.blue
 import androidx.core.graphics.green
 import androidx.core.graphics.red
+import androidx.core.view.isGone
 import androidx.core.view.isVisible
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -289,6 +290,18 @@ class CoverPreferences : AppCompatActivity() {
         }
         updatesPanel.isVisible = BuildConfig.FLAVOR != "google"
 
+        val search = findViewById<SwitchCompat>(R.id.search_switch)
+        search.isChecked = prefs.getBoolean(SamSprung.prefSearch, true)
+        search.setOnCheckedChangeListener { _, isChecked ->
+            with(prefs.edit()) {
+                putBoolean(SamSprung.prefSearch, isChecked)
+                apply()
+            }
+        }
+        findViewById<LinearLayout>(R.id.search).setOnClickListener {
+            search.isChecked = !search.isChecked
+        }
+
         val draggable = findViewById<SwitchCompat>(R.id.draggable_switch)
         draggable.isChecked = prefs.getBoolean(SamSprung.prefSlider, true)
         draggable.setOnCheckedChangeListener { _, isChecked ->
@@ -299,6 +312,18 @@ class CoverPreferences : AppCompatActivity() {
         }
         findViewById<LinearLayout>(R.id.draggable).setOnClickListener {
             draggable.isChecked = !draggable.isChecked
+        }
+
+        val vibration = findViewById<SwitchCompat>(R.id.vibration_switch)
+        vibration.isChecked = prefs.getBoolean(SamSprung.prefReacts, true)
+        vibration.setOnCheckedChangeListener { _, isChecked ->
+            with(prefs.edit()) {
+                putBoolean(SamSprung.prefReacts, isChecked)
+                apply()
+            }
+        }
+        findViewById<LinearLayout>(R.id.vibration).setOnClickListener {
+            vibration.isChecked = !vibration.isChecked
         }
 
         val timeoutBar = findViewById<SeekBar>(R.id.timeout_bar)
@@ -323,18 +348,6 @@ class CoverPreferences : AppCompatActivity() {
         val textDelay = (if (timeoutBar.progress > 4) timeoutBar.progress else
             DecimalFormatSymbols.getInstance().infinity).toString()
         timeoutText.text = getString(R.string.options_timeout, textDelay)
-
-        val vibration = findViewById<SwitchCompat>(R.id.vibration_switch)
-        vibration.isChecked = prefs.getBoolean(SamSprung.prefReacts, true)
-        vibration.setOnCheckedChangeListener { _, isChecked ->
-            with(prefs.edit()) {
-                putBoolean(SamSprung.prefReacts, isChecked)
-                apply()
-            }
-        }
-        findViewById<LinearLayout>(R.id.vibration).setOnClickListener {
-            vibration.isChecked = !vibration.isChecked
-        }
 
         val placementBar = findViewById<SeekBar>(R.id.placement_bar)
         placementBar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
@@ -376,6 +389,12 @@ class CoverPreferences : AppCompatActivity() {
                 putBoolean(SamSprung.prefLayout, isChecked)
                 apply()
             }
+        }
+
+        val general = findViewById<LinearLayout>(R.id.general)
+        general.visibility = View.GONE
+        findViewById<View>(R.id.general_heading).setOnClickListener {
+            general.isGone = general.isVisible
         }
 
         val packageRetriever = PackageRetriever(this)
@@ -520,23 +539,6 @@ class CoverPreferences : AppCompatActivity() {
                     }
                 })
                 colorPanel.startAnimation(animate)
-                val divider = findViewById<View>(R.id.color_divider)
-                val follow = TranslateAnimation(
-                    0f, 0f, 0f, -colorPanel.height.toFloat()
-                )
-                follow.duration = 750
-                follow.fillAfter = false
-                follow.setAnimationListener(object : Animation.AnimationListener {
-                    override fun onAnimationEnd(animation: Animation?) {
-                        divider.clearAnimation()
-                        animation?.setAnimationListener(null)
-                    }
-
-                    override fun onAnimationRepeat(animation: Animation?) {}
-
-                    override fun onAnimationStart(animation: Animation?) {}
-                })
-                divider.startAnimation(follow)
             } else {
                 colorPanel.visibility = View.VISIBLE
                 colorHandler.postDelayed({

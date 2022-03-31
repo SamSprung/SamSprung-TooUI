@@ -4,12 +4,14 @@
     <string name="permission_notifications">Notifications</string>
     <string name="permission_usage">Usage Metrics</string>
     <string name="permission_accessibility">Accessibility</string>
-    <string name="interface_options">Configuration</string>
+    <string name="config_options">Configuration</string>
     <string name="options_keyboard">Keyboard / IME</string>
     <string name="updates_preference">Preview Builds</string>
+    <string name="general_options">App Interface</string>
+    <string name="options_search">App Search Bar</string>
     <string name="options_draggable">Drawer Gesture</string>
-    <string name="options_timeout">Screen Timeout (%1$s)</string>
     <string name="options_vibration">Touch Feedback</string>
+    <string name="options_timeout">Screen Timeout (%1$s)</string>
     <string name="options_placement">Icon Alignment</string>
     <string name="options_theme">Theme Selection</string>
     <string-array name="theme_options">

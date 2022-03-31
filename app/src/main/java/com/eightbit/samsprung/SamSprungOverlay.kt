@@ -140,7 +140,6 @@ class SamSprungOverlay : AppCompatActivity() {
     private lateinit var bottomSheetBehaviorMain: BottomSheetBehavior<View>
     private lateinit var viewPager: ViewPager2
     private lateinit var pagerAdapter: FragmentStateAdapter
-    private lateinit var searchView: SearchView
 
     private inner class FavoritesChangeObserver : ContentObserver(Handler(Looper.getMainLooper())) {
         override fun onChange(selfChange: Boolean) {
@@ -407,21 +406,25 @@ class SamSprungOverlay : AppCompatActivity() {
         pagerAdapter = CoverStateAdapter(this)
         viewPager.adapter = pagerAdapter
 
-        searchView = findViewById(R.id.package_search)
-        searchView.isSubmitButtonEnabled = false
-        searchView.setIconifiedByDefault(true)
-        searchView.findViewById<LinearLayout>(R.id.search_bar)?.run {
-            this.layoutParams = this.layoutParams.apply {
-                height = TypedValue.applyDimension(
-                    TypedValue.COMPLEX_UNIT_DIP,
-                    20f, resources.displayMetrics).toInt()
+        val searchView = getSearchView()
+        if (null != searchView) {
+            searchView.isSubmitButtonEnabled = false
+            searchView.setIconifiedByDefault(true)
+            searchView.findViewById<LinearLayout>(R.id.search_bar)?.run {
+                this.layoutParams = this.layoutParams.apply {
+                    height = TypedValue.applyDimension(
+                        TypedValue.COMPLEX_UNIT_DIP,
+                        20f, resources.displayMetrics).toInt()
+                }
             }
+        } else {
+            findViewById<SearchView>(R.id.package_search).visibility = View.GONE
         }
 
         viewPager.registerOnPageChangeCallback(object: ViewPager2.OnPageChangeCallback() {
             override fun onPageSelected(position: Int) {
                 super.onPageSelected(position)
-                searchView.isGone = position != 1
+                getSearchView()?.isGone = position != 1
                 val bottomSheetMain = findViewById<View>(R.id.bottom_sheet_main)
                 if (position == 0 && bottomSheetBehaviorMain.state
                     == BottomSheetBehavior.STATE_EXPANDED) {
@@ -565,8 +568,10 @@ class SamSprungOverlay : AppCompatActivity() {
         return findViewById(R.id.coordinator)
     }
 
-    fun getSearchView() : SearchView {
-        return searchView
+    fun getSearchView() : SearchView? {
+        return if (prefs.getBoolean(SamSprung.prefSearch, true))
+            findViewById(R.id.package_search)
+        else null
     }
 
     private var skipUpdateCheck = false
@@ -694,7 +699,7 @@ class SamSprungOverlay : AppCompatActivity() {
                 launcherManager?.launchDefaultActivity(matchedApps[0])
             } else {
                 bottomSheetBehaviorMain.state = BottomSheetBehavior.STATE_EXPANDED
-                getSearchView().setQuery(launchCommand, true)
+                getSearchView()?.setQuery(launchCommand, true)
             }
         }
         menuButton.keepScreenOn = false

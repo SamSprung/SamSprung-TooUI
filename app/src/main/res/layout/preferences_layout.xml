@@ -169,7 +169,7 @@
                 android:layout_marginStart="14dp"
                 android:textColor="?android:textColorPrimary"
                 android:gravity="center_vertical"
-                android:text="@string/interface_options" />
+                android:text="@string/config_options" />
 
             <View
                 android:layout_width="match_parent"
@@ -236,198 +236,259 @@
                     android:layout_height="wrap_content" />
             </LinearLayout>
 
-            <LinearLayout
-                android:id="@+id/draggable"
+            <View
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:layout_marginStart="16dp"
-                android:layout_marginEnd="8dp"
-                android:layout_gravity="center_vertical"
-                tools:ignore="UseCompoundDrawables">
-
-                <TextView
-                    android:layout_width="0dp"
-                    android:layout_weight="1"
-                    android:textSize="26sp"
-                    android:textColor="?android:textColorPrimary"
-                    android:gravity="center_vertical"
-                    android:layout_height="wrap_content"
-                    android:text="@string/options_draggable" />
-
-                <androidx.appcompat.widget.SwitchCompat
-                    android:id="@+id/draggable_switch"
-                    android:layout_width="0dp"
-                    android:gravity="center"
-                    android:layout_weight="1"
-                    android:textSize="26sp"
-                    android:textColor="?android:textColorPrimary"
-                    android:layout_height="wrap_content" />
-            </LinearLayout>
-
-            <LinearLayout
-                android:id="@+id/timeout"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:layout_marginStart="16dp"
-                android:layout_marginEnd="8dp"
-                android:layout_gravity="center_vertical"
-                tools:ignore="UseCompoundDrawables">
-
-                <TextView
-                    android:id="@+id/timeout_text"
-                    android:layout_width="0dp"
-                    android:layout_weight="1"
-                    android:textSize="26sp"
-                    android:textColor="?android:textColorPrimary"
-                    android:gravity="center_vertical"
-                    android:layout_height="wrap_content"
-                    android:text="@string/options_timeout" />
-
-                <SeekBar
-                    android:id="@+id/timeout_bar"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center"
-                    android:gravity="center"
-                    android:layout_weight="1"
-                    android:min="4"
-                    android:max="60"
-                    android:progress="5"/>
-            </LinearLayout>
-
-            <LinearLayout
-                android:id="@+id/vibration"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:layout_marginStart="16dp"
-                android:layout_marginEnd="8dp"
-                android:layout_gravity="center_vertical"
-                tools:ignore="UseCompoundDrawables">
-
-                <TextView
-                    android:layout_width="0dp"
-                    android:layout_weight="1"
-                    android:textSize="26sp"
-                    android:textColor="?android:textColorPrimary"
-                    android:gravity="center_vertical"
-                    android:layout_height="wrap_content"
-                    android:text="@string/options_vibration" />
-
-                <androidx.appcompat.widget.SwitchCompat
-                    android:id="@+id/vibration_switch"
-                    android:layout_width="0dp"
-                    android:gravity="center"
-                    android:layout_weight="1"
-                    android:textSize="26sp"
-                    android:textColor="?android:textColorPrimary"
-                    android:layout_height="wrap_content" />
-            </LinearLayout>
-
-            <LinearLayout
-                android:id="@+id/placement"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:layout_marginStart="16dp"
-                android:layout_marginEnd="8dp"
-                android:layout_gravity="center_vertical"
-                tools:ignore="UseCompoundDrawables">
-
-                <TextView
-                    android:layout_width="0dp"
-                    android:layout_weight="1"
-                    android:textSize="26sp"
-                    android:textColor="?android:textColorPrimary"
-                    android:gravity="center_vertical"
-                    android:layout_height="wrap_content"
-                    android:text="@string/options_placement" />
-
-                <SeekBar
-                    android:id="@+id/placement_bar"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center"
-                    android:gravity="center"
-                    android:layout_weight="1"
-                    android:max="2"
-                    android:progress="2"
-                    android:thumb="@drawable/ic_baseline_samsprung_24dp"/>
-            </LinearLayout>
-
-            <LinearLayout
-                android:id="@+id/theme"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:layout_marginStart="16dp"
-                android:layout_marginEnd="8dp"
-                android:layout_gravity="center_vertical"
-                tools:ignore="UseCompoundDrawables">
-
-                <TextView
-                    android:layout_width="0dp"
-                    android:layout_weight="1"
-                    android:textSize="26sp"
-                    android:textColor="?android:textColorPrimary"
-                    android:gravity="center_vertical"
-                    android:layout_gravity="center_vertical"
-                    android:layout_height="wrap_content"
-                    android:text="@string/options_theme" />
-
-                <Spinner
-                    android:id="@+id/theme_spinner"
-                    style="?android:attr/dropDownSpinnerStyle"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:textAlignment="center"
-                    android:background="@android:drawable/btn_dropdown"
-                    android:spinnerMode="dropdown"/>
-            </LinearLayout>
-
-            <include
-                layout="@layout/toolbar_options"
-                android:id="@+id/toolbar_options" />
-
-            <ToggleButton
-                android:id="@+id/swapViewType"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:minHeight="@dimen/button_height_min"
-                android:textOff="@string/swap_viewgrid"
-                android:textOn="@string/swap_viewlist"
-                android:layout_marginStart="2dp"
-                android:layout_marginEnd="2dp"
-                android:layout_marginBottom="2dp"/>
+                android:layout_height="1dp"
+                android:background="?colorPrimary"
+                android:layout_marginTop="4dp"
+                android:paddingTop="4dp"
+                android:layout_marginBottom="4dp"/>
 
             <TextView
+                android:id="@+id/general_heading"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:textSize="16sp"
-                android:layout_marginStart="16dp"
-                android:layout_marginEnd="16dp"
+                android:layout_marginStart="14dp"
                 android:textColor="?android:textColorPrimary"
-                android:gravity="center"
-                android:text="@string/color_theme" />
+                android:gravity="center_vertical"
+                android:text="@string/general_options" />
 
             <View
-                android:id="@+id/color_composite"
                 android:layout_width="match_parent"
-                android:layout_height="18dp"
-                android:layout_marginTop="10dp"
-                android:layout_marginBottom="8dp"
-                android:layout_marginStart="8dp"
-                android:layout_marginEnd="10dp" />
+                android:layout_height="1dp"
+                android:background="?colorPrimary"
+                android:layout_marginTop="4dp"
+                android:layout_marginBottom="8dp"/>
 
-            <include
-                layout="@layout/color_panel"
-                android:id="@+id/color_panel" />
+            <LinearLayout
+                android:id="@+id/general"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textSize="16sp"
+                    android:layout_marginStart="16dp"
+                    android:layout_marginEnd="16dp"
+                    android:textColor="?android:textColorPrimary"
+                    android:gravity="center"
+                    android:text="@string/color_theme" />
+
+                <View
+                    android:id="@+id/color_composite"
+                    android:layout_width="match_parent"
+                    android:layout_height="18dp"
+                    android:layout_marginTop="10dp"
+                    android:layout_marginBottom="8dp"
+                    android:layout_marginStart="8dp"
+                    android:layout_marginEnd="10dp" />
+
+                <include
+                    layout="@layout/color_panel"
+                    android:id="@+id/color_panel" />
+
+                <LinearLayout
+                    android:id="@+id/search"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:layout_marginStart="16dp"
+                    android:layout_marginEnd="8dp"
+                    android:layout_gravity="center_vertical"
+                    tools:ignore="UseCompoundDrawables">
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_weight="1"
+                        android:textSize="26sp"
+                        android:textColor="?android:textColorPrimary"
+                        android:gravity="center_vertical"
+                        android:layout_height="wrap_content"
+                        android:text="@string/options_search" />
+
+                    <androidx.appcompat.widget.SwitchCompat
+                        android:id="@+id/search_switch"
+                        android:layout_width="0dp"
+                        android:gravity="center"
+                        android:layout_weight="1"
+                        android:textSize="26sp"
+                        android:textColor="?android:textColorPrimary"
+                        android:layout_height="wrap_content" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/draggable"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:layout_marginStart="16dp"
+                    android:layout_marginEnd="8dp"
+                    android:layout_gravity="center_vertical"
+                    tools:ignore="UseCompoundDrawables">
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_weight="1"
+                        android:textSize="26sp"
+                        android:textColor="?android:textColorPrimary"
+                        android:gravity="center_vertical"
+                        android:layout_height="wrap_content"
+                        android:text="@string/options_draggable" />
+
+                    <androidx.appcompat.widget.SwitchCompat
+                        android:id="@+id/draggable_switch"
+                        android:layout_width="0dp"
+                        android:gravity="center"
+                        android:layout_weight="1"
+                        android:textSize="26sp"
+                        android:textColor="?android:textColorPrimary"
+                        android:layout_height="wrap_content" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/vibration"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:layout_marginStart="16dp"
+                    android:layout_marginEnd="8dp"
+                    android:layout_gravity="center_vertical"
+                    tools:ignore="UseCompoundDrawables">
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_weight="1"
+                        android:textSize="26sp"
+                        android:textColor="?android:textColorPrimary"
+                        android:gravity="center_vertical"
+                        android:layout_height="wrap_content"
+                        android:text="@string/options_vibration" />
+
+                    <androidx.appcompat.widget.SwitchCompat
+                        android:id="@+id/vibration_switch"
+                        android:layout_width="0dp"
+                        android:gravity="center"
+                        android:layout_weight="1"
+                        android:textSize="26sp"
+                        android:textColor="?android:textColorPrimary"
+                        android:layout_height="wrap_content" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/timeout"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:layout_marginStart="16dp"
+                    android:layout_marginEnd="8dp"
+                    android:layout_gravity="center_vertical"
+                    tools:ignore="UseCompoundDrawables">
+
+                    <TextView
+                        android:id="@+id/timeout_text"
+                        android:layout_width="0dp"
+                        android:layout_weight="1"
+                        android:textSize="26sp"
+                        android:textColor="?android:textColorPrimary"
+                        android:gravity="center_vertical"
+                        android:layout_height="wrap_content"
+                        android:text="@string/options_timeout" />
+
+                    <SeekBar
+                        android:id="@+id/timeout_bar"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:gravity="center"
+                        android:layout_weight="1"
+                        android:min="4"
+                        android:max="60"
+                        android:progress="5"/>
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/placement"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:layout_marginStart="16dp"
+                    android:layout_marginEnd="8dp"
+                    android:layout_gravity="center_vertical"
+                    tools:ignore="UseCompoundDrawables">
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_weight="1"
+                        android:textSize="26sp"
+                        android:textColor="?android:textColorPrimary"
+                        android:gravity="center_vertical"
+                        android:layout_height="wrap_content"
+                        android:text="@string/options_placement" />
+
+                    <SeekBar
+                        android:id="@+id/placement_bar"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:gravity="center"
+                        android:layout_weight="1"
+                        android:max="2"
+                        android:progress="2"
+                        android:thumb="@drawable/ic_baseline_samsprung_24dp"/>
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/theme"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:layout_marginStart="16dp"
+                    android:layout_marginEnd="8dp"
+                    android:layout_gravity="center_vertical"
+                    tools:ignore="UseCompoundDrawables">
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_weight="1"
+                        android:textSize="26sp"
+                        android:textColor="?android:textColorPrimary"
+                        android:gravity="center_vertical"
+                        android:layout_gravity="center_vertical"
+                        android:layout_height="wrap_content"
+                        android:text="@string/options_theme" />
+
+                    <Spinner
+                        android:id="@+id/theme_spinner"
+                        style="?android:attr/dropDownSpinnerStyle"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:textAlignment="center"
+                        android:background="@android:drawable/btn_dropdown"
+                        android:spinnerMode="dropdown"/>
+                </LinearLayout>
+
+                <include
+                    layout="@layout/toolbar_options"
+                    android:id="@+id/toolbar_options" />
+
+                <ToggleButton
+                    android:id="@+id/swapViewType"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:minHeight="@dimen/button_height_min"
+                    android:textOff="@string/swap_viewgrid"
+                    android:textOn="@string/swap_viewlist"
+                    android:layout_marginStart="2dp"
+                    android:layout_marginEnd="2dp"
+                    android:layout_marginBottom="2dp"/>
+
+            </LinearLayout>
 
             <View
-                android:id="@+id/color_divider"
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
                 android:background="?colorPrimary"
