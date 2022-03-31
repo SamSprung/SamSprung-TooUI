@@ -85,6 +85,7 @@ import androidx.appcompat.widget.AppCompatImageView
 import androidx.appcompat.widget.SearchView
 import androidx.appcompat.widget.Toolbar
 import androidx.coordinatorlayout.widget.CoordinatorLayout
+import androidx.core.app.ActivityOptionsCompat
 import androidx.core.content.ContextCompat
 import androidx.core.view.GravityCompat
 import androidx.core.view.WindowCompat
@@ -123,6 +124,7 @@ class SamSprungOverlay : AppCompatActivity() {
 
     private var background: Drawable? = null
 
+    private lateinit var toolbar: Toolbar
     private lateinit var wifiManager: WifiManager
     private lateinit var bluetoothAdapter: BluetoothAdapter
     private lateinit var nfcAdapter: NfcAdapter
@@ -243,30 +245,12 @@ class SamSprungOverlay : AppCompatActivity() {
         }
 
         val clock = findViewById<TextClock>(R.id.clock_status)
-        val toolbar = findViewById<Toolbar>(R.id.toolbar)
+        toolbar = findViewById(R.id.toolbar)
         toolbar.inflateMenu(R.menu.cover_quick_toggles)
 
         var color = configureMenuIcons(toolbar)
         batteryLevel.setTextColor(color)
         clock.setTextColor(color)
-
-        val wifiEnabler = registerForActivityResult(
-            ActivityResultContracts.StartActivityForResult()) {
-            if (wifiManager.isWifiEnabled)
-                toolbar.menu.findItem(R.id.toggle_wifi).setIcon(R.drawable.ic_baseline_wifi_on_24dp)
-            else
-                toolbar.menu.findItem(R.id.toggle_wifi).setIcon(R.drawable.ic_baseline_wifi_off_24dp)
-            toolbar.menu.findItem(R.id.toggle_wifi).icon.setTint(color)
-        }
-
-        val nfcEnabler = registerForActivityResult(
-            ActivityResultContracts.StartActivityForResult()) {
-            if (nfcAdapter.isEnabled)
-                toolbar.menu.findItem(R.id.toggle_nfc).setIcon(R.drawable.ic_baseline_nfc_on_24dp)
-            else
-                toolbar.menu.findItem(R.id.toggle_nfc).setIcon(R.drawable.ic_baseline_nfc_off_24dp)
-            toolbar.menu.findItem(R.id.toggle_nfc).icon.setTint(color)
-        }
 
         val buttonAuth = findViewById<AppCompatImageView>(R.id.button_auth)
         val keyguardManager = (getSystemService(Context.KEYGUARD_SERVICE) as KeyguardManager)
@@ -282,72 +266,82 @@ class SamSprungOverlay : AppCompatActivity() {
             @SuppressLint("MissingPermission")
             override fun onStateChanged(bottomSheet: View, newState: Int) {
                 if (newState == BottomSheetBehavior.STATE_EXPANDED) {
-                    toolbar.setOnMenuItemClickListener { item: MenuItem ->
-                        when (item.itemId) {
-                            R.id.toggle_wifi -> {
-                                wifiEnabler.launch(Intent(Settings.Panel.ACTION_INTERNET_CONNECTIVITY))
-                                return@setOnMenuItemClickListener true
-                            }
-                            R.id.toggle_bluetooth -> {
-                                if (bluetoothAdapter.isEnabled) {
-                                    bluetoothAdapter.disable()
-                                    item.setIcon(R.drawable.ic_baseline_bluetooth_off_24dp)
-                                } else {
-                                    bluetoothAdapter.enable()
-                                    item.setIcon(R.drawable.ic_baseline_bluetooth_on_24dp)
-                                }
-                                item.icon.setTint(color)
-                                return@setOnMenuItemClickListener true
-                            }
-                            R.id.toggle_nfc -> {
-                                nfcEnabler.launch(Intent(Settings.Panel.ACTION_NFC))
-                                return@setOnMenuItemClickListener true
-                            }
-                            R.id.toggle_sound -> {
-                                if (audioManager.ringerMode == AudioManager.RINGER_MODE_NORMAL) {
-                                    audioManager.ringerMode = AudioManager.RINGER_MODE_SILENT
-                                    item.setIcon(R.drawable.ic_baseline_sound_off_24dp)
-                                } else {
-                                    audioManager.ringerMode = AudioManager.RINGER_MODE_NORMAL
-                                    item.setIcon(R.drawable.ic_baseline_sound_on_24dp)
-                                }
-                                item.icon.setTint(color)
-                                return@setOnMenuItemClickListener true
-                            }
-                            R.id.toggle_dnd -> {
-                                if (notificationManager.currentInterruptionFilter ==
-                                    NotificationManager.INTERRUPTION_FILTER_ALL) {
-                                    notificationManager.setInterruptionFilter(
-                                        NotificationManager.INTERRUPTION_FILTER_NONE)
-                                    item.setIcon(R.drawable.ic_baseline_do_not_disturb_on_24dp)
-                                } else {
-                                    notificationManager.setInterruptionFilter(
-                                        NotificationManager.INTERRUPTION_FILTER_ALL)
-                                    item.setIcon(R.drawable.ic_baseline_do_not_disturb_off_24dp)
-                                }
-                                item.icon.setTint(color)
-                                return@setOnMenuItemClickListener true
-                            }
-                            R.id.toggle_torch -> {
-                                if (isTorchEnabled) {
-                                    item.setIcon(R.drawable.ic_baseline_flashlight_off_24dp)
-                                } else {
-                                    item.setIcon(R.drawable.ic_baseline_flashlight_on_24dp)
-                                }
-                                item.icon.setTint(color)
-                                camManager.setTorchMode(camManager.cameraIdList[0], !isTorchEnabled)
-                                return@setOnMenuItemClickListener true
-                            }
-                            R.id.toggle_widgets -> {
-                                widgetManager?.showAddDialog(viewPager)
+                    setKeyguardListener(object: KeyguardListener {
+                        override fun onKeyguardCheck(unlocked: Boolean) {
+                            if (!unlocked) {
                                 bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
-                                return@setOnMenuItemClickListener false
+                                return
                             }
-                            else -> {
-                                return@setOnMenuItemClickListener false
+                            toolbar.setOnMenuItemClickListener { item: MenuItem ->
+                                when (item.itemId) {
+                                    R.id.toggle_wifi -> {
+                                        wifiEnabler.launch(
+                                            Intent(Settings.Panel.ACTION_INTERNET_CONNECTIVITY)
+                                        )
+                                        return@setOnMenuItemClickListener true
+                                    }
+                                    R.id.toggle_bluetooth -> {
+                                        if (bluetoothAdapter.isEnabled) {
+                                            bluetoothAdapter.disable()
+                                            item.setIcon(R.drawable.ic_baseline_bluetooth_off_24dp)
+                                        } else {
+                                            bluetoothAdapter.enable()
+                                            item.setIcon(R.drawable.ic_baseline_bluetooth_on_24dp)
+                                        }
+                                        item.icon.setTint(color)
+                                        return@setOnMenuItemClickListener true
+                                    }
+                                    R.id.toggle_nfc -> {
+                                        nfcEnabler.launch(Intent(Settings.Panel.ACTION_NFC))
+                                        return@setOnMenuItemClickListener true
+                                    }
+                                    R.id.toggle_sound -> {
+                                        if (audioManager.ringerMode == AudioManager.RINGER_MODE_NORMAL) {
+                                            audioManager.ringerMode = AudioManager.RINGER_MODE_SILENT
+                                            item.setIcon(R.drawable.ic_baseline_sound_off_24dp)
+                                        } else {
+                                            audioManager.ringerMode = AudioManager.RINGER_MODE_NORMAL
+                                            item.setIcon(R.drawable.ic_baseline_sound_on_24dp)
+                                        }
+                                        item.icon.setTint(color)
+                                        return@setOnMenuItemClickListener true
+                                    }
+                                    R.id.toggle_dnd -> {
+                                        if (notificationManager.currentInterruptionFilter ==
+                                            NotificationManager.INTERRUPTION_FILTER_ALL) {
+                                            notificationManager.setInterruptionFilter(
+                                                NotificationManager.INTERRUPTION_FILTER_NONE)
+                                            item.setIcon(R.drawable.ic_baseline_do_not_disturb_on_24dp)
+                                        } else {
+                                            notificationManager.setInterruptionFilter(
+                                                NotificationManager.INTERRUPTION_FILTER_ALL)
+                                            item.setIcon(R.drawable.ic_baseline_do_not_disturb_off_24dp)
+                                        }
+                                        item.icon.setTint(color)
+                                        return@setOnMenuItemClickListener true
+                                    }
+                                    R.id.toggle_torch -> {
+                                        if (isTorchEnabled) {
+                                            item.setIcon(R.drawable.ic_baseline_flashlight_off_24dp)
+                                        } else {
+                                            item.setIcon(R.drawable.ic_baseline_flashlight_on_24dp)
+                                        }
+                                        item.icon.setTint(color)
+                                        camManager.setTorchMode(camManager.cameraIdList[0], !isTorchEnabled)
+                                        return@setOnMenuItemClickListener true
+                                    }
+                                    R.id.toggle_widgets -> {
+                                        widgetManager?.showAddDialog(viewPager)
+                                        bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
+                                        return@setOnMenuItemClickListener false
+                                    }
+                                    else -> {
+                                        return@setOnMenuItemClickListener false
+                                    }
+                                }
                             }
                         }
-                    }
+                    })
                 } else if (newState == BottomSheetBehavior.STATE_COLLAPSED) {
                     hasConfigured = false
                     toggleStats.removeAllViews()
@@ -521,6 +515,28 @@ class SamSprungOverlay : AppCompatActivity() {
                 return@setOnLongClickListener true
             }
         }
+    }
+
+    private val wifiEnabler = registerForActivityResult(
+        ActivityResultContracts.StartActivityForResult()) {
+        if (wifiManager.isWifiEnabled)
+            toolbar.menu.findItem(R.id.toggle_wifi).setIcon(R.drawable.ic_baseline_wifi_on_24dp)
+        else
+            toolbar.menu.findItem(R.id.toggle_wifi).setIcon(R.drawable.ic_baseline_wifi_off_24dp)
+        toolbar.menu.findItem(R.id.toggle_wifi).icon.setTint(
+            prefs.getInt(SamSprung.prefColors, Color.rgb(255, 255, 255))
+        )
+    }
+
+    private val nfcEnabler = registerForActivityResult(
+        ActivityResultContracts.StartActivityForResult()) {
+        if (nfcAdapter.isEnabled)
+            toolbar.menu.findItem(R.id.toggle_nfc).setIcon(R.drawable.ic_baseline_nfc_on_24dp)
+        else
+            toolbar.menu.findItem(R.id.toggle_nfc).setIcon(R.drawable.ic_baseline_nfc_off_24dp)
+        toolbar.menu.findItem(R.id.toggle_nfc).icon.setTint(
+            prefs.getInt(SamSprung.prefColors, Color.rgb(255, 255, 255))
+        )
     }
 
     private fun setBottomTheme(bottomHandle: View, menuButton: FloatingActionButton) {

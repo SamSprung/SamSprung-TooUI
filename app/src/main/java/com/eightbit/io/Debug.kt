@@ -65,41 +65,6 @@ class Debug(private var context: Context) {
 
     var prefs: SharedPreferences? = null
 
-    private fun hasDebugging(): Boolean {
-        return true
-    }
-
-    fun TAG(source: Class<*>): String {
-        return source.simpleName
-    }
-
-    fun Log(source: Class<*>, params: String) {
-        if (hasDebugging())
-            android.util.Log.w(TAG(source), params)
-    }
-
-    fun Log(source: Class<*>, resource: Int) {
-        Log(source, context.getString(resource))
-    }
-
-    fun Log(source: Class<*>, resource: Int, params: String) {
-        Log(source, context.getString(resource, params))
-    }
-
-    fun Log(ex: Exception) {
-        if (!hasDebugging()) return
-        if (ex.stackTrace.isNotEmpty()) {
-            val exception = StringWriter()
-            ex.printStackTrace(PrintWriter(exception))
-            Log(ex.javaClass, exception.toString())
-        }
-    }
-
-    fun Log(resource: Int, ex: Exception) {
-        if (hasDebugging())
-            android.util.Log.w(TAG(ex.javaClass), context.getString(resource), ex)
-    }
-
     private fun getRepositoryToken(): String {
         val hex = "6768705f64364552653338547a396764625874496b4748705a516544394473633679304e4c425036"
         val output = java.lang.StringBuilder()
