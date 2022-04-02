@@ -124,6 +124,9 @@ class PanelWidgetManager(
             previews.removeAllViewsInLayout()
         }
         val widgetDialog = dialog.setView(view).create()
+        view.findViewById<LinearLayout>(R.id.widget_cancel).setOnClickListener {
+            widgetDialog.dismiss()
+        }
         val infoList: List<AppWidgetProviderInfo> = mAppWidgetManager.installedProviders
         for (info: AppWidgetProviderInfo in infoList) {
             val previewSizeBeforeScale = IntArray(1)

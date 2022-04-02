@@ -78,6 +78,7 @@
     <string name="auth_unavailable">Bixby unlock required to continue!</string>
     <string name="auth_required">Fingerprint required to continue!</string>
 
+    <string name="widget_cancel">Cancel Widget Selection</string>
     <!-- Error message when user has filled a panel or cancelled configuration -->
     <string name="out_of_space">Cancelled adding widget</string>
     <!-- Text to show user in place of a widget when we can't display it properly -->
