@@ -914,6 +914,11 @@ class SamSprungOverlay : AppCompatActivity() {
                 animate.fillAfter = false
                 it.visibility = View.GONE
             }
+            Handler(Looper.getMainLooper()).postDelayed({
+                animate.fillAfter = false
+                fakeSnackbar.setOnClickListener(null)
+                fakeSnackbar.visibility = View.GONE
+            }, 5500)
         }
     }
 
