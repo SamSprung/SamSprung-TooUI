@@ -79,6 +79,7 @@ import java.util.concurrent.Executors
 class AppDrawerFragment : Fragment(), DrawerAppAdapater.OnAppClickListener {
 
     private var launcherManager: LauncherManager? = null
+    private lateinit var launcherView: RecyclerView
     private var packReceiver: BroadcastReceiver? = null
 
     override fun onCreateView(
@@ -99,10 +100,10 @@ class AppDrawerFragment : Fragment(), DrawerAppAdapater.OnAppClickListener {
 
         launcherManager = LauncherManager(requireActivity() as SamSprungOverlay)
 
-        val launcherView = view.findViewById<RecyclerView>(R.id.appsList)
+        launcherView = view.findViewById(R.id.appsList)
 
         val packageRetriever = PackageRetriever(requireActivity())
-        var packages = packageRetriever.getFilteredPackageList()
+        val packages = packageRetriever.getFilteredPackageList()
 
         launcherView.setHasFixedSize(true)
         if (prefs.getBoolean(SamSprung.prefLayout, true)) {
@@ -113,7 +114,8 @@ class AppDrawerFragment : Fragment(), DrawerAppAdapater.OnAppClickListener {
                 DividerItemDecoration.VERTICAL))
         }
         launcherView.adapter = DrawerAppAdapater(
-            packages, this, requireActivity().packageManager, prefs)
+            packages, this, requireActivity().packageManager, prefs
+        )
 
         val searchView = (requireActivity() as SamSprungOverlay).getSearchView()
         if (null != searchView) {
@@ -154,22 +156,10 @@ class AppDrawerFragment : Fragment(), DrawerAppAdapater.OnAppClickListener {
             @SuppressLint("NotifyDataSetChanged")
             override fun onReceive(context: Context?, intent: Intent) {
                 if (intent.action == Intent.ACTION_PACKAGE_FULLY_REMOVED) {
-                    Executors.newSingleThreadExecutor().execute {
-                        packages = packageRetriever.getFilteredPackageList()
-                        requireActivity().runOnUiThread {
-                            (launcherView.adapter as DrawerAppAdapater).setPackages(packages)
-                            (launcherView.adapter as DrawerAppAdapater).notifyDataSetChanged()
-                        }
-                    }
+                    getFilteredPackageList()
                 } else if (intent.action == Intent.ACTION_PACKAGE_ADDED) {
                     if (!intent.getBooleanExtra(Intent.EXTRA_REPLACING, false)) {
-                        Executors.newSingleThreadExecutor().execute {
-                            packages = packageRetriever.getFilteredPackageList()
-                            requireActivity().runOnUiThread {
-                                (launcherView.adapter as DrawerAppAdapater).setPackages(packages)
-                                (launcherView.adapter as DrawerAppAdapater).notifyDataSetChanged()
-                            }
-                        }
+                        getFilteredPackageList()
                     }
                 }
             }
@@ -181,6 +171,18 @@ class AppDrawerFragment : Fragment(), DrawerAppAdapater.OnAppClickListener {
             addDataScheme("package")
         }.also {
             requireActivity().registerReceiver(packReceiver, it)
+        }
+    }
+
+    @SuppressLint("NotifyDataSetChanged")
+    private fun getFilteredPackageList() {
+        Executors.newSingleThreadExecutor().execute {
+            val packageRetriever = PackageRetriever(requireActivity())
+            val packages = packageRetriever.getFilteredPackageList()
+            requireActivity().runOnUiThread {
+                (launcherView.adapter as DrawerAppAdapater).setPackages(packages)
+                (launcherView.adapter as DrawerAppAdapater).notifyDataSetChanged()
+            }
         }
     }
 
@@ -213,6 +215,11 @@ class AppDrawerFragment : Fragment(), DrawerAppAdapater.OnAppClickListener {
         try {
             if (null != packReceiver) requireActivity().unregisterReceiver(packReceiver)
         } catch (ignored: Exception) { }
+    }
+
+    override fun onViewStateRestored(savedInstanceState: Bundle?) {
+        super.onViewStateRestored(savedInstanceState)
+        if (this::launcherView.isInitialized) getFilteredPackageList()
     }
 
     private val Number.toPx get() = TypedValue.applyDimension(
