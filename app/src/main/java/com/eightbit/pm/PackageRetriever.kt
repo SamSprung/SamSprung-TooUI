@@ -58,11 +58,8 @@ import android.content.Intent
 import android.content.SharedPreferences
 import android.content.pm.PackageManager
 import android.content.pm.ResolveInfo
-import android.net.Uri
-import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.eightbit.samsprung.BuildConfig
-import com.eightbit.samsprung.R
 import com.eightbit.samsprung.SamSprung
 import java.util.*
 
@@ -94,23 +91,18 @@ class PackageRetriever(val context: Context) {
         return unlisted
     }
 
-    fun getFilteredPackageList(): MutableList<ResolveInfo> {
-        val packages = getPackageList()
-        val statsManager =
-            context.getSystemService(Context.USAGE_STATS_SERVICE) as UsageStatsManager
-        try {
-            statsManager.isAppInactive(context.packageName)
-        } catch (ignored: Exception) {
-            return packages
-        }
+    private fun getRecentPackageList(
+        statsManager: UsageStatsManager, packages: MutableList<ResolveInfo>
+    ) : HashSet<ResolveInfo> {
         val recent: HashSet<ResolveInfo> = HashSet()
         val endTime = System.currentTimeMillis()
-        val startTime = endTime - 60 * 60 * 1000
+        val startTime = endTime - (60 * 60 * 1000)
         val usageEvents: UsageEvents = statsManager.queryEvents(startTime, endTime)
         while (usageEvents.hasNextEvent()) {
             val event = UsageEvents.Event()
             usageEvents.getNextEvent(event)
-            if (UsageEvents.Event.ACTIVITY_RESUMED == event.eventType) {
+            if (UsageEvents.Event.ACTIVITY_RESUMED == event.eventType ||
+                UsageEvents.Event.SHORTCUT_INVOCATION == event.eventType) {
                 val iterator: MutableIterator<ResolveInfo> = packages.iterator()
                 while (iterator.hasNext()) {
                     val info = iterator.next()
@@ -122,6 +114,19 @@ class PackageRetriever(val context: Context) {
                 }
             }
         }
+        return recent
+    }
+
+    fun getFilteredPackageList() : MutableList<ResolveInfo> {
+        val packages = getPackageList()
+        val statsManager =
+            context.getSystemService(Context.USAGE_STATS_SERVICE) as UsageStatsManager
+        try {
+            statsManager.isAppInactive(context.packageName)
+        } catch (ignored: Exception) {
+            return packages
+        }
+        val recent = getRecentPackageList(statsManager, packages)
         packages.addAll(0, recent)
         packages.removeIf { item ->
             prefs.getStringSet(SamSprung.prefHidden, HashSet())!!

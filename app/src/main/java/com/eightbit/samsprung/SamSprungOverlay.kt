@@ -251,8 +251,15 @@ class SamSprungOverlay : AppCompatActivity() {
         batteryLevel.setTextColor(color)
         clock.setTextColor(color)
 
-        val buttonAuth = findViewById<AppCompatImageView>(R.id.button_auth)
         val keyguardManager = (getSystemService(Context.KEYGUARD_SERVICE) as KeyguardManager)
+        val buttonAuth = findViewById<AppCompatImageView>(R.id.button_auth)
+        buttonAuth.setOnClickListener {
+            setKeyguardListener(object: KeyguardListener {
+                override fun onKeyguardCheck(unlocked: Boolean) {
+                    buttonAuth.isVisible = keyguardManager.isDeviceLocked
+                }
+            })
+        }
         buttonAuth.isVisible = keyguardManager.isDeviceLocked
 
         val toggleStats = findViewById<LinearLayout>(R.id.toggle_status)
@@ -265,82 +272,94 @@ class SamSprungOverlay : AppCompatActivity() {
             @SuppressLint("MissingPermission")
             override fun onStateChanged(bottomSheet: View, newState: Int) {
                 if (newState == BottomSheetBehavior.STATE_EXPANDED) {
-                    setKeyguardListener(object: KeyguardListener {
-                        override fun onKeyguardCheck(unlocked: Boolean) {
-                            if (!unlocked) {
-                                bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
-                                return
-                            }
-                            toolbar.setOnMenuItemClickListener { item: MenuItem ->
-                                when (item.itemId) {
-                                    R.id.toggle_wifi -> {
-                                        wifiEnabler.launch(
-                                            Intent(Settings.Panel.ACTION_INTERNET_CONNECTIVITY)
-                                        )
-                                        return@setOnMenuItemClickListener true
-                                    }
-                                    R.id.toggle_bluetooth -> {
-                                        if (bluetoothAdapter.isEnabled) {
-                                            bluetoothAdapter.disable()
-                                            item.setIcon(R.drawable.ic_baseline_bluetooth_off_24dp)
-                                        } else {
-                                            bluetoothAdapter.enable()
-                                            item.setIcon(R.drawable.ic_baseline_bluetooth_on_24dp)
-                                        }
-                                        item.icon.setTint(color)
-                                        return@setOnMenuItemClickListener true
-                                    }
-                                    R.id.toggle_nfc -> {
-                                        nfcEnabler.launch(Intent(Settings.Panel.ACTION_NFC))
-                                        return@setOnMenuItemClickListener true
-                                    }
-                                    R.id.toggle_sound -> {
-                                        if (audioManager.ringerMode == AudioManager.RINGER_MODE_NORMAL) {
-                                            audioManager.ringerMode = AudioManager.RINGER_MODE_SILENT
-                                            item.setIcon(R.drawable.ic_baseline_sound_off_24dp)
-                                        } else {
-                                            audioManager.ringerMode = AudioManager.RINGER_MODE_NORMAL
-                                            item.setIcon(R.drawable.ic_baseline_sound_on_24dp)
-                                        }
-                                        item.icon.setTint(color)
-                                        return@setOnMenuItemClickListener true
-                                    }
-                                    R.id.toggle_dnd -> {
-                                        if (notificationManager.currentInterruptionFilter ==
-                                            NotificationManager.INTERRUPTION_FILTER_ALL) {
-                                            notificationManager.setInterruptionFilter(
-                                                NotificationManager.INTERRUPTION_FILTER_NONE)
-                                            item.setIcon(R.drawable.ic_baseline_do_not_disturb_on_24dp)
-                                        } else {
-                                            notificationManager.setInterruptionFilter(
-                                                NotificationManager.INTERRUPTION_FILTER_ALL)
-                                            item.setIcon(R.drawable.ic_baseline_do_not_disturb_off_24dp)
-                                        }
-                                        item.icon.setTint(color)
-                                        return@setOnMenuItemClickListener true
-                                    }
-                                    R.id.toggle_torch -> {
-                                        if (isTorchEnabled) {
-                                            item.setIcon(R.drawable.ic_baseline_flashlight_off_24dp)
-                                        } else {
-                                            item.setIcon(R.drawable.ic_baseline_flashlight_on_24dp)
-                                        }
-                                        item.icon.setTint(color)
-                                        camManager.setTorchMode(camManager.cameraIdList[0], !isTorchEnabled)
-                                        return@setOnMenuItemClickListener true
-                                    }
-                                    R.id.toggle_widgets -> {
-                                        widgetManager?.showAddDialog(viewPager)
-                                        bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
-                                        return@setOnMenuItemClickListener false
-                                    }
-                                    else -> {
-                                        return@setOnMenuItemClickListener false
-                                    }
+                    toolbar.setOnMenuItemClickListener { item: MenuItem ->
+                        when (item.itemId) {
+                            R.id.toggle_wifi -> {
+                                if (buttonAuth.isGone) {
+                                    wifiEnabler.launch(
+                                        Intent(Settings.Panel.ACTION_INTERNET_CONNECTIVITY)
+                                    )
+                                } else {
+                                    IconifiedSnackbar(
+                                        this@SamSprungOverlay, bottomSheet as ViewGroup
+                                    ).buildTickerBar(
+                                        getString(R.string.auth_required),
+                                        R.drawable.ic_baseline_fingerprint_24dp,
+                                        Snackbar.LENGTH_LONG
+                                    ).show()
                                 }
+                                return@setOnMenuItemClickListener true
+                            }
+                            R.id.toggle_bluetooth -> {
+                                if (bluetoothAdapter.isEnabled) {
+                                    bluetoothAdapter.disable()
+                                    item.setIcon(R.drawable.ic_baseline_bluetooth_off_24dp)
+                                } else {
+                                    bluetoothAdapter.enable()
+                                    item.setIcon(R.drawable.ic_baseline_bluetooth_on_24dp)
+                                }
+                                item.icon.setTint(color)
+                                return@setOnMenuItemClickListener true
+                            }
+                            R.id.toggle_nfc -> {
+                                if (buttonAuth.isGone) {
+                                    nfcEnabler.launch(Intent(Settings.Panel.ACTION_NFC))
+                                } else {
+                                    IconifiedSnackbar(
+                                        this@SamSprungOverlay, bottomSheet as ViewGroup
+                                    ).buildTickerBar(
+                                        getString(R.string.auth_required),
+                                        R.drawable.ic_baseline_fingerprint_24dp,
+                                        Snackbar.LENGTH_LONG
+                                    ).show()
+                                }
+                                return@setOnMenuItemClickListener true
+                            }
+                            R.id.toggle_sound -> {
+                                if (audioManager.ringerMode == AudioManager.RINGER_MODE_NORMAL) {
+                                    audioManager.ringerMode = AudioManager.RINGER_MODE_SILENT
+                                    item.setIcon(R.drawable.ic_baseline_sound_off_24dp)
+                                } else {
+                                    audioManager.ringerMode = AudioManager.RINGER_MODE_NORMAL
+                                    item.setIcon(R.drawable.ic_baseline_sound_on_24dp)
+                                }
+                                item.icon.setTint(color)
+                                return@setOnMenuItemClickListener true
+                            }
+                            R.id.toggle_dnd -> {
+                                if (notificationManager.currentInterruptionFilter ==
+                                    NotificationManager.INTERRUPTION_FILTER_ALL) {
+                                    notificationManager.setInterruptionFilter(
+                                        NotificationManager.INTERRUPTION_FILTER_NONE)
+                                    item.setIcon(R.drawable.ic_baseline_do_not_disturb_on_24dp)
+                                } else {
+                                    notificationManager.setInterruptionFilter(
+                                        NotificationManager.INTERRUPTION_FILTER_ALL)
+                                    item.setIcon(R.drawable.ic_baseline_do_not_disturb_off_24dp)
+                                }
+                                item.icon.setTint(color)
+                                return@setOnMenuItemClickListener true
+                            }
+                            R.id.toggle_torch -> {
+                                if (isTorchEnabled) {
+                                    item.setIcon(R.drawable.ic_baseline_flashlight_off_24dp)
+                                } else {
+                                    item.setIcon(R.drawable.ic_baseline_flashlight_on_24dp)
+                                }
+                                item.icon.setTint(color)
+                                camManager.setTorchMode(camManager.cameraIdList[0], !isTorchEnabled)
+                                return@setOnMenuItemClickListener true
+                            }
+                            R.id.toggle_widgets -> {
+                                widgetManager?.showAddDialog(viewPager)
+                                bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
+                                return@setOnMenuItemClickListener false
+                            }
+                            else -> {
+                                return@setOnMenuItemClickListener false
                             }
                         }
-                    })
+                    }
                 } else if (newState == BottomSheetBehavior.STATE_COLLAPSED) {
                     hasConfigured = false
                     toggleStats.removeAllViews()

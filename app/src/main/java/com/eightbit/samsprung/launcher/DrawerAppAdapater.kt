@@ -150,7 +150,7 @@ class DrawerAppAdapater(
         @SuppressLint("NotifyDataSetChanged")
         override fun publishResults(charSequence: CharSequence, filterResults: FilterResults) {
             if (filteredData.isEmpty() || filteredData !== filterResults.values) {
-                filteredData = filterResults.values as MutableList<ResolveInfo>
+                filteredData = mutableListOf(filterResults.values) as MutableList<ResolveInfo>
                 notifyDataSetChanged()
             }
         }

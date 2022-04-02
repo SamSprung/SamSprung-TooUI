@@ -439,6 +439,7 @@ class CoverPreferences : AppCompatActivity() {
                 if (bottomSheetBehavior.state == BottomSheetBehavior.STATE_COLLAPSED) {
                     findViewById<LinearLayout>(R.id.bottom_sheet)
                         .setBackgroundColor(Color.TRANSPARENT)
+                    findViewById<LinearLayout>(R.id.innerLayout).invalidate()
                 }
             }
             override fun onSlide(bottomSheet: View, slideOffset: Float) {
