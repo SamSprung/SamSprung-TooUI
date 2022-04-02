@@ -907,12 +907,12 @@ class SamSprungOverlay : AppCompatActivity() {
                     updateCheck?.downloadPlayUpdate(appUpdateInfo)
                 } else if (null != downloadUrl) {
                     updateCheck?.downloadUpdate(downloadUrl)
+                    Toast.makeText(this,
+                        R.string.main_screen_required,
+                        Toast.LENGTH_LONG).show()
                 }
                 animate.fillAfter = false
                 it.visibility = View.GONE
-                Toast.makeText(this,
-                    R.string.main_screen_required,
-                    Toast.LENGTH_LONG).show()
             }
         }
     }
