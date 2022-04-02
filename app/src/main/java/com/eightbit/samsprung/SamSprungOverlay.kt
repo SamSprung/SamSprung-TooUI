@@ -124,6 +124,8 @@ class SamSprungOverlay : AppCompatActivity() {
 
     private var background: Drawable? = null
 
+    private var updateCheck : CheckUpdatesTask? = null
+
     private lateinit var toolbar: Toolbar
     private lateinit var wifiManager: WifiManager
     private lateinit var bluetoothAdapter: BluetoothAdapter
@@ -595,21 +597,21 @@ class SamSprungOverlay : AppCompatActivity() {
 
     private var skipUpdateCheck = false
     private fun checkUpdatesWithDelay() {
-        if (findViewById<AnimatedLinearLayout>(R.id.update_notice).isVisible
-            || skipUpdateCheck) return
+        if (findViewById<AnimatedLinearLayout>(R.id.update_notice)
+                .isVisible || skipUpdateCheck) return
         skipUpdateCheck = true
-        val updateCheck = CheckUpdatesTask(this)
+        updateCheck = CheckUpdatesTask(this)
         if (BuildConfig.FLAVOR == "google") {
-            updateCheck.setPlayUpdateListener(object :
+            updateCheck?.setPlayUpdateListener(object :
                 CheckUpdatesTask.CheckPlayUpdateListener {
                 override fun onPlayUpdateFound(appUpdateInfo: AppUpdateInfo) {
-                    showUpdateNotice()
+                    showUpdateNotice(appUpdateInfo, null)
                 }
             })
         } else {
-            updateCheck.setUpdateListener(object : CheckUpdatesTask.CheckUpdateListener {
+            updateCheck?.setUpdateListener(object : CheckUpdatesTask.CheckUpdateListener {
                 override fun onUpdateFound(downloadUrl: String) {
-                    showUpdateNotice()
+                    showUpdateNotice(null, downloadUrl)
                 }
             })
         }
@@ -882,7 +884,7 @@ class SamSprungOverlay : AppCompatActivity() {
         return null
     }
 
-    fun showUpdateNotice() {
+    fun showUpdateNotice(appUpdateInfo: AppUpdateInfo?, downloadUrl: String?) {
         runOnUiThread {
             val fakeSnackbar = findViewById<AnimatedLinearLayout>(R.id.update_notice)
             findViewById<TextView>(R.id.update_text).text =
@@ -896,13 +898,22 @@ class SamSprungOverlay : AppCompatActivity() {
                 override fun onAnimationStart(layout: AnimatedLinearLayout) {}
                 override fun onAnimationEnd(layout: AnimatedLinearLayout) {
                     layout.setAnimationListener(null)
-                    Handler(Looper.getMainLooper()).postDelayed({
-                        fakeSnackbar.visibility = View.INVISIBLE
-                    }, 3500)
                 }
             })
             fakeSnackbar.visibility = View.VISIBLE
             fakeSnackbar.startAnimation(animate)
+            fakeSnackbar.setOnClickListener {
+                if (null != appUpdateInfo) {
+                    updateCheck?.downloadPlayUpdate(appUpdateInfo)
+                } else if (null != downloadUrl) {
+                    updateCheck?.downloadUpdate(downloadUrl)
+                }
+                animate.fillAfter = false
+                it.visibility = View.GONE
+                Toast.makeText(this,
+                    R.string.main_screen_required,
+                    Toast.LENGTH_LONG).show()
+            }
         }
     }
 
