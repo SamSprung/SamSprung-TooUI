@@ -37,6 +37,11 @@
     <!-- Google Play BS -->
     <uses-permission android:name="samsprung.permission.WRITE_SETTINGS" />
     <uses-permission android:name="samsprung.permission.READ_SETTINGS" />
+    <queries>
+        <intent>
+            <action android:name="android.intent.action.MAIN" />
+        </intent>
+    </queries>
 
     <application
         android:process=":SamSprung"

@@ -305,7 +305,7 @@ class NotificationFragment : Fragment(), NotificationAdapter.OnNoticeClickListen
         }
     }
 
-    fun hasNotificationListener(context: Context): Boolean {
+    private fun hasNotificationListener(context: Context): Boolean {
         val myNotificationListenerComponentName = ComponentName(
             context.applicationContext, NotificationReceiver::class.java)
         val enabledListeners = Settings.Secure.getString(

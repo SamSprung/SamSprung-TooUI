@@ -22,6 +22,7 @@ import com.eightbit.content.ScaledContext
 import com.eightbit.samsprung.SamSprung
 import com.eightbit.samsprung.SamSprungOverlay
 
+
 class LauncherManager(private val overlay: SamSprungOverlay) {
 
     private fun getOrientationManager(extras: Bundle) {
@@ -103,20 +104,15 @@ class LauncherManager(private val overlay: SamSprungOverlay) {
         overlay.setKeyguardListener(object: SamSprungOverlay.KeyguardListener {
             override fun onKeyguardCheck(unlocked: Boolean) {
                 if (!unlocked) return
-                val onFinished = PendingIntent.OnFinished { pendingIntent, _, _, _, _ ->
-                    val extras = Bundle()
-                    extras.putString("launchPackage", pendingIntent.creatorPackage)
-                    overlay.startForegroundService(Intent(
-                        overlay.applicationContext, AppDisplayListener::class.java
-                    ).putExtras(extras))
-                }
+                overlay.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_LOCKED
+                overlay.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_BEHIND
 
                 pendingIntent.send(
                     ScaledContext.cover(overlay), SamSprung.request_code,
                     Intent().setFlags(Intent.FLAG_ACTIVITY_NEW_TASK or
                             Intent.FLAG_ACTIVITY_NO_ANIMATION or
                             Intent.FLAG_ACTIVITY_FORWARD_RESULT
-                    ), onFinished, null, null,
+                    ), null, null, null,
                     CoverOptions.getActivityOptions(1).toBundle()
                 )
 

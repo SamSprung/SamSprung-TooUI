@@ -236,8 +236,7 @@ class AppDisplayListener : Service() {
         homeLauncher.flags = Intent.FLAG_ACTIVITY_NEW_TASK or
                 Intent.FLAG_ACTIVITY_FORWARD_RESULT or
                 Intent.FLAG_ACTIVITY_NO_ANIMATION
-        startActivity(homeLauncher, ActivityOptions
-            .makeBasic().setLaunchDisplayId(display).toBundle())
+        startActivity(homeLauncher, CoverOptions.getActivityOptions(display).toBundle())
     }
 
     private fun resetRecentActivities(pkg: String?, cls: String?, display: Int) {
