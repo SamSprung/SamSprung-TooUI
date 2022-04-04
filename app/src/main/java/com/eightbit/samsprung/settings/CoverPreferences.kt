@@ -393,7 +393,7 @@ class CoverPreferences : AppCompatActivity() {
 
         val general = findViewById<LinearLayout>(R.id.general)
         general.visibility = View.GONE
-        findViewById<View>(R.id.general_heading).setOnClickListener {
+        findViewById<LinearLayout>(R.id.general_heading).setOnClickListener {
             general.isGone = general.isVisible
         }
 
@@ -519,11 +519,11 @@ class CoverPreferences : AppCompatActivity() {
                         colorHandler.postDelayed({
                             textBlue.visibility = View.INVISIBLE
                             colorBlueBar.visibility = View.INVISIBLE
-                        }, 375)
+                        }, 400)
                         colorHandler.postDelayed({
                             alphaView.visibility = View.INVISIBLE
                             colorAlphaBar.visibility = View.INVISIBLE
-                        }, 500)
+                        }, 550)
                     }
                     override fun onAnimationEnd(layout: AnimatedLinearLayout) {
                         colorPanel.clearAnimation()
@@ -545,19 +545,19 @@ class CoverPreferences : AppCompatActivity() {
                 colorHandler.postDelayed({
                     colorAlphaBar.visibility = View.VISIBLE
                     alphaView.visibility = View.VISIBLE
-                }, 100)
+                }, 75)
                 colorHandler.postDelayed({
                     colorBlueBar.visibility = View.VISIBLE
                     textBlue.visibility = View.VISIBLE
-                }, 200)
+                }, 150)
                 colorHandler.postDelayed({
                     colorGreenBar.visibility = View.VISIBLE
                     textGreen.visibility = View.VISIBLE
-                }, 300)
+                }, 225)
                 colorHandler.postDelayed({
                     colorRedBar.visibility = View.VISIBLE
                     textRed.visibility = View.VISIBLE
-                }, 400)
+                }, 300)
             }
         }
 

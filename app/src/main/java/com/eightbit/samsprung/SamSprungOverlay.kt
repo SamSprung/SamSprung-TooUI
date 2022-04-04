@@ -85,7 +85,6 @@ import androidx.appcompat.widget.AppCompatImageView
 import androidx.appcompat.widget.SearchView
 import androidx.appcompat.widget.Toolbar
 import androidx.coordinatorlayout.widget.CoordinatorLayout
-import androidx.core.app.ActivityOptionsCompat
 import androidx.core.content.ContextCompat
 import androidx.core.view.GravityCompat
 import androidx.core.view.WindowCompat
@@ -1022,11 +1021,11 @@ class SamSprungOverlay : AppCompatActivity() {
         }
     }
 
-    private var mWidgetPreviewCacheDb: WidgetPreviewLoader.CacheDb? = null
+    private var mWidgetPreviewCacheDb: WidgetPreviews.CacheDb? = null
     fun recreateWidgetPreviewDb() {
-        mWidgetPreviewCacheDb = WidgetPreviewLoader.CacheDb(this)
+        mWidgetPreviewCacheDb = WidgetPreviews.CacheDb(this)
     }
-    fun getWidgetPreviewCacheDb(): WidgetPreviewLoader.CacheDb? {
+    fun getWidgetPreviewCacheDb(): WidgetPreviews.CacheDb? {
         return mWidgetPreviewCacheDb
     }
 }

@@ -28,10 +28,9 @@ import java.io.ByteArrayOutputStream
 import java.io.File
 import java.lang.ref.SoftReference
 import java.lang.ref.WeakReference
-import java.util.*
 import java.util.concurrent.Executors
 
-class WidgetPreviewLoader(private val mLauncher: SamSprungOverlay) {
+class WidgetPreviews(private val mLauncher: SamSprungOverlay) {
     private var mPreviewBitmapWidth = 0
     private var mPreviewBitmapHeight = 0
     private var mSize: String? = null
@@ -178,7 +177,7 @@ class WidgetPreviewLoader(private val mLauncher: SamSprungOverlay) {
                 Bitmap.Config.ARGB_8888
             )
         }
-        var preview: Bitmap? = null
+        var preview: Bitmap?
         preview = readFromDb(name, unusedBitmap)
         if (preview != null) {
             synchronized(mLoadedPreviews) { mLoadedPreviews.put(name, WeakReference(preview)) }
@@ -238,17 +237,17 @@ class WidgetPreviewLoader(private val mLauncher: SamSprungOverlay) {
         override fun onUpgrade(db: SQLiteDatabase, oldVersion: Int, newVersion: Int) {
             if (oldVersion != newVersion) {
                 // Delete all the records; they'll be repopulated as this is a cache
-                db.execSQL("DELETE FROM " + TABLE_NAME)
+                db.execSQL("DELETE FROM $TABLE_NAME")
             }
         }
 
         companion object {
-            val DB_VERSION = 2
-            val DB_NAME = "widgetpreviews.db"
-            val TABLE_NAME = "shortcut_and_widget_previews"
-            val COLUMN_NAME = "name"
-            val COLUMN_SIZE = "size"
-            val COLUMN_PREVIEW_BITMAP = "preview_bitmap"
+            const val DB_VERSION = 3
+            const val DB_NAME = "widgetpreviews.db"
+            const val TABLE_NAME = "previews"
+            const val COLUMN_NAME = "name"
+            const val COLUMN_SIZE = "size"
+            const val COLUMN_PREVIEW_BITMAP = "preview_bitmap"
         }
     }
 
@@ -292,8 +291,7 @@ class WidgetPreviewLoader(private val mLauncher: SamSprungOverlay) {
                     CacheDb.COLUMN_SIZE + " = ?"
         }
         val db = mDb!!.readableDatabase
-        val result: Cursor
-        result = try {
+        val result: Cursor = try {
             db.query(
                 CacheDb.TABLE_NAME, arrayOf(CacheDb.COLUMN_PREVIEW_BITMAP),  // cols to return
                 mCachedSelectQuery, arrayOf(name, mSize),  // args to select query
@@ -363,13 +361,13 @@ class WidgetPreviewLoader(private val mLauncher: SamSprungOverlay) {
 
     fun generateWidgetPreview(
         info: AppWidgetProviderInfo,
-        maxPreviewWidth: Int, maxPreviewHeight: Int, preview: Bitmap?,
+        maxWidth: Int, maxHeight: Int, bitmap: Bitmap?,
         preScaledWidthOut: IntArray?
     ): Bitmap? {
         // Load the preview image if possible
-        var maxPreviewWidth = maxPreviewWidth
-        var maxPreviewHeight = maxPreviewHeight
-        var preview = preview
+        var maxPreviewWidth = maxWidth
+        var maxPreviewHeight = maxHeight
+        var preview = bitmap
         if (maxPreviewWidth < 0) maxPreviewWidth = Int.MAX_VALUE
         if (maxPreviewHeight < 0) maxPreviewHeight = Int.MAX_VALUE
         val drawable = info.loadPreviewImage(mContext, 0)
@@ -407,14 +405,12 @@ class WidgetPreviewLoader(private val mLauncher: SamSprungOverlay) {
                 // Draw the icon in the top left corner
                 val sWidgetPreviewIconPaddingPercentage = 0.25f
                 val minOffset = (mAppIconSize * sWidgetPreviewIconPaddingPercentage).toInt()
-                val smallestSide = Math.min(previewWidth, previewHeight)
-                val iconScale = Math.min(
-                    smallestSide.toFloat()
-                            / (mAppIconSize + 2 * minOffset), 1f
-                )
+                val smallestSide = Integer.min(previewWidth, previewHeight)
+                val iconScale = (smallestSide.toFloat() / (mAppIconSize + 2
+                        * minOffset)).coerceAtMost(1f)
                 try {
                     var icon: Drawable? = null
-                    val hoffset = ((previewDrawableWidth - mAppIconSize * iconScale) / 2).toInt()
+                    val xoffset = ((previewDrawableWidth - mAppIconSize * iconScale) / 2).toInt()
                     val yoffset = ((previewDrawableHeight - mAppIconSize * iconScale) / 2).toInt()
                     if (info.icon > 0) icon = getFullResIcon(
                         info.provider.packageName,
@@ -422,7 +418,7 @@ class WidgetPreviewLoader(private val mLauncher: SamSprungOverlay) {
                     )
                     if (icon != null) {
                         renderDrawableToBitmap(
-                            icon, defaultPreview, hoffset,
+                            icon, defaultPreview, xoffset,
                             yoffset, (mAppIconSize * iconScale).toInt(),
                             (mAppIconSize * iconScale).toInt()
                         )
@@ -543,20 +539,17 @@ class WidgetPreviewLoader(private val mLauncher: SamSprungOverlay) {
             null
         }
         if (resources != null) {
-            if (iconId != 0) {
-                return getFullResIcon(resources, iconId, user)
-            }
+            if (iconId != 0) return getFullResIcon(resources, iconId, user)
         }
         return fullResDefaultActivityIcon
     }
 
-    fun getFullResIcon(info: ResolveInfo, user: UserHandle?): Drawable {
+    private fun getFullResIcon(info: ResolveInfo, user: UserHandle?): Drawable {
         return getFullResIcon(info.activityInfo, user)
     }
 
-    fun getFullResIcon(info: ActivityInfo, user: UserHandle?): Drawable {
-        val resources: Resources?
-        resources = try {
+    private fun getFullResIcon(info: ActivityInfo, user: UserHandle?): Drawable {
+        val resources: Resources? = try {
             mPackageManager.getResourcesForApplication(
                 info.applicationInfo
             )
@@ -573,12 +566,12 @@ class WidgetPreviewLoader(private val mLauncher: SamSprungOverlay) {
     }
 
     private fun generateShortcutPreview(
-        info: ResolveInfo, maxWidth: Int, maxHeight: Int, preview: Bitmap?
+        info: ResolveInfo, maxWidth: Int, maxHeight: Int, bitmap: Bitmap?
     ): Bitmap? {
-        var preview = preview
+        var preview = bitmap
         var tempBitmap = mCachedShortcutPreviewBitmap.get()!!
         val c = mCachedShortcutPreviewCanvas.get()!!
-        if (tempBitmap == null || tempBitmap.width != maxWidth || tempBitmap.height != maxHeight) {
+        if (tempBitmap.width != maxWidth || tempBitmap.height != maxHeight) {
             tempBitmap = Bitmap.createBitmap(maxWidth, maxHeight, Bitmap.Config.ARGB_8888)
             mCachedShortcutPreviewBitmap.set(tempBitmap)
         } else {

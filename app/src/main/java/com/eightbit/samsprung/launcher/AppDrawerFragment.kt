@@ -101,11 +101,11 @@ class AppDrawerFragment : Fragment(), DrawerAppAdapater.OnAppClickListener {
         launcherManager = LauncherManager(requireActivity() as SamSprungOverlay)
 
         launcherView = view.findViewById(R.id.appsList)
+        launcherView.setHasFixedSize(true)
 
         val packageRetriever = PackageRetriever(requireActivity())
         val packages = packageRetriever.getFilteredPackageList()
 
-        launcherView.setHasFixedSize(true)
         if (prefs.getBoolean(SamSprung.prefLayout, true)) {
             launcherView.layoutManager = GridLayoutManager(activity, getColumnCount())
         } else {

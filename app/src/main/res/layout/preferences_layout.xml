@@ -113,14 +113,13 @@
                     <androidx.appcompat.widget.AppCompatImageView
                         android:id="@+id/usage_button"
                         android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
                         android:gravity="center"
                         android:layout_gravity="center"
                         app:srcCompat="@drawable/ic_baseline_data_usage_24dp"
                         android:paddingStart="0dp"
                         android:paddingEnd="4dp"
-                        android:layout_height="wrap_content"
                         android:contentDescription="@string/description_icon"/>
-
                 </LinearLayout>
 
                 <LinearLayout
@@ -244,15 +243,31 @@
                 android:paddingTop="4dp"
                 android:layout_marginBottom="4dp"/>
 
+        <LinearLayout
+            android:id="@+id/general_heading"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginHorizontal="14dp"
+            tools:ignore="UseCompoundDrawables">
+
             <TextView
-                android:id="@+id/general_heading"
-                android:layout_width="match_parent"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
+                android:layout_weight="1"
                 android:textSize="16sp"
-                android:layout_marginStart="14dp"
                 android:textColor="?android:textColorPrimary"
                 android:gravity="center_vertical"
                 android:text="@string/general_options" />
+
+            <androidx.appcompat.widget.AppCompatImageView
+                android:layout_width="wrap_content"
+                android:gravity="center_vertical"
+                android:layout_gravity="end"
+                app:srcCompat="@drawable/ic_baseline_expand_20dp"
+                android:layout_height="wrap_content"
+                android:contentDescription="@string/description_icon"/>
+        </LinearLayout>
 
             <View
                 android:layout_width="match_parent"

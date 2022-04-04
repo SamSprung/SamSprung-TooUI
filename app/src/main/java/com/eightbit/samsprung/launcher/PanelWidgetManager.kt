@@ -45,10 +45,8 @@ class PanelWidgetManager(
             spanX = Integer.max(appWidgetInfo.minWidth, appWidgetInfo.maxResizeWidth)
             spanY = Integer.max(appWidgetInfo.minHeight, appWidgetInfo.maxResizeHeight)
         }
-        if (spanX > displayMetrics[0])
-            spanX = displayMetrics[0]
-        if (spanY > displayMetrics[1])
-            spanY = displayMetrics[1]
+        if (spanX > displayMetrics[0]) spanX = displayMetrics[0]
+        if (spanY > displayMetrics[1]) spanY = displayMetrics[1]
         val spans = intArrayOf(spanX, spanY)
 
         launcherInfo.spanX = spans[0]
@@ -102,7 +100,7 @@ class PanelWidgetManager(
     @SuppressLint("InflateParams")
     fun showAddDialog(viewPager: ViewPager2) {
         val appWidgetId = appWidgetHost.allocateAppWidgetId()
-        val mWidgetPreviewLoader = WidgetPreviewLoader(overlay)
+        val mWidgetPreviewLoader = WidgetPreviews(overlay)
 
         val view: View = overlay.layoutInflater.inflate(R.layout.panel_picker_view, null)
         val dialog = AlertDialog.Builder(
@@ -135,7 +133,8 @@ class PanelWidgetManager(
                 null, previewSizeBeforeScale
             )
             val previewImage = overlay.layoutInflater.inflate(
-                R.layout.widget_preview, null) as AppCompatImageView
+                R.layout.widget_preview, null
+            ) as AppCompatImageView
             previewImage.adjustViewBounds = true
             previewImage.setImageBitmap(preview)
             previewImage.setOnClickListener {
@@ -169,8 +168,9 @@ class PanelWidgetManager(
             val item = appWidgets.removeFirst()
             val appWidgetId = item.appWidgetId
             val appWidgetInfo = mAppWidgetManager.getAppWidgetInfo(appWidgetId)
-            item.hostView = appWidgetHost.createView(ScaledContext
-                .cover(overlay.applicationContext), appWidgetId, appWidgetInfo)
+            item.hostView = appWidgetHost.createView(
+                ScaledContext.cover(overlay.applicationContext), appWidgetId, appWidgetInfo
+            )
             item.hostView!!.setAppWidget(appWidgetId, appWidgetInfo)
             item.hostView!!.tag = item
 
