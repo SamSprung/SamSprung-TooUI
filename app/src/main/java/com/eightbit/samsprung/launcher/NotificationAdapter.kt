@@ -238,13 +238,16 @@ class NotificationAdapter(
                 launch.visibility = View.GONE
             }
             if (notice.isClearable) {
-                dismiss.visibility = View.VISIBLE
                 dismiss.setOnClickListener {
                     NotificationReceiver.getReceiver()?.setNotificationsShown(arrayOf(notice.key))
                     NotificationReceiver.getReceiver()?.cancelNotification(notice.key)
                 }
             } else {
-                dismiss.visibility = View.GONE
+                dismiss.setOnClickListener {
+                    NotificationReceiver.getReceiver()?.snoozeNotification(
+                        notice.key, 1800000
+                    )
+                }
             }
         }
 
