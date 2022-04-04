@@ -314,18 +314,6 @@ class CoverPreferences : AppCompatActivity() {
             draggable.isChecked = !draggable.isChecked
         }
 
-        val vibration = findViewById<SwitchCompat>(R.id.vibration_switch)
-        vibration.isChecked = prefs.getBoolean(SamSprung.prefReacts, true)
-        vibration.setOnCheckedChangeListener { _, isChecked ->
-            with(prefs.edit()) {
-                putBoolean(SamSprung.prefReacts, isChecked)
-                apply()
-            }
-        }
-        findViewById<LinearLayout>(R.id.vibration).setOnClickListener {
-            vibration.isChecked = !vibration.isChecked
-        }
-
         val timeoutBar = findViewById<SeekBar>(R.id.timeout_bar)
         val timeoutText = findViewById<TextView>(R.id.timeout_text)
         timeoutBar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
@@ -348,6 +336,18 @@ class CoverPreferences : AppCompatActivity() {
         val textDelay = (if (timeoutBar.progress > 4) timeoutBar.progress else
             DecimalFormatSymbols.getInstance().infinity).toString()
         timeoutText.text = getString(R.string.options_timeout, textDelay)
+
+        val vibration = findViewById<SwitchCompat>(R.id.vibration_switch)
+        vibration.isChecked = prefs.getBoolean(SamSprung.prefReacts, true)
+        vibration.setOnCheckedChangeListener { _, isChecked ->
+            with(prefs.edit()) {
+                putBoolean(SamSprung.prefReacts, isChecked)
+                apply()
+            }
+        }
+        findViewById<LinearLayout>(R.id.vibration).setOnClickListener {
+            vibration.isChecked = !vibration.isChecked
+        }
 
         val placementBar = findViewById<SeekBar>(R.id.placement_bar)
         placementBar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
@@ -381,6 +381,29 @@ class CoverPreferences : AppCompatActivity() {
             }
             override fun onNothingSelected(parent: AdapterView<*>?) { }
         }
+
+        val dismissBar = findViewById<SeekBar>(R.id.dismiss_bar)
+        val dismissText = findViewById<TextView>(R.id.dismiss_text)
+        dismissBar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
+            override fun onProgressChanged(seek: SeekBar, progress: Int, fromUser: Boolean) {
+                if (!fromUser) return
+                with(prefs.edit()) {
+                    putInt(SamSprung.prefSnooze, progress)
+                    apply()
+                }
+                dismissText.text = getString(
+                    R.string.options_dismiss, dismissBar.progress.toString()
+                )
+            }
+
+            override fun onStartTrackingTouch(seek: SeekBar) { }
+
+            override fun onStopTrackingTouch(seek: SeekBar) { }
+        })
+        dismissBar.progress = prefs.getInt(SamSprung.prefSnooze, 30)
+        dismissText.text = getString(
+            R.string.options_dismiss, dismissBar.progress.toString()
+        )
 
         val isGridView = prefs.getBoolean(SamSprung.prefLayout, true)
         findViewById<ToggleButton>(R.id.swapViewType).isChecked = isGridView

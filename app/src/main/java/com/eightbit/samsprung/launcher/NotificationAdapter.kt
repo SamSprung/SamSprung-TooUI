@@ -245,7 +245,7 @@ class NotificationAdapter(
             } else {
                 dismiss.setOnClickListener {
                     NotificationReceiver.getReceiver()?.snoozeNotification(
-                        notice.key, 1800000
+                        notice.key, (prefs.getInt(SamSprung.prefSnooze, 30) * 60 * 1000).toLong()
                     )
                 }
             }
