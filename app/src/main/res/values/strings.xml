@@ -10,7 +10,7 @@
     <string name="general_options">App Interface</string>
     <string name="options_search">App Search Bar</string>
     <string name="options_draggable">Drawer Gesture</string>
-    <string name="options_timeout">Screen Timeout (%1$s)</string>
+    <string name="options_timeout">Screen Timeout (%1$sˢ)</string>
     <string name="options_vibration">Touch Feedback</string>
     <string name="options_placement">Icon Alignment</string>
     <string name="options_theme">Theme Selection</string>
@@ -20,7 +20,7 @@
         <item>Light</item>
     </string-array>
     <string name="toggle_options">Toggles</string>
-    <string name="options_dismiss">Snooze Length (%1$s)</string>
+    <string name="options_dismiss">Snooze Length (%1$sᵐ)</string>
     <string name="visibility_options">App Visibility</string>
 
     <string name="swap_viewgrid">Display as ListView Widget Style</string>

@@ -391,8 +391,7 @@
                         android:gravity="center"
                         android:layout_weight="1"
                         android:min="4"
-                        android:max="60"
-                        android:progress="5"/>
+                        android:max="60"/>
                 </LinearLayout>
 
                 <LinearLayout
@@ -451,7 +450,6 @@
                         android:gravity="center"
                         android:layout_weight="1"
                         android:max="2"
-                        android:progress="2"
                         android:thumb="@drawable/ic_baseline_samsprung_24dp"/>
                 </LinearLayout>
 
@@ -513,9 +511,8 @@
                         android:layout_gravity="center"
                         android:gravity="center"
                         android:layout_weight="1"
-                        android:min="15"
-                        android:max="120"
-                        android:progress="15"/>
+                        android:min="1"
+                        android:max="12"/>
                 </LinearLayout>
 
                 <include

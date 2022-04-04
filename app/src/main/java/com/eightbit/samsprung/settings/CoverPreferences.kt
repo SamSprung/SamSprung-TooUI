@@ -388,11 +388,11 @@ class CoverPreferences : AppCompatActivity() {
             override fun onProgressChanged(seek: SeekBar, progress: Int, fromUser: Boolean) {
                 if (!fromUser) return
                 with(prefs.edit()) {
-                    putInt(SamSprung.prefSnooze, progress)
+                    putInt(SamSprung.prefSnooze, progress * 10)
                     apply()
                 }
                 dismissText.text = getString(
-                    R.string.options_dismiss, dismissBar.progress.toString()
+                    R.string.options_dismiss, (dismissBar.progress * 10).toString()
                 )
             }
 
@@ -400,9 +400,9 @@ class CoverPreferences : AppCompatActivity() {
 
             override fun onStopTrackingTouch(seek: SeekBar) { }
         })
-        dismissBar.progress = prefs.getInt(SamSprung.prefSnooze, 30)
+        dismissBar.progress = prefs.getInt(SamSprung.prefSnooze, 30) / 10
         dismissText.text = getString(
-            R.string.options_dismiss, dismissBar.progress.toString()
+            R.string.options_dismiss, (dismissBar.progress * 10).toString()
         )
 
         val isGridView = prefs.getBoolean(SamSprung.prefLayout, true)
