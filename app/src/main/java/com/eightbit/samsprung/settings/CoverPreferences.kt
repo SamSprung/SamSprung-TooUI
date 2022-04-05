@@ -53,9 +53,11 @@ package com.eightbit.samsprung.settings
 
 import android.Manifest
 import android.annotation.SuppressLint
+import android.app.AppOpsManager
 import android.app.Dialog
 import android.app.KeyguardManager
 import android.app.WallpaperManager
+import android.app.usage.UsageStatsManager
 import android.content.*
 import android.content.pm.PackageManager
 import android.content.res.ColorStateList
@@ -88,7 +90,6 @@ import androidx.core.content.ContextCompat
 import androidx.core.graphics.blue
 import androidx.core.graphics.green
 import androidx.core.graphics.red
-import androidx.core.view.isGone
 import androidx.core.view.isVisible
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -116,6 +117,7 @@ import java.util.concurrent.Executors
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
 
+
 class CoverPreferences : AppCompatActivity() {
 
     private lateinit var prefs: SharedPreferences
@@ -124,9 +126,9 @@ class CoverPreferences : AppCompatActivity() {
 
     private var hasPremiumSupport = false
     private lateinit var mainSwitch: SwitchCompat
-    private lateinit var permissionList: LinearLayout
     private lateinit var accessibility: SwitchCompat
     private lateinit var notifications: SwitchCompat
+    private lateinit var statistics: SwitchCompat
     private lateinit var keyboard: SwitchCompat
 
     private lateinit var hiddenList: RecyclerView
@@ -143,7 +145,6 @@ class CoverPreferences : AppCompatActivity() {
         prefs = getSharedPreferences(SamSprung.prefsValue, MODE_PRIVATE)
         ScaledContext.screen(this, 2f).setTheme(R.style.Theme_SecondScreen)
         setContentView(R.layout.preferences_layout)
-        permissionList = findViewById(R.id.permissions)
 
         val componentName = ComponentName(applicationContext, NotificationReceiver::class.java)
         packageManager.setComponentEnabledSetting(componentName,
@@ -231,6 +232,8 @@ class CoverPreferences : AppCompatActivity() {
             ))
         }
 
+        statistics = findViewById(R.id.usage_switch)
+        statistics.isChecked = hasUsageStatistics()
         findViewById<LinearLayout>(R.id.usage_layout).setOnClickListener {
             usageLauncher.launch(Intent(
                 Settings.ACTION_USAGE_ACCESS_SETTINGS
@@ -295,197 +298,6 @@ class CoverPreferences : AppCompatActivity() {
         }
         updatesPanel.isVisible = BuildConfig.FLAVOR != "google"
 
-        val search = findViewById<SwitchCompat>(R.id.search_switch)
-        search.isChecked = prefs.getBoolean(SamSprung.prefSearch, true)
-        search.setOnCheckedChangeListener { _, isChecked ->
-            with(prefs.edit()) {
-                putBoolean(SamSprung.prefSearch, isChecked)
-                apply()
-            }
-        }
-        findViewById<LinearLayout>(R.id.search).setOnClickListener {
-            search.isChecked = !search.isChecked
-        }
-
-        val draggable = findViewById<SwitchCompat>(R.id.draggable_switch)
-        draggable.isChecked = prefs.getBoolean(SamSprung.prefSlider, true)
-        draggable.setOnCheckedChangeListener { _, isChecked ->
-            with(prefs.edit()) {
-                putBoolean(SamSprung.prefSlider, isChecked)
-                apply()
-            }
-        }
-        findViewById<LinearLayout>(R.id.draggable).setOnClickListener {
-            draggable.isChecked = !draggable.isChecked
-        }
-
-        val timeoutBar = findViewById<SeekBar>(R.id.timeout_bar)
-        val timeoutText = findViewById<TextView>(R.id.timeout_text)
-        timeoutBar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
-            override fun onProgressChanged(seek: SeekBar, progress: Int, fromUser: Boolean) {
-                if (!fromUser) return
-                with(prefs.edit()) {
-                    putInt(SamSprung.prefDelays, progress)
-                    apply()
-                }
-                val textDelay = (if (timeoutBar.progress > 4) timeoutBar.progress else
-                    DecimalFormatSymbols.getInstance().infinity).toString()
-                timeoutText.text = getString(R.string.options_timeout, textDelay)
-            }
-
-            override fun onStartTrackingTouch(seek: SeekBar) { }
-
-            override fun onStopTrackingTouch(seek: SeekBar) { }
-        })
-        timeoutBar.progress = prefs.getInt(SamSprung.prefDelays, 5)
-        val textDelay = (if (timeoutBar.progress > 4) timeoutBar.progress else
-            DecimalFormatSymbols.getInstance().infinity).toString()
-        timeoutText.text = getString(R.string.options_timeout, textDelay)
-
-        val vibration = findViewById<SwitchCompat>(R.id.vibration_switch)
-        vibration.isChecked = prefs.getBoolean(SamSprung.prefReacts, true)
-        vibration.setOnCheckedChangeListener { _, isChecked ->
-            with(prefs.edit()) {
-                putBoolean(SamSprung.prefReacts, isChecked)
-                apply()
-            }
-        }
-        findViewById<LinearLayout>(R.id.vibration).setOnClickListener {
-            vibration.isChecked = !vibration.isChecked
-        }
-
-        val placementBar = findViewById<SeekBar>(R.id.placement_bar)
-        placementBar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
-            override fun onProgressChanged(seek: SeekBar, progress: Int, fromUser: Boolean) {
-                if (!fromUser) return
-                with(prefs.edit()) {
-                    putInt(SamSprung.prefShifts, progress)
-                    apply()
-                }
-            }
-
-            override fun onStartTrackingTouch(seek: SeekBar) { }
-
-            override fun onStopTrackingTouch(seek: SeekBar) { }
-        })
-        placementBar.progress = prefs.getInt(SamSprung.prefShifts, 2)
-
-        val themeSpinner = findViewById<Spinner>(R.id.theme_spinner)
-        val spinnerAdapter = ArrayAdapter(this, android.R.layout.simple_spinner_item,
-            resources.getStringArray(R.array.theme_options))
-        spinnerAdapter.setDropDownViewResource(R.layout.dropdown_item_1)
-        themeSpinner.adapter = spinnerAdapter
-        themeSpinner.setSelection(prefs.getInt(SamSprung.prefThemes, 0))
-        themeSpinner.onItemSelectedListener = object: AdapterView.OnItemSelectedListener {
-            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
-                with (prefs.edit()) {
-                    putInt(SamSprung.prefThemes, position)
-                    apply()
-                }
-                (application as SamSprung).setThemePreference()
-            }
-            override fun onNothingSelected(parent: AdapterView<*>?) { }
-        }
-
-        val dismissBar = findViewById<SeekBar>(R.id.dismiss_bar)
-        val dismissText = findViewById<TextView>(R.id.dismiss_text)
-        dismissBar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
-            override fun onProgressChanged(seek: SeekBar, progress: Int, fromUser: Boolean) {
-                if (!fromUser) return
-                with(prefs.edit()) {
-                    putInt(SamSprung.prefSnooze, progress * 10)
-                    apply()
-                }
-                dismissText.text = getString(
-                    R.string.options_dismiss, (dismissBar.progress * 10).toString()
-                )
-            }
-
-            override fun onStartTrackingTouch(seek: SeekBar) { }
-
-            override fun onStopTrackingTouch(seek: SeekBar) { }
-        })
-        dismissBar.progress = prefs.getInt(SamSprung.prefSnooze, 30) / 10
-        dismissText.text = getString(
-            R.string.options_dismiss, (dismissBar.progress * 10).toString()
-        )
-
-        val isGridView = prefs.getBoolean(SamSprung.prefLayout, true)
-        findViewById<ToggleButton>(R.id.swapViewType).isChecked = isGridView
-        findViewById<ToggleButton>(R.id.swapViewType).setOnCheckedChangeListener { _, isChecked ->
-            with (prefs.edit()) {
-                putBoolean(SamSprung.prefLayout, isChecked)
-                apply()
-            }
-        }
-
-        val general = findViewById<LinearLayout>(R.id.general)
-        general.visibility = View.GONE
-        findViewById<LinearLayout>(R.id.general_heading).setOnClickListener {
-            general.isGone = general.isVisible
-        }
-
-        val packageRetriever = PackageRetriever(this)
-        val packages = packageRetriever.getPackageList()
-        for (installed in packages) {
-            if (installed.resolvePackageName == "apps.ijp.coveros") {
-                val compatDialog = AlertDialog.Builder(this)
-                    .setMessage(getString(R.string.incompatibility_warning))
-                    .setPositiveButton(R.string.button_uninstall) { dialog, _ ->
-                        try {
-                            startActivity(Intent(Intent.ACTION_DELETE)
-                                .setData(Uri.parse("package:apps.ijp.coveros")))
-                            dialog.dismiss()
-                        } catch (ignored: Exception) { }
-                    }
-                    .setNegativeButton(R.string.button_disable) { dialog, _ ->
-                        startActivity(Intent(
-                            Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
-                            Uri.parse("package:apps.ijp.coveros")
-                        ))
-                        dialog.dismiss()
-                    }.create()
-                compatDialog.setCancelable(false)
-                compatDialog.show()
-            }
-        }
-        val unlisted = packageRetriever.getHiddenPackages()
-
-        hiddenList = findViewById(R.id.app_toggle_list)
-        hiddenList.layoutManager = LinearLayoutManager(this)
-        hiddenList.addItemDecoration(
-            DividerItemDecoration(this,
-            DividerItemDecoration.VERTICAL)
-        )
-        hiddenList.adapter = FilteredAppsAdapter(packageManager, packages, unlisted, prefs)
-
-        val bottomSheetBehavior: BottomSheetBehavior<View> =
-            BottomSheetBehavior.from(findViewById(R.id.bottom_sheet))
-        bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
-        bottomSheetBehavior.addBottomSheetCallback(object : BottomSheetBehavior.BottomSheetCallback() {
-            override fun onStateChanged(bottomSheet: View, newState: Int) {
-                if (bottomSheetBehavior.state == BottomSheetBehavior.STATE_COLLAPSED) {
-                    findViewById<LinearLayout>(R.id.bottom_sheet)
-                        .setBackgroundColor(Color.TRANSPARENT)
-                    findViewById<LinearLayout>(R.id.innerLayout).invalidate()
-                }
-            }
-            override fun onSlide(bottomSheet: View, slideOffset: Float) {
-                if (slideOffset > 0.1) {
-                    findViewById<LinearLayout>(R.id.bottom_sheet)
-                        .setBackgroundColor(getColor(R.color.backgroundFlat))
-                }
-            }
-        })
-
-        findViewById<LinearLayout>(R.id.visibility_handle).setOnClickListener {
-            if (bottomSheetBehavior.state == BottomSheetBehavior.STATE_EXPANDED) {
-                bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
-            } else if (bottomSheetBehavior.state == BottomSheetBehavior.STATE_COLLAPSED) {
-                bottomSheetBehavior.state = BottomSheetBehavior.STATE_EXPANDED
-            }
-        }
-
         val color = prefs.getInt(SamSprung.prefColors, Color.rgb(255, 255, 255))
 
         val textRed = findViewById<TextView>(R.id.color_red_text)
@@ -520,11 +332,6 @@ class CoverPreferences : AppCompatActivity() {
         val colorPanel = findViewById<AnimatedLinearLayout>(R.id.color_panel)
         val colorComposite = findViewById<View>(R.id.color_composite)
         colorComposite.setBackgroundColor(color)
-
-        findViewById<LinearLayout>(R.id.innerLayout).viewTreeObserver.addOnGlobalLayoutListener {
-            bottomSheetBehavior.peekHeight = window.decorView.height -
-                     (findViewById<LinearLayout>(R.id.innerLayout).height + 141.toScalePx.toInt())
-        }
 
         val colorHandler = Handler(Looper.getMainLooper())
         colorComposite.setOnClickListener {
@@ -680,6 +487,39 @@ class CoverPreferences : AppCompatActivity() {
         colorAlphaBar.visibility = View.GONE
         colorPanel.visibility = View.GONE
 
+        val placementBar = findViewById<SeekBar>(R.id.placement_bar)
+        placementBar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
+            override fun onProgressChanged(seek: SeekBar, progress: Int, fromUser: Boolean) {
+                if (!fromUser) return
+                with(prefs.edit()) {
+                    putInt(SamSprung.prefShifts, progress)
+                    apply()
+                }
+            }
+
+            override fun onStartTrackingTouch(seek: SeekBar) { }
+
+            override fun onStopTrackingTouch(seek: SeekBar) { }
+        })
+        placementBar.progress = prefs.getInt(SamSprung.prefShifts, 2)
+
+        val themeSpinner = findViewById<Spinner>(R.id.theme_spinner)
+        val spinnerAdapter = ArrayAdapter(this, android.R.layout.simple_spinner_item,
+            resources.getStringArray(R.array.theme_options))
+        spinnerAdapter.setDropDownViewResource(R.layout.dropdown_item_1)
+        themeSpinner.adapter = spinnerAdapter
+        themeSpinner.setSelection(prefs.getInt(SamSprung.prefThemes, 0))
+        themeSpinner.onItemSelectedListener = object: AdapterView.OnItemSelectedListener {
+            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
+                with (prefs.edit()) {
+                    putInt(SamSprung.prefThemes, position)
+                    apply()
+                }
+                (application as SamSprung).setThemePreference()
+            }
+            override fun onNothingSelected(parent: AdapterView<*>?) { }
+        }
+
         val toolbar = findViewById<Toolbar>(R.id.toolbar)
         toolbar.inflateMenu(R.menu.cover_quick_toggles)
 
@@ -734,12 +574,7 @@ class CoverPreferences : AppCompatActivity() {
                     return@setOnMenuItemClickListener true
                 }
                 R.id.toggle_widgets -> {
-                    if (prefs.getBoolean(pref, false)) {
-                        item.setIcon(R.drawable.ic_baseline_widgets_24dp)
-                        requestUnchecked.launch(Manifest.permission.BIND_APPWIDGET)
-                    } else {
-                        item.setIcon(R.drawable.ic_baseline_insert_page_break_24dp)
-                    }
+                    requestWidgets.launch(Manifest.permission.BIND_APPWIDGET)
                     return@setOnMenuItemClickListener true
                 }
                 else -> {
@@ -788,11 +623,164 @@ class CoverPreferences : AppCompatActivity() {
         else
             torch.setIcon(R.drawable.ic_baseline_flashlight_off_24dp)
 
-        val widgets = toolbar.menu.findItem(R.id.toggle_widgets)
-        if (prefs.getBoolean(widgets.title.toPref, false))
-            widgets.setIcon(R.drawable.ic_baseline_widgets_24dp)
-        else
-            widgets.setIcon(R.drawable.ic_baseline_insert_page_break_24dp)
+        toggleWidgetsIcon(toolbar)
+
+        val draggable = findViewById<SwitchCompat>(R.id.draggable_switch)
+        draggable.isChecked = prefs.getBoolean(SamSprung.prefSlider, true)
+        draggable.setOnCheckedChangeListener { _, isChecked ->
+            with(prefs.edit()) {
+                putBoolean(SamSprung.prefSlider, isChecked)
+                apply()
+            }
+        }
+        findViewById<LinearLayout>(R.id.draggable).setOnClickListener {
+            draggable.isChecked = !draggable.isChecked
+        }
+
+        val vibration = findViewById<SwitchCompat>(R.id.vibration_switch)
+        vibration.isChecked = prefs.getBoolean(SamSprung.prefReacts, true)
+        vibration.setOnCheckedChangeListener { _, isChecked ->
+            with(prefs.edit()) {
+                putBoolean(SamSprung.prefReacts, isChecked)
+                apply()
+            }
+        }
+        findViewById<LinearLayout>(R.id.vibration).setOnClickListener {
+            vibration.isChecked = !vibration.isChecked
+        }
+
+        val search = findViewById<SwitchCompat>(R.id.search_switch)
+        search.isChecked = prefs.getBoolean(SamSprung.prefSearch, true)
+        search.setOnCheckedChangeListener { _, isChecked ->
+            with(prefs.edit()) {
+                putBoolean(SamSprung.prefSearch, isChecked)
+                apply()
+            }
+        }
+        findViewById<LinearLayout>(R.id.search).setOnClickListener {
+            search.isChecked = !search.isChecked
+        }
+
+        val timeoutBar = findViewById<SeekBar>(R.id.timeout_bar)
+        val timeoutText = findViewById<TextView>(R.id.timeout_text)
+        timeoutBar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
+            override fun onProgressChanged(seek: SeekBar, progress: Int, fromUser: Boolean) {
+                if (!fromUser) return
+                with(prefs.edit()) {
+                    putInt(SamSprung.prefDelays, progress)
+                    apply()
+                }
+                val textDelay = (if (timeoutBar.progress > 4) timeoutBar.progress else
+                    DecimalFormatSymbols.getInstance().infinity).toString()
+                timeoutText.text = getString(R.string.options_timeout, textDelay)
+            }
+
+            override fun onStartTrackingTouch(seek: SeekBar) { }
+
+            override fun onStopTrackingTouch(seek: SeekBar) { }
+        })
+        timeoutBar.progress = prefs.getInt(SamSprung.prefDelays, 5)
+        val textDelay = (if (timeoutBar.progress > 4) timeoutBar.progress else
+            DecimalFormatSymbols.getInstance().infinity).toString()
+        timeoutText.text = getString(R.string.options_timeout, textDelay)
+
+        val isGridView = prefs.getBoolean(SamSprung.prefLayout, true)
+        findViewById<ToggleButton>(R.id.swapViewType).isChecked = isGridView
+        findViewById<ToggleButton>(R.id.swapViewType).setOnCheckedChangeListener { _, isChecked ->
+            with (prefs.edit()) {
+                putBoolean(SamSprung.prefLayout, isChecked)
+                apply()
+            }
+        }
+
+        val dismissBar = findViewById<SeekBar>(R.id.dismiss_bar)
+        val dismissText = findViewById<TextView>(R.id.dismiss_text)
+        dismissBar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
+            override fun onProgressChanged(seek: SeekBar, progress: Int, fromUser: Boolean) {
+                if (!fromUser) return
+                with(prefs.edit()) {
+                    putInt(SamSprung.prefSnooze, progress * 10)
+                    apply()
+                }
+                dismissText.text = getString(
+                    R.string.options_dismiss, (dismissBar.progress * 10).toString()
+                )
+            }
+
+            override fun onStartTrackingTouch(seek: SeekBar) { }
+
+            override fun onStopTrackingTouch(seek: SeekBar) { }
+        })
+        dismissBar.progress = prefs.getInt(SamSprung.prefSnooze, 30) / 10
+        dismissText.text = getString(
+            R.string.options_dismiss, (dismissBar.progress * 10).toString()
+        )
+
+        val packageRetriever = PackageRetriever(this)
+        val packages = packageRetriever.getPackageList()
+        for (installed in packages) {
+            if (installed.resolvePackageName == "apps.ijp.coveros") {
+                val compatDialog = AlertDialog.Builder(this)
+                    .setMessage(getString(R.string.incompatibility_warning))
+                    .setPositiveButton(R.string.button_uninstall) { dialog, _ ->
+                        try {
+                            startActivity(Intent(Intent.ACTION_DELETE)
+                                .setData(Uri.parse("package:apps.ijp.coveros")))
+                            dialog.dismiss()
+                        } catch (ignored: Exception) { }
+                    }
+                    .setNegativeButton(R.string.button_disable) { dialog, _ ->
+                        startActivity(Intent(
+                            Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
+                            Uri.parse("package:apps.ijp.coveros")
+                        ))
+                        dialog.dismiss()
+                    }.create()
+                compatDialog.setCancelable(false)
+                compatDialog.show()
+            }
+        }
+        val unlisted = packageRetriever.getHiddenPackages()
+
+        hiddenList = findViewById(R.id.app_toggle_list)
+        hiddenList.layoutManager = LinearLayoutManager(this)
+        hiddenList.addItemDecoration(
+            DividerItemDecoration(this,
+            DividerItemDecoration.VERTICAL)
+        )
+        hiddenList.adapter = FilteredAppsAdapter(packageManager, packages, unlisted, prefs)
+
+        val bottomSheetBehavior: BottomSheetBehavior<View> =
+            BottomSheetBehavior.from(findViewById(R.id.bottom_sheet))
+        bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
+        bottomSheetBehavior.addBottomSheetCallback(object : BottomSheetBehavior.BottomSheetCallback() {
+            override fun onStateChanged(bottomSheet: View, newState: Int) {
+                if (bottomSheetBehavior.state == BottomSheetBehavior.STATE_COLLAPSED) {
+                    findViewById<LinearLayout>(R.id.bottom_sheet)
+                        .setBackgroundColor(Color.TRANSPARENT)
+                    findViewById<LinearLayout>(R.id.innerLayout).invalidate()
+                }
+            }
+            override fun onSlide(bottomSheet: View, slideOffset: Float) {
+                if (slideOffset > 0.1) {
+                    findViewById<LinearLayout>(R.id.bottom_sheet)
+                        .setBackgroundColor(getColor(R.color.backgroundFlat))
+                }
+            }
+        })
+
+        findViewById<LinearLayout>(R.id.innerLayout).viewTreeObserver.addOnGlobalLayoutListener {
+            bottomSheetBehavior.peekHeight = window.decorView.height -
+                    (findViewById<LinearLayout>(R.id.innerLayout).height + 141.toScalePx.toInt())
+        }
+
+        findViewById<LinearLayout>(R.id.visibility_handle).setOnClickListener {
+            if (bottomSheetBehavior.state == BottomSheetBehavior.STATE_EXPANDED) {
+                bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
+            } else if (bottomSheetBehavior.state == BottomSheetBehavior.STATE_COLLAPSED) {
+                bottomSheetBehavior.state = BottomSheetBehavior.STATE_EXPANDED
+            }
+        }
     }
 
     private fun setAnimatedUpdateNotice(appUpdateInfo: AppUpdateInfo?, downloadUrl: String?) {
@@ -821,9 +809,6 @@ class CoverPreferences : AppCompatActivity() {
             }
         }
     }
-
-    private val requestUnchecked = registerForActivityResult(
-        ActivityResultContracts.RequestPermission()) { }
 
     @SuppressLint("MissingPermission")
     private val requestStorage = registerForActivityResult(
@@ -879,6 +864,19 @@ class CoverPreferences : AppCompatActivity() {
         toggleBluetoothIcon(toolbar)
     }
 
+    private fun toggleWidgetsIcon(toolbar: Toolbar) {
+        val widgets = toolbar.menu.findItem(R.id.toggle_widgets)
+        if (prefs.getBoolean(widgets.title.toPref, false))
+            widgets.setIcon(R.drawable.ic_baseline_widgets_24dp)
+        else
+            widgets.setIcon(R.drawable.ic_baseline_insert_page_break_24dp)
+    }
+
+    private val requestWidgets = registerForActivityResult(
+        ActivityResultContracts.RequestPermission()) {
+        toggleWidgetsIcon(findViewById<Toolbar>(R.id.toolbar))
+    }
+
     private val notificationLauncher = registerForActivityResult(
         ActivityResultContracts.StartActivityForResult()) {
         if (this::notifications.isInitialized)
@@ -897,6 +895,8 @@ class CoverPreferences : AppCompatActivity() {
                 (hiddenList.adapter as FilteredAppsAdapter).notifyDataSetChanged()
             }
         }
+        if (this::statistics.isInitialized)
+            statistics.isChecked = hasUsageStatistics()
     }
 
     private val accessibilityLauncher = registerForActivityResult(
@@ -950,6 +950,15 @@ class CoverPreferences : AppCompatActivity() {
         }
     }
 
+    private fun hasUsageStatistics() : Boolean {
+        try {
+            if ((getSystemService(Context.APP_OPS_SERVICE) as AppOpsManager)
+                    .unsafeCheckOp("android:get_usage_stats", Process.myUid(), packageName)
+                == AppOpsManager.MODE_ALLOWED) return true
+        } catch (ignored: SecurityException) { }
+        return false
+    }
+
     private fun hasKeyboardInstalled(): Boolean {
         return try {
             packageManager.getPackageInfo(BuildConfig.APPLICATION_ID + ".ime", 0)
@@ -979,9 +988,6 @@ class CoverPreferences : AppCompatActivity() {
         actionSwitch.setActionView(R.layout.configure_switch)
         mainSwitch = menu.findItem(R.id.switch_action_bar).actionView
             .findViewById(R.id.switch2) as SwitchCompat
-        mainSwitch.setOnCheckedChangeListener { _, isChecked ->
-            permissionList.visibility = if (isChecked) View.VISIBLE else View.GONE
-        }
         mainSwitch.isChecked = Settings.canDrawOverlays(applicationContext)
         mainSwitch.setOnClickListener {
             overlayLauncher.launch(Intent(

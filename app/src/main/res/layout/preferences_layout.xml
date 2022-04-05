@@ -15,508 +15,218 @@
         android:layout_height="match_parent"
         app:blurOverlayColor="@color/backgroundTint">
 
-        <LinearLayout
-            android:id="@+id/innerLayout"
+        <ScrollView
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:animateLayoutChanges="true"
-            android:orientation="vertical">
-
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="1dp"
-                android:layout_marginTop="0dp"
-                android:background="?colorPrimary" />
-
-            <include layout="@layout/social_menu_bar" />
+            android:layout_height="match_parent">
 
             <LinearLayout
-                android:id="@+id/permissions"
+                android:id="@+id/innerLayout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:animateLayoutChanges="true"
                 android:orientation="vertical">
 
                 <View
                     android:layout_width="match_parent"
                     android:layout_height="1dp"
-                    android:background="?colorPrimary"
+                    android:layout_marginTop="0dp"
+                    android:background="?colorPrimary" />
+
+                <include layout="@layout/social_menu_bar" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@color/backgroundTint"
                     android:layout_marginTop="4dp"
-                    android:paddingTop="4dp"
-                    android:layout_marginBottom="4dp"/>
-
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:textSize="16sp"
-                    android:layout_marginStart="14dp"
-                    android:textColor="?android:textColorPrimary"
-                    android:gravity="center_vertical"
-                    android:text="@string/permission_options" />
-
-                <View
-                    android:layout_width="match_parent"
-                    android:layout_height="1dp"
-                    android:background="?colorPrimary"
-                    android:layout_marginTop="4dp"
-                    android:layout_marginBottom="8dp"/>
-
-                <LinearLayout
-                    android:id="@+id/notifications"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:layout_marginStart="16dp"
-                    android:layout_marginEnd="8dp"
-                    android:layout_gravity="center_vertical"
-                    tools:ignore="UseCompoundDrawables">
-
-                    <TextView
-                        android:layout_width="0dp"
-                        android:layout_weight="1"
-                        android:textSize="26sp"
-                        android:textColor="?android:textColorPrimary"
-                        android:gravity="center_vertical"
-                        android:layout_height="wrap_content"
-                        android:text="@string/permission_notifications" />
-
-                    <androidx.appcompat.widget.SwitchCompat
-                        android:id="@+id/notifications_switch"
-                        android:layout_width="0dp"
-                        android:gravity="center"
-                        android:layout_weight="1"
-                        android:clickable="false"
-                        android:textSize="26sp"
-                        android:textColor="?android:textColorPrimary"
-                        android:layout_height="wrap_content" />
-
-                </LinearLayout>
-
-                <LinearLayout
-                    android:id="@+id/usage_layout"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:layout_marginStart="16dp"
-                    android:layout_marginEnd="6dp"
-                    android:layout_gravity="center_vertical"
-                    tools:ignore="UseCompoundDrawables">
-
-                    <TextView
-                        android:layout_width="0dp"
-                        android:layout_weight="1"
-                        android:textSize="26sp"
-                        android:textColor="?android:textColorPrimary"
-                        android:gravity="center_vertical"
-                        android:layout_height="wrap_content"
-                        android:text="@string/permission_usage" />
-
-                    <androidx.appcompat.widget.AppCompatImageView
-                        android:id="@+id/usage_button"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:gravity="center"
-                        android:layout_gravity="center"
-                        app:srcCompat="@drawable/ic_baseline_data_usage_24dp"
-                        android:paddingStart="0dp"
-                        android:paddingEnd="4dp"
-                        android:contentDescription="@string/description_icon"/>
-                </LinearLayout>
-
-                <LinearLayout
-                    android:id="@+id/accessibility"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:layout_marginStart="16dp"
-                    android:layout_marginEnd="8dp"
-                    android:layout_gravity="center_vertical"
-                    tools:ignore="UseCompoundDrawables">
-
-                    <TextView
-                        android:layout_width="0dp"
-                        android:layout_weight="1"
-                        android:textSize="26sp"
-                        android:textColor="?android:textColorPrimary"
-                        android:gravity="center_vertical"
-                        android:layout_height="wrap_content"
-                        android:text="@string/permission_accessibility" />
-
-                    <androidx.appcompat.widget.SwitchCompat
-                        android:id="@+id/accessibility_switch"
-                        android:layout_width="0dp"
-                        android:gravity="center"
-                        android:layout_weight="1"
-                        android:clickable="false"
-                        android:textSize="26sp"
-                        android:textColor="?android:textColorPrimary"
-                        android:layout_height="wrap_content" />
-                </LinearLayout>
-
-                <LinearLayout
-                    android:id="@+id/voice_layout"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:layout_marginStart="16dp"
-                    android:layout_marginEnd="6dp"
-                    android:layout_gravity="center_vertical"
-                    tools:ignore="UseCompoundDrawables">
-
-                    <TextView
-                        android:layout_width="0dp"
-                        android:layout_weight="1"
-                        android:textSize="26sp"
-                        android:textColor="?android:textColorPrimary"
-                        android:gravity="center_vertical"
-                        android:layout_height="wrap_content"
-                        android:text="@string/permission_voice" />
-
-                    <androidx.appcompat.widget.AppCompatImageView
-                        android:id="@+id/voice_button"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:gravity="center"
-                        android:layout_gravity="center"
-                        app:srcCompat="@drawable/ic_baseline_record_voice_over_24dp"
-                        android:paddingStart="0dp"
-                        android:paddingEnd="4dp"
-                        android:contentDescription="@string/description_icon"/>
-                </LinearLayout>
-            </LinearLayout>
-
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="1dp"
-                android:background="?colorPrimary"
-                android:layout_marginTop="4dp"
-                android:paddingTop="4dp"
-                android:layout_marginBottom="4dp"/>
-
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:textSize="16sp"
-                android:layout_marginStart="14dp"
-                android:textColor="?android:textColorPrimary"
-                android:gravity="center_vertical"
-                android:text="@string/config_options" />
-
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="1dp"
-                android:background="?colorPrimary"
-                android:layout_marginTop="4dp"
-                android:layout_marginBottom="8dp"/>
-
-            <LinearLayout
-                android:id="@+id/keyboard_layout"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:layout_marginStart="16dp"
-                android:layout_marginEnd="8dp"
-                android:layout_gravity="center_vertical"
-                tools:ignore="UseCompoundDrawables">
-
-                <TextView
-                    android:layout_width="0dp"
-                    android:layout_weight="1"
-                    android:textSize="26sp"
-                    android:textColor="?android:textColorPrimary"
-                    android:gravity="center_vertical"
-                    android:layout_height="wrap_content"
-                    android:text="@string/options_keyboard" />
-
-                <androidx.appcompat.widget.SwitchCompat
-                    android:id="@+id/keyboard_switch"
-                    android:layout_width="0dp"
-                    android:gravity="center"
-                    android:layout_weight="1"
-                    android:textSize="26sp"
-                    android:textColor="?android:textColorPrimary"
-                    android:layout_height="wrap_content" />
-            </LinearLayout>
-
-            <LinearLayout
-                android:id="@+id/updates"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:layout_marginStart="16dp"
-                android:layout_marginEnd="8dp"
-                android:layout_gravity="center_vertical"
-                tools:ignore="UseCompoundDrawables">
-
-                <TextView
-                    android:layout_width="0dp"
-                    android:layout_weight="1"
-                    android:textSize="26sp"
-                    android:textColor="?android:textColorPrimary"
-                    android:gravity="center_vertical"
-                    android:layout_height="wrap_content"
-                    android:text="@string/updates_preference" />
-
-                <androidx.appcompat.widget.SwitchCompat
-                    android:id="@+id/updates_switch"
-                    android:layout_width="0dp"
-                    android:gravity="center"
-                    android:layout_weight="1"
-                    android:textSize="26sp"
-                    android:textColor="?android:textColorPrimary"
-                    android:layout_height="wrap_content" />
-            </LinearLayout>
-
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="1dp"
-                android:background="?colorPrimary"
-                android:layout_marginTop="4dp"
-                android:paddingTop="4dp"
-                android:layout_marginBottom="4dp"/>
-
-        <LinearLayout
-            android:id="@+id/general_heading"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:layout_marginHorizontal="14dp"
-            tools:ignore="UseCompoundDrawables">
-
-            <TextView
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:textSize="16sp"
-                android:textColor="?android:textColorPrimary"
-                android:gravity="center_vertical"
-                android:text="@string/general_options" />
-
-            <androidx.appcompat.widget.AppCompatImageView
-                android:layout_width="wrap_content"
-                android:gravity="center_vertical"
-                android:layout_gravity="end"
-                app:srcCompat="@drawable/ic_baseline_expand_20dp"
-                android:layout_height="wrap_content"
-                android:contentDescription="@string/description_icon"/>
-        </LinearLayout>
-
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="1dp"
-                android:background="?colorPrimary"
-                android:layout_marginTop="4dp"
-                android:layout_marginBottom="8dp"/>
-
-            <LinearLayout
-                android:id="@+id/general"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical">
-
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:textSize="16sp"
-                    android:layout_marginStart="16dp"
-                    android:layout_marginEnd="16dp"
-                    android:textColor="?android:textColorPrimary"
-                    android:gravity="center"
-                    android:text="@string/color_theme" />
-
-                <View
-                    android:id="@+id/color_composite"
-                    android:layout_width="match_parent"
-                    android:layout_height="18dp"
-                    android:layout_marginTop="10dp"
                     android:layout_marginBottom="8dp"
-                    android:layout_marginStart="8dp"
-                    android:layout_marginEnd="10dp" />
+                    android:orientation="vertical">
 
-                <include
-                    layout="@layout/color_panel"
-                    android:id="@+id/color_panel" />
-
-                <LinearLayout
-                    android:id="@+id/search"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:layout_marginStart="16dp"
-                    android:layout_marginEnd="8dp"
-                    android:layout_gravity="center_vertical"
-                    tools:ignore="UseCompoundDrawables">
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:background="?colorPrimary"
+                        android:paddingTop="4dp"
+                        android:layout_marginBottom="4dp"/>
 
                     <TextView
-                        android:layout_width="0dp"
-                        android:layout_weight="1"
-                        android:textSize="26sp"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:textSize="16sp"
+                        android:layout_marginStart="14dp"
                         android:textColor="?android:textColorPrimary"
                         android:gravity="center_vertical"
-                        android:layout_height="wrap_content"
-                        android:text="@string/options_search" />
+                        android:text="@string/permission_options" />
 
-                    <androidx.appcompat.widget.SwitchCompat
-                        android:id="@+id/search_switch"
-                        android:layout_width="0dp"
-                        android:gravity="center"
-                        android:layout_weight="1"
-                        android:textSize="26sp"
-                        android:textColor="?android:textColorPrimary"
-                        android:layout_height="wrap_content" />
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:background="?colorPrimary"
+                        android:layout_marginTop="4dp" />
                 </LinearLayout>
 
                 <LinearLayout
-                    android:id="@+id/draggable"
+                    android:id="@+id/permissions"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:layout_marginStart="16dp"
-                    android:layout_marginEnd="8dp"
-                    android:layout_gravity="center_vertical"
-                    tools:ignore="UseCompoundDrawables">
+                    android:orientation="vertical">
 
-                    <TextView
-                        android:layout_width="0dp"
-                        android:layout_weight="1"
-                        android:textSize="26sp"
-                        android:textColor="?android:textColorPrimary"
-                        android:gravity="center_vertical"
+                    <LinearLayout
+                        android:id="@+id/notifications"
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="@string/options_draggable" />
-
-                    <androidx.appcompat.widget.SwitchCompat
-                        android:id="@+id/draggable_switch"
-                        android:layout_width="0dp"
-                        android:gravity="center"
-                        android:layout_weight="1"
-                        android:textSize="26sp"
-                        android:textColor="?android:textColorPrimary"
-                        android:layout_height="wrap_content" />
-                </LinearLayout>
-
-                <LinearLayout
-                    android:id="@+id/timeout"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:layout_marginStart="16dp"
-                    android:layout_marginEnd="8dp"
-                    android:layout_gravity="center_vertical"
-                    tools:ignore="UseCompoundDrawables">
-
-                    <TextView
-                        android:id="@+id/timeout_text"
-                        android:layout_width="0dp"
-                        android:layout_weight="1"
-                        android:textSize="26sp"
-                        android:textColor="?android:textColorPrimary"
-                        android:gravity="center_vertical"
-                        android:layout_height="wrap_content"
-                        android:text="@string/options_timeout" />
-
-                    <SeekBar
-                        android:id="@+id/timeout_bar"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="center"
-                        android:gravity="center"
-                        android:layout_weight="1"
-                        android:min="4"
-                        android:max="60"/>
-                </LinearLayout>
-
-                <LinearLayout
-                    android:id="@+id/vibration"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:layout_marginStart="16dp"
-                    android:layout_marginEnd="8dp"
-                    android:layout_gravity="center_vertical"
-                    tools:ignore="UseCompoundDrawables">
-
-                    <TextView
-                        android:layout_width="0dp"
-                        android:layout_weight="1"
-                        android:textSize="26sp"
-                        android:textColor="?android:textColorPrimary"
-                        android:gravity="center_vertical"
-                        android:layout_height="wrap_content"
-                        android:text="@string/options_vibration" />
-
-                    <androidx.appcompat.widget.SwitchCompat
-                        android:id="@+id/vibration_switch"
-                        android:layout_width="0dp"
-                        android:gravity="center"
-                        android:layout_weight="1"
-                        android:textSize="26sp"
-                        android:textColor="?android:textColorPrimary"
-                        android:layout_height="wrap_content" />
-                </LinearLayout>
-
-                <LinearLayout
-                    android:id="@+id/placement"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:layout_marginStart="16dp"
-                    android:layout_marginEnd="8dp"
-                    android:layout_gravity="center_vertical"
-                    tools:ignore="UseCompoundDrawables">
-
-                    <TextView
-                        android:layout_width="0dp"
-                        android:layout_weight="1"
-                        android:textSize="26sp"
-                        android:textColor="?android:textColorPrimary"
-                        android:gravity="center_vertical"
-                        android:layout_height="wrap_content"
-                        android:text="@string/options_placement" />
-
-                    <SeekBar
-                        android:id="@+id/placement_bar"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="center"
-                        android:gravity="center"
-                        android:layout_weight="1"
-                        android:max="2"
-                        android:thumb="@drawable/ic_baseline_samsprung_24dp"/>
-                </LinearLayout>
-
-                <LinearLayout
-                    android:id="@+id/theme"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:layout_marginStart="16dp"
-                    android:layout_marginEnd="8dp"
-                    android:layout_gravity="center_vertical"
-                    tools:ignore="UseCompoundDrawables">
-
-                    <TextView
-                        android:layout_width="0dp"
-                        android:layout_weight="1"
-                        android:textSize="26sp"
-                        android:textColor="?android:textColorPrimary"
-                        android:gravity="center_vertical"
+                        android:orientation="horizontal"
+                        android:layout_marginStart="16dp"
+                        android:layout_marginEnd="8dp"
                         android:layout_gravity="center_vertical"
-                        android:layout_height="wrap_content"
-                        android:text="@string/options_theme" />
+                        tools:ignore="UseCompoundDrawables">
 
-                    <Spinner
-                        android:id="@+id/theme_spinner"
-                        style="?android:attr/dropDownSpinnerStyle"
-                        android:layout_width="0dp"
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_weight="1"
+                            android:textSize="26sp"
+                            android:textColor="?android:textColorPrimary"
+                            android:gravity="center_vertical"
+                            android:layout_height="wrap_content"
+                            android:text="@string/permission_notifications" />
+
+                        <androidx.appcompat.widget.SwitchCompat
+                            android:id="@+id/notifications_switch"
+                            android:layout_width="0dp"
+                            android:gravity="center"
+                            android:layout_weight="1"
+                            android:clickable="false"
+                            android:textSize="26sp"
+                            android:textColor="?android:textColorPrimary"
+                            android:layout_height="wrap_content" />
+
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:id="@+id/usage_layout"
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:textAlignment="center"
-                        android:background="@android:drawable/btn_dropdown"
-                        android:spinnerMode="dropdown"/>
+                        android:orientation="horizontal"
+                        android:layout_marginStart="16dp"
+                        android:layout_marginEnd="8dp"
+                        android:layout_gravity="center_vertical"
+                        tools:ignore="UseCompoundDrawables">
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_weight="1"
+                            android:textSize="26sp"
+                            android:textColor="?android:textColorPrimary"
+                            android:gravity="center_vertical"
+                            android:layout_height="wrap_content"
+                            android:text="@string/permission_usage" />
+
+                        <androidx.appcompat.widget.SwitchCompat
+                            android:id="@+id/usage_switch"
+                            android:layout_width="0dp"
+                            android:gravity="center"
+                            android:layout_weight="1"
+                            android:clickable="false"
+                            android:textSize="26sp"
+                            android:textColor="?android:textColorPrimary"
+                            android:layout_height="wrap_content" />
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:id="@+id/accessibility"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:layout_marginStart="16dp"
+                        android:layout_marginEnd="8dp"
+                        android:layout_gravity="center_vertical"
+                        tools:ignore="UseCompoundDrawables">
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_weight="1"
+                            android:textSize="26sp"
+                            android:textColor="?android:textColorPrimary"
+                            android:gravity="center_vertical"
+                            android:layout_height="wrap_content"
+                            android:text="@string/permission_accessibility" />
+
+                        <androidx.appcompat.widget.SwitchCompat
+                            android:id="@+id/accessibility_switch"
+                            android:layout_width="0dp"
+                            android:gravity="center"
+                            android:layout_weight="1"
+                            android:clickable="false"
+                            android:textSize="26sp"
+                            android:textColor="?android:textColorPrimary"
+                            android:layout_height="wrap_content" />
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:id="@+id/voice_layout"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:layout_marginStart="16dp"
+                        android:layout_marginEnd="8dp"
+                        android:layout_gravity="center_vertical"
+                        tools:ignore="UseCompoundDrawables">
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_weight="1"
+                            android:textSize="26sp"
+                            android:textColor="?android:textColorPrimary"
+                            android:gravity="center_vertical"
+                            android:layout_height="wrap_content"
+                            android:text="@string/permission_voice" />
+
+                        <androidx.appcompat.widget.AppCompatImageView
+                            android:id="@+id/voice_button"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:gravity="center"
+                            android:layout_gravity="center"
+                            app:srcCompat="@drawable/ic_baseline_record_voice_over_24dp"
+                            android:paddingStart="0dp"
+                            android:paddingEnd="4dp"
+                            android:contentDescription="@string/description_icon"/>
+                    </LinearLayout>
                 </LinearLayout>
 
                 <LinearLayout
-                    android:id="@+id/dismiss"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@color/backgroundTint"
+                    android:layout_marginTop="4dp"
+                    android:layout_marginBottom="8dp"
+                    android:orientation="vertical">
+
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:background="?colorPrimary"
+                        android:paddingTop="4dp"
+                        android:layout_marginBottom="4dp"/>
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:textSize="16sp"
+                        android:layout_marginStart="14dp"
+                        android:textColor="?android:textColorPrimary"
+                        android:gravity="center_vertical"
+                        android:text="@string/config_options" />
+
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:background="?colorPrimary"
+                        android:layout_marginTop="4dp" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/keyboard_layout"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="horizontal"
@@ -526,50 +236,423 @@
                     tools:ignore="UseCompoundDrawables">
 
                     <TextView
-                        android:id="@+id/dismiss_text"
                         android:layout_width="0dp"
                         android:layout_weight="1"
                         android:textSize="26sp"
                         android:textColor="?android:textColorPrimary"
                         android:gravity="center_vertical"
                         android:layout_height="wrap_content"
-                        android:text="@string/options_dismiss" />
+                        android:text="@string/options_keyboard" />
 
-                    <SeekBar
-                        android:id="@+id/dismiss_bar"
+                    <androidx.appcompat.widget.SwitchCompat
+                        android:id="@+id/keyboard_switch"
                         android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="center"
                         android:gravity="center"
                         android:layout_weight="1"
-                        android:min="1"
-                        android:max="12"/>
+                        android:textSize="26sp"
+                        android:textColor="?android:textColorPrimary"
+                        android:layout_height="wrap_content" />
                 </LinearLayout>
 
-                <include
-                    layout="@layout/toolbar_options"
-                    android:id="@+id/toolbar_options" />
-
-                <ToggleButton
-                    android:id="@+id/swapViewType"
+                <LinearLayout
+                    android:id="@+id/updates"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:minHeight="@dimen/button_height_min"
-                    android:textOff="@string/swap_viewgrid"
-                    android:textOn="@string/swap_viewlist"
-                    android:layout_marginStart="2dp"
-                    android:layout_marginEnd="2dp"
-                    android:layout_marginBottom="2dp"/>
+                    android:orientation="horizontal"
+                    android:layout_marginStart="16dp"
+                    android:layout_marginEnd="8dp"
+                    android:layout_gravity="center_vertical"
+                    tools:ignore="UseCompoundDrawables">
 
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_weight="1"
+                        android:textSize="26sp"
+                        android:textColor="?android:textColorPrimary"
+                        android:gravity="center_vertical"
+                        android:layout_height="wrap_content"
+                        android:text="@string/updates_preference" />
+
+                    <androidx.appcompat.widget.SwitchCompat
+                        android:id="@+id/updates_switch"
+                        android:layout_width="0dp"
+                        android:gravity="center"
+                        android:layout_weight="1"
+                        android:textSize="26sp"
+                        android:textColor="?android:textColorPrimary"
+                        android:layout_height="wrap_content" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@color/backgroundTint"
+                    android:layout_marginTop="4dp"
+                    android:layout_marginBottom="8dp"
+                    android:orientation="vertical">
+
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:background="?colorPrimary"
+                        android:paddingTop="4dp"
+                        android:layout_marginBottom="4dp"/>
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:textSize="16sp"
+                        android:layout_marginStart="14dp"
+                        android:textColor="?android:textColorPrimary"
+                        android:gravity="center_vertical"
+                        android:text="@string/general_options" />
+
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:background="?colorPrimary"
+                        android:layout_marginTop="4dp" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/general"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:textSize="16sp"
+                        android:layout_marginStart="16dp"
+                        android:layout_marginEnd="16dp"
+                        android:textColor="?android:textColorPrimary"
+                        android:gravity="center"
+                        android:text="@string/color_theme" />
+
+                    <View
+                        android:id="@+id/color_composite"
+                        android:layout_width="match_parent"
+                        android:layout_height="18dp"
+                        android:layout_marginTop="10dp"
+                        android:layout_marginBottom="8dp"
+                        android:layout_marginStart="8dp"
+                        android:layout_marginEnd="10dp" />
+
+                    <include
+                        layout="@layout/color_panel"
+                        android:id="@+id/color_panel" />
+
+                    <LinearLayout
+                        android:id="@+id/placement"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:layout_marginStart="16dp"
+                        android:layout_marginEnd="8dp"
+                        android:layout_gravity="center_vertical"
+                        tools:ignore="UseCompoundDrawables">
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_weight="1"
+                            android:textSize="26sp"
+                            android:textColor="?android:textColorPrimary"
+                            android:gravity="center_vertical"
+                            android:layout_height="wrap_content"
+                            android:text="@string/options_placement" />
+
+                        <SeekBar
+                            android:id="@+id/placement_bar"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center"
+                            android:gravity="center"
+                            android:layout_weight="1"
+                            android:max="2"
+                            android:thumb="@drawable/ic_baseline_samsprung_24dp"/>
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:id="@+id/theme"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:layout_marginStart="16dp"
+                        android:layout_marginEnd="8dp"
+                        android:layout_gravity="center_vertical"
+                        tools:ignore="UseCompoundDrawables">
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_weight="1"
+                            android:textSize="26sp"
+                            android:textColor="?android:textColorPrimary"
+                            android:gravity="center_vertical"
+                            android:layout_gravity="center_vertical"
+                            android:layout_height="wrap_content"
+                            android:text="@string/options_theme" />
+
+                        <Spinner
+                            android:id="@+id/theme_spinner"
+                            style="?android:attr/dropDownSpinnerStyle"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:textAlignment="center"
+                            android:background="@android:drawable/btn_dropdown"
+                            android:spinnerMode="dropdown"/>
+                    </LinearLayout>
+
+                    <include
+                        layout="@layout/toolbar_options"
+                        android:id="@+id/toolbar_options" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@color/backgroundTint"
+                    android:layout_marginTop="4dp"
+                    android:layout_marginBottom="8dp"
+                    android:orientation="vertical">
+
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:background="?colorPrimary"
+                        android:paddingTop="4dp"
+                        android:layout_marginBottom="4dp"/>
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:textSize="16sp"
+                        android:layout_marginStart="14dp"
+                        android:textColor="?android:textColorPrimary"
+                        android:gravity="center_vertical"
+                        android:text="@string/drawer_options" />
+
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:background="?colorPrimary"
+                        android:layout_marginTop="4dp"/>
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/drawer"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
+
+                    <LinearLayout
+                        android:id="@+id/draggable"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:layout_marginStart="16dp"
+                        android:layout_marginEnd="8dp"
+                        android:layout_gravity="center_vertical"
+                        tools:ignore="UseCompoundDrawables">
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_weight="1"
+                            android:textSize="26sp"
+                            android:textColor="?android:textColorPrimary"
+                            android:gravity="center_vertical"
+                            android:layout_height="wrap_content"
+                            android:text="@string/options_draggable" />
+
+                        <androidx.appcompat.widget.SwitchCompat
+                            android:id="@+id/draggable_switch"
+                            android:layout_width="0dp"
+                            android:gravity="center"
+                            android:layout_weight="1"
+                            android:textSize="26sp"
+                            android:textColor="?android:textColorPrimary"
+                            android:layout_height="wrap_content" />
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:id="@+id/vibration"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:layout_marginStart="16dp"
+                        android:layout_marginEnd="8dp"
+                        android:layout_gravity="center_vertical"
+                        tools:ignore="UseCompoundDrawables">
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_weight="1"
+                            android:textSize="26sp"
+                            android:textColor="?android:textColorPrimary"
+                            android:gravity="center_vertical"
+                            android:layout_height="wrap_content"
+                            android:text="@string/options_vibration" />
+
+                        <androidx.appcompat.widget.SwitchCompat
+                            android:id="@+id/vibration_switch"
+                            android:layout_width="0dp"
+                            android:gravity="center"
+                            android:layout_weight="1"
+                            android:textSize="26sp"
+                            android:textColor="?android:textColorPrimary"
+                            android:layout_height="wrap_content" />
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:id="@+id/search"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:layout_marginStart="16dp"
+                        android:layout_marginEnd="8dp"
+                        android:layout_gravity="center_vertical"
+                        tools:ignore="UseCompoundDrawables">
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_weight="1"
+                            android:textSize="26sp"
+                            android:textColor="?android:textColorPrimary"
+                            android:gravity="center_vertical"
+                            android:layout_height="wrap_content"
+                            android:text="@string/options_search" />
+
+                        <androidx.appcompat.widget.SwitchCompat
+                            android:id="@+id/search_switch"
+                            android:layout_width="0dp"
+                            android:gravity="center"
+                            android:layout_weight="1"
+                            android:textSize="26sp"
+                            android:textColor="?android:textColorPrimary"
+                            android:layout_height="wrap_content" />
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:id="@+id/timeout"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:layout_marginStart="16dp"
+                        android:layout_marginEnd="8dp"
+                        android:layout_gravity="center_vertical"
+                        tools:ignore="UseCompoundDrawables">
+
+                        <TextView
+                            android:id="@+id/timeout_text"
+                            android:layout_width="0dp"
+                            android:layout_weight="1"
+                            android:textSize="26sp"
+                            android:textColor="?android:textColorPrimary"
+                            android:gravity="center_vertical"
+                            android:layout_height="wrap_content"
+                            android:text="@string/options_timeout" />
+
+                        <SeekBar
+                            android:id="@+id/timeout_bar"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center"
+                            android:gravity="center"
+                            android:layout_weight="1"
+                            android:min="4"
+                            android:max="60"/>
+                    </LinearLayout>
+
+                    <ToggleButton
+                        android:id="@+id/swapViewType"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:minHeight="@dimen/button_height_min"
+                        android:textOff="@string/swap_viewgrid"
+                        android:textOn="@string/swap_viewlist"
+                        android:layout_marginStart="2dp"
+                        android:layout_marginEnd="2dp"
+                        android:layout_marginBottom="6dp"/>
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@color/backgroundTint"
+                    android:layout_marginTop="4dp"
+                    android:layout_marginBottom="8dp"
+                    android:orientation="vertical">
+
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:background="?colorPrimary"
+                        android:paddingTop="4dp"
+                        android:layout_marginBottom="4dp"/>
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:textSize="16sp"
+                        android:layout_marginStart="14dp"
+                        android:textColor="?android:textColorPrimary"
+                        android:gravity="center_vertical"
+                        android:text="@string/notice_options" />
+
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:background="?colorPrimary"
+                        android:layout_marginTop="4dp" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/notices"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
+
+                    <LinearLayout
+                        android:id="@+id/dismiss"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:layout_marginStart="16dp"
+                        android:layout_marginEnd="8dp"
+                        android:layout_gravity="center_vertical"
+                        tools:ignore="UseCompoundDrawables,UselessParent">
+
+                        <TextView
+                            android:id="@+id/dismiss_text"
+                            android:layout_width="0dp"
+                            android:layout_weight="1"
+                            android:textSize="26sp"
+                            android:textColor="?android:textColorPrimary"
+                            android:gravity="center_vertical"
+                            android:layout_height="wrap_content"
+                            android:text="@string/options_dismiss" />
+
+                        <SeekBar
+                            android:id="@+id/dismiss_bar"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center"
+                            android:gravity="center"
+                            android:layout_weight="1"
+                            android:min="1"
+                            android:max="12"/>
+                    </LinearLayout>
+                </LinearLayout>
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:background="?colorPrimary"
+                    android:layout_marginTop="12dp"
+                    android:layout_marginBottom="16dp"/>
             </LinearLayout>
-
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="1dp"
-                android:background="?colorPrimary"
-                android:layout_marginTop="8dp"
-                android:layout_marginBottom="16dp"/>
-        </LinearLayout>
+        </ScrollView>
     </com.eightbitlab.blurview.BlurView>
 
     <LinearLayout
@@ -586,6 +669,8 @@
             android:id="@+id/visibility_handle"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginBottom="4dp"
+            android:background="@color/backgroundTint"
             android:orientation="vertical">
 
             <View
@@ -594,21 +679,36 @@
                 android:paddingTop="4dp"
                 android:layout_marginBottom="4dp"/>
 
-            <TextView
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:textSize="16sp"
-                android:layout_marginStart="14dp"
-                android:textColor="?android:textColorPrimary"
-                android:gravity="center_vertical"
-                android:text="@string/visibility_options" />
+                android:orientation="horizontal"
+                android:layout_marginHorizontal="14dp"
+                tools:ignore="UseCompoundDrawables">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:textSize="16sp"
+                    android:textColor="?android:textColorPrimary"
+                    android:gravity="center_vertical"
+                    android:text="@string/visibility_options" />
+
+                <androidx.appcompat.widget.AppCompatImageView
+                    android:layout_width="wrap_content"
+                    android:gravity="center_vertical"
+                    android:layout_gravity="end"
+                    app:srcCompat="@drawable/ic_baseline_expand_20dp"
+                    android:layout_height="wrap_content"
+                    android:contentDescription="@string/description_icon"/>
+            </LinearLayout>
 
             <View
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
                 android:background="?colorPrimary"
-                android:layout_marginTop="6dp"
-                android:layout_marginBottom="4dp"/>
+                android:layout_marginTop="6dp" />
         </LinearLayout>
 
         <androidx.recyclerview.widget.RecyclerView

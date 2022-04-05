@@ -51,6 +51,7 @@ package com.eightbit.pm
  * subject to to the terms and conditions of the Apache License, Version 2.0.
  */
 
+import android.app.AppOpsManager
 import android.app.usage.UsageEvents
 import android.app.usage.UsageStatsManager
 import android.content.Context
@@ -58,6 +59,7 @@ import android.content.Intent
 import android.content.SharedPreferences
 import android.content.pm.PackageManager
 import android.content.pm.ResolveInfo
+import android.os.Process
 import androidx.appcompat.app.AppCompatActivity
 import com.eightbit.samsprung.BuildConfig
 import com.eightbit.samsprung.SamSprung
@@ -119,13 +121,14 @@ class PackageRetriever(val context: Context) {
 
     fun getFilteredPackageList() : MutableList<ResolveInfo> {
         val packages = getPackageList()
-        val statsManager =
-            context.getSystemService(Context.USAGE_STATS_SERVICE) as UsageStatsManager
         try {
-            statsManager.isAppInactive(context.packageName)
-        } catch (ignored: Exception) {
+            if ((context.getSystemService(Context.APP_OPS_SERVICE) as AppOpsManager).unsafeCheckOp(
+                    "android:get_usage_stats", Process.myUid(), context.packageName
+                ) != AppOpsManager.MODE_ALLOWED) return packages
+        } catch (ignored: SecurityException) {
             return packages
         }
+        val statsManager = context.getSystemService(Context.USAGE_STATS_SERVICE) as UsageStatsManager
         val recent = getRecentPackageList(statsManager, packages)
         packages.addAll(0, recent)
         packages.removeIf { item ->
