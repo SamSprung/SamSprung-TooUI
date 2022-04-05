@@ -2,8 +2,9 @@
 
     <string name="permission_options">Permissions</string>
     <string name="permission_notifications">Notifications</string>
-    <string name="permission_usage">Usage Metrics</string>
+    <string name="permission_usage">Usage Sorting</string>
     <string name="permission_accessibility">Accessibility</string>
+    <string name="permission_voice">Voice Launch</string>
     <string name="config_options">Configuration</string>
     <string name="options_keyboard">Keyboard / IME</string>
     <string name="updates_preference">Preview Builds</string>

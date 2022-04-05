@@ -151,6 +151,37 @@
                         android:textColor="?android:textColorPrimary"
                         android:layout_height="wrap_content" />
                 </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/voice_layout"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:layout_marginStart="16dp"
+                    android:layout_marginEnd="6dp"
+                    android:layout_gravity="center_vertical"
+                    tools:ignore="UseCompoundDrawables">
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_weight="1"
+                        android:textSize="26sp"
+                        android:textColor="?android:textColorPrimary"
+                        android:gravity="center_vertical"
+                        android:layout_height="wrap_content"
+                        android:text="@string/permission_voice" />
+
+                    <androidx.appcompat.widget.AppCompatImageView
+                        android:id="@+id/voice_button"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:gravity="center"
+                        android:layout_gravity="center"
+                        app:srcCompat="@drawable/ic_baseline_record_voice_over_24dp"
+                        android:paddingStart="0dp"
+                        android:paddingEnd="4dp"
+                        android:contentDescription="@string/description_icon"/>
+                </LinearLayout>
             </LinearLayout>
 
             <View

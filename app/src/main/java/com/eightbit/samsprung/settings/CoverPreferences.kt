@@ -260,6 +260,11 @@ class CoverPreferences : AppCompatActivity() {
             }
         }
 
+        findViewById<LinearLayout>(R.id.voice_layout).setOnClickListener {
+            requestVoice.launch(Manifest.permission.RECORD_AUDIO)
+        }
+        toggleVoiceIcon(hasPermission(Manifest.permission.RECORD_AUDIO))
+
         keyboard = findViewById(R.id.keyboard_switch)
         keyboard.isClickable = false
         keyboard.isChecked = hasKeyboardInstalled()
@@ -677,6 +682,7 @@ class CoverPreferences : AppCompatActivity() {
 
         val toolbar = findViewById<Toolbar>(R.id.toolbar)
         toolbar.inflateMenu(R.menu.cover_quick_toggles)
+
         toolbar.setOnMenuItemClickListener { item: MenuItem ->
             val pref = item.title.toPref
             with(prefs.edit()) {
@@ -692,10 +698,11 @@ class CoverPreferences : AppCompatActivity() {
                     return@setOnMenuItemClickListener true
                 }
                 R.id.toggle_bluetooth -> {
-                    if (prefs.getBoolean(pref, true))
-                        item.setIcon(R.drawable.ic_baseline_bluetooth_on_24dp)
-                    else
-                        item.setIcon(R.drawable.ic_baseline_bluetooth_off_24dp)
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                        requestBluetooth.launch(Manifest.permission.BLUETOOTH_CONNECT)
+                    } else {
+                        toggleBluetoothIcon(toolbar)
+                    }
                     return@setOnMenuItemClickListener true
                 }
                 R.id.toggle_nfc -> {
@@ -727,10 +734,12 @@ class CoverPreferences : AppCompatActivity() {
                     return@setOnMenuItemClickListener true
                 }
                 R.id.toggle_widgets -> {
-                    if (prefs.getBoolean(pref, true))
+                    if (prefs.getBoolean(pref, false)) {
                         item.setIcon(R.drawable.ic_baseline_widgets_24dp)
-                    else
+                        requestUnchecked.launch(Manifest.permission.BIND_APPWIDGET)
+                    } else {
                         item.setIcon(R.drawable.ic_baseline_insert_page_break_24dp)
+                    }
                     return@setOnMenuItemClickListener true
                 }
                 else -> {
@@ -745,11 +754,15 @@ class CoverPreferences : AppCompatActivity() {
         else
             wifi.setIcon(R.drawable.ic_baseline_wifi_off_24dp)
 
-        val bluetooth = toolbar.menu.findItem(R.id.toggle_bluetooth)
-        if (prefs.getBoolean(bluetooth.title.toPref, true))
-            bluetooth.setIcon(R.drawable.ic_baseline_bluetooth_on_24dp)
-        else
-            bluetooth.setIcon(R.drawable.ic_baseline_bluetooth_off_24dp)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            if (!hasPermission(Manifest.permission.BLUETOOTH_CONNECT)) {
+                with(prefs.edit()) {
+                    putBoolean(toolbar.menu.findItem(R.id.toggle_bluetooth).title.toPref, false)
+                    apply()
+                }
+            }
+        }
+        toggleBluetoothIcon(toolbar)
 
         val nfc = toolbar.menu.findItem(R.id.toggle_nfc)
         if (prefs.getBoolean(nfc.title.toPref, true))
@@ -776,34 +789,10 @@ class CoverPreferences : AppCompatActivity() {
             torch.setIcon(R.drawable.ic_baseline_flashlight_off_24dp)
 
         val widgets = toolbar.menu.findItem(R.id.toggle_widgets)
-        if (prefs.getBoolean(widgets.title.toPref, true))
+        if (prefs.getBoolean(widgets.title.toPref, false))
             widgets.setIcon(R.drawable.ic_baseline_widgets_24dp)
         else
             widgets.setIcon(R.drawable.ic_baseline_insert_page_break_24dp)
-    }
-
-    private val permissions =
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S)
-            arrayOf(
-                Manifest.permission.BLUETOOTH_CONNECT,
-                Manifest.permission.READ_EXTERNAL_STORAGE,
-                Manifest.permission.RECORD_AUDIO,
-                Manifest.permission.BIND_APPWIDGET
-            )
-        else
-            arrayOf(
-                Manifest.permission.READ_EXTERNAL_STORAGE,
-                Manifest.permission.RECORD_AUDIO,
-                Manifest.permission.BIND_APPWIDGET
-            )
-
-    private val requestUnchecked = registerForActivityResult(
-        ActivityResultContracts.RequestPermission()) { }
-
-    @SuppressLint("MissingPermission")
-    private val requestStorage = registerForActivityResult(
-        ActivityResultContracts.RequestPermission()) {
-        if (it) coordinator.background = WallpaperManager.getInstance(this).drawable
     }
 
     private fun setAnimatedUpdateNotice(appUpdateInfo: AppUpdateInfo?, downloadUrl: String?) {
@@ -833,23 +822,13 @@ class CoverPreferences : AppCompatActivity() {
         }
     }
 
+    private val requestUnchecked = registerForActivityResult(
+        ActivityResultContracts.RequestPermission()) { }
+
     @SuppressLint("MissingPermission")
-    private val requestPermissions = registerForActivityResult(
-        ActivityResultContracts.RequestMultiplePermissions()) { permissions ->
-        permissions.entries.forEach {
-            if (it.key == Manifest.permission.BLUETOOTH_CONNECT && !it.value) {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-                    requestUnchecked.launch(Manifest.permission.BLUETOOTH_CONNECT)
-                }
-            } else if (it.key == Manifest.permission.READ_EXTERNAL_STORAGE) {
-                if (it.value)
-                    coordinator.background = WallpaperManager.getInstance(this).drawable
-                else
-                    requestStorage.launch(Manifest.permission.READ_EXTERNAL_STORAGE)
-            } else if (it.key == Manifest.permission.RECORD_AUDIO && !it.value) {
-                requestUnchecked.launch(Manifest.permission.RECORD_AUDIO)
-            }
-        }
+    private val requestStorage = registerForActivityResult(
+        ActivityResultContracts.RequestPermission()) {
+        if (it) coordinator.background = WallpaperManager.getInstance(this).drawable
 
         updateCheck = CheckUpdatesTask(this@CoverPreferences)
         if (BuildConfig.FLAVOR == "google") {
@@ -865,6 +844,39 @@ class CoverPreferences : AppCompatActivity() {
                 }
             })
         }
+    }
+
+    private fun toggleVoiceIcon(isEnabled: Boolean) {
+        findViewById<AppCompatImageView>(R.id.voice_button).setImageResource(
+            if (isEnabled)
+                R.drawable.ic_baseline_record_voice_over_24dp
+            else
+                R.drawable.ic_baseline_voice_over_off_24dp
+        )
+    }
+
+    private val requestVoice = registerForActivityResult(
+        ActivityResultContracts.RequestPermission()) { toggleVoiceIcon(it) }
+
+    private fun toggleBluetoothIcon(toolbar: Toolbar) {
+        val bluetooth = toolbar.menu.findItem(R.id.toggle_bluetooth)
+        if (prefs.getBoolean(bluetooth.title.toPref, true))
+            bluetooth.setIcon(R.drawable.ic_baseline_bluetooth_on_24dp)
+        else
+            bluetooth.setIcon(R.drawable.ic_baseline_bluetooth_off_24dp)
+    }
+
+    @SuppressLint("MissingPermission")
+    private val requestBluetooth = registerForActivityResult(
+        ActivityResultContracts.RequestPermission()) {
+        val toolbar = findViewById<Toolbar>(R.id.toolbar)
+        if (!it) {
+            with(prefs.edit()) {
+                putBoolean(toolbar.menu.findItem(R.id.toggle_bluetooth).title.toPref, false)
+                apply()
+            }
+        }
+        toggleBluetoothIcon(toolbar)
     }
 
     private val notificationLauncher = registerForActivityResult(
@@ -911,6 +923,10 @@ class CoverPreferences : AppCompatActivity() {
 
     private fun isDeviceSecure(): Boolean {
         return (getSystemService(Context.KEYGUARD_SERVICE) as KeyguardManager).isDeviceSecure
+    }
+
+    private fun hasPermission(permission: String) : Boolean {
+        return (checkSelfPermission(permission) == PackageManager.PERMISSION_GRANTED)
     }
 
     private fun hasAccessibility(): Boolean {
@@ -1142,14 +1158,18 @@ class CoverPreferences : AppCompatActivity() {
                         apply()
                     }
                     dialog.dismiss()
-                    runOnUiThread { requestPermissions.launch(permissions) }
+                    runOnUiThread {
+                        requestStorage.launch(Manifest.permission.READ_EXTERNAL_STORAGE)
+                    }
                 }
                 .setNegativeButton(R.string.button_cancel) { dialog, _ ->
                     dialog.dismiss()
                     finish()
                 }.show()
         } else {
-            runOnUiThread { requestPermissions.launch(permissions) }
+            runOnUiThread {
+                requestStorage.launch(Manifest.permission.READ_EXTERNAL_STORAGE)
+            }
         }
     }
 
