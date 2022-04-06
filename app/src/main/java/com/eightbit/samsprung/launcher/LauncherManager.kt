@@ -9,10 +9,7 @@ import android.content.pm.ApplicationInfo
 import android.content.pm.LauncherApps
 import android.content.pm.ResolveInfo
 import android.graphics.PixelFormat
-import android.os.Bundle
-import android.os.Handler
-import android.os.Looper
-import android.os.Process
+import android.os.*
 import android.view.View
 import android.view.WindowManager
 import android.widget.LinearLayout
@@ -24,6 +21,8 @@ import com.eightbit.samsprung.SamSprungOverlay
 
 
 class LauncherManager(private val overlay: SamSprungOverlay) {
+
+    val launcher = overlay.getSystemService(AppCompatActivity.LAUNCHER_APPS_SERVICE) as LauncherApps
 
     private fun getOrientationManager(extras: Bundle) {
         val context = ScaledContext.cover(overlay.applicationContext)
@@ -55,8 +54,7 @@ class LauncherManager(private val overlay: SamSprungOverlay) {
                 if (!unlocked) return
                 overlay.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_LOCKED
                 overlay.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_BEHIND
-                (overlay.getSystemService(AppCompatActivity
-                    .LAUNCHER_APPS_SERVICE) as LauncherApps).startMainActivity(
+                launcher.startMainActivity(
                     ComponentName(
                         resolveInfo.activityInfo.packageName,
                         resolveInfo.activityInfo.name
@@ -69,7 +67,6 @@ class LauncherManager(private val overlay: SamSprungOverlay) {
                 val extras = Bundle()
                 extras.putString("launchPackage", resolveInfo.activityInfo.packageName)
                 extras.putString("launchActivity", resolveInfo.activityInfo.name)
-
                 getOrientationManager(extras)
             }
         })
@@ -81,20 +78,18 @@ class LauncherManager(private val overlay: SamSprungOverlay) {
                 if (!unlocked) return
                 overlay.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_LOCKED
                 overlay.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_BEHIND
-                val intent = overlay.packageManager
-                    .getLaunchIntentForPackage(appInfo.packageName)
-                (overlay.getSystemService(AppCompatActivity.LAUNCHER_APPS_SERVICE) as LauncherApps)
-                    .startMainActivity(intent?.component,
-                        Process.myUserHandle(),
-                        overlay.windowManager.currentWindowMetrics.bounds,
-                        CoverOptions.getAnimatedOptions(
-                            1, overlay.getCoordinator(), intent
-                        ).toBundle()
-                    )
+                val intent = overlay.packageManager.getLaunchIntentForPackage(appInfo.packageName)
+                launcher.startMainActivity(
+                    intent?.component,
+                    Process.myUserHandle(),
+                    overlay.windowManager.currentWindowMetrics.bounds,
+                    CoverOptions.getAnimatedOptions(
+                        1, overlay.getCoordinator(), intent
+                    ).toBundle()
+                )
 
                 val extras = Bundle()
                 extras.putString("launchPackage", appInfo.packageName)
-
                 getOrientationManager(extras)
             }
         })
@@ -107,18 +102,22 @@ class LauncherManager(private val overlay: SamSprungOverlay) {
                 overlay.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_LOCKED
                 overlay.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_BEHIND
 
+                val extras = Bundle()
+//                val parcel = Parcel.obtain()
+//                PendingIntent.writePendingIntentOrNullToParcel(pendingIntent, parcel)
+//                extras.putByteArray("pendingIntent", parcel.marshall())
+//                parcel.recycle()
+
                 pendingIntent.send(
                     ScaledContext.cover(overlay), SamSprung.request_code,
                     Intent().setFlags(Intent.FLAG_ACTIVITY_NEW_TASK or
-                            Intent.FLAG_ACTIVITY_NO_ANIMATION or
+                            Intent.FLAG_ACTIVITY_TASK_ON_HOME or
                             Intent.FLAG_ACTIVITY_FORWARD_RESULT
                     ), null, null, null,
                     CoverOptions.getActivityOptions(1).toBundle()
                 )
 
-                val extras = Bundle()
                 extras.putString("launchPackage", pendingIntent.intentSender.creatorPackage)
-
                 getOrientationManager(extras)
             }
         })

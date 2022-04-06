@@ -15,7 +15,7 @@
         android:layout_height="match_parent"
         app:blurOverlayColor="@color/backgroundTint">
 
-        <ScrollView
+        <androidx.core.widget.NestedScrollView
             android:layout_width="match_parent"
             android:layout_height="match_parent">
 
@@ -571,9 +571,8 @@
                         android:minHeight="@dimen/button_height_min"
                         android:textOff="@string/swap_viewgrid"
                         android:textOn="@string/swap_viewlist"
-                        android:layout_marginStart="2dp"
-                        android:layout_marginEnd="2dp"
-                        android:layout_marginBottom="6dp"/>
+                        android:layout_marginHorizontal="2dp"
+                        android:layout_marginVertical="4dp"/>
                 </LinearLayout>
 
                 <LinearLayout
@@ -652,7 +651,7 @@
                     android:layout_marginTop="12dp"
                     android:layout_marginBottom="16dp"/>
             </LinearLayout>
-        </ScrollView>
+        </androidx.core.widget.NestedScrollView>
     </com.eightbitlab.blurview.BlurView>
 
     <LinearLayout

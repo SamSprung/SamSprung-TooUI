@@ -81,6 +81,7 @@ import com.eightbit.view.OnSwipeTouchListener
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import java.io.File
 
+
 class AppDisplayListener : Service() {
 
     private lateinit var prefs: SharedPreferences
@@ -102,6 +103,14 @@ class AppDisplayListener : Service() {
             intent.getStringExtra("launchActivity") else null
         var componentName: ComponentName? = if (null == launchActivity && null != launchPackage)
             packageManager.getLaunchIntentForPackage(launchPackage)?.component else null
+
+//        val pendingIntent: ByteArray? = intent.getByteArrayExtra("pendingIntent")
+//        if (null != pendingIntent) {
+//            val parcel = Parcel.obtain()
+//            parcel.unmarshall(pendingIntent, 0, pendingIntent.size)
+//            parcel.setDataPosition(0)
+//            parcel.recycle()
+//        }
 
         prefs = getSharedPreferences(SamSprung.prefsValue, MODE_PRIVATE)
 
