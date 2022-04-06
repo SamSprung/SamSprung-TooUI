@@ -9,7 +9,10 @@ import android.content.pm.ApplicationInfo
 import android.content.pm.LauncherApps
 import android.content.pm.ResolveInfo
 import android.graphics.PixelFormat
-import android.os.*
+import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
+import android.os.Process
 import android.view.View
 import android.view.WindowManager
 import android.widget.LinearLayout
@@ -117,7 +120,11 @@ class LauncherManager(private val overlay: SamSprungOverlay) {
                     CoverOptions.getActivityOptions(1).toBundle()
                 )
 
-                extras.putString("launchPackage", pendingIntent.intentSender.creatorPackage)
+                if (pendingIntent.intentSender.creatorPackage == "android") {
+                    extras.putString("launchPackage", "com.android.settings")
+                } else {
+                    extras.putString("launchPackage", pendingIntent.intentSender.creatorPackage)
+                }
                 getOrientationManager(extras)
             }
         })
