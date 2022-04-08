@@ -197,17 +197,18 @@ class SamSprungOverlay : AppCompatActivity() {
         }
 
         val coordinator = findViewById<CoordinatorLayout>(R.id.coordinator)
-        if (ContextCompat.checkSelfPermission(this,
-                Manifest.permission.READ_EXTERNAL_STORAGE
-            ) == PackageManager.PERMISSION_GRANTED
-        ) {
-            background = try {
-                Drawable.createFromPath(File(filesDir, "wallpaper.png").absolutePath)
-            } catch (ignored: Exception) {
+        background = try {
+            Drawable.createFromPath(File(filesDir, "wallpaper.png").absolutePath)
+        } catch (ignored: Exception) {
+            if (ContextCompat.checkSelfPermission(this,
+                    Manifest.permission.READ_EXTERNAL_STORAGE
+                ) == PackageManager.PERMISSION_GRANTED
+            )
                 WallpaperManager.getInstance(ScaledContext.cover(applicationContext)).drawable
-            }
-            coordinator.background = background
+            else
+                null
         }
+        if (null != background) coordinator.background = background
 
         val blurView = findViewById<BlurView>(R.id.blurContainer)
         blurView.setupWith(coordinator)
