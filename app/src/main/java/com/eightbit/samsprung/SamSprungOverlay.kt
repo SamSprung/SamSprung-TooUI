@@ -71,6 +71,7 @@ import android.nfc.NfcAdapter
 import android.nfc.NfcManager
 import android.os.*
 import android.provider.Settings
+import android.service.wallpaper.WallpaperService
 import android.speech.SpeechRecognizer
 import android.util.TypedValue
 import android.view.*
@@ -109,6 +110,7 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.snackbar.Snackbar
 import com.google.android.play.core.appupdate.AppUpdateInfo
 import org.lsposed.hiddenapibypass.HiddenApiBypass
+import java.io.File
 import java.util.*
 import java.util.concurrent.Executors
 
@@ -135,8 +137,13 @@ class SamSprungOverlay : AppCompatActivity() {
 
     private var isTorchEnabled = false
 
+    private var offReceiver: BroadcastReceiver = object : BroadcastReceiver() {
+        @SuppressLint("NotifyDataSetChanged")
+        override fun onReceive(context: Context?, intent: Intent) {
+            if (intent.action == Intent.ACTION_SCREEN_OFF) onStopOverlay()
+        }
+    }
     private lateinit var battReceiver: BroadcastReceiver
-    private lateinit var offReceiver: BroadcastReceiver
 
     private lateinit var bottomSheetBehaviorMain: BottomSheetBehavior<View>
     private lateinit var viewPager: ViewPager2
@@ -174,13 +181,6 @@ class SamSprungOverlay : AppCompatActivity() {
         ScaledContext.screen(this, 1.5f).setTheme(R.style.Theme_Launcher_NoActionBar)
         setContentView(R.layout.home_main_view)
 
-        offReceiver = object : BroadcastReceiver() {
-            @SuppressLint("NotifyDataSetChanged")
-            override fun onReceive(context: Context?, intent: Intent) {
-                if (intent.action == Intent.ACTION_SCREEN_OFF) onStopOverlay()
-            }
-        }
-
         IntentFilter().apply {
             addAction(Intent.ACTION_SCREEN_OFF)
         }.also {
@@ -201,7 +201,11 @@ class SamSprungOverlay : AppCompatActivity() {
                 Manifest.permission.READ_EXTERNAL_STORAGE
             ) == PackageManager.PERMISSION_GRANTED
         ) {
-            background = WallpaperManager.getInstance(ScaledContext.cover(this)).drawable
+            background = try {
+                Drawable.createFromPath(File(filesDir, "wallpaper.png").absolutePath)
+            } catch (ignored: Exception) {
+                WallpaperManager.getInstance(ScaledContext.cover(applicationContext)).drawable
+            }
             coordinator.background = background
         }
 
@@ -969,8 +973,7 @@ class SamSprungOverlay : AppCompatActivity() {
                 unregisterReceiver(battReceiver)
         } catch (ignored: Exception) { }
         try {
-            if (this::offReceiver.isInitialized)
-                unregisterReceiver(offReceiver)
+            unregisterReceiver(offReceiver)
         } catch (ignored: Exception) { }
         finish()
     }

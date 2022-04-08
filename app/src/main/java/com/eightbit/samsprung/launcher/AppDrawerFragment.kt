@@ -217,8 +217,8 @@ class AppDrawerFragment : Fragment(), DrawerAppAdapater.OnAppClickListener {
         } catch (ignored: Exception) { }
     }
 
-    override fun onViewStateRestored(savedInstanceState: Bundle?) {
-        super.onViewStateRestored(savedInstanceState)
+    override fun onResume() {
+        super.onResume()
         if (this::launcherView.isInitialized) getFilteredPackageList()
     }
 

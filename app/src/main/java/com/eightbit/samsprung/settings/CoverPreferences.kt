@@ -57,12 +57,14 @@ import android.app.AppOpsManager
 import android.app.Dialog
 import android.app.KeyguardManager
 import android.app.WallpaperManager
-import android.app.usage.UsageStatsManager
 import android.content.*
 import android.content.pm.PackageManager
 import android.content.res.ColorStateList
 import android.content.res.Resources
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.graphics.Color
+import android.graphics.ImageDecoder
 import android.graphics.drawable.ColorDrawable
 import android.icu.text.DecimalFormatSymbols
 import android.net.Uri
@@ -112,6 +114,8 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import java.io.File
+import java.io.FileOutputStream
+import java.io.IOException
 import java.util.*
 import java.util.concurrent.Executors
 import kotlin.coroutines.resume
@@ -625,16 +629,16 @@ class CoverPreferences : AppCompatActivity() {
 
         toggleWidgetsIcon(toolbar)
 
-        val draggable = findViewById<SwitchCompat>(R.id.draggable_switch)
-        draggable.isChecked = prefs.getBoolean(SamSprung.prefSlider, true)
-        draggable.setOnCheckedChangeListener { _, isChecked ->
+        val gestures = findViewById<SwitchCompat>(R.id.gestures_switch)
+        gestures.isChecked = prefs.getBoolean(SamSprung.prefSlider, true)
+        gestures.setOnCheckedChangeListener { _, isChecked ->
             with(prefs.edit()) {
                 putBoolean(SamSprung.prefSlider, isChecked)
                 apply()
             }
         }
-        findViewById<LinearLayout>(R.id.draggable).setOnClickListener {
-            draggable.isChecked = !draggable.isChecked
+        findViewById<LinearLayout>(R.id.gestures).setOnClickListener {
+            gestures.isChecked = !gestures.isChecked
         }
 
         val vibration = findViewById<SwitchCompat>(R.id.vibration_switch)
@@ -659,6 +663,15 @@ class CoverPreferences : AppCompatActivity() {
         }
         findViewById<LinearLayout>(R.id.search).setOnClickListener {
             search.isChecked = !search.isChecked
+        }
+
+        findViewById<LinearLayout>(R.id.wallpaper_layout).setOnClickListener {
+            onPickImage.launch(Intent.createChooser(Intent(Intent.ACTION_OPEN_DOCUMENT)
+                .setType("image/*").addCategory(Intent.CATEGORY_OPENABLE)
+                .setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                .setFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION)
+                .putExtra("android.content.extra.SHOW_ADVANCED", true)
+                .putExtra("android.content.extra.FANCY", true), title))
         }
 
         val timeoutBar = findViewById<SeekBar>(R.id.timeout_bar)
@@ -810,6 +823,8 @@ class CoverPreferences : AppCompatActivity() {
         }
     }
 
+
+
     @SuppressLint("MissingPermission")
     private val requestStorage = registerForActivityResult(
         ActivityResultContracts.RequestPermission()) {
@@ -828,6 +843,25 @@ class CoverPreferences : AppCompatActivity() {
                     setAnimatedUpdateNotice(null, downloadUrl)
                 }
             })
+        }
+    }
+
+    private val onPickImage = registerForActivityResult(
+        ActivityResultContracts.StartActivityForResult()) { result ->
+        if (result.resultCode == RESULT_OK && null != result.data) {
+            var bitmap: Bitmap? = null
+            if (null != result.data!!.clipData) {
+                val source: ImageDecoder.Source = ImageDecoder.createSource(
+                    this.contentResolver, result.data!!.clipData!!.getItemAt(0)!!.uri
+                )
+                bitmap = ImageDecoder.decodeBitmap(source)
+            } else if (null != result.data!!.data) {
+                bitmap = BitmapFactory.decodeStream(
+                    contentResolver.openInputStream(result.data!!.data!!)
+                )
+            }
+            if (null != bitmap) File(filesDir, "wallpaper.png")
+                .writeBitmap(bitmap, Bitmap.CompressFormat.PNG, 100)
         }
     }
 
@@ -1038,6 +1072,13 @@ class CoverPreferences : AppCompatActivity() {
     override fun onNewIntent(intent: Intent?) {
         super.onNewIntent(intent)
         initializeLayout()
+    }
+
+    private fun File.writeBitmap(bitmap: Bitmap, format: Bitmap.CompressFormat, quality: Int) {
+        outputStream().use { out ->
+            bitmap.compress(format, quality, out)
+            out.flush()
+        }
     }
 
     private fun getIAP(amount: Int) : String {

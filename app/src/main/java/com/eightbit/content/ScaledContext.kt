@@ -53,10 +53,8 @@ import android.content.Context
 import android.content.ContextWrapper
 import android.content.res.Configuration
 import android.hardware.display.DisplayManager
-import android.view.WindowManager
-import com.eightbit.content.ScaledContext
-import android.util.DisplayMetrics
 import android.view.ContextThemeWrapper
+import android.view.WindowManager
 
 class ScaledContext(base: Context) : ContextWrapper(base) {
     companion object {
@@ -113,24 +111,20 @@ class ScaledContext(base: Context) : ContextWrapper(base) {
             return context
         }
 
-        private val Context.cover: Context get() = run {
-            val displayManager = getSystemService(Context.DISPLAY_SERVICE) as DisplayManager
-            val displayContext = createDisplayContext(displayManager.getDisplay(1))
+        fun cover(context: Context) : Context {
+            val displayManager = context.getSystemService(Context.DISPLAY_SERVICE) as DisplayManager
+            val displayContext = context.createDisplayContext(displayManager.getDisplay(1))
             val wm = displayContext.getSystemService(WINDOW_SERVICE) as WindowManager
-            return object : ContextThemeWrapper(displayContext, theme) {
+            return object : ContextThemeWrapper(displayContext, context.theme) {
                 override fun getSystemService(name: String): Any? {
                     return if (WINDOW_SERVICE == name) wm else super.getSystemService(name)
                 }
             }
         }
 
-        fun cover(context: Context) : Context {
-            return context.cover
-        }
-
         fun cover(context: Context, theme: Int) : Context {
             context.setTheme(theme)
-            return context.cover
+            return cover(context)
         }
     }
 }

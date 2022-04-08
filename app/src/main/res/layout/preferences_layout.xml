@@ -447,7 +447,7 @@
                     android:orientation="vertical">
 
                     <LinearLayout
-                        android:id="@+id/draggable"
+                        android:id="@+id/gestures"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:orientation="horizontal"
@@ -463,10 +463,10 @@
                             android:textColor="?android:textColorPrimary"
                             android:gravity="center_vertical"
                             android:layout_height="wrap_content"
-                            android:text="@string/options_draggable" />
+                            android:text="@string/options_gestures" />
 
                         <androidx.appcompat.widget.SwitchCompat
-                            android:id="@+id/draggable_switch"
+                            android:id="@+id/gestures_switch"
                             android:layout_width="0dp"
                             android:gravity="center"
                             android:layout_weight="1"
@@ -534,12 +534,44 @@
                     </LinearLayout>
 
                     <LinearLayout
+                        android:id="@+id/wallpaper_layout"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:layout_marginStart="16dp"
+                        android:layout_marginEnd="8dp"
+                        android:layout_gravity="center_vertical"
+                        tools:ignore="UseCompoundDrawables">
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_weight="1"
+                            android:textSize="26sp"
+                            android:textColor="?android:textColorPrimary"
+                            android:gravity="center_vertical"
+                            android:layout_height="wrap_content"
+                            android:text="@string/options_wallpaper" />
+
+                        <androidx.appcompat.widget.AppCompatImageView
+                            android:id="@+id/wallpaper_button"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:gravity="center"
+                            android:layout_gravity="center"
+                            app:srcCompat="@drawable/ic_baseline_wallpaper_24dp"
+                            android:paddingStart="0dp"
+                            android:paddingEnd="4dp"
+                            android:contentDescription="@string/description_icon"/>
+                    </LinearLayout>
+
+                    <LinearLayout
                         android:id="@+id/timeout"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:orientation="horizontal"
                         android:layout_marginStart="16dp"
                         android:layout_marginEnd="8dp"
+                        android:layout_marginTop="4dp"
                         android:layout_gravity="center_vertical"
                         tools:ignore="UseCompoundDrawables">
 

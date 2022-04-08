@@ -4,7 +4,6 @@
     <string name="swap_viewlist">격자 스타일로 표시</string>
     <string name="display_service">%1$s 화면서비스</string>
     <string name="update_service">%1$s 서비스 업데이트</string>
-    <string name="click_update_app">서비스를 업데이트하려면 클릭하세요</string>
     <string name="loading_text">로딩중&#8230;</string>
     <string name="lock_enabled">장치가 잠겨 있습니다!</string>
 </resources>

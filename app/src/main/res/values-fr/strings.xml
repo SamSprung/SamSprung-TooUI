@@ -1,5 +1,4 @@
 <resources>
     <string name="lock_screen_warning">L\'écran de verrouillage doit être contourné ou désactivé pour lancer des applications. Bixby unlock peut être utilisé comme solution de contournement.</string>
     <string name="lock_enabled">L\'appareil est verrouillé!</string>
-    <string name="click_update_app">Cliquez pour mettre à jour le package</string>
 </resources>
