@@ -197,16 +197,19 @@ class SamSprungOverlay : AppCompatActivity() {
         }
 
         val coordinator = findViewById<CoordinatorLayout>(R.id.coordinator)
-        background = try {
-            Drawable.createFromPath(File(filesDir, "wallpaper.png").absolutePath)
-        } catch (ignored: Exception) {
-            if (ContextCompat.checkSelfPermission(this,
-                    Manifest.permission.READ_EXTERNAL_STORAGE
-                ) == PackageManager.PERMISSION_GRANTED
-            )
-                WallpaperManager.getInstance(ScaledContext.cover(applicationContext)).drawable
-            else
-                null
+        val wallpaper = File(filesDir, "wallpaper.png")
+        if (wallpaper.exists()) {
+            try {
+                background = Drawable.createFromPath(wallpaper.absolutePath)
+            } catch (ignored: Exception) { }
+        }
+        if (null == background && ContextCompat.checkSelfPermission(this,
+                Manifest.permission.READ_EXTERNAL_STORAGE
+            ) == PackageManager.PERMISSION_GRANTED
+        ) {
+            background = WallpaperManager.getInstance(
+                ScaledContext.cover(applicationContext)
+            ).drawable
         }
         if (null != background) coordinator.background = background
 

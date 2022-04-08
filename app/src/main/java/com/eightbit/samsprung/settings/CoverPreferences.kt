@@ -848,7 +848,11 @@ class CoverPreferences : AppCompatActivity() {
 
     private val onPickImage = registerForActivityResult(
         ActivityResultContracts.StartActivityForResult()) { result ->
-        if (result.resultCode == RESULT_OK && null != result.data) {
+        val background = File(filesDir, "wallpaper.png")
+        if (result.resultCode != RESULT_OK && null == result.data) {
+            if (background.exists())
+                background.delete()
+        } else {
             var bitmap: Bitmap? = null
             if (null != result.data!!.clipData) {
                 val source: ImageDecoder.Source = ImageDecoder.createSource(
@@ -860,8 +864,8 @@ class CoverPreferences : AppCompatActivity() {
                     contentResolver.openInputStream(result.data!!.data!!)
                 )
             }
-            if (null != bitmap) File(filesDir, "wallpaper.png")
-                .writeBitmap(bitmap, Bitmap.CompressFormat.PNG, 100)
+            if (null != bitmap)
+                background.writeBitmap(bitmap, Bitmap.CompressFormat.PNG, 100)
         }
     }
 
