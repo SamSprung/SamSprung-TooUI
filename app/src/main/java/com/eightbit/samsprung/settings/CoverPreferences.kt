@@ -61,14 +61,13 @@ import android.content.*
 import android.content.pm.PackageManager
 import android.content.res.ColorStateList
 import android.content.res.Resources
-import android.graphics.Bitmap
-import android.graphics.BitmapFactory
-import android.graphics.Color
-import android.graphics.ImageDecoder
+import android.database.Cursor
+import android.graphics.*
 import android.graphics.drawable.ColorDrawable
 import android.icu.text.DecimalFormatSymbols
 import android.net.Uri
 import android.os.*
+import android.provider.MediaStore
 import android.provider.Settings
 import android.util.TypedValue
 import android.view.Menu
@@ -92,6 +91,7 @@ import androidx.core.content.ContextCompat
 import androidx.core.graphics.blue
 import androidx.core.graphics.green
 import androidx.core.graphics.red
+import androidx.core.view.isGone
 import androidx.core.view.isVisible
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -298,6 +298,12 @@ class CoverPreferences : AppCompatActivity() {
             updates.isChecked = !updates.isChecked
         }
         updatesPanel.isVisible = BuildConfig.FLAVOR != "google"
+
+        val general = findViewById<LinearLayout>(R.id.general)
+        findViewById<LinearLayout>(R.id.menu_general).setOnClickListener {
+            general.isGone = general.isVisible
+        }
+        general.isGone = true
 
         val color = prefs.getInt(SamSprung.prefColors, Color.rgb(255, 255, 255))
 
@@ -626,6 +632,12 @@ class CoverPreferences : AppCompatActivity() {
 
         toggleWidgetsIcon(toolbar)
 
+        val drawer = findViewById<LinearLayout>(R.id.drawer)
+        findViewById<LinearLayout>(R.id.menu_drawer).setOnClickListener {
+            drawer.isGone = drawer.isVisible
+        }
+        drawer.isGone = true
+
         val gestures = findViewById<SwitchCompat>(R.id.gestures_switch)
         gestures.isChecked = prefs.getBoolean(SamSprung.prefSlider, true)
         gestures.setOnCheckedChangeListener { _, isChecked ->
@@ -708,6 +720,11 @@ class CoverPreferences : AppCompatActivity() {
                 putBoolean(SamSprung.prefLayout, isChecked)
                 apply()
             }
+        }
+
+        val notices = findViewById<LinearLayout>(R.id.notices)
+        findViewById<LinearLayout>(R.id.menu_notices).setOnClickListener {
+            notices.isGone = notices.isVisible
         }
 
         val dismissBar = findViewById<SeekBar>(R.id.dismiss_bar)
@@ -854,19 +871,37 @@ class CoverPreferences : AppCompatActivity() {
         ActivityResultContracts.StartActivityForResult()) { result ->
         val background = File(filesDir, "wallpaper.png")
         if (result.resultCode == RESULT_OK && null != result.data) {
+            var photoUri: Uri? = null
             var bitmap: Bitmap? = null
             if (null != result.data!!.clipData) {
+                photoUri = result.data!!.clipData!!.getItemAt(0)!!.uri
                 val source: ImageDecoder.Source = ImageDecoder.createSource(
-                    this.contentResolver, result.data!!.clipData!!.getItemAt(0)!!.uri
+                    this.contentResolver, photoUri
                 )
                 bitmap = ImageDecoder.decodeBitmap(source)
             } else if (null != result.data!!.data) {
-                bitmap = BitmapFactory.decodeStream(
-                    contentResolver.openInputStream(result.data!!.data!!)
-                )
+                photoUri = result.data!!.data!!
+                bitmap = BitmapFactory.decodeStream(contentResolver.openInputStream(photoUri))
             }
-            if (null != bitmap)
-                background.writeBitmap(bitmap, Bitmap.CompressFormat.PNG, 100)
+            var rotation = -1
+            if (null != photoUri && null != bitmap) {
+                val cursor: Cursor? = contentResolver.query(
+                    photoUri, arrayOf(MediaStore.Images.ImageColumns.ORIENTATION),
+                    null, null, null
+                )
+                if (cursor?.count == 1) {
+                    cursor.moveToFirst()
+                    rotation = cursor.getInt(0)
+                }
+                if (rotation > 0) {
+                    val matrix = Matrix()
+                    matrix.postRotate(rotation.toFloat())
+                    background.writeBitmap(Bitmap.createBitmap(bitmap, 0, 0, bitmap.width,
+                        bitmap.height, matrix, true), Bitmap.CompressFormat.PNG, 100)
+                } else {
+                    background.writeBitmap(bitmap, Bitmap.CompressFormat.PNG, 100)
+                }
+            }
         }
     }
 

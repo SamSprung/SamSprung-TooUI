@@ -286,6 +286,7 @@
                 </LinearLayout>
 
                 <LinearLayout
+                    android:id="@+id/menu_general"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:background="@color/backgroundTint"
@@ -300,14 +301,30 @@
                         android:paddingTop="4dp"
                         android:layout_marginBottom="4dp"/>
 
-                    <TextView
+                    <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:textSize="16sp"
-                        android:layout_marginStart="14dp"
-                        android:textColor="?android:textColorPrimary"
-                        android:gravity="center_vertical"
-                        android:text="@string/general_options" />
+                        android:orientation="horizontal"
+                        android:layout_marginHorizontal="14dp"
+                        tools:ignore="UseCompoundDrawables">
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:textSize="16sp"
+                            android:textColor="?android:textColorPrimary"
+                            android:gravity="center_vertical"
+                            android:text="@string/general_options" />
+
+                        <androidx.appcompat.widget.AppCompatImageView
+                            android:layout_width="wrap_content"
+                            android:gravity="center_vertical"
+                            android:layout_gravity="end"
+                            app:srcCompat="@drawable/ic_baseline_expand_20dp"
+                            android:layout_height="wrap_content"
+                            android:contentDescription="@string/description_icon"/>
+                    </LinearLayout>
 
                     <View
                         android:layout_width="match_parent"
@@ -413,6 +430,7 @@
                 </LinearLayout>
 
                 <LinearLayout
+                    android:id="@+id/menu_drawer"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:background="@color/backgroundTint"
@@ -427,14 +445,30 @@
                         android:paddingTop="4dp"
                         android:layout_marginBottom="4dp"/>
 
-                    <TextView
+                    <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:textSize="16sp"
-                        android:layout_marginStart="14dp"
-                        android:textColor="?android:textColorPrimary"
-                        android:gravity="center_vertical"
-                        android:text="@string/drawer_options" />
+                        android:orientation="horizontal"
+                        android:layout_marginHorizontal="14dp"
+                        tools:ignore="UseCompoundDrawables">
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:textSize="16sp"
+                            android:textColor="?android:textColorPrimary"
+                            android:gravity="center_vertical"
+                            android:text="@string/drawer_options" />
+
+                        <androidx.appcompat.widget.AppCompatImageView
+                            android:layout_width="wrap_content"
+                            android:gravity="center_vertical"
+                            android:layout_gravity="end"
+                            app:srcCompat="@drawable/ic_baseline_expand_20dp"
+                            android:layout_height="wrap_content"
+                            android:contentDescription="@string/description_icon"/>
+                    </LinearLayout>
 
                     <View
                         android:layout_width="match_parent"
@@ -613,6 +647,7 @@
                 </LinearLayout>
 
                 <LinearLayout
+                    android:id="@+id/menu_notices"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:background="@color/backgroundTint"
@@ -627,14 +662,30 @@
                         android:paddingTop="4dp"
                         android:layout_marginBottom="4dp"/>
 
-                    <TextView
+                    <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:textSize="16sp"
-                        android:layout_marginStart="14dp"
-                        android:textColor="?android:textColorPrimary"
-                        android:gravity="center_vertical"
-                        android:text="@string/notice_options" />
+                        android:orientation="horizontal"
+                        android:layout_marginHorizontal="14dp"
+                        tools:ignore="UseCompoundDrawables">
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:textSize="16sp"
+                            android:textColor="?android:textColorPrimary"
+                            android:gravity="center_vertical"
+                            android:text="@string/notice_options" />
+
+                        <androidx.appcompat.widget.AppCompatImageView
+                            android:layout_width="wrap_content"
+                            android:gravity="center_vertical"
+                            android:layout_gravity="end"
+                            app:srcCompat="@drawable/ic_baseline_expand_20dp"
+                            android:layout_height="wrap_content"
+                            android:contentDescription="@string/description_icon"/>
+                    </LinearLayout>
 
                     <View
                         android:layout_width="match_parent"
