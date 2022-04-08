@@ -1,0 +1,173 @@
+<?xml version="1.0" encoding="utf-8"?>
+<merge xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+<LinearLayout
+    android:id="@+id/drawer"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
+
+    <LinearLayout
+        android:id="@+id/gestures"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="8dp"
+        android:layout_gravity="center_vertical"
+        tools:ignore="UseCompoundDrawables">
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:textSize="26sp"
+            android:textColor="?android:textColorPrimary"
+            android:gravity="center_vertical"
+            android:layout_height="wrap_content"
+            android:text="@string/options_gestures" />
+
+        <androidx.appcompat.widget.SwitchCompat
+            android:id="@+id/gestures_switch"
+            android:layout_width="0dp"
+            android:gravity="center"
+            android:layout_weight="1"
+            android:textSize="26sp"
+            android:textColor="?android:textColorPrimary"
+            android:layout_height="wrap_content" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/vibration"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="8dp"
+        android:layout_gravity="center_vertical"
+        tools:ignore="UseCompoundDrawables">
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:textSize="26sp"
+            android:textColor="?android:textColorPrimary"
+            android:gravity="center_vertical"
+            android:layout_height="wrap_content"
+            android:text="@string/options_vibration" />
+
+        <androidx.appcompat.widget.SwitchCompat
+            android:id="@+id/vibration_switch"
+            android:layout_width="0dp"
+            android:gravity="center"
+            android:layout_weight="1"
+            android:textSize="26sp"
+            android:textColor="?android:textColorPrimary"
+            android:layout_height="wrap_content" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/search"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="8dp"
+        android:layout_gravity="center_vertical"
+        tools:ignore="UseCompoundDrawables">
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:textSize="26sp"
+            android:textColor="?android:textColorPrimary"
+            android:gravity="center_vertical"
+            android:layout_height="wrap_content"
+            android:text="@string/options_search" />
+
+        <androidx.appcompat.widget.SwitchCompat
+            android:id="@+id/search_switch"
+            android:layout_width="0dp"
+            android:gravity="center"
+            android:layout_weight="1"
+            android:textSize="26sp"
+            android:textColor="?android:textColorPrimary"
+            android:layout_height="wrap_content" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/wallpaper_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginTop="4dp"
+        android:layout_marginBottom="8dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="8dp"
+        android:layout_gravity="center_vertical"
+        tools:ignore="UseCompoundDrawables">
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:textSize="26sp"
+            android:textColor="?android:textColorPrimary"
+            android:gravity="center_vertical"
+            android:layout_height="wrap_content"
+            android:text="@string/options_wallpaper" />
+
+        <androidx.appcompat.widget.AppCompatImageView
+            android:id="@+id/wallpaper_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:layout_gravity="center"
+            app:srcCompat="@drawable/ic_baseline_wallpaper_24dp"
+            android:paddingStart="0dp"
+            android:paddingEnd="4dp"
+            android:contentDescription="@string/description_icon"/>
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/timeout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="8dp"
+        android:layout_gravity="center_vertical"
+        tools:ignore="UseCompoundDrawables">
+
+        <TextView
+            android:id="@+id/timeout_text"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:textSize="26sp"
+            android:textColor="?android:textColorPrimary"
+            android:gravity="center_vertical"
+            android:layout_height="wrap_content"
+            android:text="@string/options_timeout" />
+
+        <SeekBar
+            android:id="@+id/timeout_bar"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:gravity="center"
+            android:layout_weight="1"
+            android:min="4"
+            android:max="60"/>
+    </LinearLayout>
+
+    <ToggleButton
+        android:id="@+id/swapViewType"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:minHeight="@dimen/button_height_min"
+        android:textOff="@string/swap_viewgrid"
+        android:textOn="@string/swap_viewlist"
+        android:layout_marginHorizontal="2dp"
+        android:layout_marginTop="6dp"
+        android:layout_marginBottom="4dp"/>
+</LinearLayout>
+</merge>

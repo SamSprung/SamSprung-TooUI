@@ -726,6 +726,7 @@ class CoverPreferences : AppCompatActivity() {
         findViewById<LinearLayout>(R.id.menu_notices).setOnClickListener {
             notices.isGone = notices.isVisible
         }
+        notices.isGone = true
 
         val dismissBar = findViewById<SeekBar>(R.id.dismiss_bar)
         val dismissText = findViewById<TextView>(R.id.dismiss_text)
@@ -803,12 +804,14 @@ class CoverPreferences : AppCompatActivity() {
             }
         })
 
+        val handle = findViewById<View>(R.id.visibility_handle)
         findViewById<LinearLayout>(R.id.innerLayout).viewTreeObserver.addOnGlobalLayoutListener {
+            val system = (supportActionBar!!.height * 2) + 8.toScalePx.toInt()
             bottomSheetBehavior.peekHeight = window.decorView.height -
-                    (findViewById<LinearLayout>(R.id.innerLayout).height + 141.toScalePx.toInt())
+                    findViewById<View>(R.id.bottom_bar).bottom - system - handle.height
         }
 
-        findViewById<LinearLayout>(R.id.visibility_handle).setOnClickListener {
+        handle.setOnClickListener {
             if (bottomSheetBehavior.state == BottomSheetBehavior.STATE_EXPANDED) {
                 bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
             } else if (bottomSheetBehavior.state == BottomSheetBehavior.STATE_COLLAPSED) {

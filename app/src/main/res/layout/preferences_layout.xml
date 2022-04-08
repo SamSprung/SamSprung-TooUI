@@ -65,136 +65,9 @@
                         android:layout_marginTop="4dp" />
                 </LinearLayout>
 
-                <LinearLayout
-                    android:id="@+id/permissions"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical">
-
-                    <LinearLayout
-                        android:id="@+id/notifications"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="horizontal"
-                        android:layout_marginStart="16dp"
-                        android:layout_marginEnd="8dp"
-                        android:layout_gravity="center_vertical"
-                        tools:ignore="UseCompoundDrawables">
-
-                        <TextView
-                            android:layout_width="0dp"
-                            android:layout_weight="1"
-                            android:textSize="26sp"
-                            android:textColor="?android:textColorPrimary"
-                            android:gravity="center_vertical"
-                            android:layout_height="wrap_content"
-                            android:text="@string/permission_notifications" />
-
-                        <androidx.appcompat.widget.SwitchCompat
-                            android:id="@+id/notifications_switch"
-                            android:layout_width="0dp"
-                            android:gravity="center"
-                            android:layout_weight="1"
-                            android:clickable="false"
-                            android:textSize="26sp"
-                            android:textColor="?android:textColorPrimary"
-                            android:layout_height="wrap_content" />
-
-                    </LinearLayout>
-
-                    <LinearLayout
-                        android:id="@+id/usage_layout"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="horizontal"
-                        android:layout_marginStart="16dp"
-                        android:layout_marginEnd="8dp"
-                        android:layout_gravity="center_vertical"
-                        tools:ignore="UseCompoundDrawables">
-
-                        <TextView
-                            android:layout_width="0dp"
-                            android:layout_weight="1"
-                            android:textSize="26sp"
-                            android:textColor="?android:textColorPrimary"
-                            android:gravity="center_vertical"
-                            android:layout_height="wrap_content"
-                            android:text="@string/permission_usage" />
-
-                        <androidx.appcompat.widget.SwitchCompat
-                            android:id="@+id/usage_switch"
-                            android:layout_width="0dp"
-                            android:gravity="center"
-                            android:layout_weight="1"
-                            android:clickable="false"
-                            android:textSize="26sp"
-                            android:textColor="?android:textColorPrimary"
-                            android:layout_height="wrap_content" />
-                    </LinearLayout>
-
-                    <LinearLayout
-                        android:id="@+id/accessibility"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="horizontal"
-                        android:layout_marginStart="16dp"
-                        android:layout_marginEnd="8dp"
-                        android:layout_gravity="center_vertical"
-                        tools:ignore="UseCompoundDrawables">
-
-                        <TextView
-                            android:layout_width="0dp"
-                            android:layout_weight="1"
-                            android:textSize="26sp"
-                            android:textColor="?android:textColorPrimary"
-                            android:gravity="center_vertical"
-                            android:layout_height="wrap_content"
-                            android:text="@string/permission_accessibility" />
-
-                        <androidx.appcompat.widget.SwitchCompat
-                            android:id="@+id/accessibility_switch"
-                            android:layout_width="0dp"
-                            android:gravity="center"
-                            android:layout_weight="1"
-                            android:clickable="false"
-                            android:textSize="26sp"
-                            android:textColor="?android:textColorPrimary"
-                            android:layout_height="wrap_content" />
-                    </LinearLayout>
-
-                    <LinearLayout
-                        android:id="@+id/voice_layout"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="horizontal"
-                        android:layout_marginTop="2dp"
-                        android:layout_marginBottom="6dp"
-                        android:layout_marginStart="16dp"
-                        android:layout_marginEnd="8dp"
-                        android:layout_gravity="center_vertical"
-                        tools:ignore="UseCompoundDrawables">
-
-                        <TextView
-                            android:layout_width="0dp"
-                            android:layout_weight="1"
-                            android:textSize="26sp"
-                            android:textColor="?android:textColorPrimary"
-                            android:gravity="center_vertical"
-                            android:layout_height="wrap_content"
-                            android:text="@string/permission_voice" />
-
-                        <androidx.appcompat.widget.AppCompatImageView
-                            android:id="@+id/voice_button"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:gravity="center"
-                            android:layout_gravity="center"
-                            app:srcCompat="@drawable/ic_baseline_record_voice_over_24dp"
-                            android:paddingStart="0dp"
-                            android:paddingEnd="4dp"
-                            android:contentDescription="@string/description_icon"/>
-                    </LinearLayout>
-                </LinearLayout>
+                <include
+                    layout="@layout/prefs_permissions"
+                    android:id="@+id/permissions" />
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -333,101 +206,9 @@
                         android:layout_marginTop="4dp" />
                 </LinearLayout>
 
-                <LinearLayout
-                    android:id="@+id/general"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical">
-
-                    <TextView
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:textSize="16sp"
-                        android:layout_marginTop="2dp"
-                        android:layout_marginStart="16dp"
-                        android:layout_marginEnd="16dp"
-                        android:textColor="?android:textColorPrimary"
-                        android:gravity="center"
-                        android:text="@string/color_theme" />
-
-                    <View
-                        android:id="@+id/color_composite"
-                        android:layout_width="match_parent"
-                        android:layout_height="18dp"
-                        android:layout_marginTop="10dp"
-                        android:layout_marginBottom="8dp"
-                        android:layout_marginStart="8dp"
-                        android:layout_marginEnd="10dp" />
-
-                    <include
-                        layout="@layout/color_panel"
-                        android:id="@+id/color_panel" />
-
-                    <LinearLayout
-                        android:id="@+id/placement"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="horizontal"
-                        android:layout_marginStart="16dp"
-                        android:layout_marginEnd="8dp"
-                        android:layout_gravity="center_vertical"
-                        tools:ignore="UseCompoundDrawables">
-
-                        <TextView
-                            android:layout_width="0dp"
-                            android:layout_weight="1"
-                            android:textSize="26sp"
-                            android:textColor="?android:textColorPrimary"
-                            android:gravity="center_vertical"
-                            android:layout_height="wrap_content"
-                            android:text="@string/options_placement" />
-
-                        <SeekBar
-                            android:id="@+id/placement_bar"
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_gravity="center"
-                            android:gravity="center"
-                            android:layout_weight="1"
-                            android:max="2"
-                            android:thumb="@drawable/ic_baseline_samsprung_24dp"/>
-                    </LinearLayout>
-
-                    <LinearLayout
-                        android:id="@+id/theme"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="horizontal"
-                        android:layout_marginStart="16dp"
-                        android:layout_marginEnd="8dp"
-                        android:layout_gravity="center_vertical"
-                        tools:ignore="UseCompoundDrawables">
-
-                        <TextView
-                            android:layout_width="0dp"
-                            android:layout_weight="1"
-                            android:textSize="26sp"
-                            android:textColor="?android:textColorPrimary"
-                            android:gravity="center_vertical"
-                            android:layout_gravity="center_vertical"
-                            android:layout_height="wrap_content"
-                            android:text="@string/options_theme" />
-
-                        <Spinner
-                            android:id="@+id/theme_spinner"
-                            style="?android:attr/dropDownSpinnerStyle"
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:textAlignment="center"
-                            android:background="@android:drawable/btn_dropdown"
-                            android:spinnerMode="dropdown"/>
-                    </LinearLayout>
-
-                    <include
-                        layout="@layout/toolbar_options"
-                        android:id="@+id/toolbar_options" />
-                </LinearLayout>
+                <include
+                    layout="@layout/prefs_general"
+                    android:id="@+id/general" />
 
                 <LinearLayout
                     android:id="@+id/menu_drawer"
@@ -477,174 +258,9 @@
                         android:layout_marginTop="4dp"/>
                 </LinearLayout>
 
-                <LinearLayout
-                    android:id="@+id/drawer"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical">
-
-                    <LinearLayout
-                        android:id="@+id/gestures"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="horizontal"
-                        android:layout_marginStart="16dp"
-                        android:layout_marginEnd="8dp"
-                        android:layout_gravity="center_vertical"
-                        tools:ignore="UseCompoundDrawables">
-
-                        <TextView
-                            android:layout_width="0dp"
-                            android:layout_weight="1"
-                            android:textSize="26sp"
-                            android:textColor="?android:textColorPrimary"
-                            android:gravity="center_vertical"
-                            android:layout_height="wrap_content"
-                            android:text="@string/options_gestures" />
-
-                        <androidx.appcompat.widget.SwitchCompat
-                            android:id="@+id/gestures_switch"
-                            android:layout_width="0dp"
-                            android:gravity="center"
-                            android:layout_weight="1"
-                            android:textSize="26sp"
-                            android:textColor="?android:textColorPrimary"
-                            android:layout_height="wrap_content" />
-                    </LinearLayout>
-
-                    <LinearLayout
-                        android:id="@+id/vibration"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="horizontal"
-                        android:layout_marginStart="16dp"
-                        android:layout_marginEnd="8dp"
-                        android:layout_gravity="center_vertical"
-                        tools:ignore="UseCompoundDrawables">
-
-                        <TextView
-                            android:layout_width="0dp"
-                            android:layout_weight="1"
-                            android:textSize="26sp"
-                            android:textColor="?android:textColorPrimary"
-                            android:gravity="center_vertical"
-                            android:layout_height="wrap_content"
-                            android:text="@string/options_vibration" />
-
-                        <androidx.appcompat.widget.SwitchCompat
-                            android:id="@+id/vibration_switch"
-                            android:layout_width="0dp"
-                            android:gravity="center"
-                            android:layout_weight="1"
-                            android:textSize="26sp"
-                            android:textColor="?android:textColorPrimary"
-                            android:layout_height="wrap_content" />
-                    </LinearLayout>
-
-                    <LinearLayout
-                        android:id="@+id/search"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="horizontal"
-                        android:layout_marginStart="16dp"
-                        android:layout_marginEnd="8dp"
-                        android:layout_gravity="center_vertical"
-                        tools:ignore="UseCompoundDrawables">
-
-                        <TextView
-                            android:layout_width="0dp"
-                            android:layout_weight="1"
-                            android:textSize="26sp"
-                            android:textColor="?android:textColorPrimary"
-                            android:gravity="center_vertical"
-                            android:layout_height="wrap_content"
-                            android:text="@string/options_search" />
-
-                        <androidx.appcompat.widget.SwitchCompat
-                            android:id="@+id/search_switch"
-                            android:layout_width="0dp"
-                            android:gravity="center"
-                            android:layout_weight="1"
-                            android:textSize="26sp"
-                            android:textColor="?android:textColorPrimary"
-                            android:layout_height="wrap_content" />
-                    </LinearLayout>
-
-                    <LinearLayout
-                        android:id="@+id/wallpaper_layout"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="horizontal"
-                        android:layout_marginTop="4dp"
-                        android:layout_marginBottom="8dp"
-                        android:layout_marginStart="16dp"
-                        android:layout_marginEnd="8dp"
-                        android:layout_gravity="center_vertical"
-                        tools:ignore="UseCompoundDrawables">
-
-                        <TextView
-                            android:layout_width="0dp"
-                            android:layout_weight="1"
-                            android:textSize="26sp"
-                            android:textColor="?android:textColorPrimary"
-                            android:gravity="center_vertical"
-                            android:layout_height="wrap_content"
-                            android:text="@string/options_wallpaper" />
-
-                        <androidx.appcompat.widget.AppCompatImageView
-                            android:id="@+id/wallpaper_button"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:gravity="center"
-                            android:layout_gravity="center"
-                            app:srcCompat="@drawable/ic_baseline_wallpaper_24dp"
-                            android:paddingStart="0dp"
-                            android:paddingEnd="4dp"
-                            android:contentDescription="@string/description_icon"/>
-                    </LinearLayout>
-
-                    <LinearLayout
-                        android:id="@+id/timeout"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="horizontal"
-                        android:layout_marginStart="16dp"
-                        android:layout_marginEnd="8dp"
-                        android:layout_gravity="center_vertical"
-                        tools:ignore="UseCompoundDrawables">
-
-                        <TextView
-                            android:id="@+id/timeout_text"
-                            android:layout_width="0dp"
-                            android:layout_weight="1"
-                            android:textSize="26sp"
-                            android:textColor="?android:textColorPrimary"
-                            android:gravity="center_vertical"
-                            android:layout_height="wrap_content"
-                            android:text="@string/options_timeout" />
-
-                        <SeekBar
-                            android:id="@+id/timeout_bar"
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_gravity="center"
-                            android:gravity="center"
-                            android:layout_weight="1"
-                            android:min="4"
-                            android:max="60"/>
-                    </LinearLayout>
-
-                    <ToggleButton
-                        android:id="@+id/swapViewType"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:minHeight="@dimen/button_height_min"
-                        android:textOff="@string/swap_viewgrid"
-                        android:textOn="@string/swap_viewlist"
-                        android:layout_marginHorizontal="2dp"
-                        android:layout_marginTop="6dp"
-                        android:layout_marginBottom="4dp"/>
-                </LinearLayout>
+                <include
+                    layout="@layout/prefs_drawer"
+                    android:id="@+id/drawer" />
 
                 <LinearLayout
                     android:id="@+id/menu_notices"
@@ -707,6 +323,7 @@
                         android:orientation="horizontal"
                         android:layout_marginStart="16dp"
                         android:layout_marginEnd="8dp"
+                        android:layout_marginBottom="8dp"
                         android:layout_gravity="center_vertical"
                         tools:ignore="UseCompoundDrawables,UselessParent">
 
@@ -733,10 +350,11 @@
                 </LinearLayout>
 
                 <View
+                    android:id="@+id/bottom_bar"
                     android:layout_width="match_parent"
                     android:layout_height="1dp"
                     android:background="?colorPrimary"
-                    android:layout_marginTop="12dp"
+                    android:layout_marginTop="4dp"
                     android:layout_marginBottom="16dp"/>
             </LinearLayout>
         </androidx.core.widget.NestedScrollView>
