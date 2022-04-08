@@ -104,7 +104,7 @@ class Debug(private var context: Context) {
         try {
             var line: String?
             val mLogcatProc: Process = Runtime.getRuntime().exec(arrayOf(
-                "logcat", "-d", "-t", "256", BuildConfig.APPLICATION_ID,
+                "logcat", "-d", "-t", "192", BuildConfig.APPLICATION_ID,
                 "AndroidRuntime", "InvocationTargetException", "System.err",
                 "AppIconSolution:S", "ViewRootImpl:S", "IssueReporterActivity:S",
             ))
