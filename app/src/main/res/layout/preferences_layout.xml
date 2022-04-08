@@ -39,7 +39,7 @@
                     android:layout_height="wrap_content"
                     android:background="@color/backgroundTint"
                     android:layout_marginTop="4dp"
-                    android:layout_marginBottom="8dp"
+                    android:layout_marginBottom="6dp"
                     android:orientation="vertical">
 
                     <View
@@ -167,6 +167,8 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:orientation="horizontal"
+                        android:layout_marginTop="2dp"
+                        android:layout_marginBottom="6dp"
                         android:layout_marginStart="16dp"
                         android:layout_marginEnd="8dp"
                         android:layout_gravity="center_vertical"
@@ -199,7 +201,7 @@
                     android:layout_height="wrap_content"
                     android:background="@color/backgroundTint"
                     android:layout_marginTop="4dp"
-                    android:layout_marginBottom="8dp"
+                    android:layout_marginBottom="6dp"
                     android:orientation="vertical">
 
                     <View
@@ -288,7 +290,7 @@
                     android:layout_height="wrap_content"
                     android:background="@color/backgroundTint"
                     android:layout_marginTop="4dp"
-                    android:layout_marginBottom="8dp"
+                    android:layout_marginBottom="6dp"
                     android:orientation="vertical">
 
                     <View
@@ -324,6 +326,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:textSize="16sp"
+                        android:layout_marginTop="2dp"
                         android:layout_marginStart="16dp"
                         android:layout_marginEnd="16dp"
                         android:textColor="?android:textColorPrimary"
@@ -414,7 +417,7 @@
                     android:layout_height="wrap_content"
                     android:background="@color/backgroundTint"
                     android:layout_marginTop="4dp"
-                    android:layout_marginBottom="8dp"
+                    android:layout_marginBottom="6dp"
                     android:orientation="vertical">
 
                     <View
@@ -538,6 +541,8 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:orientation="horizontal"
+                        android:layout_marginTop="4dp"
+                        android:layout_marginBottom="8dp"
                         android:layout_marginStart="16dp"
                         android:layout_marginEnd="8dp"
                         android:layout_gravity="center_vertical"
@@ -571,7 +576,6 @@
                         android:orientation="horizontal"
                         android:layout_marginStart="16dp"
                         android:layout_marginEnd="8dp"
-                        android:layout_marginTop="4dp"
                         android:layout_gravity="center_vertical"
                         tools:ignore="UseCompoundDrawables">
 
@@ -604,7 +608,8 @@
                         android:textOff="@string/swap_viewgrid"
                         android:textOn="@string/swap_viewlist"
                         android:layout_marginHorizontal="2dp"
-                        android:layout_marginVertical="4dp"/>
+                        android:layout_marginTop="6dp"
+                        android:layout_marginBottom="4dp"/>
                 </LinearLayout>
 
                 <LinearLayout
@@ -612,7 +617,7 @@
                     android:layout_height="wrap_content"
                     android:background="@color/backgroundTint"
                     android:layout_marginTop="4dp"
-                    android:layout_marginBottom="8dp"
+                    android:layout_marginBottom="6dp"
                     android:orientation="vertical">
 
                     <View
