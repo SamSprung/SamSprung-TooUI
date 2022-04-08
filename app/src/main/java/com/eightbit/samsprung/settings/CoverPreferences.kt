@@ -114,9 +114,6 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import java.io.File
-import java.io.FileOutputStream
-import java.io.IOException
-import java.util.*
 import java.util.concurrent.Executors
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
@@ -673,6 +670,13 @@ class CoverPreferences : AppCompatActivity() {
                 .putExtra("android.content.extra.SHOW_ADVANCED", true)
                 .putExtra("android.content.extra.FANCY", true), title))
         }
+        findViewById<LinearLayout>(R.id.wallpaper_layout).setOnLongClickListener {
+            val background = File(filesDir, "wallpaper.png")
+            if (background.exists()) background.delete()
+            Toast.makeText(this@CoverPreferences,
+                R.string.wallpaper_cleared, Toast.LENGTH_SHORT).show()
+            return@setOnLongClickListener true
+        }
 
         val timeoutBar = findViewById<SeekBar>(R.id.timeout_bar)
         val timeoutText = findViewById<TextView>(R.id.timeout_text)
@@ -849,10 +853,7 @@ class CoverPreferences : AppCompatActivity() {
     private val onPickImage = registerForActivityResult(
         ActivityResultContracts.StartActivityForResult()) { result ->
         val background = File(filesDir, "wallpaper.png")
-        if (result.resultCode != RESULT_OK && null == result.data) {
-            if (background.exists())
-                background.delete()
-        } else {
+        if (result.resultCode == RESULT_OK && null != result.data) {
             var bitmap: Bitmap? = null
             if (null != result.data!!.clipData) {
                 val source: ImageDecoder.Source = ImageDecoder.createSource(

@@ -53,12 +53,15 @@ package com.eightbit.samsprung
 
 import android.Manifest
 import android.annotation.SuppressLint
-import android.app.*
+import android.app.KeyguardManager
+import android.app.NotificationManager
+import android.app.WallpaperManager
 import android.appwidget.AppWidgetManager
 import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothManager
 import android.content.*
-import android.content.pm.*
+import android.content.pm.ApplicationInfo
+import android.content.pm.PackageManager
 import android.database.ContentObserver
 import android.graphics.Color
 import android.graphics.PixelFormat
@@ -71,7 +74,6 @@ import android.nfc.NfcAdapter
 import android.nfc.NfcManager
 import android.os.*
 import android.provider.Settings
-import android.service.wallpaper.WallpaperService
 import android.speech.SpeechRecognizer
 import android.util.TypedValue
 import android.view.*
