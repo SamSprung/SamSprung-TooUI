@@ -806,7 +806,7 @@ class CoverPreferences : AppCompatActivity() {
 
         val handle = findViewById<View>(R.id.visibility_handle)
         findViewById<LinearLayout>(R.id.innerLayout).viewTreeObserver.addOnGlobalLayoutListener {
-            val system = (supportActionBar!!.height * 2) + 8.toScalePx.toInt()
+            val system = supportActionBar!!.height * 2 + 8.toScalePx.toInt()
             bottomSheetBehavior.peekHeight = window.decorView.height -
                     findViewById<View>(R.id.bottom_bar).bottom - system - handle.height
         }
@@ -1029,9 +1029,9 @@ class CoverPreferences : AppCompatActivity() {
 
     private fun hasUsageStatistics() : Boolean {
         try {
-            if ((getSystemService(Context.APP_OPS_SERVICE) as AppOpsManager)
-                    .unsafeCheckOp("android:get_usage_stats", Process.myUid(), packageName)
-                == AppOpsManager.MODE_ALLOWED) return true
+            if ((getSystemService(Context.APP_OPS_SERVICE) as AppOpsManager).unsafeCheckOp(
+                    "android:get_usage_stats", Process.myUid(), packageName
+                ) == AppOpsManager.MODE_ALLOWED) return true
         } catch (ignored: SecurityException) { }
         return false
     }
