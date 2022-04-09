@@ -7,6 +7,7 @@
     <string name="permission_voice">Voice Launch</string>
 
     <string name="config_options">Configuration</string>
+    <string name="options_optimization">Ignore Battery</string>
     <string name="options_keyboard">Keyboard / IME</string>
     <string name="updates_preference">Preview Builds</string>
 

@@ -128,6 +128,7 @@ class CoverPreferences : AppCompatActivity() {
     private var hasPremiumSupport = false
     private lateinit var mainSwitch: SwitchCompat
     private lateinit var accessibility: SwitchCompat
+    private lateinit var optimization: SwitchCompat
     private lateinit var notifications: SwitchCompat
     private lateinit var statistics: SwitchCompat
     private lateinit var keyboard: SwitchCompat
@@ -268,6 +269,14 @@ class CoverPreferences : AppCompatActivity() {
             requestVoice.launch(Manifest.permission.RECORD_AUDIO)
         }
         toggleVoiceIcon(hasPermission(Manifest.permission.RECORD_AUDIO))
+
+//        optimization = findViewById(R.id.optimization_switch)
+//        optimization.isChecked = ignoreBatteryOptimization()
+//        findViewById<LinearLayout>(R.id.optimization).setOnClickListener {
+//            optimizationLauncher.launch(Intent(
+//                Settings.ACTION_IGNORE_BATTERY_OPTIMIZATION_SETTINGS
+//            ))
+//        }
 
         keyboard = findViewById(R.id.keyboard_switch)
         keyboard.isClickable = false
@@ -954,6 +963,12 @@ class CoverPreferences : AppCompatActivity() {
         toggleWidgetsIcon(findViewById<Toolbar>(R.id.toolbar))
     }
 
+    private val optimizationLauncher = registerForActivityResult(
+        ActivityResultContracts.StartActivityForResult()) {
+        if (this::optimization.isInitialized)
+            optimization.isChecked = ignoreBatteryOptimization()
+    }
+
     private val notificationLauncher = registerForActivityResult(
         ActivityResultContracts.StartActivityForResult()) {
         if (this::notifications.isInitialized)
@@ -1012,6 +1027,11 @@ class CoverPreferences : AppCompatActivity() {
         )
         return serviceString != null && serviceString.contains(packageName
                 + File.separator + AccessibilityObserver::class.java.name)
+    }
+
+    private fun ignoreBatteryOptimization(): Boolean {
+        return ((getSystemService(Context.POWER_SERVICE) as PowerManager)
+            .isIgnoringBatteryOptimizations(packageName))
     }
 
     private fun hasNotificationListener(): Boolean {
