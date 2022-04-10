@@ -26,6 +26,7 @@
     <string name="options_vibration">Touch Feedback</string>
     <string name="options_search">App Search Bar</string>
     <string name="options_wallpaper">Set Wallpaper</string>
+    <string name="options_radius">Wallpaper Blur</string>
     <string name="options_timeout">Screen Timeout (%1$sˢ)</string>
 
     <string name="swap_viewgrid">Display as ListView Widget Style</string>

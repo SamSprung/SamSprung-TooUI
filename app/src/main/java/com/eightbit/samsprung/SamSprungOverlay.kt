@@ -216,11 +216,13 @@ class SamSprungOverlay : AppCompatActivity() {
         if (null != background) coordinator.background = background
 
         val blurView = findViewById<BlurView>(R.id.blurContainer)
-        blurView.setupWith(coordinator)
-            .setFrameClearDrawable(coordinator.background)
-            .setBlurRadius(1f).setBlurAutoUpdate(true)
-            .setHasFixedTransformationMatrix(false)
-            .setBlurAlgorithm(RenderScriptBlur(this))
+        if (prefs.getBoolean(SamSprung.prefRadius, true)) {
+            blurView.setupWith(coordinator)
+                .setFrameClearDrawable(coordinator.background)
+                .setBlurRadius(1f).setBlurAutoUpdate(true)
+                .setHasFixedTransformationMatrix(false)
+                .setBlurAlgorithm(RenderScriptBlur(this))
+        }
 
         wifiManager = getSystemService(WIFI_SERVICE) as WifiManager
         bluetoothAdapter = (getSystemService(Context.BLUETOOTH_SERVICE) as BluetoothManager).adapter

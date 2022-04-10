@@ -699,6 +699,18 @@ class CoverPreferences : AppCompatActivity() {
             return@setOnLongClickListener true
         }
 
+        val radius = findViewById<SwitchCompat>(R.id.radius_switch)
+        radius.isChecked = prefs.getBoolean(SamSprung.prefRadius, true)
+        radius.setOnCheckedChangeListener { _, isChecked ->
+            with(prefs.edit()) {
+                putBoolean(SamSprung.prefRadius, isChecked)
+                apply()
+            }
+        }
+        findViewById<LinearLayout>(R.id.radius).setOnClickListener {
+            radius.isChecked = !radius.isChecked
+        }
+
         val timeoutBar = findViewById<SeekBar>(R.id.timeout_bar)
         val timeoutText = findViewById<TextView>(R.id.timeout_text)
         timeoutBar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {

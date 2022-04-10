@@ -93,6 +93,7 @@ class SamSprung : Application() {
         const val prefSnooze: String = "prefSnooze"
         const val prefReacts: String = "prefReacts"
         const val prefSearch: String = "prefSearch"
+        const val prefRadius: String = "prefRadius"
     }
 
     override fun onCreate() {
