@@ -62,7 +62,10 @@ import android.content.pm.PackageManager
 import android.content.res.ColorStateList
 import android.content.res.Resources
 import android.database.Cursor
-import android.graphics.*
+import android.graphics.Bitmap
+import android.graphics.Color
+import android.graphics.ImageDecoder
+import android.graphics.Matrix
 import android.graphics.drawable.ColorDrawable
 import android.icu.text.DecimalFormatSymbols
 import android.net.Uri
@@ -77,6 +80,7 @@ import android.view.ViewGroup
 import android.view.animation.AlphaAnimation
 import android.view.animation.Animation
 import android.view.animation.TranslateAnimation
+import android.webkit.MimeTypeMap
 import android.widget.*
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
@@ -113,7 +117,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
-import java.io.File
+import java.io.*
 import java.util.concurrent.Executors
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
@@ -647,18 +651,6 @@ class CoverPreferences : AppCompatActivity() {
         }
         drawer.isGone = true
 
-        val gestures = findViewById<SwitchCompat>(R.id.gestures_switch)
-        gestures.isChecked = prefs.getBoolean(SamSprung.prefSlider, true)
-        gestures.setOnCheckedChangeListener { _, isChecked ->
-            with(prefs.edit()) {
-                putBoolean(SamSprung.prefSlider, isChecked)
-                apply()
-            }
-        }
-        findViewById<LinearLayout>(R.id.gestures).setOnClickListener {
-            gestures.isChecked = !gestures.isChecked
-        }
-
         val vibration = findViewById<SwitchCompat>(R.id.vibration_switch)
         vibration.isChecked = prefs.getBoolean(SamSprung.prefReacts, true)
         vibration.setOnCheckedChangeListener { _, isChecked ->
@@ -669,6 +661,18 @@ class CoverPreferences : AppCompatActivity() {
         }
         findViewById<LinearLayout>(R.id.vibration).setOnClickListener {
             vibration.isChecked = !vibration.isChecked
+        }
+
+        val gestures = findViewById<SwitchCompat>(R.id.gestures_switch)
+        gestures.isChecked = prefs.getBoolean(SamSprung.prefSlider, true)
+        gestures.setOnCheckedChangeListener { _, isChecked ->
+            with(prefs.edit()) {
+                putBoolean(SamSprung.prefSlider, isChecked)
+                apply()
+            }
+        }
+        findViewById<LinearLayout>(R.id.gestures).setOnClickListener {
+            gestures.isChecked = !gestures.isChecked
         }
 
         val search = findViewById<SwitchCompat>(R.id.search_switch)
@@ -694,6 +698,8 @@ class CoverPreferences : AppCompatActivity() {
         findViewById<LinearLayout>(R.id.wallpaper_layout).setOnLongClickListener {
             val background = File(filesDir, "wallpaper.png")
             if (background.exists()) background.delete()
+            val animated = File(filesDir, "wallpaper.gif")
+            if (animated.exists()) animated.delete()
             Toast.makeText(this@CoverPreferences,
                 R.string.wallpaper_cleared, Toast.LENGTH_SHORT).show()
             return@setOnLongClickListener true
@@ -868,8 +874,6 @@ class CoverPreferences : AppCompatActivity() {
         }
     }
 
-
-
     @SuppressLint("MissingPermission")
     private val requestStorage = registerForActivityResult(
         ActivityResultContracts.RequestPermission()) {
@@ -891,40 +895,91 @@ class CoverPreferences : AppCompatActivity() {
         }
     }
 
+    private fun saveAnimatedImage(sourceUri: Uri) {
+        val background = File(filesDir, "wallpaper.png")
+        if (background.exists()) background.delete()
+        Executors.newSingleThreadExecutor().execute {
+            val destinationFilename = File(filesDir, "wallpaper.gif")
+            var bis: BufferedInputStream? = null
+            var bos: BufferedOutputStream? = null
+            try {
+                bis = BufferedInputStream(contentResolver.openInputStream(sourceUri))
+                bos = BufferedOutputStream(FileOutputStream(destinationFilename, false))
+                val buf = ByteArray(1024)
+                bis.read(buf)
+                do {
+                    bos.write(buf)
+                } while (bis.read(buf) != -1)
+            } catch (e: IOException) {
+                e.printStackTrace()
+            } finally {
+                try {
+                    bis?.close()
+                    bos?.close()
+                } catch (e: IOException) {
+                    e.printStackTrace()
+                }
+            }
+        }
+    }
+
+    private fun saveStaticImage(sourceUri: Uri) {
+        val animated = File(filesDir, "wallpaper.gif")
+        if (animated.exists()) animated.delete()
+        Executors.newSingleThreadExecutor().execute {
+            val source: ImageDecoder.Source = ImageDecoder.createSource(
+                this.contentResolver, sourceUri
+            )
+            val bitmap: Bitmap = ImageDecoder.decodeBitmap(source)
+            var rotation = -1
+            val background = File(filesDir, "wallpaper.png")
+            val cursor: Cursor? = contentResolver.query(
+                sourceUri, arrayOf(MediaStore.Images.ImageColumns.ORIENTATION),
+                null, null, null
+            )
+            if (cursor?.count == 1) {
+                cursor.moveToFirst()
+                rotation = cursor.getInt(0)
+            }
+            if (rotation > 0) {
+                val matrix = Matrix()
+                matrix.postRotate(rotation.toFloat())
+                background.writeBitmap(Bitmap.createBitmap(bitmap, 0, 0, bitmap.width,
+                    bitmap.height, matrix, true), Bitmap.CompressFormat.PNG, 100)
+            } else {
+                background.writeBitmap(bitmap, Bitmap.CompressFormat.PNG, 100)
+            }
+            cursor?.close()
+        }
+    }
+
     private val onPickImage = registerForActivityResult(
         ActivityResultContracts.StartActivityForResult()) { result ->
-        val background = File(filesDir, "wallpaper.png")
         if (result.resultCode == RESULT_OK && null != result.data) {
             var photoUri: Uri? = null
-            var bitmap: Bitmap? = null
             if (null != result.data!!.clipData) {
                 photoUri = result.data!!.clipData!!.getItemAt(0)!!.uri
-                val source: ImageDecoder.Source = ImageDecoder.createSource(
-                    this.contentResolver, photoUri
-                )
-                bitmap = ImageDecoder.decodeBitmap(source)
             } else if (null != result.data!!.data) {
                 photoUri = result.data!!.data!!
-                bitmap = BitmapFactory.decodeStream(contentResolver.openInputStream(photoUri))
             }
-            var rotation = -1
-            if (null != photoUri && null != bitmap) {
-                val cursor: Cursor? = contentResolver.query(
-                    photoUri, arrayOf(MediaStore.Images.ImageColumns.ORIENTATION),
-                    null, null, null
-                )
-                if (cursor?.count == 1) {
-                    cursor.moveToFirst()
-                    rotation = cursor.getInt(0)
+            if (null != photoUri) {
+                val extension: String? = when {
+                    photoUri.scheme == ContentResolver.SCHEME_CONTENT -> {
+                        MimeTypeMap.getSingleton().getExtensionFromMimeType(
+                            contentResolver.getType(photoUri)
+                        )
+                    } null != photoUri.path -> {
+                        MimeTypeMap.getFileExtensionFromUrl(
+                            Uri.fromFile(File(photoUri.path!!)).toString()
+                        )
+                    } else -> {
+                        null
+                    }
                 }
-                if (rotation > 0) {
-                    val matrix = Matrix()
-                    matrix.postRotate(rotation.toFloat())
-                    background.writeBitmap(Bitmap.createBitmap(bitmap, 0, 0, bitmap.width,
-                        bitmap.height, matrix, true), Bitmap.CompressFormat.PNG, 100)
-                } else {
-                    background.writeBitmap(bitmap, Bitmap.CompressFormat.PNG, 100)
-                }
+                if (extension.equals("gif", true))
+                    saveAnimatedImage(photoUri)
+                else
+                    saveStaticImage(photoUri)
             }
         }
     }

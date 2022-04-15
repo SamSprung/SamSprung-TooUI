@@ -64,11 +64,14 @@ import android.content.pm.ApplicationInfo
 import android.content.pm.PackageManager
 import android.database.ContentObserver
 import android.graphics.Color
+import android.graphics.ImageDecoder
 import android.graphics.PixelFormat
+import android.graphics.drawable.AnimatedImageDrawable
 import android.graphics.drawable.ColorDrawable
 import android.graphics.drawable.Drawable
 import android.hardware.camera2.CameraManager
 import android.media.AudioManager
+import android.net.Uri
 import android.net.wifi.WifiManager
 import android.nfc.NfcAdapter
 import android.nfc.NfcManager
@@ -199,21 +202,37 @@ class SamSprungOverlay : AppCompatActivity() {
         }
 
         val coordinator = findViewById<CoordinatorLayout>(R.id.coordinator)
-        val wallpaper = File(filesDir, "wallpaper.png")
-        if (wallpaper.exists()) {
+        val animated = File(filesDir, "wallpaper.gif")
+        if (animated.exists()) {
             try {
-                background = Drawable.createFromPath(wallpaper.absolutePath)
+                val source: ImageDecoder.Source = ImageDecoder.createSource(
+                    this.contentResolver, Uri.fromFile(animated)
+                )
+                Executors.newSingleThreadExecutor().execute {
+                    background = ImageDecoder.decodeDrawable(source) as AnimatedImageDrawable
+                    runOnUiThread {
+                        coordinator.background = background
+                        (background as AnimatedImageDrawable).start()
+                    }
+                }
             } catch (ignored: Exception) { }
+        } else {
+            val wallpaper = File(filesDir, "wallpaper.png")
+            if (wallpaper.exists()) {
+                try {
+                    background = Drawable.createFromPath(wallpaper.absolutePath)
+                } catch (ignored: Exception) { }
+            }
+            if (null == background && ContextCompat.checkSelfPermission(this,
+                    Manifest.permission.READ_EXTERNAL_STORAGE
+                ) == PackageManager.PERMISSION_GRANTED
+            ) {
+                background = WallpaperManager.getInstance(
+                    ScaledContext.cover(applicationContext)
+                ).drawable
+            }
+            if (null != background) coordinator.background = background
         }
-        if (null == background && ContextCompat.checkSelfPermission(this,
-                Manifest.permission.READ_EXTERNAL_STORAGE
-            ) == PackageManager.PERMISSION_GRANTED
-        ) {
-            background = WallpaperManager.getInstance(
-                ScaledContext.cover(applicationContext)
-            ).drawable
-        }
-        if (null != background) coordinator.background = background
 
         val blurView = findViewById<BlurView>(R.id.blurContainer)
         if (prefs.getBoolean(SamSprung.prefRadius, true)) {

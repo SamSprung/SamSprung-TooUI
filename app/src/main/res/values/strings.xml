@@ -11,7 +11,7 @@
     <string name="options_keyboard">Keyboard / IME</string>
     <string name="updates_preference">Preview Builds</string>
 
-    <string name="general_options">Cover Interface</string>
+    <string name="general_options">Cover Settings</string>
     <string name="options_placement">Icon Alignment</string>
     <string name="options_theme">Theme Selection</string>
     <string-array name="theme_options">
@@ -21,9 +21,9 @@
     </string-array>
     <string name="toggle_options">Toggles</string>
 
-    <string name="drawer_options">Drawer Settings</string>
-    <string name="options_gestures">Drawer Gesture</string>
+    <string name="drawer_options">Drawer Options</string>
     <string name="options_vibration">Touch Feedback</string>
+    <string name="options_gestures">Drawer Gesture</string>
     <string name="options_search">App Search Bar</string>
     <string name="options_wallpaper">Set Wallpaper</string>
     <string name="options_radius">Wallpaper Blur</string>

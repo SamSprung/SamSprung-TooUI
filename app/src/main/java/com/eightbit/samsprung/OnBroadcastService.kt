@@ -171,6 +171,8 @@ class OnBroadcastService : Service() {
 
     override fun onTaskRemoved(rootIntent: Intent?) {
         super.onTaskRemoved(rootIntent)
-        startForegroundService(Intent(application, OnBroadcastService::class.java))
+        if (Settings.canDrawOverlays(applicationContext)) {
+            startForegroundService(Intent(application, OnBroadcastService::class.java))
+        }
     }
 }
