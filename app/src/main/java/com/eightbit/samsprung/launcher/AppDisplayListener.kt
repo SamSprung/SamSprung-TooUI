@@ -227,7 +227,7 @@ class AppDisplayListener : Service() {
             Process.myUserHandle(),
             (baseContext.getSystemService(WINDOW_SERVICE) as WindowManager)
                 .maximumWindowMetrics.bounds,
-            CoverOptions.getActivityOptions(display).toBundle()
+            CoverOptions(null).getActivityOptions(display).toBundle()
         )
     }
 
@@ -245,7 +245,7 @@ class AppDisplayListener : Service() {
         homeLauncher.flags = Intent.FLAG_ACTIVITY_NEW_TASK or
                 Intent.FLAG_ACTIVITY_FORWARD_RESULT or
                 Intent.FLAG_ACTIVITY_NO_ANIMATION
-        startActivity(homeLauncher, CoverOptions.getActivityOptions(display).toBundle())
+        startActivity(homeLauncher, CoverOptions(null).getActivityOptions(display).toBundle())
     }
 
     private fun resetRecentActivities(pkg: String?, cls: String?, display: Int) {

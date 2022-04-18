@@ -77,7 +77,7 @@ class OnBroadcastService : Service() {
                 ScaledContext.cover(context).startActivity(
                     Intent(context.applicationContext, SamSprungOverlay::class.java)
                         .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK),
-                    CoverOptions.getActivityOptions(1).toBundle()
+                    CoverOptions(null).getActivityOptions(1).toBundle()
                 )
             }
         }
@@ -99,13 +99,13 @@ class OnBroadcastService : Service() {
             startActivity(
                 Intent(applicationContext, SamSprungOverlay::class.java)
                     .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK),
-                CoverOptions.getActivityOptions(1).toBundle()
+                CoverOptions(null).getActivityOptions(1).toBundle()
             )
         } else if (SamSprung.launcher == intent?.action) {
             startActivity(
                 Intent(applicationContext, SamSprungOverlay::class.java)
                     .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK).setAction(SamSprung.launcher),
-                CoverOptions.getActivityOptions(1).toBundle()
+                CoverOptions(null).getActivityOptions(1).toBundle()
             )
         }
         try {

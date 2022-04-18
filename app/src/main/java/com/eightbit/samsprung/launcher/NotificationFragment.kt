@@ -176,7 +176,7 @@ class NotificationFragment : Fragment(), NotificationAdapter.OnNoticeClickListen
                     RemoteInput.addResultsToIntent(action.remoteInputs, replyIntent, replyBundle)
                     requireActivity().startIntentSender(action.actionIntent.intentSender,
                         replyIntent, 0, 0, 0,
-                        CoverOptions.getActivityOptions(1).toBundle())
+                        CoverOptions(null).getActivityOptions(1).toBundle())
                     replyDialog?.dismiss()
                 }
                 actionEntries.findViewById<AppCompatImageView>(R.id.cancel).setOnClickListener {
@@ -222,7 +222,7 @@ class NotificationFragment : Fragment(), NotificationAdapter.OnNoticeClickListen
                                 Intent.FLAG_ACTIVITY_NO_ANIMATION or
                                 Intent.FLAG_ACTIVITY_FORWARD_RESULT
                         ), onFinished, null, null,
-                        CoverOptions.getActivityOptions(1).toBundle())
+                        CoverOptions(null).getActivityOptions(1).toBundle())
                 } catch (ex: Exception) {
                     ex.printStackTrace()
                 }

@@ -9,6 +9,7 @@ import android.content.pm.ApplicationInfo
 import android.content.pm.LauncherApps
 import android.content.pm.ResolveInfo
 import android.graphics.PixelFormat
+import android.graphics.Rect
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
@@ -22,13 +23,18 @@ import com.eightbit.content.ScaledContext
 import com.eightbit.samsprung.SamSprung
 import com.eightbit.samsprung.SamSprungOverlay
 
-
 class LauncherManager(private val overlay: SamSprungOverlay) {
 
-    val launcher = overlay.getSystemService(AppCompatActivity.LAUNCHER_APPS_SERVICE) as LauncherApps
+    val context = ScaledContext.cover(overlay)
+    val launcher = context.getSystemService(
+        AppCompatActivity.LAUNCHER_APPS_SERVICE
+    ) as LauncherApps
+
+    private fun getScaledBounds() : Rect {
+        return overlay.windowManager.currentWindowMetrics.bounds
+    }
 
     private fun getOrientationManager(extras: Bundle) {
-        val context = ScaledContext.cover(overlay.applicationContext)
         val orientationChanger = LinearLayout(context)
         val orientationLayout = WindowManager.LayoutParams(
             WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY,
@@ -46,8 +52,9 @@ class LauncherManager(private val overlay: SamSprungOverlay) {
             windowManager.removeViewImmediate(orientationChanger)
             overlay.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
             overlay.onStopOverlay()
-            overlay.startForegroundService(Intent(overlay.applicationContext,
-                AppDisplayListener::class.java).putExtras(extras))
+            context.startForegroundService(
+                Intent(context, AppDisplayListener::class.java).putExtras(extras)
+            )
         }, 20)
     }
 
@@ -57,14 +64,15 @@ class LauncherManager(private val overlay: SamSprungOverlay) {
                 if (!unlocked) return
                 overlay.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_LOCKED
                 overlay.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_BEHIND
+
                 launcher.startMainActivity(
                     ComponentName(
                         resolveInfo.activityInfo.packageName,
                         resolveInfo.activityInfo.name
                     ),
                     Process.myUserHandle(),
-                    overlay.windowManager.currentWindowMetrics.bounds,
-                    CoverOptions.getActivityOptions(1).toBundle()
+                    getScaledBounds(),
+                    CoverOptions(null).getActivityOptions(1).toBundle()
                 )
 
                 val extras = Bundle()
@@ -81,12 +89,13 @@ class LauncherManager(private val overlay: SamSprungOverlay) {
                 if (!unlocked) return
                 overlay.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_LOCKED
                 overlay.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_BEHIND
+
                 val intent = overlay.packageManager.getLaunchIntentForPackage(appInfo.packageName)
                 launcher.startMainActivity(
                     intent?.component,
                     Process.myUserHandle(),
-                    overlay.windowManager.currentWindowMetrics.bounds,
-                    CoverOptions.getAnimatedOptions(
+                    getScaledBounds(),
+                    CoverOptions(null).getAnimatedOptions(
                         1, overlay.getCoordinator(), intent
                     ).toBundle()
                 )
@@ -112,12 +121,12 @@ class LauncherManager(private val overlay: SamSprungOverlay) {
 //                parcel.recycle()
 
                 pendingIntent.send(
-                    ScaledContext.cover(overlay), SamSprung.request_code,
+                    context, SamSprung.request_code,
                     Intent().setFlags(Intent.FLAG_ACTIVITY_NEW_TASK or
                             Intent.FLAG_ACTIVITY_TASK_ON_HOME or
                             Intent.FLAG_ACTIVITY_FORWARD_RESULT
                     ), null, null, null,
-                    CoverOptions.getActivityOptions(1).toBundle()
+                    CoverOptions(null).getActivityOptions(1).toBundle()
                 )
 
                 if (pendingIntent.intentSender.creatorPackage == "android") {

@@ -254,7 +254,7 @@ class CoverPreferences : AppCompatActivity() {
                     .setMessage(getString(R.string.accessibility_disclaimer))
                     .setPositiveButton(R.string.button_confirm) { dialog, _ ->
                         accessibilityLauncher.launch(Intent(
-                            Settings.ACTION_ACCESSIBILITY_SETTINGS,
+                            Settings.ACTION_ACCESSIBILITY_SETTINGS
                         ))
                         dialog.dismiss()
                     }
@@ -264,7 +264,7 @@ class CoverPreferences : AppCompatActivity() {
                     }.show()
             } else {
                 accessibilityLauncher.launch(Intent(
-                    Settings.ACTION_ACCESSIBILITY_SETTINGS,
+                    Settings.ACTION_ACCESSIBILITY_SETTINGS
                 ))
             }
         }
