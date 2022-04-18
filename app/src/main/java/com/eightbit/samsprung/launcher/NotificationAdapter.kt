@@ -127,6 +127,34 @@ class NotificationAdapter(
     abstract class NoticeViewHolder(
         itemView: View, val listener: OnNoticeClickListener?, val activity: Activity
     ) : RecyclerView.ViewHolder(itemView) {
+
+        private inline val @receiver:ColorInt Int.blended
+            @ColorInt
+            get() = ColorUtils.blendARGB(this,
+                if ((activity.resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK)
+                    == Configuration.UI_MODE_NIGHT_YES) Color.BLACK else Color.WHITE, 0.4f)
+
+        private  fun getScaledBitmap(activity: Activity, bitmap: Bitmap): Bitmap {
+            val maxWidth = activity.window.decorView.width
+            val maxHeight = activity.window.decorView.height
+            return if (bitmap.width > activity.window.decorView.width) {
+                val width = bitmap.width
+                val height = bitmap.height
+                val ratioBitmap = width.toFloat() / height.toFloat()
+                val ratioMax = maxWidth.toFloat() / maxHeight.toFloat()
+                var finalWidth = maxWidth
+                var finalHeight = maxHeight
+                if (ratioMax > ratioBitmap) {
+                    finalWidth = (maxHeight.toFloat() * ratioBitmap).toInt()
+                } else {
+                    finalHeight = (maxWidth.toFloat() / ratioBitmap).toInt()
+                }
+                Bitmap.createScaledBitmap(bitmap, finalWidth, finalHeight, true)
+            } else {
+                bitmap
+            }
+        }
+
         lateinit var notice: StatusBarNotification
         private val prefs = activity.getSharedPreferences(
             SamSprung.prefsValue, FragmentActivity.MODE_PRIVATE
@@ -248,33 +276,6 @@ class NotificationAdapter(
                         notice.key, (prefs.getInt(SamSprung.prefSnooze, 30) * 60 * 1000).toLong()
                     )
                 }
-            }
-        }
-
-        private inline val @receiver:ColorInt Int.blended
-            @ColorInt
-            get() = ColorUtils.blendARGB(this,
-                if ((activity.resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK)
-                    == Configuration.UI_MODE_NIGHT_YES) Color.BLACK else Color.WHITE, 0.4f)
-
-        private  fun getScaledBitmap(activity: Activity, bitmap: Bitmap): Bitmap {
-            val maxWidth = activity.window.decorView.width
-            val maxHeight = activity.window.decorView.height
-            return if (bitmap.width > activity.window.decorView.width) {
-                val width = bitmap.width
-                val height = bitmap.height
-                val ratioBitmap = width.toFloat() / height.toFloat()
-                val ratioMax = maxWidth.toFloat() / maxHeight.toFloat()
-                var finalWidth = maxWidth
-                var finalHeight = maxHeight
-                if (ratioMax > ratioBitmap) {
-                    finalWidth = (maxHeight.toFloat() * ratioBitmap).toInt()
-                } else {
-                    finalHeight = (maxWidth.toFloat() / ratioBitmap).toInt()
-                }
-                Bitmap.createScaledBitmap(bitmap, finalWidth, finalHeight, true)
-            } else {
-                bitmap
             }
         }
     }

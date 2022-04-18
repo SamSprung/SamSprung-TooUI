@@ -119,8 +119,10 @@ import java.io.File
 import java.util.*
 import java.util.concurrent.Executors
 
-
 class SamSprungOverlay : AppCompatActivity() {
+
+    private val CharSequence.toPref get() = this.toString()
+        .lowercase().replace(" ", "_")
 
     private lateinit var prefs: SharedPreferences
     private var launcherManager: LauncherManager? = null
@@ -154,6 +156,16 @@ class SamSprungOverlay : AppCompatActivity() {
     private lateinit var viewPager: ViewPager2
     private lateinit var pagerAdapter: FragmentStateAdapter
 
+    private var mBinder: DesktopBinder? = null
+
+    private var mWidgetPreviewCacheDb: WidgetPreviews.CacheDb? = null
+    fun recreateWidgetPreviewDb() {
+        mWidgetPreviewCacheDb = WidgetPreviews.CacheDb(this)
+    }
+    fun getWidgetPreviewCacheDb(): WidgetPreviews.CacheDb? {
+        return mWidgetPreviewCacheDb
+    }
+
     private inner class FavoritesChangeObserver : ContentObserver(Handler(Looper.getMainLooper())) {
         override fun onChange(selfChange: Boolean) {
             onFavoritesChanged()
@@ -161,7 +173,18 @@ class SamSprungOverlay : AppCompatActivity() {
     }
     private val mObserver: ContentObserver = FavoritesChangeObserver()
 
-    private var mBinder: DesktopBinder? = null
+    val requestCreateAppWidget = registerForActivityResult(
+        ActivityResultContracts.StartActivityForResult()) { result: ActivityResult ->
+        val appWidgetId = result.data?.getIntExtra(
+            AppWidgetManager.EXTRA_APPWIDGET_ID, -1) ?: -1
+        if (result.resultCode == FragmentActivity.RESULT_CANCELED) {
+            if (appWidgetId != -1) {
+                appWidgetHost?.deleteAppWidgetId(appWidgetId)
+            }
+        } else {
+            widgetManager?.completeAddAppWidget(appWidgetId, viewPager)
+        }
+    }
 
     @SuppressLint("ClickableViewAccessibility")
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -517,6 +540,7 @@ class SamSprungOverlay : AppCompatActivity() {
                     bottomSheetBehaviorMain.isDraggable = false
                     setActionButtonTimeout()
                 } else if (newState == BottomSheetBehavior.STATE_COLLAPSED) {
+                    coordinator.alpha = 1.0f
                     hasConfigured = false
                     coordinator.visibility = View.GONE
                     setBottomTheme(bottomHandle, menuButton)
@@ -531,6 +555,7 @@ class SamSprungOverlay : AppCompatActivity() {
                 color = prefs.getInt(SamSprung.prefColors,
                     Color.rgb(255, 255, 255))
                 if (slideOffset > 0) {
+                    coordinator.alpha = slideOffset
                     if (!hasConfigured) {
                         hasConfigured = true
                         handler.removeCallbacksAndMessages(null)
@@ -747,7 +772,7 @@ class SamSprungOverlay : AppCompatActivity() {
         }
         if (matchedApps.isNotEmpty()) {
             if (matchedApps.size == 1) {
-                launcherManager?.launchDefaultActivity(matchedApps[0])
+                launcherManager?.launchApplicationInfo(matchedApps[0])
             } else {
                 bottomSheetBehaviorMain.state = BottomSheetBehavior.STATE_EXPANDED
                 getSearchView()?.setQuery(launchCommand, true)
@@ -908,6 +933,7 @@ class SamSprungOverlay : AppCompatActivity() {
         mBinder!!.startBindingItems()
     }
 
+    @Deprecated("Deprecated in Java")
     override fun onRetainCustomNonConfigurationInstance(): Any? {
         if (null != mBinder) mBinder!!.mTerminate = true
         // return lastNonConfigurationInstance
@@ -1033,29 +1059,5 @@ class SamSprungOverlay : AppCompatActivity() {
         } else {
             setScreenTimeout(bottomSheetMain)
         }
-    }
-
-    private val CharSequence.toPref get() = this.toString()
-        .lowercase().replace(" ", "_")
-
-    val requestCreateAppWidget = registerForActivityResult(
-        ActivityResultContracts.StartActivityForResult()) { result: ActivityResult ->
-        val appWidgetId = result.data?.getIntExtra(
-            AppWidgetManager.EXTRA_APPWIDGET_ID, -1) ?: -1
-        if (result.resultCode == FragmentActivity.RESULT_CANCELED) {
-            if (appWidgetId != -1) {
-                appWidgetHost?.deleteAppWidgetId(appWidgetId)
-            }
-        } else {
-            widgetManager?.completeAddAppWidget(appWidgetId, viewPager)
-        }
-    }
-
-    private var mWidgetPreviewCacheDb: WidgetPreviews.CacheDb? = null
-    fun recreateWidgetPreviewDb() {
-        mWidgetPreviewCacheDb = WidgetPreviews.CacheDb(this)
-    }
-    fun getWidgetPreviewCacheDb(): WidgetPreviews.CacheDb? {
-        return mWidgetPreviewCacheDb
     }
 }

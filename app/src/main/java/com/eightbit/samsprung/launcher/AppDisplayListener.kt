@@ -220,7 +220,7 @@ class AppDisplayListener : Service() {
     }
 
     private fun restoreActivityDisplay(componentName: ComponentName?, display: Int) {
-        val baseContext = ScaledContext.restore(applicationContext)
+        val baseContext = ScaledContext.restore(applicationContext, display)
         (baseContext.getSystemService(AppCompatActivity
             .LAUNCHER_APPS_SERVICE) as LauncherApps).startMainActivity(
             componentName,
@@ -245,7 +245,8 @@ class AppDisplayListener : Service() {
         homeLauncher.flags = Intent.FLAG_ACTIVITY_NEW_TASK or
                 Intent.FLAG_ACTIVITY_FORWARD_RESULT or
                 Intent.FLAG_ACTIVITY_NO_ANIMATION
-        startActivity(homeLauncher, CoverOptions(null).getActivityOptions(display).toBundle())
+        startActivity(homeLauncher, CoverOptions(null)
+            .getActivityOptions(display).toBundle())
     }
 
     private fun resetRecentActivities(pkg: String?, cls: String?, display: Int) {

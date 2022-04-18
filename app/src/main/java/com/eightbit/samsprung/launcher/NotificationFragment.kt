@@ -93,6 +93,12 @@ import java.util.*
 
 class NotificationFragment : Fragment(), NotificationAdapter.OnNoticeClickListener {
 
+    private inline val @receiver:ColorInt Int.blended
+        @ColorInt
+        get() = ColorUtils.blendARGB(this,
+            if ((requireActivity().resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK)
+                == Configuration.UI_MODE_NIGHT_YES) Color.BLACK else Color.WHITE, 0.6f)
+
     private var launcherManager: LauncherManager? = null
     private var textSpeech: TextToSpeech? = null
     private var layoutManager: LinearLayoutManager? = null
@@ -290,7 +296,7 @@ class NotificationFragment : Fragment(), NotificationAdapter.OnNoticeClickListen
     }
 
     override fun onLaunchClicked(pendingIntent: PendingIntent) {
-        launcherManager?.launchPendingActivity(pendingIntent)
+        launcherManager?.launchPendingIntent(pendingIntent)
     }
 
     private fun tactileFeedback() {
@@ -327,10 +333,4 @@ class NotificationFragment : Fragment(), NotificationAdapter.OnNoticeClickListen
             textSpeech?.shutdown()
         }
     }
-
-    private inline val @receiver:ColorInt Int.blended
-        @ColorInt
-        get() = ColorUtils.blendARGB(this,
-            if ((requireActivity().resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK)
-                == Configuration.UI_MODE_NIGHT_YES) Color.BLACK else Color.WHITE, 0.6f)
 }

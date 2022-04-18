@@ -125,6 +125,19 @@ import kotlin.coroutines.suspendCoroutine
 
 class CoverPreferences : AppCompatActivity() {
 
+    private val CharSequence.toPref get() = this.toString()
+        .lowercase().replace(" ", "_")
+
+    private val Number.toPx get() = TypedValue.applyDimension(
+        TypedValue.COMPLEX_UNIT_DIP, this.toFloat(),
+        Resources.getSystem().displayMetrics
+    )
+
+    private val Number.toScalePx get() = TypedValue.applyDimension(
+        TypedValue.COMPLEX_UNIT_DIP, this.toFloat(),
+        ScaledContext.screen(this@CoverPreferences, 2f).resources.displayMetrics
+    )
+
     private lateinit var prefs: SharedPreferences
     private lateinit var coordinator: CoordinatorLayout
     private var updateCheck : CheckUpdatesTask? = null
@@ -1027,7 +1040,7 @@ class CoverPreferences : AppCompatActivity() {
 
     private val requestWidgets = registerForActivityResult(
         ActivityResultContracts.RequestPermission()) {
-        toggleWidgetsIcon(findViewById<Toolbar>(R.id.toolbar))
+        toggleWidgetsIcon(findViewById(R.id.toolbar))
     }
 
     private val optimizationLauncher = registerForActivityResult(
@@ -1421,17 +1434,4 @@ class CoverPreferences : AppCompatActivity() {
             }
         }
     }
-
-    private val CharSequence.toPref get() = this.toString()
-        .lowercase().replace(" ", "_")
-
-    private val Number.toPx get() = TypedValue.applyDimension(
-        TypedValue.COMPLEX_UNIT_DIP, this.toFloat(),
-        Resources.getSystem().displayMetrics
-    )
-
-    private val Number.toScalePx get() = TypedValue.applyDimension(
-        TypedValue.COMPLEX_UNIT_DIP, this.toFloat(),
-        ScaledContext.screen(this@CoverPreferences, 2f).resources.displayMetrics
-    )
 }

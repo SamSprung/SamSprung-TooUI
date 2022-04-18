@@ -78,6 +78,11 @@ import java.util.concurrent.Executors
 
 class AppDrawerFragment : Fragment(), DrawerAppAdapater.OnAppClickListener {
 
+    private val Number.toPx get() = TypedValue.applyDimension(
+        TypedValue.COMPLEX_UNIT_DIP, this.toFloat(),
+        ScaledContext.cover(requireActivity()).resources.displayMetrics
+    )
+
     private var launcherManager: LauncherManager? = null
     private lateinit var launcherView: RecyclerView
     private var packReceiver: BroadcastReceiver? = null
@@ -207,7 +212,7 @@ class AppDrawerFragment : Fragment(), DrawerAppAdapater.OnAppClickListener {
     }
 
     override fun onAppClicked(resolveInfo: ResolveInfo, position: Int) {
-        launcherManager?.launchApplicationComponent(resolveInfo)
+        launcherManager?.launchResolveInfo(resolveInfo)
     }
 
     override fun onDestroyView() {
@@ -221,9 +226,4 @@ class AppDrawerFragment : Fragment(), DrawerAppAdapater.OnAppClickListener {
         super.onResume()
         if (this::launcherView.isInitialized) getFilteredPackageList()
     }
-
-    private val Number.toPx get() = TypedValue.applyDimension(
-        TypedValue.COMPLEX_UNIT_DIP, this.toFloat(),
-        ScaledContext.cover(requireActivity()).resources.displayMetrics
-    )
 }
