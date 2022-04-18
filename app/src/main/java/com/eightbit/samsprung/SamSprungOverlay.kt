@@ -276,6 +276,14 @@ class SamSprungOverlay : AppCompatActivity() {
             override fun onTorchModeChanged(cameraId: String, enabled: Boolean) {
                 super.onTorchModeChanged(cameraId, enabled)
                 if (cameraId == camManager.cameraIdList[0]) isTorchEnabled = enabled
+                val torchMenu = toolbar.menu.findItem(R.id.toggle_torch)
+                if (isTorchEnabled) {
+                    torchMenu.setIcon(R.drawable.ic_baseline_flashlight_on_24dp)
+                } else {
+                    torchMenu.setIcon(R.drawable.ic_baseline_flashlight_off_24dp)
+                }
+                torchMenu.icon.setTint(prefs.getInt(SamSprung.prefColors,
+                    Color.rgb(255, 255, 255)))
             }
         }
         camManager.registerTorchCallback(torchCallback, null)
@@ -397,12 +405,6 @@ class SamSprungOverlay : AppCompatActivity() {
                                 return@setOnMenuItemClickListener true
                             }
                             R.id.toggle_torch -> {
-                                if (isTorchEnabled) {
-                                    item.setIcon(R.drawable.ic_baseline_flashlight_off_24dp)
-                                } else {
-                                    item.setIcon(R.drawable.ic_baseline_flashlight_on_24dp)
-                                }
-                                item.icon.setTint(color)
                                 camManager.setTorchMode(camManager.cameraIdList[0], !isTorchEnabled)
                                 return@setOnMenuItemClickListener true
                             }
@@ -854,15 +856,7 @@ class SamSprungOverlay : AppCompatActivity() {
             toolbar.menu.findItem(R.id.toggle_dnd).isVisible = false
         }
 
-        if (packageManager.hasSystemFeature(PackageManager.FEATURE_CAMERA_FLASH)) {
-            if (isTorchEnabled) {
-                toolbar.menu.findItem(R.id.toggle_torch)
-                    .setIcon(R.drawable.ic_baseline_flashlight_on_24dp)
-            } else {
-                toolbar.menu.findItem(R.id.toggle_torch)
-                    .setIcon(R.drawable.ic_baseline_flashlight_off_24dp)
-            }
-        } else {
+        if (!packageManager.hasSystemFeature(PackageManager.FEATURE_CAMERA_FLASH)) {
             toolbar.menu.findItem(R.id.toggle_torch).isVisible = false
         }
         for (i in 0 until toolbar.menu.size()) {
