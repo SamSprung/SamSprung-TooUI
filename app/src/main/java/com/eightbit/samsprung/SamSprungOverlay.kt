@@ -141,7 +141,7 @@ class SamSprungOverlay : AppCompatActivity() {
     private lateinit var audioManager: AudioManager
     private lateinit var notificationManager: NotificationManager
     private lateinit var camManager: CameraManager
-
+    private lateinit var torchCallback: CameraManager.TorchCallback
     private var isTorchEnabled = false
 
     private var offReceiver: BroadcastReceiver = object : BroadcastReceiver() {
@@ -272,12 +272,13 @@ class SamSprungOverlay : AppCompatActivity() {
         audioManager = getSystemService(AUDIO_SERVICE) as AudioManager
         notificationManager = getSystemService(NOTIFICATION_SERVICE) as NotificationManager
         camManager = getSystemService(CAMERA_SERVICE) as CameraManager
-        camManager.registerTorchCallback(object: CameraManager.TorchCallback() {
+        torchCallback = object: CameraManager.TorchCallback() {
             override fun onTorchModeChanged(cameraId: String, enabled: Boolean) {
                 super.onTorchModeChanged(cameraId, enabled)
-                isTorchEnabled = enabled
+                if (cameraId == camManager.cameraIdList[0]) isTorchEnabled = enabled
             }
-        }, null)
+        }
+        camManager.registerTorchCallback(torchCallback, null)
 
         val batteryLevel = findViewById<TextView>(R.id.battery_status)
         battReceiver = object : BroadcastReceiver() {
@@ -1018,6 +1019,10 @@ class SamSprungOverlay : AppCompatActivity() {
     }
 
     fun onStopOverlay() {
+        try {
+            if (this::torchCallback.isInitialized)
+                camManager.unregisterTorchCallback(torchCallback)
+        } catch (ignored: Exception) { }
         timeoutHandler.removeCallbacksAndMessages(null)
         fabShowHandler.removeCallbacksAndMessages(null)
         findViewById<View>(R.id.bottom_sheet_main).keepScreenOn = false
