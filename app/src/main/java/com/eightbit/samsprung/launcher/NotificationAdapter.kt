@@ -179,16 +179,20 @@ class NotificationAdapter(
                 when {
                     null != notification.getLargeIcon() -> {
                         val icon = notification.getLargeIcon().loadDrawable(activity)
-                        activity.runOnUiThread {
-                            icon.applyTheme(activity.theme)
-                            iconView.setImageDrawable(icon)
+                        if (null != icon) {
+                            activity.runOnUiThread {
+                                icon.applyTheme(activity.theme)
+                                iconView.setImageDrawable(icon)
+                            }
                         }
                     }
                     null != notification.smallIcon -> {
                         val icon = notification.smallIcon.loadDrawable(activity)
-                        activity.runOnUiThread {
-                            icon.applyTheme(activity.theme)
-                            iconView.setImageDrawable(icon)
+                        if (null != icon) {
+                            activity.runOnUiThread {
+                                icon.applyTheme(activity.theme)
+                                iconView.setImageDrawable(icon)
+                            }
                         }
                     }
                 }
