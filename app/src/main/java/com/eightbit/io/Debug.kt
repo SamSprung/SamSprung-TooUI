@@ -106,7 +106,7 @@ class Debug(private var context: Context) {
             val mLogcatProc: Process = Runtime.getRuntime().exec(arrayOf(
                 "logcat", "-d", "-t", "192", BuildConfig.APPLICATION_ID,
                 "AndroidRuntime", "InvocationTargetException", "System.err",
-                "AppIconSolution:S", "ViewRootImpl:S", "IssueReporterActivity:S",
+                "AppIconSolution:S", "ViewRootImpl*:S", "IssueReporterActivity:S",
             ))
             val reader = BufferedReader(InputStreamReader(mLogcatProc.inputStream))
             log.append(separator).append(separator)
