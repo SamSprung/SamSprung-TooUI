@@ -2,7 +2,6 @@
 <resources>
     <string name="app_name" translatable="false">SamSprung TooUI</string>
 
-    <string name="logcat_link" translatable="false">Logcat</string>
     <string name="google_play_link" translatable="false">Google Play</string>
     <string name="paypal_link" translatable="false">PayPal</string>
 

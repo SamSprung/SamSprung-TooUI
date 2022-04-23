@@ -87,10 +87,14 @@ class PanelWidgetManager(
             overlay.setKeyguardListener(object: SamSprungOverlay.KeyguardListener {
                 override fun onKeyguardCheck(unlocked: Boolean) {
                     if (!unlocked) return
-                    val intent = Intent(AppWidgetManager.ACTION_APPWIDGET_CONFIGURE)
-                    intent.component = appWidget.configure
-                    intent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId)
-                    overlay.requestCreateAppWidget.launch(intent)
+                    try {
+                        val intent = Intent(AppWidgetManager.ACTION_APPWIDGET_CONFIGURE)
+                        intent.component = appWidget.configure
+                        intent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId)
+                        overlay.requestCreateAppWidget.launch(intent)
+                    } catch (ex: Exception) {
+                        ex.printStackTrace()
+                    }
                 }
             })
         } else {
