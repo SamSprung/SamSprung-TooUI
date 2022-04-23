@@ -11,6 +11,7 @@ import android.os.Build
 import android.view.Gravity
 import android.view.View
 import android.widget.LinearLayout
+import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.view.ContextThemeWrapper
 import androidx.appcompat.widget.AppCompatImageView
@@ -93,6 +94,9 @@ class PanelWidgetManager(
                         intent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId)
                         overlay.requestCreateAppWidget.launch(intent)
                     } catch (ex: Exception) {
+                        Toast.makeText(overlay,
+                            R.string.widget_error,
+                            Toast.LENGTH_LONG).show()
                         ex.printStackTrace()
                     }
                 }

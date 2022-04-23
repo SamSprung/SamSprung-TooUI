@@ -99,4 +99,5 @@
     <string name="out_of_space">Cancelled adding widget</string>
     <!-- Text to show user in place of a widget when we can't display it properly -->
     <string name="gadget_error_text">Problem loading widget</string>
+    <string name="widget_error">Widget unavailable!</string>
 </resources>
