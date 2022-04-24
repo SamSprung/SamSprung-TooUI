@@ -6,6 +6,7 @@ import android.view.ViewGroup
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.coordinatorlayout.widget.CoordinatorLayout
+import androidx.core.view.updatePadding
 import androidx.transition.TransitionManager
 import com.eightbit.samsprung.R
 import com.google.android.material.snackbar.Snackbar
@@ -60,7 +61,7 @@ class IconifiedSnackbar {
                     return
                 }
                 TransitionManager.beginDelayedTransition(layout!!)
-                layout!!.setPadding(0, top, 0, bottom)
+                layout!!.updatePadding(top = top, bottom = bottom)
                 super.onDismissed(snackbar, event)
             }
 
@@ -70,7 +71,7 @@ class IconifiedSnackbar {
                     return
                 }
                 val adjusted = top + snackbar.view.measuredHeight
-                layout!!.setPadding(0, adjusted, 0, bottom)
+                layout!!.updatePadding(top = adjusted, bottom = bottom)
                 super.onShown(snackbar)
             }
         })

@@ -994,7 +994,7 @@ class SamSprungOverlay : AppCompatActivity() {
             anchorView.keepScreenOn = true
             timeoutHandler.postDelayed({
                 anchorView.keepScreenOn = false
-            }, (timeout * 1000).toLong() + 300)
+            }, (timeout * 1000).toLong())
         }
     }
 
@@ -1043,12 +1043,18 @@ class SamSprungOverlay : AppCompatActivity() {
         }
     }
 
+    private var isUserLeaveHint = false
     public override fun onUserLeaveHint() {
         super.onUserLeaveHint()
+        isUserLeaveHint = true
     }
 
     override fun onUserInteraction() {
         super.onUserInteraction()
+        if (isUserLeaveHint) {
+            isUserLeaveHint = false
+            return
+        }
         setActionButtonTimeout()
         val bottomSheetMain = findViewById<View>(R.id.bottom_sheet_main)
         if (viewPager.currentItem == 0 && bottomSheetBehaviorMain.state
