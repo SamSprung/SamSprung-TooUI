@@ -152,6 +152,7 @@ class CoverPreferences : AppCompatActivity() {
     private lateinit var notifications: SwitchCompat
     private lateinit var statistics: SwitchCompat
     private lateinit var keyboard: SwitchCompat
+    private lateinit var wikiDrawer: DrawerLayout
 
     private lateinit var hiddenList: RecyclerView
 
@@ -185,10 +186,10 @@ class CoverPreferences : AppCompatActivity() {
             .setHasFixedTransformationMatrix(false)
             .setBlurAlgorithm(RenderScriptBlur(this))
 
+        wikiDrawer = findViewById(R.id.drawer_layout)
         findViewById<TextView>(R.id.build_info).text = (getString(R.string.build_hash, BuildConfig.COMMIT))
         findViewById<LinearLayout>(R.id.build_layout).setOnClickListener {
-            startActivity(Intent(Intent.ACTION_VIEW,
-                Uri.parse("https://github.com/SamSprung/SamSprung-TooUI")))
+            wikiDrawer.openDrawer(GravityCompat.START)
         }
 
         initializeLayout()
@@ -1183,9 +1184,8 @@ class CoverPreferences : AppCompatActivity() {
     }
 
     override fun onBackPressed() {
-        val drawer = findViewById<DrawerLayout>(R.id.drawer_layout)
-        if (drawer.isDrawerOpen(GravityCompat.START))
-            drawer.closeDrawer(GravityCompat.START)
+        if (wikiDrawer.isDrawerOpen(GravityCompat.START))
+            wikiDrawer.closeDrawer(GravityCompat.START)
         else
             super.onBackPressed()
     }
