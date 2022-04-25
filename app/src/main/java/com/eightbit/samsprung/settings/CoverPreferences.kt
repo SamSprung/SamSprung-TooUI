@@ -81,6 +81,7 @@ import android.view.animation.AlphaAnimation
 import android.view.animation.Animation
 import android.view.animation.TranslateAnimation
 import android.webkit.MimeTypeMap
+import android.webkit.WebView
 import android.widget.*
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
@@ -95,8 +96,10 @@ import androidx.core.content.ContextCompat
 import androidx.core.graphics.blue
 import androidx.core.graphics.green
 import androidx.core.graphics.red
+import androidx.core.view.GravityCompat
 import androidx.core.view.isGone
 import androidx.core.view.isVisible
+import androidx.drawerlayout.widget.DrawerLayout
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -185,7 +188,7 @@ class CoverPreferences : AppCompatActivity() {
         findViewById<TextView>(R.id.build_info).text = (getString(R.string.build_hash, BuildConfig.COMMIT))
         findViewById<LinearLayout>(R.id.build_layout).setOnClickListener {
             startActivity(Intent(Intent.ACTION_VIEW,
-                Uri.parse("https://github.com/SamSprung/SamSprung-TooUI/wiki")))
+                Uri.parse("https://github.com/SamSprung/SamSprung-TooUI")))
         }
 
         initializeLayout()
@@ -858,6 +861,10 @@ class CoverPreferences : AppCompatActivity() {
                 bottomSheetBehavior.state = BottomSheetBehavior.STATE_EXPANDED
             }
         }
+
+        findViewById<WebView>(R.id.webview_wiki)
+            .loadUrl("https://github.com/SamSprung/SamSprung-TooUI/wiki")
+
     }
 
     private fun setAnimatedUpdateNotice(appUpdateInfo: AppUpdateInfo?, downloadUrl: String?) {
@@ -1173,6 +1180,14 @@ class CoverPreferences : AppCompatActivity() {
             ))
         }
         return true
+    }
+
+    override fun onBackPressed() {
+        val drawer = findViewById<DrawerLayout>(R.id.drawer_layout)
+        if (drawer.isDrawerOpen(GravityCompat.START))
+            drawer.closeDrawer(GravityCompat.START)
+        else
+            super.onBackPressed()
     }
 
     private fun initializeLayout() {
