@@ -10,8 +10,8 @@ android {
         applicationId "com.eightbit.samsprung"
         minSdk 30
         targetSdk 31
-        versionCode 166
-        versionName "1.6.6"
+        versionCode 167
+        versionName "1.6.7"
 
         vectorDrawables {
             useSupportLibrary = true

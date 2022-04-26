@@ -126,10 +126,6 @@ class AppDrawerFragment : Fragment(), DrawerAppAdapater.OnAppClickListener {
         val searchView = (requireActivity() as SamSprungOverlay).getSearchView()
         if (null != searchView) {
             launcherView.updatePadding(bottom = 60)
-            val searchManager = requireActivity()
-                .getSystemService(AppCompatActivity.SEARCH_SERVICE) as SearchManager
-            searchView.setSearchableInfo(searchManager
-                .getSearchableInfo(requireActivity().componentName))
             searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
                 override fun onQueryTextSubmit(query: String): Boolean {
                     (launcherView.adapter as DrawerAppAdapater).setQuery(query)

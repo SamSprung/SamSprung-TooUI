@@ -1102,7 +1102,7 @@ class CoverPreferences : AppCompatActivity() {
     }
 
     private fun isDeviceSecure(): Boolean {
-        return (getSystemService(Context.KEYGUARD_SERVICE) as KeyguardManager).isDeviceSecure
+        return (getSystemService(KEYGUARD_SERVICE) as KeyguardManager).isDeviceSecure
     }
 
     private fun hasPermission(permission: String) : Boolean {
@@ -1118,7 +1118,7 @@ class CoverPreferences : AppCompatActivity() {
     }
 
     private fun ignoreBatteryOptimization(): Boolean {
-        return ((getSystemService(Context.POWER_SERVICE) as PowerManager)
+        return ((getSystemService(POWER_SERVICE) as PowerManager)
             .isIgnoringBatteryOptimizations(packageName))
     }
 
@@ -1137,7 +1137,7 @@ class CoverPreferences : AppCompatActivity() {
 
     private fun hasUsageStatistics() : Boolean {
         try {
-            if ((getSystemService(Context.APP_OPS_SERVICE) as AppOpsManager).unsafeCheckOp(
+            if ((getSystemService(APP_OPS_SERVICE) as AppOpsManager).unsafeCheckOp(
                     "android:get_usage_stats", Process.myUid(), packageName
                 ) == AppOpsManager.MODE_ALLOWED) return true
         } catch (ignored: SecurityException) { }

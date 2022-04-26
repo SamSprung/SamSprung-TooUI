@@ -55,6 +55,7 @@ import android.Manifest
 import android.annotation.SuppressLint
 import android.app.KeyguardManager
 import android.app.NotificationManager
+import android.app.SearchManager
 import android.app.WallpaperManager
 import android.appwidget.AppWidgetManager
 import android.bluetooth.BluetoothAdapter
@@ -267,7 +268,7 @@ class SamSprungOverlay : AppCompatActivity() {
         }
 
         wifiManager = getSystemService(WIFI_SERVICE) as WifiManager
-        bluetoothAdapter = (getSystemService(Context.BLUETOOTH_SERVICE) as BluetoothManager).adapter
+        bluetoothAdapter = (getSystemService(BLUETOOTH_SERVICE) as BluetoothManager).adapter
         nfcAdapter = (getSystemService(NFC_SERVICE) as NfcManager).defaultAdapter
         audioManager = getSystemService(AUDIO_SERVICE) as AudioManager
         notificationManager = getSystemService(NOTIFICATION_SERVICE) as NotificationManager
@@ -315,7 +316,7 @@ class SamSprungOverlay : AppCompatActivity() {
         batteryLevel.setTextColor(color)
         clock.setTextColor(color)
 
-        val keyguardManager = (getSystemService(Context.KEYGUARD_SERVICE) as KeyguardManager)
+        val keyguardManager = (getSystemService(KEYGUARD_SERVICE) as KeyguardManager)
         val buttonAuth = findViewById<AppCompatImageView>(R.id.button_auth)
         buttonAuth.setOnClickListener {
             setKeyguardListener(object: KeyguardListener {
@@ -494,6 +495,8 @@ class SamSprungOverlay : AppCompatActivity() {
                         20f, resources.displayMetrics).toInt()
                 }
             }
+            searchView.setSearchableInfo((getSystemService(SEARCH_SERVICE)
+                    as SearchManager).getSearchableInfo(componentName))
         } else {
             findViewById<SearchView>(R.id.package_search).visibility = View.GONE
         }
@@ -718,7 +721,7 @@ class SamSprungOverlay : AppCompatActivity() {
     fun setKeyguardListener(listener: KeyguardListener?) {
         this.keyguardListener = listener
         setTurnScreenOn(true)
-        val keyguardManager = (getSystemService(Context.KEYGUARD_SERVICE) as KeyguardManager)
+        val keyguardManager = (getSystemService(KEYGUARD_SERVICE) as KeyguardManager)
         if (keyguardManager.isDeviceLocked) {
             val authView = layoutInflater.inflate(R.layout.fingerprint_auth, null)
             val authDialog = AlertDialog.Builder(
@@ -881,11 +884,11 @@ class SamSprungOverlay : AppCompatActivity() {
         if (!prefs.getBoolean(SamSprung.prefReacts, true)) return
         val vibe = VibrationEffect.createOneShot(20, VibrationEffect.DEFAULT_AMPLITUDE)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-            (getSystemService(Context.VIBRATOR_MANAGER_SERVICE) as VibratorManager)
+            (getSystemService(VIBRATOR_MANAGER_SERVICE) as VibratorManager)
                 .defaultVibrator.vibrate(vibe)
         } else {
             @Suppress("DEPRECATION")
-            (getSystemService(Context.VIBRATOR_SERVICE) as Vibrator).vibrate(vibe)
+            (getSystemService(VIBRATOR_SERVICE) as Vibrator).vibrate(vibe)
         }
     }
 

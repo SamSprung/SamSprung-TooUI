@@ -131,7 +131,7 @@ class AppDisplayListener : Service() {
             registerReceiver(offReceiver, it)
         }
 
-        val displayManager = getSystemService(Context.DISPLAY_SERVICE) as DisplayManager
+        val displayManager = getSystemService(DISPLAY_SERVICE) as DisplayManager
         mDisplayListener = object : DisplayManager.DisplayListener {
             override fun onDisplayAdded(display: Int) {}
             override fun onDisplayChanged(display: Int) {
@@ -259,11 +259,11 @@ class AppDisplayListener : Service() {
         if (!prefs.getBoolean(SamSprung.prefReacts, true)) return
         val vibe = VibrationEffect.createOneShot(20, VibrationEffect.DEFAULT_AMPLITUDE)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-            (getSystemService(Context.VIBRATOR_MANAGER_SERVICE) as VibratorManager)
+            (getSystemService(VIBRATOR_MANAGER_SERVICE) as VibratorManager)
                 .defaultVibrator.vibrate(vibe)
         } else {
             @Suppress("DEPRECATION")
-            (getSystemService(Context.VIBRATOR_SERVICE) as Vibrator).vibrate(vibe)
+            (getSystemService(VIBRATOR_SERVICE) as Vibrator).vibrate(vibe)
         }
     }
 
@@ -359,7 +359,7 @@ class AppDisplayListener : Service() {
 
     fun onDismissOverlay() {
         if (null != mDisplayListener) {
-            (getSystemService(Context.DISPLAY_SERVICE) as DisplayManager)
+            (getSystemService(DISPLAY_SERVICE) as DisplayManager)
                 .unregisterDisplayListener(mDisplayListener)
         }
         try {
