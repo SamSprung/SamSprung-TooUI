@@ -37,7 +37,9 @@
 
     <string name="visibility_options">App Visibility</string>
 
-    <string name="logcat_link">Contact</string>
+    <string name="donate_link">Donation</string>
+    <string name="logcat_link">Support</string>
+
     <string name="wallpaper_cleared">Wallpaper reset!</string>
 
     <string name="button_confirm">Confirm</string>

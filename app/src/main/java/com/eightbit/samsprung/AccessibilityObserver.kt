@@ -53,6 +53,7 @@ package com.eightbit.samsprung
 
 import android.accessibilityservice.AccessibilityService
 import android.accessibilityservice.AccessibilityServiceInfo
+import android.content.Intent
 import android.view.accessibility.AccessibilityEvent
 
 class AccessibilityObserver : AccessibilityService() {
@@ -86,6 +87,11 @@ class AccessibilityObserver : AccessibilityService() {
     }
 
     override fun onInterrupt() {
+        if (null == getInstance()) observerInstance = this
+    }
+
+    override fun onUnbind(intent: Intent?): Boolean {
         isConnected = false
+        return super.onUnbind(intent)
     }
 }

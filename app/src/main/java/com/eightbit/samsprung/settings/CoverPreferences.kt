@@ -152,6 +152,7 @@ class CoverPreferences : AppCompatActivity() {
     private lateinit var notifications: SwitchCompat
     private lateinit var statistics: SwitchCompat
     private lateinit var keyboard: SwitchCompat
+    private lateinit var bottomSheetBehavior: BottomSheetBehavior<View>
     private lateinit var wikiDrawer: DrawerLayout
 
     private lateinit var hiddenList: RecyclerView
@@ -829,8 +830,7 @@ class CoverPreferences : AppCompatActivity() {
         )
         hiddenList.adapter = FilteredAppsAdapter(packageManager, packages, unlisted, prefs)
 
-        val bottomSheetBehavior: BottomSheetBehavior<View> =
-            BottomSheetBehavior.from(findViewById(R.id.bottom_sheet))
+        bottomSheetBehavior = BottomSheetBehavior.from(findViewById(R.id.bottom_sheet))
         bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
         bottomSheetBehavior.addBottomSheetCallback(object : BottomSheetBehavior.BottomSheetCallback() {
             override fun onStateChanged(bottomSheet: View, newState: Int) {
@@ -1186,6 +1186,8 @@ class CoverPreferences : AppCompatActivity() {
     override fun onBackPressed() {
         if (wikiDrawer.isDrawerOpen(GravityCompat.START))
             wikiDrawer.closeDrawer(GravityCompat.START)
+        else if (BottomSheetBehavior.STATE_EXPANDED == bottomSheetBehavior.getState())
+            bottomSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED)
         else
             super.onBackPressed()
     }

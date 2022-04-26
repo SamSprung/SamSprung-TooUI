@@ -2,9 +2,6 @@
 <resources>
     <string name="app_name" translatable="false">SamSprung TooUI</string>
 
-    <string name="google_play_link" translatable="false">Google Play</string>
-    <string name="paypal_link" translatable="false">PayPal</string>
-
     <string name="samsprung" translatable="false">SamSprung</string>
     <string name="build_hash" translatable="false">#%1$s</string>
     <string name="build_hash_full" translatable="false">SamSprung - #%1$s</string>

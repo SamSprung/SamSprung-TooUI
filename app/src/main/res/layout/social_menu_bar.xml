@@ -5,10 +5,8 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginStart="12dp"
-        android:layout_marginEnd="12dp"
-        android:layout_marginTop="8dp"
-        android:layout_marginBottom="8dp"
+        android:layout_marginHorizontal="12dp"
+        android:layout_marginVertical="8dp"
         android:gravity="center_horizontal"
         android:orientation="horizontal"
         android:baselineAligned="false">
@@ -17,7 +15,7 @@
             android:id="@+id/build_layout"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
+            android:layout_weight="0.8"
             android:gravity="start|center_vertical"
             android:orientation="horizontal">
 
@@ -57,7 +55,7 @@
                 android:layout_marginStart="8dp"
                 android:textColor="?android:textColorPrimary"
                 android:gravity="center_vertical"
-                android:text="@string/paypal_link" />
+                android:text="@string/donate_link" />
         </LinearLayout>
 
         <LinearLayout
@@ -80,14 +78,14 @@
                 android:layout_marginStart="8dp"
                 android:textColor="?android:textColorPrimary"
                 android:gravity="center_vertical"
-                android:text="@string/google_play_link" />
+                android:text="@string/donate_link" />
         </LinearLayout>
 
         <LinearLayout
             android:id="@+id/logcat"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
+            android:layout_weight="0.8"
             android:gravity="end|center_vertical"
             android:orientation="horizontal">
             <androidx.appcompat.widget.AppCompatImageView
