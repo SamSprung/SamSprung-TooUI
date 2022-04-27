@@ -67,6 +67,37 @@
     </LinearLayout>
 
     <LinearLayout
+        android:id="@+id/length"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="8dp"
+        android:layout_gravity="center_vertical"
+        tools:ignore="UseCompoundDrawables">
+
+        <TextView
+            android:id="@+id/length_text"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:textSize="26sp"
+            android:textColor="?android:textColorPrimary"
+            android:gravity="center_vertical"
+            android:layout_height="wrap_content"
+            android:text="@string/options_length" />
+
+        <SeekBar
+            android:id="@+id/length_bar"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:gravity="center"
+            android:layout_weight="1"
+            android:min="1"
+            android:max="6"/>
+    </LinearLayout>
+
+    <LinearLayout
         android:id="@+id/search"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

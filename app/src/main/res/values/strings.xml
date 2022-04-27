@@ -24,6 +24,7 @@
     <string name="drawer_options">Drawer Options</string>
     <string name="options_vibration">Touch Feedback</string>
     <string name="options_gestures">Drawer Gesture</string>
+    <string name="options_length">Apps Per Row (%1$s)</string>
     <string name="options_search">App Search Bar</string>
     <string name="options_wallpaper">Set Wallpaper</string>
     <string name="options_radius">Wallpaper Blur</string>

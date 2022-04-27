@@ -693,6 +693,29 @@ class CoverPreferences : AppCompatActivity() {
             gestures.isChecked = !gestures.isChecked
         }
 
+        val lengthBar = findViewById<SeekBar>(R.id.length_bar)
+        val lengthText = findViewById<TextView>(R.id.length_text)
+        lengthBar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
+            override fun onProgressChanged(seek: SeekBar, progress: Int, fromUser: Boolean) {
+                if (!fromUser) return
+                with(prefs.edit()) {
+                    putInt(SamSprung.prefLength, progress)
+                    apply()
+                }
+                val textLength = (if (lengthBar.progress < 6) lengthBar.progress else
+                    DecimalFormatSymbols.getInstance().infinity).toString()
+                lengthText.text = getString(R.string.options_length, textLength)
+            }
+
+            override fun onStartTrackingTouch(seek: SeekBar) { }
+
+            override fun onStopTrackingTouch(seek: SeekBar) { }
+        })
+        lengthBar.progress = prefs.getInt(SamSprung.prefLength, 6)
+        val textLength = (if (lengthBar.progress < 6) lengthBar.progress else
+            DecimalFormatSymbols.getInstance().infinity).toString()
+        lengthText.text = getString(R.string.options_length, textLength)
+
         val search = findViewById<SwitchCompat>(R.id.search_switch)
         search.isChecked = prefs.getBoolean(SamSprung.prefSearch, true)
         search.setOnCheckedChangeListener { _, isChecked ->

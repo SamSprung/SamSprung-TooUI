@@ -53,10 +53,7 @@ package com.eightbit.samsprung.launcher
 
 import android.annotation.SuppressLint
 import android.app.SearchManager
-import android.content.BroadcastReceiver
-import android.content.Context
-import android.content.Intent
-import android.content.IntentFilter
+import android.content.*
 import android.content.pm.ResolveInfo
 import android.os.Bundle
 import android.util.TypedValue
@@ -87,6 +84,7 @@ class AppDrawerFragment : Fragment(), DrawerAppAdapater.OnAppClickListener {
     private var launcherManager: LauncherManager? = null
     private lateinit var launcherView: RecyclerView
     private var packReceiver: BroadcastReceiver? = null
+    private lateinit var prefs: SharedPreferences
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -101,7 +99,7 @@ class AppDrawerFragment : Fragment(), DrawerAppAdapater.OnAppClickListener {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        val prefs = requireActivity().getSharedPreferences(
+        prefs = requireActivity().getSharedPreferences(
             SamSprung.prefsValue, AppCompatActivity.MODE_PRIVATE)
 
         launcherManager = LauncherManager(requireActivity() as SamSprungOverlay)
@@ -207,8 +205,12 @@ class AppDrawerFragment : Fragment(), DrawerAppAdapater.OnAppClickListener {
     }
 
     private fun getColumnCount(): Int {
-        return (requireActivity().windowManager.currentWindowMetrics
-            .bounds.width() / 92.toPx + 0.5).toInt()
+        val columns = prefs.getInt(SamSprung.prefLength, 6)
+        return if (columns < 6)
+            columns
+        else
+            (requireActivity().windowManager.currentWindowMetrics
+                .bounds.width() / 92.toPx + 0.5).toInt()
     }
 
     override fun onAppClicked(resolveInfo: ResolveInfo, position: Int) {
