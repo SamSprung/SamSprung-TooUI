@@ -54,7 +54,6 @@ package com.eightbit.samsprung.launcher
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.viewpager2.adapter.FragmentStateAdapter
-import java.util.*
 
 class CoverStateAdapter(fragmentActivity: AppCompatActivity) : FragmentStateAdapter(fragmentActivity) {
     private val mFragments = ArrayList<PanelViewFragment>()

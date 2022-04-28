@@ -60,9 +60,9 @@ import android.util.TypedValue
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.LinearLayout
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.SearchView
-import androidx.core.view.updatePadding
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.*
 import com.eightbit.content.ScaledContext
@@ -122,22 +122,29 @@ class AppDrawerFragment : Fragment(), DrawerAppAdapater.OnAppClickListener {
         )
 
         val searchView = (requireActivity() as SamSprungOverlay).getSearchView()
-        if (null != searchView) {
-            launcherView.updatePadding(bottom = 60)
-            searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
-                override fun onQueryTextSubmit(query: String): Boolean {
-                    (launcherView.adapter as DrawerAppAdapater).setQuery(query)
-                    return false
-                }
-
-                override fun onQueryTextChange(query: String): Boolean {
-                    (launcherView.adapter as DrawerAppAdapater).setQuery(query)
-                    return true
-                }
-            })
-        } else {
-            launcherView.updatePadding(bottom = 30)
+        searchView?.isSubmitButtonEnabled = false
+        searchView?.setIconifiedByDefault(true)
+        searchView?.findViewById<LinearLayout>(R.id.search_bar)?.run {
+            this.layoutParams = this.layoutParams.apply {
+                height = TypedValue.applyDimension(
+                    TypedValue.COMPLEX_UNIT_DIP,
+                    20f, resources.displayMetrics).toInt()
+            }
         }
+        searchView?.setSearchableInfo((requireActivity().getSystemService(
+            AppCompatActivity.SEARCH_SERVICE) as SearchManager
+                ).getSearchableInfo(requireActivity().componentName))
+        searchView?.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
+            override fun onQueryTextSubmit(query: String): Boolean {
+                (launcherView.adapter as DrawerAppAdapater).setQuery(query)
+                return false
+            }
+
+            override fun onQueryTextChange(query: String): Boolean {
+                (launcherView.adapter as DrawerAppAdapater).setQuery(query)
+                return true
+            }
+        })
 
         RecyclerViewTouch(launcherView).setSwipeCallback(ItemTouchHelper.DOWN,
             object: RecyclerViewTouch.SwipeCallback {
@@ -156,7 +163,6 @@ class AppDrawerFragment : Fragment(), DrawerAppAdapater.OnAppClickListener {
         })
 
         packReceiver = object : BroadcastReceiver() {
-            @SuppressLint("NotifyDataSetChanged")
             override fun onReceive(context: Context?, intent: Intent) {
                 if (intent.action == Intent.ACTION_PACKAGE_FULLY_REMOVED) {
                     getFilteredPackageList()
@@ -183,8 +189,9 @@ class AppDrawerFragment : Fragment(), DrawerAppAdapater.OnAppClickListener {
             val packageRetriever = PackageRetriever(requireActivity())
             val packages = packageRetriever.getFilteredPackageList()
             requireActivity().runOnUiThread {
-                (launcherView.adapter as DrawerAppAdapater).setPackages(packages)
-                (launcherView.adapter as DrawerAppAdapater).notifyDataSetChanged()
+                val adapter = launcherView.adapter as DrawerAppAdapater
+                adapter.setPackages(packages)
+                adapter.notifyDataSetChanged()
             }
         }
     }

@@ -484,27 +484,9 @@ class SamSprungOverlay : AppCompatActivity() {
         pagerAdapter = CoverStateAdapter(this)
         viewPager.adapter = pagerAdapter
 
-        val searchView = getSearchView()
-        if (null != searchView) {
-            searchView.isSubmitButtonEnabled = false
-            searchView.setIconifiedByDefault(true)
-            searchView.findViewById<LinearLayout>(R.id.search_bar)?.run {
-                this.layoutParams = this.layoutParams.apply {
-                    height = TypedValue.applyDimension(
-                        TypedValue.COMPLEX_UNIT_DIP,
-                        20f, resources.displayMetrics).toInt()
-                }
-            }
-            searchView.setSearchableInfo((getSystemService(SEARCH_SERVICE)
-                    as SearchManager).getSearchableInfo(componentName))
-        } else {
-            findViewById<SearchView>(R.id.package_search).visibility = View.GONE
-        }
-
         viewPager.registerOnPageChangeCallback(object: ViewPager2.OnPageChangeCallback() {
             override fun onPageSelected(position: Int) {
                 super.onPageSelected(position)
-                getSearchView()?.isGone = position != 1
                 val bottomSheetMain = findViewById<View>(R.id.bottom_sheet_main)
                 if (position == 0 && bottomSheetBehaviorMain.state
                     == BottomSheetBehavior.STATE_EXPANDED) {
@@ -651,9 +633,7 @@ class SamSprungOverlay : AppCompatActivity() {
     }
 
     fun getSearchView() : SearchView? {
-        return if (prefs.getBoolean(SamSprung.prefSearch, true))
-            findViewById(R.id.package_search)
-        else null
+        return findViewById(R.id.package_search)
     }
 
     private var skipUpdateCheck = false

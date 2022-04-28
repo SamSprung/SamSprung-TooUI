@@ -91,17 +91,6 @@
                         android:layout_height="wrap_content"
                         android:text="@string/update_service" />
                 </com.eightbit.view.AnimatedLinearLayout>
-
-                <androidx.appcompat.widget.SearchView
-                    android:id="@+id/package_search"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginBottom="20dp"
-                    android:paddingTop="2dp"
-                    android:background="@color/bottomSheetTint"
-                    android:lineSpacingExtra="0dp"
-                    android:lineSpacingMultiplier="0"
-                    android:layout_gravity="bottom"/>
             </FrameLayout>
 
             <LinearLayout
@@ -173,6 +162,18 @@
                         app:contentInsetLeft="2dp"
                         app:contentInsetStart="2dp"
                         android:layout_gravity="top|center_horizontal" />
+
+                    <androidx.appcompat.widget.SearchView
+                        android:id="@+id/package_search"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="20dp"
+                        android:paddingTop="2dp"
+                        android:background="@color/bottomSheetTint"
+                        android:lineSpacingExtra="0dp"
+                        android:lineSpacingMultiplier="0"
+                        android:layout_gravity="bottom"
+                        android:layout_alignParentBottom="true"/>
 
                     <LinearLayout
                         android:layout_width="match_parent"
