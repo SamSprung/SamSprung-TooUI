@@ -131,9 +131,8 @@ class AppDrawerFragment : Fragment(), DrawerAppAdapater.OnAppClickListener {
                     20f, resources.displayMetrics).toInt()
             }
         }
-        searchView?.setSearchableInfo((requireActivity().getSystemService(
-            AppCompatActivity.SEARCH_SERVICE) as SearchManager
-                ).getSearchableInfo(requireActivity().componentName))
+        val search = requireActivity().getSystemService(Context.SEARCH_SERVICE) as SearchManager
+        searchView?.setSearchableInfo((search).getSearchableInfo(requireActivity().componentName))
         searchView?.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
             override fun onQueryTextSubmit(query: String): Boolean {
                 (launcherView.adapter as DrawerAppAdapater).setQuery(query)
@@ -141,6 +140,7 @@ class AppDrawerFragment : Fragment(), DrawerAppAdapater.OnAppClickListener {
             }
 
             override fun onQueryTextChange(query: String): Boolean {
+                if (query.isEmpty()) searchView.isIconified = true
                 (launcherView.adapter as DrawerAppAdapater).setQuery(query)
                 return true
             }

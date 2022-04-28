@@ -55,7 +55,6 @@ import android.Manifest
 import android.annotation.SuppressLint
 import android.app.KeyguardManager
 import android.app.NotificationManager
-import android.app.SearchManager
 import android.app.WallpaperManager
 import android.appwidget.AppWidgetManager
 import android.bluetooth.BluetoothAdapter
@@ -79,7 +78,6 @@ import android.nfc.NfcManager
 import android.os.*
 import android.provider.Settings
 import android.speech.SpeechRecognizer
-import android.util.TypedValue
 import android.view.*
 import android.view.animation.TranslateAnimation
 import android.widget.*
