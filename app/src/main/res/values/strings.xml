@@ -30,8 +30,8 @@
     <string name="options_radius">Wallpaper Blur</string>
     <string name="options_timeout">Screen Timeout (%1$sˢ)</string>
 
-    <string name="swap_viewgrid">Display as ListView Widget Style</string>
-    <string name="swap_viewlist">Display as GridView Widget Style</string>
+    <string name="swap_viewgrid">Switch GridView to ListView Style</string>
+    <string name="swap_viewlist">Switch ListView to GridView Style</string>
 
     <string name="notice_options">Notifications</string>
     <string name="options_dismiss">Snooze Length (%1$sᵐ)</string>

@@ -195,8 +195,8 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:minHeight="@dimen/button_height_min"
-        android:textOff="@string/swap_viewgrid"
-        android:textOn="@string/swap_viewlist"
+        android:textOff="@string/swap_viewlist"
+        android:textOn="@string/swap_viewgrid"
         android:layout_marginHorizontal="2dp"
         android:layout_marginTop="6dp"
         android:layout_marginBottom="4dp"/>
