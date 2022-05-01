@@ -2,21 +2,16 @@ package com.eightbit.samsprung.launcher
 
 import android.app.PendingIntent
 import android.content.ComponentName
-import android.content.Context
 import android.content.Intent
 import android.content.pm.ActivityInfo
 import android.content.pm.ApplicationInfo
 import android.content.pm.LauncherApps
 import android.content.pm.ResolveInfo
-import android.graphics.PixelFormat
 import android.graphics.Rect
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.os.Process
-import android.view.View
-import android.view.WindowManager
-import android.widget.LinearLayout
 import androidx.appcompat.app.AppCompatActivity
 import com.eightbit.app.CoverOptions
 import com.eightbit.content.ScaledContext
@@ -31,21 +26,10 @@ class LauncherManager(private val overlay: SamSprungOverlay) {
     ) as LauncherApps
 
     private fun withOrientationManager(extras: Bundle) {
-        val orientationChanger = LinearLayout(context)
-        val orientationLayout = WindowManager.LayoutParams(
-            WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY,
-            WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL or
-                    WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or
-                    WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE,
-            PixelFormat.TRANSPARENT
-        )
-        orientationLayout.screenOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
-        val windowManager = context.getSystemService(
-            Context.WINDOW_SERVICE) as WindowManager
-        windowManager.addView(orientationChanger, orientationLayout)
-        orientationChanger.visibility = View.VISIBLE
+        val orientationLock = OrientationManager(overlay)
+        orientationLock.addOrientationManager(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT)
         Handler(Looper.getMainLooper()).postDelayed({
-            windowManager.removeViewImmediate(orientationChanger)
+            orientationLock.removeOrientationManager()
             overlay.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
             overlay.onStopOverlay()
             context.startForegroundService(
@@ -54,7 +38,7 @@ class LauncherManager(private val overlay: SamSprungOverlay) {
         }, 20)
     }
 
-    private fun getLaaunchBounds() : Rect {
+    private fun getLaunchBounds() : Rect {
         return overlay.windowManager.currentWindowMetrics.bounds
     }
 
@@ -73,7 +57,7 @@ class LauncherManager(private val overlay: SamSprungOverlay) {
                         resolveInfo.activityInfo.name
                     ),
                     Process.myUserHandle(),
-                    getLaaunchBounds(),
+                    getLaunchBounds(),
                     CoverOptions(null).getAnimatedOptions(
                         1, overlay.getCoordinator(), intent
                     ).toBundle()
@@ -98,7 +82,7 @@ class LauncherManager(private val overlay: SamSprungOverlay) {
                 launcher.startMainActivity(
                     intent?.component,
                     Process.myUserHandle(),
-                    getLaaunchBounds(),
+                    getLaunchBounds(),
                     CoverOptions(null).getAnimatedOptions(
                         1, overlay.getCoordinator(), intent
                     ).toBundle()
