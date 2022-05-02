@@ -485,6 +485,7 @@ class SamSprungOverlay : AppCompatActivity() {
         viewPager.registerOnPageChangeCallback(object: ViewPager2.OnPageChangeCallback() {
             override fun onPageSelected(position: Int) {
                 super.onPageSelected(position)
+                getSearchView()?.isGone = position != 1
                 val bottomSheetMain = findViewById<View>(R.id.bottom_sheet_main)
                 if (position == 0 && bottomSheetBehaviorMain.state
                     == BottomSheetBehavior.STATE_EXPANDED) {
@@ -631,7 +632,9 @@ class SamSprungOverlay : AppCompatActivity() {
     }
 
     fun getSearchView() : SearchView? {
-        return findViewById(R.id.package_search)
+        return if (prefs.getBoolean(SamSprung.prefSearch, true))
+            findViewById(R.id.package_search)
+        else null
     }
 
     private var skipUpdateCheck = false

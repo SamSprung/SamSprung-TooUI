@@ -92,6 +92,7 @@ class SamSprung : Application() {
         const val prefDelays: String = "prefDelays"
         const val prefSnooze: String = "prefSnooze"
         const val prefReacts: String = "prefReacts"
+        const val prefSearch: String = "prefSearch"
         const val prefRadius: String = "prefRadius"
         const val prefLength: String = "prefLength"
     }

@@ -716,6 +716,18 @@ class CoverPreferences : AppCompatActivity() {
             DecimalFormatSymbols.getInstance().infinity).toString()
         lengthText.text = getString(R.string.options_length, textLength)
 
+        val search = findViewById<SwitchCompat>(R.id.search_switch)
+        search.isChecked = prefs.getBoolean(SamSprung.prefSearch, true)
+        search.setOnCheckedChangeListener { _, isChecked ->
+            with(prefs.edit()) {
+                putBoolean(SamSprung.prefSearch, isChecked)
+                apply()
+            }
+        }
+        findViewById<LinearLayout>(R.id.search).setOnClickListener {
+            search.isChecked = !search.isChecked
+        }
+
         findViewById<LinearLayout>(R.id.wallpaper_layout).setOnClickListener {
             onPickImage.launch(Intent.createChooser(Intent(Intent.ACTION_OPEN_DOCUMENT)
                 .setType("image/*").addCategory(Intent.CATEGORY_OPENABLE)

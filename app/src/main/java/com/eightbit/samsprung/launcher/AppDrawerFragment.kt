@@ -63,6 +63,7 @@ import android.view.ViewGroup
 import android.widget.LinearLayout
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.SearchView
+import androidx.core.view.updatePadding
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.*
 import com.eightbit.content.ScaledContext
@@ -122,29 +123,35 @@ class AppDrawerFragment : Fragment(), DrawerAppAdapater.OnAppClickListener {
         )
 
         val searchView = (requireActivity() as SamSprungOverlay).getSearchView()
-        searchView?.isSubmitButtonEnabled = false
-        searchView?.setIconifiedByDefault(true)
-        searchView?.findViewById<LinearLayout>(R.id.search_bar)?.run {
-            this.layoutParams = this.layoutParams.apply {
-                height = TypedValue.applyDimension(
-                    TypedValue.COMPLEX_UNIT_DIP,
-                    20f, resources.displayMetrics).toInt()
+        if (null != searchView) {
+            launcherView.updatePadding(bottom = 60)
+            searchView.isSubmitButtonEnabled = false
+            searchView.setIconifiedByDefault(true)
+            searchView.findViewById<LinearLayout>(R.id.search_bar)?.run {
+                this.layoutParams = this.layoutParams.apply {
+                    height = TypedValue.applyDimension(
+                        TypedValue.COMPLEX_UNIT_DIP,
+                        20f, resources.displayMetrics).toInt()
+                }
             }
-        }
-        val search = requireActivity().getSystemService(Context.SEARCH_SERVICE) as SearchManager
-        searchView?.setSearchableInfo((search).getSearchableInfo(requireActivity().componentName))
-        searchView?.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
-            override fun onQueryTextSubmit(query: String): Boolean {
-                (launcherView.adapter as DrawerAppAdapater).setQuery(query)
-                return false
-            }
+            val search = requireActivity().getSystemService(Context.SEARCH_SERVICE) as SearchManager
+            searchView.setSearchableInfo((search).getSearchableInfo(requireActivity().componentName))
+            searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
+                override fun onQueryTextSubmit(query: String): Boolean {
+                    (launcherView.adapter as DrawerAppAdapater).setQuery(query)
+                    return false
+                }
 
-            override fun onQueryTextChange(query: String): Boolean {
-                if (query.isEmpty()) searchView.isIconified = true
-                (launcherView.adapter as DrawerAppAdapater).setQuery(query)
-                return true
-            }
-        })
+                override fun onQueryTextChange(query: String): Boolean {
+                    if (query.isEmpty()) searchView.isIconified = true
+                    (launcherView.adapter as DrawerAppAdapater).setQuery(query)
+                    return true
+                }
+            })
+        } else {
+            launcherView.updatePadding(bottom = 30)
+            requireActivity().findViewById<SearchView>(R.id.package_search).visibility = View.GONE
+        }
 
         RecyclerViewTouch(launcherView).setSwipeCallback(ItemTouchHelper.DOWN,
             object: RecyclerViewTouch.SwipeCallback {
