@@ -106,36 +106,6 @@
                             android:layout_marginTop="4dp" />
                     </LinearLayout>
 
-                    <!--                <LinearLayout-->
-                    <!--                    android:id="@+id/optimization"-->
-                    <!--                    android:layout_width="match_parent"-->
-                    <!--                    android:layout_height="wrap_content"-->
-                    <!--                    android:orientation="horizontal"-->
-                    <!--                    android:layout_marginStart="16dp"-->
-                    <!--                    android:layout_marginEnd="8dp"-->
-                    <!--                    android:layout_gravity="center_vertical"-->
-                    <!--                    tools:ignore="UseCompoundDrawables">-->
-
-                    <!--                    <TextView-->
-                    <!--                        android:layout_width="0dp"-->
-                    <!--                        android:layout_weight="1"-->
-                    <!--                        android:textSize="26sp"-->
-                    <!--                        android:textColor="?android:textColorPrimary"-->
-                    <!--                        android:gravity="center_vertical"-->
-                    <!--                        android:layout_height="wrap_content"-->
-                    <!--                        android:text="@string/options_optimization" />-->
-
-                    <!--                    <androidx.appcompat.widget.SwitchCompat-->
-                    <!--                        android:id="@+id/optimization_switch"-->
-                    <!--                        android:layout_width="0dp"-->
-                    <!--                        android:gravity="center"-->
-                    <!--                        android:layout_weight="1"-->
-                    <!--                        android:clickable="false"-->
-                    <!--                        android:textSize="26sp"-->
-                    <!--                        android:textColor="?android:textColorPrimary"-->
-                    <!--                        android:layout_height="wrap_content" />-->
-                    <!--                </LinearLayout>-->
-
                     <LinearLayout
                         android:id="@+id/keyboard_layout"
                         android:layout_width="match_parent"
@@ -146,14 +116,30 @@
                         android:layout_gravity="center_vertical"
                         tools:ignore="UseCompoundDrawables">
 
-                        <TextView
+                        <LinearLayout
                             android:layout_width="0dp"
                             android:layout_weight="1"
+                            android:layout_height="wrap_content"
+                            android:orientation="vertical"
+                            android:layout_gravity="center_vertical"
+                            tools:ignore="UseCompoundDrawables">
+
+                        <TextView
+                            android:layout_width="match_parent"
                             android:textSize="26sp"
                             android:textColor="?android:textColorPrimary"
                             android:gravity="center_vertical"
                             android:layout_height="wrap_content"
                             android:text="@string/options_keyboard" />
+
+                            <TextView
+                                android:layout_width="match_parent"
+                                android:textSize="12sp"
+                                android:textColor="?android:textColorPrimary"
+                                android:gravity="center_vertical"
+                                android:layout_height="wrap_content"
+                                android:text="@string/details_keyboard" />
+                        </LinearLayout>
 
                         <androidx.appcompat.widget.SwitchCompat
                             android:id="@+id/keyboard_switch"
@@ -170,19 +156,36 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:orientation="horizontal"
+                        android:layout_marginBottom="6dp"
                         android:layout_marginStart="16dp"
                         android:layout_marginEnd="8dp"
                         android:layout_gravity="center_vertical"
                         tools:ignore="UseCompoundDrawables">
 
-                        <TextView
+                        <LinearLayout
                             android:layout_width="0dp"
                             android:layout_weight="1"
+                            android:layout_height="wrap_content"
+                            android:orientation="vertical"
+                            android:layout_gravity="center_vertical"
+                            tools:ignore="UseCompoundDrawables">
+
+                        <TextView
+                            android:layout_width="match_parent"
                             android:textSize="26sp"
                             android:textColor="?android:textColorPrimary"
                             android:gravity="center_vertical"
                             android:layout_height="wrap_content"
                             android:text="@string/updates_preference" />
+
+                            <TextView
+                                android:layout_width="match_parent"
+                                android:textSize="12sp"
+                                android:textColor="?android:textColorPrimary"
+                                android:gravity="center_vertical"
+                                android:layout_height="wrap_content"
+                                android:text="@string/details_updates" />
+                        </LinearLayout>
 
                         <androidx.appcompat.widget.SwitchCompat
                             android:id="@+id/updates_switch"

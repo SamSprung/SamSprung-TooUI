@@ -124,7 +124,7 @@ class AppDrawerFragment : Fragment(), DrawerAppAdapater.OnAppClickListener {
 
         val searchView = (requireActivity() as SamSprungOverlay).getSearchView()
         if (null != searchView) {
-            launcherView.updatePadding(bottom = 60)
+            launcherView.updatePadding(bottom = 64)
             searchView.isSubmitButtonEnabled = false
             searchView.setIconifiedByDefault(true)
             searchView.findViewById<LinearLayout>(R.id.search_bar)?.run {

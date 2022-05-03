@@ -18,14 +18,30 @@
         android:layout_gravity="center_vertical"
         tools:ignore="UseCompoundDrawables">
 
-        <TextView
+        <LinearLayout
             android:layout_width="0dp"
             android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_gravity="center_vertical"
+            tools:ignore="UseCompoundDrawables">
+
+        <TextView
+            android:layout_width="match_parent"
             android:textSize="26sp"
             android:textColor="?android:textColorPrimary"
             android:gravity="center_vertical"
             android:layout_height="wrap_content"
             android:text="@string/permission_notifications" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:textSize="12sp"
+                android:textColor="?android:textColorPrimary"
+                android:gravity="center_vertical"
+                android:layout_height="wrap_content"
+                android:text="@string/details_notifications" />
+        </LinearLayout>
 
         <androidx.appcompat.widget.SwitchCompat
             android:id="@+id/notifications_switch"
@@ -39,6 +55,53 @@
     </LinearLayout>
 
     <LinearLayout
+        android:id="@+id/voice_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="8dp"
+        android:layout_gravity="center_vertical"
+        tools:ignore="UseCompoundDrawables">
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_gravity="center_vertical"
+            tools:ignore="UseCompoundDrawables">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:textSize="26sp"
+                android:textColor="?android:textColorPrimary"
+                android:gravity="center_vertical"
+                android:layout_height="wrap_content"
+                android:text="@string/permission_voice" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:textSize="12sp"
+                android:textColor="?android:textColorPrimary"
+                android:gravity="center_vertical"
+                android:layout_height="wrap_content"
+                android:text="@string/details_voice" />
+        </LinearLayout>
+
+        <androidx.appcompat.widget.AppCompatImageView
+            android:id="@+id/voice_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:layout_gravity="center"
+            app:srcCompat="@drawable/ic_baseline_record_voice_over_24dp"
+            android:paddingStart="0dp"
+            android:paddingEnd="4dp"
+            android:contentDescription="@string/description_icon"/>
+    </LinearLayout>
+
+    <LinearLayout
         android:id="@+id/usage_layout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -48,14 +111,30 @@
         android:layout_gravity="center_vertical"
         tools:ignore="UseCompoundDrawables">
 
-        <TextView
+        <LinearLayout
             android:layout_width="0dp"
             android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_gravity="center_vertical"
+            tools:ignore="UseCompoundDrawables">
+
+        <TextView
+            android:layout_width="match_parent"
             android:textSize="26sp"
             android:textColor="?android:textColorPrimary"
             android:gravity="center_vertical"
             android:layout_height="wrap_content"
             android:text="@string/permission_usage" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:textSize="12sp"
+                android:textColor="?android:textColorPrimary"
+                android:gravity="center_vertical"
+                android:layout_height="wrap_content"
+                android:text="@string/details_usage" />
+        </LinearLayout>
 
         <androidx.appcompat.widget.SwitchCompat
             android:id="@+id/usage_switch"
@@ -73,19 +152,36 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
+        android:layout_marginBottom="6dp"
         android:layout_marginStart="16dp"
         android:layout_marginEnd="8dp"
         android:layout_gravity="center_vertical"
         tools:ignore="UseCompoundDrawables">
 
-        <TextView
+        <LinearLayout
             android:layout_width="0dp"
             android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_gravity="center_vertical"
+            tools:ignore="UseCompoundDrawables">
+
+        <TextView
+            android:layout_width="match_parent"
             android:textSize="26sp"
             android:textColor="?android:textColorPrimary"
             android:gravity="center_vertical"
             android:layout_height="wrap_content"
             android:text="@string/permission_accessibility" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:textSize="12sp"
+                android:textColor="?android:textColorPrimary"
+                android:gravity="center_vertical"
+                android:layout_height="wrap_content"
+                android:text="@string/details_accessibility" />
+        </LinearLayout>
 
         <androidx.appcompat.widget.SwitchCompat
             android:id="@+id/accessibility_switch"
@@ -96,39 +192,6 @@
             android:textSize="26sp"
             android:textColor="?android:textColorPrimary"
             android:layout_height="wrap_content" />
-    </LinearLayout>
-
-    <LinearLayout
-        android:id="@+id/voice_layout"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:layout_marginTop="2dp"
-        android:layout_marginBottom="6dp"
-        android:layout_marginStart="16dp"
-        android:layout_marginEnd="8dp"
-        android:layout_gravity="center_vertical"
-        tools:ignore="UseCompoundDrawables">
-
-        <TextView
-            android:layout_width="0dp"
-            android:layout_weight="1"
-            android:textSize="26sp"
-            android:textColor="?android:textColorPrimary"
-            android:gravity="center_vertical"
-            android:layout_height="wrap_content"
-            android:text="@string/permission_voice" />
-
-        <androidx.appcompat.widget.AppCompatImageView
-            android:id="@+id/voice_button"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:gravity="center"
-            android:layout_gravity="center"
-            app:srcCompat="@drawable/ic_baseline_record_voice_over_24dp"
-            android:paddingStart="0dp"
-            android:paddingEnd="4dp"
-            android:contentDescription="@string/description_icon"/>
     </LinearLayout>
 </LinearLayout>
 </merge>
