@@ -65,6 +65,7 @@ import android.text.TextUtils
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.annotation.ColorInt
 import androidx.appcompat.widget.AppCompatImageView
@@ -72,6 +73,7 @@ import androidx.cardview.widget.CardView
 import androidx.core.app.NotificationCompat
 import androidx.core.graphics.ColorUtils
 import androidx.core.graphics.drawable.toBitmap
+import androidx.core.view.isVisible
 import androidx.fragment.app.FragmentActivity
 import androidx.recyclerview.widget.RecyclerView
 import com.eightbit.samsprung.NotificationReceiver
@@ -269,13 +271,17 @@ class NotificationAdapter(
             } else {
                 launch.visibility = View.GONE
             }
-            if (notice.isClearable) {
-                dismiss.setOnClickListener {
+            dismiss.setOnClickListener {
+                val actionsPanel = itemView.findViewById<LinearLayout>(R.id.action_panel)
+                if (actionsPanel.isVisible) {
+                    linesText.maxLines = 3
+                    linesText.ellipsize = TextUtils.TruncateAt.END
+                    actionsPanel.visibility = View.GONE
+                }
+                if (notice.isClearable) {
                     NotificationReceiver.getReceiver()?.setNotificationsShown(arrayOf(notice.key))
                     NotificationReceiver.getReceiver()?.cancelNotification(notice.key)
-                }
-            } else {
-                dismiss.setOnClickListener {
+                } else {
                     NotificationReceiver.getReceiver()?.snoozeNotification(
                         notice.key, (prefs.getInt(SamSprung.prefSnooze, 30) * 60 * 1000).toLong()
                     )
