@@ -43,7 +43,7 @@
         <TextView
             android:layout_width="0dp"
             android:layout_weight="1"
-            android:textSize="26sp"
+            android:textSize="24sp"
             android:textColor="?android:textColorPrimary"
             android:gravity="center_vertical"
             android:layout_height="wrap_content"
@@ -73,7 +73,7 @@
         <TextView
             android:layout_width="0dp"
             android:layout_weight="1"
-            android:textSize="26sp"
+            android:textSize="24sp"
             android:textColor="?android:textColorPrimary"
             android:gravity="center_vertical"
             android:layout_gravity="center_vertical"
