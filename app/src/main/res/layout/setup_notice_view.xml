@@ -16,15 +16,24 @@
         android:textColor="@android:color/white"
         android:text="@string/setup_notice" />
 
-    <androidx.appcompat.widget.AppCompatButton
-        android:id="@+id/button_wiki"
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="@string/button_wiki"/>
+        android:layout_gravity="center_vertical"
+        android:orientation="horizontal">
 
-    <androidx.appcompat.widget.AppCompatButton
-        android:id="@+id/setup_confirm"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="@string/button_confirm"/>
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/setup_confirm"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/button_confirm"/>
+
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/button_wiki"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/button_wiki"/>
+    </LinearLayout>
 </LinearLayout>
