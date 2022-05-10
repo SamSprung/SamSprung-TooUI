@@ -47,6 +47,7 @@
     <string name="donate_link">Donation</string>
     <string name="logcat_link">Support</string>
 
+    <string name="keyboard_missing">Keyboard required!</string>
     <string name="wallpaper_cleared">Wallpaper reset!</string>
 
     <string name="button_confirm">Confirm</string>

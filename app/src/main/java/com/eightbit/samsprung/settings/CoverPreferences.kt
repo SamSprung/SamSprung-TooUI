@@ -436,6 +436,7 @@ class CoverPreferences : AppCompatActivity() {
 
         colorRedBar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
             override fun onProgressChanged(seek: SeekBar, progress: Int, fromUser: Boolean) {
+                if (!fromUser) return
                 val newColor = Color.rgb(
                     progress,
                     colorGreenBar.progress,
@@ -458,6 +459,7 @@ class CoverPreferences : AppCompatActivity() {
 
         colorGreenBar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
             override fun onProgressChanged(seek: SeekBar, progress: Int, fromUser: Boolean) {
+                if (!fromUser) return
                 val newColor = Color.rgb(
                     colorRedBar.progress,
                     progress,
@@ -480,6 +482,7 @@ class CoverPreferences : AppCompatActivity() {
 
         colorBlueBar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
             override fun onProgressChanged(seek: SeekBar, progress: Int, fromUser: Boolean) {
+                if (!fromUser) return
                 val newColor = Color.rgb(
                     colorRedBar.progress,
                     colorGreenBar.progress,
@@ -502,6 +505,7 @@ class CoverPreferences : AppCompatActivity() {
 
         colorAlphaBar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
             override fun onProgressChanged(seek: SeekBar, progress: Int, fromUser: Boolean) {
+                if (!fromUser) return
                 val alpha = progress.toFloat() / 100
                 with(prefs.edit()) {
                     putFloat(SamSprung.prefAlphas, alpha)
@@ -717,11 +721,19 @@ class CoverPreferences : AppCompatActivity() {
         lengthText.text = getString(R.string.options_length, textLength)
 
         val search = findViewById<SwitchCompat>(R.id.search_switch)
-        search.isChecked = prefs.getBoolean(SamSprung.prefSearch, true)
+        search.isChecked = prefs.getBoolean(SamSprung.prefSearch, true) && hasKeyboardInstalled()
         search.setOnCheckedChangeListener { _, isChecked ->
-            with(prefs.edit()) {
-                putBoolean(SamSprung.prefSearch, isChecked)
-                apply()
+            if (isChecked && !hasKeyboardInstalled()) {
+                search.isChecked = false
+                Toast.makeText(
+                    this@CoverPreferences,
+                    R.string.keyboard_missing, Toast.LENGTH_SHORT
+                ).show()
+            } else {
+                with(prefs.edit()) {
+                    putBoolean(SamSprung.prefSearch, isChecked)
+                    apply()
+                }
             }
         }
         findViewById<LinearLayout>(R.id.search).setOnClickListener {

@@ -10,8 +10,8 @@ android {
         applicationId "com.eightbit.samsprung"
         minSdk 30
         targetSdk 31
-        versionCode 174
-        versionName "1.7.4"
+        versionCode 175
+        versionName "1.7.5"
 
         vectorDrawables {
             useSupportLibrary = true
@@ -83,15 +83,15 @@ android {
 }
 
 dependencies {
-    implementation 'com.google.android.material:material:1.5.0'
+    implementation 'com.google.android.material:material:1.6.0'
     implementation 'androidx.core:core-ktx:1.7.0'
     implementation 'androidx.appcompat:appcompat:1.4.1'
     implementation 'androidx.recyclerview:recyclerview:1.2.1'
     implementation 'androidx.cardview:cardview:1.0.0'
-    implementation 'androidx.activity:activity-ktx:1.6.0-alpha01'
+    implementation 'androidx.activity:activity-ktx:1.6.0-alpha03'
     implementation 'com.android.billingclient:billing:4.1.0'
     implementation 'com.google.android.play:core:1.10.3'
     implementation 'com.google.android.play:core-ktx:1.8.1'
-    implementation 'com.github.SamSprung:android-issue-reporter:432981d'
+    implementation 'com.github.SamSprung:android-issue-reporter:c83f4b9'
     implementation 'org.lsposed.hiddenapibypass:hiddenapibypass:4.3'
 }
