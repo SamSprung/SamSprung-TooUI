@@ -85,6 +85,44 @@ class ScaledContext(base: Context) : ContextWrapper(base) {
             return ScaledContext(context)
         }
 
+        fun screen(context: Context) : Context {
+            val displayManager = context.getSystemService(Context.DISPLAY_SERVICE) as DisplayManager
+            val displayContext = context.createDisplayContext(displayManager.getDisplay(0))
+            val wm = displayContext.getSystemService(WINDOW_SERVICE) as WindowManager
+            return object : ContextThemeWrapper(displayContext, context.theme) {
+                override fun getSystemService(name: String): Any? {
+                    return if (WINDOW_SERVICE == name) wm else super.getSystemService(name)
+                }
+            }
+        }
+
+        fun screen(context: Context, density: Float): Context {
+            val displayContext = screen(context)
+            val resources = displayContext.resources
+            val metrics = resources.displayMetrics
+            val orientation = resources.configuration.orientation
+            metrics.density = density // 2
+            metrics.densityDpi = 360 // 360
+            if (orientation == Configuration.ORIENTATION_PORTRAIT) {
+                metrics.heightPixels = 2640 // 2640
+                metrics.widthPixels = 1080 // 1080
+            }
+            if (orientation == Configuration.ORIENTATION_LANDSCAPE) {
+                metrics.heightPixels = 1080 // 1080
+                metrics.widthPixels = 2640 // 2640
+            }
+            metrics.scaledDensity = density // 2
+            metrics.xdpi = 425f // 425
+            metrics.ydpi = 425f // 425
+            metrics.setTo(metrics)
+            return ScaledContext(displayContext)
+        }
+
+        fun screen(context: Context, density: Float, theme: Int): Context {
+            context.setTheme(theme)
+            return screen(context, density)
+        }
+
         fun external(context: Context): ScaledContext {
             val resources = context.resources
             val metrics = resources.displayMetrics
