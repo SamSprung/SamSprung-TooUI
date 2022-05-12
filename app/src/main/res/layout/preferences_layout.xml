@@ -462,9 +462,10 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:clipToPadding="false"
-                android:paddingStart="2dp"
+                android:scrollbars="vertical"
+                android:paddingStart="4dp"
                 android:paddingEnd="0dp"
-                android:scrollbars="vertical" />
+                android:scrollbarSize="2dp" />
         </LinearLayout>
     </androidx.coordinatorlayout.widget.CoordinatorLayout>
 
