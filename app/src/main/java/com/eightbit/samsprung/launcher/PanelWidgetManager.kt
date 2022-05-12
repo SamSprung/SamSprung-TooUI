@@ -63,7 +63,7 @@ class PanelWidgetManager(
         overlay.model.addDesktopAppWidget(launcherInfo)
 
         launcherInfo.hostView = appWidgetHost.createView(ScaledContext.cover(
-            ScaledContext.screen(overlay.applicationContext, 1.5f)
+            ScaledContext.internal(overlay.applicationContext, 1.5f)
         ), appWidgetId, appWidgetInfo)
         launcherInfo.hostView!!.setAppWidget(appWidgetId, appWidgetInfo)
         launcherInfo.hostView!!.tag = launcherInfo
@@ -178,7 +178,7 @@ class PanelWidgetManager(
             val appWidgetId = item.appWidgetId
             val appWidgetInfo = mAppWidgetManager.getAppWidgetInfo(appWidgetId)
             item.hostView = appWidgetHost.createView(ScaledContext.cover(
-                ScaledContext.screen(overlay.applicationContext, 1.5f)
+                ScaledContext.internal(overlay.applicationContext, 1.5f)
             ), appWidgetId, appWidgetInfo)
             item.hostView!!.setAppWidget(appWidgetId, appWidgetInfo)
             item.hostView!!.tag = item

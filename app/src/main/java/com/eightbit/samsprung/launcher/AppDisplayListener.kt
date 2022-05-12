@@ -153,7 +153,7 @@ class AppDisplayListener : Service() {
 
         showForegroundNotification(startId)
 
-        val displayContext = ScaledContext.screen(ScaledContext.cover(applicationContext), 1.5f)
+        val displayContext = ScaledContext.internal(ScaledContext.cover(applicationContext), 1.5f)
         floatView = LayoutInflater.from(displayContext).inflate(R.layout.navigation_menu, null)
         val params = WindowManager.LayoutParams(
             WindowManager.LayoutParams.MATCH_PARENT,
@@ -365,7 +365,7 @@ class AppDisplayListener : Service() {
         try {
             if (null != offReceiver) unregisterReceiver(offReceiver)
         } catch (ignored: Exception) { }
-        val windowManager = ScaledContext.screen(
+        val windowManager = ScaledContext.internal(
             ScaledContext.cover(applicationContext, R.style.Theme_SecondScreen), 1.5f
         ).getSystemService(WINDOW_SERVICE) as WindowManager
         try {

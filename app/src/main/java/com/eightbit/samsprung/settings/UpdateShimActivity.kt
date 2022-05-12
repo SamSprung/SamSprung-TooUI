@@ -64,7 +64,8 @@ class UpdateShimActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         setVisible(false)
-        ScaledContext.screen(this, 2f).setTheme(R.style.Theme_Launcher_NoActionBar)
+        ScaledContext.internal(this, 2f)
+            .setTheme(R.style.Theme_Launcher_NoActionBar)
         super.onCreate(savedInstanceState)
         onNewIntent(intent)
     }

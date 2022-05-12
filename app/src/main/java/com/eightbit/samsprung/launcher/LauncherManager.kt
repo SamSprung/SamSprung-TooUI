@@ -20,7 +20,7 @@ import com.eightbit.samsprung.SamSprungOverlay
 
 class LauncherManager(private val overlay: SamSprungOverlay) {
 
-    val context = ScaledContext.cover(ScaledContext.screen(overlay, 1.5f))
+    val context = ScaledContext.cover(ScaledContext.internal(overlay, 1.5f))
     val launcher = context.getSystemService(
         AppCompatActivity.LAUNCHER_APPS_SERVICE
     ) as LauncherApps

@@ -205,7 +205,7 @@ class SamSprungOverlay : AppCompatActivity() {
         WindowCompat.setDecorFitsSystemWindows(window, false)
 
         prefs = getSharedPreferences(SamSprung.prefsValue, MODE_PRIVATE)
-        ScaledContext.screen(this, 1.5f).setTheme(R.style.Theme_Launcher_NoActionBar)
+        ScaledContext.internal(this, 1.5f).setTheme(R.style.Theme_Launcher_NoActionBar)
         setContentView(R.layout.home_main_view)
 
         IntentFilter().apply {

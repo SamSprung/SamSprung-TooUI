@@ -138,7 +138,7 @@ class CoverPreferences : AppCompatActivity() {
 
     private val Number.toScalePx get() = TypedValue.applyDimension(
         TypedValue.COMPLEX_UNIT_DIP, this.toFloat(),
-        ScaledContext.screen(this@CoverPreferences, 2f).resources.displayMetrics
+        ScaledContext.internal(this@CoverPreferences, 2f).resources.displayMetrics
     )
 
     private lateinit var prefs: SharedPreferences
@@ -167,7 +167,8 @@ class CoverPreferences : AppCompatActivity() {
         super.onCreate(savedInstanceState)
 
         prefs = getSharedPreferences(SamSprung.prefsValue, MODE_PRIVATE)
-        ScaledContext.screen(this, 2f).setTheme(R.style.Theme_SecondScreen)
+        ScaledContext.internal(this, 2f)
+            .setTheme(R.style.Theme_SecondScreen)
         setContentView(R.layout.preferences_layout)
 
         val componentName = ComponentName(applicationContext, NotificationReceiver::class.java)
@@ -721,23 +722,23 @@ class CoverPreferences : AppCompatActivity() {
         lengthText.text = getString(R.string.options_length, textLength)
 
         val search = findViewById<SwitchCompat>(R.id.search_switch)
-        search.isChecked = prefs.getBoolean(SamSprung.prefSearch, true) && hasKeyboardInstalled()
         search.setOnCheckedChangeListener { _, isChecked ->
-            if (isChecked && !hasKeyboardInstalled()) {
-                search.isChecked = false
+            with(prefs.edit()) {
+                putBoolean(SamSprung.prefSearch, isChecked && keyboard.isChecked)
+                apply()
+            }
+        }
+        search.isChecked = prefs.getBoolean(
+            SamSprung.prefSearch, keyboard.isChecked
+        ) && keyboard.isChecked
+        findViewById<LinearLayout>(R.id.search).setOnClickListener {
+            search.isChecked = !search.isChecked && keyboard.isChecked
+            if (!keyboard.isChecked) {
                 Toast.makeText(
                     this@CoverPreferences,
                     R.string.keyboard_missing, Toast.LENGTH_SHORT
                 ).show()
-            } else {
-                with(prefs.edit()) {
-                    putBoolean(SamSprung.prefSearch, isChecked)
-                    apply()
-                }
             }
-        }
-        findViewById<LinearLayout>(R.id.search).setOnClickListener {
-            search.isChecked = !search.isChecked
         }
 
         findViewById<LinearLayout>(R.id.wallpaper_layout).setOnClickListener {

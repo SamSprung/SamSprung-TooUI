@@ -64,7 +64,7 @@ class ScaledContext(base: Context) : ContextWrapper(base) {
             return intArrayOf(metrics.width(), metrics.height())
         }
 
-        fun screen(context: Context, density: Float): ScaledContext {
+        fun internal(context: Context, density: Float): ScaledContext {
             val resources = context.resources
             val metrics = resources.displayMetrics
             val orientation = resources.configuration.orientation
@@ -85,7 +85,7 @@ class ScaledContext(base: Context) : ContextWrapper(base) {
             return ScaledContext(context)
         }
 
-        fun second(context: Context): ScaledContext {
+        fun external(context: Context): ScaledContext {
             val resources = context.resources
             val metrics = resources.displayMetrics
             val orientation = resources.configuration.orientation
@@ -104,11 +104,6 @@ class ScaledContext(base: Context) : ContextWrapper(base) {
             metrics.ydpi = 302f // 302
             metrics.setTo(metrics)
             return ScaledContext(context)
-        }
-
-        fun restore(context: Context): Context {
-            context.resources.displayMetrics.setToDefaults()
-            return context
         }
 
         fun restore(context: Context, display: Int): Context {
