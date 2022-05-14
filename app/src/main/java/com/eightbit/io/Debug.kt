@@ -81,8 +81,9 @@ class Debug(private var context: Context) {
         val project = context.getString(R.string.samsprung)
         val repository = "SamSprung-TooUI"
 
-        val log = StringBuilder(context.getString(R.string.build_hash_full, BuildConfig.COMMIT))
-        val separator = System.getProperty("line.separator")
+        val separator = System.getProperty("line.separator") ?: "\n"
+        val log = StringBuilder(separator)
+        log.append(context.getString(R.string.build_hash_full, BuildConfig.COMMIT))
         log.append(separator)
         log.append("Android ")
         val fields = VERSION_CODES::class.java.fields
