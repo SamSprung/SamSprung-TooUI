@@ -25,11 +25,11 @@ class LauncherManager(private val overlay: SamSprungOverlay) {
         AppCompatActivity.LAUNCHER_APPS_SERVICE
     ) as LauncherApps
 
-    private fun withOrientationManager(extras: Bundle) {
+    private fun postOrientationHandler(extras: Bundle) {
         val orientationLock = OrientationManager(overlay)
-        orientationLock.addOrientationManager(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT)
+        orientationLock.addOrientationLayout(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT)
         Handler(Looper.getMainLooper()).postDelayed({
-            orientationLock.removeOrientationManager()
+            orientationLock.removeOrientationLayout()
             overlay.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
             overlay.onStopOverlay()
             val context = ScaledContext.cover(ScaledContext.internal(overlay, 1.5f))
@@ -67,7 +67,7 @@ class LauncherManager(private val overlay: SamSprungOverlay) {
                 val extras = Bundle()
                 extras.putString("launchPackage", resolveInfo.activityInfo.packageName)
                 extras.putString("launchActivity", resolveInfo.activityInfo.name)
-                withOrientationManager(extras)
+                postOrientationHandler(extras)
             }
         })
     }
@@ -91,7 +91,7 @@ class LauncherManager(private val overlay: SamSprungOverlay) {
 
                 val extras = Bundle()
                 extras.putString("launchPackage", appInfo.packageName)
-                withOrientationManager(extras)
+                postOrientationHandler(extras)
             }
         })
     }
@@ -123,7 +123,7 @@ class LauncherManager(private val overlay: SamSprungOverlay) {
                 } else {
                     extras.putString("launchPackage", pendingIntent.intentSender.creatorPackage)
                 }
-                withOrientationManager(extras)
+                postOrientationHandler(extras)
             }
         })
     }

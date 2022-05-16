@@ -11,7 +11,7 @@ class OrientationManager(context: Context) {
     private val windowManager = context.getSystemService(Context.WINDOW_SERVICE) as WindowManager
     private val orientationManager = LinearLayout(context)
 
-    fun addOrientationManager(orientation: Int) {
+    fun addOrientationLayout(orientation: Int) {
         val orientationLayout = WindowManager.LayoutParams(
             WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY,
             WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL or
@@ -24,7 +24,7 @@ class OrientationManager(context: Context) {
         orientationManager.visibility = View.VISIBLE
     }
 
-    fun removeOrientationManager() {
+    fun removeOrientationLayout() {
         windowManager.removeViewImmediate(orientationManager)
     }
 }
