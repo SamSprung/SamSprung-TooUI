@@ -55,7 +55,6 @@ import android.accessibilityservice.AccessibilityService
 import android.annotation.SuppressLint
 import android.app.*
 import android.content.*
-import android.content.pm.ActivityInfo
 import android.content.pm.LauncherApps
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
@@ -285,14 +284,6 @@ class AppDisplayListener : Service() {
                 applicationContext, OnBroadcastService::class.java
             ).setAction(SamSprung.launcher))
         }
-        val orientationLock = OrientationManager(this)
-        menu.findViewById<ImageView>(R.id.button_rotation).setOnClickListener {
-            try {
-                orientationLock.removeOrientationLayout()
-            } catch (e: Exception) {
-                orientationLock.addOrientationLayout(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT)
-            }
-        }
         menu.findViewById<ImageView>(R.id.button_home).setOnClickListener {
             tactileFeedback()
             if (null != componentName)
@@ -367,6 +358,9 @@ class AppDisplayListener : Service() {
     }
 
     fun onDismissOverlay() {
+        if (prefs.getBoolean(SamSprung.prefRotate, false)) {
+            OrientationManager(this).removeOrientationLayout()
+        }
         if (null != mDisplayListener) {
             (getSystemService(DISPLAY_SERVICE) as DisplayManager)
                 .unregisterDisplayListener(mDisplayListener)

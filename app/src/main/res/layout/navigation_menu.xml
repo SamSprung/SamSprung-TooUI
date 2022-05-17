@@ -56,15 +56,6 @@
                 android:contentDescription="@string/description_icon"/>
 
             <androidx.appcompat.widget.AppCompatImageView
-                android:id="@+id/button_rotation"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                app:srcCompat="@drawable/ic_baseline_screen_lock_rotation_24"
-                android:scaleType="fitCenter"
-                android:layout_weight="1"
-                android:contentDescription="@string/description_icon"/>
-
-            <androidx.appcompat.widget.AppCompatImageView
                 android:id="@+id/button_home"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"

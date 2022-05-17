@@ -24,13 +24,16 @@ class LauncherManager(private val overlay: SamSprungOverlay) {
     val launcher = displayContext.getSystemService(
         AppCompatActivity.LAUNCHER_APPS_SERVICE
     ) as LauncherApps
+    val prefs = overlay.getSharedPreferences(SamSprung.prefsValue, AppCompatActivity.MODE_PRIVATE)
 
     private fun postOrientationHandler(extras: Bundle) {
         val orientationLock = OrientationManager(overlay)
         orientationLock.addOrientationLayout(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT)
         Handler(Looper.getMainLooper()).postDelayed({
-            orientationLock.removeOrientationLayout()
-            overlay.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
+            if (!prefs.getBoolean(SamSprung.prefRotate, false)) {
+                orientationLock.removeOrientationLayout()
+                overlay.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
+            }
             overlay.onStopOverlay()
             val context = ScaledContext.cover(ScaledContext.internal(overlay, 1.5f))
             context.startForegroundService(

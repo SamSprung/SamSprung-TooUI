@@ -87,7 +87,6 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.view.ContextThemeWrapper
-import androidx.appcompat.widget.AppCompatButton
 import androidx.appcompat.widget.AppCompatImageView
 import androidx.appcompat.widget.SwitchCompat
 import androidx.appcompat.widget.Toolbar
@@ -1235,33 +1234,11 @@ class CoverPreferences : AppCompatActivity() {
         ))
 
         if (!prefs.getBoolean(SamSprung.prefWarned, false)) {
-            val view: View = layoutInflater.inflate(R.layout.setup_notice_view, null)
-            val dialog = AlertDialog.Builder(
-                ContextThemeWrapper(this, R.style.DialogTheme_NoActionBar)
-            )
-            val setupDialog: Dialog = dialog.setView(view).create()
-            view.findViewById<AppCompatButton>(R.id.button_wiki).setOnClickListener {
-                startActivity(Intent(Intent.ACTION_VIEW,
-                    Uri.parse("https://github.com/SamSprung/SamSprung-TooUI/wiki")))
+            wikiDrawer.openDrawer(GravityCompat.START)
+            with(prefs.edit()) {
+                putBoolean(SamSprung.prefWarned, true)
+                apply()
             }
-            view.findViewById<AppCompatButton>(R.id.setup_confirm).setOnClickListener {
-                with(prefs.edit()) {
-                    putBoolean(SamSprung.prefWarned, true)
-                    apply()
-                }
-                setupDialog.dismiss()
-            }
-            setupDialog.setOnDismissListener {
-                verifyCompatibility()
-            }
-            setupDialog.setCancelable(false)
-            setupDialog.show()
-            setupDialog.window?.setBackgroundDrawableResource(R.drawable.rounded_layout_themed)
-            setupDialog.window?.setLayout(
-                ViewGroup.LayoutParams.WRAP_CONTENT,
-                ViewGroup.LayoutParams.WRAP_CONTENT
-            )
-        } else {
             verifyCompatibility()
         }
     }

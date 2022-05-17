@@ -95,7 +95,6 @@
     <string name="main_screen_required">Open device to continue</string>
     <string name="incompatible_fragment">Move to a widget before attempting to remove it</string>
 
-    <string name="setup_notice">This app will NOT appear in the widget list.\n\nEnabling the switch(es) and permission(s) will complete the activation process.\n\nVisit the wiki for detailed instructions.\n\nThis app is EXPERIMENTAL.\nUpdates are posted regularly and features may be added, removed, or changed at any time.\n\nWelcome to SamSprung!</string>
     <string name="accessibility_disclaimer">Accessibility allows SamSprung to simulate the hardware back button.\n\nClick confirm to open Accessibility\n\nInstalled apps -> SamSprung Navigation\n&#160;&#160;&#160;&#160;-> Toggle switch on -> Allow to enable.</string>
     <string name="accessibility_service">SamSprung Navigation</string>
     <string name="accessibility_details">Enable virtual navigation action and hardware support.</string>

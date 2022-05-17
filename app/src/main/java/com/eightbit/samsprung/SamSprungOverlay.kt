@@ -325,6 +325,25 @@ class SamSprungOverlay : AppCompatActivity() {
         }
         buttonAuth.isVisible = keyguardManager.isDeviceLocked
 
+        val buttonRotation = findViewById<AppCompatImageView>(R.id.button_rotation)
+        buttonRotation.setOnClickListener {
+            val unlocked = !prefs.getBoolean(SamSprung.prefRotate, false)
+            with(prefs.edit()) {
+                putBoolean(SamSprung.prefRotate, unlocked)
+                apply()
+            }
+            buttonRotation.setImageResource(
+                if (unlocked) R.drawable.ic_baseline_screen_lock_rotation_24
+                else R.drawable.ic_baseline_screen_rotation_24
+            )
+        }
+        buttonRotation.setImageResource(
+            if (prefs.getBoolean(SamSprung.prefRotate, false))
+                R.drawable.ic_baseline_screen_lock_rotation_24
+            else
+                R.drawable.ic_baseline_screen_rotation_24
+        )
+
         val toggleStats = findViewById<LinearLayout>(R.id.toggle_status)
         val info = findViewById<LinearLayout>(R.id.bottom_info)
         val bottomSheetBehavior: BottomSheetBehavior<View> =
