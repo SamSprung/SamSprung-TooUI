@@ -66,6 +66,7 @@ import androidx.core.app.NotificationCompat
 import androidx.core.content.ContextCompat
 import com.eightbit.app.CoverOptions
 import com.eightbit.content.ScaledContext
+import com.eightbit.samsprung.launcher.OrientationManager
 
 class OnBroadcastService : Service() {
 
@@ -74,6 +75,10 @@ class OnBroadcastService : Service() {
         override fun onReceive(context: Context, intent: Intent) {
             if (Intent.ACTION_USER_PRESENT == intent.action
                 || Intent.ACTION_SCREEN_ON == intent.action) {
+                if (getSharedPreferences(SamSprung.prefsValue, MODE_PRIVATE)
+                        .getBoolean(SamSprung.prefRotate, false)) {
+                    OrientationManager(context).removeOrientationLayout()
+                }
                 ScaledContext.cover(context).startActivity(
                     Intent(context.applicationContext, SamSprungOverlay::class.java)
                         .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK),
