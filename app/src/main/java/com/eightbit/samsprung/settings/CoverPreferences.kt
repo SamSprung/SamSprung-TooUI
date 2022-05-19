@@ -1239,8 +1239,8 @@ class CoverPreferences : AppCompatActivity() {
                 putBoolean(SamSprung.prefWarned, true)
                 apply()
             }
-            verifyCompatibility()
         }
+        verifyCompatibility()
     }
 
     override fun onNewIntent(intent: Intent?) {
