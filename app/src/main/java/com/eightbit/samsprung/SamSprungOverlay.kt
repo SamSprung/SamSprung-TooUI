@@ -505,14 +505,7 @@ class SamSprungOverlay : AppCompatActivity() {
             override fun onPageSelected(position: Int) {
                 super.onPageSelected(position)
                 getSearchView()?.isGone = position != 1
-                val bottomSheetMain = findViewById<View>(R.id.bottom_sheet_main)
-                if (position == 0 && bottomSheetBehaviorMain.state
-                    == BottomSheetBehavior.STATE_EXPANDED) {
-                    timeoutHandler.removeCallbacksAndMessages(null)
-                    bottomSheetMain.keepScreenOn = true
-                } else {
-                    setScreenTimeout(bottomSheetMain)
-                }
+                setScreenTimeout(findViewById<View>(R.id.bottom_sheet_main))
                 with(prefs.edit()) {
                     putInt(SamSprung.prefViewer, position)
                     apply()
@@ -1059,13 +1052,6 @@ class SamSprungOverlay : AppCompatActivity() {
             return
         }
         setActionButtonTimeout()
-        val bottomSheetMain = findViewById<View>(R.id.bottom_sheet_main)
-        if (viewPager.currentItem == 0 && bottomSheetBehaviorMain.state
-            == BottomSheetBehavior.STATE_EXPANDED) {
-            timeoutHandler.removeCallbacksAndMessages(null)
-            bottomSheetMain.keepScreenOn = true
-        } else {
-            setScreenTimeout(bottomSheetMain)
-        }
+        setScreenTimeout(findViewById<View>(R.id.bottom_sheet_main))
     }
 }
