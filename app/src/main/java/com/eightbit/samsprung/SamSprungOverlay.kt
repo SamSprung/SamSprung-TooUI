@@ -981,9 +981,9 @@ class SamSprungOverlay : AppCompatActivity() {
     }
 
     private val timeoutHandler = Handler(Looper.getMainLooper())
+    private val timeout = prefs.getInt(SamSprung.prefDelays, 5)
     private fun setScreenTimeout(anchorView: View) {
         timeoutHandler.removeCallbacksAndMessages(null)
-        val timeout = prefs.getInt(SamSprung.prefDelays, 5)
         if (timeout == 4) {
             anchorView.keepScreenOn = true
         } else if (timeout > 5) {

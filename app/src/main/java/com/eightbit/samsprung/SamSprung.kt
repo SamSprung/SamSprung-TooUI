@@ -54,6 +54,7 @@ package com.eightbit.samsprung
 import android.app.Application
 import android.util.Log
 import androidx.appcompat.app.AppCompatDelegate
+import com.eightbit.samsprung.launcher.OrientationManager
 import java.io.PrintWriter
 import java.io.StringWriter
 import kotlin.system.exitProcess
@@ -75,7 +76,7 @@ class SamSprung : Application() {
         const val launcher: String = "com.eightbit.samsprung.LAUNCHER"
 
         const val request_code = 8675309
-        const val notification = "8675309"
+        const val notification = request_code.toString()
 
         const val prefsValue: String = "samsprung.preferences"
         const val prefLayout: String = "prefLayout"
@@ -108,6 +109,9 @@ class SamSprung : Application() {
             error.printStackTrace(PrintWriter(exception))
             Log.e("UncaughtException", exception.toString())
             // Unrecoverable error encountered
+            try {
+                OrientationManager(this).removeOrientationLayout()
+            } catch (ignored: Exception) { }
             exitProcess(0)
         }
     }
