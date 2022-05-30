@@ -3,6 +3,7 @@ package com.eightbit.samsprung.launcher
 import android.app.PendingIntent
 import android.content.ComponentName
 import android.content.Intent
+import android.content.SharedPreferences
 import android.content.pm.ActivityInfo
 import android.content.pm.ApplicationInfo
 import android.content.pm.LauncherApps
@@ -24,7 +25,8 @@ class LauncherManager(private val overlay: SamSprungOverlay) {
     val launcher = displayContext.getSystemService(
         AppCompatActivity.LAUNCHER_APPS_SERVICE
     ) as LauncherApps
-    val prefs = overlay.getSharedPreferences(SamSprung.prefsValue, AppCompatActivity.MODE_PRIVATE)
+    val prefs: SharedPreferences = overlay.getSharedPreferences(
+        SamSprung.prefsValue, AppCompatActivity.MODE_PRIVATE)
 
     private fun postOrientationHandler(extras: Bundle) {
         val orientationLock = OrientationManager(overlay)

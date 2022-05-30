@@ -505,7 +505,7 @@ class SamSprungOverlay : AppCompatActivity() {
             override fun onPageSelected(position: Int) {
                 super.onPageSelected(position)
                 getSearchView()?.isGone = position != 1
-                setScreenTimeout(findViewById<View>(R.id.bottom_sheet_main))
+                setScreenTimeout(findViewById(R.id.bottom_sheet_main))
                 with(prefs.edit()) {
                     putInt(SamSprung.prefViewer, position)
                     apply()
@@ -981,9 +981,9 @@ class SamSprungOverlay : AppCompatActivity() {
     }
 
     private val timeoutHandler = Handler(Looper.getMainLooper())
-    private val timeout = prefs.getInt(SamSprung.prefDelays, 5)
     private fun setScreenTimeout(anchorView: View) {
         timeoutHandler.removeCallbacksAndMessages(null)
+        val timeout = prefs.getInt(SamSprung.prefDelays, 5)
         if (timeout == 4) {
             anchorView.keepScreenOn = true
         } else if (timeout > 5) {
