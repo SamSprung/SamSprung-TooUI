@@ -743,8 +743,8 @@ class CoverPreferences : AppCompatActivity() {
         findViewById<LinearLayout>(R.id.wallpaper_layout).setOnClickListener {
             onPickImage.launch(Intent.createChooser(Intent(Intent.ACTION_OPEN_DOCUMENT)
                 .setType("image/*").addCategory(Intent.CATEGORY_OPENABLE)
-                .setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
-                .setFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION)
+                .addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                .addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION)
                 .putExtra("android.content.extra.SHOW_ADVANCED", true)
                 .putExtra("android.content.extra.FANCY", true), title))
         }
