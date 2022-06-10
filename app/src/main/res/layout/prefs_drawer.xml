@@ -220,7 +220,7 @@
             android:max="60"/>
     </LinearLayout>
 
-    <ToggleButton
+    <androidx.appcompat.widget.AppCompatToggleButton
         android:id="@+id/swapViewType"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

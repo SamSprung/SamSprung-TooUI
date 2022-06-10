@@ -159,8 +159,8 @@ class CoverPreferences : AppCompatActivity() {
     private lateinit var billingClient: BillingClient
     private val iapList = ArrayList<String>()
     private val subList = ArrayList<String>()
-    private val iapSkuDetails = ArrayList<SkuDetails>()
-    private val subSkuDetails = ArrayList<SkuDetails>()
+    private val iapSkuDetails = ArrayList<ProductDetails>()
+    private val subSkuDetails = ArrayList<ProductDetails>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -209,29 +209,46 @@ class CoverPreferences : AppCompatActivity() {
                 ContextThemeWrapper(this, R.style.DialogTheme_NoActionBar)
             )
             val donations = view.findViewById<LinearLayout>(R.id.donation_layout)
-            for (skuDetail: SkuDetails in iapSkuDetails) {
+            for (skuDetail: ProductDetails in iapSkuDetails
+                .sortedBy { skuDetail -> skuDetail.productId }) {
+                if (null == skuDetail.oneTimePurchaseOfferDetails) continue
                 val button = Button(applicationContext)
                 button.setBackgroundResource(R.drawable.button_rippled)
                 button.elevation = 10f.toPx
-                button.text = getString(R.string.iap_button, skuDetail.price)
+                button.text = getString(R.string.iap_button, skuDetail
+                    .oneTimePurchaseOfferDetails!!.formattedPrice)
                 button.setOnClickListener {
+                    val productDetailsParamsList =
+                        listOf(
+                            BillingFlowParams.ProductDetailsParams.newBuilder()
+                                .setProductDetails(skuDetail).build()
+                        )
                     billingClient.launchBillingFlow(
-                        this,
-                        BillingFlowParams.newBuilder().setSkuDetails(skuDetail).build()
+                        this, BillingFlowParams.newBuilder()
+                            .setProductDetailsParamsList(productDetailsParamsList).build()
                     )
                 }
                 donations.addView(button)
             }
             val subscriptions = view.findViewById<LinearLayout>(R.id.subscription_layout)
-            for (skuDetail: SkuDetails in subSkuDetails) {
+            for (skuDetail: ProductDetails in subSkuDetails
+                .sortedBy { skuDetail -> skuDetail.productId }) {
+                if (null == skuDetail.subscriptionOfferDetails) continue
                 val button = Button(applicationContext)
                 button.setBackgroundResource(R.drawable.button_rippled)
                 button.elevation = 10f.toPx
-                button.text = getString(R.string.sub_button, skuDetail.price)
+                button.text = getString(R.string.sub_button, skuDetail
+                    .subscriptionOfferDetails!![0].pricingPhases.pricingPhaseList[0].formattedPrice)
                 button.setOnClickListener {
+                    val productDetailsParamsList =
+                        listOf(
+                            BillingFlowParams.ProductDetailsParams.newBuilder()
+                                .setOfferToken(skuDetail.subscriptionOfferDetails!![0]!!.offerToken)
+                                .setProductDetails(skuDetail).build()
+                        )
                     billingClient.launchBillingFlow(
-                        this,
-                        BillingFlowParams.newBuilder().setSkuDetails(skuDetail).build()
+                        this, BillingFlowParams.newBuilder()
+                            .setProductDetailsParamsList(productDetailsParamsList).build()
                     )
                 }
                 subscriptions.addView(button)
@@ -1222,7 +1239,7 @@ class CoverPreferences : AppCompatActivity() {
     override fun onBackPressed() {
         if (wikiDrawer.isDrawerOpen(GravityCompat.START))
             wikiDrawer.closeDrawer(GravityCompat.START)
-        else if (BottomSheetBehavior.STATE_EXPANDED == bottomSheetBehavior.getState())
+        else if (BottomSheetBehavior.STATE_EXPANDED == bottomSheetBehavior.state)
             bottomSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED)
         else
             super.onBackPressed()
@@ -1263,28 +1280,6 @@ class CoverPreferences : AppCompatActivity() {
         return String.format("monthly_%02d", amount)
     }
 
-    private val responseListenerIAP = SkuDetailsResponseListener { _, skuDetails ->
-        if (null != skuDetails) {
-            iapSkuDetails.clear()
-            for (skuDetail: SkuDetails in skuDetails.sortedBy { skuDetail -> skuDetail.sku }) {
-                iapSkuDetails.add(skuDetail)
-            }
-        }
-        billingClient.queryPurchaseHistoryAsync(
-            BillingClient.SkuType.INAPP, iapHistoryListener)
-    }
-
-    private val responseListenerSub = SkuDetailsResponseListener { _, skuDetails ->
-        if (null != skuDetails) {
-            subSkuDetails.clear()
-            for (skuDetail: SkuDetails in skuDetails.sortedBy { skuDetail -> skuDetail.sku }) {
-                subSkuDetails.add(skuDetail)
-            }
-        }
-        billingClient.queryPurchaseHistoryAsync(
-            BillingClient.SkuType.SUBS, subHistoryListener)
-    }
-
     private val consumeResponseListener = ConsumeResponseListener { _, _ ->
         Snackbar.make(
             findViewById(R.id.donation_wrapper),
@@ -1313,11 +1308,11 @@ class CoverPreferences : AppCompatActivity() {
         if (purchase.purchaseState == Purchase.PurchaseState.PURCHASED) {
             if (!purchase.isAcknowledged) {
                 for (iap: String in iapList) {
-                    if (purchase.skus.contains(iap))
+                    if (purchase.products.contains(iap))
                         handlePurchaseIAP(purchase)
                 }
                 for (sub: String in subList) {
-                    if (purchase.skus.contains(sub))
+                    if (purchase.products.contains(sub))
                         handlePurchaseSub(purchase)
                 }
             }
@@ -1337,7 +1332,7 @@ class CoverPreferences : AppCompatActivity() {
     private val iapOwnedListener = PurchasesResponseListener { billingResult, purchases ->
         if (billingResult.responseCode == BillingClient.BillingResponseCode.OK) {
             for (purchase in purchases) {
-                for (sku in purchase.skus) {
+                for (sku in purchase.products) {
                     if (subsPurchased.contains(sku)) {
                         hasPremiumSupport = true
                         break
@@ -1350,15 +1345,16 @@ class CoverPreferences : AppCompatActivity() {
     private val subHistoryListener = PurchaseHistoryResponseListener { billingResult, purchases ->
         if (billingResult.responseCode == BillingClient.BillingResponseCode.OK && null != purchases) {
             for (purchase in purchases)
-                subsPurchased.addAll(purchase.skus)
-            billingClient.queryPurchasesAsync(BillingClient.SkuType.SUBS, iapOwnedListener)
+                subsPurchased.addAll(purchase.products)
+            billingClient.queryPurchasesAsync(QueryPurchasesParams.newBuilder()
+                .setProductType(BillingClient.ProductType.SUBS).build(), iapOwnedListener)
         }
     }
 
     private val iapHistoryListener = PurchaseHistoryResponseListener { billingResult, purchases ->
         if (billingResult.responseCode == BillingClient.BillingResponseCode.OK && null != purchases) {
             for (purchase in purchases) {
-                for (sku in purchase.skus) {
+                for (sku in purchase.products) {
                     if (sku.split("_")[1].toInt() >= 10) {
                         hasPremiumSupport = true
                         break
@@ -1432,6 +1428,9 @@ class CoverPreferences : AppCompatActivity() {
         billingClient = BillingClient.newBuilder(this)
             .setListener(purchasesUpdatedListener).enablePendingPurchases().build()
 
+        iapSkuDetails.clear()
+        subSkuDetails.clear()
+
         CoroutineScope(Dispatchers.IO).launch(Dispatchers.IO) {
             val clientResponseCode = billingClient.connect().responseCode
             if (clientResponseCode == BillingClient.BillingResponseCode.OK) {
@@ -1442,13 +1441,24 @@ class CoverPreferences : AppCompatActivity() {
                 iapList.add(getIAP(50))
                 iapList.add(getIAP(75))
                 iapList.add(getIAP(99))
-                billingClient.querySkuDetailsAsync(
-                    SkuDetailsParams.newBuilder()
-                        .setSkusList(iapList)
-                        .setType(BillingClient.SkuType.INAPP)
-                        .build(), responseListenerIAP
-                )
-
+                for (productId: String in iapList) {
+                    val productList = listOf(
+                        QueryProductDetailsParams.Product.newBuilder()
+                            .setProductId(productId)
+                            .setProductType(BillingClient.ProductType.INAPP).build()
+                    )
+                    val params = QueryProductDetailsParams.newBuilder().setProductList(productList)
+                    billingClient.queryProductDetailsAsync(params.build()) { _, productDetailsList ->
+                        for (skuDetail: ProductDetails in productDetailsList) {
+                            iapSkuDetails.add(skuDetail)
+                        }
+                        billingClient.queryPurchaseHistoryAsync(
+                            QueryPurchaseHistoryParams.newBuilder().setProductType(
+                                BillingClient.ProductType.INAPP
+                            ).build(), iapHistoryListener
+                        )
+                    }
+                }
                 subList.add(getSub(1))
                 subList.add(getSub(5))
                 subList.add(getSub(10))
@@ -1456,12 +1466,24 @@ class CoverPreferences : AppCompatActivity() {
                 subList.add(getSub(50))
                 subList.add(getSub(75))
                 subList.add(getSub(99))
-                billingClient.querySkuDetailsAsync(
-                    SkuDetailsParams.newBuilder()
-                        .setSkusList(subList)
-                        .setType(BillingClient.SkuType.SUBS)
-                        .build(), responseListenerSub
-                )
+                for (productId: String in subList) {
+                    val productList = listOf(
+                        QueryProductDetailsParams.Product.newBuilder()
+                            .setProductId(productId)
+                            .setProductType(BillingClient.ProductType.SUBS).build()
+                    )
+                    val params = QueryProductDetailsParams.newBuilder().setProductList(productList)
+                    billingClient.queryProductDetailsAsync(params.build()) { _, productDetailsList ->
+                        for (skuDetail: ProductDetails in productDetailsList) {
+                            subSkuDetails.add(skuDetail)
+                        }
+                        billingClient.queryPurchaseHistoryAsync(
+                            QueryPurchaseHistoryParams.newBuilder().setProductType(
+                                BillingClient.ProductType.SUBS
+                            ).build(), subHistoryListener
+                        )
+                    }
+                }
             }
         }
     }
