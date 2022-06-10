@@ -1,5 +1,4 @@
 <resources>
-    <string name="lock_screen_warning">La pantalla de bloqueo debe omitirse o deshabilitarse para iniciar aplicaciones. Bixby unlock se puede utilizar como solución alternativa.</string>
     <string name="description_icon">Icono</string>
     <string name="lock_enabled">El dispositivo está bloqueado!</string>
 </resources>

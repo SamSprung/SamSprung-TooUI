@@ -1250,14 +1250,23 @@ class CoverPreferences : AppCompatActivity() {
             ScaledContext.cover(this), OnBroadcastService::class.java
         ))
 
-        if (!prefs.getBoolean(SamSprung.prefWarned, false)) {
-            wikiDrawer.openDrawer(GravityCompat.START)
-            with(prefs.edit()) {
-                putBoolean(SamSprung.prefWarned, true)
-                apply()
-            }
-        }
-        verifyCompatibility()
+        AlertDialog.Builder(this)
+            .setTitle(R.string.widget_notice)
+            .setMessage(R.string.cover_widget_warning)
+            .setCancelable(false)
+            .setPositiveButton(R.string.button_confirm) { dialog, _ ->
+                dialog.dismiss()
+                runOnUiThread {
+                    if (!prefs.getBoolean(SamSprung.prefWarned, false)) {
+                        wikiDrawer.openDrawer(GravityCompat.START)
+                        with(prefs.edit()) {
+                            putBoolean(SamSprung.prefWarned, true)
+                            apply()
+                        }
+                    }
+                    requestStorage.launch(Manifest.permission.READ_EXTERNAL_STORAGE)
+                }
+            }.show()
     }
 
     override fun onNewIntent(intent: Intent?) {
@@ -1360,32 +1369,6 @@ class CoverPreferences : AppCompatActivity() {
                         break
                     }
                 }
-            }
-        }
-    }
-
-    private fun verifyCompatibility() {
-        if (isDeviceSecure() && !prefs.getBoolean(SamSprung.prefSecure, false)) {
-            AlertDialog.Builder(this)
-                .setTitle(R.string.secure_notice)
-                .setMessage(R.string.lock_screen_warning)
-                .setPositiveButton(R.string.button_confirm) { dialog, _ ->
-                    with (prefs.edit()) {
-                        putBoolean(SamSprung.prefSecure,  true)
-                        apply()
-                    }
-                    dialog.dismiss()
-                    runOnUiThread {
-                        requestStorage.launch(Manifest.permission.READ_EXTERNAL_STORAGE)
-                    }
-                }
-                .setNegativeButton(R.string.button_cancel) { dialog, _ ->
-                    dialog.dismiss()
-                    finish()
-                }.show()
-        } else {
-            runOnUiThread {
-                requestStorage.launch(Manifest.permission.READ_EXTERNAL_STORAGE)
             }
         }
     }

@@ -89,8 +89,8 @@
     <string name="lock_enabled">Device is locked!</string>
 
     <string name="incompatibility_warning">SamSprung is not compatible with apps that block the entire screen.\nPlease remove or disable this app to continue</string>
-    <string name="secure_notice">Secure Lock Detected!</string>
-    <string name="lock_screen_warning">Fingerprint authentication must be enabled for compatibility with a secure lock screen.</string>
+    <string name="widget_notice">Widget Incompatibility</string>
+    <string name="cover_widget_warning">SamSprung TooUI is NOT a widget and will NOT appear in cover screen settings.</string>
 
     <string name="main_screen_required">Open device to continue</string>
     <string name="incompatible_fragment">Move to a widget before attempting to remove it</string>
