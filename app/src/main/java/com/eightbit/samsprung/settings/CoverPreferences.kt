@@ -1249,24 +1249,15 @@ class CoverPreferences : AppCompatActivity() {
         startForegroundService(Intent(
             ScaledContext.cover(this), OnBroadcastService::class.java
         ))
-
-        AlertDialog.Builder(this)
-            .setTitle(R.string.widget_notice)
-            .setMessage(R.string.cover_widget_warning)
-            .setCancelable(false)
-            .setPositiveButton(R.string.button_confirm) { dialog, _ ->
-                dialog.dismiss()
-                runOnUiThread {
-                    if (!prefs.getBoolean(SamSprung.prefWarned, false)) {
-                        wikiDrawer.openDrawer(GravityCompat.START)
-                        with(prefs.edit()) {
-                            putBoolean(SamSprung.prefWarned, true)
-                            apply()
-                        }
-                    }
-                    requestStorage.launch(Manifest.permission.READ_EXTERNAL_STORAGE)
-                }
-            }.show()
+        IconifiedSnackbar(this).buildTickerBar(getString(R.string.cover_widget_warning)).show()
+        if (!prefs.getBoolean(SamSprung.prefWarned, false)) {
+            wikiDrawer.openDrawer(GravityCompat.START)
+            with(prefs.edit()) {
+                putBoolean(SamSprung.prefWarned, true)
+                apply()
+            }
+        }
+        requestStorage.launch(Manifest.permission.READ_EXTERNAL_STORAGE)
     }
 
     override fun onNewIntent(intent: Intent?) {
@@ -1290,10 +1281,8 @@ class CoverPreferences : AppCompatActivity() {
     }
 
     private val consumeResponseListener = ConsumeResponseListener { _, _ ->
-        Snackbar.make(
-            findViewById(R.id.donation_wrapper),
-            R.string.donation_thanks, Snackbar.LENGTH_LONG
-        ).show()
+        IconifiedSnackbar(this, findViewById(R.id.donation_wrapper))
+            .buildTickerBar(getString(R.string.donation_thanks)).show()
     }
 
     private fun handlePurchaseIAP(purchase : Purchase) {
