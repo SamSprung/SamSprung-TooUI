@@ -101,6 +101,7 @@ class Debug(private var context: Context) {
         log.append(" (")
         log.append(Build.VERSION.RELEASE)
         log.append(")")
+        log.append(separator).append(context.getString(R.string.install_src, BuildConfig.FLAVOR))
         if (isSecureDevice) log.append(separator).append("Secure Lock Screen")
         try {
             var line: String?
