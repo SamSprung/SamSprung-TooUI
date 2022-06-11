@@ -644,9 +644,9 @@ class SamSprungOverlay : AppCompatActivity() {
     }
 
     fun getSearchView() : SearchView? {
-        return if (prefs.getBoolean(SamSprung.prefSearch, true))
-            findViewById(R.id.package_search)
-        else null
+        val searchView = findViewById<SearchView>(R.id.package_search)
+        searchView.isVisible = prefs.getBoolean(SamSprung.prefSearch, true)
+        return if (searchView.isVisible) searchView else null
     }
 
     private var skipUpdateCheck = false
