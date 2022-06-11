@@ -62,14 +62,13 @@ import com.eightbit.samsprung.R
 class PanelViewFragment : Fragment() {
 
     private var listener: ViewCreatedListener? = null
-    private var layout: LinearLayout? = null
 
     fun setListener(listener: ViewCreatedListener) {
         this.listener = listener
     }
 
-    fun getLayout() : LinearLayout? {
-        return layout
+    fun getLayout() : LinearLayout {
+        return requireView() as LinearLayout
     }
 
     override fun onCreateView(
@@ -83,7 +82,6 @@ class PanelViewFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        layout = view as LinearLayout
         listener?.onViewCreated(view)
     }
 
