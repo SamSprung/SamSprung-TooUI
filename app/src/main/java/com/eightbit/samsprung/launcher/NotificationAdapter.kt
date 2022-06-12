@@ -309,21 +309,20 @@ class NotificationAdapter(
         return extras.containsKey(extra) &&
                 extras.getCharSequence(extra).toString().trim().isNotEmpty()
     }
-    private fun validateArrayExtras(extras: Bundle, extra: String) : Boolean {
-        if (extras.containsKey(extra)) {
-            val textArray = extras.getCharSequenceArray(extra)
+    private fun validateTextLines(extras: Bundle) : Boolean {
+        if (extras.containsKey(NotificationCompat.EXTRA_TEXT_LINES)) {
+            val textArray = extras.getCharSequenceArray(NotificationCompat.EXTRA_TEXT_LINES)
             if (null != textArray && Arrays.toString(textArray) != "[]") return true
         }
         return false
     }
 
     private fun isValidNotification(extras: Bundle?) : Boolean {
-        return null != extras && (
+        return null != extras && (validateTextLines(extras) ||
                 extras.containsKey(NotificationCompat.EXTRA_PICTURE) ||
                 validateTextExtras(extras, NotificationCompat.EXTRA_TITLE_BIG) ||
                 validateCharExtras(extras, NotificationCompat.EXTRA_TITLE) ||
                 validateTextExtras(extras, NotificationCompat.EXTRA_BIG_TEXT) ||
-                validateArrayExtras(extras, NotificationCompat.EXTRA_TEXT_LINES) ||
                 validateCharExtras(extras, NotificationCompat.EXTRA_TEXT)
         )
     }

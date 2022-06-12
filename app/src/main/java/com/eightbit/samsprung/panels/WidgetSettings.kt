@@ -46,30 +46,10 @@ class WidgetSettings {
             const val ITEM_TYPE = "itemType"
 
             /**
-             * The gesture is an application
-             */
-            const val ITEM_TYPE_APPLICATION = 0
-
-            /**
-             * The gesture is an application created shortcut
-             */
-            const val ITEM_TYPE_SHORTCUT = 1
-
-            /**
              * The icon type.
              * <P>Type: INTEGER</P>
              */
             const val ICON_TYPE = "iconType"
-
-            /**
-             * The icon is a resource identified by a package name and an integer id.
-             */
-            const val ICON_TYPE_RESOURCE = 0
-
-            /**
-             * The icon is a bitmap.
-             */
-            const val ICON_TYPE_BITMAP = 1
 
             /**
              * The custom icon bitmap, if icon type is ICON_TYPE_BITMAP.
@@ -87,7 +67,7 @@ class WidgetSettings {
         /**
          * The content:// style URL for this table
          */
-        val CONTENT_URI = Uri.parse(
+        val CONTENT_URI: Uri = Uri.parse(
             "content://" +
                     WidgetProvider.AUTHORITY + "/" + WidgetProvider.TABLE_FAVORITES +
                     "?" + WidgetProvider.PARAMETER_NOTIFY + "=true"
@@ -97,7 +77,7 @@ class WidgetSettings {
          * The content:// style URL for this table. When this Uri is used, no notification is
          * sent if the content changes.
          */
-        val CONTENT_URI_NO_NOTIFICATION = Uri.parse(
+        val CONTENT_URI_NO_NOTIFICATION: Uri = Uri.parse(
             "content://" +
                     WidgetProvider.AUTHORITY + "/" + WidgetProvider.TABLE_FAVORITES +
                     "?" + WidgetProvider.PARAMETER_NOTIFY + "=false"

@@ -27,18 +27,15 @@ import com.eightbit.samsprung.R
  */
 class WidgetHostView(context: Context) : AppWidgetHostView(context) {
     private val mInflater: LayoutInflater = context.getSystemService(
-        Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
+        Context.LAYOUT_INFLATER_SERVICE
+    ) as LayoutInflater
     override fun getErrorView(): View {
         return mInflater.inflate(R.layout.appwidget_error, this, false)
     }
     override fun onInterceptTouchEvent(ev: MotionEvent): Boolean {
         when (ev.action) {
-            MotionEvent.ACTION_DOWN -> {
-
-            }
-            MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL -> {
-
-            }
+            MotionEvent.ACTION_DOWN -> { }
+            MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL -> { }
         }
         return false
     }

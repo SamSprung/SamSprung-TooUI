@@ -101,16 +101,16 @@ class WidgetModel {
                 null, null, null, null
             ).use { c ->
                 val idIndex = c!!.getColumnIndexOrThrow(BaseColumns._ID)
-                val intentIndex = c.getColumnIndexOrThrow(BaseLauncherColumns.Companion.INTENT)
-                val titleIndex = c.getColumnIndexOrThrow(BaseLauncherColumns.Companion.TITLE)
-                val iconTypeIndex = c.getColumnIndexOrThrow(BaseLauncherColumns.Companion.ICON_TYPE)
-                val iconIndex = c.getColumnIndexOrThrow(BaseLauncherColumns.Companion.ICON)
+//                val intentIndex = c.getColumnIndexOrThrow(BaseLauncherColumns.INTENT)
+//                val titleIndex = c.getColumnIndexOrThrow(BaseLauncherColumns.TITLE)
+//                val iconTypeIndex = c.getColumnIndexOrThrow(BaseLauncherColumns.ICON_TYPE)
+//                val iconIndex = c.getColumnIndexOrThrow(BaseLauncherColumns.ICON)
                 val containerIndex = c.getColumnIndexOrThrow(Favorites.CONTAINER)
-                val itemTypeIndex = c.getColumnIndexOrThrow(BaseLauncherColumns.Companion.ITEM_TYPE)
+                val itemTypeIndex = c.getColumnIndexOrThrow(BaseLauncherColumns.ITEM_TYPE)
                 val appWidgetIdIndex = c.getColumnIndexOrThrow(Favorites.APPWIDGET_ID)
                 val spanXIndex = c.getColumnIndexOrThrow(Favorites.SPANX)
                 val spanYIndex = c.getColumnIndexOrThrow(Favorites.SPANY)
-                val uriIndex = c.getColumnIndexOrThrow(Favorites.URI)
+//                val uriIndex = c.getColumnIndexOrThrow(Favorites.URI)
                 var appWidgetInfo: PanelWidgetInfo
                 var container: Int
                 while (!mStopped && c.moveToNext()) {
@@ -190,24 +190,6 @@ class WidgetModel {
 
     companion object {
         private const val APPLICATION_NOT_RESPONDING_TIMEOUT: Long = 5000
-
-        /**
-         * Move an item in the DB to a new <container></container>, screen, cellX, cellY>
-         */
-        fun moveItemInDatabase(
-            context: Context, item: WidgetInfo, container: Long, screen: Int,
-            spanX: Int, spanY: Int
-        ) {
-            item.container = container
-            item.spanX = spanX
-            item.spanY = spanY
-            val values = ContentValues()
-            val cr = context.contentResolver
-            values.put(Favorites.CONTAINER, item.container)
-            values.put(Favorites.SPANX, item.spanX)
-            values.put(Favorites.SPANY, item.spanY)
-            cr.update(Favorites.getContentUri(item.id, false), values, null, null)
-        }
 
         /**
          * Add an item to the database in a specified container. Sets the container, screen, cellX and

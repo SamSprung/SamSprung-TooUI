@@ -16,25 +16,19 @@
 package com.eightbit.samsprung.panels
 
 import android.content.ContentValues
-import android.graphics.Bitmap
-import android.util.Log
 import com.eightbit.samsprung.panels.WidgetSettings.BaseLauncherColumns
 import com.eightbit.samsprung.panels.WidgetSettings.Favorites
-import java.io.ByteArrayOutputStream
-import java.io.IOException
 
 /**
  * Represents an item in the launcher.
  */
-open class WidgetInfo {
+open class WidgetInfo internal constructor() {
     /**
      * The id in the settings database for this item
      */
     var id = NO_ID.toLong()
 
     /**
-     * One of [WidgetSettings.Favorites.ITEM_TYPE_APPLICATION],
-     * [WidgetSettings.Favorites.ITEM_TYPE_SHORTCUT], or
      * [WidgetSettings.Favorites.ITEM_TYPE_APPWIDGET].
      */
     var itemType = 0
@@ -60,16 +54,7 @@ open class WidgetInfo {
     /**
      * Indicates whether the item is a gesture.
      */
-    var isGesture = false
-
-    internal constructor() {}
-    constructor(info: WidgetInfo) {
-        id = info.id
-        spanX = info.spanX
-        spanY = info.spanY
-        itemType = info.itemType
-        container = info.container
-    }
+    private var isGesture = false
 
     /**
      * Write the fields of this item to the DB
@@ -87,21 +72,5 @@ open class WidgetInfo {
 
     companion object {
         const val NO_ID = -1
-        fun writeBitmap(values: ContentValues, bitmap: Bitmap?) {
-            if (bitmap != null) {
-                // Try go guesstimate how much space the icon will take when serialized
-                // to avoid unnecessary allocations/copies during the write.
-                val size = bitmap.width * bitmap.height * 4
-                val out = ByteArrayOutputStream(size)
-                try {
-                    bitmap.compress(Bitmap.CompressFormat.PNG, 100, out)
-                    out.flush()
-                    out.close()
-                    values.put(BaseLauncherColumns.ICON, out.toByteArray())
-                } catch (e: IOException) {
-                    Log.w("Favorite", "Could not write icon")
-                }
-            }
-        }
     }
 }

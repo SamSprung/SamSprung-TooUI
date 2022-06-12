@@ -27,8 +27,7 @@ import android.content.Context
  */
 class WidgetHost(context: Context?, hostId: Int) : AppWidgetHost(context, hostId) {
     override fun onCreateView(
-        context: Context, appWidgetId: Int,
-        appWidget: AppWidgetProviderInfo?
+        context: Context, appWidgetId: Int, appWidget: AppWidgetProviderInfo?
     ): AppWidgetHostView {
         return WidgetHostView(context)
     }

@@ -62,7 +62,7 @@ class RecyclerViewTouch(var recyclerView: RecyclerView) {
 
     private val drawerTouchCallback: ItemTouchHelper.SimpleCallback =
         object : ItemTouchHelper.SimpleCallback(
-            0, swipeDirections?: ItemTouchHelper.START or ItemTouchHelper.END
+            0, swipeDirections ?: (ItemTouchHelper.START or ItemTouchHelper.END)
         ) {
         override fun onMove(
             recyclerView: RecyclerView,

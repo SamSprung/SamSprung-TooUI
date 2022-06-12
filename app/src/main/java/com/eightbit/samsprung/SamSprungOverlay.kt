@@ -158,7 +158,7 @@ class SamSprungOverlay : AppCompatActivity() {
     private var mBinder: DesktopBinder? = null
 
     private var mWidgetPreviewCacheDb: WidgetPreviews.CacheDb? = null
-    fun recreateWidgetPreviewDb() {
+    private fun recreateWidgetPreviewDb() {
         mWidgetPreviewCacheDb = WidgetPreviews.CacheDb(this)
     }
     fun getWidgetPreviewCacheDb(): WidgetPreviews.CacheDb? {
@@ -469,7 +469,7 @@ class SamSprungOverlay : AppCompatActivity() {
                     tactileFeedback()
                     val index = viewPager.currentItem
                     val fragment = (pagerAdapter as CoverStateAdapter).getFragment(index)
-                    val widget = fragment.getLayout()!!.getChildAt(0).tag
+                    val widget = fragment.getLayout().getChildAt(0).tag
                     if (widget is PanelWidgetInfo) {
                         viewPager.setCurrentItem(index - 1, true)
                         model.removeDesktopAppWidget(widget)
@@ -1052,6 +1052,6 @@ class SamSprungOverlay : AppCompatActivity() {
             return
         }
         setActionButtonTimeout()
-        setScreenTimeout(findViewById<View>(R.id.bottom_sheet_main))
+        setScreenTimeout(findViewById(R.id.bottom_sheet_main))
     }
 }

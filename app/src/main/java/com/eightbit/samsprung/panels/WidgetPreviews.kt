@@ -2,14 +2,11 @@ package com.eightbit.samsprung.panels
 
 import android.appwidget.AppWidgetProviderInfo
 import android.content.ComponentName
-import android.content.ContentValues
 import android.content.Context
-import android.content.pm.ActivityInfo
 import android.content.pm.PackageManager
 import android.content.pm.ResolveInfo
 import android.content.res.Resources
 import android.content.res.Resources.NotFoundException
-import android.database.Cursor
 import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteDiskIOException
 import android.database.sqlite.SQLiteOpenHelper
@@ -24,31 +21,19 @@ import androidx.core.content.res.ResourcesCompat
 import com.eightbit.samsprung.R
 import com.eightbit.samsprung.SamSprung
 import com.eightbit.samsprung.SamSprungOverlay
-import java.io.ByteArrayOutputStream
 import java.io.File
 import java.lang.ref.SoftReference
 import java.lang.ref.WeakReference
-import java.util.concurrent.Executors
 
-class WidgetPreviews(private val mLauncher: SamSprungOverlay) {
-    private var mPreviewBitmapWidth = 0
-    private var mPreviewBitmapHeight = 0
-    private var mSize: String? = null
+class WidgetPreviews(mLauncher: SamSprungOverlay) {
     private val mContext: Context
     private val mPackageManager: PackageManager
-
-    // Used for drawing shortcut previews
-    private val mCachedShortcutPreviewBitmap = BitmapCache()
-    private val mCachedShortcutPreviewPaint = PaintCache()
-    private val mCachedShortcutPreviewCanvas = CanvasCache()
 
     // Used for drawing widget previews
     private val mCachedAppWidgetPreviewCanvas = CanvasCache()
     private val mCachedAppWidgetPreviewSrcRect = RectCache()
     private val mCachedAppWidgetPreviewDestRect = RectCache()
     private val mCachedAppWidgetPreviewPaint = PaintCache()
-    private var mCachedSelectQuery: String? = null
-    private val mCachedBitmapFactoryOptions = BitmapFactoryOptionsCache()
     private val mAppIconSize: Int
     private val mProfileBadgeSize: Int
     private val mProfileBadgeMargin: Int
@@ -84,37 +69,12 @@ class WidgetPreviews(private val mLauncher: SamSprungOverlay) {
             return output
         }
 
-        fun removeFromDb(cacheDb: CacheDb, packageName: String) {
-            synchronized(sInvalidPackages) { sInvalidPackages.add(packageName) }
-            Executors.newSingleThreadExecutor().execute {
-                val db = cacheDb.writableDatabase
-                try {
-                    db.delete(
-                        CacheDb.TABLE_NAME,
-                        CacheDb.COLUMN_NAME + " LIKE ? OR " +
-                                CacheDb.COLUMN_NAME + " LIKE ?", arrayOf(
-                            "$WIDGET_PREFIX$packageName/%",
-                            "$SHORTCUT_PREFIX$packageName/%"
-                        )
-                    )
-                    synchronized(sInvalidPackages) { sInvalidPackages.remove(packageName) }
-                } catch (ignored: SQLiteDiskIOException) {
-                }
-            }
-        }
-
-        fun renderDrawableToBitmap(
-            d: Drawable?, bitmap: Bitmap?, x: Int, y: Int, w: Int, h: Int
-        ) {
-            renderDrawableToBitmap(d, bitmap, x, y, w, h, 1f)
-        }
-
         private fun renderDrawableToBitmap(
-            d: Drawable?, bitmap: Bitmap?, x: Int, y: Int, w: Int, h: Int, scale: Float
+            d: Drawable?, bitmap: Bitmap?, x: Int, y: Int, w: Int, h: Int
         ) {
             if (bitmap != null) {
                 val c = Canvas(bitmap)
-                c.scale(scale, scale)
+                c.scale(1.0f, 1.0f)
                 val oldBounds = d!!.copyBounds()
                 d.setBounds(x, y, x + w, y + h)
                 d.draw(c)
@@ -126,75 +86,6 @@ class WidgetPreviews(private val mLauncher: SamSprungOverlay) {
         init {
             sInvalidPackages = HashSet()
         }
-    }
-
-    private fun recreateDb() {
-        mLauncher.recreateWidgetPreviewDb()
-        mDb = mLauncher.getWidgetPreviewCacheDb()
-    }
-
-    fun setPreviewSize(previewWidth: Int, previewHeight: Int) {
-        mPreviewBitmapWidth = previewWidth
-        mPreviewBitmapHeight = previewHeight
-        mSize = previewWidth.toString() + "x" + previewHeight
-    }
-
-    fun getPreview(o: Any): Bitmap? {
-        val name = getObjectName(o)
-        // check if the package is valid
-        var packageValid = true
-        synchronized(sInvalidPackages) {
-            packageValid = !sInvalidPackages.contains(getObjectPackage(o))
-        }
-        if (!packageValid) {
-            return null
-        }
-        synchronized(mLoadedPreviews) {
-            // check if it exists in our existing cache
-            if (mLoadedPreviews.containsKey(name) && mLoadedPreviews[name]!!.get() != null) {
-                return mLoadedPreviews[name]!!.get()
-            }
-        }
-        var unusedBitmap: Bitmap? = null
-        synchronized(mUnusedBitmaps) {
-
-            // not in cache; we need to load it from the db
-            while ((unusedBitmap == null || !unusedBitmap!!.isMutable || unusedBitmap!!.width != mPreviewBitmapWidth || unusedBitmap!!.height != mPreviewBitmapHeight)
-                && mUnusedBitmaps.size > 0
-            ) {
-                unusedBitmap = mUnusedBitmaps.removeAt(0).get()
-            }
-            if (unusedBitmap != null) {
-                val c = mCachedAppWidgetPreviewCanvas.get()!!
-                c.setBitmap(unusedBitmap)
-                c.drawColor(0, PorterDuff.Mode.CLEAR)
-                c.setBitmap(null)
-            }
-        }
-        if (unusedBitmap == null) {
-            unusedBitmap = Bitmap.createBitmap(
-                mPreviewBitmapWidth, mPreviewBitmapHeight,
-                Bitmap.Config.ARGB_8888
-            )
-        }
-        var preview: Bitmap?
-        preview = readFromDb(name, unusedBitmap)
-        if (preview != null) {
-            synchronized(mLoadedPreviews) { mLoadedPreviews.put(name, WeakReference(preview)) }
-        } else {
-            // it's not in the db... we need to generate it
-            val generatedPreview = generatePreview(o, unusedBitmap)
-            preview = generatedPreview
-            if (preview != unusedBitmap) {
-                throw RuntimeException("generatePreview is not recycling the bitmap $o")
-            }
-            synchronized(mLoadedPreviews) { mLoadedPreviews.put(name, WeakReference(preview)) }
-
-            // write to db on a thread pool... this can be done lazily and improves the performance
-            // of the first time widget previews are loaded
-            Executors.newSingleThreadExecutor().execute { writeToDb(o, generatedPreview) }
-        }
-        return preview
     }
 
     fun recycleBitmap(o: Any?, bitmapToRecycle: Bitmap) {
@@ -251,31 +142,6 @@ class WidgetPreviews(private val mLauncher: SamSprungOverlay) {
         }
     }
 
-    private fun getObjectPackage(o: Any): String {
-        return if (o is AppWidgetProviderInfo) {
-            o.provider.packageName
-        } else {
-            val info = o as ResolveInfo
-            info.activityInfo.packageName
-        }
-    }
-
-    private fun writeToDb(o: Any, preview: Bitmap?) {
-        val name = getObjectName(o)
-        val db = mDb!!.writableDatabase
-        val values = ContentValues()
-        values.put(CacheDb.COLUMN_NAME, name)
-        val stream = ByteArrayOutputStream()
-        preview!!.compress(Bitmap.CompressFormat.PNG, 100, stream)
-        values.put(CacheDb.COLUMN_PREVIEW_BITMAP, stream.toByteArray())
-        values.put(CacheDb.COLUMN_SIZE, mSize)
-        try {
-            db.insert(CacheDb.TABLE_NAME, null, values)
-        } catch (e: SQLiteDiskIOException) {
-            recreateDb()
-        }
-    }
-
     private fun clearDb() {
         val db = mDb!!.writableDatabase
         // Delete everything
@@ -283,80 +149,6 @@ class WidgetPreviews(private val mLauncher: SamSprungOverlay) {
             db.delete(CacheDb.TABLE_NAME, null, null)
         } catch (ignored: SQLiteDiskIOException) {
         }
-    }
-
-    private fun readFromDb(name: String, b: Bitmap?): Bitmap? {
-        if (mCachedSelectQuery == null) {
-            mCachedSelectQuery = CacheDb.COLUMN_NAME + " = ? AND " +
-                    CacheDb.COLUMN_SIZE + " = ?"
-        }
-        val db = mDb!!.readableDatabase
-        val result: Cursor = try {
-            db.query(
-                CacheDb.TABLE_NAME, arrayOf(CacheDb.COLUMN_PREVIEW_BITMAP),  // cols to return
-                mCachedSelectQuery, arrayOf(name, mSize),  // args to select query
-                null,
-                null,
-                null,
-                null
-            )
-        } catch (e: SQLiteDiskIOException) {
-            recreateDb()
-            return null
-        }
-        return if (result.count > 0) {
-            result.moveToFirst()
-            val blob = result.getBlob(0)
-            result.close()
-            val opts = mCachedBitmapFactoryOptions.get()!!
-            opts.inBitmap = b
-            opts.inSampleSize = 1
-            BitmapFactory.decodeByteArray(blob, 0, blob.size, opts)
-        } else {
-            result.close()
-            null
-        }
-    }
-
-    fun generatePreview(info: Any, preview: Bitmap?): Bitmap? {
-        if (preview != null &&
-            (preview.width != mPreviewBitmapWidth ||
-                    preview.height != mPreviewBitmapHeight)
-        ) {
-            throw RuntimeException("Improperly sized bitmap passed as argument")
-        }
-        return if (info is AppWidgetProviderInfo) {
-            generateWidgetPreview(info, preview)
-        } else {
-            generateShortcutPreview(
-                info as ResolveInfo, mPreviewBitmapWidth, mPreviewBitmapHeight, preview
-            )
-        }
-    }
-
-    private fun getWidgetMaxSize(info: AppWidgetProviderInfo): IntArray {
-        var spanX: Int = info.minWidth
-        var spanY: Int = info.minHeight
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-            spanX = Integer.max(info.minWidth, info.maxResizeWidth)
-            spanY = Integer.max(info.minHeight, info.maxResizeHeight)
-        }
-        return intArrayOf(spanX, spanY)
-    }
-
-    private fun generateWidgetPreview(info: AppWidgetProviderInfo, preview: Bitmap?): Bitmap? {
-        val cellSpans = getWidgetMaxSize(info)
-        val maxWidth = maxWidthForWidgetPreview(cellSpans[0])
-        val maxHeight = maxHeightForWidgetPreview(cellSpans[1])
-        return generateWidgetPreview(info, maxWidth, maxHeight, preview, null)
-    }
-
-    private fun maxWidthForWidgetPreview(spanX: Int): Int {
-        return mPreviewBitmapWidth.coerceAtMost(spanX)
-    }
-
-    private fun maxHeightForWidgetPreview(spanY: Int): Int {
-        return mPreviewBitmapHeight.coerceAtMost(spanY)
     }
 
     fun generateWidgetPreview(
@@ -544,68 +336,6 @@ class WidgetPreviews(private val mLauncher: SamSprungOverlay) {
         return fullResDefaultActivityIcon
     }
 
-    private fun getFullResIcon(info: ResolveInfo, user: UserHandle?): Drawable {
-        return getFullResIcon(info.activityInfo, user)
-    }
-
-    private fun getFullResIcon(info: ActivityInfo, user: UserHandle?): Drawable {
-        val resources: Resources? = try {
-            mPackageManager.getResourcesForApplication(
-                info.applicationInfo
-            )
-        } catch (e: PackageManager.NameNotFoundException) {
-            null
-        }
-        if (resources != null) {
-            val iconId = info.iconResource
-            if (iconId != 0) {
-                return getFullResIcon(resources, iconId, user)
-            }
-        }
-        return fullResDefaultActivityIcon
-    }
-
-    private fun generateShortcutPreview(
-        info: ResolveInfo, maxWidth: Int, maxHeight: Int, bitmap: Bitmap?
-    ): Bitmap? {
-        var preview = bitmap
-        var tempBitmap = mCachedShortcutPreviewBitmap.get()!!
-        val c = mCachedShortcutPreviewCanvas.get()!!
-        if (tempBitmap.width != maxWidth || tempBitmap.height != maxHeight) {
-            tempBitmap = Bitmap.createBitmap(maxWidth, maxHeight, Bitmap.Config.ARGB_8888)
-            mCachedShortcutPreviewBitmap.set(tempBitmap)
-        } else {
-            c.setBitmap(tempBitmap)
-            c.drawColor(0, PorterDuff.Mode.CLEAR)
-            c.setBitmap(null)
-        }
-        // Render the icon
-        val icon = getFullResIcon(info, Process.myUserHandle())
-        renderDrawableToBitmap(icon, tempBitmap, 0, 0, maxWidth, maxWidth)
-        if (preview != null &&
-            (preview.width != maxWidth || preview.height != maxHeight)
-        ) {
-            throw RuntimeException("Improperly sized bitmap passed as argument")
-        } else if (preview == null) {
-            preview = Bitmap.createBitmap(maxWidth, maxHeight, Bitmap.Config.ARGB_8888)
-        }
-        c.setBitmap(preview)
-        // Draw a desaturated/scaled version of the icon in the background as a watermark
-        var p = mCachedShortcutPreviewPaint.get()
-        if (p == null) {
-            p = Paint()
-            val colorMatrix = ColorMatrix()
-            colorMatrix.setSaturation(0f)
-            p.colorFilter = ColorMatrixColorFilter(colorMatrix)
-            p.alpha = (255 * 0.06f).toInt()
-            mCachedShortcutPreviewPaint.set(p)
-        }
-        c.drawBitmap(tempBitmap, 0f, 0f, p)
-        c.setBitmap(null)
-        renderDrawableToBitmap(icon, preview, 0, 0, mAppIconSize, mAppIconSize)
-        return preview
-    }
-
     init {
         mContext = mLauncher
         mPackageManager = mContext.packageManager
@@ -671,21 +401,9 @@ class WidgetPreviews(private val mLauncher: SamSprungOverlay) {
         }
     }
 
-    internal class BitmapCache : SoftReferenceThreadLocal<Bitmap?>() {
-        override fun initialValue(): Bitmap? {
-            return null
-        }
-    }
-
     internal class RectCache : SoftReferenceThreadLocal<Rect>() {
         override fun initialValue(): Rect {
             return Rect()
-        }
-    }
-
-    internal class BitmapFactoryOptionsCache : SoftReferenceThreadLocal<BitmapFactory.Options>() {
-        override fun initialValue(): BitmapFactory.Options {
-            return BitmapFactory.Options()
         }
     }
 }
