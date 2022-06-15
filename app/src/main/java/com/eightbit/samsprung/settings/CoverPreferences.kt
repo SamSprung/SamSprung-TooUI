@@ -281,6 +281,14 @@ class CoverPreferences : AppCompatActivity() {
             ))
         }
 
+        optimization = findViewById(R.id.optimization_switch)
+        optimization.isChecked = ignoreBatteryOptimization()
+        findViewById<LinearLayout>(R.id.optimization).setOnClickListener {
+            optimizationLauncher.launch(Intent(
+                Settings.ACTION_IGNORE_BATTERY_OPTIMIZATION_SETTINGS
+            ))
+        }
+
         accessibility = findViewById(R.id.accessibility_switch)
         accessibility.isChecked = hasAccessibility()
         findViewById<LinearLayout>(R.id.accessibility).setOnClickListener {
@@ -308,14 +316,6 @@ class CoverPreferences : AppCompatActivity() {
             requestVoice.launch(Manifest.permission.RECORD_AUDIO)
         }
         toggleVoiceIcon(hasPermission(Manifest.permission.RECORD_AUDIO))
-
-//        optimization = findViewById(R.id.optimization_switch)
-//        optimization.isChecked = ignoreBatteryOptimization()
-//        findViewById<LinearLayout>(R.id.optimization).setOnClickListener {
-//            optimizationLauncher.launch(Intent(
-//                Settings.ACTION_IGNORE_BATTERY_OPTIMIZATION_SETTINGS
-//            ))
-//        }
 
         keyboard = findViewById(R.id.keyboard_switch)
         keyboard.isClickable = false
@@ -1098,21 +1098,14 @@ class CoverPreferences : AppCompatActivity() {
             widgets.setIcon(R.drawable.ic_baseline_insert_page_break_24dp)
     }
 
-    private val requestWidgets = registerForActivityResult(
-        ActivityResultContracts.RequestPermission()) {
-        toggleWidgetsIcon(findViewById(R.id.toolbar))
-    }
-
-    private val optimizationLauncher = registerForActivityResult(
+    private val overlayLauncher = registerForActivityResult(
         ActivityResultContracts.StartActivityForResult()) {
-        if (this::optimization.isInitialized)
-            optimization.isChecked = ignoreBatteryOptimization()
-    }
-
-    private val notificationLauncher = registerForActivityResult(
-        ActivityResultContracts.StartActivityForResult()) {
-        if (this::notifications.isInitialized)
-            notifications.isChecked = hasNotificationListener()
+        if (this::mainSwitch.isInitialized) {
+            mainSwitch.isChecked = Settings.canDrawOverlays(applicationContext)
+            startForegroundService(Intent(
+                ScaledContext.cover(this), OnBroadcastService::class.java
+            ))
+        }
     }
 
     @SuppressLint("NotifyDataSetChanged")
@@ -1132,26 +1125,33 @@ class CoverPreferences : AppCompatActivity() {
             statistics.isChecked = hasUsageStatistics()
     }
 
+    private val optimizationLauncher = registerForActivityResult(
+        ActivityResultContracts.StartActivityForResult()) {
+        if (this::optimization.isInitialized)
+            optimization.isChecked = ignoreBatteryOptimization()
+    }
+
     private val accessibilityLauncher = registerForActivityResult(
         ActivityResultContracts.StartActivityForResult()) {
         if (this::accessibility.isInitialized)
             accessibility.isChecked = hasAccessibility()
     }
 
-    private val overlayLauncher = registerForActivityResult(
-        ActivityResultContracts.StartActivityForResult()) {
-        if (this::mainSwitch.isInitialized) {
-            mainSwitch.isChecked = Settings.canDrawOverlays(applicationContext)
-            startForegroundService(Intent(
-                ScaledContext.cover(this), OnBroadcastService::class.java
-            ))
-        }
-    }
-
     private val keyboardLauncher = registerForActivityResult(
         ActivityResultContracts.StartActivityForResult()) {
         if (this::keyboard.isInitialized)
             keyboard.isChecked = hasKeyboardInstalled()
+    }
+
+    private val notificationLauncher = registerForActivityResult(
+        ActivityResultContracts.StartActivityForResult()) {
+        if (this::notifications.isInitialized)
+            notifications.isChecked = hasNotificationListener()
+    }
+
+    private val requestWidgets = registerForActivityResult(
+        ActivityResultContracts.RequestPermission()) {
+        toggleWidgetsIcon(findViewById(R.id.toolbar))
     }
 
     private fun isDeviceSecure(): Boolean {
@@ -1162,17 +1162,17 @@ class CoverPreferences : AppCompatActivity() {
         return (checkSelfPermission(permission) == PackageManager.PERMISSION_GRANTED)
     }
 
+    private fun ignoreBatteryOptimization(): Boolean {
+        return ((getSystemService(POWER_SERVICE) as PowerManager)
+            .isIgnoringBatteryOptimizations(packageName))
+    }
+
     private fun hasAccessibility(): Boolean {
         val serviceString = Settings.Secure.getString(contentResolver,
             Settings.Secure.ENABLED_ACCESSIBILITY_SERVICES
         )
         return serviceString != null && serviceString.contains(packageName
                 + File.separator + AccessibilityObserver::class.java.name)
-    }
-
-    private fun ignoreBatteryOptimization(): Boolean {
-        return ((getSystemService(POWER_SERVICE) as PowerManager)
-            .isIgnoringBatteryOptimizations(packageName))
     }
 
     private fun hasNotificationListener(): Boolean {

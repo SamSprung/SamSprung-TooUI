@@ -151,6 +151,53 @@
     </LinearLayout>
 
     <LinearLayout
+        android:id="@+id/optimization"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginBottom="4dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="8dp"
+        android:layout_gravity="center_vertical"
+        tools:ignore="UseCompoundDrawables">
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_gravity="center_vertical"
+            tools:ignore="UseCompoundDrawables">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:textSize="24sp"
+                android:textColor="?android:textColorPrimary"
+                android:gravity="center_vertical"
+                android:layout_height="wrap_content"
+                android:text="@string/permission_optimization" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:textSize="12sp"
+                android:textColor="?android:textColorPrimary"
+                android:gravity="center_vertical"
+                android:layout_height="wrap_content"
+                android:text="@string/details_optimization" />
+        </LinearLayout>
+
+        <androidx.appcompat.widget.SwitchCompat
+            android:id="@+id/optimization_switch"
+            android:layout_width="0dp"
+            android:gravity="center"
+            android:layout_weight="1"
+            android:clickable="false"
+            android:textSize="24sp"
+            android:textColor="?android:textColorPrimary"
+            android:layout_height="wrap_content" />
+    </LinearLayout>
+
+    <LinearLayout
         android:id="@+id/accessibility"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

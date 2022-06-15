@@ -7,11 +7,12 @@
     <string name="details_voice">Allow voice activated app launch</string>
     <string name="permission_usage">Usage Access</string>
     <string name="details_usage">Sort app drawer by recently used</string>
+    <string name="permission_optimization">Ignore Battery</string>
+    <string name="details_optimization">Prevent early service termination</string>
     <string name="permission_accessibility">Accessibility</string>
     <string name="details_accessibility">Enable back button in navigation</string>
 
     <string name="config_options">Configuration</string>
-    <string name="options_optimization">Ignore Battery</string>
     <string name="options_keyboard">Keyboard / IME</string>
     <string name="details_keyboard">Install / Update SamSprung TooIME</string>
     <string name="updates_preference">Preview Builds</string>
