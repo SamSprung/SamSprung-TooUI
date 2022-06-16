@@ -400,18 +400,26 @@ class CoverPreferences : AppCompatActivity() {
                     override fun onAnimationStart(layout: AnimatedLinearLayout) {
                         colorHandler.postDelayed({
                             textRed.visibility = View.INVISIBLE
-                            colorRedBar.visibility = View.INVISIBLE
                         }, 125)
                         colorHandler.postDelayed({
+                            colorRedBar.visibility = View.INVISIBLE
+                        }, 150)
+                        colorHandler.postDelayed({
                             textGreen.visibility = View.INVISIBLE
-                            colorGreenBar.visibility = View.INVISIBLE
                         }, 250)
                         colorHandler.postDelayed({
+                            colorGreenBar.visibility = View.INVISIBLE
+                        }, 275)
+                        colorHandler.postDelayed({
                             textBlue.visibility = View.INVISIBLE
-                            colorBlueBar.visibility = View.INVISIBLE
                         }, 400)
                         colorHandler.postDelayed({
+                            colorBlueBar.visibility = View.INVISIBLE
+                        }, 425)
+                        colorHandler.postDelayed({
                             alphaView.visibility = View.INVISIBLE
+                        }, 525)
+                        colorHandler.postDelayed({
                             colorAlphaBar.visibility = View.INVISIBLE
                         }, 550)
                     }
@@ -434,18 +442,26 @@ class CoverPreferences : AppCompatActivity() {
                 colorPanel.visibility = View.VISIBLE
                 colorHandler.postDelayed({
                     colorAlphaBar.visibility = View.VISIBLE
+                }, 50)
+                colorHandler.postDelayed({
                     alphaView.visibility = View.VISIBLE
                 }, 75)
                 colorHandler.postDelayed({
                     colorBlueBar.visibility = View.VISIBLE
+                }, 125)
+                colorHandler.postDelayed({
                     textBlue.visibility = View.VISIBLE
                 }, 150)
                 colorHandler.postDelayed({
                     colorGreenBar.visibility = View.VISIBLE
+                }, 200)
+                colorHandler.postDelayed({
                     textGreen.visibility = View.VISIBLE
                 }, 225)
                 colorHandler.postDelayed({
                     colorRedBar.visibility = View.VISIBLE
+                }, 275)
+                colorHandler.postDelayed({
                     textRed.visibility = View.VISIBLE
                 }, 300)
             }
