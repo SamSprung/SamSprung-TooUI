@@ -113,6 +113,7 @@ import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.snackbar.Snackbar
 import com.google.android.play.core.appupdate.AppUpdateInfo
+import com.wajahatkarim3.easyflipviewpager.CardFlipPageTransformer
 import org.lsposed.hiddenapibypass.HiddenApiBypass
 import java.io.File
 import java.util.*
@@ -500,6 +501,9 @@ class SamSprungOverlay : AppCompatActivity() {
         viewPager = findViewById(R.id.pager)
         pagerAdapter = CoverStateAdapter(this)
         viewPager.adapter = pagerAdapter
+        val cardFlipPageTransformer = CardFlipPageTransformer()
+        cardFlipPageTransformer.isScalable = true
+        viewPager.setPageTransformer(cardFlipPageTransformer)
 
         viewPager.registerOnPageChangeCallback(object: ViewPager2.OnPageChangeCallback() {
             override fun onPageSelected(position: Int) {
