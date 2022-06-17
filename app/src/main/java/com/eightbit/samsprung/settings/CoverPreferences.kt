@@ -730,6 +730,18 @@ class CoverPreferences : AppCompatActivity() {
             gestures.isChecked = !gestures.isChecked
         }
 
+        val animate = findViewById<SwitchCompat>(R.id.animate_switch)
+        animate.isChecked = prefs.getBoolean(SamSprung.prefCarded, true)
+        animate.setOnCheckedChangeListener { _, isChecked ->
+            with(prefs.edit()) {
+                putBoolean(SamSprung.prefCarded, isChecked)
+                apply()
+            }
+        }
+        findViewById<LinearLayout>(R.id.animate).setOnClickListener {
+            animate.isChecked = !animate.isChecked
+        }
+
         val lengthBar = findViewById<SeekBar>(R.id.length_bar)
         val lengthText = findViewById<TextView>(R.id.length_text)
         lengthBar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {

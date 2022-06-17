@@ -501,10 +501,13 @@ class SamSprungOverlay : AppCompatActivity() {
         viewPager = findViewById(R.id.pager)
         pagerAdapter = CoverStateAdapter(this)
         viewPager.adapter = pagerAdapter
-        val cardFlipPageTransformer = CardFlipPageTransformer()
-        cardFlipPageTransformer.isScalable = true
-        viewPager.setPageTransformer(cardFlipPageTransformer)
-
+        if (prefs.getBoolean(SamSprung.prefCarded, true)) {
+            val cardFlipPageTransformer = CardFlipPageTransformer()
+            cardFlipPageTransformer.isScalable = false
+            viewPager.setPageTransformer(cardFlipPageTransformer)
+        } else {
+            viewPager.setPageTransformer(null)
+        }
         viewPager.registerOnPageChangeCallback(object: ViewPager2.OnPageChangeCallback() {
             override fun onPageSelected(position: Int) {
                 super.onPageSelected(position)

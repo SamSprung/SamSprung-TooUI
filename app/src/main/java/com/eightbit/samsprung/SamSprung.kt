@@ -96,6 +96,7 @@ class SamSprung : Application() {
         const val prefRadius: String = "prefRadius"
         const val prefLength: String = "prefLength"
         const val prefRotate: String = "prefRotate"
+        const val prefCarded: String = "prefCarded"
     }
 
     override fun onCreate() {
