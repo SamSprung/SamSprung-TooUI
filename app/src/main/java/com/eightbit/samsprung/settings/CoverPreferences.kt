@@ -157,8 +157,6 @@ class CoverPreferences : AppCompatActivity() {
     private lateinit var hiddenList: RecyclerView
 
     private lateinit var billingClient: BillingClient
-    private val iapList = ArrayList<String>()
-    private val subList = ArrayList<String>()
     private val iapSkuDetails = ArrayList<ProductDetails>()
     private val subSkuDetails = ArrayList<ProductDetails>()
 
@@ -178,7 +176,7 @@ class CoverPreferences : AppCompatActivity() {
             PackageManager.COMPONENT_ENABLED_STATE_ENABLED, PackageManager.DONT_KILL_APP
         )
 
-        retrieveDonationMenu()
+        getBillingConnection()
 
         coordinator = findViewById(R.id.coordinator)
         findViewById<BlurView>(R.id.blurContainer).setupWith(coordinator)
@@ -212,46 +210,13 @@ class CoverPreferences : AppCompatActivity() {
             for (skuDetail: ProductDetails in iapSkuDetails
                 .sortedBy { skuDetail -> skuDetail.productId }) {
                 if (null == skuDetail.oneTimePurchaseOfferDetails) continue
-                val button = Button(applicationContext)
-                button.setBackgroundResource(R.drawable.button_rippled)
-                button.elevation = 10f.toPx
-                button.text = getString(R.string.iap_button, skuDetail
-                    .oneTimePurchaseOfferDetails!!.formattedPrice)
-                button.setOnClickListener {
-                    val productDetailsParamsList =
-                        listOf(
-                            BillingFlowParams.ProductDetailsParams.newBuilder()
-                                .setProductDetails(skuDetail).build()
-                        )
-                    billingClient.launchBillingFlow(
-                        this, BillingFlowParams.newBuilder()
-                            .setProductDetailsParamsList(productDetailsParamsList).build()
-                    )
-                }
-                donations.addView(button)
+                donations.addView(getDonationButton(skuDetail))
             }
             val subscriptions = view.findViewById<LinearLayout>(R.id.subscription_layout)
             for (skuDetail: ProductDetails in subSkuDetails
                 .sortedBy { skuDetail -> skuDetail.productId }) {
                 if (null == skuDetail.subscriptionOfferDetails) continue
-                val button = Button(applicationContext)
-                button.setBackgroundResource(R.drawable.button_rippled)
-                button.elevation = 10f.toPx
-                button.text = getString(R.string.sub_button, skuDetail
-                    .subscriptionOfferDetails!![0].pricingPhases.pricingPhaseList[0].formattedPrice)
-                button.setOnClickListener {
-                    val productDetailsParamsList =
-                        listOf(
-                            BillingFlowParams.ProductDetailsParams.newBuilder()
-                                .setOfferToken(skuDetail.subscriptionOfferDetails!![0]!!.offerToken)
-                                .setProductDetails(skuDetail).build()
-                        )
-                    billingClient.launchBillingFlow(
-                        this, BillingFlowParams.newBuilder()
-                            .setProductDetailsParamsList(productDetailsParamsList).build()
-                    )
-                }
-                subscriptions.addView(button)
+                subscriptions.addView(getSubscriptionButton(skuDetail))
             }
             dialog.setOnCancelListener {
                 donations.removeAllViewsInLayout()
@@ -1308,6 +1273,9 @@ class CoverPreferences : AppCompatActivity() {
         return String.format("monthly_%02d", amount)
     }
 
+    private val iapList = ArrayList<String>()
+    private val subList = ArrayList<String>()
+
     private val consumeResponseListener = ConsumeResponseListener { _, _ ->
         IconifiedSnackbar(this, findViewById(R.id.donation_wrapper))
             .buildTickerBar(getString(R.string.donation_thanks)).show()
@@ -1424,7 +1392,7 @@ class CoverPreferences : AppCompatActivity() {
         })
     }
 
-    private fun retrieveDonationMenu() {
+    private fun getBillingConnection() {
         billingClient = BillingClient.newBuilder(this)
             .setListener(purchasesUpdatedListener).enablePendingPurchases().build()
 
@@ -1442,16 +1410,13 @@ class CoverPreferences : AppCompatActivity() {
                 iapList.add(getIAP(75))
                 iapList.add(getIAP(99))
                 for (productId: String in iapList) {
-                    val productList = listOf(
-                        QueryProductDetailsParams.Product.newBuilder()
-                            .setProductId(productId)
-                            .setProductType(BillingClient.ProductType.INAPP).build()
-                    )
-                    val params = QueryProductDetailsParams.newBuilder().setProductList(productList)
+                    val productList = QueryProductDetailsParams.Product.newBuilder()
+                        .setProductId(productId)
+                        .setProductType(BillingClient.ProductType.INAPP).build()
+                    val params = QueryProductDetailsParams.newBuilder()
+                        .setProductList(listOf(productList))
                     billingClient.queryProductDetailsAsync(params.build()) { _, productDetailsList ->
-                        for (skuDetail: ProductDetails in productDetailsList) {
-                            iapSkuDetails.add(skuDetail)
-                        }
+                        iapSkuDetails.addAll(productDetailsList)
                         billingClient.queryPurchaseHistoryAsync(
                             QueryPurchaseHistoryParams.newBuilder().setProductType(
                                 BillingClient.ProductType.INAPP
@@ -1467,16 +1432,13 @@ class CoverPreferences : AppCompatActivity() {
                 subList.add(getSub(75))
                 subList.add(getSub(99))
                 for (productId: String in subList) {
-                    val productList = listOf(
-                        QueryProductDetailsParams.Product.newBuilder()
-                            .setProductId(productId)
-                            .setProductType(BillingClient.ProductType.SUBS).build()
-                    )
-                    val params = QueryProductDetailsParams.newBuilder().setProductList(productList)
+                    val productList = QueryProductDetailsParams.Product.newBuilder()
+                        .setProductId(productId)
+                        .setProductType(BillingClient.ProductType.SUBS).build()
+                    val params = QueryProductDetailsParams.newBuilder()
+                        .setProductList(listOf(productList))
                     billingClient.queryProductDetailsAsync(params.build()) { _, productDetailsList ->
-                        for (skuDetail: ProductDetails in productDetailsList) {
-                            subSkuDetails.add(skuDetail)
-                        }
+                        subSkuDetails.addAll(productDetailsList)
                         billingClient.queryPurchaseHistoryAsync(
                             QueryPurchaseHistoryParams.newBuilder().setProductType(
                                 BillingClient.ProductType.SUBS
@@ -1486,5 +1448,46 @@ class CoverPreferences : AppCompatActivity() {
                 }
             }
         }
+    }
+
+    private fun getDonationButton(skuDetail: ProductDetails): Button {
+        val button = Button(applicationContext)
+        button.setBackgroundResource(R.drawable.button_rippled)
+        button.elevation = 10f.toPx
+        try {
+            button.text = getString(
+                R.string.iap_button, skuDetail
+                    .oneTimePurchaseOfferDetails!!.formattedPrice
+            )
+            button.setOnClickListener {
+                val productDetailsParamsList = BillingFlowParams.ProductDetailsParams
+                    .newBuilder().setProductDetails(skuDetail).build()
+                billingClient.launchBillingFlow(this, BillingFlowParams.newBuilder()
+                    .setProductDetailsParamsList(listOf(productDetailsParamsList)).build()
+                )
+            }
+        } catch (ignored: Exception) { }
+        return button
+    }
+
+    private fun getSubscriptionButton(skuDetail: ProductDetails): Button {
+        val button = Button(applicationContext)
+        button.setBackgroundResource(R.drawable.button_rippled)
+        button.elevation = 10f.toPx
+        try {
+            button.text = getString(
+                R.string.sub_button, skuDetail
+                    .subscriptionOfferDetails!![0].pricingPhases.pricingPhaseList[0].formattedPrice
+            )
+            button.setOnClickListener {
+                val productDetailsParamsList = BillingFlowParams.ProductDetailsParams.newBuilder()
+                    .setOfferToken(skuDetail.subscriptionOfferDetails!![0]!!.offerToken)
+                    .setProductDetails(skuDetail).build()
+                billingClient.launchBillingFlow(this, BillingFlowParams.newBuilder()
+                    .setProductDetailsParamsList(listOf(productDetailsParamsList)).build()
+                )
+            }
+        } catch (ignored: Exception) { }
+        return button
     }
 }
