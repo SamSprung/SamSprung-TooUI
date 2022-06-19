@@ -1,25 +1,23 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ripple xmlns:android="http://schemas.android.com/apk/res/android"
     android:color="?android:attr/colorControlHighlight">
-    <item android:left="10dp"
-        android:right="10dp"
-        android:bottom="10dp"
-        android:top="10dp">
+    <item android:left="4dp"
+        android:right="4dp"
+        android:bottom="4dp"
+        android:top="4dp">
         <shape android:shape="rectangle">
             <solid android:color="@color/primary_light" />
-            <corners android:radius="14dp" />
+            <corners android:radius="8dp" />
         </shape>
     </item>
-    <item android:left="14dp"
-        android:right="14dp"
-        android:bottom="14dp"
-        android:top="14dp">
+    <item android:left="8dp"
+        android:right="8dp"
+        android:bottom="8dp"
+        android:top="8dp">
     <shape android:shape="rectangle" >
-        <solid
-            android:color="@color/secondary_light" >
+        <solid android:color="@color/secondary_light" >
         </solid>
-        <corners
-            android:radius="10dp">
+        <corners android:radius="6dp">
         </corners>
     </shape>
     </item>

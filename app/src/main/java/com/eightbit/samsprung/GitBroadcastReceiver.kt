@@ -71,7 +71,7 @@ class GitBroadcastReceiver : BroadcastReceiver() {
                 startBroadcastService(context)
             }
             Intent.ACTION_MY_PACKAGE_REPLACED == action -> {
-                if (BuildConfig.FLAVOR == "google")
+                if (SamSprung.isGooglePlay())
                     startBroadcastService(context)
                 else
                     startLauncherActivity(context, context.packageManager
@@ -79,7 +79,7 @@ class GitBroadcastReceiver : BroadcastReceiver() {
                         ?.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
             }
             SamSprung.updating == action -> {
-                if (BuildConfig.FLAVOR == "google") return
+                if (SamSprung.isGooglePlay()) return
                 when (intent.getIntExtra(PackageInstaller.EXTRA_STATUS, -1)) {
                     PackageInstaller.STATUS_PENDING_USER_ACTION -> {
                         val activityIntent = intent.getParcelableExtra<Intent>(Intent.EXTRA_INTENT)

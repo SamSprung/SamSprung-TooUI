@@ -198,7 +198,7 @@ class CoverPreferences : AppCompatActivity() {
             startActivity(Intent(Intent.ACTION_VIEW,
                 Uri.parse("https://www.paypal.com/donate/?hosted_button_id=Q2LFH2SC8RHRN")))
         }
-        paypal.isVisible = BuildConfig.FLAVOR != "google"
+        paypal.isVisible = !SamSprung.isGooglePlay()
 
         val googlePlay = findViewById<LinearLayout>(R.id.google_play)
         googlePlay.setOnClickListener {
@@ -257,7 +257,7 @@ class CoverPreferences : AppCompatActivity() {
         accessibility = findViewById(R.id.accessibility_switch)
         accessibility.isChecked = hasAccessibility()
         findViewById<LinearLayout>(R.id.accessibility).setOnClickListener {
-            if (BuildConfig.FLAVOR == "google" && !accessibility.isChecked) {
+            if (SamSprung.isGooglePlay() && !accessibility.isChecked) {
                 AlertDialog.Builder(this)
                     .setMessage(getString(R.string.accessibility_disclaimer))
                     .setPositiveButton(R.string.button_confirm) { dialog, _ ->
@@ -310,7 +310,7 @@ class CoverPreferences : AppCompatActivity() {
         updatesPanel.setOnClickListener {
             updates.isChecked = !updates.isChecked
         }
-        updatesPanel.isVisible = BuildConfig.FLAVOR != "google"
+        updatesPanel.isVisible = !SamSprung.isGooglePlay()
 
         val general = findViewById<LinearLayout>(R.id.general)
         findViewById<LinearLayout>(R.id.menu_general).setOnClickListener {
@@ -946,7 +946,7 @@ class CoverPreferences : AppCompatActivity() {
         if (it) coordinator.background = WallpaperManager.getInstance(this).drawable
 
         updateCheck = CheckUpdatesTask(this@CoverPreferences)
-        if (BuildConfig.FLAVOR == "google") {
+        if (SamSprung.isGooglePlay()) {
             updateCheck?.setPlayUpdateListener(object: CheckUpdatesTask.CheckPlayUpdateListener {
                 override fun onPlayUpdateFound(appUpdateInfo: AppUpdateInfo) {
                     setAnimatedUpdateNotice(appUpdateInfo, null)
@@ -1454,19 +1454,18 @@ class CoverPreferences : AppCompatActivity() {
         val button = Button(applicationContext)
         button.setBackgroundResource(R.drawable.button_rippled)
         button.elevation = 10f.toPx
-        try {
-            button.text = getString(
-                R.string.iap_button, skuDetail
-                    .oneTimePurchaseOfferDetails!!.formattedPrice
+        button.setTextColor(ContextCompat.getColor(this, android.R.color.black))
+        button.text = getString(
+            R.string.iap_button, skuDetail
+                .oneTimePurchaseOfferDetails!!.formattedPrice
+        )
+        button.setOnClickListener {
+            val productDetailsParamsList = BillingFlowParams.ProductDetailsParams
+                .newBuilder().setProductDetails(skuDetail).build()
+            billingClient.launchBillingFlow(this, BillingFlowParams.newBuilder()
+                .setProductDetailsParamsList(listOf(productDetailsParamsList)).build()
             )
-            button.setOnClickListener {
-                val productDetailsParamsList = BillingFlowParams.ProductDetailsParams
-                    .newBuilder().setProductDetails(skuDetail).build()
-                billingClient.launchBillingFlow(this, BillingFlowParams.newBuilder()
-                    .setProductDetailsParamsList(listOf(productDetailsParamsList)).build()
-                )
-            }
-        } catch (ignored: Exception) { }
+        }
         return button
     }
 
@@ -1474,20 +1473,19 @@ class CoverPreferences : AppCompatActivity() {
         val button = Button(applicationContext)
         button.setBackgroundResource(R.drawable.button_rippled)
         button.elevation = 10f.toPx
-        try {
-            button.text = getString(
-                R.string.sub_button, skuDetail
-                    .subscriptionOfferDetails!![0].pricingPhases.pricingPhaseList[0].formattedPrice
+        button.setTextColor(ContextCompat.getColor(this, android.R.color.black))
+        button.text = getString(
+            R.string.sub_button, skuDetail
+                .subscriptionOfferDetails!![0].pricingPhases.pricingPhaseList[0].formattedPrice
+        )
+        button.setOnClickListener {
+            val productDetailsParamsList = BillingFlowParams.ProductDetailsParams.newBuilder()
+                .setOfferToken(skuDetail.subscriptionOfferDetails!![0]!!.offerToken)
+                .setProductDetails(skuDetail).build()
+            billingClient.launchBillingFlow(this, BillingFlowParams.newBuilder()
+                .setProductDetailsParamsList(listOf(productDetailsParamsList)).build()
             )
-            button.setOnClickListener {
-                val productDetailsParamsList = BillingFlowParams.ProductDetailsParams.newBuilder()
-                    .setOfferToken(skuDetail.subscriptionOfferDetails!![0]!!.offerToken)
-                    .setProductDetails(skuDetail).build()
-                billingClient.launchBillingFlow(this, BillingFlowParams.newBuilder()
-                    .setProductDetailsParamsList(listOf(productDetailsParamsList)).build()
-                )
-            }
-        } catch (ignored: Exception) { }
+        }
         return button
     }
 }

@@ -662,7 +662,7 @@ class SamSprungOverlay : AppCompatActivity() {
                 .isVisible || skipUpdateCheck) return
         skipUpdateCheck = true
         updateCheck = CheckUpdatesTask(this)
-        if (BuildConfig.FLAVOR == "google") {
+        if (SamSprung.isGooglePlay()) {
             updateCheck?.setPlayUpdateListener(object :
                 CheckUpdatesTask.CheckPlayUpdateListener {
                 override fun onPlayUpdateFound(appUpdateInfo: AppUpdateInfo) {

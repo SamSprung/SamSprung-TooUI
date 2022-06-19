@@ -93,7 +93,7 @@ class CheckUpdatesTask(private var activity: Activity) {
     private var appUpdateManager: AppUpdateManager? = null
 
     init {
-        if (BuildConfig.FLAVOR == "google") {
+        if (SamSprung.isGooglePlay()) {
             appUpdateManager = AppUpdateManagerFactory.create(activity)
             val appUpdateInfoTask = appUpdateManager?.appUpdateInfo
             // Checks that the platform will allow the specified type of update.
