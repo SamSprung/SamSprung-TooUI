@@ -1229,20 +1229,31 @@ class CoverPreferences : AppCompatActivity() {
         return true
     }
 
+    private var hasWarned = false
     override fun onBackPressed() {
-        if (wikiDrawer.isDrawerOpen(GravityCompat.START))
+        if (wikiDrawer.isDrawerOpen(GravityCompat.START)) {
             wikiDrawer.closeDrawer(GravityCompat.START)
-        else if (BottomSheetBehavior.STATE_EXPANDED == bottomSheetBehavior.state)
+        } else if (BottomSheetBehavior.STATE_EXPANDED == bottomSheetBehavior.state) {
             bottomSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED)
-        else
+        } else if (!mainSwitch.isChecked && !hasWarned) {
+            Handler(Looper.getMainLooper()).postDelayed({
+                hasWarned = true
+            }, 250)
+            IconifiedSnackbar(this).buildTickerBar(
+                getString(R.string.cover_widget_warning)
+            ).show()
+        } else {
             super.onBackPressed()
+        }
     }
 
     private fun initializeLayout() {
         startForegroundService(Intent(
             ScaledContext.cover(this), OnBroadcastService::class.java
         ))
-        IconifiedSnackbar(this).buildTickerBar(getString(R.string.cover_widget_warning)).show()
+        IconifiedSnackbar(this).buildTickerBar(
+            getString(R.string.cover_widget_warning)
+        ).show()
         if (!prefs.getBoolean(SamSprung.prefWarned, false)) {
             wikiDrawer.openDrawer(GravityCompat.START)
             with(prefs.edit()) {
