@@ -91,7 +91,7 @@
     <string name="lock_enabled">Device is locked!</string>
 
     <string name="incompatibility_warning">SamSprung is not compatible with apps that block the entire screen.\nPlease remove or disable this app to continue.</string>
-    <string name="cover_widget_warning">Important: THIS IS NOT A COVER SCREEN WIDGET\nMain switch must be enabled to use on cover.</string>
+    <string name="cover_widget_warning">Important: THIS IS NOT A COVER SCREEN WIDGET\nMain switch must be enabled to appear on cover.</string>
 
     <string name="main_screen_required">Open device to continue</string>
     <string name="incompatible_fragment">Move to a widget before attempting to remove it</string>

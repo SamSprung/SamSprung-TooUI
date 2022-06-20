@@ -1244,6 +1244,7 @@ class CoverPreferences : AppCompatActivity() {
             ).show()
         } else {
             super.onBackPressed()
+            hasWarned = false
         }
     }
 
@@ -1251,9 +1252,6 @@ class CoverPreferences : AppCompatActivity() {
         startForegroundService(Intent(
             ScaledContext.cover(this), OnBroadcastService::class.java
         ))
-        IconifiedSnackbar(this).buildTickerBar(
-            getString(R.string.cover_widget_warning)
-        ).show()
         if (!prefs.getBoolean(SamSprung.prefWarned, false)) {
             wikiDrawer.openDrawer(GravityCompat.START)
             with(prefs.edit()) {
