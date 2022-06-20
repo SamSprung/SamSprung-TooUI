@@ -227,7 +227,9 @@ class CoverPreferences : AppCompatActivity() {
         }
 
         findViewById<LinearLayout>(R.id.logcat).setOnClickListener {
-            captureLogcat(findViewById(R.id.coordinator))
+            if (!Debug(this).captureLogcat(isDeviceSecure())) {
+                wikiDrawer.openDrawer(GravityCompat.START)
+            }
         }
 
         notifications = findViewById(R.id.notifications_switch)
@@ -1196,14 +1198,6 @@ class CoverPreferences : AppCompatActivity() {
             true
         } catch (e: PackageManager.NameNotFoundException) {
             false
-        }
-    }
-
-    private fun captureLogcat(parent: ViewGroup) {
-        if (!Debug(this).captureLogcat(isDeviceSecure())) {
-            IconifiedSnackbar(this, parent).buildSnackbar(
-                R.string.logcat_failed, R.drawable.ic_android_studio_24dp, Snackbar.LENGTH_LONG
-            ).show()
         }
     }
 

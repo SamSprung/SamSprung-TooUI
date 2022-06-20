@@ -123,6 +123,7 @@ class Debug(private var context: Context) {
             return false
         }
         val logText = log.toString()
+        if (!logText.contains("AndroidRuntime")) return false
         val issueUrl = "https://github.com/SamSprung/SamSprung-TooUI/issues/" +
                 "new?labels=logcat&template=bug_report.yml&title=[Bug]%3A+"
         try {
