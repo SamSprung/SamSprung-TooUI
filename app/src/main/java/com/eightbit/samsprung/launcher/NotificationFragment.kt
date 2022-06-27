@@ -83,6 +83,7 @@ import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.eightbit.app.CoverOptions
+import com.eightbit.content.ScaledContext
 import com.eightbit.samsprung.NotificationReceiver
 import com.eightbit.samsprung.R
 import com.eightbit.samsprung.SamSprung
@@ -92,6 +93,11 @@ import com.eightbit.widget.RecyclerViewTouch
 import java.util.*
 
 class NotificationFragment : Fragment(), NotificationAdapter.OnNoticeClickListener {
+
+    private val Number.toPx get() = TypedValue.applyDimension(
+        TypedValue.COMPLEX_UNIT_DIP, this.toFloat(),
+        ScaledContext.cover(requireActivity()).resources.displayMetrics
+    )
 
     private inline val @receiver:ColorInt Int.blended
         @ColorInt
@@ -270,8 +276,14 @@ class NotificationFragment : Fragment(), NotificationAdapter.OnNoticeClickListen
                             SamSprung.prefColors, Color.rgb(255, 255, 255)
                         ).blended)
                     }
-                    layoutManager?.scrollToPositionWithOffset(position, -(actionButtons.height))
                 }
+            }
+            if (actionButtons.childCount > 0) {
+                layoutManager?.scrollToPositionWithOffset(
+                    position, -(actionButtons.height) - 20.toPx.toInt()
+                )
+            } else {
+                layoutManager?.scrollToPosition(position)
             }
         }
     }
