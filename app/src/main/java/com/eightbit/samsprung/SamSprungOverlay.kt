@@ -103,7 +103,7 @@ import com.eightbit.material.IconifiedSnackbar
 import com.eightbit.samsprung.launcher.CoverStateAdapter
 import com.eightbit.samsprung.launcher.LauncherManager
 import com.eightbit.samsprung.launcher.PanelWidgetManager
-import com.eightbit.samsprung.panels.*
+import com.eightbit.samsprung.launcher.panels.*
 import com.eightbit.samsprung.settings.CheckUpdatesTask
 import com.eightbit.samsprung.speech.VoiceRecognizer
 import com.eightbit.view.AnimatedLinearLayout

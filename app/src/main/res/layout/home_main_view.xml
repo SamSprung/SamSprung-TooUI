@@ -217,6 +217,7 @@
         app:backgroundTint="@android:color/transparent"
         app:borderWidth="0dp"
         app:fabSize="mini"
+        app:maxImageSize="20dp"
         app:layout_anchor="@+id/bottom_handle"
         app:layout_anchorGravity="top|end"
         app:layout_dodgeInsetEdges="bottom"

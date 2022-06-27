@@ -21,7 +21,7 @@ import androidx.viewpager2.widget.ViewPager2
 import com.eightbit.content.ScaledContext
 import com.eightbit.samsprung.R
 import com.eightbit.samsprung.SamSprungOverlay
-import com.eightbit.samsprung.panels.*
+import com.eightbit.samsprung.launcher.panels.*
 import java.util.*
 import java.util.concurrent.Executors
 

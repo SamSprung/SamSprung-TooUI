@@ -5,6 +5,10 @@
     android:layout_height="match_parent"
     android:orientation="vertical">
 
+        <com.eightbit.widget.NestedScrollableHost
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/notificationList"
             android:layout_width="match_parent"
@@ -16,4 +20,5 @@
             android:paddingStart="2dp"
             android:paddingEnd="0dp"
             android:scrollbarSize="0dp"/>
+        </com.eightbit.widget.NestedScrollableHost>
 </LinearLayout>

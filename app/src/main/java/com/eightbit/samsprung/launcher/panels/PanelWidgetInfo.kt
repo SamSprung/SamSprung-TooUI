@@ -13,11 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.eightbit.samsprung.panels
+package com.eightbit.samsprung.launcher.panels
 
 import android.appwidget.AppWidgetHostView
 import android.content.ContentValues
-import com.eightbit.samsprung.panels.WidgetSettings.Favorites
+import com.eightbit.samsprung.launcher.panels.WidgetSettings.Favorites
 
 /**
  * Represents a widget, which just contains an identifier.

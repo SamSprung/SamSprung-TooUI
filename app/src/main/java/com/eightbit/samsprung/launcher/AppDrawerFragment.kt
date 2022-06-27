@@ -75,7 +75,7 @@ import com.eightbit.view.OnSwipeTouchListener
 import com.eightbit.widget.RecyclerViewTouch
 import java.util.concurrent.Executors
 
-class AppDrawerFragment : Fragment(), DrawerAppAdapater.OnAppClickListener {
+class AppDrawerFragment : Fragment(), DrawerAppAdapter.OnAppClickListener {
 
     private val Number.toPx get() = TypedValue.applyDimension(
         TypedValue.COMPLEX_UNIT_DIP, this.toFloat(),
@@ -118,9 +118,11 @@ class AppDrawerFragment : Fragment(), DrawerAppAdapater.OnAppClickListener {
             launcherView.addItemDecoration(DividerItemDecoration(activity,
                 DividerItemDecoration.VERTICAL))
         }
-        launcherView.adapter = DrawerAppAdapater(
+        val adapter = DrawerAppAdapter(
             packages, this, requireActivity().packageManager, prefs
         )
+        adapter.setHasStableIds(true)
+        launcherView.adapter = adapter
 
         val searchView = (requireActivity() as SamSprungOverlay).getSearchView()
         if (null != searchView) {
@@ -138,13 +140,13 @@ class AppDrawerFragment : Fragment(), DrawerAppAdapater.OnAppClickListener {
             searchView.setSearchableInfo((search).getSearchableInfo(requireActivity().componentName))
             searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
                 override fun onQueryTextSubmit(query: String): Boolean {
-                    (launcherView.adapter as DrawerAppAdapater).setQuery(query)
+                    (launcherView.adapter as DrawerAppAdapter).setQuery(query)
                     return false
                 }
 
                 override fun onQueryTextChange(query: String): Boolean {
                     if (query.isEmpty()) searchView.isIconified = true
-                    (launcherView.adapter as DrawerAppAdapater).setQuery(query)
+                    (launcherView.adapter as DrawerAppAdapter).setQuery(query)
                     return true
                 }
             })
@@ -196,7 +198,7 @@ class AppDrawerFragment : Fragment(), DrawerAppAdapater.OnAppClickListener {
             val packageRetriever = PackageRetriever(requireActivity())
             val packages = packageRetriever.getFilteredPackageList()
             requireActivity().runOnUiThread {
-                val adapter = launcherView.adapter as DrawerAppAdapater
+                val adapter = launcherView.adapter as DrawerAppAdapter
                 adapter.setPackages(packages)
                 adapter.notifyDataSetChanged()
             }
@@ -239,7 +241,7 @@ class AppDrawerFragment : Fragment(), DrawerAppAdapater.OnAppClickListener {
     }
 
     override fun onResume() {
-        super.onResume()
         if (this::launcherView.isInitialized) getFilteredPackageList()
+        super.onResume()
     }
 }

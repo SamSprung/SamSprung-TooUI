@@ -13,15 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.eightbit.samsprung.panels
+package com.eightbit.samsprung.launcher.panels
 
 import android.content.ContentValues
 import android.content.Context
 import android.os.Process
 import android.provider.BaseColumns
 import com.eightbit.samsprung.SamSprungOverlay
-import com.eightbit.samsprung.panels.WidgetSettings.BaseLauncherColumns
-import com.eightbit.samsprung.panels.WidgetSettings.Favorites
+import com.eightbit.samsprung.launcher.panels.WidgetSettings.BaseLauncherColumns
+import com.eightbit.samsprung.launcher.panels.WidgetSettings.Favorites
 import java.lang.ref.WeakReference
 import java.util.*
 
