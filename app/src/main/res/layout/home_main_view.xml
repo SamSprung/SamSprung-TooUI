@@ -221,7 +221,7 @@
         app:layout_anchor="@+id/bottom_handle"
         app:layout_anchorGravity="top|end"
         app:layout_dodgeInsetEdges="bottom"
-        android:layout_marginStart="-4dp"
-        android:layout_marginEnd="-4dp"
+        android:layout_marginStart="-6dp"
+        android:layout_marginEnd="-6dp"
         android:contentDescription="@string/description_badge" />
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

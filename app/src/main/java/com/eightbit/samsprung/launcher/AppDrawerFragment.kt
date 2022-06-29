@@ -231,6 +231,7 @@ class AppDrawerFragment : Fragment(), DrawerAppAdapter.OnAppClickListener {
 
     override fun onAppClicked(resolveInfo: ResolveInfo, position: Int) {
         launcherManager?.launchResolveInfo(resolveInfo)
+        if (this::launcherView.isInitialized) getFilteredPackageList()
     }
 
     override fun onDestroyView() {
@@ -238,10 +239,5 @@ class AppDrawerFragment : Fragment(), DrawerAppAdapter.OnAppClickListener {
         try {
             if (null != packReceiver) requireActivity().unregisterReceiver(packReceiver)
         } catch (ignored: Exception) { }
-    }
-
-    override fun onResume() {
-        if (this::launcherView.isInitialized) getFilteredPackageList()
-        super.onResume()
     }
 }
