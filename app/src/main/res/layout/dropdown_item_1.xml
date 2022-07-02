@@ -2,9 +2,9 @@
 <TextView xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@android:id/text1"
     style="?android:attr/dropDownItemStyle"
-    android:textAppearance="?android:attr/textAppearanceLargePopupMenu"
+    android:textAppearance="?android:attr/textAppearanceSmallPopupMenu"
     android:singleLine="true"
     android:textAlignment="center"
     android:layout_width="match_parent"
-    android:layout_height="?android:attr/listPreferredItemHeight"
+    android:layout_height="?android:attr/listPreferredItemHeightSmall"
     android:ellipsize="marquee" />
