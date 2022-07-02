@@ -129,10 +129,9 @@ class SamSprungOverlay : AppCompatActivity() {
     private var widgetManager: PanelWidgetManager? = null
     val model = WidgetModel()
     private var appWidgetHost: WidgetHost? = null
+    private var updateCheck : CheckUpdatesTask? = null
 
     private var background: Drawable? = null
-
-    private var updateCheck : CheckUpdatesTask? = null
 
     private lateinit var toolbar: Toolbar
     private lateinit var wifiManager: WifiManager
@@ -154,7 +153,7 @@ class SamSprungOverlay : AppCompatActivity() {
 
     private lateinit var bottomSheetBehaviorMain: BottomSheetBehavior<View>
     private lateinit var viewPager: ViewPager2
-    private lateinit var pagerAdapter: FragmentStateAdapter
+    private var pagerAdapter: FragmentStateAdapter = CoverStateAdapter(this)
 
     private var mBinder: DesktopBinder? = null
 
@@ -499,7 +498,6 @@ class SamSprungOverlay : AppCompatActivity() {
         launcherManager = LauncherManager(this)
 
         viewPager = findViewById(R.id.pager)
-        pagerAdapter = CoverStateAdapter(this)
         viewPager.adapter = pagerAdapter
         if (prefs.getBoolean(SamSprung.prefCarded, true)) {
             val cardFlipPageTransformer = CardFlipPageTransformer()
@@ -658,8 +656,7 @@ class SamSprungOverlay : AppCompatActivity() {
 
     private var skipUpdateCheck = false
     private fun checkUpdatesWithDelay() {
-        if (findViewById<AnimatedLinearLayout>(R.id.update_notice)
-                .isVisible || skipUpdateCheck) return
+        if (skipUpdateCheck) return
         skipUpdateCheck = true
         updateCheck = CheckUpdatesTask(this)
         if (SamSprung.isGooglePlay()) {
@@ -940,22 +937,25 @@ class SamSprungOverlay : AppCompatActivity() {
 
     fun showUpdateNotice(appUpdateInfo: AppUpdateInfo?, downloadUrl: String?) {
         runOnUiThread {
+            var animate: TranslateAnimation? = null
             val fakeSnackbar = findViewById<AnimatedLinearLayout>(R.id.update_notice)
-            findViewById<TextView>(R.id.update_text).text =
-                getString(R.string.update_service, getString(R.string.samsprung))
-            val animate = TranslateAnimation(
-                0f, 0f, 0f, -fakeSnackbar.height.toFloat()
-            )
-            animate.duration = 500
-            animate.fillAfter = true
-            fakeSnackbar.setAnimationListener(object : AnimatedLinearLayout.AnimationListener {
-                override fun onAnimationStart(layout: AnimatedLinearLayout) {}
-                override fun onAnimationEnd(layout: AnimatedLinearLayout) {
-                    layout.setAnimationListener(null)
-                }
-            })
-            fakeSnackbar.visibility = View.VISIBLE
-            fakeSnackbar.startAnimation(animate)
+            if (!fakeSnackbar.isVisible) {
+                findViewById<TextView>(R.id.update_text).text =
+                    getString(R.string.update_service, getString(R.string.samsprung))
+                animate = TranslateAnimation(
+                    0f, 0f, 0f, -fakeSnackbar.height.toFloat()
+                )
+                animate.duration = 500
+                animate.fillAfter = true
+                fakeSnackbar.setAnimationListener(object : AnimatedLinearLayout.AnimationListener {
+                    override fun onAnimationStart(layout: AnimatedLinearLayout) {}
+                    override fun onAnimationEnd(layout: AnimatedLinearLayout) {
+                        layout.setAnimationListener(null)
+                    }
+                })
+                fakeSnackbar.visibility = View.VISIBLE
+                fakeSnackbar.startAnimation(animate)
+            }
             fakeSnackbar.setOnClickListener {
                 if (null != appUpdateInfo) {
                     updateCheck?.downloadPlayUpdate(appUpdateInfo)
@@ -965,12 +965,12 @@ class SamSprungOverlay : AppCompatActivity() {
                         R.string.main_screen_required,
                         Toast.LENGTH_LONG).show()
                 }
-                animate.fillAfter = false
+                animate?.fillAfter = false
                 it.visibility = View.GONE
             }
             Handler(Looper.getMainLooper()).postDelayed({
                 fakeSnackbar.setOnClickListener(null)
-                animate.fillAfter = false
+                animate?.fillAfter = false
                 fakeSnackbar.visibility = View.GONE
             }, 5500)
         }
