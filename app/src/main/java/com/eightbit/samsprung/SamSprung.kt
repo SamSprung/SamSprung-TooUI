@@ -97,6 +97,7 @@ class SamSprung : Application() {
         const val prefLength: String = "prefLength"
         const val prefRotate: String = "prefRotate"
         const val prefCarded: String = "prefCarded"
+        const val prefUpdate: String = "prefUpdate"
 
         fun isGooglePlay(): Boolean {
             return BuildConfig.FLAVOR == "google"

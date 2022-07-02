@@ -654,10 +654,9 @@ class SamSprungOverlay : AppCompatActivity() {
         return if (searchView.isVisible) searchView else null
     }
 
-    private var skipUpdateCheck = false
     private fun checkUpdatesWithDelay() {
-        if (skipUpdateCheck) return
-        skipUpdateCheck = true
+        if (System.currentTimeMillis() <= prefs.getLong(SamSprung.prefUpdate, 0) + 14400000) return
+        prefs.edit().putLong(SamSprung.prefUpdate, System.currentTimeMillis()).apply()
         updateCheck = CheckUpdatesTask(this)
         if (SamSprung.isGooglePlay()) {
             updateCheck?.setPlayUpdateListener(object :
@@ -673,9 +672,6 @@ class SamSprungOverlay : AppCompatActivity() {
                 }
             })
         }
-        Handler(Looper.getMainLooper()).postDelayed({
-            skipUpdateCheck = false
-        }, 14400000)
     }
 
     private var keyguardListener: KeyguardListener? = null
