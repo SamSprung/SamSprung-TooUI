@@ -94,7 +94,8 @@ class CheckUpdatesTask(private var activity: Activity) {
 
     init {
         if (SamSprung.isGooglePlay()) {
-            appUpdateManager = AppUpdateManagerFactory.create(activity)
+            if (null == appUpdateManager)
+                appUpdateManager = AppUpdateManagerFactory.create(activity)
             val appUpdateInfoTask = appUpdateManager?.appUpdateInfo
             // Checks that the platform will allow the specified type of update.
             appUpdateInfoTask?.addOnSuccessListener { appUpdateInfo ->

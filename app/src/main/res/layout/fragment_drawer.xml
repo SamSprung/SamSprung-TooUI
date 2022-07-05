@@ -17,6 +17,7 @@
             android:scrollbars="vertical"
             android:paddingStart="2dp"
             android:paddingEnd="0dp"
-            android:scrollbarSize="0dp" />
+            android:scrollbarSize="0dp"
+            android:scrollbarStyle="outsideOverlay"/>
         </com.eightbit.widget.NestedScrollableHost>
 </androidx.constraintlayout.widget.ConstraintLayout>

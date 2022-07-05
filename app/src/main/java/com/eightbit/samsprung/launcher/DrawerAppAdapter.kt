@@ -66,7 +66,6 @@ import androidx.appcompat.widget.AppCompatImageView
 import androidx.recyclerview.widget.RecyclerView
 import com.eightbit.samsprung.R
 import com.eightbit.samsprung.SamSprung
-import com.eightbit.samsprung.launcher.DrawerAppAdapter.AppViewHolder
 import java.util.concurrent.Executors
 
 class DrawerAppAdapter(
@@ -74,7 +73,7 @@ class DrawerAppAdapter(
     private val listener: OnAppClickListener,
     private val packageManager: PackageManager,
     private val prefs: SharedPreferences
-) : RecyclerView.Adapter<AppViewHolder>() {
+) : RecyclerView.Adapter<DrawerAppAdapter.AppViewHolder>() {
     private var filter: PackageFilter? = null
     private var filteredData: MutableList<ResolveInfo> = packages
 
@@ -149,12 +148,11 @@ class DrawerAppAdapter(
 
         @SuppressLint("NotifyDataSetChanged")
         override fun publishResults(charSequence: CharSequence, filterResults: FilterResults) {
-            if (filteredData.isEmpty() || filteredData !== filterResults.values) {
-                val results: MutableList<ResolveInfo> = mutableListOf()
-                results.addAll(filterResults.values as Collection<ResolveInfo>)
-                filteredData = results
-                notifyDataSetChanged()
-            }
+            if (filteredData === filterResults.values) return
+            val results: MutableList<ResolveInfo> = mutableListOf()
+            results.addAll(filterResults.values as Collection<ResolveInfo>)
+            filteredData = results
+            notifyDataSetChanged()
         }
     }
 
