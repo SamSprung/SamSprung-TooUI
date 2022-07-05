@@ -168,7 +168,7 @@ class DrawerAppAdapter(
             Executors.newSingleThreadExecutor().execute {
                 val icon = resolveInfo.loadIcon(packageManager)
                 if (null != icon) {
-                    Handler(Looper.getMainLooper()).post {
+                    iconView.post {
                         iconView.setImageDrawable(icon)
                     }
                 }
@@ -179,7 +179,7 @@ class DrawerAppAdapter(
                         resolveInfo.nonLocalizedLabel
                     }
                     if (null != label) {
-                        Handler(Looper.getMainLooper()).post {
+                        itemView.post {
                             itemView.findViewById<TextView>(R.id.widgetItemText).text = label
                         }
                     }

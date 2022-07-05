@@ -123,7 +123,7 @@ class FilteredAppsAdapter(
                 }
                 val icon = application.loadIcon(packageManager)
 
-                Handler(Looper.getMainLooper()).post {
+                detailView.post {
                     detailView.findViewById<AppCompatImageView>(
                         R.id.hiddenItemImage).setImageDrawable(icon)
                     detailView.findViewById<TextView>(R.id.hiddenItemText).text = appName

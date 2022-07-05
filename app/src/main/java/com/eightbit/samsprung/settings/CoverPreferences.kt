@@ -355,7 +355,6 @@ class CoverPreferences : AppCompatActivity() {
         val colorComposite = findViewById<View>(R.id.color_composite)
         colorComposite.setBackgroundColor(color)
 
-        val colorHandler = Handler(Looper.getMainLooper())
         colorComposite.setOnClickListener {
             if (colorPanel.isVisible) {
                 val animate = TranslateAnimation(
@@ -365,28 +364,28 @@ class CoverPreferences : AppCompatActivity() {
                 animate.fillAfter = false
                 colorPanel.setAnimationListener(object : AnimatedLinearLayout.AnimationListener {
                     override fun onAnimationStart(layout: AnimatedLinearLayout) {
-                        colorHandler.postDelayed({
+                        colorPanel.postDelayed({
                             textRed.visibility = View.INVISIBLE
                         }, 125)
-                        colorHandler.postDelayed({
+                        colorPanel.postDelayed({
                             colorRedBar.visibility = View.INVISIBLE
                         }, 150)
-                        colorHandler.postDelayed({
+                        colorPanel.postDelayed({
                             textGreen.visibility = View.INVISIBLE
                         }, 250)
-                        colorHandler.postDelayed({
+                        colorPanel.postDelayed({
                             colorGreenBar.visibility = View.INVISIBLE
                         }, 275)
-                        colorHandler.postDelayed({
+                        colorPanel.postDelayed({
                             textBlue.visibility = View.INVISIBLE
                         }, 400)
-                        colorHandler.postDelayed({
+                        colorPanel.postDelayed({
                             colorBlueBar.visibility = View.INVISIBLE
                         }, 425)
-                        colorHandler.postDelayed({
+                        colorPanel.postDelayed({
                             alphaView.visibility = View.INVISIBLE
                         }, 525)
-                        colorHandler.postDelayed({
+                        colorPanel.postDelayed({
                             colorAlphaBar.visibility = View.INVISIBLE
                         }, 550)
                     }
@@ -407,28 +406,28 @@ class CoverPreferences : AppCompatActivity() {
                 colorPanel.startAnimation(animate)
             } else {
                 colorPanel.visibility = View.VISIBLE
-                colorHandler.postDelayed({
+                colorPanel.postDelayed({
                     colorAlphaBar.visibility = View.VISIBLE
                 }, 50)
-                colorHandler.postDelayed({
+                colorPanel.postDelayed({
                     alphaView.visibility = View.VISIBLE
                 }, 75)
-                colorHandler.postDelayed({
+                colorPanel.postDelayed({
                     colorBlueBar.visibility = View.VISIBLE
                 }, 125)
-                colorHandler.postDelayed({
+                colorPanel.postDelayed({
                     textBlue.visibility = View.VISIBLE
                 }, 150)
-                colorHandler.postDelayed({
+                colorPanel.postDelayed({
                     colorGreenBar.visibility = View.VISIBLE
                 }, 200)
-                colorHandler.postDelayed({
+                colorPanel.postDelayed({
                     textGreen.visibility = View.VISIBLE
                 }, 225)
-                colorHandler.postDelayed({
+                colorPanel.postDelayed({
                     colorRedBar.visibility = View.VISIBLE
                 }, 275)
-                colorHandler.postDelayed({
+                colorPanel.postDelayed({
                     textRed.visibility = View.VISIBLE
                 }, 300)
             }
@@ -1230,7 +1229,7 @@ class CoverPreferences : AppCompatActivity() {
         } else if (BottomSheetBehavior.STATE_EXPANDED == bottomSheetBehavior.state) {
             bottomSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED)
         } else if (!mainSwitch.isChecked && !hasWarned) {
-            Handler(Looper.getMainLooper()).postDelayed({
+            mainSwitch.postDelayed({
                 hasWarned = true
             }, 250)
             IconifiedSnackbar(this).buildTickerBar(

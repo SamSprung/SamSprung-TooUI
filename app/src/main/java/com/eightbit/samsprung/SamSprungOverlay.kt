@@ -292,7 +292,7 @@ class SamSprungOverlay : AppCompatActivity() {
             @SuppressLint("NotifyDataSetChanged")
             override fun onReceive(context: Context?, intent: Intent) {
                 if (intent.action == Intent.ACTION_BATTERY_CHANGED) {
-                    Handler(Looper.getMainLooper()).post {
+                    batteryLevel.post {
                         batteryLevel.text = String.format("%d%%",
                             intent.getIntExtra(BatteryManager.EXTRA_LEVEL, 100))
                     }
@@ -964,7 +964,7 @@ class SamSprungOverlay : AppCompatActivity() {
                 animate?.fillAfter = false
                 it.visibility = View.GONE
             }
-            Handler(Looper.getMainLooper()).postDelayed({
+            fakeSnackbar.postDelayed({
                 fakeSnackbar.setOnClickListener(null)
                 animate?.fillAfter = false
                 fakeSnackbar.visibility = View.GONE
