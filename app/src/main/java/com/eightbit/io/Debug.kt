@@ -77,6 +77,16 @@ class Debug(private var context: Context) {
         return output.toString()
     }
 
+    private val issueUrl = "https://github.com/SamSprung/SamSprung-TooUI/issues/" +
+            "new?labels=logcat&template=bug_report.yml&title=[Bug]%3A+"
+
+    private fun openGitHub(context: Context, logText: String) {
+        val clipboard: ClipboardManager = context.getSystemService(
+            Context.CLIPBOARD_SERVICE) as ClipboardManager
+        clipboard.setPrimaryClip(ClipData.newPlainText("logcat", logText))
+        context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(issueUrl)))
+    }
+
     fun captureLogcat(isSecureDevice: Boolean) : Boolean {
         val project = context.getString(R.string.samsprung)
         val repository = "SamSprung-TooUI"
@@ -123,10 +133,11 @@ class Debug(private var context: Context) {
             return false
         }
         val logText = log.toString()
-        if (!logText.contains("AndroidRuntime")) return false
-        val issueUrl = "https://github.com/SamSprung/SamSprung-TooUI/issues/" +
-                "new?labels=logcat&template=bug_report.yml&title=[Bug]%3A+"
-        try {
+        if (!logText.contains("AndroidRuntime")) {
+            openGitHub(context, logText)
+            return false
+        }
+        return try {
             IssueReporterLauncher.forTarget(project, repository)
                 .theme(R.style.Theme_SecondScreen_NoActionBar)
                 .guestToken(getRepositoryToken())
@@ -136,13 +147,10 @@ class Debug(private var context: Context) {
                 .minDescriptionLength(1)
                 .putExtraInfo("logcat", logText)
                 .homeAsUpEnabled(false).launch(context)
-            return true
+            true
         } catch (ignored: Exception) {
-            val clipboard: ClipboardManager = context.getSystemService(
-                Context.CLIPBOARD_SERVICE) as ClipboardManager
-            clipboard.setPrimaryClip(ClipData.newPlainText("logcat", logText))
-            context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(issueUrl)))
-            return true
+            openGitHub(context, logText)
+            true
         }
     }
 }

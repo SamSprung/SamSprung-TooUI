@@ -227,6 +227,12 @@ class CoverPreferences : AppCompatActivity() {
         }
 
         findViewById<LinearLayout>(R.id.logcat).setOnClickListener {
+            if (updateCheck?.hasPendingUpdate() == true) {
+                IconifiedSnackbar(this).buildTickerBar(
+                    getString(R.string.update_service, getString(R.string.app_name))
+                ).show()
+                return@setOnClickListener
+            }
             if (!Debug(this).captureLogcat(isDeviceSecure())) {
                 wikiDrawer.openDrawer(GravityCompat.START)
             }

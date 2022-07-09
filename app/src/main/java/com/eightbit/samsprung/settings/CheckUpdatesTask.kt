@@ -91,6 +91,7 @@ class CheckUpdatesTask(private var activity: Activity) {
     var listener: CheckUpdateListener? = null
     var listenerPlay: CheckPlayUpdateListener? = null
     private var appUpdateManager: AppUpdateManager? = null
+    private var isUpdateAvailable = false
 
     init {
         if (SamSprung.isGooglePlay()) {
@@ -99,11 +100,10 @@ class CheckUpdatesTask(private var activity: Activity) {
             val appUpdateInfoTask = appUpdateManager?.appUpdateInfo
             // Checks that the platform will allow the specified type of update.
             appUpdateInfoTask?.addOnSuccessListener { appUpdateInfo ->
-                if (appUpdateInfo.updateAvailability() == UpdateAvailability.UPDATE_AVAILABLE
-                    && appUpdateInfo.isUpdateTypeAllowed(AppUpdateType.IMMEDIATE)
-                ) {
-                    if (null != listenerPlay) listenerPlay?.onPlayUpdateFound(appUpdateInfo)
-                }
+                isUpdateAvailable = appUpdateInfo.updateAvailability() == UpdateAvailability
+                    .UPDATE_AVAILABLE && appUpdateInfo.isUpdateTypeAllowed(AppUpdateType.IMMEDIATE)
+                if (isUpdateAvailable && null != listenerPlay)
+                    listenerPlay?.onPlayUpdateFound(appUpdateInfo)
             }
         } else {
             configureUpdates()
@@ -211,9 +211,9 @@ class CheckUpdatesTask(private var activity: Activity) {
             val assets = jsonObject["assets"] as JSONArray
             val asset = assets[0] as JSONObject
             downloadUrl = asset["browser_download_url"] as String
-            if (isPreview && BuildConfig.COMMIT != lastCommit) {
-                if (null != listener) listener?.onUpdateFound(downloadUrl)
-            }
+            isUpdateAvailable = isPreview && BuildConfig.COMMIT != lastCommit
+            if (isUpdateAvailable && null != listener)
+                listener?.onUpdateFound(downloadUrl)
         } catch (ignored: JSONException) { }
         if (!isPreview && null != lastCommit && null != downloadUrl) {
             RequestGitHubAPI(repo + "preview").setResultListener(
@@ -222,9 +222,10 @@ class CheckUpdatesTask(private var activity: Activity) {
                     try {
                         val jsonObject = JSONTokener(result).nextValue() as JSONObject
                         val extraCommit = (jsonObject["name"] as String).substring(offset)
-                        if (BuildConfig.COMMIT != extraCommit && BuildConfig.COMMIT != lastCommit) {
-                            if (null != listener) listener?.onUpdateFound(downloadUrl)
-                        }
+                        isUpdateAvailable = BuildConfig.COMMIT != extraCommit
+                                && BuildConfig.COMMIT != lastCommit
+                        if (isUpdateAvailable && null != listener)
+                            listener?.onUpdateFound(downloadUrl)
                     } catch (ignored: JSONException) { }
                 }
             })
@@ -241,6 +242,10 @@ class CheckUpdatesTask(private var activity: Activity) {
                 parseUpdateJSON(result, isPreview)
             }
         })
+    }
+
+    fun hasPendingUpdate(): Boolean {
+        return isUpdateAvailable
     }
 
     fun setUpdateListener(listener: CheckUpdateListener) {
