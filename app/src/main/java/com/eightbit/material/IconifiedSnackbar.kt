@@ -1,11 +1,13 @@
 package com.eightbit.material
 
+import android.content.res.Configuration
 import android.view.Gravity
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.coordinatorlayout.widget.CoordinatorLayout
+import androidx.core.content.ContextCompat
 import androidx.core.view.updatePadding
 import androidx.transition.TransitionManager
 import com.eightbit.samsprung.R
@@ -33,6 +35,20 @@ class IconifiedSnackbar {
         val textView = snackbarLayout.findViewById<TextView>(
             R.id.snackbar_text
         )
+        when (mActivity.get()!!.resources.configuration.uiMode
+                and Configuration.UI_MODE_NIGHT_MASK) {
+            Configuration.UI_MODE_NIGHT_YES -> textView.setTextColor(
+                ContextCompat.getColor(mActivity.get()!!, android.R.color.white)
+            )
+            Configuration.UI_MODE_NIGHT_NO -> {
+                snackbar.setBackgroundTint(
+                    ContextCompat.getColor(mActivity.get()!!, android.R.color.darker_gray)
+                )
+                textView.setTextColor(
+                    ContextCompat.getColor(mActivity.get()!!, android.R.color.black)
+                )
+            }
+        }
         textView.setCompoundDrawablesRelativeWithIntrinsicBounds(
             drawable, 0, 0, 0
         )
