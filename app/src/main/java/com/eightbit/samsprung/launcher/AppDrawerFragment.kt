@@ -121,7 +121,6 @@ class AppDrawerFragment : Fragment(), DrawerAppAdapter.OnAppClickListener {
         val adapter = DrawerAppAdapter(
             packages, this, requireActivity().packageManager, prefs
         )
-        adapter.setHasStableIds(true)
         launcherView.adapter = adapter
 
         val searchView = (requireActivity() as SamSprungOverlay).getSearchView()
