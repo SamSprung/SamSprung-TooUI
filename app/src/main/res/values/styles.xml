@@ -14,4 +14,14 @@
         <item name="android:windowExitAnimation">@android:anim/fade_out</item>
     </style>
 
+    <style name="CoreSwitch" parent="Widget.AppCompat.CompoundButton.Switch">
+        <!-- active thumb & track color -->
+        <item name="colorControlActivated">#00FF00</item>
+        <!-- inactive thumb color -->
+        <item name="colorSwitchThumbNormal">#FF0000</item>
+        <!-- inactive track color -->
+        <item name="android:colorForeground">#FF0000
+        </item>
+    </style>
+
 </resources>

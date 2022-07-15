@@ -23,6 +23,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.001"
-        tools:ignore="SmallSp" />
+        tools:ignore="SmallSp"
+        android:theme="@style/CoreSwitch"/>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
