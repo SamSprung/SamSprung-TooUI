@@ -171,7 +171,7 @@ class AppDisplayListener : Service() {
         val menuClose = icons.findViewById<AppCompatImageView>(R.id.retract_drawer)
 
         bottomSheetBehavior = BottomSheetBehavior.from(floatView.findViewById(R.id.bottom_sheet_nav)!!)
-        bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
+        bottomSheetBehavior.state = BottomSheetBehavior.STATE_EXPANDED
         bottomSheetBehavior.addBottomSheetCallback(object : BottomSheetBehavior.BottomSheetCallback() {
             override fun onStateChanged(bottomSheet: View, newState: Int) {
                 if (newState == BottomSheetBehavior.STATE_EXPANDED) {
@@ -200,7 +200,7 @@ class AppDisplayListener : Service() {
             (icons.getChildAt(i) as AppCompatImageView).setColorFilter(color)
         }
         menuClose.setColorFilter(color)
-        if (icons.isVisible) icons.visibility = View.GONE
+        setClickListeners(icons, componentName, launchPackage, launchActivity)
 
         floatView.findViewById<View>(R.id.bottom_sheet_nav)!!.setOnTouchListener(
             object: OnSwipeTouchListener(this@AppDisplayListener) {
