@@ -54,18 +54,18 @@ package com.eightbit.samsprung.settings
 import android.content.SharedPreferences
 import android.content.pm.PackageManager
 import android.content.pm.ResolveInfo
-import android.os.Handler
-import android.os.Looper
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.LinearLayout
+import android.widget.SectionIndexer
 import android.widget.TextView
 import androidx.appcompat.widget.AppCompatImageView
 import androidx.appcompat.widget.SwitchCompat
 import androidx.recyclerview.widget.RecyclerView
 import com.eightbit.samsprung.R
 import com.eightbit.samsprung.SamSprung
+import java.util.*
 import java.util.concurrent.Executors
 
 class FilteredAppsAdapter(
@@ -73,7 +73,7 @@ class FilteredAppsAdapter(
     private var packages: MutableList<ResolveInfo>,
     private var hide: HashSet<String>,
     private val prefs: SharedPreferences
-) : RecyclerView.Adapter<FilteredAppsAdapter.HideViewHolder>() {
+) : RecyclerView.Adapter<FilteredAppsAdapter.HideViewHolder>(), SectionIndexer {
 
     fun setPackages(packages: MutableList<ResolveInfo>, hide: HashSet<String>) {
         this.packages = packages
@@ -90,6 +90,42 @@ class FilteredAppsAdapter(
 
     private fun getItem(i: Int): ResolveInfo {
         return packages[i]
+    }
+
+    private var mSectionPositions: ArrayList<Int>? = null
+
+    override fun getSectionForPosition(position: Int): Int {
+        return 0
+    }
+
+    override fun getSections(): Array<String> {
+        val sections: MutableList<String> = ArrayList(36)
+        if (itemCount > 0) {
+            mSectionPositions = ArrayList(36)
+            var i = 0
+            val size: Int = packages.size
+            while (i < size) {
+                val appName: CharSequence = try {
+                    packages[i].loadLabel(pacMan)
+                } catch (e: Exception) {
+                    packages[i].nonLocalizedLabel
+                }
+                val section: String =
+                    java.lang.String.valueOf(appName[0]).uppercase(
+                        Locale.getDefault()
+                    )
+                if (!sections.contains(section)) {
+                    sections.add(section)
+                    mSectionPositions!!.add(i)
+                }
+                i++
+            }
+        }
+        return sections.toTypedArray()
+    }
+
+    override fun getPositionForSection(sectionIndex: Int): Int {
+        return mSectionPositions!![sectionIndex]
     }
 
     override fun getItemViewType(position: Int): Int {

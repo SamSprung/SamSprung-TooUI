@@ -69,14 +69,17 @@ import android.graphics.Matrix
 import android.graphics.drawable.ColorDrawable
 import android.icu.text.DecimalFormatSymbols
 import android.net.Uri
-import android.os.*
+import android.os.Build
+import android.os.Bundle
+import android.os.PowerManager
+import android.os.Process
 import android.provider.MediaStore
 import android.provider.Settings
 import android.util.TypedValue
 import android.view.Menu
 import android.view.MenuItem
+import android.view.MotionEvent
 import android.view.View
-import android.view.ViewGroup
 import android.view.animation.AlphaAnimation
 import android.view.animation.Animation
 import android.view.animation.TranslateAnimation
@@ -111,14 +114,13 @@ import com.eightbit.samsprung.*
 import com.eightbit.view.AnimatedLinearLayout
 import com.eightbitlab.blurview.BlurView
 import com.eightbitlab.blurview.RenderScriptBlur
-import com.google.android.material.bottomsheet.BottomSheetBehavior
-import com.google.android.material.snackbar.Snackbar
 import com.google.android.play.core.appupdate.AppUpdateInfo
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
+import myinnos.indexfastscrollrecycler.IndexFastScrollRecyclerView
 import java.io.*
 import java.util.concurrent.Executors
 import kotlin.coroutines.resume
@@ -135,11 +137,6 @@ class CoverPreferences : AppCompatActivity() {
         Resources.getSystem().displayMetrics
     )
 
-    private val Number.toScalePx get() = TypedValue.applyDimension(
-        TypedValue.COMPLEX_UNIT_DIP, this.toFloat(),
-        ScaledContext.internal(this@CoverPreferences, 2f).resources.displayMetrics
-    )
-
     private lateinit var prefs: SharedPreferences
     private lateinit var coordinator: CoordinatorLayout
     private var updateCheck : CheckUpdatesTask? = null
@@ -151,15 +148,15 @@ class CoverPreferences : AppCompatActivity() {
     private lateinit var notifications: SwitchCompat
     private lateinit var statistics: SwitchCompat
     private lateinit var keyboard: SwitchCompat
-    private lateinit var bottomSheetBehavior: BottomSheetBehavior<View>
     private lateinit var wikiDrawer: DrawerLayout
 
-    private lateinit var hiddenList: RecyclerView
+    private lateinit var hiddenList: IndexFastScrollRecyclerView
 
     private lateinit var billingClient: BillingClient
     private val iapSkuDetails = ArrayList<ProductDetails>()
     private val subSkuDetails = ArrayList<ProductDetails>()
 
+    @SuppressLint("ClickableViewAccessibility")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -320,9 +317,18 @@ class CoverPreferences : AppCompatActivity() {
         }
         updatesPanel.isVisible = !SamSprung.isGooglePlay()
 
+        val nestedOptions = findViewById<ScrollView>(R.id.nested_options)
         val general = findViewById<LinearLayout>(R.id.general)
+        val drawer = findViewById<LinearLayout>(R.id.drawer)
+        val notices = findViewById<LinearLayout>(R.id.notices)
+
         findViewById<LinearLayout>(R.id.menu_general).setOnClickListener {
             general.isGone = general.isVisible
+            if (general.isVisible) {
+                drawer.isVisible = false
+                notices.isVisible = false
+                nestedOptions.scrollToDescendant(general)
+            }
         }
         general.isGone = true
 
@@ -672,9 +678,13 @@ class CoverPreferences : AppCompatActivity() {
 
         toggleWidgetsIcon(toolbar)
 
-        val drawer = findViewById<LinearLayout>(R.id.drawer)
         findViewById<LinearLayout>(R.id.menu_drawer).setOnClickListener {
             drawer.isGone = drawer.isVisible
+            if (drawer.isVisible) {
+                general.isVisible = false
+                notices.isVisible = false
+                nestedOptions.scrollToDescendant(drawer)
+            }
         }
         drawer.isGone = true
 
@@ -819,9 +829,13 @@ class CoverPreferences : AppCompatActivity() {
             }
         }
 
-        val notices = findViewById<LinearLayout>(R.id.notices)
         findViewById<LinearLayout>(R.id.menu_notices).setOnClickListener {
             notices.isGone = notices.isVisible
+            if (notices.isVisible) {
+                general.isVisible = false
+                drawer.isVisible = false
+                nestedOptions.scrollToDescendant(notices)
+            }
         }
         notices.isGone = true
 
@@ -881,43 +895,36 @@ class CoverPreferences : AppCompatActivity() {
             DividerItemDecoration.VERTICAL)
         )
         hiddenList.adapter = FilteredAppsAdapter(packageManager, packages, unlisted, prefs)
-
-        bottomSheetBehavior = BottomSheetBehavior.from(findViewById(R.id.bottom_sheet))
-        bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
-        bottomSheetBehavior.addBottomSheetCallback(object : BottomSheetBehavior.BottomSheetCallback() {
-            override fun onStateChanged(bottomSheet: View, newState: Int) {
-                if (bottomSheetBehavior.state == BottomSheetBehavior.STATE_COLLAPSED) {
-                    findViewById<LinearLayout>(R.id.bottom_sheet)
-                        .setBackgroundColor(Color.TRANSPARENT)
-                    findViewById<LinearLayout>(R.id.innerLayout).invalidate()
-                }
-            }
-            override fun onSlide(bottomSheet: View, slideOffset: Float) {
-                if (slideOffset > 0.1) {
-                    findViewById<LinearLayout>(R.id.bottom_sheet)
-                        .setBackgroundColor(getColor(R.color.backgroundFlat))
+        //noinspection deprecation
+        hiddenList.setOnScrollListener(object : RecyclerView.OnScrollListener() {
+            override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
+                super.onScrollStateChanged(recyclerView, newState)
+                if (newState == RecyclerView.SCROLL_STATE_DRAGGING) {
+                    hiddenList.setIndexBarVisibility(true)
+                } else if (newState == RecyclerView.SCROLL_STATE_IDLE) {
+                    hiddenList.setIndexBarVisibility(false)
                 }
             }
         })
 
-        val handle = findViewById<View>(R.id.visibility_handle)
-        findViewById<LinearLayout>(R.id.innerLayout).viewTreeObserver.addOnGlobalLayoutListener {
-            val system = supportActionBar!!.height * 2 + 8.toScalePx.toInt()
-            bottomSheetBehavior.peekHeight = window.decorView.height -
-                    findViewById<View>(R.id.bottom_bar).bottom - system - handle.height
-        }
-
-        handle.setOnClickListener {
-            if (bottomSheetBehavior.state == BottomSheetBehavior.STATE_EXPANDED) {
-                bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
-            } else if (bottomSheetBehavior.state == BottomSheetBehavior.STATE_COLLAPSED) {
-                bottomSheetBehavior.state = BottomSheetBehavior.STATE_EXPANDED
+        findViewById<View>(R.id.list_divider).setOnTouchListener { view: View, event: MotionEvent ->
+            val y = event.y.toInt()
+            if (nestedOptions.layoutParams.height + y >= 0) {
+                if (event.action == MotionEvent.ACTION_MOVE) {
+                    nestedOptions.layoutParams.height += y
+                    nestedOptions.requestLayout()
+                } else if (event.action == MotionEvent.ACTION_UP) {
+                    val minHeight: Float = resources.getDimension(R.dimen.button_height_min) * 1.95f
+                    if (nestedOptions.layoutParams.height > view.height - minHeight.toInt())
+                        nestedOptions.layoutParams.height = view.height - minHeight.toInt()
+                    nestedOptions.requestLayout()
+                }
             }
+            true
         }
 
         findViewById<WebView>(R.id.webview_wiki)
             .loadUrl("https://github.com/SamSprung/SamSprung-TooUI/wiki")
-
     }
 
     private fun setAnimatedUpdateNotice(appUpdateInfo: AppUpdateInfo?, downloadUrl: String?) {
@@ -1232,8 +1239,6 @@ class CoverPreferences : AppCompatActivity() {
     override fun onBackPressed() {
         if (wikiDrawer.isDrawerOpen(GravityCompat.START)) {
             wikiDrawer.closeDrawer(GravityCompat.START)
-        } else if (BottomSheetBehavior.STATE_EXPANDED == bottomSheetBehavior.state) {
-            bottomSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED)
         } else if (!mainSwitch.isChecked && !hasWarned) {
             mainSwitch.postDelayed({
                 hasWarned = true

@@ -21,7 +21,21 @@
             android:layout_height="match_parent"
             app:blurOverlayColor="@color/backgroundTint">
 
-            <androidx.core.widget.NestedScrollView
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_marginTop="0dp"
+                android:background="?colorPrimary" />
+
+            <include layout="@layout/social_menu_bar" />
+
+            <ScrollView
+                android:id="@+id/nested_options"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent">
 
@@ -31,14 +45,6 @@
                     android:layout_height="wrap_content"
                     android:animateLayoutChanges="true"
                     android:orientation="vertical">
-
-                    <View
-                        android:layout_width="match_parent"
-                        android:layout_height="1dp"
-                        android:layout_marginTop="0dp"
-                        android:background="?colorPrimary" />
-
-                    <include layout="@layout/social_menu_bar" />
 
                     <LinearLayout
                         android:layout_width="match_parent"
@@ -389,75 +395,69 @@
                                 android:max="12"/>
                         </LinearLayout>
                     </LinearLayout>
-
-                    <View
-                        android:id="@+id/bottom_bar"
-                        android:layout_width="match_parent"
-                        android:layout_height="1dp"
-                        android:background="?colorPrimary"
-                        android:layout_marginTop="4dp"
-                        android:layout_marginBottom="16dp"/>
                 </LinearLayout>
-            </androidx.core.widget.NestedScrollView>
-        </com.eightbitlab.blurview.BlurView>
-
-        <LinearLayout
-            android:id="@+id/bottom_sheet"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:clickable="true"
-            android:focusable="true"
-            android:layout_marginTop="1dp"
-            android:orientation="vertical"
-            app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior">
-
+            </ScrollView>
             <LinearLayout
-                android:id="@+id/visibility_handle"
+                android:id="@+id/list_divider"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="4dp"
-                android:background="@color/backgroundTint"
                 android:orientation="vertical">
 
                 <View
-                    android:layout_width="match_parent"
-                    android:layout_height="1dp"
-                    android:paddingTop="4dp"
-                    android:layout_marginBottom="4dp"/>
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:layout_marginHorizontal="14dp"
-                    tools:ignore="UseCompoundDrawables">
-
-                    <TextView
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:textSize="16sp"
-                        android:textColor="?android:textColorPrimary"
-                        android:gravity="center_vertical"
-                        android:text="@string/visibility_options" />
-
-                    <androidx.appcompat.widget.AppCompatImageView
-                        android:layout_width="wrap_content"
-                        android:gravity="center_vertical"
-                        android:layout_gravity="end"
-                        app:srcCompat="@drawable/ic_baseline_expand_20dp"
-                        android:layout_height="wrap_content"
-                        android:contentDescription="@string/description_icon"/>
-                </LinearLayout>
-
-                <View
+                    android:id="@+id/bottom_bar"
                     android:layout_width="match_parent"
                     android:layout_height="1dp"
                     android:background="?colorPrimary"
-                    android:layout_marginTop="6dp" />
+                    android:layout_marginTop="4dp"/>
+
+                <LinearLayout
+                    android:id="@+id/visibility_handle"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="4dp"
+                    android:background="@color/backgroundTint"
+                    android:orientation="vertical">
+
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:paddingTop="4dp"
+                        android:layout_marginBottom="4dp"/>
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:layout_marginHorizontal="14dp"
+                        tools:ignore="UseCompoundDrawables">
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:textSize="16sp"
+                            android:textColor="?android:textColorPrimary"
+                            android:gravity="center_vertical"
+                            android:text="@string/visibility_options" />
+
+                        <androidx.appcompat.widget.AppCompatImageView
+                            android:layout_width="wrap_content"
+                            android:gravity="center_vertical"
+                            android:layout_gravity="end"
+                            app:srcCompat="@drawable/ic_baseline_expand_20dp"
+                            android:layout_height="wrap_content"
+                            android:contentDescription="@string/description_icon"/>
+                    </LinearLayout>
+
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:background="?colorPrimary"
+                        android:layout_marginTop="6dp" />
+                </LinearLayout>
             </LinearLayout>
 
-            <androidx.recyclerview.widget.RecyclerView
+            <myinnos.indexfastscrollrecycler.IndexFastScrollRecyclerView
                 android:id="@+id/app_toggle_list"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
@@ -465,9 +465,16 @@
                 android:scrollbars="vertical"
                 android:paddingStart="4dp"
                 android:paddingEnd="0dp"
-                android:scrollbarSize="2dp"
-                android:scrollbarStyle="outsideOverlay"/>
-        </LinearLayout>
+                android:scrollbarSize="0dp"
+                android:scrollbarStyle="outsideOverlay"
+                app:setIndexBarColor="@color/bottomSheetTint"
+                app:setIndexBarTextColor="@android:color/white"
+                app:setIndexBarStrokeColor="@color/primary_light"
+                app:setPreviewColor="@color/primary_dark"
+                app:setPreviewTextColor="@android:color/white"
+                app:setIndexBarShown="false"/>
+            </LinearLayout>
+        </com.eightbitlab.blurview.BlurView>
     </androidx.coordinatorlayout.widget.CoordinatorLayout>
 
     <com.google.android.material.navigation.NavigationView
