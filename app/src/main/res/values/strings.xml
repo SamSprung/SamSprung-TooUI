@@ -14,7 +14,7 @@
 
     <string name="config_options">Configuration</string>
     <string name="options_keyboard">Keyboard / IME</string>
-    <string name="details_keyboard">Install / Update SamSprung TooIME</string>
+    <string name="details_keyboard">$1.99 can keep development active</string>
     <string name="updates_preference">Preview Builds</string>
     <string name="details_updates">Enable pre-release update checks</string>
 
@@ -89,7 +89,7 @@
     <string name="lock_enabled">Device is locked!</string>
 
     <string name="incompatibility_warning">SamSprung is not compatible with apps that block the entire screen.\nPlease remove or disable this app to continue.</string>
-    <string name="cover_widget_warning">Important: THIS IS NOT A COVER SCREEN WIDGET\nMain switch must be enabled to appear on cover.</string>
+    <string name="cover_widget_warning">Important: THIS IS NOT A COVER SCREEN WIDGET\n!! Questo non è un widget / Este não é um widget !!\nMain switch must be enabled to appear on cover.</string>
 
     <string name="main_screen_required">Open device to continue</string>
     <string name="incompatible_fragment">Move to a widget before attempting to remove it</string>

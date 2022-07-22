@@ -323,10 +323,15 @@ class CoverPreferences : AppCompatActivity() {
         val notices = findViewById<LinearLayout>(R.id.notices)
 
         findViewById<LinearLayout>(R.id.menu_general).setOnClickListener {
-            general.isGone = general.isVisible
-            if (general.isVisible) {
-                drawer.isVisible = false
-                notices.isVisible = false
+            if (general.isGone && (drawer.isVisible || notices.isVisible)) {
+                drawer.isGone = true
+                notices.isGone = true
+                general.postDelayed({
+                    general.isVisible = true
+                    nestedOptions.scrollToDescendant(general)
+                }, 100)
+            } else {
+                general.isGone = general.isVisible
                 nestedOptions.scrollToDescendant(general)
             }
         }
@@ -679,10 +684,15 @@ class CoverPreferences : AppCompatActivity() {
         toggleWidgetsIcon(toolbar)
 
         findViewById<LinearLayout>(R.id.menu_drawer).setOnClickListener {
-            drawer.isGone = drawer.isVisible
-            if (drawer.isVisible) {
-                general.isVisible = false
-                notices.isVisible = false
+            if (drawer.isGone && (general.isVisible || notices.isVisible)) {
+                general.isGone = true
+                notices.isGone = true
+                drawer.postDelayed({
+                    drawer.isVisible = true
+                    nestedOptions.scrollToDescendant(drawer)
+                }, 100)
+            } else {
+                drawer.isGone = drawer.isVisible
                 nestedOptions.scrollToDescendant(drawer)
             }
         }
@@ -830,10 +840,15 @@ class CoverPreferences : AppCompatActivity() {
         }
 
         findViewById<LinearLayout>(R.id.menu_notices).setOnClickListener {
-            notices.isGone = notices.isVisible
-            if (notices.isVisible) {
-                general.isVisible = false
-                drawer.isVisible = false
+            if (notices.isGone && (general.isVisible || drawer.isVisible)) {
+                general.isGone = true
+                drawer.isGone = true
+                notices.postDelayed({
+                    notices.isVisible = true
+                    nestedOptions.scrollToDescendant(notices)
+                }, 100)
+            } else {
+                notices.isGone = notices.isVisible
                 nestedOptions.scrollToDescendant(notices)
             }
         }
@@ -891,8 +906,7 @@ class CoverPreferences : AppCompatActivity() {
         hiddenList = findViewById(R.id.app_toggle_list)
         hiddenList.layoutManager = LinearLayoutManager(this)
         hiddenList.addItemDecoration(
-            DividerItemDecoration(this,
-            DividerItemDecoration.VERTICAL)
+            DividerItemDecoration(this, DividerItemDecoration.VERTICAL)
         )
         hiddenList.adapter = FilteredAppsAdapter(packageManager, packages, unlisted, prefs)
         //noinspection deprecation
@@ -909,15 +923,16 @@ class CoverPreferences : AppCompatActivity() {
 
         findViewById<View>(R.id.list_divider).setOnTouchListener { view: View, event: MotionEvent ->
             val y = event.y.toInt()
-            if (nestedOptions.layoutParams.height + y >= 0) {
+            val srcHeight = nestedOptions.layoutParams.height
+            if (nestedOptions.layoutParams.height + y >= -0.5f) {
                 if (event.action == MotionEvent.ACTION_MOVE) {
                     nestedOptions.layoutParams.height += y
-                    nestedOptions.requestLayout()
+                    if (srcHeight != nestedOptions.layoutParams.height) nestedOptions.requestLayout()
                 } else if (event.action == MotionEvent.ACTION_UP) {
-                    val minHeight: Float = resources.getDimension(R.dimen.button_height_min) * 1.95f
-                    if (nestedOptions.layoutParams.height > view.height - minHeight.toInt())
-                        nestedOptions.layoutParams.height = view.height - minHeight.toInt()
-                    nestedOptions.requestLayout()
+                    val minHeight: Float = resources.getDimension(R.dimen.button_height_min) * 2.125f
+                    if (nestedOptions.layoutParams.height > coordinator.height - minHeight.toInt())
+                        nestedOptions.layoutParams.height = coordinator.height - minHeight.toInt()
+                    if (srcHeight != nestedOptions.layoutParams.height) nestedOptions.requestLayout()
                 }
             }
             true

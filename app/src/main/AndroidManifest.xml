@@ -88,7 +88,8 @@
             android:configChanges="orientation"
             android:exported="true"
             android:showOnLockScreen="true"
-            android:showWhenLocked="true">
+            android:showWhenLocked="true"
+            android:windowSoftInputMode="adjustNothing">
             <meta-data android:name="com.samsung.android.activity.showWhenLocked" android:value="true"/>
         </activity>
         <receiver android:name=".GitBroadcastReceiver"
