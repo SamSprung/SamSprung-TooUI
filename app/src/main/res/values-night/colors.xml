@@ -8,6 +8,6 @@
     <color name="appwidget_error_color">#FCCC</color>
 
     <color name="bottomSheetTint">#A9333333</color>
-    <color name="backgroundTint">#44000000</color>
+    <color name="backgroundTint">#66000000</color>
     <color name="backgroundFlat">#BB000000</color>
 </resources>
