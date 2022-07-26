@@ -1351,7 +1351,7 @@ class CoverPreferences : AppCompatActivity() {
 
     private lateinit var subsPurchased: ArrayList<String>
 
-    private val iapOwnedListener = PurchasesResponseListener { billingResult, purchases ->
+    private val subsOwnedListener = PurchasesResponseListener { billingResult, purchases ->
         if (billingResult.responseCode == BillingClient.BillingResponseCode.OK) {
             for (purchase in purchases) {
                 for (sku in purchase.products) {
@@ -1369,7 +1369,7 @@ class CoverPreferences : AppCompatActivity() {
             for (purchase in purchases)
                 subsPurchased.addAll(purchase.products)
             billingClient.queryPurchasesAsync(QueryPurchasesParams.newBuilder()
-                .setProductType(BillingClient.ProductType.SUBS).build(), iapOwnedListener)
+                .setProductType(BillingClient.ProductType.SUBS).build(), subsOwnedListener)
         }
     }
 
