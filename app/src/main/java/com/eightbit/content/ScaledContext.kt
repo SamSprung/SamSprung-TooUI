@@ -85,7 +85,7 @@ class ScaledContext(base: Context) : ContextWrapper(base) {
             return ScaledContext(context)
         }
 
-        fun screen(context: Context) : Context {
+        private fun screen(context: Context) : Context {
             val displayManager = context.getSystemService(Context.DISPLAY_SERVICE) as DisplayManager
             val displayContext = context.createDisplayContext(displayManager.getDisplay(0))
             val wm = displayContext.getSystemService(WINDOW_SERVICE) as WindowManager
@@ -96,7 +96,7 @@ class ScaledContext(base: Context) : ContextWrapper(base) {
             }
         }
 
-        fun screen(context: Context, density: Float): Context {
+        private fun screen(context: Context, density: Float): Context {
             val displayContext = screen(context)
             val resources = displayContext.resources
             val metrics = resources.displayMetrics

@@ -58,7 +58,6 @@ import android.app.Dialog
 import android.app.KeyguardManager
 import android.app.WallpaperManager
 import android.content.*
-import android.content.pm.ActivityInfo
 import android.content.pm.PackageManager
 import android.content.res.ColorStateList
 import android.content.res.Resources
@@ -76,6 +75,12 @@ import android.os.PowerManager
 import android.os.Process
 import android.provider.MediaStore
 import android.provider.Settings
+import android.text.Html
+import android.text.Spannable
+import android.text.SpannableStringBuilder
+import android.text.Spanned
+import android.text.style.RelativeSizeSpan
+import android.text.style.SuperscriptSpan
 import android.util.TypedValue
 import android.view.Menu
 import android.view.MenuItem
@@ -162,8 +167,7 @@ class CoverPreferences : AppCompatActivity() {
         super.onCreate(savedInstanceState)
 
         prefs = getSharedPreferences(SamSprung.prefsValue, MODE_PRIVATE)
-        ScaledContext.internal(this, 2f)
-            .setTheme(R.style.Theme_SecondScreen)
+        setTheme(R.style.Theme_SecondScreen)
         setContentView(R.layout.preferences_layout)
 
         val componentName = ComponentName(applicationContext, NotificationReceiver::class.java)
@@ -746,7 +750,7 @@ class CoverPreferences : AppCompatActivity() {
                 }
                 val textLength = (if (lengthBar.progress < 6) lengthBar.progress else
                     DecimalFormatSymbols.getInstance().infinity).toString()
-                lengthText.text = getString(R.string.options_length, textLength)
+                setSuperscriptText(lengthText, R.string.options_length, textLength)
             }
 
             override fun onStartTrackingTouch(seek: SeekBar) { }
@@ -756,7 +760,7 @@ class CoverPreferences : AppCompatActivity() {
         lengthBar.progress = prefs.getInt(SamSprung.prefLength, 6)
         val textLength = (if (lengthBar.progress < 6) lengthBar.progress else
             DecimalFormatSymbols.getInstance().infinity).toString()
-        lengthText.text = getString(R.string.options_length, textLength)
+        setSuperscriptText(lengthText, R.string.options_length, textLength)
 
         val search = findViewById<SwitchCompat>(R.id.search_switch)
         search.setOnCheckedChangeListener { _, isChecked ->
@@ -819,7 +823,7 @@ class CoverPreferences : AppCompatActivity() {
                 }
                 val textDelay = (if (timeoutBar.progress > 4) timeoutBar.progress else
                     DecimalFormatSymbols.getInstance().infinity).toString()
-                timeoutText.text = getString(R.string.options_timeout, textDelay)
+                setSuperscriptText(timeoutText, R.string.options_timeout, textDelay)
             }
 
             override fun onStartTrackingTouch(seek: SeekBar) { }
@@ -829,7 +833,7 @@ class CoverPreferences : AppCompatActivity() {
         timeoutBar.progress = prefs.getInt(SamSprung.prefDelays, 5)
         val textDelay = (if (timeoutBar.progress > 4) timeoutBar.progress else
             DecimalFormatSymbols.getInstance().infinity).toString()
-        timeoutText.text = getString(R.string.options_timeout, textDelay)
+        setSuperscriptText(timeoutText, R.string.options_timeout, textDelay)
 
         val isGridView = prefs.getBoolean(SamSprung.prefLayout, true)
         findViewById<ToggleButton>(R.id.swapViewType).isChecked = isGridView
@@ -922,7 +926,7 @@ class CoverPreferences : AppCompatActivity() {
             }
         })
 
-        findViewById<View>(R.id.list_divider).setOnTouchListener { view: View, event: MotionEvent ->
+        findViewById<View>(R.id.list_divider).setOnTouchListener { _: View, event: MotionEvent ->
             val y = event.y.toInt()
             val srcHeight = nestedOptions.layoutParams.height
             if (nestedOptions.layoutParams.height + y >= -0.5f) {
@@ -939,11 +943,9 @@ class CoverPreferences : AppCompatActivity() {
             true
         }
 
-        findViewById<WebView>(R.id.webview_wiki)
-            .loadUrl("https://github.com/SamSprung/SamSprung-TooUI/wiki")
-
-        requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
-        requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
+        findViewById<WebView>(R.id.webview_wiki).loadUrl(
+            "https://github.com/SamSprung/SamSprung-TooUI/wiki"
+        )
     }
 
     private fun setAnimatedUpdateNotice(appUpdateInfo: AppUpdateInfo?, downloadUrl: String?) {
@@ -1178,6 +1180,16 @@ class CoverPreferences : AppCompatActivity() {
     private val requestWidgets = registerForActivityResult(
         ActivityResultContracts.RequestPermission()) {
         toggleWidgetsIcon(findViewById(R.id.toolbar))
+    }
+
+    private fun setSuperscriptText(view: TextView, resource: Int, value: String) {
+        val text = SpannableStringBuilder(getString(resource, value))
+        text.setSpan(
+            RelativeSizeSpan(0.75f),
+            text.length - value.length - 1, text.length,
+            Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
+        )
+        view.text = text
     }
 
     private fun isDeviceSecure(): Boolean {

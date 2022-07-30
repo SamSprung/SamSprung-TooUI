@@ -32,9 +32,8 @@
             android:id="@+id/vibration_switch"
             android:layout_width="0dp"
             android:gravity="center"
-            android:layout_weight="1"
-            android:textSize="24sp"
-            android:textColor="?android:textColorPrimary"
+            android:layout_gravity="end|center_vertical"
+            android:layout_weight="0.5"
             android:layout_height="wrap_content" />
     </LinearLayout>
 
@@ -61,9 +60,8 @@
             android:id="@+id/gestures_switch"
             android:layout_width="0dp"
             android:gravity="center"
-            android:layout_weight="1"
-            android:textSize="24sp"
-            android:textColor="?android:textColorPrimary"
+            android:layout_gravity="end|center_vertical"
+            android:layout_weight="0.5"
             android:layout_height="wrap_content" />
     </LinearLayout>
 
@@ -90,9 +88,8 @@
             android:id="@+id/animate_switch"
             android:layout_width="0dp"
             android:gravity="center"
-            android:layout_weight="1"
-            android:textSize="24sp"
-            android:textColor="?android:textColorPrimary"
+            android:layout_gravity="end|center_vertical"
+            android:layout_weight="0.5"
             android:layout_height="wrap_content" />
     </LinearLayout>
 
@@ -151,9 +148,8 @@
             android:id="@+id/search_switch"
             android:layout_width="0dp"
             android:gravity="center"
-            android:layout_weight="1"
-            android:textSize="24sp"
-            android:textColor="?android:textColorPrimary"
+            android:layout_gravity="end|center_vertical"
+            android:layout_weight="0.5"
             android:layout_height="wrap_content" />
     </LinearLayout>
 
@@ -212,9 +208,8 @@
             android:id="@+id/radius_switch"
             android:layout_width="0dp"
             android:gravity="center"
-            android:layout_weight="1"
-            android:textSize="24sp"
-            android:textColor="?android:textColorPrimary"
+            android:layout_gravity="end|center_vertical"
+            android:layout_weight="0.5"
             android:layout_height="wrap_content" />
     </LinearLayout>
 
