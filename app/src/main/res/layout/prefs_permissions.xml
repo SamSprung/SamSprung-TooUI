@@ -37,7 +37,7 @@
 
             <TextView
                 android:layout_width="match_parent"
-                android:textSize="12sp"
+                android:textSize="14sp"
                 android:textColor="?android:textColorPrimary"
                 android:gravity="center_vertical"
                 android:layout_height="wrap_content"
@@ -48,10 +48,9 @@
             android:id="@+id/notifications_switch"
             android:layout_width="0dp"
             android:gravity="center"
-            android:layout_weight="1"
+            android:layout_gravity="end|center_vertical"
+            android:layout_weight="0.5"
             android:clickable="false"
-            android:textSize="24sp"
-            android:textColor="?android:textColorPrimary"
             android:layout_height="wrap_content" />
     </LinearLayout>
 
@@ -84,7 +83,7 @@
 
             <TextView
                 android:layout_width="match_parent"
-                android:textSize="12sp"
+                android:textSize="14sp"
                 android:textColor="?android:textColorPrimary"
                 android:gravity="center_vertical"
                 android:layout_height="wrap_content"
@@ -132,7 +131,7 @@
 
             <TextView
                 android:layout_width="match_parent"
-                android:textSize="12sp"
+                android:textSize="14sp"
                 android:textColor="?android:textColorPrimary"
                 android:gravity="center_vertical"
                 android:layout_height="wrap_content"
@@ -143,10 +142,9 @@
             android:id="@+id/usage_switch"
             android:layout_width="0dp"
             android:gravity="center"
-            android:layout_weight="1"
+            android:layout_gravity="end|center_vertical"
+            android:layout_weight="0.5"
             android:clickable="false"
-            android:textSize="24sp"
-            android:textColor="?android:textColorPrimary"
             android:layout_height="wrap_content" />
     </LinearLayout>
 
@@ -179,7 +177,7 @@
 
             <TextView
                 android:layout_width="match_parent"
-                android:textSize="12sp"
+                android:textSize="14sp"
                 android:textColor="?android:textColorPrimary"
                 android:gravity="center_vertical"
                 android:layout_height="wrap_content"
@@ -190,10 +188,9 @@
             android:id="@+id/optimization_switch"
             android:layout_width="0dp"
             android:gravity="center"
-            android:layout_weight="1"
+            android:layout_gravity="end|center_vertical"
+            android:layout_weight="0.5"
             android:clickable="false"
-            android:textSize="24sp"
-            android:textColor="?android:textColorPrimary"
             android:layout_height="wrap_content" />
     </LinearLayout>
 
@@ -226,7 +223,7 @@
 
             <TextView
                 android:layout_width="match_parent"
-                android:textSize="12sp"
+                android:textSize="14sp"
                 android:textColor="?android:textColorPrimary"
                 android:gravity="center_vertical"
                 android:layout_height="wrap_content"
@@ -237,10 +234,9 @@
             android:id="@+id/accessibility_switch"
             android:layout_width="0dp"
             android:gravity="center"
-            android:layout_weight="1"
+            android:layout_gravity="end|center_vertical"
+            android:layout_weight="0.5"
             android:clickable="false"
-            android:textSize="24sp"
-            android:textColor="?android:textColorPrimary"
             android:layout_height="wrap_content" />
     </LinearLayout>
 </LinearLayout>

@@ -141,7 +141,7 @@
 
                             <TextView
                                 android:layout_width="match_parent"
-                                android:textSize="12sp"
+                                android:textSize="14sp"
                                 android:textColor="?android:textColorPrimary"
                                 android:gravity="center_vertical"
                                 android:layout_height="wrap_content"
@@ -152,9 +152,8 @@
                             android:id="@+id/keyboard_switch"
                             android:layout_width="0dp"
                             android:gravity="center"
-                            android:layout_weight="1"
-                            android:textSize="24sp"
-                            android:textColor="?android:textColorPrimary"
+                            android:layout_gravity="end|center_vertical"
+                            android:layout_weight="0.5"
                             android:layout_height="wrap_content" />
                     </LinearLayout>
 
@@ -187,7 +186,7 @@
 
                             <TextView
                                 android:layout_width="match_parent"
-                                android:textSize="12sp"
+                                android:textSize="14sp"
                                 android:textColor="?android:textColorPrimary"
                                 android:gravity="center_vertical"
                                 android:layout_height="wrap_content"
@@ -198,9 +197,8 @@
                             android:id="@+id/updates_switch"
                             android:layout_width="0dp"
                             android:gravity="center"
-                            android:layout_weight="1"
-                            android:textSize="24sp"
-                            android:textColor="?android:textColorPrimary"
+                            android:layout_gravity="end|center_vertical"
+                            android:layout_weight="0.5"
                             android:layout_height="wrap_content" />
                     </LinearLayout>
 

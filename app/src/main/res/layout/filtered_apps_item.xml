@@ -32,6 +32,5 @@
         android:layout_width="96dp"
         android:layout_height="48dp"
         android:layout_marginEnd="4dp"
-        android:layout_gravity="center" />
-
+        android:layout_gravity="end|center_vertical" />
 </LinearLayout>

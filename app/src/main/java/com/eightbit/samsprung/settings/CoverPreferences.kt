@@ -58,6 +58,7 @@ import android.app.Dialog
 import android.app.KeyguardManager
 import android.app.WallpaperManager
 import android.content.*
+import android.content.pm.ActivityInfo
 import android.content.pm.PackageManager
 import android.content.res.ColorStateList
 import android.content.res.Resources
@@ -940,6 +941,9 @@ class CoverPreferences : AppCompatActivity() {
 
         findViewById<WebView>(R.id.webview_wiki)
             .loadUrl("https://github.com/SamSprung/SamSprung-TooUI/wiki")
+
+        requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
+        requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
     }
 
     private fun setAnimatedUpdateNotice(appUpdateInfo: AppUpdateInfo?, downloadUrl: String?) {
