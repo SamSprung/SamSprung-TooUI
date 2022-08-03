@@ -1270,12 +1270,16 @@ class CoverPreferences : AppCompatActivity() {
     override fun onBackPressed() {
         if (wikiDrawer.isDrawerOpen(GravityCompat.START)) {
             wikiDrawer.closeDrawer(GravityCompat.START)
-        } else if (!mainSwitch.isChecked && !hasWarned) {
+        } else if (!hasWarned) {
             mainSwitch.postDelayed({
                 hasWarned = true
             }, 250)
             IconifiedSnackbar(this).buildTickerBar(
-                getString(R.string.cover_widget_warning)
+                if (mainSwitch.isChecked)
+                    getString(R.string.cover_widget_warning)
+                else
+                    getString(R.string.cover_widget_warning)
+                            + getString(R.string.cover_switch_warning)
             ).show()
         } else {
             super.onBackPressed()
