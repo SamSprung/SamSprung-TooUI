@@ -81,9 +81,9 @@ class Debug(private var context: Context) {
             "new?labels=logcat&template=bug_report.yml&title=[Bug]%3A+"
 
     private fun openGitHub(context: Context, logText: String) {
-        val clipboard: ClipboardManager = context.getSystemService(
-            Context.CLIPBOARD_SERVICE) as ClipboardManager
-        clipboard.setPrimaryClip(ClipData.newPlainText("logcat", logText))
+        val clipboard: ClipboardManager = context
+            .getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+        clipboard.setPrimaryClip(ClipData.newPlainText("SamSprung-TooUI", logText))
         context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(issueUrl)))
     }
 
