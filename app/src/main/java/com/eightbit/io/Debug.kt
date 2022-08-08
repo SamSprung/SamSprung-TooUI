@@ -58,7 +58,6 @@ import com.eightbit.samsprung.R
 import com.heinrichreimersoftware.androidissuereporter.IssueReporterLauncher
 import java.io.BufferedReader
 import java.io.InputStreamReader
-import java.util.*
 
 class Debug(private var context: Context) {
 
