@@ -52,11 +52,13 @@ package com.eightbit.samsprung
  */
 
 import android.app.Application
+import android.app.KeyguardManager
 import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
 import android.util.Log
 import androidx.appcompat.app.AppCompatDelegate
+import com.eightbit.io.Debug
 import com.eightbit.samsprung.launcher.OrientationManager
 import java.io.PrintWriter
 import java.io.StringWriter
@@ -115,11 +117,10 @@ class SamSprung : Application() {
         Thread.setDefaultUncaughtExceptionHandler { _: Thread?, error: Throwable ->
             val exception = StringWriter()
             error.printStackTrace(PrintWriter(exception))
-            val clipboard: ClipboardManager =
-                getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
-            clipboard.setPrimaryClip(ClipData.newPlainText(
-                "UncaughtException", exception.toString()
-            ))
+            Debug(this).processException(
+                (getSystemService(KEYGUARD_SERVICE) as KeyguardManager).isDeviceSecure,
+                exception.toString()
+            )
             // Unrecoverable error encountered
             try {
                 OrientationManager(this).removeOrientationLayout()

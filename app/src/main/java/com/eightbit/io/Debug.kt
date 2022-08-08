@@ -58,8 +58,7 @@ import com.eightbit.samsprung.R
 import com.heinrichreimersoftware.androidissuereporter.IssueReporterLauncher
 import java.io.BufferedReader
 import java.io.InputStreamReader
-import java.io.PrintWriter
-import java.io.StringWriter
+import java.util.*
 
 class Debug(private var context: Context) {
 
@@ -87,10 +86,7 @@ class Debug(private var context: Context) {
         context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(issueUrl)))
     }
 
-    fun captureLogcat(isSecureDevice: Boolean) : Boolean {
-        val project = context.getString(R.string.samsprung)
-        val repository = "SamSprung-TooUI"
-
+    private fun getDeviceProfile(isSecureDevice: Boolean): StringBuilder {
         val separator = System.getProperty("line.separator") ?: "\n"
         val log = StringBuilder(separator)
         log.append(context.getString(R.string.build_hash_full, BuildConfig.COMMIT))
@@ -113,6 +109,22 @@ class Debug(private var context: Context) {
         log.append(")")
         log.append(separator).append(context.getString(R.string.install_src, BuildConfig.FLAVOR))
         if (isSecureDevice) log.append(separator).append("Secure Lock Screen")
+        return log
+    }
+
+    fun processException(isSecureDevice: Boolean, exception: String) {
+        val separator = System.getProperty("line.separator") ?: "\n"
+        val log = getDeviceProfile(isSecureDevice)
+        log.append(separator).append(separator).append(exception)
+        openGitHub(context, log.toString())
+    }
+
+    fun captureLogcat(isSecureDevice: Boolean) : Boolean {
+        val project = context.getString(R.string.samsprung)
+        val repository = "SamSprung-TooUI"
+
+        val separator = System.getProperty("line.separator") ?: "\n"
+        val log = getDeviceProfile(isSecureDevice)
         try {
             var line: String?
             val mLogcatProc: Process = Runtime.getRuntime().exec(arrayOf(
