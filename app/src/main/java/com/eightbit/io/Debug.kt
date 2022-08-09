@@ -78,13 +78,6 @@ class Debug(private var context: Context) {
     private val issueUrl = "https://github.com/SamSprung/SamSprung-TooUI/issues/" +
             "new?labels=logcat&template=bug_report.yml&title=[Bug]%3A+"
 
-    private fun openGitHub(context: Context, logText: String) {
-        val clipboard: ClipboardManager = context
-            .getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
-        clipboard.setPrimaryClip(ClipData.newPlainText("SamSprung-TooUI", logText))
-        context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(issueUrl)))
-    }
-
     private fun getDeviceProfile(isSecureDevice: Boolean): StringBuilder {
         val separator = System.getProperty("line.separator") ?: "\n"
         val log = StringBuilder(separator)
@@ -111,11 +104,28 @@ class Debug(private var context: Context) {
         return log
     }
 
+    private fun submitLogcat(context: Context, logText: String) {
+        val emailIntent = Intent(Intent.ACTION_SEND)
+        emailIntent.type = "text/plain"
+        emailIntent.putExtra(Intent.EXTRA_EMAIL, arrayOf("samsprungtoo@gmail.com"))
+        emailIntent.putExtra(Intent.EXTRA_SUBJECT, "SamSprung-TooUI Logcat")
+        emailIntent.putExtra(Intent.EXTRA_TEXT, logText)
+        emailIntent.type = "message/rfc822"
+        try {
+            context.startActivity(Intent.createChooser(emailIntent, "Email logcat via..."))
+        } catch (ex: ActivityNotFoundException) {
+            val clipboard: ClipboardManager = context
+                .getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+            clipboard.setPrimaryClip(ClipData.newPlainText("SamSprung-TooUI", logText))
+            context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(issueUrl)))
+        }
+    }
+
     fun processException(isSecureDevice: Boolean, exception: String) {
         val separator = System.getProperty("line.separator") ?: "\n"
         val log = getDeviceProfile(isSecureDevice)
         log.append(separator).append(separator).append(exception)
-        openGitHub(context, log.toString())
+        submitLogcat(context, log.toString())
     }
 
     fun captureLogcat(isSecureDevice: Boolean) : Boolean {
@@ -145,7 +155,7 @@ class Debug(private var context: Context) {
         }
         val logText = log.toString()
         if (!logText.contains("AndroidRuntime")) {
-            openGitHub(context, logText)
+            submitLogcat(context, logText)
             return false
         }
         return try {
@@ -160,7 +170,7 @@ class Debug(private var context: Context) {
                 .homeAsUpEnabled(false).launch(context)
             true
         } catch (ignored: Exception) {
-            openGitHub(context, logText)
+            submitLogcat(context, logText)
             true
         }
     }
