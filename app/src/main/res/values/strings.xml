@@ -46,8 +46,8 @@
 
     <string name="visibility_options">App Visibility</string>
 
-    <string name="donate_link">Donation</string>
-    <string name="logcat_link">Problem?</string>
+    <string name="donate_link">Donate</string>
+    <string name="logcat_link">Issue?</string>
 
     <string name="keyboard_missing">Keyboard required!</string>
     <string name="wallpaper_cleared">Wallpaper reset!</string>
@@ -93,7 +93,7 @@
     <string name="cover_switch_warning">\nMain switch must be enabled to appear on cover.</string>
 
     <string name="main_screen_required">Open device to continue</string>
-    <string name="incompatible_fragment">Move to a widget before attempting to remove it</string>
+    <string name="incompatible_fragment">Panel cannot be deleted</string>
 
     <string name="accessibility_disclaimer">Accessibility allows SamSprung to simulate the hardware back button.\n\nClick confirm to open Accessibility\n\nInstalled apps -> SamSprung Navigation\n&#160;&#160;&#160;&#160;-> Toggle switch on -> Allow to enable.</string>
     <string name="accessibility_service">SamSprung Navigation</string>

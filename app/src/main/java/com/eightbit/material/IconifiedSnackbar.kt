@@ -37,15 +37,17 @@ class IconifiedSnackbar {
         )
         when (mActivity.get()!!.resources.configuration.uiMode
                 and Configuration.UI_MODE_NIGHT_MASK) {
+            @Suppress("DEPRECATION")
             Configuration.UI_MODE_NIGHT_YES -> textView.setTextColor(
-                ContextCompat.getColor(mActivity.get()!!, android.R.color.white)
+                ContextCompat.getColor(mActivity.get()!!, android.R.color.primary_text_dark)
             )
             Configuration.UI_MODE_NIGHT_NO -> {
                 snackbar.setBackgroundTint(
                     ContextCompat.getColor(mActivity.get()!!, android.R.color.darker_gray)
                 )
+                @Suppress("DEPRECATION")
                 textView.setTextColor(
-                    ContextCompat.getColor(mActivity.get()!!, android.R.color.black)
+                    ContextCompat.getColor(mActivity.get()!!, android.R.color.primary_text_light)
                 )
             }
         }

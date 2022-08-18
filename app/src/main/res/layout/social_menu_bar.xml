@@ -15,7 +15,7 @@
             android:id="@+id/build_layout"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_weight="0.85"
+            android:layout_weight="1"
             android:gravity="start|center_vertical"
             android:orientation="horizontal">
 
@@ -85,7 +85,7 @@
             android:id="@+id/logcat"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_weight="0.85"
+            android:layout_weight="1"
             android:gravity="end|center_vertical"
             android:orientation="horizontal">
             <androidx.appcompat.widget.AppCompatImageView
