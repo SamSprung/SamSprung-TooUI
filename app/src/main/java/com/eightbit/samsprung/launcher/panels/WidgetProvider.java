@@ -43,7 +43,7 @@ import java.util.ArrayList;
 public class WidgetProvider extends ContentProvider {
     private static final String DATABASE_NAME = "samsprung.db";
     
-    private static final int DATABASE_VERSION = 5;
+    private static final int DATABASE_VERSION = 6;
 
     static final String AUTHORITY = "com.eightbit.samsprung.launcher.panels";
     static final String EXTRA_BIND_SOURCES = AUTHORITY + ".bindsources";
