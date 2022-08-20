@@ -75,12 +75,9 @@ import android.os.PowerManager
 import android.os.Process
 import android.provider.MediaStore
 import android.provider.Settings
-import android.text.Html
 import android.text.Spannable
 import android.text.SpannableStringBuilder
-import android.text.Spanned
 import android.text.style.RelativeSizeSpan
-import android.text.style.SuperscriptSpan
 import android.util.TypedValue
 import android.view.Menu
 import android.view.MenuItem

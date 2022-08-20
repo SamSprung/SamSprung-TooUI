@@ -467,19 +467,20 @@ class SamSprungOverlay : AppCompatActivity() {
                     toolbar.menu.findItem(R.id.toggle_widgets)
                         .setIcon(R.drawable.ic_baseline_delete_forever_24dp)
                     tactileFeedback()
+                    bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
                     val index = viewPager.currentItem
-                    val fragment = (pagerAdapter as CoverStateAdapter).getFragment(index)
+                    val adapter = pagerAdapter as CoverStateAdapter
+                    val fragment = adapter.getFragment(index)
                     val widget = fragment.getLayout().getChildAt(0).tag
                     if (widget is PanelWidgetInfo) {
-                        viewPager.setCurrentItem(index - 1, true)
+                        viewPager.setCurrentItem(index - 1, false)
+                        adapter.removeFragment(index)
                         model.removeDesktopAppWidget(widget)
                         appWidgetHost.deleteAppWidgetId(widget.appWidgetId)
                         WidgetModel.deleteItemFromDatabase(
                             applicationContext, widget
                         )
-                        (pagerAdapter as CoverStateAdapter).removeFragment(index)
                     }
-                    bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
                     toolbar.menu.findItem(R.id.toggle_widgets)
                         .setIcon(R.drawable.ic_baseline_widgets_24dp)
                 } else {
