@@ -235,7 +235,7 @@ class CheckUpdatesTask(private var activity: Activity) {
     fun retrieveUpdate() {
         val prefs = activity.getSharedPreferences(
             SamSprung.prefsValue, AppCompatActivity.MODE_PRIVATE)
-        val isPreview = prefs.getBoolean(SamSprung.prefTester, false)
+        val isPreview = prefs.getBoolean(SamSprung.prefTester, true)
         RequestGitHubAPI(repo + if (isPreview) "preview" else "sideload")
             .setResultListener(object : RequestGitHubAPI.ResultListener {
             override fun onResults(result: String) {

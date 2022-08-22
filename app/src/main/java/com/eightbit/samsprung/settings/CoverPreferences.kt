@@ -192,16 +192,10 @@ class CoverPreferences : AppCompatActivity() {
 
         initializeLayout()
 
-        val paypal = findViewById<LinearLayout>(R.id.paypal)
-        paypal.setOnClickListener {
-            startActivity(Intent(Intent.ACTION_VIEW,
-                Uri.parse("https://www.paypal.com/donate/?hosted_button_id=Q2LFH2SC8RHRN")))
-        }
-        paypal.isVisible = !SamSprung.isGooglePlay()
-
-        val googlePlay = findViewById<LinearLayout>(R.id.google_play)
+        val googlePlay = findViewById<LinearLayout>(R.id.button_donate)
         googlePlay.setOnClickListener {
-            val view: View = layoutInflater.inflate(R.layout.donation_layout, null)
+            val view: LinearLayout = layoutInflater
+                .inflate(R.layout.donation_layout, null) as LinearLayout
             val dialog = AlertDialog.Builder(
                 ContextThemeWrapper(this, R.style.DialogTheme_NoActionBar)
             )
@@ -222,6 +216,16 @@ class CoverPreferences : AppCompatActivity() {
                 subscriptions.removeAllViewsInLayout()
             }
             val donateDialog: Dialog = dialog.setView(view).show()
+            if (!SamSprung.isGooglePlay()) {
+                val paypal: View = layoutInflater.inflate(R.layout.button_paypal, null)
+                paypal.setOnClickListener {
+                    startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(
+                        "https://www.paypal.com/donate/?hosted_button_id=Q2LFH2SC8RHRN"
+                    )))
+                    donateDialog.cancel()
+                }
+                view.addView(paypal)
+            }
             donateDialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
         }
 
@@ -306,7 +310,7 @@ class CoverPreferences : AppCompatActivity() {
         }
 
         val updates = findViewById<SwitchCompat>(R.id.updates_switch)
-        updates.isChecked = prefs.getBoolean(SamSprung.prefTester, false)
+        updates.isChecked = prefs.getBoolean(SamSprung.prefTester, true)
         updates.setOnCheckedChangeListener { _, isChecked ->
             with(prefs.edit()) {
                 putBoolean(SamSprung.prefTester, isChecked)
@@ -1322,8 +1326,7 @@ class CoverPreferences : AppCompatActivity() {
     private val subList = ArrayList<String>()
 
     private val consumeResponseListener = ConsumeResponseListener { _, _ ->
-        IconifiedSnackbar(this, findViewById(R.id.donation_wrapper))
-            .buildTickerBar(getString(R.string.donation_thanks)).show()
+        IconifiedSnackbar(this).buildTickerBar(getString(R.string.donation_thanks)).show()
     }
 
     private fun handlePurchaseIAP(purchase : Purchase) {

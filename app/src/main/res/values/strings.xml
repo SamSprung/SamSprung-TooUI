@@ -47,6 +47,7 @@
     <string name="visibility_options">App Visibility</string>
 
     <string name="donate_link">Donate</string>
+    <string name="paypal_link">Donate with PayPal</string>
     <string name="logcat_link">Issue?</string>
 
     <string name="keyboard_missing">Keyboard required!</string>

@@ -1,12 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/donation_wrapper"
     android:background="@drawable/rounded_layout_themed"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:orientation="horizontal"
+    android:orientation="vertical"
     android:padding="8dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
 
     <LinearLayout
         android:id="@+id/donation_layout"
@@ -23,4 +27,5 @@
         android:layout_weight="1"
         android:layout_marginStart="2dp"
         android:orientation="vertical" />
+    </LinearLayout>
 </LinearLayout>
