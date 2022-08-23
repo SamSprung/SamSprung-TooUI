@@ -53,10 +53,6 @@ package com.eightbit.samsprung
 
 import android.app.Application
 import android.app.KeyguardManager
-import android.content.ClipData
-import android.content.ClipboardManager
-import android.content.Context
-import android.util.Log
 import androidx.appcompat.app.AppCompatDelegate
 import com.eightbit.io.Debug
 import com.eightbit.samsprung.launcher.OrientationManager
@@ -89,7 +85,6 @@ class SamSprung : Application() {
         const val prefColors: String = "prefColors"
         const val prefAlphas: String = "prefAlphas"
         const val prefWarned: String = "prefWarned"
-        const val prefTester: String = "prefTester"
         const val prefViewer: String = "prefViewer"
         const val prefSlider: String = "prefSlider"
         const val prefShifts: String = "prefShifts"

@@ -201,7 +201,7 @@ class CheckUpdatesTask(private var activity: Activity) {
 
     }
 
-    private fun parseUpdateJSON(result: String, isPreview: Boolean) {
+    private fun parseUpdateJSON(result: String) {
         val offset = activity.getString(R.string.samsprung).length + 1
         var lastCommit: String? = null
         var downloadUrl: String? = null
@@ -211,35 +211,17 @@ class CheckUpdatesTask(private var activity: Activity) {
             val assets = jsonObject["assets"] as JSONArray
             val asset = assets[0] as JSONObject
             downloadUrl = asset["browser_download_url"] as String
-            isUpdateAvailable = isPreview && BuildConfig.COMMIT != lastCommit
+            isUpdateAvailable = BuildConfig.COMMIT != lastCommit
             if (isUpdateAvailable && null != listener)
                 listener?.onUpdateFound(downloadUrl)
         } catch (ignored: JSONException) { }
-        if (!isPreview && null != lastCommit && null != downloadUrl) {
-            RequestGitHubAPI(repo + "preview").setResultListener(
-                object : RequestGitHubAPI.ResultListener {
-                override fun onResults(result: String) {
-                    try {
-                        val jsonObject = JSONTokener(result).nextValue() as JSONObject
-                        val extraCommit = (jsonObject["name"] as String).substring(offset)
-                        isUpdateAvailable = BuildConfig.COMMIT != extraCommit
-                                && BuildConfig.COMMIT != lastCommit
-                        if (isUpdateAvailable && null != listener)
-                            listener?.onUpdateFound(downloadUrl)
-                    } catch (ignored: JSONException) { }
-                }
-            })
-        }
     }
 
     fun retrieveUpdate() {
-        val prefs = activity.getSharedPreferences(
-            SamSprung.prefsValue, AppCompatActivity.MODE_PRIVATE)
-        val isPreview = prefs.getBoolean(SamSprung.prefTester, true)
-        RequestGitHubAPI(repo + if (isPreview) "preview" else "sideload")
+        RequestGitHubAPI(repo + "sideload")
             .setResultListener(object : RequestGitHubAPI.ResultListener {
             override fun onResults(result: String) {
-                parseUpdateJSON(result, isPreview)
+                parseUpdateJSON(result)
             }
         })
     }

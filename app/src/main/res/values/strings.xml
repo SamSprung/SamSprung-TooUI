@@ -12,11 +12,9 @@
     <string name="permission_accessibility">Accessibility</string>
     <string name="details_accessibility">Enable back button in navigation</string>
 
-    <string name="config_options">Configuration</string>
+    <string name="config_options">Compatibility</string>
     <string name="options_keyboard">Keyboard / IME</string>
     <string name="details_keyboard">$1.99 can keep development active</string>
-    <string name="updates_preference">Preview Builds</string>
-    <string name="details_updates">Enable pre-release update checks</string>
 
     <string name="general_options">Cover Settings</string>
     <string name="options_placement">Icon Alignment</string>

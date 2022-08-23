@@ -158,51 +158,6 @@
                     </LinearLayout>
 
                     <LinearLayout
-                        android:id="@+id/updates"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="horizontal"
-                        android:layout_marginBottom="4dp"
-                        android:layout_marginStart="16dp"
-                        android:layout_marginEnd="8dp"
-                        android:layout_gravity="center_vertical"
-                        tools:ignore="UseCompoundDrawables">
-
-                        <LinearLayout
-                            android:layout_width="0dp"
-                            android:layout_weight="1"
-                            android:layout_height="wrap_content"
-                            android:orientation="vertical"
-                            android:layout_gravity="center_vertical"
-                            tools:ignore="UseCompoundDrawables">
-
-                        <TextView
-                            android:layout_width="match_parent"
-                            android:textSize="24sp"
-                            android:textColor="?android:textColorPrimary"
-                            android:gravity="center_vertical"
-                            android:layout_height="wrap_content"
-                            android:text="@string/updates_preference" />
-
-                            <TextView
-                                android:layout_width="match_parent"
-                                android:textSize="14sp"
-                                android:textColor="?android:textColorPrimary"
-                                android:gravity="center_vertical"
-                                android:layout_height="wrap_content"
-                                android:text="@string/details_updates" />
-                        </LinearLayout>
-
-                        <androidx.appcompat.widget.SwitchCompat
-                            android:id="@+id/updates_switch"
-                            android:layout_width="0dp"
-                            android:gravity="center"
-                            android:layout_gravity="end|center_vertical"
-                            android:layout_weight="0.5"
-                            android:layout_height="wrap_content" />
-                    </LinearLayout>
-
-                    <LinearLayout
                         android:id="@+id/menu_general"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"

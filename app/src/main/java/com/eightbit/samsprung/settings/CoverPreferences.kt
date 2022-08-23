@@ -309,20 +309,6 @@ class CoverPreferences : AppCompatActivity() {
             }
         }
 
-        val updates = findViewById<SwitchCompat>(R.id.updates_switch)
-        updates.isChecked = prefs.getBoolean(SamSprung.prefTester, true)
-        updates.setOnCheckedChangeListener { _, isChecked ->
-            with(prefs.edit()) {
-                putBoolean(SamSprung.prefTester, isChecked)
-                apply()
-            }
-        }
-        val updatesPanel = findViewById<LinearLayout>(R.id.updates)
-        updatesPanel.setOnClickListener {
-            updates.isChecked = !updates.isChecked
-        }
-        updatesPanel.isVisible = !SamSprung.isGooglePlay()
-
         val nestedOptions = findViewById<ScrollView>(R.id.nested_options)
         val general = findViewById<LinearLayout>(R.id.general)
         val drawer = findViewById<LinearLayout>(R.id.drawer)
