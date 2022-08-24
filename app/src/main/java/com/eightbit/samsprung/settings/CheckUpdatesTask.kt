@@ -203,14 +203,12 @@ class CheckUpdatesTask(private var activity: Activity) {
 
     private fun parseUpdateJSON(result: String) {
         val offset = activity.getString(R.string.samsprung).length + 1
-        var lastCommit: String? = null
-        var downloadUrl: String? = null
         try {
             val jsonObject = JSONTokener(result).nextValue() as JSONObject
-            lastCommit = (jsonObject["name"] as String).substring(offset)
+            val lastCommit = (jsonObject["name"] as String).substring(offset)
             val assets = jsonObject["assets"] as JSONArray
             val asset = assets[0] as JSONObject
-            downloadUrl = asset["browser_download_url"] as String
+            val downloadUrl = asset["browser_download_url"] as String
             isUpdateAvailable = BuildConfig.COMMIT != lastCommit
             if (isUpdateAvailable && null != listener)
                 listener?.onUpdateFound(downloadUrl)

@@ -50,21 +50,23 @@ android {
         debug {
             initWith release
             debuggable true
-            try {
-                def keystoreProps = new Properties()
-                keystoreProps.load(new FileInputStream(rootProject.file("keystore.properties")))
-                signingConfigs {
-                    debug {
-                        keyAlias keystoreProps['keyAlias']
-                        keyPassword keystoreProps['keyPassword']
-                        storeFile file(keystoreProps['storeFile'])
-                        storePassword keystoreProps['storePassword']
-                    }
-                }
-                buildTypes.debug.signingConfig signingConfigs.debug
-            } catch (FileNotFoundException ignored) { }
         }
     }
+
+    try {
+        def keystoreProps = new Properties()
+        keystoreProps.load(new FileInputStream(rootProject.file("keystore.properties")))
+        signingConfigs {
+            document {
+                keyAlias keystoreProps['keyAlias']
+                keyPassword keystoreProps['keyPassword']
+                storeFile file(keystoreProps['storeFile'])
+                storePassword keystoreProps['storePassword']
+            }
+        }
+        buildTypes.release.signingConfig signingConfigs.document
+        buildTypes.debug.signingConfig signingConfigs.document
+    } catch (FileNotFoundException ignored) { }
 
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_11
@@ -85,9 +87,9 @@ android {
 dependencies {
     implementation 'com.google.android.material:material:1.6.1'
     implementation 'androidx.core:core-ktx:1.8.0'
-    implementation 'androidx.appcompat:appcompat:1.4.2'
+    implementation 'androidx.appcompat:appcompat:1.5.0'
     implementation 'androidx.recyclerview:recyclerview:1.2.1'
-    implementation 'androidx.fragment:fragment-ktx:1.5.1'
+    implementation 'androidx.fragment:fragment-ktx:1.5.2'
     implementation 'androidx.cardview:cardview:1.0.0'
     implementation 'androidx.activity:activity-ktx:1.6.0-alpha05'
     implementation 'com.android.billingclient:billing:5.0.0'
