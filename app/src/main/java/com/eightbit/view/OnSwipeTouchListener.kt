@@ -86,13 +86,12 @@ open class OnSwipeTouchListener(ctx: Context) : OnTouchListener {
         }
 
         override fun onFling(
-            e1: MotionEvent?,
+            e1: MotionEvent,
             e2: MotionEvent,
             velocityX: Float,
             velocityY: Float
         ): Boolean {
             try {
-                if (null == e1) return false
                 val diffY = e2.y - e1.y
                 val diffX = e2.x - e1.x
                 if (abs(diffX) > abs(diffY)) {

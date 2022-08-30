@@ -574,7 +574,7 @@ class CoverPreferences : AppCompatActivity() {
         toolbar.inflateMenu(R.menu.cover_quick_toggles)
 
         toolbar.setOnMenuItemClickListener { item: MenuItem ->
-            val pref = item.title.toPref
+            val pref = item.title?.toPref
             with(prefs.edit()) {
                 putBoolean(pref, !prefs.getBoolean(pref, true))
                 apply()
@@ -634,7 +634,7 @@ class CoverPreferences : AppCompatActivity() {
         }
 
         val wifi = toolbar.menu.findItem(R.id.toggle_wifi)
-        if (prefs.getBoolean(wifi.title.toPref, true))
+        if (prefs.getBoolean(wifi.title?.toPref, true))
             wifi.setIcon(R.drawable.ic_baseline_wifi_on_24dp)
         else
             wifi.setIcon(R.drawable.ic_baseline_wifi_off_24dp)
@@ -642,7 +642,7 @@ class CoverPreferences : AppCompatActivity() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
             if (!hasPermission(Manifest.permission.BLUETOOTH_CONNECT)) {
                 with(prefs.edit()) {
-                    putBoolean(toolbar.menu.findItem(R.id.toggle_bluetooth).title.toPref, false)
+                    putBoolean(toolbar.menu.findItem(R.id.toggle_bluetooth).title?.toPref, false)
                     apply()
                 }
             }
@@ -650,25 +650,25 @@ class CoverPreferences : AppCompatActivity() {
         toggleBluetoothIcon(toolbar)
 
         val nfc = toolbar.menu.findItem(R.id.toggle_nfc)
-        if (prefs.getBoolean(nfc.title.toPref, true))
+        if (prefs.getBoolean(nfc.title?.toPref, true))
             nfc.setIcon(R.drawable.ic_baseline_nfc_on_24dp)
         else
             nfc.setIcon(R.drawable.ic_baseline_nfc_off_24dp)
 
         val sound = toolbar.menu.findItem(R.id.toggle_sound)
-        if (prefs.getBoolean(sound.title.toPref, true))
+        if (prefs.getBoolean(sound.title?.toPref, true))
             sound.setIcon(R.drawable.ic_baseline_sound_on_24dp)
         else
             sound.setIcon(R.drawable.ic_baseline_sound_off_24dp)
 
         val dnd = toolbar.menu.findItem(R.id.toggle_dnd)
-        if (prefs.getBoolean(dnd.title.toPref, true))
+        if (prefs.getBoolean(dnd.title?.toPref, true))
             dnd.setIcon(R.drawable.ic_baseline_do_not_disturb_on_24dp)
         else
             dnd.setIcon(R.drawable.ic_baseline_do_not_disturb_off_24dp)
 
         val torch = toolbar.menu.findItem(R.id.toggle_torch)
-        if (prefs.getBoolean(torch.title.toPref, true))
+        if (prefs.getBoolean(torch.title?.toPref, true))
             torch.setIcon(R.drawable.ic_baseline_flashlight_on_24dp)
         else
             torch.setIcon(R.drawable.ic_baseline_flashlight_off_24dp)
@@ -913,7 +913,7 @@ class CoverPreferences : AppCompatActivity() {
             }
         })
 
-        findViewById<View>(R.id.list_divider).setOnTouchListener { _: View, event: MotionEvent ->
+        findViewById<View>(R.id.list_divider).setOnTouchListener { v: View, event: MotionEvent ->
             val y = event.y.toInt()
             val srcHeight = nestedOptions.layoutParams.height
             if (nestedOptions.layoutParams.height + y >= -0.5f) {
@@ -921,7 +921,7 @@ class CoverPreferences : AppCompatActivity() {
                     nestedOptions.layoutParams.height += y
                     if (srcHeight != nestedOptions.layoutParams.height) nestedOptions.requestLayout()
                 } else if (event.action == MotionEvent.ACTION_UP) {
-                    val minHeight: Float = resources.getDimension(R.dimen.button_height_min) * 2.125f
+                    val minHeight: Float = v.height + resources.getDimension(R.dimen.sliding_bar_margin)
                     if (nestedOptions.layoutParams.height > coordinator.height - minHeight.toInt())
                         nestedOptions.layoutParams.height = coordinator.height - minHeight.toInt()
                     if (srcHeight != nestedOptions.layoutParams.height) nestedOptions.requestLayout()
@@ -1086,7 +1086,7 @@ class CoverPreferences : AppCompatActivity() {
 
     private fun toggleBluetoothIcon(toolbar: Toolbar) {
         val bluetooth = toolbar.menu.findItem(R.id.toggle_bluetooth)
-        if (prefs.getBoolean(bluetooth.title.toPref, true))
+        if (prefs.getBoolean(bluetooth.title?.toPref, true))
             bluetooth.setIcon(R.drawable.ic_baseline_bluetooth_on_24dp)
         else
             bluetooth.setIcon(R.drawable.ic_baseline_bluetooth_off_24dp)
@@ -1098,7 +1098,7 @@ class CoverPreferences : AppCompatActivity() {
         val toolbar = findViewById<Toolbar>(R.id.toolbar)
         if (!it) {
             with(prefs.edit()) {
-                putBoolean(toolbar.menu.findItem(R.id.toggle_bluetooth).title.toPref, false)
+                putBoolean(toolbar.menu.findItem(R.id.toggle_bluetooth).title?.toPref, false)
                 apply()
             }
         }
@@ -1107,7 +1107,7 @@ class CoverPreferences : AppCompatActivity() {
 
     private fun toggleWidgetsIcon(toolbar: Toolbar) {
         val widgets = toolbar.menu.findItem(R.id.toggle_widgets)
-        if (prefs.getBoolean(widgets.title.toPref, false))
+        if (prefs.getBoolean(widgets.title?.toPref, false))
             widgets.setIcon(R.drawable.ic_baseline_widgets_24dp)
         else
             widgets.setIcon(R.drawable.ic_baseline_insert_page_break_24dp)
@@ -1242,7 +1242,7 @@ class CoverPreferences : AppCompatActivity() {
         val actionSwitch: MenuItem = menu.findItem(R.id.switch_action_bar)
         actionSwitch.setActionView(R.layout.configure_switch)
         mainSwitch = menu.findItem(R.id.switch_action_bar).actionView
-            .findViewById(R.id.switch2) as SwitchCompat
+            ?.findViewById(R.id.switch2) as SwitchCompat
         mainSwitch.isChecked = Settings.canDrawOverlays(applicationContext)
         mainSwitch.setOnClickListener {
             overlayLauncher.launch(Intent(

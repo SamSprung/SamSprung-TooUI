@@ -203,7 +203,7 @@ class NotificationAdapter(
                         val bitmap: Bitmap? = when (val image = notification.extras.get(
                             NotificationCompat.EXTRA_LARGE_ICON_BIG)) {
                             is Bitmap -> image
-                            is Icon -> image.loadDrawable(activity).toBitmap()
+                            is Icon -> image.loadDrawable(activity)?.toBitmap()
                             else -> null
                         }
                         if (null != bitmap) {
@@ -216,7 +216,7 @@ class NotificationAdapter(
                         val bitmap: Bitmap? = when (val image = notification.extras.get(
                             NotificationCompat.EXTRA_PICTURE)) {
                             is Bitmap -> image
-                            is Icon -> image.loadDrawable(activity).toBitmap()
+                            is Icon -> image.loadDrawable(activity)?.toBitmap()
                             else -> null
                         }
                         if (null != bitmap) {

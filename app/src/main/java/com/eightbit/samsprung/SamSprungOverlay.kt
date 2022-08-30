@@ -281,7 +281,7 @@ class SamSprungOverlay : AppCompatActivity() {
                 } else {
                     torchMenu.setIcon(R.drawable.ic_baseline_flashlight_off_24dp)
                 }
-                torchMenu.icon.setTint(prefs.getInt(SamSprung.prefColors,
+                torchMenu.icon?.setTint(prefs.getInt(SamSprung.prefColors,
                     Color.rgb(255, 255, 255)))
             }
         }
@@ -380,7 +380,7 @@ class SamSprungOverlay : AppCompatActivity() {
                                     bluetoothAdapter.enable()
                                     item.setIcon(R.drawable.ic_baseline_bluetooth_on_24dp)
                                 }
-                                item.icon.setTint(color)
+                                item.icon?.setTint(color)
                                 return@setOnMenuItemClickListener true
                             }
                             R.id.toggle_nfc -> {
@@ -405,7 +405,7 @@ class SamSprungOverlay : AppCompatActivity() {
                                     audioManager.ringerMode = AudioManager.RINGER_MODE_NORMAL
                                     item.setIcon(R.drawable.ic_baseline_sound_on_24dp)
                                 }
-                                item.icon.setTint(color)
+                                item.icon?.setTint(color)
                                 return@setOnMenuItemClickListener true
                             }
                             R.id.toggle_dnd -> {
@@ -419,7 +419,7 @@ class SamSprungOverlay : AppCompatActivity() {
                                         NotificationManager.INTERRUPTION_FILTER_ALL)
                                     item.setIcon(R.drawable.ic_baseline_do_not_disturb_off_24dp)
                                 }
-                                item.icon.setTint(color)
+                                item.icon?.setTint(color)
                                 return@setOnMenuItemClickListener true
                             }
                             R.id.toggle_torch -> {
@@ -607,7 +607,7 @@ class SamSprungOverlay : AppCompatActivity() {
             toolbar.menu.findItem(R.id.toggle_wifi).setIcon(R.drawable.ic_baseline_wifi_on_24dp)
         else
             toolbar.menu.findItem(R.id.toggle_wifi).setIcon(R.drawable.ic_baseline_wifi_off_24dp)
-        toolbar.menu.findItem(R.id.toggle_wifi).icon.setTint(
+        toolbar.menu.findItem(R.id.toggle_wifi).icon?.setTint(
             prefs.getInt(SamSprung.prefColors, Color.rgb(255, 255, 255))
         )
     }
@@ -618,7 +618,7 @@ class SamSprungOverlay : AppCompatActivity() {
             toolbar.menu.findItem(R.id.toggle_nfc).setIcon(R.drawable.ic_baseline_nfc_on_24dp)
         else
             toolbar.menu.findItem(R.id.toggle_nfc).setIcon(R.drawable.ic_baseline_nfc_off_24dp)
-        toolbar.menu.findItem(R.id.toggle_nfc).icon.setTint(
+        toolbar.menu.findItem(R.id.toggle_nfc).icon?.setTint(
             prefs.getInt(SamSprung.prefColors, Color.rgb(255, 255, 255))
         )
     }
@@ -784,7 +784,7 @@ class SamSprungOverlay : AppCompatActivity() {
     private fun configureMenuVisibility(toolbar: Toolbar) {
         val toggleStats = findViewById<LinearLayout>(R.id.toggle_status)
         for (i in 0 until toolbar.menu.size()) {
-            val enabled = prefs.getBoolean(toolbar.menu.getItem(i).title.toPref, true)
+            val enabled = prefs.getBoolean(toolbar.menu.getItem(i).title?.toPref, true)
             if (enabled) {
                 toolbar.menu.getItem(i).isVisible = true
                 val icon = layoutInflater.inflate(R.layout.toggle_state_icon, toggleStats,
@@ -857,7 +857,7 @@ class SamSprungOverlay : AppCompatActivity() {
             toolbar.menu.findItem(R.id.toggle_torch).isVisible = false
         }
         for (i in 0 until toolbar.menu.size()) {
-            toolbar.menu.getItem(i).icon.setTint(color)
+            toolbar.menu.getItem(i).icon?.setTint(color)
         }
         return color
     }

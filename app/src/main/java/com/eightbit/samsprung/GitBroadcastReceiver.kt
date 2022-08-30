@@ -56,6 +56,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageInstaller
 import android.widget.Toast
+import com.eightbit.samsprung.settings.CoverPreferences
 
 class GitBroadcastReceiver : BroadcastReceiver() {
 
@@ -71,12 +72,18 @@ class GitBroadcastReceiver : BroadcastReceiver() {
                 startBroadcastService(context)
             }
             Intent.ACTION_MY_PACKAGE_REPLACED == action -> {
-                if (SamSprung.isGooglePlay())
+                if (SamSprung.isGooglePlay()) {
                     startBroadcastService(context)
-                else
-                    startLauncherActivity(context, context.packageManager
-                        .getLaunchIntentForPackage(BuildConfig.APPLICATION_ID)
-                        ?.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
+                } else {
+                    var mainIntent: Intent? = Intent(context, CoverPreferences::class.java)
+                    try {
+                        mainIntent = context.packageManager
+                            .getLaunchIntentForPackage(BuildConfig.APPLICATION_ID)
+                    } catch (ignored: Exception) { }
+                    startLauncherActivity(
+                        context, mainIntent?.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                    )
+                }
             }
             SamSprung.updating == action -> {
                 if (SamSprung.isGooglePlay()) return
