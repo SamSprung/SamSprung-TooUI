@@ -74,9 +74,13 @@ open class OnSwipeTouchListener(ctx: Context) : OnTouchListener {
         gestureDetector = GestureDetector(ctx, GestureListener())
     }
 
-    @SuppressLint("ClickableViewAccessibility")
-    override fun onTouch(view: View, event: MotionEvent): Boolean {
-        return gestureDetector.onTouchEvent(event)
+    override fun onTouch(v: View, event: MotionEvent): Boolean {
+        return if (event.action == MotionEvent.ACTION_MOVE) {
+            gestureDetector.onTouchEvent(event)
+        } else {
+            v.performClick()
+            false
+        }
     }
 
     private inner class GestureListener : SimpleOnGestureListener() {
