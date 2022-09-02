@@ -481,6 +481,7 @@ class SamSprungOverlay : AppCompatActivity() {
                                 WidgetModel.deleteItemFromDatabase(
                                     applicationContext, widget
                                 )
+                                viewPager.setCurrentItem(1, true)
                             }
                         }
                     }
