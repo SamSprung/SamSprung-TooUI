@@ -56,6 +56,7 @@ import android.annotation.SuppressLint
 import android.app.KeyguardManager
 import android.app.NotificationManager
 import android.app.WallpaperManager
+import android.appwidget.AppWidgetHostView
 import android.appwidget.AppWidgetManager
 import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothManager
@@ -91,10 +92,7 @@ import androidx.appcompat.widget.SearchView
 import androidx.appcompat.widget.Toolbar
 import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.core.content.ContextCompat
-import androidx.core.view.GravityCompat
-import androidx.core.view.WindowCompat
-import androidx.core.view.isGone
-import androidx.core.view.isVisible
+import androidx.core.view.*
 import androidx.fragment.app.FragmentActivity
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import androidx.viewpager2.widget.ViewPager2
@@ -471,15 +469,20 @@ class SamSprungOverlay : AppCompatActivity() {
                     val index = viewPager.currentItem
                     val adapter = pagerAdapter as CoverStateAdapter
                     val fragment = adapter.getFragment(index)
-                    val widget = fragment.getLayout().getChildAt(0).tag
-                    if (widget is PanelWidgetInfo) {
-                        viewPager.setCurrentItem(index - 1, false)
-                        adapter.removeFragment(index)
-                        model.removeDesktopAppWidget(widget)
-                        appWidgetHost.deleteAppWidgetId(widget.appWidgetId)
-                        WidgetModel.deleteItemFromDatabase(
-                            applicationContext, widget
-                        )
+                    val layout = fragment.getLayout()
+                    for (child in layout.children) {
+                        if (child is AppWidgetHostView) {
+                            val widget = child.tag
+                            if (widget is PanelWidgetInfo) {
+                                model.removeDesktopAppWidget(widget)
+                                adapter.removeFragment(index)
+                                adapter.notifyItemRemoved(index)
+                                appWidgetHost.deleteAppWidgetId(child.appWidgetId)
+                                WidgetModel.deleteItemFromDatabase(
+                                    applicationContext, widget
+                                )
+                            }
+                        }
                     }
                     toolbar.menu.findItem(R.id.toggle_widgets)
                         .setIcon(R.drawable.ic_baseline_widgets_24dp)

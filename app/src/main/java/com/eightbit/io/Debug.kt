@@ -140,7 +140,7 @@ class Debug(private var context: Context) {
                 "logcat", "-d", "-t", "192", BuildConfig.APPLICATION_ID,
                 "AndroidRuntime", "System.err",
                 "AppIconSolution:S", "ViewRootImpl*:S",
-                "IssueReporterActivity:S", "*:D"
+                "IssueReporterActivity:S", "*:W"
             ))
             val reader = BufferedReader(InputStreamReader(mLogcatProc.inputStream))
             log.append(separator).append(separator)

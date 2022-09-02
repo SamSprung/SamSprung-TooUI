@@ -2,6 +2,7 @@ package com.eightbit.samsprung.launcher
 
 import android.annotation.SuppressLint
 import android.appwidget.AppWidgetHost
+import android.appwidget.AppWidgetHostView
 import android.appwidget.AppWidgetManager
 import android.appwidget.AppWidgetProviderInfo
 import android.content.Intent
@@ -76,6 +77,14 @@ class PanelWidgetManager(
         params.gravity = Gravity.CENTER
         fragment.setListener(object: PanelViewFragment.ViewCreatedListener {
             override fun onViewCreated(view: View) {
+                try {
+                    val layout = (view as LinearLayout)
+                    for (child in layout.children) {
+                        if (child is AppWidgetHostView) {
+                            layout.removeView(child)
+                        }
+                    }
+                } catch (ignored: Exception) { }
                 (view as LinearLayout).addView(launcherInfo.hostView, params)
             }
         })
@@ -191,6 +200,14 @@ class PanelWidgetManager(
             params.gravity = Gravity.CENTER
             fragment.setListener(object: PanelViewFragment.ViewCreatedListener {
                 override fun onViewCreated(view: View) {
+                    try {
+                        val layout = (view as LinearLayout)
+                        for (child in layout.children) {
+                            if (child is AppWidgetHostView) {
+                                layout.removeView(child)
+                            }
+                        }
+                    } catch (ignored: Exception) { }
                     (view as LinearLayout).addView(item.hostView, params)
                 }
             })
