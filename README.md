@@ -1,4 +1,6 @@
-![SamSprung Logo](assets/feature_graphic.png)
+<p align="center">
+  <a href="https://play.google.com/store/apps/details?id=com.eightbit.samsprung"><img src="assets/google-play-badge.png" /></a>
+</p>
 
 ## SamSprung Launcher
 
@@ -15,4 +17,7 @@
 - Click the switch in the top right to enable access
 - Make sure to return to the app from any prompts
 - Close device and tap the power button to enable
-- [See the wiki for additional setup and instructions](https://github.com/SamSprung/SamSprung-TooUI/wiki)
+- [See the wiki for additional setup and instructions](https://samsprung.github.io/launcher/wiki.html)
+
+##
+![SamSprung Logo](assets/feature_graphic.png)
