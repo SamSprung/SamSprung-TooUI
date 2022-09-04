@@ -17,7 +17,7 @@
 - Click the switch in the top right to enable access
 - Make sure to return to the app from any prompts
 - Close device and tap the power button to enable
-- [See the wiki for additional setup and instructions](https://samsprung.github.io/launcher/wiki.html)
+- [See the wiki for additional setup and instructions](https://samsprung.github.io/launcher/)
 
 ##
 ![SamSprung Logo](assets/feature_graphic.png)
