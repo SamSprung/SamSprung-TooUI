@@ -931,7 +931,7 @@ class CoverPreferences : AppCompatActivity() {
         }
 
         findViewById<WebView>(R.id.webview_wiki).loadUrl(
-            "https://github.com/SamSprung/SamSprung-TooUI/wiki"
+            "https://samsprung.github.io/launcher/"
         )
     }
 
