@@ -112,7 +112,7 @@
                 android:clickable="true"
                 android:focusable="true"
                 android:orientation="vertical"
-                app:behavior_peekHeight="20dp"
+                app:behavior_peekHeight="24dp"
                 app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior">
 
                 <LinearLayout
@@ -120,6 +120,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:gravity="center"
+                    android:paddingTop="1dp"
                     android:paddingHorizontal="10dp"
                     android:orientation="horizontal">
 
