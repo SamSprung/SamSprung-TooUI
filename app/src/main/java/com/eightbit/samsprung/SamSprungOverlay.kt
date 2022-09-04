@@ -360,13 +360,24 @@ class SamSprungOverlay : AppCompatActivity() {
                                         Intent(Settings.Panel.ACTION_INTERNET_CONNECTIVITY)
                                     )
                                 } else {
-                                    IconifiedSnackbar(
+                                    val authBar: Snackbar = IconifiedSnackbar(
                                         this@SamSprungOverlay, bottomSheet as ViewGroup
                                     ).buildTickerBar(
                                         getString(R.string.auth_required),
                                         R.drawable.ic_baseline_fingerprint_24dp,
                                         Snackbar.LENGTH_LONG
-                                    ).show()
+                                    )
+                                    authBar.setAction(R.string.auth_required_action) {
+                                        setKeyguardListener(object : KeyguardListener {
+                                            override fun onKeyguardCheck(unlocked: Boolean) {
+                                                buttonAuth.isVisible = keyguardManager.isDeviceLocked
+                                                wifiEnabler.launch(
+                                                    Intent(Settings.Panel.ACTION_INTERNET_CONNECTIVITY)
+                                                )
+                                            }
+                                        })
+                                    }
+                                    authBar.show()
                                 }
                                 return@setOnMenuItemClickListener true
                             }
@@ -385,13 +396,22 @@ class SamSprungOverlay : AppCompatActivity() {
                                 if (buttonAuth.isGone) {
                                     nfcEnabler.launch(Intent(Settings.Panel.ACTION_NFC))
                                 } else {
-                                    IconifiedSnackbar(
+                                    val authBar: Snackbar = IconifiedSnackbar(
                                         this@SamSprungOverlay, bottomSheet as ViewGroup
                                     ).buildTickerBar(
                                         getString(R.string.auth_required),
                                         R.drawable.ic_baseline_fingerprint_24dp,
                                         Snackbar.LENGTH_LONG
-                                    ).show()
+                                    )
+                                    authBar.setAction(R.string.auth_required_action) {
+                                        setKeyguardListener(object : KeyguardListener {
+                                            override fun onKeyguardCheck(unlocked: Boolean) {
+                                                buttonAuth.isVisible = keyguardManager.isDeviceLocked
+                                                nfcEnabler.launch(Intent(Settings.Panel.ACTION_NFC))
+                                            }
+                                        })
+                                    }
+                                    authBar.show()
                                 }
                                 return@setOnMenuItemClickListener true
                             }
