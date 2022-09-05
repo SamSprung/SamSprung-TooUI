@@ -166,6 +166,8 @@
                         android:id="@+id/toolbar"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:layout_marginTop="2dp"
+                        android:layout_marginBottom="2dp"
                         android:layout_alignParentTop="true"
                         android:layout_centerHorizontal="true"
                         android:minHeight="?attr/actionBarSize"
@@ -174,11 +176,12 @@
                         android:layout_gravity="top|center_horizontal" />
 
                     <LinearLayout
+                        android:id="@+id/device_config"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
                         android:layout_alignParentBottom="true"
                         android:layout_centerHorizontal="true"
-                        android:layout_marginTop="4dp"
+                        android:layout_marginTop="@dimen/button_height_min"
                         android:layout_marginBottom="2dp"
                         android:orientation="horizontal">
 
@@ -186,7 +189,7 @@
                             android:id="@+id/button_auth"
                             android:layout_width="match_parent"
                             android:layout_height="match_parent"
-                            android:layout_margin="?attr/actionBarSize"
+                            android:layout_marginHorizontal="?attr/actionBarSize"
                             android:layout_gravity="center"
                             app:srcCompat="@drawable/ic_baseline_fingerprint_24dp"
                             android:layout_weight="1"
@@ -196,12 +199,11 @@
                             android:id="@+id/button_rotation"
                             android:layout_width="match_parent"
                             android:layout_height="match_parent"
-                            android:layout_margin="?attr/actionBarSize"
+                            android:layout_marginHorizontal="?attr/actionBarSize"
                             android:layout_gravity="center"
                             app:srcCompat="@drawable/ic_baseline_screen_rotation_24"
                             android:layout_weight="1"
                             android:contentDescription="@string/description_icon"/>
-
                     </LinearLayout>
                 </RelativeLayout>
             </LinearLayout>
