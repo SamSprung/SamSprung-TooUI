@@ -87,6 +87,7 @@ import android.view.animation.AlphaAnimation
 import android.view.animation.Animation
 import android.view.animation.TranslateAnimation
 import android.webkit.MimeTypeMap
+import android.webkit.WebSettings
 import android.webkit.WebView
 import android.widget.*
 import androidx.activity.result.contract.ActivityResultContracts
@@ -126,6 +127,7 @@ import kotlinx.coroutines.sync.withLock
 import myinnos.indexfastscrollrecycler.IndexFastScrollRecyclerView
 import java.io.*
 import java.util.concurrent.Executors
+import java.util.regex.Pattern
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
 
@@ -159,7 +161,7 @@ class CoverPreferences : AppCompatActivity() {
     private val iapSkuDetails = ArrayList<ProductDetails>()
     private val subSkuDetails = ArrayList<ProductDetails>()
 
-    @SuppressLint("ClickableViewAccessibility")
+    @SuppressLint("ClickableViewAccessibility", "InflateParams")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -217,6 +219,7 @@ class CoverPreferences : AppCompatActivity() {
             }
             val donateDialog: Dialog = dialog.setView(view).show()
             if (!SamSprung.isGooglePlay()) {
+                @SuppressLint("InflateParams")
                 val paypal: View = layoutInflater.inflate(R.layout.button_paypal, null)
                 paypal.setOnClickListener {
                     startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(
@@ -930,9 +933,18 @@ class CoverPreferences : AppCompatActivity() {
             true
         }
 
-        findViewById<WebView>(R.id.webview_wiki).loadUrl(
-            "https://samsprung.github.io/launcher/"
+        val mWebView = findViewById<WebView>(R.id.webview_wiki)
+        val webViewSettings: WebSettings = mWebView.settings
+        mWebView.isScrollbarFadingEnabled = true
+        webViewSettings.loadWithOverviewMode = true
+        webViewSettings.useWideViewPort = true
+        webViewSettings.javaScriptEnabled = true
+        webViewSettings.domStorageEnabled = true
+        webViewSettings.cacheMode = WebSettings.LOAD_NO_CACHE
+        webViewSettings.userAgentString = webViewSettings.userAgentString.replace(
+            "(?i)" + Pattern.quote("android").toRegex(), "SamSprung"
         )
+        mWebView.loadUrl("https://samsprung.github.io/launcher/")
     }
 
     private fun setAnimatedUpdateNotice(appUpdateInfo: AppUpdateInfo?, downloadUrl: String?) {
