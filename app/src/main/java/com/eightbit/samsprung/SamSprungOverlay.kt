@@ -317,11 +317,11 @@ class SamSprungOverlay : AppCompatActivity() {
         buttonAuth.setOnClickListener {
             setKeyguardListener(object: KeyguardListener {
                 override fun onKeyguardCheck(unlocked: Boolean) {
-                    buttonAuth.isVisible = keyguardManager.isDeviceLocked
+                    setKeyguardIndicator(keyguardManager, buttonAuth)
                 }
             })
         }
-        buttonAuth.isVisible = keyguardManager.isDeviceLocked
+        setKeyguardIndicator(keyguardManager, buttonAuth)
 
         val buttonRotation = findViewById<AppCompatImageView>(R.id.button_rotation)
         buttonRotation.setOnClickListener {
@@ -355,7 +355,7 @@ class SamSprungOverlay : AppCompatActivity() {
                     toolbar.setOnMenuItemClickListener { item: MenuItem ->
                         when (item.itemId) {
                             R.id.toggle_wifi -> {
-                                if (buttonAuth.isGone) {
+                                if (buttonAuth.isInvisible) {
                                     wifiEnabler.launch(
                                         Intent(Settings.Panel.ACTION_INTERNET_CONNECTIVITY)
                                     )
@@ -370,10 +370,7 @@ class SamSprungOverlay : AppCompatActivity() {
                                     authBar.setAction(R.string.auth_required_action) {
                                         setKeyguardListener(object : KeyguardListener {
                                             override fun onKeyguardCheck(unlocked: Boolean) {
-                                                buttonAuth.isVisible = keyguardManager.isDeviceLocked
-                                                wifiEnabler.launch(
-                                                    Intent(Settings.Panel.ACTION_INTERNET_CONNECTIVITY)
-                                                )
+                                                setKeyguardIndicator(keyguardManager, buttonAuth)
                                             }
                                         })
                                     }
@@ -393,7 +390,7 @@ class SamSprungOverlay : AppCompatActivity() {
                                 return@setOnMenuItemClickListener true
                             }
                             R.id.toggle_nfc -> {
-                                if (buttonAuth.isGone) {
+                                if (buttonAuth.isInvisible) {
                                     nfcEnabler.launch(Intent(Settings.Panel.ACTION_NFC))
                                 } else {
                                     val authBar: Snackbar = IconifiedSnackbar(
@@ -406,8 +403,7 @@ class SamSprungOverlay : AppCompatActivity() {
                                     authBar.setAction(R.string.auth_required_action) {
                                         setKeyguardListener(object : KeyguardListener {
                                             override fun onKeyguardCheck(unlocked: Boolean) {
-                                                buttonAuth.isVisible = keyguardManager.isDeviceLocked
-                                                nfcEnabler.launch(Intent(Settings.Panel.ACTION_NFC))
+                                                setKeyguardIndicator(keyguardManager, buttonAuth)
                                             }
                                         })
                                     }
@@ -470,7 +466,7 @@ class SamSprungOverlay : AppCompatActivity() {
                         color = configureMenuIcons(toolbar)
                         batteryLevel.setTextColor(color)
                         clock.setTextColor(color)
-                        buttonAuth.isVisible = keyguardManager.isDeviceLocked
+                        setKeyguardIndicator(keyguardManager, buttonAuth)
                     }
                 }
             }
@@ -655,6 +651,10 @@ class SamSprungOverlay : AppCompatActivity() {
         setMenuButtonGravity(menuButton)
         menuButton.drawable.setTint(color)
         menuButton.alpha = prefs.getFloat(SamSprung.prefAlphas, 1f)
+    }
+
+    private fun setKeyguardIndicator(keyguardManager: KeyguardManager, button: AppCompatImageView) {
+        button.isInvisible = !keyguardManager.isDeviceLocked
     }
 
     private fun showBottomHandle(bottomHandle: View, menuButton: FloatingActionButton) {
