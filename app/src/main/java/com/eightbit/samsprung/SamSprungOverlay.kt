@@ -315,13 +315,9 @@ class SamSprungOverlay : AppCompatActivity() {
         val keyguardManager = (getSystemService(KEYGUARD_SERVICE) as KeyguardManager)
         val buttonAuth = findViewById<AppCompatImageView>(R.id.button_auth)
         buttonAuth.setOnClickListener {
-            setKeyguardListener(object: KeyguardListener {
-                override fun onKeyguardCheck(unlocked: Boolean) {
-                    setKeyguardIndicator(keyguardManager, buttonAuth)
-                }
-            })
+            onKeyguardClicked(keyguardManager, buttonAuth)
         }
-        setKeyguardIndicator(keyguardManager, buttonAuth)
+        setKeyguardStatus(keyguardManager, buttonAuth)
 
         val buttonRotation = findViewById<AppCompatImageView>(R.id.button_rotation)
         buttonRotation.setOnClickListener {
@@ -368,11 +364,7 @@ class SamSprungOverlay : AppCompatActivity() {
                                         Snackbar.LENGTH_LONG
                                     )
                                     authBar.setAction(R.string.auth_required_action) {
-                                        setKeyguardListener(object : KeyguardListener {
-                                            override fun onKeyguardCheck(unlocked: Boolean) {
-                                                setKeyguardIndicator(keyguardManager, buttonAuth)
-                                            }
-                                        })
+                                        onKeyguardClicked(keyguardManager, buttonAuth)
                                     }
                                     authBar.show()
                                 }
@@ -401,11 +393,7 @@ class SamSprungOverlay : AppCompatActivity() {
                                         Snackbar.LENGTH_LONG
                                     )
                                     authBar.setAction(R.string.auth_required_action) {
-                                        setKeyguardListener(object : KeyguardListener {
-                                            override fun onKeyguardCheck(unlocked: Boolean) {
-                                                setKeyguardIndicator(keyguardManager, buttonAuth)
-                                            }
-                                        })
+                                        onKeyguardClicked(keyguardManager, buttonAuth)
                                     }
                                     authBar.show()
                                 }
@@ -466,7 +454,7 @@ class SamSprungOverlay : AppCompatActivity() {
                         color = configureMenuIcons(toolbar)
                         batteryLevel.setTextColor(color)
                         clock.setTextColor(color)
-                        setKeyguardIndicator(keyguardManager, buttonAuth)
+                        setKeyguardStatus(keyguardManager, buttonAuth)
                     }
                 }
             }
@@ -653,8 +641,16 @@ class SamSprungOverlay : AppCompatActivity() {
         menuButton.alpha = prefs.getFloat(SamSprung.prefAlphas, 1f)
     }
 
-    private fun setKeyguardIndicator(keyguardManager: KeyguardManager, button: AppCompatImageView) {
+    private fun setKeyguardStatus(keyguardManager: KeyguardManager, button: AppCompatImageView) {
         button.isInvisible = !keyguardManager.isDeviceLocked
+    }
+
+    private fun onKeyguardClicked(keyguardManager: KeyguardManager, button: AppCompatImageView) {
+        setKeyguardListener(object: KeyguardListener {
+            override fun onKeyguardCheck(unlocked: Boolean) {
+                setKeyguardStatus(keyguardManager, button)
+            }
+        })
     }
 
     private fun showBottomHandle(bottomHandle: View, menuButton: FloatingActionButton) {
