@@ -94,6 +94,7 @@ import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.core.content.ContextCompat
 import androidx.core.view.*
 import androidx.fragment.app.FragmentActivity
+import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import androidx.viewpager2.widget.ViewPager2
 import com.eightbit.content.ScaledContext
@@ -515,6 +516,7 @@ class SamSprungOverlay : AppCompatActivity() {
         } else {
             viewPager.setPageTransformer(null)
         }
+        setViewPagerSensitivity(viewPager, 1)
         viewPager.registerOnPageChangeCallback(object: ViewPager2.OnPageChangeCallback() {
             override fun onPageSelected(position: Int) {
                 super.onPageSelected(position)
@@ -799,6 +801,22 @@ class SamSprungOverlay : AppCompatActivity() {
             }
         }
         menuButton.keepScreenOn = false
+    }
+
+    private fun setViewPagerSensitivity(viewPager: ViewPager2, sensitivity: Int) {
+        try {
+            val ff = ViewPager2::class.java.getDeclaredField("mRecyclerView")
+            ff.isAccessible = true
+            val recyclerView = ff[viewPager] as RecyclerView
+            val touchSlopField = RecyclerView::class.java.getDeclaredField("mTouchSlop")
+            touchSlopField.isAccessible = true
+            val touchSlop = touchSlopField[recyclerView] as Int
+            touchSlopField[recyclerView] = touchSlop * sensitivity
+        } catch (e: NoSuchFieldException) {
+            e.printStackTrace()
+        } catch (e: IllegalAccessException) {
+            e.printStackTrace()
+        }
     }
 
     private fun configureMenuVisibility(toolbar: Toolbar) {
