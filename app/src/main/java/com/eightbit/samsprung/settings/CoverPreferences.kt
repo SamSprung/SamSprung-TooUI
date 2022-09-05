@@ -1279,9 +1279,31 @@ class CoverPreferences : AppCompatActivity() {
         }, 50)
     }
 
+    private fun initializeLayout() {
+        startForegroundService(Intent(
+            ScaledContext.cover(this), OnBroadcastService::class.java
+        ))
+        if (!prefs.getBoolean(SamSprung.prefWarned, false)) {
+            wikiDrawer.openDrawer(GravityCompat.START)
+            with(prefs.edit()) {
+                putBoolean(SamSprung.prefWarned, true)
+                apply()
+            }
+        }
+        requestStorage.launch(Manifest.permission.READ_EXTERNAL_STORAGE)
+    }
+
+    override fun onNewIntent(intent: Intent?) {
+        super.onNewIntent(intent)
+        initializeLayout()
+    }
+
     private var widgetNotice : Snackbar? = null
     private var hasWarned = false
-    private fun initializeLayout() {
+    private fun setLoadCompleted() {
+        val loadCount: Int = prefs.getInt(SamSprung.prefReload, 0)
+        if (loadCount == 0) onShowDonationNotice()
+        prefs.edit().putInt(SamSprung.prefReload, if (loadCount <= 3) loadCount + 1 else 0).apply()
         val onBackPressedCallback = object: OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
                 when {
@@ -1309,28 +1331,6 @@ class CoverPreferences : AppCompatActivity() {
             }
         }
         onBackPressedDispatcher.addCallback(this, onBackPressedCallback)
-        startForegroundService(Intent(
-            ScaledContext.cover(this), OnBroadcastService::class.java
-        ))
-        if (!prefs.getBoolean(SamSprung.prefWarned, false)) {
-            wikiDrawer.openDrawer(GravityCompat.START)
-            with(prefs.edit()) {
-                putBoolean(SamSprung.prefWarned, true)
-                apply()
-            }
-        }
-        requestStorage.launch(Manifest.permission.READ_EXTERNAL_STORAGE)
-    }
-
-    override fun onNewIntent(intent: Intent?) {
-        super.onNewIntent(intent)
-        initializeLayout()
-    }
-
-    private fun setLoadCompleted() {
-        val loadCount: Int = prefs.getInt(SamSprung.prefReload, 0)
-        if (loadCount == 0) onShowDonationNotice()
-        prefs.edit().putInt(SamSprung.prefReload, if (loadCount <= 3) loadCount + 1 else 0).apply()
     }
 
     override fun onRestart() {
