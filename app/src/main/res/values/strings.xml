@@ -71,6 +71,7 @@
     <string name="sub_button">%1$s Subscription</string>
     <string name="iap_button">%1$s Donation</string>
     <string name="donation_thanks">Thank you for your support!</string>
+    <string name="donation_notice">SamSprung is and will remain a free project.\nAll development is funded through donations.</string>
 
     <string name="menu_recent">Recent</string>
     <string name="menu_home">Home</string>

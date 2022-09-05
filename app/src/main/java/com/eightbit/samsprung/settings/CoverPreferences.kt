@@ -69,10 +69,7 @@ import android.graphics.Matrix
 import android.graphics.drawable.ColorDrawable
 import android.icu.text.DecimalFormatSymbols
 import android.net.Uri
-import android.os.Build
-import android.os.Bundle
-import android.os.PowerManager
-import android.os.Process
+import android.os.*
 import android.provider.MediaStore
 import android.provider.Settings
 import android.text.Spannable
@@ -90,6 +87,7 @@ import android.webkit.MimeTypeMap
 import android.webkit.WebSettings
 import android.webkit.WebView
 import android.widget.*
+import androidx.activity.OnBackPressedCallback
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
@@ -118,6 +116,7 @@ import com.eightbit.samsprung.*
 import com.eightbit.view.AnimatedLinearLayout
 import com.eightbitlab.blurview.BlurView
 import com.eightbitlab.blurview.RenderScriptBlur
+import com.google.android.material.snackbar.Snackbar
 import com.google.android.play.core.appupdate.AppUpdateInfo
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -169,6 +168,8 @@ class CoverPreferences : AppCompatActivity() {
         setTheme(R.style.Theme_SecondScreen)
         setContentView(R.layout.preferences_layout)
 
+        setLoadCompleted()
+
         val componentName = ComponentName(applicationContext, NotificationReceiver::class.java)
         packageManager.setComponentEnabledSetting(componentName,
             PackageManager.COMPONENT_ENABLED_STATE_DISABLED, PackageManager.DONT_KILL_APP
@@ -195,42 +196,7 @@ class CoverPreferences : AppCompatActivity() {
         initializeLayout()
 
         val googlePlay = findViewById<LinearLayout>(R.id.button_donate)
-        googlePlay.setOnClickListener {
-            val view: LinearLayout = layoutInflater
-                .inflate(R.layout.donation_layout, null) as LinearLayout
-            val dialog = AlertDialog.Builder(
-                ContextThemeWrapper(this, R.style.DialogTheme_NoActionBar)
-            )
-            val donations = view.findViewById<LinearLayout>(R.id.donation_layout)
-            for (skuDetail: ProductDetails in iapSkuDetails
-                .sortedBy { skuDetail -> skuDetail.productId }) {
-                if (null == skuDetail.oneTimePurchaseOfferDetails) continue
-                donations.addView(getDonationButton(skuDetail))
-            }
-            val subscriptions = view.findViewById<LinearLayout>(R.id.subscription_layout)
-            for (skuDetail: ProductDetails in subSkuDetails
-                .sortedBy { skuDetail -> skuDetail.productId }) {
-                if (null == skuDetail.subscriptionOfferDetails) continue
-                subscriptions.addView(getSubscriptionButton(skuDetail))
-            }
-            dialog.setOnCancelListener {
-                donations.removeAllViewsInLayout()
-                subscriptions.removeAllViewsInLayout()
-            }
-            val donateDialog: Dialog = dialog.setView(view).show()
-            if (!SamSprung.isGooglePlay()) {
-                @SuppressLint("InflateParams")
-                val paypal: View = layoutInflater.inflate(R.layout.button_paypal, null)
-                paypal.setOnClickListener {
-                    startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(
-                        "https://www.paypal.com/donate/?hosted_button_id=Q2LFH2SC8RHRN"
-                    )))
-                    donateDialog.cancel()
-                }
-                view.addView(paypal)
-            }
-            donateDialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
-        }
+        googlePlay.setOnClickListener { onSendDonationClicked() }
 
         findViewById<LinearLayout>(R.id.logcat).setOnClickListener {
             if (updateCheck?.hasPendingUpdate() == true) {
@@ -1265,28 +1231,84 @@ class CoverPreferences : AppCompatActivity() {
         return true
     }
 
-    private var hasWarned = false
-    override fun onBackPressed() {
-        if (wikiDrawer.isDrawerOpen(GravityCompat.START)) {
-            wikiDrawer.closeDrawer(GravityCompat.START)
-        } else if (!hasWarned) {
-            mainSwitch.postDelayed({
-                hasWarned = true
-            }, 250)
-            IconifiedSnackbar(this).buildTickerBar(
-                if (mainSwitch.isChecked)
-                    getString(R.string.cover_widget_warning)
-                else
-                    getString(R.string.cover_widget_warning)
-                            + getString(R.string.cover_switch_warning)
-            ).show()
-        } else {
-            super.onBackPressed()
-            hasWarned = false
+    private fun onSendDonationClicked() {
+        val view: LinearLayout = layoutInflater
+            .inflate(R.layout.donation_layout, null) as LinearLayout
+        val dialog = AlertDialog.Builder(
+            ContextThemeWrapper(this, R.style.DialogTheme_NoActionBar)
+        )
+        val donations = view.findViewById<LinearLayout>(R.id.donation_layout)
+        for (skuDetail: ProductDetails in iapSkuDetails
+            .sortedBy { skuDetail -> skuDetail.productId }) {
+            if (null == skuDetail.oneTimePurchaseOfferDetails) continue
+            donations.addView(getDonationButton(skuDetail))
         }
+        val subscriptions = view.findViewById<LinearLayout>(R.id.subscription_layout)
+        for (skuDetail: ProductDetails in subSkuDetails
+            .sortedBy { skuDetail -> skuDetail.productId }) {
+            if (null == skuDetail.subscriptionOfferDetails) continue
+            subscriptions.addView(getSubscriptionButton(skuDetail))
+        }
+        dialog.setOnCancelListener {
+            donations.removeAllViewsInLayout()
+            subscriptions.removeAllViewsInLayout()
+        }
+        val donateDialog: Dialog = dialog.setView(view).show()
+        if (!SamSprung.isGooglePlay()) {
+            @SuppressLint("InflateParams")
+            val paypal: View = layoutInflater.inflate(R.layout.button_paypal, null)
+            paypal.setOnClickListener {
+                startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(
+                    "https://www.paypal.com/donate/?hosted_button_id=Q2LFH2SC8RHRN"
+                )))
+                donateDialog.cancel()
+            }
+            view.addView(paypal)
+        }
+        donateDialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
     }
 
+    private fun onShowDonationNotice() {
+        Handler(Looper.getMainLooper()).postDelayed({
+            val donorNotice = IconifiedSnackbar(this).buildSnackbar(
+                R.string.donation_notice,
+                R.drawable.ic_github_octocat_24dp, Snackbar.LENGTH_LONG
+            )
+            donorNotice.setAction(R.string.donate_link) { onSendDonationClicked() }
+            donorNotice.show()
+        }, 50)
+    }
+
+    private var widgetNotice : Snackbar? = null
+    private var hasWarned = false
     private fun initializeLayout() {
+        val onBackPressedCallback = object: OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                when {
+                    wikiDrawer.isDrawerOpen(GravityCompat.START) ->
+                        wikiDrawer.closeDrawer(GravityCompat.START)
+                    !hasWarned -> {
+                        mainSwitch.postDelayed({
+                            hasWarned = true
+                        }, 250)
+                        widgetNotice = IconifiedSnackbar(this@CoverPreferences).buildTickerBar(
+                            if (mainSwitch.isChecked)
+                                getString(R.string.cover_widget_warning)
+                            else
+                                getString(R.string.cover_widget_warning)
+                                        + getString(R.string.cover_switch_warning)
+                        )
+                        widgetNotice?.show()
+                    }
+                    else -> {
+                        widgetNotice?.dismiss()
+                        finish()
+                        hasWarned = false
+                    }
+                }
+            }
+        }
+        onBackPressedDispatcher.addCallback(this, onBackPressedCallback)
         startForegroundService(Intent(
             ScaledContext.cover(this), OnBroadcastService::class.java
         ))
@@ -1303,6 +1325,17 @@ class CoverPreferences : AppCompatActivity() {
     override fun onNewIntent(intent: Intent?) {
         super.onNewIntent(intent)
         initializeLayout()
+    }
+
+    private fun setLoadCompleted() {
+        val loadCount: Int = prefs.getInt(SamSprung.prefReload, 0)
+        if (loadCount == 0) onShowDonationNotice()
+        prefs.edit().putInt(SamSprung.prefReload, if (loadCount <= 3) loadCount + 1 else 0).apply()
+    }
+
+    override fun onRestart() {
+        setLoadCompleted()
+        super.onRestart()
     }
 
     private fun File.writeBitmap(bitmap: Bitmap, format: Bitmap.CompressFormat, quality: Int) {
