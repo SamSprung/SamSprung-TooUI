@@ -361,8 +361,7 @@ class SamSprungOverlay : AppCompatActivity() {
                                         this@SamSprungOverlay, bottomSheet as ViewGroup
                                     ).buildTickerBar(
                                         getString(R.string.auth_required),
-                                        R.drawable.ic_baseline_fingerprint_24dp,
-                                        Snackbar.LENGTH_LONG
+                                        R.drawable.ic_baseline_fingerprint_24dp
                                     )
                                     authBar.setAction(R.string.auth_required_action) {
                                         onKeyguardClicked(keyguardManager, buttonAuth)
@@ -390,8 +389,7 @@ class SamSprungOverlay : AppCompatActivity() {
                                         this@SamSprungOverlay, bottomSheet as ViewGroup
                                     ).buildTickerBar(
                                         getString(R.string.auth_required),
-                                        R.drawable.ic_baseline_fingerprint_24dp,
-                                        Snackbar.LENGTH_LONG
+                                        R.drawable.ic_baseline_fingerprint_24dp
                                     )
                                     authBar.setAction(R.string.auth_required_action) {
                                         onKeyguardClicked(keyguardManager, buttonAuth)
@@ -762,8 +760,7 @@ class SamSprungOverlay : AppCompatActivity() {
                 authDialog.dismiss()
                 IconifiedSnackbar(this@SamSprungOverlay, viewPager).buildTickerBar(
                     getString(R.string.auth_unavailable),
-                    R.drawable.ic_baseline_fingerprint_24dp,
-                    Snackbar.LENGTH_LONG
+                    R.drawable.ic_baseline_fingerprint_24dp
                 ).show()
                 keyguardListener?.onKeyguardCheck(false)
             }

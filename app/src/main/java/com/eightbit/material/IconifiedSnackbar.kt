@@ -1,6 +1,7 @@
 package com.eightbit.material
 
 import android.content.res.Configuration
+import android.content.res.Resources
 import android.view.Gravity
 import android.view.View
 import android.view.ViewGroup
@@ -100,6 +101,15 @@ class IconifiedSnackbar {
         params.gravity = Gravity.TOP
         snackbar.view.layoutParams = params
         return snackbar
+    }
+
+    fun buildTickerBar(msg: String?, value: Int): Snackbar {
+        return try {
+            mActivity.get()!!.resources.getResourceTypeName(value)
+            buildTickerBar(msg, value, Snackbar.LENGTH_LONG)
+        } catch (exception: Exception) {
+            buildTickerBar(msg, R.drawable.ic_baseline_samsprung_24dp, value)
+        }
     }
 
     fun buildTickerBar(msg: String?): Snackbar {

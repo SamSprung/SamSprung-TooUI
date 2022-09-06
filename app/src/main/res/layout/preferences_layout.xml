@@ -32,7 +32,8 @@
                 android:layout_marginTop="0dp"
                 android:background="?colorPrimary" />
 
-            <include layout="@layout/social_menu_bar" />
+            <include layout="@layout/social_menu_bar"
+                android:id="@+id/social_menu"/>
 
             <ScrollView
                 android:id="@+id/nested_options"

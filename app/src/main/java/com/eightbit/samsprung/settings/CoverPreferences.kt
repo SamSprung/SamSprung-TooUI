@@ -904,6 +904,7 @@ class CoverPreferences : AppCompatActivity() {
         mWebView.isScrollbarFadingEnabled = true
         webViewSettings.loadWithOverviewMode = true
         webViewSettings.useWideViewPort = true
+        @SuppressLint("SetJavaScriptEnabled")
         webViewSettings.javaScriptEnabled = true
         webViewSettings.domStorageEnabled = true
         webViewSettings.cacheMode = WebSettings.LOAD_NO_CACHE
@@ -1299,7 +1300,6 @@ class CoverPreferences : AppCompatActivity() {
     }
 
     private var widgetNotice : Snackbar? = null
-    private var hasWarned = false
     private fun setLoadCompleted() {
         val loadCount: Int = prefs.getInt(SamSprung.prefReload, 0)
         if (loadCount == 0) onShowDonationNotice()
@@ -1309,23 +1309,24 @@ class CoverPreferences : AppCompatActivity() {
                 when {
                     wikiDrawer.isDrawerOpen(GravityCompat.START) ->
                         wikiDrawer.closeDrawer(GravityCompat.START)
-                    !hasWarned -> {
-                        mainSwitch.postDelayed({
-                            hasWarned = true
-                        }, 250)
-                        widgetNotice = IconifiedSnackbar(this@CoverPreferences).buildTickerBar(
+                    null == widgetNotice -> {
+                        val social = findViewById<LinearLayout>(R.id.social_menu)
+                        widgetNotice = IconifiedSnackbar(
+                            this@CoverPreferences, social
+                        ).buildTickerBar(
                             if (mainSwitch.isChecked)
                                 getString(R.string.cover_widget_warning)
                             else
                                 getString(R.string.cover_widget_warning)
-                                        + getString(R.string.cover_switch_warning)
-                        )
-                        widgetNotice?.show()
+                                        + getString(R.string.cover_switch_warning),
+                            Snackbar.LENGTH_INDEFINITE)
+                        social.postDelayed({
+                            widgetNotice?.show()
+                        }, 250)
                     }
                     else -> {
                         widgetNotice?.dismiss()
                         finish()
-                        hasWarned = false
                     }
                 }
             }
