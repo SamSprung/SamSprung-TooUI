@@ -1,8 +1,112 @@
 <resources>
-    <string name="swap_viewgrid">목록 스타일로 표시</string>
-    <string name="swap_viewlist">격자 스타일로 표시</string>
-    <string name="display_service">%1$s 화면서비스</string>
-    <string name="update_service">%1$s 서비스 업데이트</string>
-    <string name="loading_text">로딩중&#8230;</string>
+    <string name="permission_options">권한</string>
+    <string name="permission_notifications">알림</string>
+    <string name="details_notifications">알림 보기 및 상호 작용</string>
+    <string name="permission_voice">음성 시작</string>
+    <string name="details_voice">음성 활성화 앱 실행 허용</string>
+    <string name="permission_usage">사용 액세스</string>
+    <string name="details_usage">최근에 사용한 앱 서랍 정렬</string>
+    <string name="permission_optimization">배터리 무시</string>
+    <string name="details_optimization">조기 서비스 종료 방지</string>
+    <string name="permission_accessibility">접근성</string>
+    <string name="details_accessibility">탐색에서 뒤로 버튼 사용</string>
+
+    <string name="config_options">호환성</string>
+    <string name="options_keyboard">키보드 / IME</string>
+    <string name="details_keyboard">$1.99 활성 개발을 유지할 수 있습니다</string>
+
+    <string name="general_options">커버 설정</string>
+    <string name="options_placement">아이콘 정렬</string>
+    <string name="options_theme">테마 선택</string>
+    <string-array name="theme_options">
+        <item>Auto</item>
+        <item>Dark</item>
+        <item>Light</item>
+    </string-array>
+    <string name="toggle_options">토글</string>
+
+    <string name="drawer_options">서랍 옵션</string>
+    <string name="options_vibration">터치 피드백</string>
+    <string name="options_gestures">서랍 제스처</string>
+    <string name="options_animate">페이지 애니메이션</string>
+    <string name="options_length">행당 앱 &#160;%1$s</string>
+    <string name="options_search">앱 검색 창</string>
+    <string name="options_wallpaper">배경 화면 설정</string>
+    <string name="options_radius">배경 화면 흐림</string>
+    <string name="options_timeout">화면 시간 초과 &#160;%1$s</string>
+
+    <string name="swap_viewgrid">그리드 보기를 목록 보기 스타일로 전환</string>
+    <string name="swap_viewlist">목록보기를 그리드 뷰 스타일로 전환</string>
+
+    <string name="notice_options">알림</string>
+    <string name="options_dismiss">스누즈 길이 (%1$sᵐ)</string>
+
+    <string name="visibility_options">앱 가시성</string>
+
+    <string name="donate_link">기부</string>
+    <string name="paypal_link">PayPal 으로 기부</string>
+    <string name="logcat_link">문제?</string>
+
+    <string name="keyboard_missing">Keyboard required!</string>
+    <string name="wallpaper_cleared">Wallpaper reset!</string>
+
+    <string name="button_confirm">Confirm</string>
+    <string name="button_cancel">Cancel</string>
+    <string name="button_wiki">Visit Wiki</string>
+    <string name="button_uninstall">Uninstall</string>
+    <string name="button_disable">Disable</string>
+
+    <string name="color_red">빨간</string>
+    <string name="color_green">녹색</string>
+    <string name="color_blue">블루</string>
+    <string name="color_alpha">커버 바 불투명도</string>
+
+    <string name="overlay_service">%1$s 오버레이 서비스</string>
+    <string name="display_service">%1$s 디스플레이 서비스</string>
+    <string name="update_service">%1$s 업데이트 가능</string>
+
+    <string name="loading_text">로드 중&#8230;</string>
+
+    <string name="sub_button">%1$s 구독</string>
+    <string name="iap_button">%1$s 기부</string>
+    <string name="donation_thanks">당신의 지원을 당신을 감사하십시오!</string>
+    <string name="donation_notice">SamSprung 는 무료 프로젝트로 남을 것입니다.\n모든 개발은 기부를 통해 자금을 지원합니다.</string>
+
+    <string name="menu_recent">Recent</string>
+    <string name="menu_home">Home</string>
+    <string name="menu_back">Back</string>
+
+    <string name="toggle_wifi">Toggle Wifi</string>
+    <string name="toggle_bluetooth">Toggle Bluetooth</string>
+    <string name="toggle_nfc">Toggle NFC</string>
+    <string name="toggle_sound">Toggle Sound</string>
+    <string name="toggle_dnd">Toggle DnD</string>
+    <string name="toggle_torch">Toggle Torch</string>
+    <string name="toggle_widgets">Toggle Widgets</string>
+    <string name="color_theme">Menu Accent Color</string>
+
     <string name="lock_enabled">장치가 잠겨 있습니다!</string>
+
+    <string name="incompatibility_warning">SamSprung is not compatible with apps that block the entire screen.\nPlease remove or disable this app to continue.</string>
+    <string name="cover_widget_warning">중요:이 커버 화면 위젯이 아닙니다\n!! Questo non è un widget / Este não é um widget !!</string>
+    <string name="cover_switch_warning">\nMain switch must be enabled to appear on cover.</string>
+
+    <string name="main_screen_required">계속하려면 장치 열기</string>
+    <string name="incompatible_fragment">패널을 삭제할 수 없습니다</string>
+
+    <string name="accessibility_disclaimer">접근성을 통해 하드웨어 뒤로 버튼을 시뮬레이션 할 수 있습니다.\n\nClick confirm to open Accessibility\n\nInstalled apps -> SamSprung Navigation\n&#160;&#160;&#160;&#160;-> Toggle switch on -> Allow to enable.</string>
+    <string name="accessibility_service">SamSprung 내비게이션</string>
+    <string name="accessibility_details">가상 탐색 작업 및 하드웨어 지원을 활성화합니다.</string>
+
+    <string name="fingerprint_required">휴대 전화 잠금 해제\n지문 잠금 해제 사용</string>
+    <string name="auth_unavailable">Bixby unlock required to continue!</string>
+    <string name="auth_required">지문 필요!</string>
+    <string name="auth_required_action">스캔</string>
+
+    <string name="widget_cancel">위젯 선택 취소</string>
+    <!-- Error message when user has filled a panel or cancelled configuration -->
+    <string name="out_of_space">Cancelled adding widget</string>
+    <!-- Text to show user in place of a widget when we can't display it properly -->
+    <string name="gadget_error_text">Problem loading widget</string>
+    <string name="widget_error">Widget unavailable!</string>
 </resources>
