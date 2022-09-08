@@ -116,7 +116,9 @@ class Debug(private var context: Context) {
         } catch (ex: ActivityNotFoundException) {
             val clipboard: ClipboardManager = context
                 .getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
-            clipboard.setPrimaryClip(ClipData.newPlainText("SamSprung-TooUI", logText))
+            clipboard.setPrimaryClip(ClipData.newPlainText(context.getString(
+                        R.string.git_issue_title, BuildConfig.COMMIT
+            ), logText))
             context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(issueUrl)))
         }
     }
