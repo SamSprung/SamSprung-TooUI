@@ -108,7 +108,7 @@ class Debug(private var context: Context) {
         val emailIntent = Intent(Intent.ACTION_SEND)
         emailIntent.type = "text/plain"
         emailIntent.putExtra(Intent.EXTRA_EMAIL, arrayOf("samsprungtoo@gmail.com"))
-        emailIntent.putExtra(Intent.EXTRA_SUBJECT, "SamSprung-TooUI Logcat")
+        emailIntent.putExtra(Intent.EXTRA_SUBJECT, "SamSprung TooUI Logcat")
         emailIntent.putExtra(Intent.EXTRA_TEXT, logText)
         emailIntent.type = "message/rfc822"
         try {
