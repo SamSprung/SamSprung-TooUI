@@ -890,9 +890,13 @@ class CoverPreferences : AppCompatActivity() {
                     nestedOptions.layoutParams.height += y
                     if (srcHeight != nestedOptions.layoutParams.height) nestedOptions.requestLayout()
                 } else if (event.action == MotionEvent.ACTION_UP) {
-                    val minHeight: Float = v.height + resources.getDimension(R.dimen.sliding_bar_margin)
-                    if (nestedOptions.layoutParams.height > coordinator.height - minHeight.toInt())
-                        nestedOptions.layoutParams.height = coordinator.height - minHeight.toInt()
+                    if (nestedOptions.layoutParams.height + y < 0f) {
+                        nestedOptions.layoutParams.height = 0;
+                    } else {
+                        val minHeight: Float = v.height + resources.getDimension(R.dimen.sliding_bar_margin)
+                        if (nestedOptions.layoutParams.height > coordinator.height - minHeight.toInt())
+                            nestedOptions.layoutParams.height = coordinator.height - minHeight.toInt()
+                    }
                     if (srcHeight != nestedOptions.layoutParams.height) nestedOptions.requestLayout()
                 }
             }
