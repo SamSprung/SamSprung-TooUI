@@ -870,7 +870,7 @@ class CoverPreferences : AppCompatActivity() {
             DividerItemDecoration(this, DividerItemDecoration.VERTICAL)
         )
         hiddenList.adapter = FilteredAppsAdapter(packageManager, packages, unlisted, prefs)
-        //noinspection deprecation
+        @Suppress("DEPRECATION")
         hiddenList.setOnScrollListener(object : RecyclerView.OnScrollListener() {
             override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
                 super.onScrollStateChanged(recyclerView, newState)
@@ -891,7 +891,7 @@ class CoverPreferences : AppCompatActivity() {
                     if (srcHeight != nestedOptions.layoutParams.height) nestedOptions.requestLayout()
                 } else if (event.action == MotionEvent.ACTION_UP) {
                     if (nestedOptions.layoutParams.height + y < 0f) {
-                        nestedOptions.layoutParams.height = 0;
+                        nestedOptions.layoutParams.height = 0
                     } else {
                         val minHeight: Float = v.height + resources.getDimension(R.dimen.sliding_bar_margin)
                         if (nestedOptions.layoutParams.height > coordinator.height - minHeight.toInt())
@@ -1205,6 +1205,7 @@ class CoverPreferences : AppCompatActivity() {
         return false
     }
 
+    @Suppress("DEPRECATION")
     private fun hasKeyboardInstalled(): Boolean {
         return try {
             packageManager.getPackageInfo(BuildConfig.APPLICATION_ID + ".ime", 0)
@@ -1273,17 +1274,6 @@ class CoverPreferences : AppCompatActivity() {
         donateDialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
     }
 
-    private fun onShowDonationNotice() {
-        Handler(Looper.getMainLooper()).postDelayed({
-            val donorNotice = IconifiedSnackbar(this).buildSnackbar(
-                R.string.donation_notice,
-                R.drawable.ic_github_octocat_24dp, Snackbar.LENGTH_LONG
-            )
-            donorNotice.setAction(R.string.donate_link) { onSendDonationClicked() }
-            donorNotice.show()
-        }, 50)
-    }
-
     private fun initializeLayout() {
         startForegroundService(Intent(
             ScaledContext.cover(this), OnBroadcastService::class.java
@@ -1305,9 +1295,6 @@ class CoverPreferences : AppCompatActivity() {
 
     private var widgetNotice : Snackbar? = null
     private fun setLoadCompleted() {
-        val loadCount: Int = prefs.getInt(SamSprung.prefReload, 0)
-        if (loadCount == 0) onShowDonationNotice()
-        prefs.edit().putInt(SamSprung.prefReload, if (loadCount <= 3) loadCount + 1 else 0).apply()
         val onBackPressedCallback = object: OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
                 when {
