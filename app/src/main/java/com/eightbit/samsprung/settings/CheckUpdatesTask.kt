@@ -59,6 +59,7 @@ import android.content.pm.PackageInstaller
 import android.net.Uri
 import android.os.Build
 import android.provider.Settings
+import androidx.activity.result.ActivityResultLauncher
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.FileProvider
 import androidx.documentfile.provider.DocumentFile
@@ -92,6 +93,7 @@ class CheckUpdatesTask(private var activity: Activity) {
     var listenerPlay: CheckPlayUpdateListener? = null
     private var appUpdateManager: AppUpdateManager? = null
     private var isUpdateAvailable = false
+    var updateLauncher: ActivityResultLauncher<String>? = null
 
     init {
         if (SamSprung.isGooglePlay()) {
@@ -133,13 +135,7 @@ class CheckUpdatesTask(private var activity: Activity) {
                     }
                 }
             }
-            if (activity.packageManager.canRequestPackageInstalls()) {
-                retrieveUpdate()
-            } else if (activity is CoverPreferences) {
-                (activity as CoverPreferences).updateLauncher.launch(
-                    Intent(Settings.ACTION_MANAGE_UNKNOWN_APP_SOURCES).setData(
-                        Uri.parse(String.format("package:%s", activity.packageName))))
-            }
+            retrieveUpdate()
         }
     }
 
@@ -172,19 +168,25 @@ class CheckUpdatesTask(private var activity: Activity) {
     }
 
     fun downloadUpdate(link: String) {
-        val download: String = link.substring(link.lastIndexOf(File.separator) + 1)
-        val apk = File(activity.externalCacheDir, download)
-        CoroutineScope(Dispatchers.IO).launch(Dispatchers.IO) {
-            URL(link).openStream().use { input ->
-                FileOutputStream(apk).use { output ->
-                    input.copyTo(output)
-                    CoroutineScope(Dispatchers.Main).launch(Dispatchers.Main) {
-                        installUpdate(FileProvider.getUriForFile(
-                            activity.applicationContext, SamSprung.provider, apk
-                        ))
+        if (activity.packageManager.canRequestPackageInstalls()) {
+            val download: String = link.substring(link.lastIndexOf(File.separator) + 1)
+            val apk = File(activity.externalCacheDir, download)
+            CoroutineScope(Dispatchers.IO).launch(Dispatchers.IO) {
+                URL(link).openStream().use { input ->
+                    FileOutputStream(apk).use { output ->
+                        input.copyTo(output)
+                        CoroutineScope(Dispatchers.Main).launch(Dispatchers.Main) {
+                            installUpdate(FileProvider.getUriForFile(
+                                activity.applicationContext, SamSprung.provider, apk
+                            ))
+                        }
                     }
                 }
             }
+        } else if (activity is CoverPreferences) {
+            (activity as CoverPreferences).updateLauncher.launch(
+                Intent(Settings.ACTION_MANAGE_UNKNOWN_APP_SOURCES).setData(
+                    Uri.parse(String.format("package:%s", activity.packageName))))
         }
     }
 
