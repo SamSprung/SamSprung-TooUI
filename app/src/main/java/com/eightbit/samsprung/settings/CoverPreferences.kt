@@ -1259,6 +1259,10 @@ class CoverPreferences : AppCompatActivity() {
             donations.removeAllViewsInLayout()
             subscriptions.removeAllViewsInLayout()
         }
+        dialog.setOnDismissListener {
+            donations.removeAllViewsInLayout()
+            subscriptions.removeAllViewsInLayout()
+        }
         val donateDialog: Dialog = dialog.setView(view).show()
         if (!SamSprung.isGooglePlay()) {
             @SuppressLint("InflateParams")
