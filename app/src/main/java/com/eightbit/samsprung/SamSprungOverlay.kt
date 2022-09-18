@@ -106,13 +106,14 @@ import com.eightbit.samsprung.launcher.panels.*
 import com.eightbit.samsprung.settings.CheckUpdatesTask
 import com.eightbit.samsprung.speech.VoiceRecognizer
 import com.eightbit.view.AnimatedLinearLayout
-import com.eightbitlab.blurview.BlurView
-import com.eightbitlab.blurview.RenderScriptBlur
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.snackbar.Snackbar
 import com.google.android.play.core.appupdate.AppUpdateInfo
 import com.wajahatkarim3.easyflipviewpager.CardFlipPageTransformer
+import eightbitlab.com.blurview.BlurView
+import eightbitlab.com.blurview.RenderEffectBlur
+import eightbitlab.com.blurview.RenderScriptBlur
 import org.lsposed.hiddenapibypass.HiddenApiBypass
 import java.io.File
 import java.util.*
@@ -257,11 +258,14 @@ class SamSprungOverlay : AppCompatActivity() {
 
         val blurView = findViewById<BlurView>(R.id.blurContainer)
         if (prefs.getBoolean(SamSprung.prefRadius, true)) {
-            blurView.setupWith(coordinator)
+            blurView.setupWith(coordinator,
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S)
+                    RenderEffectBlur()
+                else
+                    RenderScriptBlur(this)
+            )
                 .setFrameClearDrawable(coordinator.background)
                 .setBlurRadius(1f).setBlurAutoUpdate(true)
-                .setHasFixedTransformationMatrix(false)
-                .setBlurAlgorithm(RenderScriptBlur(this))
         }
 
         wifiManager = getSystemService(WIFI_SERVICE) as WifiManager

@@ -15,7 +15,7 @@
         android:orientation="vertical"
         tools:context=".settings.CoverPreferences">
 
-        <com.eightbitlab.blurview.BlurView
+        <eightbitlab.com.blurview.BlurView
             android:id="@+id/blurContainer"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
@@ -427,7 +427,7 @@
                 app:setPreviewTextColor="@android:color/white"
                 app:setIndexBarShown="false"/>
             </LinearLayout>
-        </com.eightbitlab.blurview.BlurView>
+        </eightbitlab.com.blurview.BlurView>
     </androidx.coordinatorlayout.widget.CoordinatorLayout>
 
     <com.google.android.material.navigation.NavigationView

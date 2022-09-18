@@ -69,7 +69,10 @@ import android.graphics.Matrix
 import android.graphics.drawable.ColorDrawable
 import android.icu.text.DecimalFormatSymbols
 import android.net.Uri
-import android.os.*
+import android.os.Build
+import android.os.Bundle
+import android.os.PowerManager
+import android.os.Process
 import android.provider.MediaStore
 import android.provider.Settings
 import android.text.Spannable
@@ -114,10 +117,11 @@ import com.eightbit.material.IconifiedSnackbar
 import com.eightbit.pm.PackageRetriever
 import com.eightbit.samsprung.*
 import com.eightbit.view.AnimatedLinearLayout
-import com.eightbitlab.blurview.BlurView
-import com.eightbitlab.blurview.RenderScriptBlur
 import com.google.android.material.snackbar.Snackbar
 import com.google.android.play.core.appupdate.AppUpdateInfo
+import eightbitlab.com.blurview.BlurView
+import eightbitlab.com.blurview.RenderEffectBlur
+import eightbitlab.com.blurview.RenderScriptBlur
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -129,7 +133,6 @@ import java.util.concurrent.Executors
 import java.util.regex.Pattern
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
-
 
 class CoverPreferences : AppCompatActivity() {
 
@@ -181,11 +184,14 @@ class CoverPreferences : AppCompatActivity() {
         getBillingConnection()
 
         coordinator = findViewById(R.id.coordinator)
-        findViewById<BlurView>(R.id.blurContainer).setupWith(coordinator)
+        findViewById<BlurView>(R.id.blurContainer).setupWith(coordinator,
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S)
+                RenderEffectBlur()
+            else
+                RenderScriptBlur(this)
+        )
             .setFrameClearDrawable(coordinator.background)
             .setBlurRadius(10f).setBlurAutoUpdate(true)
-            .setHasFixedTransformationMatrix(false)
-            .setBlurAlgorithm(RenderScriptBlur(this))
 
         wikiDrawer = findViewById(R.id.drawer_layout)
         findViewById<TextView>(R.id.build_info).text = (getString(R.string.build_hash_short, BuildConfig.COMMIT))
