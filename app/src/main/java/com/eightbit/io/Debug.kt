@@ -105,13 +105,13 @@ class Debug(private var context: Context) {
     }
 
     private fun submitLogcat(context: Context, logText: String) {
-        val emailIntent = Intent(Intent.ACTION_SEND)
-        emailIntent.type = "text/plain"
-        emailIntent.putExtra(Intent.EXTRA_EMAIL, arrayOf("samsprungtoo@gmail.com"))
-        emailIntent.putExtra(Intent.EXTRA_SUBJECT, "SamSprung TooUI Logcat")
-        emailIntent.putExtra(Intent.EXTRA_TEXT, logText)
-        emailIntent.type = "message/rfc822"
         try {
+            val emailIntent = Intent(Intent.ACTION_SEND)
+            emailIntent.type = "text/plain"
+            emailIntent.putExtra(Intent.EXTRA_EMAIL, arrayOf("samsprungtoo@gmail.com"))
+            emailIntent.putExtra(Intent.EXTRA_SUBJECT, "SamSprung TooUI Logcat")
+            emailIntent.putExtra(Intent.EXTRA_TEXT, logText)
+            emailIntent.type = "message/rfc822"
             context.startActivity(Intent.createChooser(emailIntent, "Email logcat via..."))
         } catch (ex: ActivityNotFoundException) {
             val clipboard: ClipboardManager = context
@@ -119,7 +119,9 @@ class Debug(private var context: Context) {
             clipboard.setPrimaryClip(ClipData.newPlainText(context.getString(
                         R.string.git_issue_title, BuildConfig.COMMIT
             ), logText))
-            context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(issueUrl)))
+            try {
+                context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(issueUrl)))
+            } catch (ignored: Exception) { }
         }
     }
 

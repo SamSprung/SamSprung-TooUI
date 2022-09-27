@@ -22,6 +22,7 @@
     <uses-permission android:name="android.permission.REQUEST_DELETE_PACKAGES" />
     <!-- Keyguard Bypass -->
     <uses-permission android:name="android.permission.DISABLE_KEYGUARD"/>
+    <uses-permission android:name="android.permission.HIDE_OVERLAY_WINDOWS"/>
     <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW"/>
     <!-- System Toggles -->
     <uses-permission android:name="android.permission.BATTERY_STATS"
