@@ -16,6 +16,7 @@
         android:layout_marginBottom="-6dp"
         android:layout_marginStart="16dp"
         android:layout_marginEnd="8dp"
+        android:gravity="center_vertical"
         android:layout_gravity="center_vertical"
         tools:ignore="UseCompoundDrawables">
 
@@ -44,6 +45,7 @@
         android:orientation="horizontal"
         android:layout_marginStart="16dp"
         android:layout_marginEnd="8dp"
+        android:gravity="center_vertical"
         android:layout_gravity="center_vertical"
         tools:ignore="UseCompoundDrawables">
 
@@ -72,6 +74,7 @@
         android:orientation="horizontal"
         android:layout_marginStart="16dp"
         android:layout_marginEnd="8dp"
+        android:gravity="center_vertical"
         android:layout_gravity="center_vertical"
         tools:ignore="UseCompoundDrawables">
 
@@ -101,6 +104,7 @@
         android:layout_marginBottom="2dp"
         android:layout_marginStart="16dp"
         android:layout_marginEnd="8dp"
+        android:gravity="center_vertical"
         android:layout_gravity="center_vertical"
         tools:ignore="UseCompoundDrawables">
 
@@ -132,6 +136,7 @@
         android:orientation="horizontal"
         android:layout_marginStart="16dp"
         android:layout_marginEnd="8dp"
+        android:gravity="center_vertical"
         android:layout_gravity="center_vertical"
         tools:ignore="UseCompoundDrawables">
 
@@ -161,6 +166,7 @@
         android:layout_marginVertical="2dp"
         android:layout_marginStart="16dp"
         android:layout_marginEnd="8dp"
+        android:gravity="center_vertical"
         android:layout_gravity="center_vertical"
         tools:ignore="UseCompoundDrawables">
 
@@ -192,6 +198,7 @@
         android:orientation="horizontal"
         android:layout_marginStart="16dp"
         android:layout_marginEnd="8dp"
+        android:gravity="center_vertical"
         android:layout_gravity="center_vertical"
         tools:ignore="UseCompoundDrawables">
 
@@ -220,6 +227,7 @@
         android:orientation="horizontal"
         android:layout_marginStart="16dp"
         android:layout_marginEnd="8dp"
+        android:gravity="center_vertical"
         android:layout_gravity="center_vertical"
         tools:ignore="UseCompoundDrawables">
 
