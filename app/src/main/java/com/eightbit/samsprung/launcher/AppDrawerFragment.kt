@@ -111,13 +111,6 @@ class AppDrawerFragment : Fragment(), DrawerAppAdapter.OnAppClickListener {
         val packageRetriever = PackageRetriever(requireActivity())
         val packages = packageRetriever.getFilteredPackageList()
 
-        if (prefs.getBoolean(SamSprung.prefLayout, true)) {
-            launcherView.layoutManager = GridLayoutManager(activity, getColumnCount())
-        } else {
-            launcherView.layoutManager = LinearLayoutManager(activity)
-            launcherView.addItemDecoration(DividerItemDecoration(activity,
-                DividerItemDecoration.VERTICAL))
-        }
         val adapter = DrawerAppAdapter(
             packages, this, requireActivity().packageManager, prefs
         )
@@ -231,6 +224,17 @@ class AppDrawerFragment : Fragment(), DrawerAppAdapter.OnAppClickListener {
     override fun onAppClicked(resolveInfo: ResolveInfo, position: Int) {
         launcherManager?.launchResolveInfo(resolveInfo)
         if (this::launcherView.isInitialized) getFilteredPackageList()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        if (prefs.getBoolean(SamSprung.prefLayout, true)) {
+            launcherView.layoutManager = GridLayoutManager(activity, getColumnCount())
+        } else {
+            launcherView.layoutManager = LinearLayoutManager(activity)
+            launcherView.addItemDecoration(DividerItemDecoration(activity,
+                DividerItemDecoration.VERTICAL))
+        }
     }
 
     override fun onDestroyView() {
