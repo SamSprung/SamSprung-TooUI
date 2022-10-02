@@ -85,8 +85,7 @@ class GitBroadcastReceiver : BroadcastReceiver() {
                     )
                 }
             }
-            SamSprung.updating == action -> {
-                if (SamSprung.isGooglePlay()) return
+            SamSprung.updating == action && !SamSprung.isGooglePlay() -> {
                 when (intent.getIntExtra(PackageInstaller.EXTRA_STATUS, -1)) {
                     PackageInstaller.STATUS_PENDING_USER_ACTION -> {
                         val activityIntent = intent.getParcelableExtra<Intent>(Intent.EXTRA_INTENT)
