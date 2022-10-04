@@ -1,7 +1,7 @@
-name: Bug Report
+name: Report a Problem
 description: File a bug report
-title: "[Bug]: "
-labels: ["logcat"]
+title: "[Issue]: "
+labels: ["Entomology"]
 body:
   - type: markdown
     attributes:
@@ -12,22 +12,23 @@ body:
     attributes:
       label: Issue Description
       description: Please describe the issue in your own words
-      placeholder: Issues without a meaningful description are closed
+      placeholder: This is how you would see the problem again
     validations:
       required: true
   - type: textarea
-    id: logs
+    id: logcat
     attributes:
       label: Logcat Output
       description: Long press inside this box and select "Paste"
+      placeholder: This is a logcat, not a secondary description
       render: shell
     validations:
       required: true
   - type: checkboxes
-    id: terms
+    id: requirements
     attributes:
-      label: Wiki Confirmation
-      description: By submitting this issue, you confirm checking the [Wiki](https://github.com/SamSprung/SamSprung-TooUI/wiki)
+      label: Guide Confirmation
+      description: By submitting this issue, you confirm checking the [guide](https://samsprung.github.io/launcher/index.html) for SamSprung TooUI
       options:
-        - label: I have read the wiki and included a valid log
+        - label: I have reviewed the guide and included valid logcat content
           required: true
