@@ -10,7 +10,8 @@ android {
         applicationId "com.eightbit.samsprung"
         minSdk 30
         targetSdk 33
-        versionName "2.1.0"
+        versionName "2.1.1"
+        versionCode = versionName.replace(".","").toInteger()
 
         vectorDrawables {
             useSupportLibrary = true
@@ -43,7 +44,6 @@ android {
 
     buildTypes {
         release {
-            defaultConfig.versionCode = defaultConfig.versionName.replace(".","").toInteger()
             minifyEnabled true
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }

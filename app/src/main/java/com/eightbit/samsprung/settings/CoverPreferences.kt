@@ -195,7 +195,7 @@ class CoverPreferences : AppCompatActivity() {
 
         wikiDrawer = findViewById(R.id.drawer_layout)
         findViewById<TextView>(R.id.build_info).text =
-            (getString(R.string.build_hash_short, BuildConfig.COMMIT))
+            getString(R.string.build_hash_short, BuildConfig.COMMIT)
         findViewById<LinearLayout>(R.id.build_layout).setOnClickListener {
             wikiDrawer.openDrawer(GravityCompat.START)
         }
