@@ -2,7 +2,7 @@ name: Android CI
 
 on:
   push:
-    branches: [ sideload ]
+    branches: [ launcher ]
 
 jobs:
   build:
@@ -54,10 +54,10 @@ jobs:
         path: ${{steps.sign_app.outputs.signedReleaseFile}}
 
     - uses: marvinpinto/action-automatic-releases@v1.2.1
-      if: github.event_name != 'pull_request'
+      if: ${{ (github.event_name != 'pull_request') && (env.GIT_BRANCH == 'launcher') }}
       with:
         repo_token: "${{ secrets.ORG_TOKEN }}"
-        automatic_release_tag: ${{ env.GIT_BRANCH }}
-        prerelease: ${{ env.GIT_BRANCH != 'sideload' }}
+        automatic_release_tag: "sideload"
+        prerelease: ${{ env.GIT_BRANCH != 'launcher' }}
         title: SamSprung-${{ env.GIT_HASH }}
         files: ${{steps.sign_app.outputs.signedReleaseFile}}
