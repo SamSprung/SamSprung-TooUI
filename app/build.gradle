@@ -36,6 +36,7 @@ android {
     flavorDimensions "source"
     productFlavors {
         github {
+            dimension "source"
             manifestPlaceholders = [
                     installPermission: "android.permission.REQUEST_INSTALL_PACKAGES"
             ]
@@ -43,6 +44,7 @@ android {
         }
 
         google {
+            dimension "source"
             manifestPlaceholders = [
                     installPermission: "com.eightbit.samsprung.UPDATING"
             ]
