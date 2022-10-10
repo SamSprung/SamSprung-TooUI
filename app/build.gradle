@@ -36,10 +36,16 @@ android {
     flavorDimensions "source"
     productFlavors {
         github {
+            manifestPlaceholders = [
+                    installPermission: "android.permission.REQUEST_INSTALL_PACKAGES"
+            ]
             buildConfigField "boolean", "GOOGLE_PLAY", "false"
         }
 
         google {
+            manifestPlaceholders = [
+                    installPermission: "com.eightbit.samsprung.UPDATING"
+            ]
             buildConfigField "boolean", "GOOGLE_PLAY", "true"
         }
     }
