@@ -67,10 +67,7 @@
 
     <string name="loading_text">로드 중&#8230;</string>
 
-    <string name="sub_button">%1$s 구독</string>
-    <string name="iap_button">%1$s 기부</string>
     <string name="donation_thanks">당신의 지원을 당신을 감사하십시오!</string>
-    <string name="donation_notice">SamSprung 는 무료 프로젝트로 남을 것입니다.\n모든 개발은 기부를 통해 자금을 지원합니다.</string>
 
     <string name="menu_recent">Recent</string>
     <string name="menu_home">Home</string>
