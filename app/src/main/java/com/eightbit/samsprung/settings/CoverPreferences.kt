@@ -242,7 +242,7 @@ class CoverPreferences : AppCompatActivity() {
         accessibility = findViewById(R.id.accessibility_switch)
         accessibility.isChecked = hasAccessibility()
         findViewById<LinearLayout>(R.id.accessibility).setOnClickListener {
-            if (SamSprung.isGooglePlay() && !accessibility.isChecked) {
+            if (BuildConfig.GOOGLE_PLAY && !accessibility.isChecked) {
                 AlertDialog.Builder(this)
                     .setMessage(getString(R.string.accessibility_disclaimer))
                     .setPositiveButton(R.string.button_confirm) { dialog, _ ->
@@ -956,7 +956,7 @@ class CoverPreferences : AppCompatActivity() {
         if (it) coordinator.background = WallpaperManager.getInstance(this).drawable
 
         updateCheck = CheckUpdatesTask(this@CoverPreferences)
-        if (SamSprung.isGooglePlay()) {
+        if (BuildConfig.GOOGLE_PLAY) {
             updateCheck?.setPlayUpdateListener(object: CheckUpdatesTask.CheckPlayUpdateListener {
                 override fun onPlayUpdateFound(appUpdateInfo: AppUpdateInfo) {
                     setAnimatedUpdateNotice(appUpdateInfo, null)

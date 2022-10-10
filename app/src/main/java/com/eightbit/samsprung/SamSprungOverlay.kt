@@ -683,7 +683,7 @@ class SamSprungOverlay : AppCompatActivity() {
         if (System.currentTimeMillis() <= prefs.getLong(SamSprung.prefUpdate, 0) + 14400000) return
         prefs.edit().putLong(SamSprung.prefUpdate, System.currentTimeMillis()).apply()
         updateCheck = CheckUpdatesTask(this)
-        if (SamSprung.isGooglePlay()) {
+        if (BuildConfig.GOOGLE_PLAY) {
             updateCheck?.setPlayUpdateListener(object :
                 CheckUpdatesTask.CheckPlayUpdateListener {
                 override fun onPlayUpdateFound(appUpdateInfo: AppUpdateInfo) {

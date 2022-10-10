@@ -72,7 +72,7 @@ class GitBroadcastReceiver : BroadcastReceiver() {
                 startBroadcastService(context)
             }
             Intent.ACTION_MY_PACKAGE_REPLACED == action -> {
-                if (SamSprung.isGooglePlay()) {
+                if (BuildConfig.GOOGLE_PLAY) {
                     startBroadcastService(context)
                 } else {
                     var mainIntent: Intent? = Intent(context, CoverPreferences::class.java)
@@ -85,7 +85,7 @@ class GitBroadcastReceiver : BroadcastReceiver() {
                     )
                 }
             }
-            SamSprung.updating == action && !SamSprung.isGooglePlay() -> {
+            SamSprung.updating == action && !BuildConfig.GOOGLE_PLAY -> {
                 when (intent.getIntExtra(PackageInstaller.EXTRA_STATUS, -1)) {
                     PackageInstaller.STATUS_PENDING_USER_ACTION -> {
                         val activityIntent = intent.getParcelableExtra<Intent>(Intent.EXTRA_INTENT)

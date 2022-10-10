@@ -16,6 +16,7 @@ import androidx.appcompat.view.ContextThemeWrapper
 import androidx.core.content.ContextCompat
 import com.android.billingclient.api.*
 import com.eightbit.material.IconifiedSnackbar
+import com.eightbit.samsprung.BuildConfig
 import com.eightbit.samsprung.R
 import com.eightbit.samsprung.SamSprung
 import kotlinx.coroutines.CoroutineScope
@@ -297,7 +298,7 @@ class DonationHandler internal constructor(activity: CoverPreferences) {
             subscriptions.removeAllViewsInLayout()
         }
         val donateDialog: Dialog = dialog.setView(view).show()
-        if (!SamSprung.isGooglePlay()) {
+        if (!BuildConfig.GOOGLE_PLAY) {
             @SuppressLint("InflateParams")
             val paypal: View = activity.layoutInflater.inflate(R.layout.button_paypal, null)
             paypal.setOnClickListener {

@@ -36,10 +36,12 @@ android {
     flavorDimensions "source"
     productFlavors {
         github {
-            getIsDefault().set(true)
+            buildConfigField "boolean", "GOOGLE_PLAY", "false"
         }
 
-        google { }
+        google {
+            buildConfigField "boolean", "GOOGLE_PLAY", "true"
+        }
     }
 
     buildTypes {

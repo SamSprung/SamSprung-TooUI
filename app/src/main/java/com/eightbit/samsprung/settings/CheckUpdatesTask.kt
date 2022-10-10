@@ -96,7 +96,7 @@ class CheckUpdatesTask(private var activity: Activity) {
     var updateLauncher: ActivityResultLauncher<String>? = null
 
     init {
-        if (SamSprung.isGooglePlay()) {
+        if (BuildConfig.GOOGLE_PLAY) {
             if (null == appUpdateManager)
                 appUpdateManager = AppUpdateManagerFactory.create(activity)
             val appUpdateInfoTask = appUpdateManager?.appUpdateInfo
