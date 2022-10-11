@@ -16,21 +16,26 @@ android {
         vectorDrawables {
             useSupportLibrary = true
         }
+
+        dexOptions {
+            javaMaxHeapSize "4g"
+        }
+
+        splits {
+            abi {
+                enable true
+                reset()
+                include 'arm64-v8a'
+                universalApk false
+            }
+        }
+
         renderscriptTargetApi 31
         renderscriptSupportModeEnabled true
 
         def commit = 'git rev-parse --short HEAD'.execute().text.trim()
         buildConfigField "String", "COMMIT", "\""+commit+"\""
         project.archivesBaseName = "SamSprung-" + commit
-    }
-
-    splits {
-        abi {
-            enable true
-            reset()
-            include "arm64-v8a"
-            universalApk false
-        }
     }
 
     flavorDimensions "source"
@@ -58,7 +63,7 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
         debug {
-            initWith release
+            initWith buildTypes.release
             debuggable true
         }
     }
