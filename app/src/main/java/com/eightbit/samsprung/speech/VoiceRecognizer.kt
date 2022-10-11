@@ -1,9 +1,15 @@
-/* ====================================================================
- * Copyright (c) 2012-2018 Abandoned Cart.  All rights reserved.
+/*
+ * ====================================================================
+ * Copyright (c) 2012-2022 AbandonedCart.  All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
  * are met:
+ *
+ * For the purpose of this license, the phrase "SamSprung labels" shall
+ * be used to refer to the labels "8-Bit Dream", "TwistedUmbrella",
+ * "SamSprung" and "AbandonedCart" and these labels should be considered
+ * the equivalent of any usage of the aforementioned phrase.
  *
  * 1. Redistributions of source code must retain the above copyright
  *    notice, this list of conditions and the following disclaimer.
@@ -11,20 +17,22 @@
  * 2. Redistributions in binary form must reproduce the above copyright
  *    notice, this list of conditions and the following disclaimer in
  *    the documentation and/or other materials provided with the
- *    distribution or a referenced public source respository.
+ *    distribution.
  *
- * 3. All advertising materials mentioning features or use of this
- *    software and redistributions of any form whatsoever
- *    must display the following acknowledgment:
- *    "This product includes software developed by Abandoned Cart" unless
- *    otherwise displayed by tagged, public repository entries.
+ * 3. All materials mentioning features or use of this software and
+ *    redistributions of any form whatsoever must display the following
+ *    acknowledgment unless made available by tagged, public "commits":
+ *    "This product includes software developed for SamSprung by AbandonedCart"
  *
- * 4. The names "Ender's Games", "TwistedUmbrella", and "Abandoned Cart"
- *    must not be used to endorse or promote products derived from this
- *    software without prior written permission. For written permission,
- *    please contact enderinexiledc@gmail.com.
+ * 4. The SamSprung labels must not be used in any form to endorse or promote
+ *    products derived from this software without prior written permission.
+ *    For written permission, please contact enderinexiledc@gmail.com
  *
- * THIS SOFTWARE IS PROVIDED BY ABANDONED CART ``AS IS'' AND ANY
+ * 5. Products derived from this software may not be called by the SamSprung
+ *    labels nor may these labels appear in their names or product information
+ *    without prior written permission of AbandonedCart.
+ *
+ * THIS SOFTWARE IS PROVIDED BY AbandonedCart AND SamSprung ``AS IS'' AND ANY
  * EXPRESSED OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
  * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
  * PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE OpenSSL PROJECT OR
@@ -44,6 +52,7 @@
  * [including the GNU Public License.] Content not subject to these terms is
  * subject to to the terms and conditions of the Apache License, Version 2.0.
  */
+
 package com.eightbit.samsprung.speech
 
 import android.annotation.SuppressLint
