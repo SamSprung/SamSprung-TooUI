@@ -95,7 +95,9 @@ android {
     }
 
     applicationVariants.all { variant ->
-        variant.outputs[0].outputFileName = project.archivesBaseName + ".apk"
+        variant.outputs.each { output ->
+            output.outputFileName = project.archivesBaseName + "-${output.baseName}.apk"
+        }
     }
 }
 
