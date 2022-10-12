@@ -35,7 +35,7 @@ android {
 
         def commit = 'git rev-parse --short HEAD'.execute().text.trim()
         buildConfigField "String", "COMMIT", "\""+commit+"\""
-        project.archivesBaseName = "SamSprung-" + commit
+        project.archivesBaseName = "${rootProject.name}-${commit}"
     }
 
     flavorDimensions "source"
@@ -96,7 +96,7 @@ android {
 
     applicationVariants.all { variant ->
         variant.outputs.each { output ->
-            output.outputFileName = project.archivesBaseName + "-${output.baseName}.apk"
+            output.outputFileName = "${project.archivesBaseName}-${output.baseName}.apk"
         }
     }
 }
