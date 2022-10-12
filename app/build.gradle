@@ -16,11 +16,9 @@ android {
         vectorDrawables {
             useSupportLibrary = true
         }
-
         dexOptions {
             javaMaxHeapSize "4g"
         }
-
         splits {
             abi {
                 enable true
@@ -29,7 +27,6 @@ android {
                 universalApk false
             }
         }
-
         renderscriptTargetApi 31
         renderscriptSupportModeEnabled true
 
@@ -47,9 +44,9 @@ android {
             ]
             buildConfigField "boolean", "GOOGLE_PLAY", "false"
         }
-
         google {
             dimension "source"
+            isDefault true
             manifestPlaceholders = [
                     installPermission: "com.eightbit.samsprung.UPDATING"
             ]
