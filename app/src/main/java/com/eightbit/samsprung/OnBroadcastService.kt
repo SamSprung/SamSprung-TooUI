@@ -103,7 +103,7 @@ class OnBroadcastService : Service() {
         showForegroundNotification(startId)
 
         if (!Settings.canDrawOverlays(applicationContext) || SamSprung.updating == intent?.action) {
-            return dismissOverlayService()
+            return stopOverlayService()
         } else if (SamSprung.services == intent?.action) {
             startActivity(
                 Intent(applicationContext, SamSprungOverlay::class.java)
@@ -172,7 +172,10 @@ class OnBroadcastService : Service() {
         startForeground(startId, builder.build())
     }
 
-    private fun dismissOverlayService(): Int {
+    private fun stopOverlayService(): Int {
+        try {
+            unregisterReceiver(onReceiver)
+        } catch (ignored: Exception) { }
         stopForeground(true)
         stopSelf()
         return START_NOT_STICKY

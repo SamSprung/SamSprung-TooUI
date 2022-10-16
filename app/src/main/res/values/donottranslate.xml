@@ -4,7 +4,6 @@
 
     <string name="samsprung" translatable="false">SamSprung</string>
     <string name="build_hash_short" translatable="false">#%1$s</string>
-    <string name="build_hash" translatable="false">SamSprung - #%1$s</string>
-    <string name="git_issue_title" translatable="false">Logcat - SamSprung #%1$s</string>
-    <string name="install_src" translatable="false">Installed by %1$s</string>
+    <string name="build_hash" translatable="false">SamSprung (%1$s) #%2$s</string>
+    <string name="git_issue_title" translatable="false">[Logcat]: SamSprung #%1$s</string>
 </resources>

@@ -87,7 +87,7 @@ class Debug(private var context: Context) {
     private fun getDeviceProfile(isSecureDevice: Boolean): StringBuilder {
         val separator = System.getProperty("line.separator") ?: "\n"
         val log = StringBuilder(separator)
-        log.append(context.getString(R.string.build_hash, BuildConfig.COMMIT))
+        log.append(context.getString(R.string.build_hash, BuildConfig.FLAVOR, BuildConfig.COMMIT))
         log.append(separator)
         log.append("Android ")
         val fields = VERSION_CODES::class.java.fields
@@ -105,7 +105,6 @@ class Debug(private var context: Context) {
         log.append(" (")
         log.append(Build.VERSION.RELEASE)
         log.append(")")
-        log.append(separator).append(context.getString(R.string.install_src, BuildConfig.FLAVOR))
         if (isSecureDevice) log.append(separator).append("Secure Lock Screen")
         return log
     }

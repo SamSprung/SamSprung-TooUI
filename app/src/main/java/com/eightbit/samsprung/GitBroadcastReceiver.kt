@@ -89,7 +89,7 @@ class GitBroadcastReceiver : BroadcastReceiver() {
                     )
                 }
             }
-            SamSprung.updating == action && !BuildConfig.GOOGLE_PLAY -> {
+            !BuildConfig.GOOGLE_PLAY && SamSprung.updating == action -> {
                 when (intent.getIntExtra(PackageInstaller.EXTRA_STATUS, -1)) {
                     PackageInstaller.STATUS_PENDING_USER_ACTION -> {
                         val activityIntent = intent.getParcelableExtra<Intent>(Intent.EXTRA_INTENT)
