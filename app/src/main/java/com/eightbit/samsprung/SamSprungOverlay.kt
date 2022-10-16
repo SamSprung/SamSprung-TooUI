@@ -326,6 +326,12 @@ class SamSprungOverlay : AppCompatActivity() {
         buttonAuth.setOnClickListener {
             onKeyguardClicked(keyguardManager, buttonAuth)
         }
+        buttonAuth.setOnLongClickListener { view ->
+            Toast.makeText(
+                this@SamSprungOverlay, view.contentDescription, Toast.LENGTH_SHORT
+            ).show()
+            true
+        }
         setKeyguardStatus(keyguardManager, buttonAuth)
 
         val buttonRotation = findViewById<AppCompatImageView>(R.id.button_rotation)
@@ -339,6 +345,12 @@ class SamSprungOverlay : AppCompatActivity() {
                 if (unlocked) R.drawable.ic_baseline_screen_lock_rotation_24
                 else R.drawable.ic_baseline_screen_rotation_24
             )
+        }
+        buttonRotation.setOnLongClickListener { view ->
+            Toast.makeText(
+                this@SamSprungOverlay, view.contentDescription, Toast.LENGTH_SHORT
+            ).show()
+            true
         }
         buttonRotation.setImageResource(
             if (prefs.getBoolean(SamSprung.prefRotate, false))

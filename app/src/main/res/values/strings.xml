@@ -84,6 +84,8 @@
     <string name="toggle_torch">Toggle Torch</string>
     <string name="toggle_widgets">Toggle Widgets</string>
     <string name="color_theme">Menu Accent Color</string>
+    <string name="btn_auth_tip">Auth Status</string>
+    <string name="btn_rotation_tip">Rotation Lock</string>
 
     <string name="lock_enabled">Device is locked!</string>
 

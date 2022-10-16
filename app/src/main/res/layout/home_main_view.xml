@@ -192,7 +192,8 @@
                             android:layout_gravity="center"
                             app:srcCompat="@drawable/ic_baseline_fingerprint_24dp"
                             android:layout_weight="1"
-                            android:contentDescription="@string/description_icon" />
+                            android:longClickable="true"
+                            android:contentDescription="@string/btn_auth_tip" />
 
                         <androidx.appcompat.widget.AppCompatImageView
                             android:id="@+id/button_rotation"
@@ -202,7 +203,8 @@
                             android:layout_gravity="center"
                             app:srcCompat="@drawable/ic_baseline_screen_rotation_24"
                             android:layout_weight="1"
-                            android:contentDescription="@string/description_icon"/>
+                            android:longClickable="true"
+                            android:contentDescription="btn_rotation_tip" />
                     </LinearLayout>
                 </RelativeLayout>
             </LinearLayout>
