@@ -37,11 +37,23 @@ class OrientationManager(context: Context) {
             if (null != orientationView) {
                 orientationLayout.screenOrientation = ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
                 windowManager.updateViewLayout(orientationView!!.get(), orientationLayout)
-                windowManager.removeViewImmediate(orientationView!!.get())
+                try {
+                    windowManager.removeViewImmediate(orientationView!!.get())
+                } catch (rvi: Exception) {
+                    try {
+                        windowManager.removeView(orientationView!!.get())
+                    } catch (ignored: Exception) { }
+                }
             } else {
                 orientationLayout.screenOrientation = ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
                 windowManager.updateViewLayout(orientationManager, orientationLayout)
-                windowManager.removeViewImmediate(orientationManager)
+                try {
+                    windowManager.removeViewImmediate(orientationManager)
+                } catch (rvi: Exception) {
+                    try {
+                        windowManager.removeView(orientationManager)
+                    } catch (ignored: Exception) { }
+                }
             }
         } catch (ignored: Exception) { }
     }

@@ -376,8 +376,12 @@ class AppDisplayListener : Service() {
         ).getSystemService(WINDOW_SERVICE) as WindowManager
         try {
             windowManager.removeViewImmediate(floatView)
-        } catch (ignored: Exception) { }
-        stopForeground(true)
+        } catch (rvi: Exception) {
+            try {
+                windowManager.removeView(floatView)
+            } catch (ignored: Exception) { }
+        }
+        stopForeground(STOP_FOREGROUND_REMOVE)
         stopSelf()
     }
 
