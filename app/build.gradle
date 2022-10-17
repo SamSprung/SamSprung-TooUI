@@ -7,7 +7,7 @@ android {
     compileSdk 33
 
     defaultConfig {
-        applicationId "com.eightbit.samsprung"
+        applicationId 'com.eightbit.samsprung'
         minSdk 30
         targetSdk 33
         versionName "2.1.2"
@@ -34,6 +34,8 @@ android {
         buildConfigField "String", "COMMIT", "\""+commit+"\""
         project.archivesBaseName = "${rootProject.name}-${commit}"
     }
+
+    namespace defaultConfig.applicationId
 
     flavorDimensions "source"
     productFlavors {
