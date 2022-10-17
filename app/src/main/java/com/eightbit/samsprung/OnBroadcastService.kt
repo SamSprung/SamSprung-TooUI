@@ -176,7 +176,7 @@ class OnBroadcastService : Service() {
         try {
             unregisterReceiver(onReceiver)
         } catch (ignored: Exception) { }
-        stopForeground(true)
+        stopForeground(STOP_FOREGROUND_REMOVE)
         stopSelf()
         return START_NOT_STICKY
     }
