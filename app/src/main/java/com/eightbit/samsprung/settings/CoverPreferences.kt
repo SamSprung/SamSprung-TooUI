@@ -152,7 +152,6 @@ class CoverPreferences : AppCompatActivity() {
     private lateinit var coordinator: CoordinatorLayout
     private var updateCheck : CheckUpdatesTask? = null
 
-    private var hasPremiumSupport = false
     private lateinit var mainSwitch: SwitchCompat
     private lateinit var accessibility: SwitchCompat
     private lateinit var optimization: SwitchCompat
@@ -172,8 +171,6 @@ class CoverPreferences : AppCompatActivity() {
         prefs = getSharedPreferences(SamSprung.prefsValue, MODE_PRIVATE)
         setTheme(R.style.Theme_SecondScreen)
         setContentView(R.layout.preferences_layout)
-
-        setLoadCompleted()
 
         val componentName = ComponentName(applicationContext, NotificationReceiver::class.java)
         packageManager.setComponentEnabledSetting(componentName,
@@ -202,6 +199,7 @@ class CoverPreferences : AppCompatActivity() {
             wikiDrawer.openDrawer(GravityCompat.START)
         }
 
+        setLoadCompleted()
         initializeLayout()
 
         val googlePlay = findViewById<LinearLayout>(R.id.button_donate)
@@ -1260,14 +1258,9 @@ class CoverPreferences : AppCompatActivity() {
         requestStorage.launch(Manifest.permission.READ_EXTERNAL_STORAGE)
     }
 
-    override fun onNewIntent(intent: Intent?) {
-        super.onNewIntent(intent)
-        initializeLayout()
-    }
-
     private var widgetNotice : Snackbar? = null
     private fun setLoadCompleted() {
-        val onBackPressedCallback = object: OnBackPressedCallback(true) {
+        onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
                 when {
                     wikiDrawer.isDrawerOpen(GravityCompat.START) ->
@@ -1293,8 +1286,12 @@ class CoverPreferences : AppCompatActivity() {
                     }
                 }
             }
-        }
-        onBackPressedDispatcher.addCallback(this, onBackPressedCallback)
+        })
+    }
+
+    override fun onNewIntent(intent: Intent?) {
+        super.onNewIntent(intent)
+        initializeLayout()
     }
 
     override fun onRestart() {

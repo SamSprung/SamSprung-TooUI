@@ -63,7 +63,8 @@
         android:supportsRtl="true"
         android:resizeableActivity="false"
         android:theme="@style/Theme.SecondScreen"
-        tools:targetApi="s">
+        android:enableOnBackInvokedCallback="true"
+        tools:targetApi="S">
         <meta-data
             android:name="android.supports_size_changes" android:value="true" />
         <activity
