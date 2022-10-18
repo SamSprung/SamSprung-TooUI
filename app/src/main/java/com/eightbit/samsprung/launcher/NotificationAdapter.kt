@@ -234,7 +234,7 @@ class NotificationAdapter(
                             val titleBig = notification.extras.get(NotificationCompat.EXTRA_TITLE_BIG)
                             if (null != titleBig) titleText.text = titleBig.toString()
                         }
-                        if (titleText.text.isEmpty() && notification.extras
+                        if (TextUtils.isEmpty(titleText.text) && notification.extras
                                 .containsKey(NotificationCompat.EXTRA_TITLE)) {
                             val textTitle = notification.extras.getCharSequence(
                                 NotificationCompat.EXTRA_TITLE
@@ -245,7 +245,7 @@ class NotificationAdapter(
                             val textBig = notification.extras.get(NotificationCompat.EXTRA_BIG_TEXT)
                             if (null != textBig) linesText.text = textBig.toString()
                         }
-                        if (linesText.text.isEmpty() && notification.extras
+                        if (TextUtils.isEmpty(linesText.text)  && notification.extras
                                 .containsKey(NotificationCompat.EXTRA_TEXT_LINES)) {
                             val textArray = notification.extras.getCharSequenceArray(
                                 NotificationCompat.EXTRA_TEXT_LINES
@@ -255,7 +255,7 @@ class NotificationAdapter(
                                 if (textLines != "[]") linesText.text = textLines
                             }
                         }
-                        if (linesText.text.isEmpty() && notification.extras
+                        if (TextUtils.isEmpty(linesText.text) && notification.extras
                                 .containsKey(NotificationCompat.EXTRA_TEXT)) {
                             val textExtra = notification.extras
                                 .getCharSequence(NotificationCompat.EXTRA_TEXT)
@@ -264,7 +264,7 @@ class NotificationAdapter(
                     }
                 }
             }
-//            if (linesText.text.isEmpty() && null != notification.tickerText) {
+//            if (TextUtils.isEmpty(linesText.text) && null != notification.tickerText) {
 //                linesText.text = notification.tickerText.toString()
 //            }
             if (null != notification.contentIntent) {

@@ -336,7 +336,7 @@ class NotificationFragment : Fragment(), NotificationAdapter.OnNoticeClickListen
             context.applicationContext, NotificationReceiver::class.java)
         val enabledListeners = Settings.Secure.getString(
             context.contentResolver, "enabled_notification_listeners")
-        if (enabledListeners.isEmpty()) return false
+        if (null == enabledListeners || enabledListeners.isEmpty()) return false
         return enabledListeners.split(":").map {
             ComponentName.unflattenFromString(it)
         }.any {componentName->
