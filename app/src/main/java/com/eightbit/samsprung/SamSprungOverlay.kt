@@ -343,10 +343,10 @@ class SamSprungOverlay : AppCompatActivity() {
                 val lockBar: Snackbar = IconifiedSnackbar(
                     this@SamSprungOverlay, bottomSheet as ViewGroup
                 ).buildTickerBar(
-                    getString(R.string.orientation_lock),
+                    getString(R.string.rotation_lock),
                     R.drawable.ic_baseline_screen_lock_rotation_24
                 )
-                lockBar.setAction(R.string.orientation_lock_action) {
+                lockBar.setAction(R.string.rotation_lock_action) {
                     with(prefs.edit()) {
                         putBoolean(SamSprung.prefRotate, true)
                         apply()

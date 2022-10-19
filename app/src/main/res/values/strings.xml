@@ -84,10 +84,6 @@
     <string name="toggle_torch">Toggle Torch</string>
     <string name="toggle_widgets">Toggle Widgets</string>
     <string name="color_theme">Menu Accent Color</string>
-    <string name="btn_auth_tip">Auth Status</string>
-    <string name="btn_rotation_tip">Rotation Lock</string>
-
-    <string name="lock_enabled">Device is locked!</string>
 
     <string name="incompatibility_warning">SamSprung is not compatible with apps that block the entire screen.\nPlease remove or disable this app to continue.</string>
     <string name="cover_widget_warning">Important: THIS IS NOT A COVER SCREEN WIDGET\n!! Questo non è un widget / Este não é um widget !!</string>
@@ -100,13 +96,16 @@
     <string name="accessibility_service">SamSprung Navigation</string>
     <string name="accessibility_details">Enable virtual navigation action and hardware support.</string>
 
-    <string name="orientation_lock">Lock apps to portrait?</string>
-    <string name="orientation_lock_action">Lock</string>
+    <string name="rotation_lock">Lock apps to portrait?</string>
+    <string name="rotation_lock_action">Lock</string>
+    <string name="btn_rotation_tip">Rotation Lock</string>
 
+    <string name="lock_enabled">Device is locked!</string>
     <string name="fingerprint_required">Please unlock the device\nwith your fingerprint</string>
     <string name="auth_unavailable">Bixby unlock required to continue!</string>
     <string name="auth_required">Fingerprint required!</string>
     <string name="auth_required_action">Scan</string>
+    <string name="btn_auth_tip">Auth Status</string>
 
     <string name="widget_cancel">Cancel Widget Selection</string>
     <!-- Error message when user has filled a panel or cancelled configuration -->
