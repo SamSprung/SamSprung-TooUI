@@ -117,6 +117,7 @@ class Debug(private var context: Context) {
         ), logText))
         try {
             val emailIntent = Intent(Intent.ACTION_SEND)
+            emailIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
             emailIntent.type = "text/plain"
             emailIntent.putExtra(Intent.EXTRA_EMAIL, arrayOf("samsprungtoo@gmail.com"))
             emailIntent.putExtra(Intent.EXTRA_SUBJECT, "SamSprung TooUI Logcat")
