@@ -100,6 +100,9 @@
     <string name="accessibility_service">SamSprung Navigation</string>
     <string name="accessibility_details">Enable virtual navigation action and hardware support.</string>
 
+    <string name="orientation_lock">Lock apps to portrait?</string>
+    <string name="orientation_lock_action">Lock</string>
+
     <string name="fingerprint_required">Please unlock the device\nwith your fingerprint</string>
     <string name="auth_unavailable">Bixby unlock required to continue!</string>
     <string name="auth_required">Fingerprint required!</string>

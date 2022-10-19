@@ -321,6 +321,8 @@ class SamSprungOverlay : AppCompatActivity() {
         batteryLevel.setTextColor(color)
         clock.setTextColor(color)
 
+        val bottomSheet = findViewById<View>(R.id.bottom_sheet)
+
         val keyguardManager = (getSystemService(KEYGUARD_SERVICE) as KeyguardManager)
         val buttonAuth = findViewById<AppCompatImageView>(R.id.button_auth)
         buttonAuth.setOnClickListener {
@@ -337,14 +339,28 @@ class SamSprungOverlay : AppCompatActivity() {
         val buttonRotation = findViewById<AppCompatImageView>(R.id.button_rotation)
         buttonRotation.setOnClickListener {
             val unlocked = !prefs.getBoolean(SamSprung.prefRotate, false)
-            with(prefs.edit()) {
-                putBoolean(SamSprung.prefRotate, unlocked)
-                apply()
+            if (unlocked) {
+                val lockBar: Snackbar = IconifiedSnackbar(
+                    this@SamSprungOverlay, bottomSheet as ViewGroup
+                ).buildTickerBar(
+                    getString(R.string.orientation_lock),
+                    R.drawable.ic_baseline_screen_lock_rotation_24
+                )
+                lockBar.setAction(R.string.orientation_lock_action) {
+                    with(prefs.edit()) {
+                        putBoolean(SamSprung.prefRotate, true)
+                        apply()
+                    }
+                    buttonRotation.setImageResource(R.drawable.ic_baseline_screen_lock_rotation_24)
+                }
+                lockBar.show()
+            } else {
+                with(prefs.edit()) {
+                    putBoolean(SamSprung.prefRotate, false)
+                    apply()
+                }
+                buttonRotation.setImageResource(R.drawable.ic_baseline_screen_rotation_24)
             }
-            buttonRotation.setImageResource(
-                if (unlocked) R.drawable.ic_baseline_screen_lock_rotation_24
-                else R.drawable.ic_baseline_screen_rotation_24
-            )
         }
         buttonRotation.setOnLongClickListener { view ->
             Toast.makeText(
@@ -361,8 +377,7 @@ class SamSprungOverlay : AppCompatActivity() {
 
         val toggleStats = findViewById<LinearLayout>(R.id.toggle_status)
         val info = findViewById<LinearLayout>(R.id.bottom_info)
-        val bottomSheetBehavior: BottomSheetBehavior<View> =
-            BottomSheetBehavior.from(findViewById(R.id.bottom_sheet))
+        val bottomSheetBehavior: BottomSheetBehavior<View> = BottomSheetBehavior.from(bottomSheet)
         bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
         bottomSheetBehavior.addBottomSheetCallback(object : BottomSheetBehavior.BottomSheetCallback() {
             var hasConfigured = false
