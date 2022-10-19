@@ -58,7 +58,6 @@ package com.eightbit.samsprung.settings
 import android.Manifest
 import android.annotation.SuppressLint
 import android.app.AppOpsManager
-import android.app.Dialog
 import android.app.KeyguardManager
 import android.app.WallpaperManager
 import android.content.*
@@ -70,7 +69,6 @@ import android.graphics.Bitmap
 import android.graphics.Color
 import android.graphics.ImageDecoder
 import android.graphics.Matrix
-import android.graphics.drawable.ColorDrawable
 import android.icu.text.DecimalFormatSymbols
 import android.net.Uri
 import android.os.Build
@@ -98,7 +96,6 @@ import androidx.activity.OnBackPressedCallback
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
-import androidx.appcompat.view.ContextThemeWrapper
 import androidx.appcompat.widget.AppCompatImageView
 import androidx.appcompat.widget.SwitchCompat
 import androidx.appcompat.widget.Toolbar
@@ -126,27 +123,15 @@ import com.google.android.play.core.appupdate.AppUpdateInfo
 import eightbitlab.com.blurview.BlurView
 import eightbitlab.com.blurview.RenderEffectBlur
 import eightbitlab.com.blurview.RenderScriptBlur
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.sync.Mutex
-import kotlinx.coroutines.sync.withLock
 import myinnos.indexfastscrollrecycler.IndexFastScrollRecyclerView
 import java.io.*
 import java.util.concurrent.Executors
 import java.util.regex.Pattern
-import kotlin.coroutines.resume
-import kotlin.coroutines.suspendCoroutine
 
 class CoverPreferences : AppCompatActivity() {
 
     private val CharSequence.toPref get() = this.toString()
         .lowercase().replace(" ", "_")
-
-    private val Number.toPx get() = TypedValue.applyDimension(
-        TypedValue.COMPLEX_UNIT_DIP, this.toFloat(),
-        Resources.getSystem().displayMetrics
-    )
 
     private lateinit var prefs: SharedPreferences
     private lateinit var coordinator: CoordinatorLayout
@@ -183,6 +168,7 @@ class CoverPreferences : AppCompatActivity() {
         donations.retrieveDonationMenu()
 
         coordinator = findViewById(R.id.coordinator)
+        @Suppress("DEPRECATION")
         findViewById<BlurView>(R.id.blurContainer).setupWith(coordinator,
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S)
                 RenderEffectBlur()

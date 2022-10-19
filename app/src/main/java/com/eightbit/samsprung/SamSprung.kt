@@ -107,7 +107,6 @@ class SamSprung : Application() {
     override fun onCreate() {
         super.onCreate()
         AppCompatDelegate.setCompatVectorFromResourcesEnabled(true)
-        setThemePreference()
 
         Thread.setDefaultUncaughtExceptionHandler { _: Thread?, error: Throwable ->
             val exception = StringWriter()
@@ -122,6 +121,8 @@ class SamSprung : Application() {
             } catch (ignored: Exception) { }
             exitProcess(0)
         }
+
+        setThemePreference()
     }
 
 
