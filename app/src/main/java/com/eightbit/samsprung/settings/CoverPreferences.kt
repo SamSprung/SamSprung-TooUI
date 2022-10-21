@@ -185,7 +185,6 @@ class CoverPreferences : AppCompatActivity() {
             wikiDrawer.openDrawer(GravityCompat.START)
         }
 
-        setLoadCompleted()
         initializeLayout()
 
         val googlePlay = findViewById<LinearLayout>(R.id.button_donate)
@@ -1245,7 +1244,15 @@ class CoverPreferences : AppCompatActivity() {
     }
 
     private var widgetNotice : Snackbar? = null
-    private fun setLoadCompleted() {
+
+    override fun onNewIntent(intent: Intent?) {
+        super.onNewIntent(intent)
+        initializeLayout()
+    }
+
+    override fun onStart() {
+        super.onStart()
+
         onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
                 when {
@@ -1274,16 +1281,6 @@ class CoverPreferences : AppCompatActivity() {
                 }
             }
         })
-    }
-
-    override fun onNewIntent(intent: Intent?) {
-        super.onNewIntent(intent)
-        initializeLayout()
-    }
-
-    override fun onRestart() {
-        setLoadCompleted()
-        super.onRestart()
     }
 
     private fun File.writeBitmap(bitmap: Bitmap, format: Bitmap.CompressFormat, quality: Int) {

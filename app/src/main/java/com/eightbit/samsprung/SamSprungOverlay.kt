@@ -101,6 +101,8 @@ import androidx.fragment.app.FragmentActivity
 import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import androidx.viewpager2.widget.ViewPager2
+import androidx.window.java.layout.WindowInfoTrackerCallbackAdapter
+import androidx.window.layout.WindowInfoTracker
 import com.eightbit.content.ScaledContext
 import com.eightbit.material.IconifiedSnackbar
 import com.eightbit.samsprung.launcher.CoverStateAdapter
@@ -123,10 +125,14 @@ import java.io.File
 import java.util.*
 import java.util.concurrent.Executors
 
+
 class SamSprungOverlay : AppCompatActivity() {
 
     private val CharSequence.toPref get() = this.toString()
         .lowercase().replace(" ", "_")
+
+    private lateinit var windowInfoTracker: WindowInfoTrackerCallbackAdapter
+    private val layoutStateCallback: LayoutStateChangeCallback = LayoutStateChangeCallback()
 
     private lateinit var prefs: SharedPreferences
     private var launcherManager: LauncherManager? = null
@@ -211,6 +217,27 @@ class SamSprungOverlay : AppCompatActivity() {
         prefs = getSharedPreferences(SamSprung.prefsValue, MODE_PRIVATE)
         ScaledContext.internal(this, 1.5f).setTheme(R.style.Theme_Launcher_NoActionBar)
         setContentView(R.layout.home_main_view)
+
+        windowInfoTracker = WindowInfoTrackerCallbackAdapter(
+            WindowInfoTracker.getOrCreate(this)
+        )
+        layoutStateCallback.setListener(object: LayoutStateChangeCallback.FoldingFeatureListener {
+            override fun onHalfOpened() {
+
+            }
+
+            override fun onSeparating() {
+
+            }
+
+            override fun onFlat() {
+
+            }
+
+            override fun onNormal() {
+
+            }
+        })
 
         IntentFilter().apply {
             addAction(Intent.ACTION_SCREEN_OFF)
@@ -1127,5 +1154,18 @@ class SamSprungOverlay : AppCompatActivity() {
         }
         setActionButtonTimeout()
         setScreenTimeout(findViewById(R.id.bottom_sheet_main))
+    }
+
+    override fun onStart() {
+        super.onStart()
+        windowInfoTracker.addWindowLayoutInfoListener(
+            this, Runnable::run, layoutStateCallback
+        )
+
+    }
+
+    override fun onStop() {
+        super.onStop()
+        windowInfoTracker.removeWindowLayoutInfoListener(layoutStateCallback)
     }
 }
