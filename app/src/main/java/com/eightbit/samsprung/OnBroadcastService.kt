@@ -132,17 +132,14 @@ class OnBroadcastService : Service() {
 
     @SuppressLint("LaunchActivityFromNotification")
     private fun showForegroundNotification(startId: Int) {
-        var mNotificationManager: NotificationManager? = null
+        val mNotificationManager: NotificationManager = getSystemService(
+            Context.NOTIFICATION_SERVICE) as NotificationManager
         val pendingIntent = PendingIntent.getService(this, 0,
             Intent(this, OnBroadcastService::class.java)
                 .setAction(SamSprung.updating),
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S)
                 PendingIntent.FLAG_IMMUTABLE else 0)
         val iconNotification = BitmapFactory.decodeResource(resources, R.mipmap.sprung_icon)
-        if (null == mNotificationManager) {
-            mNotificationManager = getSystemService(
-                Context.NOTIFICATION_SERVICE) as NotificationManager
-        }
         var group = mNotificationManager.getNotificationChannelGroup("samsprung_services")
         if (null == group) {
             mNotificationManager.createNotificationChannelGroup(

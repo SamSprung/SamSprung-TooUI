@@ -1258,6 +1258,7 @@ class CoverPreferences : AppCompatActivity() {
                         ).buildTickerBar(
                             if (mainSwitch.isChecked)
                                 getString(R.string.cover_widget_warning)
+                                        + getString(R.string.cover_finish_warning)
                             else
                                 getString(R.string.cover_widget_warning)
                                         + getString(R.string.cover_switch_warning),
