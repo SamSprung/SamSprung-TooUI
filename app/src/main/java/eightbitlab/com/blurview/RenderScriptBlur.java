@@ -6,14 +6,12 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Paint;
-import android.os.Build;
 import android.renderscript.Allocation;
 import android.renderscript.Element;
 import android.renderscript.RenderScript;
 import android.renderscript.ScriptIntrinsicBlur;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.RequiresApi;
 
 /**
  * Blur using RenderScript, processed on GPU when device drivers support it.
@@ -35,7 +33,6 @@ public final class RenderScriptBlur implements BlurAlgorithm {
     /**
      * @param context Context to create the {@link RenderScript}
      */
-    @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN_MR1)
     public RenderScriptBlur(Context context) {
         renderScript = RenderScript.create(context);
         blurScript = ScriptIntrinsicBlur.create(renderScript, Element.U8_4(renderScript));
@@ -50,9 +47,8 @@ public final class RenderScriptBlur implements BlurAlgorithm {
      * @param blurRadius blur radius (1..25)
      * @return blurred bitmap
      */
-    @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN_MR1)
     @Override
-    public final Bitmap blur(Bitmap bitmap, float blurRadius) {
+    public Bitmap blur(Bitmap bitmap, float blurRadius) {
         //Allocation will use the same backing array of pixels as bitmap if created with USAGE_SHARED flag
         Allocation inAllocation = Allocation.createFromBitmap(renderScript, bitmap);
 
@@ -76,7 +72,7 @@ public final class RenderScriptBlur implements BlurAlgorithm {
     }
 
     @Override
-    public final void destroy() {
+    public void destroy() {
         blurScript.destroy();
         renderScript.destroy();
         if (outAllocation != null) {
