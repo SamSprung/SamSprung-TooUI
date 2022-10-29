@@ -1,13 +1,13 @@
 /*
  * ====================================================================
- * Copyright (c) 2021-2022 AbandonedCart.  All rights reserved.
+ * Copyright (c) 2012-2022 AbandonedCart.  All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
  * are met:
  *
  * For the purpose of this license, the phrase "SamSprung labels" shall
- * be used to refer to the labels "8-Bit Dream", "TwistedUmbrella",
+ * be used to refer to the labels "8-bit Dream", "TwistedUmbrella",
  * "SamSprung" and "AbandonedCart" and these labels should be considered
  * the equivalent of any usage of the aforementioned phrase.
  *
@@ -53,7 +53,7 @@
  * subject to to the terms and conditions of the Apache License, Version 2.0.
  */
 
-package com.eightbit.samsprung.settings
+package com.eightbit.net
 
 import java.io.BufferedReader
 import java.io.IOException

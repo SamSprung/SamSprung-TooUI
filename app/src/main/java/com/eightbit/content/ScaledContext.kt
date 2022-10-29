@@ -1,13 +1,13 @@
 /*
  * ====================================================================
- * Copyright (c) 2021-2022 AbandonedCart.  All rights reserved.
+ * Copyright (c) 2012-2022 AbandonedCart.  All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
  * are met:
  *
  * For the purpose of this license, the phrase "SamSprung labels" shall
- * be used to refer to the labels "8-Bit Dream", "TwistedUmbrella",
+ * be used to refer to the labels "8-bit Dream", "TwistedUmbrella",
  * "SamSprung" and "AbandonedCart" and these labels should be considered
  * the equivalent of any usage of the aforementioned phrase.
  *
@@ -63,122 +63,120 @@ import android.view.ContextThemeWrapper
 import android.view.WindowManager
 
 class ScaledContext(base: Context) : ContextWrapper(base) {
-    companion object {
-        fun getDisplayParams(context: Context): IntArray {
-            val mWindowManager = context.getSystemService(WINDOW_SERVICE) as WindowManager
-            val metrics = mWindowManager.currentWindowMetrics.bounds
-            return intArrayOf(metrics.width(), metrics.height())
-        }
+    fun getDisplayParams(): IntArray {
+        val mWindowManager = getSystemService(WINDOW_SERVICE) as WindowManager
+        val metrics = mWindowManager.currentWindowMetrics.bounds
+        return intArrayOf(metrics.width(), metrics.height())
+    }
 
-        fun internal(context: Context, density: Float): ScaledContext {
-            val resources = context.resources
-            val metrics = resources.displayMetrics
-            val orientation = resources.configuration.orientation
-            metrics.density = density // 2
-            metrics.densityDpi = 360 // 360
-            if (orientation == Configuration.ORIENTATION_PORTRAIT) {
-                metrics.heightPixels = 2640 // 2640
-                metrics.widthPixels = 1080 // 1080
-            }
-            if (orientation == Configuration.ORIENTATION_LANDSCAPE) {
-                metrics.heightPixels = 1080 // 1080
-                metrics.widthPixels = 2640 // 2640
-            }
-            metrics.scaledDensity = density // 2
-            metrics.xdpi = 425f // 425
-            metrics.ydpi = 425f // 425
-            metrics.setTo(metrics)
-            return ScaledContext(context)
+    fun internal(density: Float): ScaledContext {
+        val resources = resources
+        val metrics = resources.displayMetrics
+        val orientation = resources.configuration.orientation
+        metrics.density = density // 2
+        metrics.densityDpi = 360 // 360
+        if (orientation == Configuration.ORIENTATION_PORTRAIT) {
+            metrics.heightPixels = 2640 // 2640
+            metrics.widthPixels = 1080 // 1080
         }
+        if (orientation == Configuration.ORIENTATION_LANDSCAPE) {
+            metrics.heightPixels = 1080 // 1080
+            metrics.widthPixels = 2640 // 2640
+        }
+        metrics.scaledDensity = density // 2
+        metrics.xdpi = 425f // 425
+        metrics.ydpi = 425f // 425
+        metrics.setTo(metrics)
+        return ScaledContext(this)
+    }
 
-        private fun screen(context: Context) : Context {
-            val displayManager = context.getSystemService(Context.DISPLAY_SERVICE) as DisplayManager
-            val displayContext = context.createDisplayContext(displayManager.getDisplay(0))
-            val wm = displayContext.getSystemService(WINDOW_SERVICE) as WindowManager
-            return object : ContextThemeWrapper(displayContext, context.theme) {
-                override fun getSystemService(name: String): Any? {
-                    return if (WINDOW_SERVICE == name) wm else super.getSystemService(name)
-                }
+    private fun screen() : Context {
+        val displayManager = getSystemService(Context.DISPLAY_SERVICE) as DisplayManager
+        val displayContext = createDisplayContext(displayManager.getDisplay(0))
+        val wm = displayContext.getSystemService(WINDOW_SERVICE) as WindowManager
+        return object : ContextThemeWrapper(displayContext, theme) {
+            override fun getSystemService(name: String): Any? {
+                return if (WINDOW_SERVICE == name) wm else super.getSystemService(name)
             }
         }
+    }
 
-        private fun screen(context: Context, density: Float): Context {
-            val displayContext = screen(context)
-            val resources = displayContext.resources
-            val metrics = resources.displayMetrics
-            val orientation = resources.configuration.orientation
-            metrics.density = density // 2
-            metrics.densityDpi = 360 // 360
-            if (orientation == Configuration.ORIENTATION_PORTRAIT) {
-                metrics.heightPixels = 2640 // 2640
-                metrics.widthPixels = 1080 // 1080
-            }
-            if (orientation == Configuration.ORIENTATION_LANDSCAPE) {
-                metrics.heightPixels = 1080 // 1080
-                metrics.widthPixels = 2640 // 2640
-            }
-            metrics.scaledDensity = density // 2
-            metrics.xdpi = 425f // 425
-            metrics.ydpi = 425f // 425
-            metrics.setTo(metrics)
-            return ScaledContext(displayContext)
+    private fun screen(density: Float): Context {
+        val displayContext = screen()
+        val resources = displayContext.resources
+        val metrics = resources.displayMetrics
+        val orientation = resources.configuration.orientation
+        metrics.density = density // 2
+        metrics.densityDpi = 360 // 360
+        if (orientation == Configuration.ORIENTATION_PORTRAIT) {
+            metrics.heightPixels = 2640 // 2640
+            metrics.widthPixels = 1080 // 1080
         }
-
-        fun screen(context: Context, density: Float, theme: Int): Context {
-            context.setTheme(theme)
-            return screen(context, density)
+        if (orientation == Configuration.ORIENTATION_LANDSCAPE) {
+            metrics.heightPixels = 1080 // 1080
+            metrics.widthPixels = 2640 // 2640
         }
+        metrics.scaledDensity = density // 2
+        metrics.xdpi = 425f // 425
+        metrics.ydpi = 425f // 425
+        metrics.setTo(metrics)
+        return ScaledContext(displayContext)
+    }
 
-        fun external(context: Context): ScaledContext {
-            val resources = context.resources
-            val metrics = resources.displayMetrics
-            val orientation = resources.configuration.orientation
-            metrics.density = 1f
-            metrics.densityDpi = 160 // 160
-            if (orientation == Configuration.ORIENTATION_PORTRAIT) {
-                metrics.heightPixels = 512 // 512
-                metrics.widthPixels = 260 // 260
-            }
-            if (orientation == Configuration.ORIENTATION_LANDSCAPE) {
-                metrics.heightPixels = 260 // 260
-                metrics.widthPixels = 512 // 512
-            }
-            metrics.scaledDensity = 1f
-            metrics.xdpi = 302f // 302
-            metrics.ydpi = 302f // 302
-            metrics.setTo(metrics)
-            return ScaledContext(context)
+    fun screen(density: Float, theme: Int): Context {
+        setTheme(theme)
+        return screen(density)
+    }
+
+    fun external(): ScaledContext {
+        val resources = resources
+        val metrics = resources.displayMetrics
+        val orientation = resources.configuration.orientation
+        metrics.density = 1f
+        metrics.densityDpi = 160 // 160
+        if (orientation == Configuration.ORIENTATION_PORTRAIT) {
+            metrics.heightPixels = 512 // 512
+            metrics.widthPixels = 260 // 260
         }
-
-        fun restore(context: Context, display: Int): Context {
-            context.resources.displayMetrics.setToDefaults()
-            val displayManager = context.getSystemService(DISPLAY_SERVICE) as DisplayManager
-            val displayContext = context.createDisplayContext(displayManager.getDisplay(display))
-            val wm = displayContext.getSystemService(WINDOW_SERVICE) as WindowManager
-            val contextWrapper = object : ContextThemeWrapper(displayContext, context.theme) {
-                override fun getSystemService(name: String): Any? {
-                    return if (WINDOW_SERVICE == name) wm else super.getSystemService(name)
-                }
-            }
-            contextWrapper.resources.displayMetrics.setToDefaults()
-            return contextWrapper
-
+        if (orientation == Configuration.ORIENTATION_LANDSCAPE) {
+            metrics.heightPixels = 260 // 260
+            metrics.widthPixels = 512 // 512
         }
+        metrics.scaledDensity = 1f
+        metrics.xdpi = 302f // 302
+        metrics.ydpi = 302f // 302
+        metrics.setTo(metrics)
+        return ScaledContext(this)
+    }
 
-        fun cover(context: Context) : Context {
-            val displayManager = context.getSystemService(DISPLAY_SERVICE) as DisplayManager
-            val displayContext = context.createDisplayContext(displayManager.getDisplay(1))
-            val wm = displayContext.getSystemService(WINDOW_SERVICE) as WindowManager
-            return object : ContextThemeWrapper(displayContext, context.theme) {
-                override fun getSystemService(name: String): Any? {
-                    return if (WINDOW_SERVICE == name) wm else super.getSystemService(name)
-                }
+    fun restore(display: Int): Context {
+        resources.displayMetrics.setToDefaults()
+        val displayManager = getSystemService(DISPLAY_SERVICE) as DisplayManager
+        val displayContext = createDisplayContext(displayManager.getDisplay(display))
+        val wm = displayContext.getSystemService(WINDOW_SERVICE) as WindowManager
+        val contextWrapper = object : ContextThemeWrapper(displayContext, theme) {
+            override fun getSystemService(name: String): Any? {
+                return if (WINDOW_SERVICE == name) wm else super.getSystemService(name)
             }
         }
+        contextWrapper.resources.displayMetrics.setToDefaults()
+        return contextWrapper
 
-        fun cover(context: Context, theme: Int) : Context {
-            context.setTheme(theme)
-            return cover(context)
+    }
+
+    fun cover() : Context {
+        val displayManager = getSystemService(DISPLAY_SERVICE) as DisplayManager
+        val displayContext = createDisplayContext(displayManager.getDisplay(1))
+        val wm = displayContext.getSystemService(WINDOW_SERVICE) as WindowManager
+        return object : ContextThemeWrapper(displayContext, theme) {
+            override fun getSystemService(name: String): Any? {
+                return if (WINDOW_SERVICE == name) wm else super.getSystemService(name)
+            }
         }
+    }
+
+    fun cover(theme: Int) : Context {
+        setTheme(theme)
+        return cover()
     }
 }

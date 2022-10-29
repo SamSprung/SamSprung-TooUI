@@ -7,7 +7,7 @@
  * are met:
  *
  * For the purpose of this license, the phrase "SamSprung labels" shall
- * be used to refer to the labels "8-Bit Dream", "TwistedUmbrella",
+ * be used to refer to the labels "8-bit Dream", "TwistedUmbrella",
  * "SamSprung" and "AbandonedCart" and these labels should be considered
  * the equivalent of any usage of the aforementioned phrase.
  *
@@ -215,7 +215,7 @@ class SamSprungOverlay : AppCompatActivity() {
         WindowCompat.setDecorFitsSystemWindows(window, false)
 
         prefs = getSharedPreferences(SamSprung.prefsValue, MODE_PRIVATE)
-        ScaledContext.internal(this, 1.5f).setTheme(R.style.Theme_Launcher_NoActionBar)
+        ScaledContext(this).internal(1.5f).setTheme(R.style.Theme_Launcher_NoActionBar)
         setContentView(R.layout.home_main_view)
 
         windowInfoTracker = WindowInfoTrackerCallbackAdapter(
@@ -281,7 +281,7 @@ class SamSprungOverlay : AppCompatActivity() {
                 ) == PackageManager.PERMISSION_GRANTED
             ) {
                 background = WallpaperManager.getInstance(
-                    ScaledContext.cover(applicationContext)
+                    ScaledContext(applicationContext).cover()
                 ).drawable
             }
             if (null != background) coordinator.background = background

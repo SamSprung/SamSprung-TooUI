@@ -7,7 +7,7 @@
  * are met:
  *
  * For the purpose of this license, the phrase "SamSprung labels" shall
- * be used to refer to the labels "8-Bit Dream", "TwistedUmbrella",
+ * be used to refer to the labels "8-bit Dream", "TwistedUmbrella",
  * "SamSprung" and "AbandonedCart" and these labels should be considered
  * the equivalent of any usage of the aforementioned phrase.
  *
@@ -905,6 +905,8 @@ class CoverPreferences : AppCompatActivity() {
         webViewSettings.userAgentString = webViewSettings.userAgentString.replace(
             "(?i)" + Pattern.quote("android").toRegex(), "SamSprung"
         )
+        webViewSettings.setSupportZoom(true)
+        webViewSettings.builtInZoomControls = true
         mWebView.loadUrl("https://samsprung.github.io/launcher/")
     }
 
@@ -1091,7 +1093,7 @@ class CoverPreferences : AppCompatActivity() {
         if (this::mainSwitch.isInitialized) {
             mainSwitch.isChecked = Settings.canDrawOverlays(applicationContext)
             startForegroundService(Intent(
-                ScaledContext.cover(this), OnBroadcastService::class.java
+                ScaledContext(this).cover(), OnBroadcastService::class.java
             ))
         }
     }
@@ -1229,7 +1231,7 @@ class CoverPreferences : AppCompatActivity() {
 
     private fun initializeLayout() {
         startForegroundService(Intent(
-            ScaledContext.cover(this), OnBroadcastService::class.java
+            ScaledContext(this).cover(), OnBroadcastService::class.java
         ))
         if (!prefs.getBoolean(SamSprung.prefWarned, false)) {
             wikiDrawer.openDrawer(GravityCompat.START)

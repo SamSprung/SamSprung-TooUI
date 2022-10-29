@@ -7,7 +7,7 @@
  * are met:
  *
  * For the purpose of this license, the phrase "SamSprung labels" shall
- * be used to refer to the labels "8-Bit Dream", "TwistedUmbrella",
+ * be used to refer to the labels "8-bit Dream", "TwistedUmbrella",
  * "SamSprung" and "AbandonedCart" and these labels should be considered
  * the equivalent of any usage of the aforementioned phrase.
  *
@@ -83,7 +83,7 @@ class OnBroadcastService : Service() {
                         .getBoolean(SamSprung.prefRotate, false)) {
                     OrientationManager(context).removeOrientationLayout()
                 }
-                ScaledContext.cover(context).startActivity(
+                ScaledContext(context).cover().startActivity(
                     Intent(context.applicationContext, SamSprungOverlay::class.java)
                         .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK),
                     CoverOptions(null).getActivityOptions(1).toBundle()

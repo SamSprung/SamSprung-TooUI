@@ -7,7 +7,7 @@
  * are met:
  *
  * For the purpose of this license, the phrase "SamSprung labels" shall
- * be used to refer to the labels "8-Bit Dream", "TwistedUmbrella",
+ * be used to refer to the labels "8-bit Dream", "TwistedUmbrella",
  * "SamSprung" and "AbandonedCart" and these labels should be considered
  * the equivalent of any usage of the aforementioned phrase.
  *
@@ -156,7 +156,7 @@ class AppDisplayListener : Service() {
 
         showForegroundNotification(startId)
 
-        val displayContext = ScaledContext.internal(ScaledContext.cover(applicationContext), 1.5f)
+        val displayContext = ScaledContext(ScaledContext(applicationContext).cover()).internal(1.5f)
         floatView = LayoutInflater.from(displayContext).inflate(R.layout.navigation_menu, null)
         val params = WindowManager.LayoutParams(
             WindowManager.LayoutParams.MATCH_PARENT,
@@ -223,7 +223,7 @@ class AppDisplayListener : Service() {
     }
 
     private fun restoreActivityDisplay(componentName: ComponentName?, display: Int) {
-        val baseContext = ScaledContext.restore(applicationContext, display)
+        val baseContext = ScaledContext(applicationContext).restore(display)
         (baseContext.getSystemService(AppCompatActivity
             .LAUNCHER_APPS_SERVICE) as LauncherApps).startMainActivity(
             componentName,
@@ -371,9 +371,9 @@ class AppDisplayListener : Service() {
         try {
             if (null != offReceiver) unregisterReceiver(offReceiver)
         } catch (ignored: Exception) { }
-        val windowManager = ScaledContext.internal(
-            ScaledContext.cover(applicationContext, R.style.Theme_SecondScreen), 1.5f
-        ).getSystemService(WINDOW_SERVICE) as WindowManager
+        val windowManager = ScaledContext(ScaledContext(applicationContext)
+            .cover(R.style.Theme_SecondScreen)).internal(1.5f)
+            .getSystemService(WINDOW_SERVICE) as WindowManager
         try {
             windowManager.removeViewImmediate(floatView)
         } catch (rvi: Exception) {

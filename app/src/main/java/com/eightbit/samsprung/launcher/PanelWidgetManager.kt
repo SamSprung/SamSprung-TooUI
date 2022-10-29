@@ -32,7 +32,7 @@ class PanelWidgetManager(
     private var appWidgetHost: AppWidgetHost,
     private var pagerAdapter: CoverStateAdapter,
 ) {
-    private var displayMetrics: IntArray = ScaledContext.getDisplayParams(overlay)
+    private var displayMetrics: IntArray = ScaledContext(overlay).getDisplayParams()
 
     @SuppressLint("InflateParams")
     fun completeAddAppWidget(appWidgetId: Int, viewPager: ViewPager2) {
@@ -63,9 +63,9 @@ class PanelWidgetManager(
         }
         overlay.model.addDesktopAppWidget(launcherInfo)
 
-        launcherInfo.hostView = appWidgetHost.createView(ScaledContext.cover(
-            ScaledContext.internal(overlay.applicationContext, 1.5f)
-        ), appWidgetId, appWidgetInfo)
+        launcherInfo.hostView = appWidgetHost.createView(ScaledContext(
+            ScaledContext(overlay.applicationContext).internal(1.5f)
+        ).cover(), appWidgetId, appWidgetInfo)
         launcherInfo.hostView!!.setAppWidget(appWidgetId, appWidgetInfo)
         launcherInfo.hostView!!.tag = launcherInfo
 
@@ -186,9 +186,9 @@ class PanelWidgetManager(
             val item = appWidgets.removeFirst()
             val appWidgetId = item.appWidgetId
             val appWidgetInfo = mAppWidgetManager.getAppWidgetInfo(appWidgetId)
-            item.hostView = appWidgetHost.createView(ScaledContext.cover(
-                ScaledContext.internal(overlay.applicationContext, 1.5f)
-            ), appWidgetId, appWidgetInfo)
+            item.hostView = appWidgetHost.createView(ScaledContext(
+                ScaledContext(overlay.applicationContext).internal(1.5f)
+            ).cover(), appWidgetId, appWidgetInfo)
             item.hostView!!.setAppWidget(appWidgetId, appWidgetInfo)
             item.hostView!!.tag = item
 

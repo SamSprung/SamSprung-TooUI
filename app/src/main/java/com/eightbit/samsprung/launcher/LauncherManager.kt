@@ -21,7 +21,7 @@ import com.eightbit.samsprung.SamSprungOverlay
 
 class LauncherManager(private val overlay: SamSprungOverlay) {
 
-    val displayContext = ScaledContext.cover(ScaledContext.internal(overlay, 1.5f))
+    val displayContext = ScaledContext(ScaledContext(overlay).internal(1.5f)).cover()
     val launcher = displayContext.getSystemService(
         AppCompatActivity.LAUNCHER_APPS_SERVICE
     ) as LauncherApps
@@ -37,7 +37,7 @@ class LauncherManager(private val overlay: SamSprungOverlay) {
                 overlay.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
             }
             overlay.onStopOverlay()
-            val context = ScaledContext.cover(ScaledContext.internal(overlay, 1.5f))
+            val context = ScaledContext(ScaledContext(overlay).internal(1.5f)).cover()
             context.startForegroundService(
                 Intent(context, AppDisplayListener::class.java).putExtras(extras)
             )
