@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.eightbit.samsprung.launcher.panels;
+package com.eightbit.samsprung.drawer.panels;
 
 import android.appwidget.AppWidgetHost;
 import android.content.ComponentName;
@@ -36,7 +36,7 @@ import android.text.TextUtils;
 import android.util.Log;
 
 import com.eightbit.samsprung.SamSprungOverlay;
-import com.eightbit.samsprung.launcher.panels.WidgetSettings.Favorites;
+import com.eightbit.samsprung.drawer.panels.WidgetSettings.Favorites;
 
 import java.util.ArrayList;
 

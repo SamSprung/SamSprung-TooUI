@@ -105,10 +105,10 @@ import androidx.window.java.layout.WindowInfoTrackerCallbackAdapter
 import androidx.window.layout.WindowInfoTracker
 import com.eightbit.content.ScaledContext
 import com.eightbit.material.IconifiedSnackbar
-import com.eightbit.samsprung.launcher.CoverStateAdapter
-import com.eightbit.samsprung.launcher.LauncherManager
-import com.eightbit.samsprung.launcher.PanelWidgetManager
-import com.eightbit.samsprung.launcher.panels.*
+import com.eightbit.samsprung.drawer.CoverStateAdapter
+import com.eightbit.samsprung.drawer.LauncherManager
+import com.eightbit.samsprung.drawer.PanelWidgetManager
+import com.eightbit.samsprung.drawer.panels.*
 import com.eightbit.samsprung.settings.CheckUpdatesTask
 import com.eightbit.samsprung.speech.VoiceRecognizer
 import com.eightbit.view.AnimatedLinearLayout

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.eightbit.samsprung.launcher.panels
+package com.eightbit.samsprung.drawer.panels
 
 import android.appwidget.AppWidgetHostView
 import android.content.Context

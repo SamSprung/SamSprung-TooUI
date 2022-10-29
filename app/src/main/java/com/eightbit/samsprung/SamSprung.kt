@@ -59,7 +59,7 @@ import android.app.Application
 import android.app.KeyguardManager
 import androidx.appcompat.app.AppCompatDelegate
 import com.eightbit.io.Debug
-import com.eightbit.samsprung.launcher.OrientationManager
+import com.eightbit.samsprung.drawer.OrientationManager
 import java.io.PrintWriter
 import java.io.StringWriter
 import kotlin.system.exitProcess

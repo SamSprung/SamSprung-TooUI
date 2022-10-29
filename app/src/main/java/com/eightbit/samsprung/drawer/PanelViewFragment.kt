@@ -53,57 +53,43 @@
  * subject to to the terms and conditions of the Apache License, Version 2.0.
  */
 
-package com.eightbit.samsprung.launcher
+package com.eightbit.samsprung.drawer
 
-import androidx.appcompat.app.AppCompatActivity
+import android.os.Bundle
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
+import android.widget.LinearLayout
 import androidx.fragment.app.Fragment
-import androidx.viewpager2.adapter.FragmentStateAdapter
+import com.eightbit.samsprung.R
 
-class CoverStateAdapter(fragmentActivity: AppCompatActivity) : FragmentStateAdapter(fragmentActivity) {
-    private val mFragments = ArrayList<PanelViewFragment>()
-    private val mFragmentIDs = ArrayList<Int>()
-    private val noticeList = NotificationFragment()
-    private val appDrawer = AppDrawerFragment()
+class PanelViewFragment : Fragment() {
 
-    fun addFragment() : Int {
-        val fragment = PanelViewFragment()
-        val position = mFragmentIDs.size + 2
-        mFragments.add(fragment)
-        notifyItemInserted(position)
-        mFragmentIDs.add(position)
-        return position
+    private var listener: ViewCreatedListener? = null
+
+    fun setListener(listener: ViewCreatedListener) {
+        this.listener = listener
     }
 
-    fun removeFragment(fragmentID: Int) {
-        val position = fragmentID - 2
-        mFragments.removeAt(position)
-        mFragmentIDs.removeAt(position)
-        mFragments.trimToSize()
-        mFragmentIDs.trimToSize()
-        notifyItemRemoved(fragmentID)
+    fun getLayout() : LinearLayout {
+        return requireView() as LinearLayout
     }
 
-    fun getFragment(fragmentID: Int) : PanelViewFragment {
-        return mFragments[fragmentID - 2]
+    override fun onCreateView(
+        inflater: LayoutInflater, container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View {
+        return inflater.inflate(
+            R.layout.fragment_panel, container, false
+        ) as ViewGroup
     }
 
-    override fun createFragment(position: Int): Fragment {
-        return when (position) {
-            0 -> noticeList
-            1 -> appDrawer
-            else -> mFragments[position - 2]
-        }
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        listener?.onViewCreated(view)
     }
 
-    override fun getItemId(position: Int): Long {
-        return if (position < 2) position.toLong() else mFragmentIDs[position - 2].toLong()
-    }
-
-    override fun getItemCount(): Int {
-        return mFragmentIDs.size + 2
-    }
-
-    override fun containsItem(itemId: Long): Boolean {
-        return mFragmentIDs.contains(itemId.toInt())
+    interface ViewCreatedListener {
+        fun onViewCreated(view: View)
     }
 }

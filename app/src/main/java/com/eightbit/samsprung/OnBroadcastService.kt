@@ -70,7 +70,7 @@ import androidx.core.app.NotificationCompat
 import androidx.core.content.ContextCompat
 import com.eightbit.app.CoverOptions
 import com.eightbit.content.ScaledContext
-import com.eightbit.samsprung.launcher.OrientationManager
+import com.eightbit.samsprung.drawer.OrientationManager
 
 class OnBroadcastService : Service() {
 

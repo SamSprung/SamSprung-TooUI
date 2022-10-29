@@ -1,4 +1,4 @@
-package com.eightbit.samsprung.launcher.panels
+package com.eightbit.samsprung.drawer.panels
 
 import android.os.Handler
 import android.os.Looper

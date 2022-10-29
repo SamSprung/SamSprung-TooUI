@@ -1,4 +1,4 @@
-package com.eightbit.samsprung.launcher
+package com.eightbit.samsprung.drawer
 
 import android.app.PendingIntent
 import android.content.ComponentName

@@ -115,7 +115,7 @@
         <service android:name=".OnBroadcastService"
             android:exported="true"
             android:permission="android.permission.FOREGROUND_SERVICE" />
-        <service android:name=".launcher.AppDisplayListener"
+        <service android:name=".drawer.AppDisplayListener"
             android:exported="true"
             android:permission="android.permission.FOREGROUND_SERVICE"
             android:showOnLockScreen="true"
@@ -159,8 +159,8 @@
         </provider>
 
         <provider
-            android:name="com.eightbit.samsprung.launcher.panels.WidgetProvider"
-            android:authorities="com.eightbit.samsprung.launcher.panels"
+            android:name="com.eightbit.samsprung.drawer.panels.WidgetProvider"
+            android:authorities="com.eightbit.samsprung.drawer.panels"
             android:writePermission="samsprung.permission.WRITE_SETTINGS"
             android:readPermission="samsprung.permission.READ_SETTINGS" />
     </application>
