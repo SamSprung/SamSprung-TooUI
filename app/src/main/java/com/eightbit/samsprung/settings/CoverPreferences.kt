@@ -257,9 +257,11 @@ class CoverPreferences : AppCompatActivity() {
         keyboard.isChecked = hasKeyboardInstalled()
         findViewById<LinearLayout>(R.id.keyboard_layout).setOnClickListener {
             try {
-                keyboardLauncher.launch(Intent(Intent.ACTION_VIEW, Uri.parse(
+                val playIntent = Intent(Intent.ACTION_VIEW, Uri.parse(
                     "market://details?id=" + BuildConfig.APPLICATION_ID + ".ime"
-                )))
+                ))
+                playIntent.setPackage("com.android.vending")
+                keyboardLauncher.launch(playIntent)
             } catch (exception: ActivityNotFoundException) {
                 keyboardLauncher.launch(Intent(Intent.ACTION_VIEW, Uri.parse(
                         "https://play.google.com/store/apps/details?id="
