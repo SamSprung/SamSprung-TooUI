@@ -204,7 +204,7 @@
                             app:srcCompat="@drawable/ic_baseline_screen_rotation_24"
                             android:layout_weight="1"
                             android:longClickable="true"
-                            android:contentDescription="btn_rotation_tip" />
+                            android:contentDescription="@string/btn_rotation_tip" />
                     </LinearLayout>
                 </RelativeLayout>
             </LinearLayout>

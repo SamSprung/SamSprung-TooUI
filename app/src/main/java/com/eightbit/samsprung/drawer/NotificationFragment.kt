@@ -183,7 +183,7 @@ class NotificationFragment : Fragment(), NotificationAdapter.OnNoticeClickListen
                 val dialog = AlertDialog.Builder(
                     ContextThemeWrapper(requireActivity(), R.style.Theme_SecondScreen_NoActionBar)
                 )
-                val actionEntries = view.findViewById<RelativeLayout>(R.id.entries)
+                val actionEntries = view.findViewById<LinearLayout>(R.id.entries)
                 val reply = actionEntries.findViewById<EditText>(R.id.reply)
                 actionEntries.findViewById<AppCompatImageView>(R.id.send).setOnClickListener {
                     val replyIntent = Intent()
@@ -200,8 +200,8 @@ class NotificationFragment : Fragment(), NotificationAdapter.OnNoticeClickListen
                 }
                 replyDialog = dialog.setView(view).show()
                 replyDialog.window?.setLayout(
-                    RelativeLayout.LayoutParams.MATCH_PARENT,
-                    RelativeLayout.LayoutParams.WRAP_CONTENT
+                    LinearLayout.LayoutParams.MATCH_PARENT,
+                    LinearLayout.LayoutParams.WRAP_CONTENT
                 )
             }
         }

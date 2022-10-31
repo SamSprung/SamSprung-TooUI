@@ -808,11 +808,11 @@ class SamSprungOverlay : AppCompatActivity() {
             authDialog.show()
             authDialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
             authDialog.window?.setLayout(
-                RelativeLayout.LayoutParams.MATCH_PARENT,
-                RelativeLayout.LayoutParams.MATCH_PARENT
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.MATCH_PARENT
             )
             if (null != background)
-                authView.findViewById<RelativeLayout>(R.id.auth_view).background = background
+                authView.findViewById<LinearLayout>(R.id.auth_view).background = background
             try {
                 HiddenApiBypass.invoke(Class.forName("android.app.KeyguardManager"),
                     keyguardManager, "semStartLockscreenFingerprintAuth")
