@@ -45,6 +45,7 @@
     <string name="visibility_options">App Visibility</string>
 
     <string name="donate_link">Donate</string>
+    <string name="google_link">Donate with Google Play</string>
     <string name="sponsor_link">Sponsor on GitHub</string>
     <string name="paypal_link">Donate with PayPal</string>
     <string name="logcat_link">Problem?</string>

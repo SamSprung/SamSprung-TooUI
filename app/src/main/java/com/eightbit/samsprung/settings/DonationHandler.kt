@@ -18,7 +18,6 @@ import com.android.billingclient.api.*
 import com.eightbit.material.IconifiedSnackbar
 import com.eightbit.samsprung.BuildConfig
 import com.eightbit.samsprung.R
-import com.eightbit.samsprung.SamSprung
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -232,7 +231,7 @@ class DonationHandler internal constructor(activity: CoverPreferences) {
 
     private fun getDonationButton(skuDetail: ProductDetails): Button {
         val button = Button(activity.applicationContext)
-        button.setBackgroundResource(com.eightbit.samsprung.R.drawable.button_rippled)
+        button.setBackgroundResource(R.drawable.button_rippled)
         button.elevation = 10f.toPx
         button.setTextColor(ContextCompat.getColor(activity, android.R.color.black))
         button.textSize = 8f.toPx
@@ -252,7 +251,7 @@ class DonationHandler internal constructor(activity: CoverPreferences) {
 
     private fun getSubscriptionButton(skuDetail: ProductDetails): Button {
         val button = Button(activity.applicationContext)
-        button.setBackgroundResource(com.eightbit.samsprung.R.drawable.button_rippled)
+        button.setBackgroundResource(R.drawable.button_rippled)
         button.elevation = 10f.toPx
         button.setTextColor(ContextCompat.getColor(activity, android.R.color.black))
         button.textSize = 8f.toPx
