@@ -3,7 +3,7 @@
 </p>
 
 <p align="center">
-  <a href="https://play.google.com/store/apps/details?id=com.eightbit.samsprung"><img src="assets/google-play-badge.png" /></a>
+  <a href="https://play.google.com/store/apps/details?id=com.eightbit.samsprung"><img alt='Get it on Google Play' src='https://play.google.com/intl/en_us/badges/static/images/badges/en_badge_web_generic.png'/></a>
 </p>
 
 ![SamSprung Logo](assets/feature_graphic.png)
