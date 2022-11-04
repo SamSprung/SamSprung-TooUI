@@ -300,14 +300,22 @@ class DonationHandler internal constructor(activity: CoverPreferences) {
         val donateDialog: Dialog = dialog.setView(view).show()
         if (!BuildConfig.GOOGLE_PLAY) {
             @SuppressLint("InflateParams")
+            val sponsor: View = activity.layoutInflater.inflate(R.layout.button_sponsor, null)
+            sponsor.setOnClickListener {
+                activity.startActivity(Intent(
+                    Intent.ACTION_VIEW,
+                    Uri.parse("https://github.com/sponsors/AbandonedCart")
+                ))
+                donateDialog.cancel()
+            }
+            view.addView(sponsor)
+            @SuppressLint("InflateParams")
             val paypal: View = activity.layoutInflater.inflate(R.layout.button_paypal, null)
             paypal.setOnClickListener {
-                activity.startActivity(
-                    Intent(
-                        Intent.ACTION_VIEW, Uri.parse(
-                    "https://www.paypal.com/donate/?hosted_button_id=Q2LFH2SC8RHRN"
+                activity.startActivity(Intent(
+                    Intent.ACTION_VIEW,
+                    Uri.parse("https://www.paypal.com/donate/?hosted_button_id=Q2LFH2SC8RHRN")
                 ))
-                )
                 donateDialog.cancel()
             }
             view.addView(paypal)
