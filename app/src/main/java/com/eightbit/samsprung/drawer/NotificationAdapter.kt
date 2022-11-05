@@ -140,7 +140,7 @@ class NotificationAdapter(
                 if ((activity.resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK)
                     == Configuration.UI_MODE_NIGHT_YES) Color.BLACK else Color.WHITE, 0.4f)
 
-        private  fun getScaledBitmap(activity: Activity, bitmap: Bitmap): Bitmap {
+        private fun getScaledBitmap(activity: Activity, bitmap: Bitmap): Bitmap {
             val maxWidth = activity.window.decorView.width
             val maxHeight = activity.window.decorView.height
             return if (bitmap.width > activity.window.decorView.width) {
@@ -158,6 +158,24 @@ class NotificationAdapter(
                 Bitmap.createScaledBitmap(bitmap, finalWidth, finalHeight, true)
             } else {
                 bitmap
+            }
+        }
+
+        fun dismissNotification() {
+            val actionsPanel = itemView.findViewById<LinearLayout>(R.id.action_panel)
+            if (actionsPanel.isVisible) {
+                val linesText = itemView.findViewById<TextView>(R.id.lines)
+                linesText.maxLines = 3
+                linesText.ellipsize = TextUtils.TruncateAt.END
+                actionsPanel.visibility = View.GONE
+            }
+            if (notice.isClearable) {
+                NotificationReceiver.getReceiver()?.setNotificationsShown(arrayOf(notice.key))
+                NotificationReceiver.getReceiver()?.cancelNotification(notice.key)
+            } else {
+                NotificationReceiver.getReceiver()?.snoozeNotification(
+                    notice.key, (prefs.getInt(SamSprung.prefSnooze, 30) * 60 * 1000).toLong()
+                )
             }
         }
 
@@ -276,20 +294,7 @@ class NotificationAdapter(
                 launch.visibility = View.GONE
             }
             dismiss.setOnClickListener {
-                val actionsPanel = itemView.findViewById<LinearLayout>(R.id.action_panel)
-                if (actionsPanel.isVisible) {
-                    linesText.maxLines = 3
-                    linesText.ellipsize = TextUtils.TruncateAt.END
-                    actionsPanel.visibility = View.GONE
-                }
-                if (notice.isClearable) {
-                    NotificationReceiver.getReceiver()?.setNotificationsShown(arrayOf(notice.key))
-                    NotificationReceiver.getReceiver()?.cancelNotification(notice.key)
-                } else {
-                    NotificationReceiver.getReceiver()?.snoozeNotification(
-                        notice.key, (prefs.getInt(SamSprung.prefSnooze, 30) * 60 * 1000).toLong()
-                    )
-                }
+                dismissNotification()
             }
         }
     }
