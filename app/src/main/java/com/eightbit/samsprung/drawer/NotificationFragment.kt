@@ -152,13 +152,14 @@ class NotificationFragment : Fragment(), NotificationAdapter.OnNoticeClickListen
         }
 
         RecyclerViewTouch(noticesView).setSwipeCallback(
-             ItemTouchHelper.DOWN or ItemTouchHelper.END,
+            ItemTouchHelper.END or ItemTouchHelper.DOWN,
             object: RecyclerViewTouch.SwipeCallback {
             override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
+                if (direction == ItemTouchHelper.END) {
+                    (viewHolder as NotificationAdapter.NoticeViewHolder).dismissNotification()
+                }
                 if (direction == ItemTouchHelper.DOWN) {
                     onSwipeClosed(noticesView)
-                } else if (direction == ItemTouchHelper.END) {
-                    (viewHolder as NotificationAdapter.NoticeViewHolder).dismissNotification()
                 }
             }
         })
