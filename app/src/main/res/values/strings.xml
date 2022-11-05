@@ -99,6 +99,8 @@
     <string name="accessibility_service">SamSprung Navigation</string>
     <string name="accessibility_details">Enable virtual navigation action and hardware support.</string>
 
+    <string name="btn_close_tip">Close Launcher</string>
+
     <string name="rotation_lock">Lock apps to portrait?</string>
     <string name="rotation_lock_action">Lock</string>
     <string name="btn_rotation_tip">Rotation Lock</string>

@@ -521,6 +521,18 @@ class SamSprungOverlay : AppCompatActivity() {
             }
         })
 
+        val buttonClose = findViewById<AppCompatImageView>(R.id.button_close)
+        buttonClose.setOnClickListener {
+            bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
+            bottomSheetBehaviorMain.state = BottomSheetBehavior.STATE_COLLAPSED
+        }
+        buttonClose.setOnLongClickListener { view ->
+            Toast.makeText(
+                this@SamSprungOverlay, view.contentDescription, Toast.LENGTH_SHORT
+            ).show()
+            true
+        }
+
         configureMenuVisibility(toolbar)
 
         if (prefs.getBoolean(getString(R.string.toggle_widgets).toPref, true)) {

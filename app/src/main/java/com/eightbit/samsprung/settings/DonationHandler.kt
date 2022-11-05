@@ -277,12 +277,14 @@ class DonationHandler internal constructor(activity: CoverPreferences) {
             ContextThemeWrapper(activity, R.style.DialogTheme_NoActionBar)
         )
         val donations = view.findViewById<LinearLayout>(R.id.donation_layout)
+        donations.removeAllViewsInLayout()
         for (skuDetail: ProductDetails in iapSkuDetails
             .sortedBy { skuDetail -> skuDetail.productId }) {
             if (null == skuDetail.oneTimePurchaseOfferDetails) continue
             donations.addView(getDonationButton(skuDetail))
         }
         val subscriptions = view.findViewById<LinearLayout>(R.id.subscription_layout)
+        subscriptions.removeAllViewsInLayout()
         for (skuDetail: ProductDetails in subSkuDetails
             .sortedBy { skuDetail -> skuDetail.productId }) {
             if (null == skuDetail.subscriptionOfferDetails) continue
