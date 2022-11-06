@@ -79,10 +79,7 @@ import android.provider.Settings
 import android.text.Spannable
 import android.text.SpannableStringBuilder
 import android.text.style.RelativeSizeSpan
-import android.view.Menu
-import android.view.MenuItem
-import android.view.MotionEvent
-import android.view.View
+import android.view.*
 import android.view.animation.AlphaAnimation
 import android.view.animation.Animation
 import android.view.animation.TranslateAnimation
@@ -150,6 +147,12 @@ class CoverPreferences : AppCompatActivity() {
     @SuppressLint("ClickableViewAccessibility", "InflateParams")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        if (null != supportActionBar) {
+            supportActionBar!!.setDisplayShowHomeEnabled(true)
+            supportActionBar!!.setDisplayHomeAsUpEnabled(true)
+            supportActionBar!!.setHomeAsUpIndicator(R.drawable.ic_baseline_menu_24)
+        }
 
         prefs = getSharedPreferences(SamSprung.prefsValue, MODE_PRIVATE)
         setTheme(R.style.Theme_SecondScreen)
@@ -1243,6 +1246,17 @@ class CoverPreferences : AppCompatActivity() {
             }
         }
         requestStorage.launch(Manifest.permission.READ_EXTERNAL_STORAGE)
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        if (item.itemId == android.R.id.home) {
+            if (wikiDrawer.isDrawerOpen(GravityCompat.START)) {
+                wikiDrawer.closeDrawer(GravityCompat.START)
+            } else {
+                wikiDrawer.openDrawer(GravityCompat.START)
+            }
+        }
+        return super.onOptionsItemSelected(item)
     }
 
     private var widgetNotice : Snackbar? = null
