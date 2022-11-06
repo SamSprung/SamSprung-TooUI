@@ -919,7 +919,7 @@ class CoverPreferences : AppCompatActivity() {
         runOnUiThread {
             val buildIcon = findViewById<AppCompatImageView>(R.id.build_icon)
             buildIcon.setImageDrawable(ContextCompat.getDrawable(
-                this@CoverPreferences, R.drawable.ic_baseline_browser_updated_24dp))
+                this@CoverPreferences, R.drawable.ic_baseline_software_update_24))
             val buildInfo = findViewById<TextView>(R.id.build_info)
             val colorStateList = buildInfo.textColors
             buildInfo.setTextColor(Color.RED)
