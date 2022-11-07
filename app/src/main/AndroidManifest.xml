@@ -53,10 +53,10 @@
     <application
         android:process=":SamSprung"
         android:name=".SamSprung"
+        android:enableOnBackInvokedCallback="true"
         android:allowBackup="true"
         android:fullBackupContent="@xml/full_backup_content"
         android:dataExtractionRules="@xml/extraction_content"
-        android:enableOnBackInvokedCallback="true"
         android:icon="@mipmap/sprung_icon"
         android:label="@string/app_name"
         android:roundIcon="@mipmap/sprung_icon_round"

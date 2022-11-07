@@ -117,13 +117,15 @@ class Debug(private var context: Context) {
         ), logText))
         try {
             val emailIntent = Intent(Intent.ACTION_SEND)
-            emailIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
             emailIntent.type = "text/plain"
             emailIntent.putExtra(Intent.EXTRA_EMAIL, arrayOf("samsprungtoo@gmail.com"))
             emailIntent.putExtra(Intent.EXTRA_SUBJECT, "SamSprung TooUI Logcat")
             emailIntent.putExtra(Intent.EXTRA_TEXT, logText)
             emailIntent.type = "message/rfc822"
-            context.startActivity(Intent.createChooser(emailIntent, "Email logcat via..."))
+            context.startActivity(
+                Intent.createChooser(emailIntent, "Email log using...")
+                    .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            )
         } catch (ex: ActivityNotFoundException) {
             try {
                 context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(issueUrl)))
