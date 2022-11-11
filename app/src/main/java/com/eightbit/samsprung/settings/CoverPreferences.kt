@@ -68,6 +68,7 @@ import android.graphics.Bitmap
 import android.graphics.Color
 import android.graphics.ImageDecoder
 import android.graphics.Matrix
+import android.graphics.drawable.ColorDrawable
 import android.icu.text.DecimalFormatSymbols
 import android.net.Uri
 import android.os.Build
@@ -79,6 +80,7 @@ import android.provider.Settings
 import android.text.Spannable
 import android.text.SpannableStringBuilder
 import android.text.style.RelativeSizeSpan
+import android.util.TypedValue
 import android.view.*
 import android.view.animation.AlphaAnimation
 import android.view.animation.Animation
@@ -89,6 +91,8 @@ import android.webkit.WebView
 import android.widget.*
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.annotation.AttrRes
+import androidx.annotation.ColorInt
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.AppCompatImageView
@@ -113,6 +117,7 @@ import com.eightbit.material.IconifiedSnackbar
 import com.eightbit.pm.PackageRetriever
 import com.eightbit.samsprung.*
 import com.eightbit.view.AnimatedLinearLayout
+import com.google.android.material.color.MaterialColors
 import com.google.android.material.snackbar.Snackbar
 import com.google.android.play.core.appupdate.AppUpdateInfo
 import eightbitlab.com.blurview.BlurView
@@ -148,11 +153,12 @@ class CoverPreferences : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        if (null != supportActionBar) {
-            supportActionBar!!.setDisplayShowHomeEnabled(true)
-            supportActionBar!!.setDisplayHomeAsUpEnabled(true)
-            supportActionBar!!.setHomeAsUpIndicator(R.drawable.ic_baseline_menu_24)
-        }
+        supportActionBar?.setBackgroundDrawable(ColorDrawable(
+            MaterialColors.getColor(window.decorView, R.attr.colorSecondaryVariant)
+        ))
+        supportActionBar?.setDisplayShowHomeEnabled(true)
+        supportActionBar?.setDisplayHomeAsUpEnabled(true)
+        supportActionBar?.setHomeAsUpIndicator(R.drawable.ic_baseline_menu_24)
 
         prefs = getSharedPreferences(SamSprung.prefsValue, MODE_PRIVATE)
         setTheme(R.style.Theme_SecondScreen)
