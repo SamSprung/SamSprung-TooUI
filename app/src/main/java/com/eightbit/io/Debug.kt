@@ -59,6 +59,7 @@ import android.content.*
 import android.net.Uri
 import android.os.Build
 import android.os.Build.VERSION_CODES
+import android.widget.Toast
 import com.eightbit.samsprung.BuildConfig
 import com.eightbit.samsprung.R
 import com.heinrichreimersoftware.androidissuereporter.IssueReporterLauncher
@@ -123,9 +124,10 @@ class Debug(private var context: Context) {
             emailIntent.putExtra(Intent.EXTRA_TEXT, logText)
             emailIntent.type = "message/rfc822"
             context.startActivity(
-                Intent.createChooser(emailIntent, "Email log using...")
+                Intent.createChooser(emailIntent, context.getString(R.string.submit_logcat))
                     .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
             )
+            Toast.makeText(context, R.string.submit_logcat, Toast.LENGTH_SHORT).show()
         } catch (ex: ActivityNotFoundException) {
             try {
                 context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(issueUrl)))
