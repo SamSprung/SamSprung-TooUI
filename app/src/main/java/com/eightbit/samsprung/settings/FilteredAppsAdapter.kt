@@ -114,13 +114,15 @@ class FilteredAppsAdapter(
                 } catch (e: Exception) {
                     packages[i].nonLocalizedLabel
                 }
-                val section: String =
-                    java.lang.String.valueOf(appName[0]).uppercase(
-                        Locale.getDefault()
-                    )
-                if (!sections.contains(section)) {
-                    sections.add(section)
-                    mSectionPositions!!.add(i)
+                if (appName.isNotEmpty()) {
+                    val section: String =
+                        java.lang.String.valueOf(appName[0]).uppercase(
+                            Locale.getDefault()
+                        )
+                    if (!sections.contains(section)) {
+                        sections.add(section)
+                        mSectionPositions!!.add(i)
+                    }
                 }
                 i++
             }
