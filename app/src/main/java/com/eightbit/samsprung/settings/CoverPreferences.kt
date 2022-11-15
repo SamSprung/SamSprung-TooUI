@@ -871,17 +871,6 @@ class CoverPreferences : AppCompatActivity() {
             DividerItemDecoration(this, DividerItemDecoration.VERTICAL)
         )
         hiddenList.adapter = FilteredAppsAdapter(packageManager, packages, unlisted, prefs)
-        @Suppress("DEPRECATION")
-        hiddenList.setOnScrollListener(object : RecyclerView.OnScrollListener() {
-            override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
-                super.onScrollStateChanged(recyclerView, newState)
-                if (newState == RecyclerView.SCROLL_STATE_DRAGGING) {
-                    hiddenList.setIndexBarVisibility(true)
-                } else if (newState == RecyclerView.SCROLL_STATE_IDLE) {
-                    hiddenList.setIndexBarVisibility(false)
-                }
-            }
-        })
 
         findViewById<View>(R.id.list_divider).setOnTouchListener { v: View, event: MotionEvent ->
             val y = event.y.toInt()
