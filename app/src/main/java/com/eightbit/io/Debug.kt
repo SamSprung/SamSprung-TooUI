@@ -111,23 +111,22 @@ class Debug(private var context: Context) {
     }
 
     private fun submitLogcat(context: Context, logText: String) {
+        val subject = context.getString(R.string.git_issue_title, BuildConfig.COMMIT)
         val clipboard: ClipboardManager = context
             .getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
-        clipboard.setPrimaryClip(ClipData.newPlainText(
-            context.getString(R.string.git_issue_title, BuildConfig.COMMIT
-        ), logText))
+        clipboard.setPrimaryClip(ClipData.newPlainText(subject, logText))
+        Toast.makeText(context, R.string.submit_logcat, Toast.LENGTH_SHORT).show()
         try {
             val emailIntent = Intent(Intent.ACTION_SEND)
             emailIntent.type = "text/plain"
             emailIntent.putExtra(Intent.EXTRA_EMAIL, arrayOf("samsprungtoo@gmail.com"))
-            emailIntent.putExtra(Intent.EXTRA_SUBJECT, "SamSprung TooUI Logcat")
+            emailIntent.putExtra(Intent.EXTRA_SUBJECT, subject)
             emailIntent.putExtra(Intent.EXTRA_TEXT, logText)
             emailIntent.type = "message/rfc822"
             context.startActivity(
                 Intent.createChooser(emailIntent, context.getString(R.string.submit_logcat))
                     .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
             )
-            Toast.makeText(context, R.string.submit_logcat, Toast.LENGTH_SHORT).show()
         } catch (ex: ActivityNotFoundException) {
             try {
                 context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(issueUrl)))
