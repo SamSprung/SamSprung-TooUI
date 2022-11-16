@@ -59,7 +59,6 @@ import android.content.*
 import android.net.Uri
 import android.os.Build
 import android.os.Build.VERSION_CODES
-import android.widget.Toast
 import com.eightbit.samsprung.BuildConfig
 import com.eightbit.samsprung.R
 import com.heinrichreimersoftware.androidissuereporter.IssueReporterLauncher
@@ -115,7 +114,6 @@ class Debug(private var context: Context) {
         val clipboard: ClipboardManager = context
             .getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
         clipboard.setPrimaryClip(ClipData.newPlainText(subject, logText))
-        Toast.makeText(context, R.string.submit_logcat, Toast.LENGTH_SHORT).show()
         try {
             val emailIntent = Intent(Intent.ACTION_SEND)
             emailIntent.type = "text/plain"
@@ -124,7 +122,7 @@ class Debug(private var context: Context) {
             emailIntent.putExtra(Intent.EXTRA_TEXT, logText)
             emailIntent.type = "message/rfc822"
             context.startActivity(
-                Intent.createChooser(emailIntent, context.getString(R.string.submit_logcat))
+                Intent.createChooser(emailIntent, context.getString(R.string.logcat_crash))
                     .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
             )
         } catch (ex: ActivityNotFoundException) {

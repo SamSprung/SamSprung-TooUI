@@ -57,6 +57,7 @@ package com.eightbit.samsprung
 
 import android.app.Application
 import android.app.KeyguardManager
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatDelegate
 import com.eightbit.io.Debug
 import com.eightbit.samsprung.drawer.OrientationManager
@@ -111,6 +112,7 @@ class SamSprung : Application() {
         Thread.setDefaultUncaughtExceptionHandler { _: Thread?, error: Throwable ->
             val exception = StringWriter()
             error.printStackTrace(PrintWriter(exception))
+            Toast.makeText(this, R.string.logcat_crash, Toast.LENGTH_SHORT).show()
             Debug(this).processException(
                 (getSystemService(KEYGUARD_SERVICE) as KeyguardManager).isDeviceSecure,
                 exception.toString()
