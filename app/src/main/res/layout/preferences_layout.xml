@@ -427,7 +427,8 @@
                 app:setIndexBarStrokeColor="@color/primary_light"
                 app:setPreviewColor="@color/primary_dark"
                 app:setPreviewTextColor="@android:color/white"
-                app:setIndexBarShown="false"/>
+                app:setIndexBarShown="false"
+                app:setTransientIndexBar="true"/>
             </LinearLayout>
         </eightbitlab.com.blurview.BlurView>
     </androidx.coordinatorlayout.widget.CoordinatorLayout>
