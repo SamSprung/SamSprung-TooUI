@@ -419,7 +419,7 @@
                 android:clipToPadding="false"
                 android:scrollbars="vertical"
                 android:paddingStart="4dp"
-                android:paddingEnd="0dp"
+                android:paddingEnd="20dp"
                 android:scrollbarSize="0dp"
                 android:scrollbarStyle="outsideOverlay"
                 app:setIndexBarColor="@color/bottomSheetTint"
