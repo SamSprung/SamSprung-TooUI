@@ -42,14 +42,14 @@
     <string name="notice_options">Notifications</string>
     <string name="options_dismiss">Snooze Length (%1$sᵐ)</string>
 
-    <string name="visibility_options">App Visibility</string>
+    <string name="visibility_options">Hide / Show Apps</string>
 
     <string name="donate_link">Donate</string>
     <string name="google_link">Donate with Google Play</string>
     <string name="sponsor_link">Sponsor on GitHub</string>
     <string name="paypal_link">Donate with PayPal</string>
     <string name="logcat_link">Problem?</string>
-    <string name="logcat_crash">Fatal error. Submit a log?</string>
+    <string name="logcat_crash">Unrecoverable error. Submit a log?</string>
 
     <string name="keyboard_missing">Keyboard required!</string>
     <string name="wallpaper_cleared">Wallpaper reset!</string>
