@@ -258,15 +258,16 @@ class AppDisplayListener : Service() {
         }
     }
 
+    private val vibrationEffect = VibrationEffect
+        .createOneShot(20, VibrationEffect.DEFAULT_AMPLITUDE)
     private fun tactileFeedback() {
         if (!prefs.getBoolean(SamSprung.prefReacts, true)) return
-        val vibe = VibrationEffect.createOneShot(20, VibrationEffect.DEFAULT_AMPLITUDE)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
             (getSystemService(VIBRATOR_MANAGER_SERVICE) as VibratorManager)
-                .defaultVibrator.vibrate(vibe)
+                .defaultVibrator.vibrate(vibrationEffect)
         } else {
             @Suppress("DEPRECATION")
-            (getSystemService(VIBRATOR_SERVICE) as Vibrator).vibrate(vibe)
+            (getSystemService(VIBRATOR_SERVICE) as Vibrator).vibrate(vibrationEffect)
         }
     }
 

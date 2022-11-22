@@ -321,17 +321,21 @@ class NotificationFragment : Fragment(), NotificationAdapter.OnNoticeClickListen
         launcherManager?.launchPendingIntent(pendingIntent)
     }
 
+    private val prefs = requireActivity().getSharedPreferences(
+        SamSprung.prefsValue, AppCompatActivity.MODE_PRIVATE)
+    private val vibrationEffect = VibrationEffect
+        .createOneShot(20, VibrationEffect.DEFAULT_AMPLITUDE)
     private fun tactileFeedback() {
-        val prefs = requireActivity().getSharedPreferences(
-            SamSprung.prefsValue, AppCompatActivity.MODE_PRIVATE)
         if (!prefs.getBoolean(SamSprung.prefReacts, true)) return
-        val vibe = VibrationEffect.createOneShot(20, VibrationEffect.DEFAULT_AMPLITUDE)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-            (requireActivity().getSystemService(Context.VIBRATOR_MANAGER_SERVICE) as VibratorManager)
-                .defaultVibrator.vibrate(vibe)
+            (requireActivity().getSystemService(
+                Context.VIBRATOR_MANAGER_SERVICE
+            ) as VibratorManager).defaultVibrator.vibrate(vibrationEffect)
         } else {
             @Suppress("DEPRECATION")
-            (requireActivity().getSystemService(Context.VIBRATOR_SERVICE) as Vibrator).vibrate(vibe)
+            (requireActivity().getSystemService(
+                Context.VIBRATOR_SERVICE
+            ) as Vibrator).vibrate(vibrationEffect)
         }
     }
 
