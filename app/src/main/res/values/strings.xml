@@ -27,7 +27,7 @@
     <string name="toggle_options">Toggles</string>
 
     <string name="drawer_options">Drawer Options</string>
-    <string name="options_vibration">Touch Feedback</string>
+    <string name="options_vibration">Button Feedback</string>
     <string name="options_gestures">Drawer Gesture</string>
     <string name="options_animate">Page Animation</string>
     <string name="options_length">Apps Per Row &#160;%1$s</string>

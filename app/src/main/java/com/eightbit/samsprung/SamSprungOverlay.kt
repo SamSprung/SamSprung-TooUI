@@ -352,6 +352,8 @@ class SamSprungOverlay : AppCompatActivity() {
 
         val buttonRotation = findViewById<AppCompatImageView>(R.id.button_rotation)
         buttonRotation.setOnClickListener {
+            if (prefs.getBoolean(SamSprung.prefReacts, true))
+                tactileFeedback()
             val unlocked = !prefs.getBoolean(SamSprung.prefRotate, false)
             if (unlocked) {
                 val lockBar: Snackbar = IconifiedSnackbar(
@@ -378,7 +380,7 @@ class SamSprungOverlay : AppCompatActivity() {
         }
         buttonRotation.setOnLongClickListener { view ->
             Toast.makeText(
-                this@SamSprungOverlay, view.contentDescription, Toast.LENGTH_SHORT
+                view.context, view.contentDescription, Toast.LENGTH_SHORT
             ).show()
             true
         }
@@ -396,7 +398,7 @@ class SamSprungOverlay : AppCompatActivity() {
         }
         buttonAuth.setOnLongClickListener { view ->
             Toast.makeText(
-                this@SamSprungOverlay, view.contentDescription, Toast.LENGTH_SHORT
+                view.context, view.contentDescription, Toast.LENGTH_SHORT
             ).show()
             true
         }
@@ -523,12 +525,14 @@ class SamSprungOverlay : AppCompatActivity() {
 
         val buttonClose = findViewById<AppCompatImageView>(R.id.button_close)
         buttonClose.setOnClickListener {
+            if (prefs.getBoolean(SamSprung.prefReacts, true))
+                tactileFeedback()
             bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
             bottomSheetBehaviorMain.state = BottomSheetBehavior.STATE_COLLAPSED
         }
         buttonClose.setOnLongClickListener { view ->
             Toast.makeText(
-                this@SamSprungOverlay, view.contentDescription, Toast.LENGTH_SHORT
+                view.context, view.contentDescription, Toast.LENGTH_SHORT
             ).show()
             true
         }
@@ -730,6 +734,8 @@ class SamSprungOverlay : AppCompatActivity() {
     private fun showBottomHandle(bottomHandle: View, menuButton: FloatingActionButton) {
         setBottomTheme(bottomHandle, menuButton)
         menuButton.setOnClickListener {
+            if (prefs.getBoolean(SamSprung.prefReacts, true))
+                tactileFeedback()
             bottomSheetBehaviorMain.state = BottomSheetBehavior.STATE_EXPANDED
         }
         setActionButtonTimeout()
@@ -787,7 +793,8 @@ class SamSprungOverlay : AppCompatActivity() {
             override fun onDismissError() {
                 super.onDismissError()
                 if (null != authDialog) {
-                    tactileFeedback()
+                    if (prefs.getBoolean(SamSprung.prefReacts, true))
+                        tactileFeedback()
                     authDialog.dismiss()
                 }
                 keyguardListener?.onKeyguardCheck(false)
@@ -796,7 +803,8 @@ class SamSprungOverlay : AppCompatActivity() {
             override fun onDismissSucceeded() {
                 super.onDismissSucceeded()
                 if (null != authDialog) {
-                    tactileFeedback()
+                    if (prefs.getBoolean(SamSprung.prefReacts, true))
+                        tactileFeedback()
                     authDialog.dismiss()
                 }
                 keyguardListener?.onKeyguardCheck(true)
@@ -986,7 +994,6 @@ class SamSprungOverlay : AppCompatActivity() {
     private val vibrationEffect = VibrationEffect
         .createOneShot(20, VibrationEffect.DEFAULT_AMPLITUDE)
     private fun tactileFeedback() {
-        if (!prefs.getBoolean(SamSprung.prefReacts, true)) return
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
             (getSystemService(VIBRATOR_MANAGER_SERVICE) as VibratorManager)
                 .defaultVibrator.vibrate(vibrationEffect)

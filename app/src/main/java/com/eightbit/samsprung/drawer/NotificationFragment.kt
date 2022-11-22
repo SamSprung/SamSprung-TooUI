@@ -60,6 +60,7 @@ import android.app.*
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
+import android.content.SharedPreferences
 import android.content.res.ColorStateList
 import android.content.res.Configuration
 import android.graphics.BlendMode
@@ -321,12 +322,9 @@ class NotificationFragment : Fragment(), NotificationAdapter.OnNoticeClickListen
         launcherManager?.launchPendingIntent(pendingIntent)
     }
 
-    private val prefs = requireActivity().getSharedPreferences(
-        SamSprung.prefsValue, AppCompatActivity.MODE_PRIVATE)
     private val vibrationEffect = VibrationEffect
         .createOneShot(20, VibrationEffect.DEFAULT_AMPLITUDE)
     private fun tactileFeedback() {
-        if (!prefs.getBoolean(SamSprung.prefReacts, true)) return
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
             (requireActivity().getSystemService(
                 Context.VIBRATOR_MANAGER_SERVICE

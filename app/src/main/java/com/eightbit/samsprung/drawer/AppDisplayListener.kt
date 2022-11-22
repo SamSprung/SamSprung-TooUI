@@ -261,7 +261,6 @@ class AppDisplayListener : Service() {
     private val vibrationEffect = VibrationEffect
         .createOneShot(20, VibrationEffect.DEFAULT_AMPLITUDE)
     private fun tactileFeedback() {
-        if (!prefs.getBoolean(SamSprung.prefReacts, true)) return
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
             (getSystemService(VIBRATOR_MANAGER_SERVICE) as VibratorManager)
                 .defaultVibrator.vibrate(vibrationEffect)
@@ -275,10 +274,13 @@ class AppDisplayListener : Service() {
         menu: LinearLayout, componentName: ComponentName?,
         launchPackage: String?, launchActivity: String?) {
         menu.findViewById<AppCompatImageView>(R.id.retract_drawer).setOnClickListener {
+            if (prefs.getBoolean(SamSprung.prefReacts, true))
+                tactileFeedback()
             bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
         }
         menu.findViewById<ImageView>(R.id.button_recent).setOnClickListener {
-            tactileFeedback()
+            if (prefs.getBoolean(SamSprung.prefReacts, true))
+                tactileFeedback()
             if (null != componentName)
                 resetRecentActivities(componentName, 1)
             else
@@ -289,7 +291,8 @@ class AppDisplayListener : Service() {
             ).setAction(SamSprung.launcher))
         }
         menu.findViewById<ImageView>(R.id.button_home).setOnClickListener {
-            tactileFeedback()
+            if (prefs.getBoolean(SamSprung.prefReacts, true))
+                tactileFeedback()
             if (null != componentName)
                 resetRecentActivities(componentName, 1)
             else
@@ -302,7 +305,8 @@ class AppDisplayListener : Service() {
             )
         }
         menu.findViewById<ImageView>(R.id.button_back).setOnClickListener {
-            tactileFeedback()
+            if (prefs.getBoolean(SamSprung.prefReacts, true))
+                tactileFeedback()
             if (hasAccessibility()) {
                 AccessibilityObserver.getInstance()?.performGlobalAction(
                     AccessibilityService.GLOBAL_ACTION_BACK)
