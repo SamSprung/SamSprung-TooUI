@@ -185,15 +185,15 @@
                         android:orientation="horizontal">
 
                         <androidx.appcompat.widget.AppCompatImageView
-                            android:id="@+id/button_close"
+                            android:id="@+id/button_rotation"
                             android:layout_width="wrap_content"
                             android:layout_height="match_parent"
                             android:layout_marginHorizontal="16dp"
                             android:layout_gravity="center"
-                            app:srcCompat="@drawable/ic_baseline_swipe_down_24dp"
+                            app:srcCompat="@drawable/ic_baseline_screen_rotation_24"
                             android:layout_weight="1"
                             android:longClickable="true"
-                            android:contentDescription="@string/btn_close_tip" />
+                            android:contentDescription="@string/btn_rotation_tip" />
 
                         <androidx.appcompat.widget.AppCompatImageView
                             android:id="@+id/button_auth"
@@ -207,15 +207,15 @@
                             android:contentDescription="@string/btn_auth_tip" />
 
                         <androidx.appcompat.widget.AppCompatImageView
-                            android:id="@+id/button_rotation"
+                            android:id="@+id/button_close"
                             android:layout_width="wrap_content"
                             android:layout_height="match_parent"
                             android:layout_marginHorizontal="16dp"
                             android:layout_gravity="center"
-                            app:srcCompat="@drawable/ic_baseline_screen_rotation_24"
+                            app:srcCompat="@drawable/ic_baseline_swipe_down_24dp"
                             android:layout_weight="1"
                             android:longClickable="true"
-                            android:contentDescription="@string/btn_rotation_tip" />
+                            android:contentDescription="@string/btn_close_tip" />
                     </LinearLayout>
                 </RelativeLayout>
             </LinearLayout>

@@ -350,19 +350,6 @@ class SamSprungOverlay : AppCompatActivity() {
 
         val bottomSheet = findViewById<View>(R.id.bottom_sheet)
 
-        val keyguardManager = (getSystemService(KEYGUARD_SERVICE) as KeyguardManager)
-        val buttonAuth = findViewById<AppCompatImageView>(R.id.button_auth)
-        buttonAuth.setOnClickListener {
-            onKeyguardClicked(keyguardManager, buttonAuth)
-        }
-        buttonAuth.setOnLongClickListener { view ->
-            Toast.makeText(
-                this@SamSprungOverlay, view.contentDescription, Toast.LENGTH_SHORT
-            ).show()
-            true
-        }
-        setKeyguardStatus(keyguardManager, buttonAuth)
-
         val buttonRotation = findViewById<AppCompatImageView>(R.id.button_rotation)
         buttonRotation.setOnClickListener {
             val unlocked = !prefs.getBoolean(SamSprung.prefRotate, false)
@@ -401,6 +388,19 @@ class SamSprungOverlay : AppCompatActivity() {
             else
                 R.drawable.ic_baseline_screen_rotation_24
         )
+
+        val keyguardManager = (getSystemService(KEYGUARD_SERVICE) as KeyguardManager)
+        val buttonAuth = findViewById<AppCompatImageView>(R.id.button_auth)
+        buttonAuth.setOnClickListener {
+            onKeyguardClicked(keyguardManager, buttonAuth)
+        }
+        buttonAuth.setOnLongClickListener { view ->
+            Toast.makeText(
+                this@SamSprungOverlay, view.contentDescription, Toast.LENGTH_SHORT
+            ).show()
+            true
+        }
+        setKeyguardStatus(keyguardManager, buttonAuth)
 
         val toggleStats = findViewById<LinearLayout>(R.id.toggle_status)
         val info = findViewById<LinearLayout>(R.id.bottom_info)
