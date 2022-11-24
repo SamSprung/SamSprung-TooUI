@@ -67,6 +67,7 @@ import android.bluetooth.BluetoothManager
 import android.content.*
 import android.content.pm.ApplicationInfo
 import android.content.pm.PackageManager
+import android.content.pm.PackageManager.ApplicationInfoFlags
 import android.database.ContentObserver
 import android.graphics.Color
 import android.graphics.ImageDecoder
@@ -195,7 +196,12 @@ class SamSprungOverlay : AppCompatActivity() {
         }
     }
 
-    @SuppressLint("ClickableViewAccessibility")
+    private fun hasPermissions(context: Context, vararg permissions: String): Boolean =
+        permissions.all {
+            ContextCompat.checkSelfPermission(context, it) == PackageManager.PERMISSION_GRANTED
+        }
+
+    @SuppressLint("ClickableViewAccessibility", "MissingPermission")
     override fun onCreate(savedInstanceState: Bundle?) {
         setShowWhenLocked(true)
         // setTurnScreenOn(true)
@@ -276,13 +282,24 @@ class SamSprungOverlay : AppCompatActivity() {
                     background = Drawable.createFromPath(wallpaper.absolutePath)
                 } catch (ignored: Exception) { }
             }
-            if (null == background && ContextCompat.checkSelfPermission(this,
-                    Manifest.permission.READ_EXTERNAL_STORAGE
-                ) == PackageManager.PERMISSION_GRANTED
-            ) {
-                background = WallpaperManager.getInstance(
-                    ScaledContext(applicationContext).cover()
-                ).drawable
+            val permissions: Array<String> =
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU)
+                    arrayOf(
+                        Manifest.permission.READ_MEDIA_IMAGES,
+                        Manifest.permission.READ_MEDIA_VIDEO
+                    )
+                else
+                    arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE)
+            if (null == background && hasPermissions(this, *permissions)) {
+                background = try {
+                    WallpaperManager.getInstance(
+                        ScaledContext(applicationContext).cover()
+                    ).drawable
+                } catch (ex: SecurityException) {
+                    WallpaperManager.getInstance(
+                        ScaledContext(applicationContext).cover()
+                    ).peekDrawable()
+                }
             }
             if (null != background) coordinator.background = background
         }
@@ -858,14 +875,26 @@ class SamSprungOverlay : AppCompatActivity() {
 
     private fun launchApplication(launchCommand: String, menuButton: FloatingActionButton) {
         val matchedApps: ArrayList<ApplicationInfo> = ArrayList()
-        val packages: List<ApplicationInfo> = packageManager
-            .getInstalledApplications(PackageManager.GET_META_DATA)
+        val packages: List<ApplicationInfo> =
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                packageManager.getInstalledApplications(
+                    ApplicationInfoFlags.of(PackageManager.GET_META_DATA.toLong())
+                )
+            } else {
+                @Suppress("DEPRECATION")
+                packageManager.getInstalledApplications(PackageManager.GET_META_DATA)
+            }
         for (packageInfo in packages) {
             var ai: ApplicationInfo
             try {
-                ai = packageManager.getApplicationInfo(
-                    packageInfo.packageName, 0
-                )
+                ai =  if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                    packageManager.getApplicationInfo(
+                        packageInfo.packageName, ApplicationInfoFlags.of(0)
+                    )
+                } else {
+                    @Suppress("DEPRECATION")
+                    packageManager.getApplicationInfo(packageInfo.packageName, 0)
+                }
                 if (packageManager.getApplicationLabel(ai).contains(launchCommand, true)) {
                     matchedApps.add(packageInfo)
                 }

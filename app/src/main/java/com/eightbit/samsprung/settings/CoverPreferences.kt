@@ -80,7 +80,6 @@ import android.provider.Settings
 import android.text.Spannable
 import android.text.SpannableStringBuilder
 import android.text.style.RelativeSizeSpan
-import android.util.TypedValue
 import android.view.*
 import android.view.animation.AlphaAnimation
 import android.view.animation.Animation
@@ -91,8 +90,6 @@ import android.webkit.WebView
 import android.widget.*
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.annotation.AttrRes
-import androidx.annotation.ColorInt
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.AppCompatImageView
@@ -109,8 +106,6 @@ import androidx.core.view.isVisible
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
-import com.android.billingclient.api.*
 import com.eightbit.content.ScaledContext
 import com.eightbit.io.Debug
 import com.eightbit.material.IconifiedSnackbar
@@ -938,9 +933,19 @@ class CoverPreferences : AppCompatActivity() {
     }
 
     @SuppressLint("MissingPermission")
-    private val requestStorage = registerForActivityResult(
-        ActivityResultContracts.RequestPermission()) {
-        if (it) coordinator.background = WallpaperManager.getInstance(this).drawable
+    private val requestWallpaper = registerForActivityResult(
+        ActivityResultContracts.RequestMultiplePermissions()) { permissions ->
+        var isStorageEnabled = true
+        permissions.entries.forEach {
+            if (!it.value) isStorageEnabled = false
+        }
+        if (isStorageEnabled) {
+            coordinator.background = try {
+                WallpaperManager.getInstance(this).drawable
+            } catch (ex: SecurityException) {
+                WallpaperManager.getInstance(this).peekDrawable()
+            }
+        }
 
         updateCheck = CheckUpdatesTask(this@CoverPreferences)
         if (BuildConfig.GOOGLE_PLAY) {
@@ -1240,7 +1245,17 @@ class CoverPreferences : AppCompatActivity() {
                 apply()
             }
         }
-        requestStorage.launch(Manifest.permission.READ_EXTERNAL_STORAGE)
+
+        requestWallpaper.launch(
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                arrayOf(
+                    Manifest.permission.READ_MEDIA_IMAGES,
+                    Manifest.permission.READ_MEDIA_VIDEO
+                )
+            } else {
+                arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE)
+            }
+        )
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
