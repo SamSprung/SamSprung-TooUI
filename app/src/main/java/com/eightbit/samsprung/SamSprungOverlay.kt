@@ -291,15 +291,17 @@ class SamSprungOverlay : AppCompatActivity() {
                 else
                     arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE)
             if (null == background && hasPermissions(this, *permissions)) {
-                background = try {
-                    WallpaperManager.getInstance(
-                        ScaledContext(applicationContext).cover()
-                    ).drawable
-                } catch (ex: SecurityException) {
-                    WallpaperManager.getInstance(
-                        ScaledContext(applicationContext).cover()
-                    ).peekDrawable()
-                }
+                try {
+                    background = try {
+                        WallpaperManager.getInstance(
+                            ScaledContext(applicationContext).cover()
+                        ).drawable
+                    } catch (ex: SecurityException) {
+                        WallpaperManager.getInstance(
+                            ScaledContext(applicationContext).cover()
+                        ).peekDrawable()
+                    }
+                } catch (ignored: SecurityException) { }
             }
             if (null != background) coordinator.background = background
         }

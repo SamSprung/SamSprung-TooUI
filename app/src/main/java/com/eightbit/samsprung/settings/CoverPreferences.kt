@@ -940,11 +940,13 @@ class CoverPreferences : AppCompatActivity() {
             if (!it.value) isStorageEnabled = false
         }
         if (isStorageEnabled) {
-            coordinator.background = try {
-                WallpaperManager.getInstance(this).drawable
-            } catch (ex: SecurityException) {
-                WallpaperManager.getInstance(this).peekDrawable()
-            }
+            try {
+                coordinator.background = try {
+                    WallpaperManager.getInstance(this).drawable
+                } catch (ex: SecurityException) {
+                    WallpaperManager.getInstance(this).peekDrawable()
+                }
+            } catch (ignored: SecurityException) { }
         }
 
         updateCheck = CheckUpdatesTask(this@CoverPreferences)
