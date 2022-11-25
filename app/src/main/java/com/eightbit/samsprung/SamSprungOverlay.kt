@@ -958,7 +958,9 @@ class SamSprungOverlay : AppCompatActivity() {
         else
             toolbar.menu.findItem(R.id.toggle_wifi)
                 .setIcon(R.drawable.ic_baseline_wifi_off_24dp)
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S &&
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            toolbar.menu.findItem(R.id.toggle_bluetooth).isVisible = false
+        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S &&
             ContextCompat.checkSelfPermission(
                 this@SamSprungOverlay,
                 Manifest.permission.BLUETOOTH_CONNECT,

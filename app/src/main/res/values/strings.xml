@@ -88,6 +88,8 @@
     <string name="toggle_widgets">Toggle Widgets</string>
     <string name="color_theme">Menu Accent Color</string>
 
+    <string name="tiramisu_bluetooth">Bluetooth restricted (Android 13)</string>
+
     <string name="incompatibility_warning">SamSprung is not compatible with apps that block the entire screen.\nPlease remove or disable this app to continue.</string>
     <string name="cover_widget_warning">Important: THIS IS NOT A COVER SCREEN WIDGET</string>
     <string name="cover_switch_warning">\nMain switch must be enabled to appear on cover.</string>

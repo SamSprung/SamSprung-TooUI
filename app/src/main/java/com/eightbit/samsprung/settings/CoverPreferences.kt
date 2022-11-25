@@ -553,7 +553,12 @@ class CoverPreferences : AppCompatActivity() {
                     return@setOnMenuItemClickListener true
                 }
                 R.id.toggle_bluetooth -> {
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                        Toast.makeText(
+                            this@CoverPreferences,
+                            R.string.tiramisu_bluetooth, Toast.LENGTH_SHORT
+                        ).show()
+                    } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
                         requestBluetooth.launch(Manifest.permission.BLUETOOTH_CONNECT)
                     } else {
                         toggleBluetoothIcon(toolbar)
@@ -605,7 +610,8 @@ class CoverPreferences : AppCompatActivity() {
             wifi.setIcon(R.drawable.ic_baseline_wifi_off_24dp)
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-            if (!hasPermission(Manifest.permission.BLUETOOTH_CONNECT)) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU
+                || !hasPermission(Manifest.permission.BLUETOOTH_CONNECT)) {
                 with(prefs.edit()) {
                     putBoolean(toolbar.menu.findItem(R.id.toggle_bluetooth).title?.toPref, false)
                     apply()
