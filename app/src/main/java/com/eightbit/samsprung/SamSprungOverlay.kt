@@ -168,7 +168,7 @@ class SamSprungOverlay : AppCompatActivity() {
 
     private lateinit var vibrator: Vibrator
     private val effectClick = VibrationEffect.createPredefined(VibrationEffect.EFFECT_CLICK)
-    private val effectHeavy = VibrationEffect.createPredefined(VibrationEffect.EFFECT_HEAVY_CLICK)
+    private val effectLongClick = VibrationEffect.createPredefined(VibrationEffect.EFFECT_DOUBLE_CLICK)
 
     private var mBinder: DesktopBinder? = null
 
@@ -568,7 +568,7 @@ class SamSprungOverlay : AppCompatActivity() {
                     toolbar.menu.findItem(R.id.toggle_widgets)
                         .setIcon(R.drawable.ic_baseline_delete_forever_24dp)
                     if (prefs.getBoolean(SamSprung.prefReacts, true))
-                        vibrator.vibrate(effectHeavy)
+                        vibrator.vibrate(effectLongClick)
                     bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
                     val index = viewPager.currentItem
                     val adapter = pagerAdapter as CoverStateAdapter
@@ -704,7 +704,7 @@ class SamSprungOverlay : AppCompatActivity() {
         if (SpeechRecognizer.isRecognitionAvailable(applicationContext)) {
             menuButton.setOnLongClickListener {
                 if (prefs.getBoolean(SamSprung.prefReacts, true))
-                    vibrator.vibrate(effectHeavy)
+                    vibrator.vibrate(effectLongClick)
                 voice?.startListening(recognizer.getSpeechIntent(false))
                 return@setOnLongClickListener true
             }
@@ -818,7 +818,7 @@ class SamSprungOverlay : AppCompatActivity() {
                 super.onDismissError()
                 if (null != authDialog) {
                     if (prefs.getBoolean(SamSprung.prefReacts, true))
-                        vibrator.vibrate(effectHeavy)
+                        vibrator.vibrate(effectLongClick)
                     authDialog.dismiss()
                 }
                 keyguardListener?.onKeyguardCheck(false)
@@ -828,7 +828,7 @@ class SamSprungOverlay : AppCompatActivity() {
                 super.onDismissSucceeded()
                 if (null != authDialog) {
                     if (prefs.getBoolean(SamSprung.prefReacts, true))
-                        vibrator.vibrate(effectHeavy)
+                        vibrator.vibrate(effectLongClick)
                     authDialog.dismiss()
                 }
                 keyguardListener?.onKeyguardCheck(true)
