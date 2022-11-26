@@ -93,12 +93,7 @@ class AppDisplayListener : Service() {
     private lateinit var floatView: View
     private lateinit var bottomSheetBehavior: BottomSheetBehavior<View>
 
-    private val vibrator: Vibrator =
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-            (getSystemService(VIBRATOR_MANAGER_SERVICE) as VibratorManager).defaultVibrator
-        } else {
-            @Suppress("DEPRECATION") (getSystemService(VIBRATOR_SERVICE) as Vibrator)
-        }
+    private lateinit var vibrator: Vibrator
     private val effectClick = VibrationEffect.createPredefined(VibrationEffect.EFFECT_CLICK)
 
     override fun onBind(intent: Intent?): IBinder? {
@@ -124,6 +119,11 @@ class AppDisplayListener : Service() {
 //        }
 
         prefs = getSharedPreferences(SamSprung.prefsValue, MODE_PRIVATE)
+        vibrator = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            (getSystemService(VIBRATOR_MANAGER_SERVICE) as VibratorManager).defaultVibrator
+        } else {
+            @Suppress("DEPRECATION") (getSystemService(VIBRATOR_SERVICE) as Vibrator)
+        }
 
         offReceiver = object : BroadcastReceiver() {
             override fun onReceive(context: Context?, intent: Intent) {

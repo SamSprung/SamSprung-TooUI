@@ -166,12 +166,7 @@ class SamSprungOverlay : AppCompatActivity() {
     private lateinit var viewPager: ViewPager2
     private var pagerAdapter: FragmentStateAdapter = CoverStateAdapter(this)
 
-    private val vibrator: Vibrator =
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-            (getSystemService(VIBRATOR_MANAGER_SERVICE) as VibratorManager).defaultVibrator
-        } else {
-            @Suppress("DEPRECATION") (getSystemService(VIBRATOR_SERVICE) as Vibrator)
-        }
+    private lateinit var vibrator: Vibrator
     private val effectClick = VibrationEffect.createPredefined(VibrationEffect.EFFECT_CLICK)
     private val effectHeavy = VibrationEffect.createPredefined(VibrationEffect.EFFECT_HEAVY_CLICK)
 
@@ -230,6 +225,11 @@ class SamSprungOverlay : AppCompatActivity() {
         WindowCompat.setDecorFitsSystemWindows(window, false)
 
         prefs = getSharedPreferences(SamSprung.prefsValue, MODE_PRIVATE)
+        vibrator = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            (getSystemService(VIBRATOR_MANAGER_SERVICE) as VibratorManager).defaultVibrator
+        } else {
+            @Suppress("DEPRECATION") (getSystemService(VIBRATOR_SERVICE) as Vibrator)
+        }
         ScaledContext(this).internal(1.5f).setTheme(R.style.Theme_Launcher_NoActionBar)
         setContentView(R.layout.home_main_view)
 
@@ -237,21 +237,13 @@ class SamSprungOverlay : AppCompatActivity() {
             WindowInfoTracker.getOrCreate(this)
         )
         layoutStateCallback.setListener(object: LayoutStateChangeCallback.FoldingFeatureListener {
-            override fun onHalfOpened() {
+            override fun onHalfOpened() { }
 
-            }
+            override fun onSeparating() { }
 
-            override fun onSeparating() {
+            override fun onFlat() { }
 
-            }
-
-            override fun onFlat() {
-
-            }
-
-            override fun onNormal() {
-
-            }
+            override fun onNormal() { }
         })
 
         IntentFilter().apply {
@@ -321,6 +313,7 @@ class SamSprungOverlay : AppCompatActivity() {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S)
                     RenderEffectBlur()
                 else
+                    @Suppress("DEPRECATION")
                     RenderScriptBlur(this)
             )
                 .setFrameClearDrawable(coordinator.background)
@@ -463,6 +456,7 @@ class SamSprungOverlay : AppCompatActivity() {
                                 return@setOnMenuItemClickListener true
                             }
                             R.id.toggle_bluetooth -> {
+                                @Suppress("DEPRECATION")
                                 if (bluetoothAdapter.isEnabled) {
                                     bluetoothAdapter.disable()
                                     item.setIcon(R.drawable.ic_baseline_bluetooth_off_24dp)

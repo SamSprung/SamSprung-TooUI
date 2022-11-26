@@ -49,7 +49,7 @@
     <string name="sponsor_link">Sponsor on GitHub</string>
     <string name="paypal_link">Donate with PayPal</string>
     <string name="logcat_link">Problem?</string>
-    <string name="logcat_crash">Unrecoverable error. Submit a log?</string>
+    <string name="logcat_crash">ERROR! Submit a log?</string>
 
     <string name="keyboard_missing">Keyboard required!</string>
     <string name="wallpaper_cleared">Wallpaper reset!</string>
