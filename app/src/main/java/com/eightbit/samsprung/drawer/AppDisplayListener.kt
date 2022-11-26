@@ -324,9 +324,13 @@ class AppDisplayListener : Service() {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S)
                 PendingIntent.FLAG_IMMUTABLE else 0)
         val iconNotification = BitmapFactory.decodeResource(resources, R.mipmap.sprung_icon)
-        mNotificationManager.createNotificationChannelGroup(
-            NotificationChannelGroup("services_group", "Services")
-        )
+        var group = mNotificationManager.getNotificationChannelGroup("tooui_services")
+        if (null == group) {
+            mNotificationManager.createNotificationChannelGroup(
+                NotificationChannelGroup("tooui_services", "SamSprung Services")
+            )
+            group = mNotificationManager.getNotificationChannelGroup("tooui_services")
+        }
         val notificationChannel = NotificationChannel("display_channel",
             "Display Notification", NotificationManager.IMPORTANCE_LOW)
         notificationChannel.enableLights(false)
@@ -338,9 +342,9 @@ class AppDisplayListener : Service() {
         builder.setContentTitle(notificationText).setTicker(notificationText)
             .setSmallIcon(R.drawable.ic_baseline_samsprung_24dp)
             .setPriority(NotificationCompat.PRIORITY_LOW)
-            .setWhen(0).setOnlyAlertOnce(true)
+            .setWhen(0).setOnlyAlertOnce(true).setGroup(group.id)
             .setContentIntent(pendingIntent).setOngoing(true)
-            .setGroup("services_group")
+            .setCategory(NotificationCompat.CATEGORY_SERVICE)
         if (null != iconNotification) {
             builder.setLargeIcon(Bitmap.createScaledBitmap(
                 iconNotification, 128, 128, false

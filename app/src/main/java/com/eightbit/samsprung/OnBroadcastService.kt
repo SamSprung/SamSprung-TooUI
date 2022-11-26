@@ -140,12 +140,12 @@ class OnBroadcastService : Service() {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S)
                 PendingIntent.FLAG_IMMUTABLE else 0)
         val iconNotification = BitmapFactory.decodeResource(resources, R.mipmap.sprung_icon)
-        var group = mNotificationManager.getNotificationChannelGroup("samsprung_services")
+        var group = mNotificationManager.getNotificationChannelGroup("tooui_services")
         if (null == group) {
             mNotificationManager.createNotificationChannelGroup(
-                NotificationChannelGroup("samsprung_services", "SamSprung Services")
+                NotificationChannelGroup("tooui_services", "SamSprung Services")
             )
-            group = mNotificationManager.getNotificationChannelGroup("samsprung_services")
+            group = mNotificationManager.getNotificationChannelGroup("tooui_services")
         }
         val notificationChannel = NotificationChannel("tooui_overlay_channel",
             "TooUI Overlay Notification", NotificationManager.IMPORTANCE_LOW)
@@ -160,6 +160,7 @@ class OnBroadcastService : Service() {
             .setPriority(NotificationCompat.PRIORITY_LOW)
             .setWhen(0).setOnlyAlertOnce(true).setGroup(group.id)
             .setContentIntent(pendingIntent).setOngoing(true)
+            .setCategory(NotificationCompat.CATEGORY_SERVICE)
         if (null != iconNotification) {
             builder.setLargeIcon(Bitmap.createScaledBitmap(
                 iconNotification, 128, 128, false
