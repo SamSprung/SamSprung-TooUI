@@ -93,6 +93,14 @@ class AppDisplayListener : Service() {
     private lateinit var floatView: View
     private lateinit var bottomSheetBehavior: BottomSheetBehavior<View>
 
+    private val vibrator: Vibrator =
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            (getSystemService(VIBRATOR_MANAGER_SERVICE) as VibratorManager).defaultVibrator
+        } else {
+            @Suppress("DEPRECATION") (getSystemService(VIBRATOR_SERVICE) as Vibrator)
+        }
+    private val effectClick = VibrationEffect.createPredefined(VibrationEffect.EFFECT_CLICK)
+
     override fun onBind(intent: Intent?): IBinder? {
         return null
     }
@@ -258,29 +266,17 @@ class AppDisplayListener : Service() {
         }
     }
 
-    private val vibrationEffect = VibrationEffect
-        .createOneShot(20, VibrationEffect.DEFAULT_AMPLITUDE)
-    private fun tactileFeedback() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-            (getSystemService(VIBRATOR_MANAGER_SERVICE) as VibratorManager)
-                .defaultVibrator.vibrate(vibrationEffect)
-        } else {
-            @Suppress("DEPRECATION")
-            (getSystemService(VIBRATOR_SERVICE) as Vibrator).vibrate(vibrationEffect)
-        }
-    }
-
     private fun setClickListeners(
         menu: LinearLayout, componentName: ComponentName?,
         launchPackage: String?, launchActivity: String?) {
         menu.findViewById<AppCompatImageView>(R.id.retract_drawer).setOnClickListener {
             if (prefs.getBoolean(SamSprung.prefReacts, true))
-                tactileFeedback()
+                vibrator.vibrate(effectClick)
             bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
         }
         menu.findViewById<ImageView>(R.id.button_recent).setOnClickListener {
             if (prefs.getBoolean(SamSprung.prefReacts, true))
-                tactileFeedback()
+                vibrator.vibrate(effectClick)
             if (null != componentName)
                 resetRecentActivities(componentName, 1)
             else
@@ -292,7 +288,7 @@ class AppDisplayListener : Service() {
         }
         menu.findViewById<ImageView>(R.id.button_home).setOnClickListener {
             if (prefs.getBoolean(SamSprung.prefReacts, true))
-                tactileFeedback()
+                vibrator.vibrate(effectClick)
             if (null != componentName)
                 resetRecentActivities(componentName, 1)
             else
@@ -306,7 +302,7 @@ class AppDisplayListener : Service() {
         }
         menu.findViewById<ImageView>(R.id.button_back).setOnClickListener {
             if (prefs.getBoolean(SamSprung.prefReacts, true))
-                tactileFeedback()
+                vibrator.vibrate(effectClick)
             if (hasAccessibility()) {
                 AccessibilityObserver.getInstance()?.performGlobalAction(
                     AccessibilityService.GLOBAL_ACTION_BACK)

@@ -166,6 +166,15 @@ class SamSprungOverlay : AppCompatActivity() {
     private lateinit var viewPager: ViewPager2
     private var pagerAdapter: FragmentStateAdapter = CoverStateAdapter(this)
 
+    private val vibrator: Vibrator =
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            (getSystemService(VIBRATOR_MANAGER_SERVICE) as VibratorManager).defaultVibrator
+        } else {
+            @Suppress("DEPRECATION") (getSystemService(VIBRATOR_SERVICE) as Vibrator)
+        }
+    private val effectClick = VibrationEffect.createPredefined(VibrationEffect.EFFECT_CLICK)
+    private val effectHeavy = VibrationEffect.createPredefined(VibrationEffect.EFFECT_HEAVY_CLICK)
+
     private var mBinder: DesktopBinder? = null
 
     private var mWidgetPreviewCacheDb: WidgetPreviews.CacheDb? = null
@@ -372,7 +381,7 @@ class SamSprungOverlay : AppCompatActivity() {
         val buttonRotation = findViewById<AppCompatImageView>(R.id.button_rotation)
         buttonRotation.setOnClickListener {
             if (prefs.getBoolean(SamSprung.prefReacts, true))
-                tactileFeedback()
+                vibrator.vibrate(effectClick)
             val unlocked = !prefs.getBoolean(SamSprung.prefRotate, false)
             if (unlocked) {
                 val lockBar: Snackbar = IconifiedSnackbar(
@@ -545,7 +554,7 @@ class SamSprungOverlay : AppCompatActivity() {
         val buttonClose = findViewById<AppCompatImageView>(R.id.button_close)
         buttonClose.setOnClickListener {
             if (prefs.getBoolean(SamSprung.prefReacts, true))
-                tactileFeedback()
+                vibrator.vibrate(effectClick)
             bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
             bottomSheetBehaviorMain.state = BottomSheetBehavior.STATE_COLLAPSED
         }
@@ -564,7 +573,8 @@ class SamSprungOverlay : AppCompatActivity() {
                 if (viewPager.currentItem > 1) {
                     toolbar.menu.findItem(R.id.toggle_widgets)
                         .setIcon(R.drawable.ic_baseline_delete_forever_24dp)
-                    tactileFeedback()
+                    if (prefs.getBoolean(SamSprung.prefReacts, true))
+                        vibrator.vibrate(effectHeavy)
                     bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
                     val index = viewPager.currentItem
                     val adapter = pagerAdapter as CoverStateAdapter
@@ -699,7 +709,8 @@ class SamSprungOverlay : AppCompatActivity() {
         voice?.setRecognitionListener(recognizer)
         if (SpeechRecognizer.isRecognitionAvailable(applicationContext)) {
             menuButton.setOnLongClickListener {
-                tactileFeedback()
+                if (prefs.getBoolean(SamSprung.prefReacts, true))
+                    vibrator.vibrate(effectHeavy)
                 voice?.startListening(recognizer.getSpeechIntent(false))
                 return@setOnLongClickListener true
             }
@@ -754,7 +765,7 @@ class SamSprungOverlay : AppCompatActivity() {
         setBottomTheme(bottomHandle, menuButton)
         menuButton.setOnClickListener {
             if (prefs.getBoolean(SamSprung.prefReacts, true))
-                tactileFeedback()
+                vibrator.vibrate(effectClick)
             bottomSheetBehaviorMain.state = BottomSheetBehavior.STATE_EXPANDED
         }
         setActionButtonTimeout()
@@ -813,7 +824,7 @@ class SamSprungOverlay : AppCompatActivity() {
                 super.onDismissError()
                 if (null != authDialog) {
                     if (prefs.getBoolean(SamSprung.prefReacts, true))
-                        tactileFeedback()
+                        vibrator.vibrate(effectHeavy)
                     authDialog.dismiss()
                 }
                 keyguardListener?.onKeyguardCheck(false)
@@ -823,7 +834,7 @@ class SamSprungOverlay : AppCompatActivity() {
                 super.onDismissSucceeded()
                 if (null != authDialog) {
                     if (prefs.getBoolean(SamSprung.prefReacts, true))
-                        tactileFeedback()
+                        vibrator.vibrate(effectHeavy)
                     authDialog.dismiss()
                 }
                 keyguardListener?.onKeyguardCheck(true)
@@ -1022,18 +1033,6 @@ class SamSprungOverlay : AppCompatActivity() {
         val menuParams = menuButton.layoutParams as CoordinatorLayout.LayoutParams
         menuParams.anchorGravity = Gravity.TOP or gravity
         menuButton.layoutParams = menuParams
-    }
-
-    private val vibrationEffect = VibrationEffect
-        .createOneShot(20, VibrationEffect.DEFAULT_AMPLITUDE)
-    private fun tactileFeedback() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-            (getSystemService(VIBRATOR_MANAGER_SERVICE) as VibratorManager)
-                .defaultVibrator.vibrate(vibrationEffect)
-        } else {
-            @Suppress("DEPRECATION")
-            (getSystemService(VIBRATOR_SERVICE) as Vibrator).vibrate(vibrationEffect)
-        }
     }
 
     private fun onFavoritesChanged() {
