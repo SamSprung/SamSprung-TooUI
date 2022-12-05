@@ -127,7 +127,7 @@ class IconifiedSnackbar {
         return buildSnackbar(mActivity.get()!!.getString(msgRes), drawable, length, null)
     }
 
-    fun buildTickerBar(msg: String?, drawable: Int, length: Int): Snackbar {
+    fun buildTickerBar(msg: String, drawable: Int, length: Int): Snackbar {
         val snackbar = buildSnackbar(msg, drawable, length, null)
             .addCallback(object : Snackbar.Callback() {
             val top = if (null != layout) layout!!.paddingTop else 0
@@ -158,7 +158,7 @@ class IconifiedSnackbar {
         return snackbar
     }
 
-    fun buildTickerBar(msg: String?, value: Int): Snackbar {
+    fun buildTickerBar(msg: String, value: Int): Snackbar {
         return try {
             mActivity.get()!!.resources.getResourceTypeName(value)
             buildTickerBar(msg, value, Snackbar.LENGTH_LONG)
@@ -167,7 +167,7 @@ class IconifiedSnackbar {
         }
     }
 
-    fun buildTickerBar(msg: String?): Snackbar {
+    fun buildTickerBar(msg: String): Snackbar {
         return buildTickerBar(msg, R.drawable.ic_baseline_samsprung_24dp, Snackbar.LENGTH_LONG)
     }
 }

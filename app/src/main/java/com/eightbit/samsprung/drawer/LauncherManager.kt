@@ -32,7 +32,7 @@ class LauncherManager(private val overlay: SamSprungOverlay) {
         val orientationLock = OrientationManager(overlay)
         orientationLock.addOrientationLayout(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT)
         Handler(Looper.getMainLooper()).postDelayed({
-            if (!prefs.getBoolean(SamSprung.prefRotate, false)) {
+            if (prefs.getBoolean(SamSprung.prefRotate, false)) {
                 orientationLock.removeOrientationLayout()
                 overlay.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
             }
