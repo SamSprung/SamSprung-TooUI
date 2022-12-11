@@ -109,11 +109,13 @@ class Debug(private var context: Context) {
         return log
     }
 
-    private fun setEmailParams(emailIntent: Intent, subject: String, text: String): Intent {
-        emailIntent.putExtra(Intent.EXTRA_EMAIL, arrayOf("samsprungtoo@gmail.com"))
-        emailIntent.putExtra(Intent.EXTRA_SUBJECT, subject)
-        emailIntent.putExtra(Intent.EXTRA_TEXT, text)
-        return emailIntent
+    private fun setEmailParams(action: String, subject: String, text: String): Intent {
+        return Intent(action).apply {
+            data = Uri.parse("mailto:")
+            putExtra(Intent.EXTRA_EMAIL, arrayOf("samsprungtoo@gmail.com"))
+            putExtra(Intent.EXTRA_SUBJECT, subject)
+            putExtra(Intent.EXTRA_TEXT, text)
+        }
     }
 
     private fun submitLogcat(context: Context, logText: String) {
@@ -123,17 +125,14 @@ class Debug(private var context: Context) {
         clipboard.setPrimaryClip(ClipData.newPlainText(subject, logText))
 
         try {
-            val emailIntent: Intent = setEmailParams(Intent(Intent.ACTION_SENDTO), subject, logText)
-            emailIntent.data = Uri.parse("mailto:samsprungtoo@gmail.com")
+            val emailIntent: Intent = setEmailParams(Intent.ACTION_SENDTO, subject, logText)
             context.startActivity(
                 Intent.createChooser(emailIntent, context.getString(R.string.logcat_crash))
                     .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
             )
         } catch (anf: ActivityNotFoundException) {
             try {
-                val emailIntent = setEmailParams(Intent(Intent.ACTION_SEND), subject, logText)
-                emailIntent.type = "text/plain"
-                emailIntent.type = "message/rfc822"
+                val emailIntent = setEmailParams(Intent.ACTION_SEND, subject, logText)
                 context.startActivity(
                     Intent.createChooser(emailIntent, context.getString(R.string.logcat_crash))
                         .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
