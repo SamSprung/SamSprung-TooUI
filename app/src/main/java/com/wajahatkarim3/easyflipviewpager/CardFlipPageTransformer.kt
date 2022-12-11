@@ -56,8 +56,9 @@ class CardFlipPageTransformer : ViewPager2.PageTransformer {
     private fun setSize(page: View, position: Float, percentage: Float) {
         // Do nothing, if its not scalable
         if (!isScalable) return
-        page.scaleX = (if (position != 0f && position != 1f) percentage else 1f)
-        page.scaleY = (if (position != 0f && position != 1f) percentage else 1f)
+        val scale: Float = if (position != 0f && position != 1f) percentage else 1f
+        page.scaleX = scale
+        page.scaleY = scale
     }
 
     private fun setRotation(page: View, position: Float, percentage: Float) {
