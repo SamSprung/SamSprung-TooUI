@@ -1033,7 +1033,7 @@ class CoverPreferences : AppCompatActivity() {
         ActivityResultContracts.StartActivityForResult()) { result ->
         if (result.resultCode == RESULT_OK && null != result.data) {
             var photoUri: Uri? = null
-            if (null != result.data!!.clipData) {
+            if (null != result.data!!.clipData && result.data?.clipData!!.itemCount > 0) {
                 photoUri = result.data!!.clipData!!.getItemAt(0)!!.uri
             } else if (null != result.data!!.data) {
                 photoUri = result.data!!.data!!
@@ -1101,10 +1101,16 @@ class CoverPreferences : AppCompatActivity() {
             widgets.setIcon(R.drawable.ic_baseline_insert_page_break_24dp)
     }
 
+    private val requestNotification = registerForActivityResult(
+        ActivityResultContracts.RequestPermission()) {  }
+
     private val overlayLauncher = registerForActivityResult(
         ActivityResultContracts.StartActivityForResult()) {
         if (this::mainSwitch.isInitialized) {
             mainSwitch.isChecked = Settings.canDrawOverlays(applicationContext)
+            if (mainSwitch.isChecked && Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                requestNotification.launch(Manifest.permission.POST_NOTIFICATIONS)
+            }
             startForegroundService(Intent(
                 ScaledContext(this).cover(), OnBroadcastService::class.java
             ))
@@ -1233,6 +1239,9 @@ class CoverPreferences : AppCompatActivity() {
         mainSwitch = menu.findItem(R.id.switch_action_bar).actionView
             ?.findViewById(R.id.switch2) as SwitchCompat
         mainSwitch.isChecked = Settings.canDrawOverlays(applicationContext)
+        if (mainSwitch.isChecked && Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            requestNotification.launch(Manifest.permission.POST_NOTIFICATIONS)
+        }
         mainSwitch.setOnClickListener {
             overlayLauncher.launch(Intent(
                 Settings.ACTION_MANAGE_OVERLAY_PERMISSION,

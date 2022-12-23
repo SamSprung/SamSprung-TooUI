@@ -12,8 +12,6 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="@android:color/transparent"
-        android:clickable="true"
-        android:focusable="true"
         android:orientation="vertical"
         app:behavior_peekHeight="6dp"
         app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior">
@@ -109,8 +107,6 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:background="@color/bottomSheetTint"
-                android:clickable="true"
-                android:focusable="true"
                 android:orientation="vertical"
                 app:behavior_peekHeight="24dp"
                 app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior">

@@ -126,13 +126,12 @@ import java.io.File
 import java.util.*
 import java.util.concurrent.Executors
 
-
 class SamSprungOverlay : AppCompatActivity() {
 
     private val CharSequence.toPref get() = this.toString()
         .lowercase().replace(" ", "_")
 
-    private lateinit var windowInfoTracker: WindowInfoTrackerCallbackAdapter
+    private var windowInfoTracker: WindowInfoTrackerCallbackAdapter? = null
     private val layoutStateCallback: LayoutStateChangeCallback = LayoutStateChangeCallback()
 
     private lateinit var prefs: SharedPreferences
@@ -213,12 +212,13 @@ class SamSprungOverlay : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         supportActionBar?.hide()
 
+        window.setType(WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY)
         window.setFlags(
-            WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL or
+            WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or
+                    WindowManager.LayoutParams.FLAG_ALT_FOCUSABLE_IM or
                     WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN,
             PixelFormat.TRANSPARENT
         )
-
         window.attributes.width = ViewGroup.LayoutParams.MATCH_PARENT
         window.attributes.gravity = Gravity.BOTTOM
         // window.setBackgroundDrawable(null)
@@ -918,6 +918,7 @@ class SamSprungOverlay : AppCompatActivity() {
         menuButton.keepScreenOn = false
     }
 
+    @Suppress("SameParameterValue")
     private fun setViewPagerSensitivity(viewPager: ViewPager2, sensitivity: Int) {
         try {
             val ff = ViewPager2::class.java.getDeclaredField("mRecyclerView")
@@ -1204,7 +1205,7 @@ class SamSprungOverlay : AppCompatActivity() {
 
     override fun onStart() {
         super.onStart()
-        windowInfoTracker.addWindowLayoutInfoListener(
+        windowInfoTracker?.addWindowLayoutInfoListener(
             this, Runnable::run, layoutStateCallback
         )
 
@@ -1212,6 +1213,6 @@ class SamSprungOverlay : AppCompatActivity() {
 
     override fun onStop() {
         super.onStop()
-        windowInfoTracker.removeWindowLayoutInfoListener(layoutStateCallback)
+        windowInfoTracker?.removeWindowLayoutInfoListener(layoutStateCallback)
     }
 }

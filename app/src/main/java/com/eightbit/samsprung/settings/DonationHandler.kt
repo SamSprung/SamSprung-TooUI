@@ -188,9 +188,9 @@ class DonationHandler internal constructor(activity: CoverPreferences) {
                 iapList.add(getIAP(50))
                 iapList.add(getIAP(75))
                 iapList.add(getIAP(99))
-                for (productId: String in iapList) {
+                iapList.forEach {
                     val productList = QueryProductDetailsParams.Product.newBuilder()
-                        .setProductId(productId)
+                        .setProductId(it)
                         .setProductType(BillingClient.ProductType.INAPP).build()
                     val params = QueryProductDetailsParams.newBuilder()
                         .setProductList(listOf(productList))
@@ -210,9 +210,9 @@ class DonationHandler internal constructor(activity: CoverPreferences) {
                 subList.add(getSub(50))
                 subList.add(getSub(75))
                 subList.add(getSub(99))
-                for (productId: String in subList) {
+                subList.forEach {
                     val productList = QueryProductDetailsParams.Product.newBuilder()
-                        .setProductId(productId)
+                        .setProductId(it)
                         .setProductType(BillingClient.ProductType.SUBS).build()
                     val params = QueryProductDetailsParams.newBuilder()
                         .setProductList(listOf(productList))

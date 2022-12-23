@@ -124,9 +124,9 @@ class CheckUpdatesTask(private var activity: Activity) {
         } catch (ignored: Exception) { }
         if (activity is UpdateShimActivity) {
             val installer = activity.applicationContext.packageManager.packageInstaller
-            for (session: PackageInstaller.SessionInfo in installer.mySessions) {
+            installer.mySessions.forEach {
                 try {
-                    installer.abandonSession(session.sessionId)
+                    installer.abandonSession(it.sessionId)
                 } catch (ignored: Exception) { }
             }
         } else {
@@ -134,11 +134,7 @@ class CheckUpdatesTask(private var activity: Activity) {
                 val files: Array<File>? = activity.externalCacheDir?.listFiles { _, name ->
                     name.lowercase(Locale.getDefault()).endsWith(".apk")
                 }
-                if (null != files) {
-                    for (file in files) {
-                        if (!file.isDirectory) file.delete()
-                    }
-                }
+                files?.forEach { if (!it.isDirectory) it.delete() }
             }
             retrieveUpdate()
         }
