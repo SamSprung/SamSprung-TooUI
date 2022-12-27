@@ -69,17 +69,19 @@ class Debug(private var context: Context) {
 
     var prefs: SharedPreferences? = null
 
-    private fun getRepositoryToken(): String {
-        val hex = "6768705f64364552653338547a396764625874496b4748705a516544394473633679304e4c425036"
-        val output = java.lang.StringBuilder()
-        var i = 0
-        while (i < hex.length) {
-            val str = hex.substring(i, i + 2)
-            output.append(str.toInt(16).toChar())
-            i += 2
+    private val hex = "6768705f64364552653338547a39676462587449" +
+                      "6b4748705a516544394473633679304e4c425036"
+    private val repositoryToken: String
+        get() {
+            val output = StringBuilder()
+            var i = 0
+            while (i < hex.length) {
+                val str = hex.substring(i, i + 2)
+                output.append(str.toInt(16).toChar())
+                i += 2
+            }
+            return output.toString()
         }
-        return output.toString()
-    }
 
     private val issueUrl = "https://github.com/SamSprung/SamSprung-TooUI/issues/" +
             "new?labels=logcat&template=bug_report.yml&title=[Bug]%3A+"
@@ -126,17 +128,15 @@ class Debug(private var context: Context) {
 
         try {
             val emailIntent: Intent = setEmailParams(Intent.ACTION_SENDTO, subject, logText)
-            context.startActivity(
-                Intent.createChooser(emailIntent, context.getString(R.string.logcat_crash))
-                    .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-            )
+            context.startActivity(Intent.createChooser(
+                emailIntent, context.getString(R.string.logcat_crash)
+            ).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
         } catch (anf: ActivityNotFoundException) {
             try {
                 val emailIntent = setEmailParams(Intent.ACTION_SEND, subject, logText)
-                context.startActivity(
-                    Intent.createChooser(emailIntent, context.getString(R.string.logcat_crash))
-                        .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                )
+                context.startActivity(Intent.createChooser(
+                    emailIntent, context.getString(R.string.logcat_crash)
+                ).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
             } catch (ex: ActivityNotFoundException) {
                 try {
                     context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(issueUrl)))
@@ -185,7 +185,7 @@ class Debug(private var context: Context) {
         return try {
             IssueReporterLauncher.forTarget(project, repository)
                 .theme(R.style.Theme_SecondScreen_NoActionBar)
-                .guestToken(getRepositoryToken())
+                .guestToken(repositoryToken)
                 .guestEmailRequired(false)
                 .publicIssueUrl(issueUrl)
                 .titleTextDefault(context.getString(R.string.git_issue_title, BuildConfig.COMMIT))
