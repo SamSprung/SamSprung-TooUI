@@ -222,7 +222,6 @@ class SamSprungOverlay : AppCompatActivity() {
         window.attributes.width = ViewGroup.LayoutParams.MATCH_PARENT
         window.attributes.gravity = Gravity.BOTTOM
         // window.setBackgroundDrawable(null)
-        WindowCompat.setDecorFitsSystemWindows(window, false)
 
         prefs = getSharedPreferences(SamSprung.prefsValue, MODE_PRIVATE)
         vibrator = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
@@ -230,8 +229,6 @@ class SamSprungOverlay : AppCompatActivity() {
         } else {
             @Suppress("DEPRECATION") (getSystemService(VIBRATOR_SERVICE) as Vibrator)
         }
-        ScaledContext(this).internal(1.5f).setTheme(R.style.Theme_Launcher_NoActionBar)
-        setContentView(R.layout.home_main_view)
 
         windowInfoTracker = WindowInfoTrackerCallbackAdapter(
             WindowInfoTracker.getOrCreate(this)
@@ -245,6 +242,9 @@ class SamSprungOverlay : AppCompatActivity() {
 
             override fun onNormal() { }
         })
+
+        ScaledContext(this).internal(1.5f).setTheme(R.style.Theme_Launcher_NoActionBar)
+        setContentView(R.layout.home_main_view)
 
         IntentFilter().apply {
             addAction(Intent.ACTION_SCREEN_OFF)
@@ -1208,7 +1208,11 @@ class SamSprungOverlay : AppCompatActivity() {
         windowInfoTracker?.addWindowLayoutInfoListener(
             this, Runnable::run, layoutStateCallback
         )
+    }
 
+    override fun onResume() {
+        super.onResume()
+        WindowCompat.setDecorFitsSystemWindows(window, false)
     }
 
     override fun onStop() {
