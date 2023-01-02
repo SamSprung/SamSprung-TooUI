@@ -128,8 +128,7 @@ import java.util.concurrent.Executors
 
 class SamSprungOverlay : AppCompatActivity() {
 
-    private val CharSequence.toPref get() = this.toString()
-        .lowercase().replace(" ", "_")
+    private val CharSequence.toPref get() = this.toString().lowercase().replace(" ", "_")
 
     private var windowInfoTracker: WindowInfoTrackerCallbackAdapter? = null
     private val layoutStateCallback: LayoutStateChangeCallback = LayoutStateChangeCallback()
@@ -229,19 +228,6 @@ class SamSprungOverlay : AppCompatActivity() {
         } else {
             @Suppress("DEPRECATION") (getSystemService(VIBRATOR_SERVICE) as Vibrator)
         }
-
-        windowInfoTracker = WindowInfoTrackerCallbackAdapter(
-            WindowInfoTracker.getOrCreate(this)
-        )
-        layoutStateCallback.setListener(object: LayoutStateChangeCallback.FoldingFeatureListener {
-            override fun onHalfOpened() { }
-
-            override fun onSeparating() { }
-
-            override fun onFlat() { }
-
-            override fun onNormal() { }
-        })
 
         ScaledContext(this).internal(1.5f).setTheme(R.style.Theme_Launcher_NoActionBar)
         setContentView(R.layout.home_main_view)
@@ -1205,6 +1191,18 @@ class SamSprungOverlay : AppCompatActivity() {
 
     override fun onStart() {
         super.onStart()
+        windowInfoTracker = WindowInfoTrackerCallbackAdapter(
+            WindowInfoTracker.getOrCreate(this)
+        )
+        layoutStateCallback.setListener(object: LayoutStateChangeCallback.FoldingFeatureListener {
+            override fun onHalfOpened() { }
+
+            override fun onSeparating() { }
+
+            override fun onFlat() { }
+
+            override fun onNormal() { }
+        })
         windowInfoTracker?.addWindowLayoutInfoListener(
             this, Runnable::run, layoutStateCallback
         )

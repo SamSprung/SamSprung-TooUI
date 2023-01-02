@@ -125,8 +125,7 @@ import java.util.regex.Pattern
 
 class CoverPreferences : AppCompatActivity() {
 
-    private val CharSequence.toPref get() = this.toString()
-        .lowercase().replace(" ", "_")
+    private val CharSequence.toPref get() = this.toString().lowercase().replace(" ", "_")
 
     private lateinit var prefs: SharedPreferences
     private lateinit var coordinator: CoordinatorLayout
