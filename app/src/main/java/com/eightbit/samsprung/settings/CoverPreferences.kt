@@ -129,7 +129,7 @@ class CoverPreferences : AppCompatActivity() {
 
     private lateinit var prefs: SharedPreferences
     private lateinit var coordinator: CoordinatorLayout
-    private var updateCheck : CheckUpdatesTask? = null
+    private var updatesHandler : UpdatesHandler? = null
 
     private lateinit var mainSwitch: SwitchCompat
     private lateinit var accessibility: SwitchCompat
@@ -192,7 +192,7 @@ class CoverPreferences : AppCompatActivity() {
         googlePlay.setOnClickListener { donations.onSendDonationClicked() }
 
         findViewById<LinearLayout>(R.id.logcat).setOnClickListener {
-            if (updateCheck?.hasPendingUpdate() == true) {
+            if (updatesHandler?.hasPendingUpdate() == true) {
                 IconifiedSnackbar(this).buildTickerBar(
                     getString(R.string.update_service, getString(R.string.app_name))
                 ).show()
@@ -929,9 +929,9 @@ class CoverPreferences : AppCompatActivity() {
                 anim.cancel()
                 buildInfo.setTextColor(colorStateList)
                 if (null != appUpdateInfo) {
-                    updateCheck?.downloadPlayUpdate(appUpdateInfo)
+                    updatesHandler?.downloadPlayUpdate(appUpdateInfo)
                 } else if (null != downloadUrl) {
-                    updateCheck?.downloadUpdate(downloadUrl)
+                    updatesHandler?.downloadUpdate(downloadUrl)
                 }
             }
         }
@@ -954,15 +954,15 @@ class CoverPreferences : AppCompatActivity() {
             } catch (ignored: SecurityException) { }
         }
 
-        updateCheck = CheckUpdatesTask(this@CoverPreferences)
+        updatesHandler = UpdatesHandler(this@CoverPreferences)
         if (BuildConfig.GOOGLE_PLAY) {
-            updateCheck?.setPlayUpdateListener(object: CheckUpdatesTask.CheckPlayUpdateListener {
+            updatesHandler?.setPlayUpdateListener(object: UpdatesHandler.CheckPlayUpdateListener {
                 override fun onPlayUpdateFound(appUpdateInfo: AppUpdateInfo) {
                     setAnimatedUpdateNotice(appUpdateInfo, null)
                 }
             })
         } else {
-            updateCheck?.setUpdateListener(object: CheckUpdatesTask.CheckUpdateListener {
+            updatesHandler?.setUpdateListener(object: UpdatesHandler.CheckUpdateListener {
                 override fun onUpdateFound(downloadUrl: String) {
                     setAnimatedUpdateNotice(null, downloadUrl)
                 }
@@ -1228,7 +1228,7 @@ class CoverPreferences : AppCompatActivity() {
     val updateLauncher = registerForActivityResult(
         ActivityResultContracts.StartActivityForResult()) {
         if (packageManager.canRequestPackageInstalls())
-            updateCheck?.retrieveUpdate()
+            updatesHandler?.retrieveUpdate()
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {

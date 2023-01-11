@@ -110,7 +110,7 @@ import com.eightbit.samsprung.drawer.CoverStateAdapter
 import com.eightbit.samsprung.drawer.LauncherManager
 import com.eightbit.samsprung.drawer.PanelWidgetManager
 import com.eightbit.samsprung.drawer.panels.*
-import com.eightbit.samsprung.settings.CheckUpdatesTask
+import com.eightbit.samsprung.settings.UpdatesHandler
 import com.eightbit.samsprung.speech.VoiceRecognizer
 import com.eightbit.view.AnimatedLinearLayout
 import com.google.android.material.bottomsheet.BottomSheetBehavior
@@ -126,6 +126,7 @@ import java.io.File
 import java.util.*
 import java.util.concurrent.Executors
 
+
 class SamSprungOverlay : AppCompatActivity() {
 
     private val CharSequence.toPref get() = this.toString().lowercase().replace(" ", "_")
@@ -138,7 +139,7 @@ class SamSprungOverlay : AppCompatActivity() {
     private var widgetManager: PanelWidgetManager? = null
     val model = WidgetModel()
     private var appWidgetHost: WidgetHost? = null
-    private var updateCheck : CheckUpdatesTask? = null
+    private var updateCheck : UpdatesHandler? = null
 
     private var background: Drawable? = null
 
@@ -238,15 +239,6 @@ class SamSprungOverlay : AppCompatActivity() {
             registerReceiver(offReceiver, it)
         }
 
-        val mAppWidgetManager = AppWidgetManager.getInstance(applicationContext)
-        val appWidgetHost = WidgetHost(applicationContext, APPWIDGET_HOST_ID)
-        if (prefs.getBoolean(getString(R.string.toggle_widgets).toPref, true)) {
-            Executors.newSingleThreadExecutor().execute {
-                recreateWidgetPreviewDb()
-            }
-            appWidgetHost.startListening()
-        }
-
         val coordinator = findViewById<CoordinatorLayout>(R.id.coordinator)
         val animated = File(filesDir, "wallpaper.gif")
         if (animated.exists()) {
@@ -304,6 +296,15 @@ class SamSprungOverlay : AppCompatActivity() {
             )
                 .setFrameClearDrawable(coordinator.background)
                 .setBlurRadius(1f).setBlurAutoUpdate(true)
+        }
+
+        val mAppWidgetManager = AppWidgetManager.getInstance(applicationContext)
+        val appWidgetHost = WidgetHost(applicationContext, APPWIDGET_HOST_ID)
+        if (prefs.getBoolean(getString(R.string.toggle_widgets).toPref, true)) {
+            Executors.newSingleThreadExecutor().execute {
+                recreateWidgetPreviewDb()
+            }
+            appWidgetHost.startListening()
         }
 
         wifiManager = getSystemService(WIFI_SERVICE) as WifiManager
@@ -768,16 +769,16 @@ class SamSprungOverlay : AppCompatActivity() {
     private fun checkUpdatesWithDelay() {
         if (System.currentTimeMillis() <= prefs.getLong(SamSprung.prefUpdate, 0) + 14400000) return
         prefs.edit().putLong(SamSprung.prefUpdate, System.currentTimeMillis()).apply()
-        updateCheck = CheckUpdatesTask(this)
+        updateCheck = UpdatesHandler(this)
         if (BuildConfig.GOOGLE_PLAY) {
             updateCheck?.setPlayUpdateListener(object :
-                CheckUpdatesTask.CheckPlayUpdateListener {
+                UpdatesHandler.CheckPlayUpdateListener {
                 override fun onPlayUpdateFound(appUpdateInfo: AppUpdateInfo) {
                     showUpdateNotice(appUpdateInfo, null)
                 }
             })
         } else {
-            updateCheck?.setUpdateListener(object : CheckUpdatesTask.CheckUpdateListener {
+            updateCheck?.setUpdateListener(object : UpdatesHandler.CheckUpdateListener {
                 override fun onUpdateFound(downloadUrl: String) {
                     showUpdateNotice(null, downloadUrl)
                 }
@@ -1216,5 +1217,9 @@ class SamSprungOverlay : AppCompatActivity() {
     override fun onStop() {
         super.onStop()
         windowInfoTracker?.removeWindowLayoutInfoListener(layoutStateCallback)
+    }
+
+    override fun dispatchTouchEvent(ev: MotionEvent?): Boolean {
+        return super.dispatchTouchEvent(ev)
     }
 }

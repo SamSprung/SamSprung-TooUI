@@ -104,7 +104,7 @@ class AppDisplayListener : Service() {
     override fun onStartCommand(intent: Intent, flags: Int, startId: Int): Int {
         super.onStartCommand(intent, flags, startId)
 
-        var launchPackage: String? = intent.getStringExtra("launchPackage")!!
+        var launchPackage: String? = intent.getStringExtra("launchPackage")
         val launchActivity: String? = if (intent.hasExtra("launchActivity"))
             intent.getStringExtra("launchActivity") else null
         var componentName: ComponentName? = if (null == launchActivity && null != launchPackage)

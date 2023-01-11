@@ -64,7 +64,7 @@ import com.eightbit.samsprung.R
 
 class UpdateShimActivity : AppCompatActivity() {
 
-    private var updateCheck : CheckUpdatesTask? = null
+    private var updatesHandler : UpdatesHandler? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         setVisible(false)
@@ -76,8 +76,8 @@ class UpdateShimActivity : AppCompatActivity() {
     override fun onNewIntent(intent: Intent?) {
         super.onNewIntent(intent)
         if (null != intent?.action) {
-            updateCheck = CheckUpdatesTask(this)
-            updateCheck?.downloadUpdate(intent.action!!)
+            updatesHandler = UpdatesHandler(this)
+            updatesHandler?.downloadUpdate(intent.action!!)
         }
         finish()
     }

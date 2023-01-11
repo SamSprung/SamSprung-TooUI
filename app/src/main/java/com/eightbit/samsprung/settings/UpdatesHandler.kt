@@ -91,7 +91,7 @@ import java.net.URL
 import java.util.*
 import java.util.concurrent.Executors
 
-class CheckUpdatesTask(private var activity: Activity) {
+class UpdatesHandler(private var activity: Activity) {
 
     private val repo = "https://api.github.com/repos/SamSprung/SamSprung-TooUI/releases/tags/"
     var listener: CheckUpdateListener? = null
