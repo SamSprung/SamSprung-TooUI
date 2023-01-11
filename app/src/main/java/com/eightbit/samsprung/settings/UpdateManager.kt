@@ -91,14 +91,13 @@ import java.net.URL
 import java.util.*
 import java.util.concurrent.Executors
 
-class UpdatesHandler(private var activity: Activity) {
+class UpdateManager(private var activity: Activity) {
 
     private val repo = "https://api.github.com/repos/SamSprung/SamSprung-TooUI/releases/tags/"
     var listener: CheckUpdateListener? = null
     var listenerPlay: CheckPlayUpdateListener? = null
     private var appUpdateManager: AppUpdateManager? = null
     private var isUpdateAvailable = false
-    var updateLauncher: ActivityResultLauncher<String>? = null
 
     init {
         if (BuildConfig.GOOGLE_PLAY) {

@@ -129,7 +129,7 @@ class CoverPreferences : AppCompatActivity() {
 
     private lateinit var prefs: SharedPreferences
     private lateinit var coordinator: CoordinatorLayout
-    private var updatesHandler : UpdatesHandler? = null
+    private var updateManager : UpdateManager? = null
 
     private lateinit var mainSwitch: SwitchCompat
     private lateinit var accessibility: SwitchCompat
@@ -141,7 +141,7 @@ class CoverPreferences : AppCompatActivity() {
 
     private lateinit var hiddenList: IndexFastScrollRecyclerView
 
-    private val donations = DonationHandler(this)
+    private val donationManager = DonationManager(this)
 
     @SuppressLint("ClickableViewAccessibility", "InflateParams")
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -166,7 +166,7 @@ class CoverPreferences : AppCompatActivity() {
             PackageManager.COMPONENT_ENABLED_STATE_ENABLED, PackageManager.DONT_KILL_APP
         )
 
-        donations.retrieveDonationMenu()
+        donationManager.retrieveDonationMenu()
 
         coordinator = findViewById(R.id.coordinator)
         @Suppress("DEPRECATION")
@@ -189,10 +189,10 @@ class CoverPreferences : AppCompatActivity() {
         initializeLayout()
 
         val googlePlay = findViewById<LinearLayout>(R.id.button_donate)
-        googlePlay.setOnClickListener { donations.onSendDonationClicked() }
+        googlePlay.setOnClickListener { donationManager.onSendDonationClicked() }
 
         findViewById<LinearLayout>(R.id.logcat).setOnClickListener {
-            if (updatesHandler?.hasPendingUpdate() == true) {
+            if (updateManager?.hasPendingUpdate() == true) {
                 IconifiedSnackbar(this).buildTickerBar(
                     getString(R.string.update_service, getString(R.string.app_name))
                 ).show()
@@ -929,9 +929,9 @@ class CoverPreferences : AppCompatActivity() {
                 anim.cancel()
                 buildInfo.setTextColor(colorStateList)
                 if (null != appUpdateInfo) {
-                    updatesHandler?.downloadPlayUpdate(appUpdateInfo)
+                    updateManager?.downloadPlayUpdate(appUpdateInfo)
                 } else if (null != downloadUrl) {
-                    updatesHandler?.downloadUpdate(downloadUrl)
+                    updateManager?.downloadUpdate(downloadUrl)
                 }
             }
         }
@@ -954,15 +954,15 @@ class CoverPreferences : AppCompatActivity() {
             } catch (ignored: SecurityException) { }
         }
 
-        updatesHandler = UpdatesHandler(this@CoverPreferences)
+        updateManager = UpdateManager(this@CoverPreferences)
         if (BuildConfig.GOOGLE_PLAY) {
-            updatesHandler?.setPlayUpdateListener(object: UpdatesHandler.CheckPlayUpdateListener {
+            updateManager?.setPlayUpdateListener(object: UpdateManager.CheckPlayUpdateListener {
                 override fun onPlayUpdateFound(appUpdateInfo: AppUpdateInfo) {
                     setAnimatedUpdateNotice(appUpdateInfo, null)
                 }
             })
         } else {
-            updatesHandler?.setUpdateListener(object: UpdatesHandler.CheckUpdateListener {
+            updateManager?.setUpdateListener(object: UpdateManager.CheckUpdateListener {
                 override fun onUpdateFound(downloadUrl: String) {
                     setAnimatedUpdateNotice(null, downloadUrl)
                 }
@@ -1228,7 +1228,7 @@ class CoverPreferences : AppCompatActivity() {
     val updateLauncher = registerForActivityResult(
         ActivityResultContracts.StartActivityForResult()) {
         if (packageManager.canRequestPackageInstalls())
-            updatesHandler?.retrieveUpdate()
+            updateManager?.retrieveUpdate()
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {

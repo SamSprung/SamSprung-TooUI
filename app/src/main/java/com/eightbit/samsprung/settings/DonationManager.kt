@@ -27,7 +27,7 @@ import java.util.*
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
 
-class DonationHandler internal constructor(activity: CoverPreferences) {
+class DonationManager internal constructor(activity: CoverPreferences) {
 
     private val Number.toPx get() = TypedValue.applyDimension(
         TypedValue.COMPLEX_UNIT_DIP, this.toFloat(),

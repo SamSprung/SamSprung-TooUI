@@ -110,7 +110,7 @@ import com.eightbit.samsprung.drawer.CoverStateAdapter
 import com.eightbit.samsprung.drawer.LauncherManager
 import com.eightbit.samsprung.drawer.PanelWidgetManager
 import com.eightbit.samsprung.drawer.panels.*
-import com.eightbit.samsprung.settings.UpdatesHandler
+import com.eightbit.samsprung.settings.UpdateManager
 import com.eightbit.samsprung.speech.VoiceRecognizer
 import com.eightbit.view.AnimatedLinearLayout
 import com.google.android.material.bottomsheet.BottomSheetBehavior
@@ -139,7 +139,7 @@ class SamSprungOverlay : AppCompatActivity() {
     private var widgetManager: PanelWidgetManager? = null
     val model = WidgetModel()
     private var appWidgetHost: WidgetHost? = null
-    private var updateCheck : UpdatesHandler? = null
+    private var updateCheck : UpdateManager? = null
 
     private var background: Drawable? = null
 
@@ -769,16 +769,16 @@ class SamSprungOverlay : AppCompatActivity() {
     private fun checkUpdatesWithDelay() {
         if (System.currentTimeMillis() <= prefs.getLong(SamSprung.prefUpdate, 0) + 14400000) return
         prefs.edit().putLong(SamSprung.prefUpdate, System.currentTimeMillis()).apply()
-        updateCheck = UpdatesHandler(this)
+        updateCheck = UpdateManager(this)
         if (BuildConfig.GOOGLE_PLAY) {
             updateCheck?.setPlayUpdateListener(object :
-                UpdatesHandler.CheckPlayUpdateListener {
+                UpdateManager.CheckPlayUpdateListener {
                 override fun onPlayUpdateFound(appUpdateInfo: AppUpdateInfo) {
                     showUpdateNotice(appUpdateInfo, null)
                 }
             })
         } else {
-            updateCheck?.setUpdateListener(object : UpdatesHandler.CheckUpdateListener {
+            updateCheck?.setUpdateListener(object : UpdateManager.CheckUpdateListener {
                 override fun onUpdateFound(downloadUrl: String) {
                     showUpdateNotice(null, downloadUrl)
                 }
