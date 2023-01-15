@@ -14,6 +14,7 @@ import android.widget.LinearLayout
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.view.ContextThemeWrapper
 import androidx.core.content.ContextCompat
+import androidx.core.view.isVisible
 import com.android.billingclient.api.*
 import com.eightbit.material.IconifiedSnackbar
 import com.eightbit.samsprung.BuildConfig
@@ -39,6 +40,8 @@ class DonationManager internal constructor(activity: CoverPreferences) {
     private lateinit var billingClient: BillingClient
     private val iapSkuDetails = ArrayList<ProductDetails>()
     private val subSkuDetails = ArrayList<ProductDetails>()
+
+    private val backgroundScope = CoroutineScope(Dispatchers.IO)
 
     private fun getIAP(amount: Int) : String {
         return String.format("subscription_%02d", amount)
@@ -178,7 +181,7 @@ class DonationManager internal constructor(activity: CoverPreferences) {
         iapSkuDetails.clear()
         subSkuDetails.clear()
 
-        CoroutineScope(Dispatchers.IO).launch(Dispatchers.IO) {
+        backgroundScope.launch(Dispatchers.IO) {
             val clientResponseCode = billingClient.connect().responseCode
             if (clientResponseCode == BillingClient.BillingResponseCode.OK) {
                 iapList.add(getIAP(1))
@@ -203,6 +206,7 @@ class DonationManager internal constructor(activity: CoverPreferences) {
                         )
                     }
                 }
+                if (BuildConfig.GOOGLE_PLAY) return@launch
                 subList.add(getSub(1))
                 subList.add(getSub(5))
                 subList.add(getSub(10))
@@ -284,22 +288,55 @@ class DonationManager internal constructor(activity: CoverPreferences) {
             donations.addView(getDonationButton(skuDetail))
         }
         val subscriptions = view.findViewById<LinearLayout>(R.id.subscription_layout)
-        subscriptions.removeAllViewsInLayout()
-        for (skuDetail: ProductDetails in subSkuDetails
-            .sortedBy { skuDetail -> skuDetail.productId }) {
-            if (null == skuDetail.subscriptionOfferDetails) continue
-            subscriptions.addView(getSubscriptionButton(skuDetail))
+        if (BuildConfig.GOOGLE_PLAY) {
+            subscriptions.isVisible = false
+        } else {
+            subscriptions.isVisible = true
+            subscriptions.removeAllViewsInLayout()
+            for (skuDetail: ProductDetails in subSkuDetails
+                .sortedBy { skuDetail -> skuDetail.productId }) {
+                if (null == skuDetail.subscriptionOfferDetails) continue
+                subscriptions.addView(getSubscriptionButton(skuDetail))
+            }
         }
         dialog.setOnCancelListener {
             donations.removeAllViewsInLayout()
-            subscriptions.removeAllViewsInLayout()
+            if (!BuildConfig.GOOGLE_PLAY) subscriptions.removeAllViewsInLayout()
         }
         dialog.setOnDismissListener {
             donations.removeAllViewsInLayout()
-            subscriptions.removeAllViewsInLayout()
+            if (!BuildConfig.GOOGLE_PLAY) subscriptions.removeAllViewsInLayout()
         }
         val donateDialog: Dialog = dialog.setView(view).show()
+
         if (!BuildConfig.GOOGLE_PLAY) {
+            val padding = TypedValue.applyDimension(
+                TypedValue.COMPLEX_UNIT_DIP,
+                4f,
+                Resources.getSystem().displayMetrics
+            ).toInt()
+            val params = LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT
+            )
+            params.setMargins(0, padding, 0, padding)
+
+            @SuppressLint("InflateParams") val manage =
+                activity.layoutInflater.inflate(R.layout.button_cancel_sub, null)
+            manage.setOnClickListener {
+                activity.startActivity(
+                    Intent(
+                        Intent.ACTION_VIEW, Uri.parse(
+                            "https://support.google.com/googleplay/workflow/9827184"
+                        )
+                    )
+                )
+                donateDialog.cancel()
+            }
+            manage.layoutParams = params
+            view.addView(manage)
+
+//        if (!BuildConfig.GOOGLE_PLAY) {
             @SuppressLint("InflateParams")
             val sponsor: View = activity.layoutInflater.inflate(R.layout.button_sponsor, null)
             sponsor.setOnClickListener {
@@ -310,6 +347,7 @@ class DonationManager internal constructor(activity: CoverPreferences) {
                 donateDialog.cancel()
             }
             view.addView(sponsor)
+
             @SuppressLint("InflateParams")
             val paypal: View = activity.layoutInflater.inflate(R.layout.button_paypal, null)
             paypal.setOnClickListener {

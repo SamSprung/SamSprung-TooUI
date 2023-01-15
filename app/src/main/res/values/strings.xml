@@ -48,6 +48,7 @@
     <string name="google_link">Donate with Google Play</string>
     <string name="sponsor_link">Sponsor on GitHub</string>
     <string name="paypal_link">Donate with PayPal</string>
+    <string name="cancel_link">Cancel Subscription</string>
     <string name="logcat_link">Problem?</string>
     <string name="logcat_crash">ERROR! Submit a log?</string>
 
@@ -71,7 +72,7 @@
 
     <string name="loading_text">Loading&#8230;</string>
 
-    <string name="sub_button">%1$s Monthly Donations</string>
+    <string name="sub_button">%1$s Monthly Donation</string>
     <string name="iap_button">%1$s One-Time Donation</string>
     <string name="donation_thanks">Thanks for supporting TooUI!</string>
 
