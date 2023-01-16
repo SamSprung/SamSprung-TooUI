@@ -103,6 +103,8 @@ class SamSprung : Application() {
         const val prefRotate: String = "prefRotate"
         const val prefCarded: String = "prefCarded"
         const val prefUpdate: String = "prefUpdate"
+
+        var hasSubscription = false
     }
 
     override fun onCreate() {

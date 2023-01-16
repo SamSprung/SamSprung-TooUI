@@ -19,6 +19,7 @@ import com.android.billingclient.api.*
 import com.eightbit.material.IconifiedSnackbar
 import com.eightbit.samsprung.BuildConfig
 import com.eightbit.samsprung.R
+import com.eightbit.samsprung.SamSprung
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -66,10 +67,8 @@ class DonationManager internal constructor(activity: CoverPreferences) {
     }
 
     private var acknowledgePurchaseResponseListener = AcknowledgePurchaseResponseListener {
-        IconifiedSnackbar(activity).buildTickerBar(
-            activity.getString(R.string.donation_thanks)
-        ).show()
-        // hasPremiumSupport = true
+        IconifiedSnackbar(activity).buildTickerBar(activity.getString(R.string.donation_thanks)).show()
+        SamSprung.hasSubscription = true
     }
 
     private fun handlePurchaseSub(purchase : Purchase) {
@@ -109,7 +108,7 @@ class DonationManager internal constructor(activity: CoverPreferences) {
             for (purchase in purchases) {
                 for (sku in purchase.products) {
                     if (subsPurchased.contains(sku)) {
-                        // hasPremiumSupport = true
+                        SamSprung.hasSubscription = true
                         break
                     }
                 }
@@ -132,7 +131,6 @@ class DonationManager internal constructor(activity: CoverPreferences) {
             for (purchase in purchases) {
                 for (sku in purchase.products) {
                     if (sku.split("_")[1].toInt() >= 10) {
-                        // hasPremiumSupport = true
                         break
                     }
                 }
@@ -324,13 +322,9 @@ class DonationManager internal constructor(activity: CoverPreferences) {
             @SuppressLint("InflateParams") val manage =
                 activity.layoutInflater.inflate(R.layout.button_cancel_sub, null)
             manage.setOnClickListener {
-                activity.startActivity(
-                    Intent(
-                        Intent.ACTION_VIEW, Uri.parse(
-                            "https://support.google.com/googleplay/workflow/9827184"
-                        )
-                    )
-                )
+                activity.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(
+                    "https://support.google.com/googleplay/workflow/9827184"
+                )))
                 donateDialog.cancel()
             }
             manage.layoutParams = params
@@ -340,10 +334,9 @@ class DonationManager internal constructor(activity: CoverPreferences) {
             @SuppressLint("InflateParams")
             val sponsor: View = activity.layoutInflater.inflate(R.layout.button_sponsor, null)
             sponsor.setOnClickListener {
-                activity.startActivity(Intent(
-                    Intent.ACTION_VIEW,
-                    Uri.parse("https://github.com/sponsors/AbandonedCart")
-                ))
+                activity.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(
+                    "https://github.com/sponsors/AbandonedCart"
+                )))
                 donateDialog.cancel()
             }
             view.addView(sponsor)
@@ -351,10 +344,9 @@ class DonationManager internal constructor(activity: CoverPreferences) {
             @SuppressLint("InflateParams")
             val paypal: View = activity.layoutInflater.inflate(R.layout.button_paypal, null)
             paypal.setOnClickListener {
-                activity.startActivity(Intent(
-                    Intent.ACTION_VIEW,
-                    Uri.parse("https://www.paypal.com/donate/?hosted_button_id=Q2LFH2SC8RHRN")
-                ))
+                activity.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(
+                    "https://www.paypal.com/donate/?hosted_button_id=Q2LFH2SC8RHRN"
+                )))
                 donateDialog.cancel()
             }
             view.addView(paypal)

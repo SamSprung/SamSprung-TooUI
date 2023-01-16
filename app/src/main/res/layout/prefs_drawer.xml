@@ -21,7 +21,7 @@
 
         <TextView
             android:layout_width="0dp"
-            android:layout_weight="1"
+            android:layout_weight="3"
             android:textSize="24sp"
             android:textColor="?android:textColorPrimary"
             android:gravity="center_vertical"
@@ -33,7 +33,7 @@
             android:layout_width="0dp"
             android:gravity="center"
             android:layout_gravity="end|center_vertical"
-            android:layout_weight="0.5"
+            android:layout_weight="1"
             android:layout_height="wrap_content" />
     </LinearLayout>
 
@@ -50,7 +50,7 @@
 
         <TextView
             android:layout_width="0dp"
-            android:layout_weight="1"
+            android:layout_weight="3"
             android:textSize="24sp"
             android:textColor="?android:textColorPrimary"
             android:gravity="center_vertical"
@@ -62,7 +62,7 @@
             android:layout_width="0dp"
             android:gravity="center"
             android:layout_gravity="end|center_vertical"
-            android:layout_weight="0.5"
+            android:layout_weight="1"
             android:layout_height="wrap_content" />
     </LinearLayout>
 
@@ -112,7 +112,7 @@
 
         <TextView
             android:layout_width="0dp"
-            android:layout_weight="1"
+            android:layout_weight="3"
             android:textSize="24sp"
             android:textColor="?android:textColorPrimary"
             android:gravity="center_vertical"
@@ -124,7 +124,7 @@
             android:layout_width="0dp"
             android:gravity="center"
             android:layout_gravity="end|center_vertical"
-            android:layout_weight="0.5"
+            android:layout_weight="1"
             android:layout_height="wrap_content" />
     </LinearLayout>
 
@@ -174,7 +174,7 @@
 
         <TextView
             android:layout_width="0dp"
-            android:layout_weight="1"
+            android:layout_weight="3"
             android:textSize="24sp"
             android:textColor="?android:textColorPrimary"
             android:gravity="center_vertical"
@@ -186,7 +186,7 @@
             android:layout_width="0dp"
             android:gravity="center"
             android:layout_gravity="end|center_vertical"
-            android:layout_weight="0.5"
+            android:layout_weight="1"
             android:layout_height="wrap_content" />
     </LinearLayout>
 
