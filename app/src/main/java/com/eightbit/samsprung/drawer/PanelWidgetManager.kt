@@ -122,7 +122,7 @@ class PanelWidgetManager(
 
         val view: View = overlay.layoutInflater.inflate(R.layout.panel_picker_view, null)
         val dialog = AlertDialog.Builder(
-            ContextThemeWrapper(overlay, R.style.DialogTheme_NoActionBar)
+            ContextThemeWrapper(overlay, R.style.Theme_Overlay_NoActionBar)
         )
         val previews = view.findViewById<LinearLayout>(R.id.previews_layout)
         dialog.setOnCancelListener {

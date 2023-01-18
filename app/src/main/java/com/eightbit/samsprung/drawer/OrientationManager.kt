@@ -15,8 +15,8 @@ class OrientationManager(context: Context) {
 
     private val orientationLayout = WindowManager.LayoutParams(
         WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY,
-        WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or
-                WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE,
+        WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE or
+                WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE,
         PixelFormat.TRANSPARENT
     )
 

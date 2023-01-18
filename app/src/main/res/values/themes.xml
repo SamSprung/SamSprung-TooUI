@@ -25,7 +25,7 @@
         <item name="windowNoTitle">true</item>
     </style>
 
-    <style name="DialogTheme" parent="Theme.AppCompat.DayNight.Dialog.MinWidth">
+    <style name="Theme.Overlay" parent="Theme.AppCompat.DayNight.Dialog.MinWidth">
         <item name="android:windowIsTranslucent">true</item>
         <item name="android:windowIsFloating">true</item>
         <item name="android:backgroundDimEnabled">true</item>
@@ -33,12 +33,13 @@
         <item name="popupMenuStyle">@style/SlimPopupMenu</item>
     </style>
 
-    <style name="DialogTheme.NoActionBar">
+    <style name="Theme.Overlay.NoActionBar">
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
     </style>
 
-    <style name="Theme.Launcher" parent="DialogTheme">
+    <style name="Theme.Launcher" parent="Theme.Overlay">
+        <item name="android:windowIsFloating">false</item>
         <item name="android:backgroundDimEnabled">false</item>
         <item name="android:windowBackground">@android:color/transparent</item>
         <item name="android:windowContentOverlay">@null</item>

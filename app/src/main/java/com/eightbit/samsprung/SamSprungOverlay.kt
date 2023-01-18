@@ -219,9 +219,7 @@ class SamSprungOverlay : AppCompatActivity() {
                     WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN,
             PixelFormat.TRANSPARENT
         )
-        window.attributes.width = ViewGroup.LayoutParams.MATCH_PARENT
         window.attributes.gravity = Gravity.BOTTOM
-        // window.setBackgroundDrawable(null)
 
         prefs = getSharedPreferences(SamSprung.prefsValue, MODE_PRIVATE)
         vibrator = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
@@ -832,7 +830,7 @@ class SamSprungOverlay : AppCompatActivity() {
         if (keyguardManager.isDeviceLocked) {
             val authView = layoutInflater.inflate(R.layout.fingerprint_auth, null)
             val authDialog = AlertDialog.Builder(
-                ContextThemeWrapper(this, R.style.DialogTheme_NoActionBar)
+                ContextThemeWrapper(this, R.style.Theme_Overlay_NoActionBar)
             ).setView(authView).create()
             authDialog.setCancelable(false)
             authDialog.window?.attributes?.windowAnimations = R.style.SlidingDialogAnimation
