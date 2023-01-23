@@ -29,14 +29,12 @@ import java.util.*
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
 
-class DonationManager internal constructor(activity: CoverPreferences) {
+class DonationManager internal constructor(private val activity: CoverPreferences) {
 
     private val Number.toPx get() = TypedValue.applyDimension(
         TypedValue.COMPLEX_UNIT_DIP, this.toFloat(),
         Resources.getSystem().displayMetrics
     )
-
-    private val activity: CoverPreferences
 
     private lateinit var billingClient: BillingClient
     private val iapSkuDetails = ArrayList<ProductDetails>()
@@ -160,7 +158,7 @@ class DonationManager internal constructor(activity: CoverPreferences) {
         }
     }
 
-    private suspend fun BillingClient.unsafeConnect() = suspendCoroutine<BillingResult> { cont ->
+    private suspend fun BillingClient.unsafeConnect() = suspendCoroutine { cont ->
         startConnection(object : BillingClientStateListener {
             override fun onBillingSetupFinished(billingResult: BillingResult) {
                 cont.resume(billingResult)
@@ -238,8 +236,7 @@ class DonationManager internal constructor(activity: CoverPreferences) {
         button.setTextColor(ContextCompat.getColor(activity, android.R.color.black))
         button.textSize = 8f.toPx
         button.text = activity.getString(
-            com.eightbit.samsprung.R.string.iap_button, skuDetail
-                .oneTimePurchaseOfferDetails!!.formattedPrice
+            R.string.iap_button, skuDetail.oneTimePurchaseOfferDetails!!.formattedPrice
         )
         button.setOnClickListener {
             val productDetailsParamsList = BillingFlowParams.ProductDetailsParams
@@ -258,8 +255,8 @@ class DonationManager internal constructor(activity: CoverPreferences) {
         button.setTextColor(ContextCompat.getColor(activity, android.R.color.black))
         button.textSize = 8f.toPx
         button.text = activity.getString(
-            com.eightbit.samsprung.R.string.sub_button, skuDetail
-                .subscriptionOfferDetails!![0].pricingPhases.pricingPhaseList[0].formattedPrice
+            R.string.sub_button,
+            skuDetail.subscriptionOfferDetails!![0].pricingPhases.pricingPhaseList[0].formattedPrice
         )
         button.setOnClickListener {
             val productDetailsParamsList = BillingFlowParams.ProductDetailsParams.newBuilder()
@@ -307,7 +304,7 @@ class DonationManager internal constructor(activity: CoverPreferences) {
         }
         val donateDialog: Dialog = dialog.setView(view).show()
 
-        if (!BuildConfig.GOOGLE_PLAY) {
+        if (SamSprung.hasSubscription) {
             val padding = TypedValue.applyDimension(
                 TypedValue.COMPLEX_UNIT_DIP,
                 4f,
@@ -329,8 +326,9 @@ class DonationManager internal constructor(activity: CoverPreferences) {
             }
             manage.layoutParams = params
             view.addView(manage)
+        }
 
-//        if (!BuildConfig.GOOGLE_PLAY) {
+        if (!BuildConfig.GOOGLE_PLAY) {
             @SuppressLint("InflateParams")
             val sponsor: View = activity.layoutInflater.inflate(R.layout.button_sponsor, null)
             sponsor.setOnClickListener {
@@ -352,9 +350,5 @@ class DonationManager internal constructor(activity: CoverPreferences) {
             view.addView(paypal)
         }
         donateDialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
-    }
-
-    init {
-        this.activity = activity
     }
 }

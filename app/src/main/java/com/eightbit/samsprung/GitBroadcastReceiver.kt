@@ -59,10 +59,18 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageInstaller
+import android.os.Build
+import android.os.Parcelable
 import android.widget.Toast
 import com.eightbit.samsprung.settings.CoverPreferences
 
 class GitBroadcastReceiver : BroadcastReceiver() {
+
+    private inline fun <reified T : Parcelable> Intent.parcelable(key: String): T? = when {
+        Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU ->
+            getParcelableExtra(key, T::class.java)
+        else -> @Suppress("DEPRECATION") getParcelableExtra(key) as? T
+    }
 
     override fun onReceive(context: Context, intent: Intent) {
         val action = intent.action
@@ -92,22 +100,20 @@ class GitBroadcastReceiver : BroadcastReceiver() {
             !BuildConfig.GOOGLE_PLAY && SamSprung.updating == action -> {
                 when (intent.getIntExtra(PackageInstaller.EXTRA_STATUS, -1)) {
                     PackageInstaller.STATUS_PENDING_USER_ACTION -> {
-                        val activityIntent = intent.getParcelableExtra<Intent>(Intent.EXTRA_INTENT)
+                        val activityIntent = intent.parcelable<Intent>(Intent.EXTRA_INTENT)
                         if (null != activityIntent) {
                             val intentUri = activityIntent.toUri(0)
-                            startLauncherActivity(context, Intent.parseUri(
-                                intentUri, Intent.URI_ALLOW_UNSAFE
-                            ).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
+                            startLauncherActivity(
+                                context, Intent.parseUri(intentUri, Intent.URI_ALLOW_UNSAFE)
+                                    .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                            )
                         }
                     }
-                    PackageInstaller.STATUS_SUCCESS -> {
-                        // Installation was successful
-                    } else -> {
-                    val error = intent.getStringExtra(PackageInstaller.EXTRA_STATUS_MESSAGE)
-                    if (!error!!.contains("Session was abandoned", true))
-                        Toast.makeText(
-                            context.applicationContext, error, Toast.LENGTH_LONG
-                        ).show()
+                    PackageInstaller.STATUS_SUCCESS -> { }
+                    else -> {
+                        val error = intent.getStringExtra(PackageInstaller.EXTRA_STATUS_MESSAGE)
+                        if (error?.contains("Session was abandoned") != true)
+                            Toast.makeText(context, error, Toast.LENGTH_LONG).show()
                     }
                 }
             }

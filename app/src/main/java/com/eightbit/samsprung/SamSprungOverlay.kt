@@ -536,6 +536,7 @@ class SamSprungOverlay : AppCompatActivity() {
                 vibrator.vibrate(effectClick)
             bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
             bottomSheetBehaviorMain.state = BottomSheetBehavior.STATE_COLLAPSED
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) onStopOverlay()
         }
         buttonClose.setOnLongClickListener { view ->
             Toast.makeText(
