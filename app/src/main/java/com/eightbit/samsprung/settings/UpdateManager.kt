@@ -63,7 +63,6 @@ import android.content.pm.PackageInstaller
 import android.net.Uri
 import android.os.Build
 import android.provider.Settings
-import androidx.activity.result.ActivityResultLauncher
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.FileProvider
 import androidx.documentfile.provider.DocumentFile
@@ -89,7 +88,6 @@ import java.io.File
 import java.io.FileOutputStream
 import java.net.URL
 import java.util.*
-import java.util.concurrent.Executors
 
 class UpdateManager(private var activity: Activity) {
 
@@ -99,20 +97,21 @@ class UpdateManager(private var activity: Activity) {
     private var appUpdateManager: AppUpdateManager? = null
     private var isUpdateAvailable = false
 
+    private val scopeIO = CoroutineScope(Dispatchers.IO)
+
     init {
-        if (BuildConfig.GOOGLE_PLAY) {
-            if (null == appUpdateManager)
-                appUpdateManager = AppUpdateManagerFactory.create(activity)
-            val appUpdateInfoTask = appUpdateManager?.appUpdateInfo
-            // Checks that the platform will allow the specified type of update.
-            appUpdateInfoTask?.addOnSuccessListener { appUpdateInfo ->
-                isUpdateAvailable = appUpdateInfo.updateAvailability() == UpdateAvailability
-                    .UPDATE_AVAILABLE && appUpdateInfo.isUpdateTypeAllowed(AppUpdateType.IMMEDIATE)
-                if (isUpdateAvailable && null != listenerPlay)
-                    listenerPlay?.onPlayUpdateFound(appUpdateInfo)
-            }
-        } else {
-            configureUpdates()
+        if (BuildConfig.GOOGLE_PLAY) configureManager() else configureUpdates()
+    }
+
+    private fun configureManager() {
+        if (null == appUpdateManager) appUpdateManager = AppUpdateManagerFactory.create(activity)
+        val appUpdateInfoTask = appUpdateManager?.appUpdateInfo
+        // Checks that the platform will allow the specified type of update.
+        appUpdateInfoTask?.addOnSuccessListener { appUpdateInfo ->
+            isUpdateAvailable = appUpdateInfo.updateAvailability() == UpdateAvailability
+                .UPDATE_AVAILABLE && appUpdateInfo.isUpdateTypeAllowed(AppUpdateType.IMMEDIATE)
+            if (isUpdateAvailable && null != listenerPlay)
+                listenerPlay?.onPlayUpdateFound(appUpdateInfo)
         }
     }
 
@@ -129,7 +128,7 @@ class UpdateManager(private var activity: Activity) {
                 } catch (ignored: Exception) { }
             }
         } else {
-            Executors.newSingleThreadExecutor().execute {
+            scopeIO.launch {
                 val files: Array<File>? = activity.externalCacheDir?.listFiles { _, name ->
                     name.lowercase(Locale.getDefault()).endsWith(".apk")
                 }
@@ -139,31 +138,32 @@ class UpdateManager(private var activity: Activity) {
         }
     }
 
-    @Suppress("BlockingMethodInNonBlockingContext")
-    private suspend fun installUpdate(apkUri: Uri) = withContext(Dispatchers.IO) {
-        val installer = activity.applicationContext.packageManager.packageInstaller
-        val resolver = activity.applicationContext.contentResolver
-        resolver.openInputStream(apkUri)?.use { apkStream ->
-            val length = DocumentFile.fromSingleUri(
-                activity.applicationContext, apkUri)?.length() ?: -1
-            val params = PackageInstaller.SessionParams(
-                PackageInstaller.SessionParams.MODE_FULL_INSTALL)
-            val sessionId = installer.createSession(params)
-            val session = installer.openSession(sessionId)
-            session.openWrite("NAME", 0, length).use { sessionStream ->
-                apkStream.copyTo(sessionStream)
-                session.fsync(sessionStream)
+    private fun installUpdate(apkUri: Uri) {
+        scopeIO.launch {
+            val installer = activity.applicationContext.packageManager.packageInstaller
+            val resolver = activity.applicationContext.contentResolver
+            resolver.openInputStream(apkUri)?.use { apkStream ->
+                val length = DocumentFile.fromSingleUri(
+                    activity.applicationContext, apkUri)?.length() ?: -1
+                val params = PackageInstaller.SessionParams(
+                    PackageInstaller.SessionParams.MODE_FULL_INSTALL)
+                val sessionId = installer.createSession(params)
+                val session = installer.openSession(sessionId)
+                session.openWrite("NAME", 0, length).use { sessionStream ->
+                    apkStream.copyTo(sessionStream)
+                    session.fsync(sessionStream)
+                }
+                val pi = PendingIntent.getBroadcast(
+                    activity.applicationContext, SamSprung.request_code,
+                    Intent(activity.applicationContext, GitBroadcastReceiver::class.java)
+                        .setAction(SamSprung.updating),
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S)
+                        PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_MUTABLE
+                    else PendingIntent.FLAG_UPDATE_CURRENT
+                )
+                session.commit(pi.intentSender)
+                session.close()
             }
-            val pi = PendingIntent.getBroadcast(
-                activity.applicationContext, SamSprung.request_code,
-                Intent(activity.applicationContext, GitBroadcastReceiver::class.java)
-                    .setAction(SamSprung.updating),
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S)
-                    PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_MUTABLE
-                else PendingIntent.FLAG_UPDATE_CURRENT
-            )
-            session.commit(pi.intentSender)
-            session.close()
         }
     }
 
@@ -171,15 +171,13 @@ class UpdateManager(private var activity: Activity) {
         if (activity.packageManager.canRequestPackageInstalls()) {
             val download: String = link.substring(link.lastIndexOf(File.separator) + 1)
             val apk = File(activity.externalCacheDir, download)
-            CoroutineScope(Dispatchers.IO).launch(Dispatchers.IO) {
+            scopeIO.launch(Dispatchers.IO) {
                 URL(link).openStream().use { input ->
                     FileOutputStream(apk).use { output ->
                         input.copyTo(output)
-                        CoroutineScope(Dispatchers.Main).launch(Dispatchers.Main) {
-                            installUpdate(FileProvider.getUriForFile(
-                                activity.applicationContext, SamSprung.provider, apk
-                            ))
-                        }
+                        installUpdate(FileProvider.getUriForFile(
+                            activity.applicationContext, SamSprung.provider, apk
+                        ))
                     }
                 }
             }

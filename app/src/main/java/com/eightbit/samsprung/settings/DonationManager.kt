@@ -79,13 +79,11 @@ class DonationManager internal constructor(private val activity: CoverPreference
     private fun handlePurchase(purchase : Purchase) {
         if (purchase.purchaseState == Purchase.PurchaseState.PURCHASED) {
             if (!purchase.isAcknowledged) {
-                for (iap: String in iapList) {
-                    if (purchase.products.contains(iap))
-                        handlePurchaseIAP(purchase)
+                iapList.forEach {
+                    if (purchase.products.contains(it)) handlePurchaseIAP(purchase)
                 }
-                for (sub: String in subList) {
-                    if (purchase.products.contains(sub))
-                        handlePurchaseSub(purchase)
+                subList.forEach {
+                    if (purchase.products.contains(it)) handlePurchaseSub(purchase)
                 }
             }
         }
@@ -93,8 +91,8 @@ class DonationManager internal constructor(private val activity: CoverPreference
 
     private val purchasesUpdatedListener = PurchasesUpdatedListener { billingResult, purchases ->
         if (billingResult.responseCode == BillingClient.BillingResponseCode.OK && null != purchases) {
-            for (purchase in purchases) {
-                handlePurchase(purchase)
+            purchases.forEach {
+                handlePurchase(it)
             }
         }
     }
@@ -103,8 +101,8 @@ class DonationManager internal constructor(private val activity: CoverPreference
 
     private val subsOwnedListener = PurchasesResponseListener { billingResult, purchases ->
         if (billingResult.responseCode == BillingClient.BillingResponseCode.OK) {
-            for (purchase in purchases) {
-                for (sku in purchase.products) {
+            purchases.forEach {
+                for (sku in it.products) {
                     if (subsPurchased.contains(sku)) {
                         SamSprung.hasSubscription = true
                         break
@@ -118,16 +116,15 @@ class DonationManager internal constructor(private val activity: CoverPreference
         if (billingResult.responseCode == BillingClient.BillingResponseCode.OK && null != purchases) {
             for (purchase in purchases)
                 subsPurchased.addAll(purchase.products)
-            billingClient.queryPurchasesAsync(
-                QueryPurchasesParams.newBuilder()
+            billingClient.queryPurchasesAsync(QueryPurchasesParams.newBuilder()
                 .setProductType(BillingClient.ProductType.SUBS).build(), subsOwnedListener)
         }
     }
 
     private val iapHistoryListener = PurchaseHistoryResponseListener { billingResult, purchases ->
         if (billingResult.responseCode == BillingClient.BillingResponseCode.OK && null != purchases) {
-            for (purchase in purchases) {
-                for (sku in purchase.products) {
+            purchases.forEach {
+                for (sku in it.products) {
                     if (sku.split("_")[1].toInt() >= 10) {
                         break
                     }
