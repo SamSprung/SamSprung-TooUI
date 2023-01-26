@@ -79,7 +79,6 @@ import com.google.android.play.core.install.model.UpdateAvailability
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import org.json.JSONArray
 import org.json.JSONException
 import org.json.JSONObject
@@ -96,6 +95,8 @@ class UpdateManager(private var activity: Activity) {
     var listenerPlay: CheckPlayUpdateListener? = null
     private var appUpdateManager: AppUpdateManager? = null
     private var isUpdateAvailable = false
+
+    private val installer = activity.applicationContext.packageManager.packageInstaller
 
     private val scopeIO = CoroutineScope(Dispatchers.IO)
 
@@ -121,7 +122,6 @@ class UpdateManager(private var activity: Activity) {
                     as NotificationManager).cancel(SamSprung.request_code)
         } catch (ignored: Exception) { }
         if (activity is UpdateShimActivity) {
-            val installer = activity.applicationContext.packageManager.packageInstaller
             installer.mySessions.forEach {
                 try {
                     installer.abandonSession(it.sessionId)
@@ -139,7 +139,6 @@ class UpdateManager(private var activity: Activity) {
 
     private fun installUpdate(apkUri: Uri) {
         scopeIO.launch {
-            val installer = activity.applicationContext.packageManager.packageInstaller
             val resolver = activity.applicationContext.contentResolver
             resolver.openInputStream(apkUri)?.use { apkStream ->
                 val length = DocumentFile.fromSingleUri(
@@ -201,10 +200,11 @@ class UpdateManager(private var activity: Activity) {
     }
 
     private fun parseUpdateJSON(result: String) {
-        val offset = activity.getString(R.string.samsprung).length + 1
         try {
             val jsonObject = JSONTokener(result).nextValue() as JSONObject
-            val lastCommit = (jsonObject["name"] as String).substring(offset)
+            val lastCommit = (jsonObject["name"] as String).substring(
+                activity.getString(R.string.samsprung).length + 1
+            )
             val assets = jsonObject["assets"] as JSONArray
             val asset = assets[0] as JSONObject
             val downloadUrl = asset["browser_download_url"] as String
@@ -215,7 +215,7 @@ class UpdateManager(private var activity: Activity) {
     }
 
     fun retrieveUpdate() {
-        RequestGitHubAPI(repo + "sideload")
+        RequestGitHubAPI("${repo}sideload")
             .setResultListener(object : RequestGitHubAPI.ResultListener {
             override fun onResults(result: String) {
                 parseUpdateJSON(result)
