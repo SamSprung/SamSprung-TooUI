@@ -129,10 +129,9 @@ class UpdateManager(private var activity: Activity) {
             }
         } else {
             scopeIO.launch {
-                val files: Array<File>? = activity.externalCacheDir?.listFiles { _, name ->
+                activity.externalCacheDir?.listFiles { _, name ->
                     name.lowercase(Locale.getDefault()).endsWith(".apk")
-                }
-                files?.forEach { if (!it.isDirectory) it.delete() }
+                }?.forEach { if (!it.isDirectory) it.delete() }
             }
             retrieveUpdate()
         }

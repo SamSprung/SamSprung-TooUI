@@ -60,8 +60,8 @@ import androidx.fragment.app.Fragment
 import androidx.viewpager2.adapter.FragmentStateAdapter
 
 class CoverStateAdapter(fragmentActivity: AppCompatActivity) : FragmentStateAdapter(fragmentActivity) {
-    private val mFragments = ArrayList<PanelViewFragment>()
-    private val mFragmentIDs = ArrayList<Int>()
+    private val mFragments: ArrayList<PanelViewFragment> = arrayListOf()
+    private val mFragmentIDs: ArrayList<Int> = arrayListOf()
     private val noticeList = NotificationFragment()
     private val appDrawer = AppDrawerFragment()
 

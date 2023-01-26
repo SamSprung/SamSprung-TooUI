@@ -82,18 +82,19 @@ class RequestGitHubAPI(url: String) {
                     conn.disconnect()
                     return@execute
                 }
-                val `in` = conn.inputStream
-                val streamReader = BufferedReader(
-                    InputStreamReader(`in`, StandardCharsets.UTF_8)
-                )
-                val responseStrBuilder = StringBuilder()
-                var inputStr: String?
-                while (streamReader.readLine().also { inputStr = it } != null
-                ) responseStrBuilder.append(inputStr)
-                listener.onResults(responseStrBuilder.toString())
-                streamReader.close()
-                `in`.close()
-                conn.disconnect()
+                conn.inputStream.use { inStream ->
+                    BufferedReader(
+                        InputStreamReader(inStream, StandardCharsets.UTF_8)
+                    ).use { streamReader ->
+                        val responseStrBuilder = StringBuilder()
+                        var inputStr: String?
+                        while (null != streamReader.readLine()
+                                .also { inputStr = it }
+                        ) responseStrBuilder.append(inputStr)
+                        listener.onResults(responseStrBuilder.toString())
+                        conn.disconnect()
+                    }
+                }
             } catch (e: IOException) {
                 e.printStackTrace()
             }

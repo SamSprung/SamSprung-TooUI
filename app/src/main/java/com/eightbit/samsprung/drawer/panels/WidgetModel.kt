@@ -93,8 +93,8 @@ class WidgetModel {
             Process.setThreadPriority(Process.THREAD_PRIORITY_DEFAULT)
             val launcher = mLauncher.get()
             val contentResolver = launcher!!.contentResolver
-            mDesktopItems = ArrayList()
-            mDesktopAppWidgets = ArrayList()
+            mDesktopItems = arrayListOf()
+            mDesktopAppWidgets = arrayListOf()
             val desktopItems = mDesktopItems!!
             val desktopAppWidgets = mDesktopAppWidgets!!
             contentResolver.query(
@@ -136,13 +136,11 @@ class WidgetModel {
             if (!mStopped) {
                 // Create a copy of the lists in case the workspace loader is restarted
                 // and the list are cleared before the UI can go through them
-                val uiDesktopItems = ArrayList(desktopItems)
-                val uiDesktopWidgets = ArrayList(desktopAppWidgets)
                 if (!mStopped) {
                     launcher.runOnUiThread {
                         launcher.onDesktopItemsLoaded(
-                            uiDesktopItems,
-                            uiDesktopWidgets
+                            desktopItems,
+                            desktopAppWidgets
                         )
                     }
                 }

@@ -348,7 +348,7 @@ class WidgetPreviews(mLauncher: SamSprungOverlay) {
         )
         mDb = mLauncher.getWidgetPreviewCacheDb()
         mLoadedPreviews = HashMap()
-        mUnusedBitmaps = ArrayList()
+        mUnusedBitmaps = arrayListOf()
         val sp = mLauncher.getSharedPreferences(
             SamSprung.prefsValue, Context.MODE_PRIVATE
         )

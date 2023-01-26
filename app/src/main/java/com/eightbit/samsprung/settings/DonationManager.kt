@@ -37,8 +37,8 @@ class DonationManager internal constructor(private val activity: CoverPreference
     )
 
     private lateinit var billingClient: BillingClient
-    private val iapSkuDetails = ArrayList<ProductDetails>()
-    private val subSkuDetails = ArrayList<ProductDetails>()
+    private val iapSkuDetails: ArrayList<ProductDetails> = arrayListOf()
+    private val subSkuDetails: ArrayList<ProductDetails> = arrayListOf()
 
     private val backgroundScope = CoroutineScope(Dispatchers.IO)
 
@@ -50,8 +50,8 @@ class DonationManager internal constructor(private val activity: CoverPreference
         return String.format("monthly_%02d", amount)
     }
 
-    private val iapList = ArrayList<String>()
-    private val subList = ArrayList<String>()
+    private val iapList: ArrayList<String> = arrayListOf()
+    private val subList: ArrayList<String> = arrayListOf()
 
     private val consumeResponseListener = ConsumeResponseListener { _, _ ->
         IconifiedSnackbar(activity).buildTickerBar(
@@ -97,7 +97,7 @@ class DonationManager internal constructor(private val activity: CoverPreference
         }
     }
 
-    private lateinit var subsPurchased: ArrayList<String>
+    private val subsPurchased: ArrayList<String> = arrayListOf()
 
     private val subsOwnedListener = PurchasesResponseListener { billingResult, purchases ->
         if (billingResult.responseCode == BillingClient.BillingResponseCode.OK) {

@@ -867,7 +867,7 @@ class SamSprungOverlay : AppCompatActivity() {
     }
 
     private fun launchApplication(launchCommand: String, menuButton: FloatingActionButton) {
-        val matchedApps: ArrayList<ApplicationInfo> = ArrayList()
+        val matchedApps: ArrayList<ApplicationInfo> = arrayListOf()
         val packages: List<ApplicationInfo> =
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
                 packageManager.getInstalledApplications(
