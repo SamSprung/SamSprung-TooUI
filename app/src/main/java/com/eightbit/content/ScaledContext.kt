@@ -91,12 +91,14 @@ class ScaledContext(base: Context) : ContextWrapper(base) {
     }
 
     private fun screen() : Context {
-        val displayManager = getSystemService(Context.DISPLAY_SERVICE) as DisplayManager
-        val displayContext = createDisplayContext(displayManager.getDisplay(0))
-        val wm = displayContext.getSystemService(WINDOW_SERVICE) as WindowManager
-        return object : ContextThemeWrapper(displayContext, theme) {
-            override fun getSystemService(name: String): Any? {
-                return if (WINDOW_SERVICE == name) wm else super.getSystemService(name)
+        createDisplayContext(
+            (getSystemService(DISPLAY_SERVICE) as DisplayManager).getDisplay(0)
+        ).run {
+            val wm = getSystemService(WINDOW_SERVICE) as WindowManager
+            return object : ContextThemeWrapper(this, theme) {
+                override fun getSystemService(name: String): Any? {
+                    return if (WINDOW_SERVICE == name) wm else super.getSystemService(name)
+                }
             }
         }
     }
@@ -151,12 +153,14 @@ class ScaledContext(base: Context) : ContextWrapper(base) {
 
     fun restore(display: Int): Context {
         resources.displayMetrics.setToDefaults()
-        val displayManager = getSystemService(DISPLAY_SERVICE) as DisplayManager
-        val displayContext = createDisplayContext(displayManager.getDisplay(display))
-        val wm = displayContext.getSystemService(WINDOW_SERVICE) as WindowManager
-        val contextWrapper = object : ContextThemeWrapper(displayContext, theme) {
-            override fun getSystemService(name: String): Any? {
-                return if (WINDOW_SERVICE == name) wm else super.getSystemService(name)
+        val contextWrapper = createDisplayContext(
+            (getSystemService(DISPLAY_SERVICE) as DisplayManager).getDisplay(display)
+        ).run {
+            val wm = getSystemService(WINDOW_SERVICE) as WindowManager
+            object : ContextThemeWrapper(this, theme) {
+                override fun getSystemService(name: String): Any? {
+                    return if (WINDOW_SERVICE == name) wm else super.getSystemService(name)
+                }
             }
         }
         contextWrapper.resources.displayMetrics.setToDefaults()
@@ -165,12 +169,14 @@ class ScaledContext(base: Context) : ContextWrapper(base) {
     }
 
     fun cover() : Context {
-        val displayManager = getSystemService(DISPLAY_SERVICE) as DisplayManager
-        val displayContext = createDisplayContext(displayManager.getDisplay(1))
-        val wm = displayContext.getSystemService(WINDOW_SERVICE) as WindowManager
-        return object : ContextThemeWrapper(displayContext, theme) {
-            override fun getSystemService(name: String): Any? {
-                return if (WINDOW_SERVICE == name) wm else super.getSystemService(name)
+        createDisplayContext(
+            (getSystemService(DISPLAY_SERVICE) as DisplayManager).getDisplay(1)
+        ).run {
+            val wm = getSystemService(WINDOW_SERVICE) as WindowManager
+            return object : ContextThemeWrapper(this, theme) {
+                override fun getSystemService(name: String): Any? {
+                    return if (WINDOW_SERVICE == name) wm else super.getSystemService(name)
+                }
             }
         }
     }

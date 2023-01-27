@@ -827,38 +827,41 @@ class SamSprungOverlay : AppCompatActivity() {
     fun setKeyguardListener(listener: KeyguardListener?) {
         this.keyguardListener = listener
         setTurnScreenOn(true)
-        val keyguardManager = (getSystemService(KEYGUARD_SERVICE) as KeyguardManager)
-        if (keyguardManager.isDeviceLocked) {
-            val authView = layoutInflater.inflate(R.layout.fingerprint_auth, null)
-            val authDialog = AlertDialog.Builder(
-                ContextThemeWrapper(this, R.style.Theme_Overlay_NoActionBar)
-            ).setView(authView).create()
-            authDialog.setCancelable(false)
-            authDialog.window?.attributes?.windowAnimations = R.style.SlidingDialogAnimation
-            authDialog.show()
-            authDialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
-            authDialog.window?.setLayout(
-                LinearLayout.LayoutParams.MATCH_PARENT,
-                LinearLayout.LayoutParams.MATCH_PARENT
-            )
-            if (null != background)
-                authView.findViewById<LinearLayout>(R.id.auth_view).background = background
-            try {
-                HiddenApiBypass.invoke(Class.forName("android.app.KeyguardManager"),
-                    keyguardManager, "semStartLockscreenFingerprintAuth")
-                dismissKeyguard(keyguardManager, authDialog)
-            } catch (ite: Exception) {
-                ite.printStackTrace()
-                authDialog.dismiss()
-                IconifiedSnackbar(this@SamSprungOverlay, viewPager).buildTickerBar(
-                    getString(R.string.auth_unavailable),
-                    R.drawable.ic_baseline_fingerprint_24dp
-                ).show()
-                keyguardListener?.onKeyguardCheck(false)
+        (getSystemService(KEYGUARD_SERVICE) as KeyguardManager).run {
+            if (isDeviceLocked) {
+                val authView = layoutInflater.inflate(R.layout.fingerprint_auth, null)
+                val authDialog = AlertDialog.Builder(ContextThemeWrapper(
+                    this@SamSprungOverlay, R.style.Theme_Overlay_NoActionBar
+                )).setView(authView).create()
+                authDialog.setCancelable(false)
+                authDialog.window?.attributes?.windowAnimations = R.style.SlidingDialogAnimation
+                authDialog.show()
+                authDialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+                authDialog.window?.setLayout(
+                    LinearLayout.LayoutParams.MATCH_PARENT,
+                    LinearLayout.LayoutParams.MATCH_PARENT
+                )
+                if (null != background)
+                    authView.findViewById<LinearLayout>(R.id.auth_view).background = background
+                try {
+                    HiddenApiBypass.invoke(
+                        Class.forName("android.app.KeyguardManager"),
+                        this, "semStartLockscreenFingerprintAuth"
+                    )
+                    dismissKeyguard(this, authDialog)
+                } catch (ite: Exception) {
+                    ite.printStackTrace()
+                    authDialog.dismiss()
+                    IconifiedSnackbar(this@SamSprungOverlay, viewPager).buildTickerBar(
+                        getString(R.string.auth_unavailable),
+                        R.drawable.ic_baseline_fingerprint_24dp
+                    ).show()
+                    keyguardListener?.onKeyguardCheck(false)
+                }
+            } else {
+                dismissKeyguard(this, null)
+                keyguardListener?.onKeyguardCheck(true)
             }
-        } else {
-            dismissKeyguard(keyguardManager, null)
-            keyguardListener?.onKeyguardCheck(true)
         }
     }
 
@@ -941,8 +944,6 @@ class SamSprungOverlay : AppCompatActivity() {
     private fun configureMenuIcons(toolbar: Toolbar) : Int {
         val color = prefs.getInt(SamSprung.prefColors,
             Color.rgb(255, 255, 255))
-
-        val wifiManager = getSystemService(WIFI_SERVICE) as WifiManager
 
         if (wifiManager.isWifiEnabled)
             toolbar.menu.findItem(R.id.toggle_wifi)

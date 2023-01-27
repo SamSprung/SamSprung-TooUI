@@ -132,8 +132,9 @@ class AppDrawerFragment : Fragment(), DrawerAppAdapter.OnAppClickListener {
                         20f, resources.displayMetrics).toInt()
                 }
             }
-            val search = requireActivity().getSystemService(Context.SEARCH_SERVICE) as SearchManager
-            searchView.setSearchableInfo((search).getSearchableInfo(requireActivity().componentName))
+            (requireActivity().getSystemService(Context.SEARCH_SERVICE) as SearchManager).run {
+                searchView.setSearchableInfo(getSearchableInfo(requireActivity().componentName))
+            }
             searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
                 override fun onQueryTextSubmit(query: String): Boolean {
                     (launcherView.adapter as DrawerAppAdapter).setQuery(query)

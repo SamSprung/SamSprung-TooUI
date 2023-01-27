@@ -224,21 +224,20 @@ class AppDisplayListener : Service() {
             }
         })
 
-        (displayContext.getSystemService(WINDOW_SERVICE)
-                as WindowManager).addView(floatView, params)
+        (displayContext.getSystemService(WINDOW_SERVICE) as WindowManager).addView(floatView, params)
         return START_NOT_STICKY
     }
 
     private fun restoreActivityDisplay(componentName: ComponentName?, display: Int) {
-        val baseContext = ScaledContext(applicationContext).restore(display)
-        (baseContext.getSystemService(AppCompatActivity
-            .LAUNCHER_APPS_SERVICE) as LauncherApps).startMainActivity(
-            componentName,
-            Process.myUserHandle(),
-            (baseContext.getSystemService(WINDOW_SERVICE) as WindowManager)
-                .maximumWindowMetrics.bounds,
-            CoverOptions(null).getActivityOptions(display).toBundle()
-        )
+        ScaledContext(applicationContext).restore(display).run {
+            (getSystemService(AppCompatActivity.LAUNCHER_APPS_SERVICE)
+                    as LauncherApps).startMainActivity(
+                componentName,
+                Process.myUserHandle(),
+                (getSystemService(WINDOW_SERVICE) as WindowManager).maximumWindowMetrics.bounds,
+                CoverOptions(null).getActivityOptions(display).toBundle()
+            )
+        }
     }
 
     private fun restoreActivityDisplay(pkg: String?, cls: String?, display: Int) {
@@ -372,15 +371,18 @@ class AppDisplayListener : Service() {
         try {
             if (null != offReceiver) unregisterReceiver(offReceiver)
         } catch (ignored: Exception) { }
-        val windowManager = ScaledContext(ScaledContext(applicationContext)
-            .cover(R.style.Theme_SecondScreen)).internal(1.5f)
-            .getSystemService(WINDOW_SERVICE) as WindowManager
-        try {
-            windowManager.removeViewImmediate(floatView)
-        } catch (rvi: Exception) {
-            try {
-                windowManager.removeView(floatView)
-            } catch (ignored: Exception) { }
+        ScaledContext(
+            ScaledContext(applicationContext).cover(R.style.Theme_SecondScreen)
+        ).internal(1.5f).run {
+            (getSystemService(WINDOW_SERVICE) as WindowManager).run {
+                try {
+                    removeViewImmediate(floatView)
+                } catch (rvi: Exception) {
+                    try {
+                        removeView(floatView)
+                    } catch (ignored: Exception) { }
+                }
+            }
         }
         stopForeground(STOP_FOREGROUND_REMOVE)
         stopSelf()

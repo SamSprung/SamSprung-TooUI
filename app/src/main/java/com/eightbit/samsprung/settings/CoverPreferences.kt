@@ -1208,9 +1208,11 @@ class CoverPreferences : AppCompatActivity() {
 
     private fun hasUsageStatistics() : Boolean {
         try {
-            if ((getSystemService(APP_OPS_SERVICE) as AppOpsManager).unsafeCheckOp(
-                    "android:get_usage_stats", Process.myUid(), packageName
-                ) == AppOpsManager.MODE_ALLOWED) return true
+            (getSystemService(APP_OPS_SERVICE) as AppOpsManager).run {
+                unsafeCheckOp("android:get_usage_stats", Process.myUid(), packageName).run {
+                    if (this == AppOpsManager.MODE_ALLOWED) return true
+                }
+            }
         } catch (ignored: SecurityException) { }
         return false
     }

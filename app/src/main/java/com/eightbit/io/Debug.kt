@@ -122,9 +122,9 @@ class Debug(private var context: Context) {
 
     private fun submitLogcat(context: Context, logText: String) {
         val subject = context.getString(R.string.git_issue_title, BuildConfig.COMMIT)
-        val clipboard: ClipboardManager = context
-            .getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
-        clipboard.setPrimaryClip(ClipData.newPlainText(subject, logText))
+        (context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager).run {
+            setPrimaryClip(ClipData.newPlainText(subject, logText))
+        }
 
         try {
             val emailIntent: Intent = setEmailParams(Intent.ACTION_SENDTO, subject, logText)

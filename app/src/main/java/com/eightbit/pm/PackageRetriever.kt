@@ -126,23 +126,26 @@ class PackageRetriever(val context: Context) {
     fun getFilteredPackageList() : MutableList<ResolveInfo> {
         val packages = getPackageList()
         if (hasUsageStatistics()) {
-            val statsManager = context.getSystemService(
-                Context.USAGE_STATS_SERVICE) as UsageStatsManager
-            val recent = getRecentPackageList(statsManager, packages)
-            packages.addAll(0, recent)
+            (context.getSystemService(Context.USAGE_STATS_SERVICE) as UsageStatsManager).run {
+                packages.addAll(0, getRecentPackageList(this, packages))
+            }
         }
-        packages.removeIf { item ->
-            prefs.getStringSet(SamSprung.prefHidden, HashSet())!!
-                .contains(item.activityInfo.packageName)
+        packages.removeIf {
+            prefs.getStringSet(SamSprung.prefHidden, HashSet())
+                ?.contains(it.activityInfo.packageName) == true
         }
         return packages
     }
 
     private fun hasUsageStatistics() : Boolean {
         try {
-            if ((context.getSystemService(Context.APP_OPS_SERVICE) as AppOpsManager).unsafeCheckOp(
+            (context.getSystemService(Context.APP_OPS_SERVICE) as AppOpsManager).run {
+                unsafeCheckOp(
                     "android:get_usage_stats", Process.myUid(), context.packageName
-                ) == AppOpsManager.MODE_ALLOWED) return true
+                ).run {
+                    if (this == AppOpsManager.MODE_ALLOWED) return true
+                }
+            }
         } catch (ignored: SecurityException) { }
         return false
     }
