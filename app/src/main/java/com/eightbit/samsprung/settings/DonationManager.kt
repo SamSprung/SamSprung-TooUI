@@ -274,10 +274,11 @@ class DonationManager internal constructor(private val activity: CoverPreference
         )
         val donations = view.findViewById<LinearLayout>(R.id.donation_layout)
         donations.removeAllViewsInLayout()
-        for (skuDetail: ProductDetails in iapSkuDetails
-            .sortedBy { skuDetail -> skuDetail.productId }) {
-            if (null == skuDetail.oneTimePurchaseOfferDetails) continue
-            donations.addView(getDonationButton(skuDetail))
+        iapSkuDetails.sortedWith(
+            compareBy(String.CASE_INSENSITIVE_ORDER) { it.productId }
+        ).forEach { skuDetail ->
+            if (null != skuDetail.oneTimePurchaseOfferDetails)
+                donations.addView(getDonationButton(skuDetail))
         }
         val subscriptions = view.findViewById<LinearLayout>(R.id.subscription_layout)
         if (BuildConfig.GOOGLE_PLAY) {
@@ -285,10 +286,11 @@ class DonationManager internal constructor(private val activity: CoverPreference
         } else {
             subscriptions.isVisible = true
             subscriptions.removeAllViewsInLayout()
-            for (skuDetail: ProductDetails in subSkuDetails
-                .sortedBy { skuDetail -> skuDetail.productId }) {
-                if (null == skuDetail.subscriptionOfferDetails) continue
-                subscriptions.addView(getSubscriptionButton(skuDetail))
+            subSkuDetails.sortedWith(
+                compareBy(String.CASE_INSENSITIVE_ORDER) { it.productId }
+            ).forEach { skuDetail ->
+                if (null != skuDetail.subscriptionOfferDetails)
+                    subscriptions.addView(getSubscriptionButton(skuDetail))
             }
         }
         dialog.setOnCancelListener {
