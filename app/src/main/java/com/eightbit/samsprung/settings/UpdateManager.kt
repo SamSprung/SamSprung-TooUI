@@ -96,8 +96,6 @@ class UpdateManager(private var activity: Activity) {
     private var appUpdateManager: AppUpdateManager? = null
     private var isUpdateAvailable = false
 
-    private val installer = activity.applicationContext.packageManager.packageInstaller
-
     private val scopeIO = CoroutineScope(Dispatchers.IO)
 
     init {
@@ -122,10 +120,12 @@ class UpdateManager(private var activity: Activity) {
                     as NotificationManager).cancel(SamSprung.request_code)
         } catch (ignored: Exception) { }
         if (activity is UpdateShimActivity) {
-            installer.mySessions.forEach {
-                try {
-                    installer.abandonSession(it.sessionId)
-                } catch (ignored: Exception) { }
+            activity.applicationContext.packageManager.packageInstaller.run {
+                mySessions.forEach {
+                    try {
+                        abandonSession(it.sessionId)
+                    } catch (ignored: Exception) { }
+                }
             }
         } else {
             scopeIO.launch {
@@ -139,14 +139,15 @@ class UpdateManager(private var activity: Activity) {
 
     private fun installUpdate(apkUri: Uri) {
         scopeIO.launch {
-            val resolver = activity.applicationContext.contentResolver
-            resolver.openInputStream(apkUri)?.use { apkStream ->
+            activity.applicationContext.contentResolver.openInputStream(apkUri)?.use { apkStream ->
                 val length = DocumentFile.fromSingleUri(
                     activity.applicationContext, apkUri)?.length() ?: -1
-                val params = PackageInstaller.SessionParams(
-                    PackageInstaller.SessionParams.MODE_FULL_INSTALL)
-                val sessionId = installer.createSession(params)
-                val session = installer.openSession(sessionId)
+                val session = activity.applicationContext.packageManager.packageInstaller.run {
+                    val params = PackageInstaller.SessionParams(
+                        PackageInstaller.SessionParams.MODE_FULL_INSTALL
+                    )
+                    openSession(createSession(params))
+                }
                 session.openWrite("NAME", 0, length).use { sessionStream ->
                     apkStream.copyTo(sessionStream)
                     session.fsync(sessionStream)
