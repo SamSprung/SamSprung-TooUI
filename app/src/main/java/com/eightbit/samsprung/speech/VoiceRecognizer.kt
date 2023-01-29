@@ -87,21 +87,21 @@ class VoiceRecognizer(private val listener: SpeechResultsListener?) : Recognitio
     }
 
     fun getSpeechIntent(partial: Boolean): Intent {
-        val intent = Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH)
-        intent.putExtra(
-            RecognizerIntent.EXTRA_LANGUAGE_MODEL,
-            RecognizerIntent.LANGUAGE_MODEL_FREE_FORM
-        )
-        intent.putExtra(RecognizerIntent.EXTRA_CALLING_PACKAGE, BuildConfig.APPLICATION_ID)
-        if (partial) {
-            intent.putExtra(RecognizerIntent.EXTRA_PARTIAL_RESULTS, true)
-        } else {
-            intent.putExtra(RecognizerIntent.EXTRA_MAX_RESULTS, 1)
+        return Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH).apply {
+            putExtra(
+                RecognizerIntent.EXTRA_LANGUAGE_MODEL,
+                RecognizerIntent.LANGUAGE_MODEL_FREE_FORM
+            )
+            putExtra(RecognizerIntent.EXTRA_CALLING_PACKAGE, BuildConfig.APPLICATION_ID)
+            if (partial) {
+                putExtra(RecognizerIntent.EXTRA_PARTIAL_RESULTS, true)
+            } else {
+                putExtra(RecognizerIntent.EXTRA_MAX_RESULTS, 1)
+            }
+            putExtra(
+                RecognizerIntent.EXTRA_SPEECH_INPUT_COMPLETE_SILENCE_LENGTH_MILLIS,
+                java.lang.Long.valueOf(1000)
+            )
         }
-        intent.putExtra(
-            RecognizerIntent.EXTRA_SPEECH_INPUT_COMPLETE_SILENCE_LENGTH_MILLIS,
-            java.lang.Long.valueOf(1000)
-        )
-        return intent
     }
 }

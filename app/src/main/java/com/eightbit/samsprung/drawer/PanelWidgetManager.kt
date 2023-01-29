@@ -98,10 +98,12 @@ class PanelWidgetManager(
                 override fun onKeyguardCheck(unlocked: Boolean) {
                     if (!unlocked) return
                     try {
-                        val intent = Intent(AppWidgetManager.ACTION_APPWIDGET_CONFIGURE)
-                        intent.component = appWidget.configure
-                        intent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId)
-                        overlay.requestCreateAppWidget.launch(intent)
+                        overlay.requestCreateAppWidget.launch(Intent(
+                            AppWidgetManager.ACTION_APPWIDGET_CONFIGURE
+                        ).apply {
+                            component = appWidget.configure
+                            putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId)
+                        })
                     } catch (ex: Exception) {
                         Toast.makeText(overlay,
                             R.string.widget_error,
@@ -160,13 +162,13 @@ class PanelWidgetManager(
                 if (success) {
                     addAppWidget(appWidgetId, viewPager)
                 } else {
-                    val intent = Intent(AppWidgetManager.ACTION_APPWIDGET_BIND)
-                    intent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId)
-                    intent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_PROVIDER, info.provider)
-                    intent.putExtra(
-                        AppWidgetManager.EXTRA_APPWIDGET_PROVIDER_PROFILE, info.profile
-                    )
-                    overlay.requestCreateAppWidget.launch(intent)
+                    overlay.requestCreateAppWidget.launch(Intent(
+                        AppWidgetManager.ACTION_APPWIDGET_BIND
+                    ).apply {
+                        putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId)
+                        putExtra(AppWidgetManager.EXTRA_APPWIDGET_PROVIDER, info.provider)
+                        putExtra(AppWidgetManager.EXTRA_APPWIDGET_PROVIDER_PROFILE, info.profile)
+                    })
                 }
                 widgetDialog.dismiss()
             }

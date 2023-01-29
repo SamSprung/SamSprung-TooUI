@@ -249,13 +249,12 @@ class AppDisplayListener : Service() {
     private fun resetRecentActivities(componentName: ComponentName?, display: Int) {
         restoreActivityDisplay(componentName, 0)
 
-        val homeLauncher = Intent(Intent.ACTION_MAIN)
-        homeLauncher.addCategory(Intent.CATEGORY_HOME)
-        homeLauncher.flags = Intent.FLAG_ACTIVITY_NEW_TASK or
-                Intent.FLAG_ACTIVITY_FORWARD_RESULT or
-                Intent.FLAG_ACTIVITY_NO_ANIMATION
-        startActivity(homeLauncher, CoverOptions(null)
-            .getActivityOptions(display).toBundle())
+        startActivity(Intent(Intent.ACTION_MAIN).apply {
+            addCategory(Intent.CATEGORY_HOME)
+            flags = Intent.FLAG_ACTIVITY_NEW_TASK or
+                    Intent.FLAG_ACTIVITY_FORWARD_RESULT or
+                    Intent.FLAG_ACTIVITY_NO_ANIMATION
+        }, CoverOptions(null).getActivityOptions(display).toBundle())
     }
 
     private fun resetRecentActivities(pkg: String?, cls: String?, display: Int) {

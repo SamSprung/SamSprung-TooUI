@@ -139,30 +139,31 @@ class UpdateManager(private var activity: Activity) {
 
     private fun installUpdate(apkUri: Uri) {
         scopeIO.launch {
-            val applicationContext = activity.applicationContext
-            applicationContext.contentResolver.openInputStream(apkUri)?.use { apkStream ->
-                val length = DocumentFile.fromSingleUri(
-                    applicationContext, apkUri)?.length() ?: -1
-                val session = applicationContext.packageManager.packageInstaller.run {
-                    val params = PackageInstaller.SessionParams(
-                        PackageInstaller.SessionParams.MODE_FULL_INSTALL
+            activity.run {
+                applicationContext.contentResolver.openInputStream(apkUri)?.use { apkStream ->
+                    val length = DocumentFile.fromSingleUri(
+                        applicationContext, apkUri)?.length() ?: -1
+                    val session = applicationContext.packageManager.packageInstaller.run {
+                        val params = PackageInstaller.SessionParams(
+                            PackageInstaller.SessionParams.MODE_FULL_INSTALL
+                        )
+                        openSession(createSession(params))
+                    }
+                    session.openWrite("NAME", 0, length).use { sessionStream ->
+                        apkStream.copyTo(sessionStream)
+                        session.fsync(sessionStream)
+                    }
+                    val pi = PendingIntent.getBroadcast(
+                        applicationContext, SamSprung.request_code,
+                        Intent(applicationContext, GitBroadcastReceiver::class.java)
+                            .setAction(SamSprung.updating),
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S)
+                            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_MUTABLE
+                        else PendingIntent.FLAG_UPDATE_CURRENT
                     )
-                    openSession(createSession(params))
+                    session.commit(pi.intentSender)
+                    session.close()
                 }
-                session.openWrite("NAME", 0, length).use { sessionStream ->
-                    apkStream.copyTo(sessionStream)
-                    session.fsync(sessionStream)
-                }
-                val pi = PendingIntent.getBroadcast(
-                    applicationContext, SamSprung.request_code,
-                    Intent(applicationContext, GitBroadcastReceiver::class.java)
-                        .setAction(SamSprung.updating),
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S)
-                        PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_MUTABLE
-                    else PendingIntent.FLAG_UPDATE_CURRENT
-                )
-                session.commit(pi.intentSender)
-                session.close()
             }
         }
     }
