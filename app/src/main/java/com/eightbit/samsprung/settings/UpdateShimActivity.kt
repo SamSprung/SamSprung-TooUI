@@ -64,8 +64,6 @@ import com.eightbit.samsprung.R
 
 class UpdateShimActivity : AppCompatActivity() {
 
-    private var updateManager : UpdateManager? = null
-
     override fun onCreate(savedInstanceState: Bundle?) {
         setVisible(false)
         ScaledContext(this).internal(2f).setTheme(R.style.Theme_Launcher_NoActionBar)
@@ -76,8 +74,7 @@ class UpdateShimActivity : AppCompatActivity() {
     override fun onNewIntent(intent: Intent?) {
         super.onNewIntent(intent)
         if (null != intent?.action) {
-            updateManager = UpdateManager(this)
-            updateManager?.downloadUpdate(intent.action!!)
+            UpdateManager(this).downloadUpdate(intent.action!!)
         }
         finish()
     }

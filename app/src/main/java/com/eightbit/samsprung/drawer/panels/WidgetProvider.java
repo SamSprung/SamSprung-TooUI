@@ -216,7 +216,7 @@ public class WidgetProvider extends ContentProvider {
 
             try {
                 cursor = resolver.query(uri, null, null, null, null);
-            } catch (Exception e) {
+            } catch (Exception ignored) {
 	            // Ignore
             }
 

@@ -63,7 +63,6 @@ import android.app.WallpaperManager
 import android.content.*
 import android.content.pm.PackageManager
 import android.content.res.ColorStateList
-import android.database.Cursor
 import android.graphics.Bitmap
 import android.graphics.Color
 import android.graphics.ImageDecoder
@@ -118,9 +117,13 @@ import com.google.android.play.core.appupdate.AppUpdateInfo
 import eightbitlab.com.blurview.BlurView
 import eightbitlab.com.blurview.RenderEffectBlur
 import eightbitlab.com.blurview.RenderScriptBlur
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import myinnos.indexfastscrollrecycler.IndexFastScrollRecyclerView
 import java.io.*
-import java.util.concurrent.Executors
+import java.net.URL
 import java.util.regex.Pattern
 
 class CoverPreferences : AppCompatActivity() {
@@ -142,6 +145,8 @@ class CoverPreferences : AppCompatActivity() {
     private lateinit var hiddenList: IndexFastScrollRecyclerView
 
     private val donationManager = DonationManager(this)
+
+    private val scopeIO = CoroutineScope(Dispatchers.IO)
 
     @SuppressLint("ClickableViewAccessibility", "InflateParams")
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -973,27 +978,16 @@ class CoverPreferences : AppCompatActivity() {
     private fun saveAnimatedImage(sourceUri: Uri) {
         val background = File(filesDir, "wallpaper.png")
         if (background.exists()) background.delete()
-        Executors.newSingleThreadExecutor().execute {
+        scopeIO.launch(Dispatchers.IO) {
             val destinationFilename = File(filesDir, "wallpaper.gif")
-            var bis: BufferedInputStream? = null
-            var bos: BufferedOutputStream? = null
             try {
-                bis = BufferedInputStream(contentResolver.openInputStream(sourceUri))
-                bos = BufferedOutputStream(FileOutputStream(destinationFilename, false))
-                val buf = ByteArray(1024)
-                bis.read(buf)
-                do {
-                    bos.write(buf)
-                } while (bis.read(buf) != -1)
+                contentResolver.openInputStream(sourceUri).use { stream ->
+                    FileOutputStream(destinationFilename, false).use {
+                        stream?.copyTo(it)
+                    }
+                }
             } catch (e: IOException) {
                 e.printStackTrace()
-            } finally {
-                try {
-                    bis?.close()
-                    bos?.close()
-                } catch (e: IOException) {
-                    e.printStackTrace()
-                }
             }
         }
     }
@@ -1001,30 +995,30 @@ class CoverPreferences : AppCompatActivity() {
     private fun saveStaticImage(sourceUri: Uri) {
         val animated = File(filesDir, "wallpaper.gif")
         if (animated.exists()) animated.delete()
-        Executors.newSingleThreadExecutor().execute {
+        scopeIO.launch {
             val source: ImageDecoder.Source = ImageDecoder.createSource(
-                this.contentResolver, sourceUri
+                this@CoverPreferences.contentResolver, sourceUri
             )
             val bitmap: Bitmap = ImageDecoder.decodeBitmap(source)
             var rotation = -1
             val background = File(filesDir, "wallpaper.png")
-            val cursor: Cursor? = contentResolver.query(
+            contentResolver.query(
                 sourceUri, arrayOf(MediaStore.Images.ImageColumns.ORIENTATION),
                 null, null, null
-            )
-            if (cursor?.count == 1) {
-                cursor.moveToFirst()
-                rotation = cursor.getInt(0)
+            ).use {
+                if (it?.count == 1) {
+                    it.moveToFirst()
+                    rotation = it.getInt(0)
+                }
+                if (rotation > 0) {
+                    val matrix = Matrix()
+                    matrix.postRotate(rotation.toFloat())
+                    background.writeBitmap(Bitmap.createBitmap(bitmap, 0, 0, bitmap.width,
+                        bitmap.height, matrix, true), Bitmap.CompressFormat.PNG, 100)
+                } else {
+                    background.writeBitmap(bitmap, Bitmap.CompressFormat.PNG, 100)
+                }
             }
-            if (rotation > 0) {
-                val matrix = Matrix()
-                matrix.postRotate(rotation.toFloat())
-                background.writeBitmap(Bitmap.createBitmap(bitmap, 0, 0, bitmap.width,
-                    bitmap.height, matrix, true), Bitmap.CompressFormat.PNG, 100)
-            } else {
-                background.writeBitmap(bitmap, Bitmap.CompressFormat.PNG, 100)
-            }
-            cursor?.close()
         }
     }
 
@@ -1119,11 +1113,11 @@ class CoverPreferences : AppCompatActivity() {
     @SuppressLint("NotifyDataSetChanged")
     private val usageLauncher = registerForActivityResult(
         ActivityResultContracts.StartActivityForResult()) {
-        Executors.newSingleThreadExecutor().execute {
-            val packageRetriever = PackageRetriever(this)
+        val packageRetriever = PackageRetriever(this)
+        scopeIO.launch {
             val packages = packageRetriever.getPackageList()
             val unlisted = packageRetriever.getHiddenPackages()
-            runOnUiThread {
+            withContext(Dispatchers.Main) {
                 val adapter = hiddenList.adapter as FilteredAppsAdapter
                 adapter.setPackages(packages, unlisted)
                 adapter.notifyDataSetChanged()

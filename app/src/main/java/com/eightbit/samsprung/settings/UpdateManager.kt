@@ -139,10 +139,11 @@ class UpdateManager(private var activity: Activity) {
 
     private fun installUpdate(apkUri: Uri) {
         scopeIO.launch {
-            activity.applicationContext.contentResolver.openInputStream(apkUri)?.use { apkStream ->
+            val applicationContext = activity.applicationContext
+            applicationContext.contentResolver.openInputStream(apkUri)?.use { apkStream ->
                 val length = DocumentFile.fromSingleUri(
-                    activity.applicationContext, apkUri)?.length() ?: -1
-                val session = activity.applicationContext.packageManager.packageInstaller.run {
+                    applicationContext, apkUri)?.length() ?: -1
+                val session = applicationContext.packageManager.packageInstaller.run {
                     val params = PackageInstaller.SessionParams(
                         PackageInstaller.SessionParams.MODE_FULL_INSTALL
                     )
@@ -153,8 +154,8 @@ class UpdateManager(private var activity: Activity) {
                     session.fsync(sessionStream)
                 }
                 val pi = PendingIntent.getBroadcast(
-                    activity.applicationContext, SamSprung.request_code,
-                    Intent(activity.applicationContext, GitBroadcastReceiver::class.java)
+                    applicationContext, SamSprung.request_code,
+                    Intent(applicationContext, GitBroadcastReceiver::class.java)
                         .setAction(SamSprung.updating),
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S)
                         PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_MUTABLE
@@ -171,9 +172,9 @@ class UpdateManager(private var activity: Activity) {
             val download: String = link.substring(link.lastIndexOf(File.separator) + 1)
             val apk = File(activity.externalCacheDir, download)
             scopeIO.launch(Dispatchers.IO) {
-                URL(link).openStream().use { input ->
-                    FileOutputStream(apk).use { output ->
-                        input.copyTo(output)
+                URL(link).openStream().use { stream ->
+                    FileOutputStream(apk).use {
+                        stream.copyTo(it)
                         installUpdate(FileProvider.getUriForFile(
                             activity.applicationContext, SamSprung.provider, apk
                         ))
