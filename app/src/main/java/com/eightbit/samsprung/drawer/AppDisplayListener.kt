@@ -142,25 +142,25 @@ class AppDisplayListener : Service() {
             registerReceiver(offReceiver, it)
         }
 
-        val displayManager = getSystemService(DISPLAY_SERVICE) as DisplayManager
-        mDisplayListener = object : DisplayManager.DisplayListener {
-            override fun onDisplayAdded(display: Int) {}
-            override fun onDisplayChanged(display: Int) {
-                if (display == 0 && displayManager
-                        .getDisplay(0).state == Display.STATE_ON) {
-                    if (null != componentName)
-                        restoreActivityDisplay(componentName, display)
-                    else if (null != launchPackage)
-                        restoreActivityDisplay(launchPackage, launchActivity, display)
-                    componentName = null
-                    launchPackage = null
-                    onDismissOverlay()
+        (getSystemService(DISPLAY_SERVICE) as DisplayManager).run {
+            mDisplayListener = object : DisplayManager.DisplayListener {
+                override fun onDisplayAdded(display: Int) {}
+                override fun onDisplayChanged(display: Int) {
+                    if (display == 0 && getDisplay(0).state == Display.STATE_ON) {
+                        if (null != componentName)
+                            restoreActivityDisplay(componentName, display)
+                        else if (null != launchPackage)
+                            restoreActivityDisplay(launchPackage, launchActivity, display)
+                        componentName = null
+                        launchPackage = null
+                        onDismissOverlay()
+                    }
                 }
-            }
 
-            override fun onDisplayRemoved(display: Int) {}
+                override fun onDisplayRemoved(display: Int) {}
+            }
+            registerDisplayListener(mDisplayListener, null)
         }
-        displayManager.registerDisplayListener(mDisplayListener, null)
 
         showForegroundNotification(startId)
 
