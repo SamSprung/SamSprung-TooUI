@@ -113,13 +113,15 @@
             android:layout_height="wrap_content"
             android:text="@string/options_vibration" />
 
-        <androidx.appcompat.widget.SwitchCompat
+        <androidx.appcompat.widget.AppCompatCheckBox
             android:id="@+id/vibration_switch"
             android:layout_width="0dp"
             android:gravity="center"
             android:layout_gravity="end|center_vertical"
             android:layout_weight="1"
-            android:layout_height="wrap_content" />
+            android:layout_height="wrap_content"
+            android:button="@null"
+            android:drawableEnd="?android:attr/listChoiceIndicatorMultiple" />
     </LinearLayout>
 
     <include

@@ -91,6 +91,7 @@ import androidx.activity.OnBackPressedCallback
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.widget.AppCompatCheckBox
 import androidx.appcompat.widget.AppCompatImageView
 import androidx.appcompat.widget.SwitchCompat
 import androidx.appcompat.widget.Toolbar
@@ -665,7 +666,7 @@ class CoverPreferences : AppCompatActivity() {
         }
         drawer.isGone = true
 
-        val vibration = findViewById<SwitchCompat>(R.id.vibration_switch)
+        val vibration = findViewById<AppCompatCheckBox>(R.id.vibration_switch)
         vibration.isChecked = prefs.getBoolean(SamSprung.prefReacts, true)
         vibration.setOnCheckedChangeListener { _, isChecked ->
             with(prefs.edit()) {
@@ -677,7 +678,7 @@ class CoverPreferences : AppCompatActivity() {
             vibration.isChecked = !vibration.isChecked
         }
 
-        val gestures = findViewById<SwitchCompat>(R.id.gestures_switch)
+        val gestures = findViewById<AppCompatCheckBox>(R.id.gestures_switch)
         gestures.isChecked = prefs.getBoolean(SamSprung.prefSlider, true)
         gestures.setOnCheckedChangeListener { _, isChecked ->
             with(prefs.edit()) {
@@ -689,7 +690,7 @@ class CoverPreferences : AppCompatActivity() {
             gestures.isChecked = !gestures.isChecked
         }
 
-        val animate = findViewById<SwitchCompat>(R.id.animate_switch)
+        val animate = findViewById<AppCompatCheckBox>(R.id.animate_switch)
         animate.isChecked = prefs.getBoolean(SamSprung.prefCarded, true)
         animate.setOnCheckedChangeListener { _, isChecked ->
             with(prefs.edit()) {
@@ -724,7 +725,7 @@ class CoverPreferences : AppCompatActivity() {
             DecimalFormatSymbols.getInstance().infinity).toString()
         setSuperscriptText(lengthText, R.string.options_length, textLength)
 
-        val search = findViewById<SwitchCompat>(R.id.search_switch)
+        val search = findViewById<AppCompatCheckBox>(R.id.search_switch)
         search.setOnCheckedChangeListener { _, isChecked ->
             with(prefs.edit()) {
                 putBoolean(SamSprung.prefSearch, isChecked && keyboard.isChecked)
@@ -762,7 +763,7 @@ class CoverPreferences : AppCompatActivity() {
             return@setOnLongClickListener true
         }
 
-        val radius = findViewById<SwitchCompat>(R.id.radius_switch)
+        val radius = findViewById<AppCompatCheckBox>(R.id.radius_switch)
         radius.isChecked = prefs.getBoolean(SamSprung.prefRadius, true)
         radius.setOnCheckedChangeListener { _, isChecked ->
             with(prefs.edit()) {

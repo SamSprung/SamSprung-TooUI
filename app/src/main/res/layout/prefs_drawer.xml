@@ -28,13 +28,15 @@
             android:layout_height="wrap_content"
             android:text="@string/options_gestures" />
 
-        <androidx.appcompat.widget.SwitchCompat
+        <androidx.appcompat.widget.AppCompatCheckBox
             android:id="@+id/gestures_switch"
             android:layout_width="0dp"
             android:gravity="center"
             android:layout_gravity="end|center_vertical"
             android:layout_weight="1"
-            android:layout_height="wrap_content" />
+            android:layout_height="wrap_content"
+            android:button="@null"
+            android:drawableEnd="?android:attr/listChoiceIndicatorMultiple" />
     </LinearLayout>
 
     <LinearLayout
@@ -57,13 +59,15 @@
             android:layout_height="wrap_content"
             android:text="@string/options_animate" />
 
-        <androidx.appcompat.widget.SwitchCompat
+        <androidx.appcompat.widget.AppCompatCheckBox
             android:id="@+id/animate_switch"
             android:layout_width="0dp"
             android:gravity="center"
             android:layout_gravity="end|center_vertical"
             android:layout_weight="1"
-            android:layout_height="wrap_content" />
+            android:layout_height="wrap_content"
+            android:button="@null"
+            android:drawableEnd="?android:attr/listChoiceIndicatorMultiple" />
     </LinearLayout>
 
     <LinearLayout
@@ -119,13 +123,15 @@
             android:layout_height="wrap_content"
             android:text="@string/options_search" />
 
-        <androidx.appcompat.widget.SwitchCompat
+        <androidx.appcompat.widget.AppCompatCheckBox
             android:id="@+id/search_switch"
             android:layout_width="0dp"
             android:gravity="center"
             android:layout_gravity="end|center_vertical"
             android:layout_weight="1"
-            android:layout_height="wrap_content" />
+            android:layout_height="wrap_content"
+            android:button="@null"
+            android:drawableEnd="?android:attr/listChoiceIndicatorMultiple" />
     </LinearLayout>
 
     <LinearLayout
@@ -181,13 +187,15 @@
             android:layout_height="wrap_content"
             android:text="@string/options_radius" />
 
-        <androidx.appcompat.widget.SwitchCompat
+        <androidx.appcompat.widget.AppCompatCheckBox
             android:id="@+id/radius_switch"
             android:layout_width="0dp"
             android:gravity="center"
             android:layout_gravity="end|center_vertical"
             android:layout_weight="1"
-            android:layout_height="wrap_content" />
+            android:layout_height="wrap_content"
+            android:button="@null"
+            android:drawableEnd="?android:attr/listChoiceIndicatorMultiple" />
     </LinearLayout>
 
     <LinearLayout
