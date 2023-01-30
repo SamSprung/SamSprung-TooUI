@@ -577,6 +577,7 @@ class SamSprungOverlay : AppCompatActivity() {
                     }
                     toolbar.menu.findItem(R.id.toggle_widgets)
                         .setIcon(R.drawable.ic_baseline_widgets_24dp)
+                    toolbar.menu.findItem(R.id.toggle_widgets).icon?.setTint(color)
                 } else {
                     Toast.makeText(this,
                         R.string.incompatible_fragment,
