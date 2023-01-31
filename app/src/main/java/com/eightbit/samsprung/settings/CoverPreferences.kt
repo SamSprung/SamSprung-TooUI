@@ -111,6 +111,7 @@ import com.eightbit.io.Debug
 import com.eightbit.material.IconifiedSnackbar
 import com.eightbit.pm.PackageRetriever
 import com.eightbit.samsprung.*
+import com.eightbit.samsprung.update.UpdateManager
 import com.eightbit.view.AnimatedLinearLayout
 import com.google.android.material.color.MaterialColors
 import com.google.android.material.snackbar.Snackbar
@@ -124,7 +125,6 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import myinnos.indexfastscrollrecycler.IndexFastScrollRecyclerView
 import java.io.*
-import java.net.URL
 import java.util.regex.Pattern
 
 class CoverPreferences : AppCompatActivity() {

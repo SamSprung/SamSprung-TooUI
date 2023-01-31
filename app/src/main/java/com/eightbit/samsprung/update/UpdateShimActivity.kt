@@ -53,7 +53,7 @@
  * subject to to the terms and conditions of the Apache License, Version 2.0.
  */
 
-package com.eightbit.samsprung.settings
+package com.eightbit.samsprung.update
 
 import android.content.Intent
 import android.os.Bundle

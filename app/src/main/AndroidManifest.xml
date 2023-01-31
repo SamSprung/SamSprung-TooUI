@@ -81,7 +81,7 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".settings.UpdateShimActivity"
+            android:name=".update.UpdateShimActivity"
             android:excludeFromRecents="true"
             android:launchMode="singleTop"
             android:theme="@style/Theme.Launcher.NoActionBar"
@@ -103,7 +103,7 @@
             android:windowSoftInputMode="adjustNothing">
             <meta-data android:name="com.samsung.android.activity.showWhenLocked" android:value="true"/>
         </activity>
-        <receiver android:name=".GitBroadcastReceiver"
+        <receiver android:name=".update.UpdateReceiver"
             android:exported="true">
             <intent-filter android:directBootAware="true" android:priority="999">
                 <action android:name="android.intent.action.BOOT_COMPLETED" />

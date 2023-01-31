@@ -53,7 +53,7 @@
  * subject to to the terms and conditions of the Apache License, Version 2.0.
  */
 
-package com.eightbit.samsprung
+package com.eightbit.samsprung.update
 
 import android.content.BroadcastReceiver
 import android.content.Context
@@ -62,9 +62,12 @@ import android.content.pm.PackageInstaller
 import android.os.Build
 import android.os.Parcelable
 import android.widget.Toast
+import com.eightbit.samsprung.BuildConfig
+import com.eightbit.samsprung.OnBroadcastService
+import com.eightbit.samsprung.SamSprung
 import com.eightbit.samsprung.settings.CoverPreferences
 
-class GitBroadcastReceiver : BroadcastReceiver() {
+class UpdateReceiver : BroadcastReceiver() {
 
     private inline fun <reified T : Parcelable> Intent.parcelable(key: String): T? = when {
         Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU ->

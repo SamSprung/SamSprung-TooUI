@@ -110,7 +110,7 @@ import com.eightbit.samsprung.drawer.CoverStateAdapter
 import com.eightbit.samsprung.drawer.LauncherManager
 import com.eightbit.samsprung.drawer.PanelWidgetManager
 import com.eightbit.samsprung.drawer.panels.*
-import com.eightbit.samsprung.settings.UpdateManager
+import com.eightbit.samsprung.update.UpdateManager
 import com.eightbit.samsprung.speech.VoiceRecognizer
 import com.eightbit.view.AnimatedLinearLayout
 import com.google.android.material.bottomsheet.BottomSheetBehavior
@@ -139,7 +139,7 @@ class SamSprungOverlay : AppCompatActivity() {
     private var widgetManager: PanelWidgetManager? = null
     val model = WidgetModel()
     private var appWidgetHost: WidgetHost? = null
-    private var updateCheck : UpdateManager? = null
+    private var updateManager : UpdateManager? = null
 
     private var background: Drawable? = null
 
@@ -769,16 +769,16 @@ class SamSprungOverlay : AppCompatActivity() {
     private fun checkUpdatesWithDelay() {
         if (System.currentTimeMillis() <= prefs.getLong(SamSprung.prefUpdate, 0) + 14400000) return
         prefs.edit().putLong(SamSprung.prefUpdate, System.currentTimeMillis()).apply()
-        updateCheck = UpdateManager(this)
+        updateManager = UpdateManager(this)
         if (BuildConfig.GOOGLE_PLAY) {
-            updateCheck?.setPlayUpdateListener(object :
+            updateManager?.setPlayUpdateListener(object :
                 UpdateManager.CheckPlayUpdateListener {
                 override fun onPlayUpdateFound(appUpdateInfo: AppUpdateInfo) {
                     showUpdateNotice(appUpdateInfo, null)
                 }
             })
         } else {
-            updateCheck?.setUpdateListener(object : UpdateManager.CheckUpdateListener {
+            updateManager?.setUpdateListener(object : UpdateManager.CheckUpdateListener {
                 override fun onUpdateFound(downloadUrl: String) {
                     showUpdateNotice(null, downloadUrl)
                 }
@@ -1087,9 +1087,9 @@ class SamSprungOverlay : AppCompatActivity() {
             }
             fakeSnackbar.setOnClickListener {
                 if (null != appUpdateInfo) {
-                    updateCheck?.downloadPlayUpdate(appUpdateInfo)
+                    updateManager?.downloadPlayUpdate(appUpdateInfo)
                 } else if (null != downloadUrl) {
-                    updateCheck?.downloadUpdate(downloadUrl)
+                    updateManager?.downloadUpdate(downloadUrl)
                     Toast.makeText(this,
                         R.string.main_screen_required,
                         Toast.LENGTH_LONG).show()

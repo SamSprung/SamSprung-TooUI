@@ -53,7 +53,7 @@
  * subject to to the terms and conditions of the Apache License, Version 2.0.
  */
 
-package com.eightbit.samsprung.settings
+package com.eightbit.samsprung.update
 
 import android.app.Activity
 import android.app.NotificationManager
@@ -68,9 +68,9 @@ import androidx.core.content.FileProvider
 import androidx.documentfile.provider.DocumentFile
 import com.eightbit.net.RequestGitHubAPI
 import com.eightbit.samsprung.BuildConfig
-import com.eightbit.samsprung.GitBroadcastReceiver
 import com.eightbit.samsprung.R
 import com.eightbit.samsprung.SamSprung
+import com.eightbit.samsprung.settings.CoverPreferences
 import com.google.android.play.core.appupdate.AppUpdateInfo
 import com.google.android.play.core.appupdate.AppUpdateManager
 import com.google.android.play.core.appupdate.AppUpdateManagerFactory
@@ -155,7 +155,7 @@ class UpdateManager(private var activity: Activity) {
                     }
                     val pi = PendingIntent.getBroadcast(
                         applicationContext, SamSprung.request_code,
-                        Intent(applicationContext, GitBroadcastReceiver::class.java)
+                        Intent(applicationContext, UpdateReceiver::class.java)
                             .setAction(SamSprung.updating),
                         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S)
                             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_MUTABLE
