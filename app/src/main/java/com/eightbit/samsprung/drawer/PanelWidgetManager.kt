@@ -164,11 +164,11 @@ class PanelWidgetManager(
                 } else {
                     overlay.requestCreateAppWidget.launch(Intent(
                         AppWidgetManager.ACTION_APPWIDGET_BIND
-                    ).apply {
-                        putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId)
-                        putExtra(AppWidgetManager.EXTRA_APPWIDGET_PROVIDER, info.provider)
-                        putExtra(AppWidgetManager.EXTRA_APPWIDGET_PROVIDER_PROFILE, info.profile)
-                    })
+                    )
+                        .putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId)
+                        .putExtra(AppWidgetManager.EXTRA_APPWIDGET_PROVIDER, info.provider)
+                        .putExtra(AppWidgetManager.EXTRA_APPWIDGET_PROVIDER_PROFILE, info.profile)
+                    )
                 }
                 widgetDialog.dismiss()
             }
