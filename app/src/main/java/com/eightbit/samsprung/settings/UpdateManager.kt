@@ -128,7 +128,7 @@ class UpdateManager(private var activity: Activity) {
                 }
             }
         } else {
-            scopeIO.launch {
+            scopeIO.launch(Dispatchers.IO) {
                 activity.externalCacheDir?.listFiles { _, name ->
                     name.lowercase(Locale.getDefault()).endsWith(".apk")
                 }?.forEach { if (!it.isDirectory) it.delete() }
@@ -138,7 +138,7 @@ class UpdateManager(private var activity: Activity) {
     }
 
     private fun installUpdate(apkUri: Uri) {
-        scopeIO.launch {
+        scopeIO.launch(Dispatchers.IO) {
             activity.run {
                 applicationContext.contentResolver.openInputStream(apkUri)?.use { apkStream ->
                     val length = DocumentFile.fromSingleUri(

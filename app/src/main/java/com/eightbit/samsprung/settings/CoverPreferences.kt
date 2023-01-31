@@ -996,7 +996,7 @@ class CoverPreferences : AppCompatActivity() {
     private fun saveStaticImage(sourceUri: Uri) {
         val animated = File(filesDir, "wallpaper.gif")
         if (animated.exists()) animated.delete()
-        scopeIO.launch {
+        scopeIO.launch(Dispatchers.IO) {
             val source: ImageDecoder.Source = ImageDecoder.createSource(
                 this@CoverPreferences.contentResolver, sourceUri
             )
@@ -1115,7 +1115,7 @@ class CoverPreferences : AppCompatActivity() {
     private val usageLauncher = registerForActivityResult(
         ActivityResultContracts.StartActivityForResult()) {
         val packageRetriever = PackageRetriever(this)
-        scopeIO.launch {
+        scopeIO.launch(Dispatchers.IO) {
             val packages = packageRetriever.getPackageList()
             val unlisted = packageRetriever.getHiddenPackages()
             withContext(Dispatchers.Main) {
