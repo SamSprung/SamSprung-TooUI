@@ -128,6 +128,4 @@ class SamSprung : Application() {
 
         setThemePreference()
     }
-
-
 }

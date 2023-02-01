@@ -95,9 +95,7 @@ class UpdateReceiver : BroadcastReceiver() {
                         mainIntent = context.packageManager
                             .getLaunchIntentForPackage(BuildConfig.APPLICATION_ID)
                     } catch (ignored: Exception) { }
-                    startLauncherActivity(
-                        context, mainIntent?.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                    )
+                    startLauncherActivity(context, mainIntent)
                 }
             }
             !BuildConfig.GOOGLE_PLAY && SamSprung.updating == action -> {
@@ -108,7 +106,6 @@ class UpdateReceiver : BroadcastReceiver() {
                             val intentUri = activityIntent.toUri(0)
                             startLauncherActivity(
                                 context, Intent.parseUri(intentUri, Intent.URI_ALLOW_UNSAFE)
-                                    .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
                             )
                         }
                     }
@@ -128,6 +125,6 @@ class UpdateReceiver : BroadcastReceiver() {
     }
 
     private fun startLauncherActivity(context: Context, intent: Intent?) {
-        context.startActivity(intent)
+        context.startActivity(intent?.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
     }
 }
