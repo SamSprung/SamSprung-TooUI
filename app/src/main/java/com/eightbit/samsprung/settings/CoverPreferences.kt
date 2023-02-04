@@ -649,6 +649,20 @@ class CoverPreferences : AppCompatActivity() {
             gestures.isChecked = !gestures.isChecked
         }
 
+        val minimize = findViewById<AppCompatCheckBox>(R.id.minimize_switch)
+        minimize.isChecked = prefs.getBoolean(SamSprung.prefCloser,
+            Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU
+        )
+        minimize.setOnCheckedChangeListener { _, isChecked ->
+            with(prefs.edit()) {
+                putBoolean(SamSprung.prefCloser, isChecked)
+                apply()
+            }
+        }
+        findViewById<LinearLayout>(R.id.minimize).setOnClickListener {
+            minimize.isChecked = !minimize.isChecked
+        }
+
         val animate = findViewById<AppCompatCheckBox>(R.id.animate_switch)
         animate.isChecked = prefs.getBoolean(SamSprung.prefCarded, true)
         animate.setOnCheckedChangeListener { _, isChecked ->

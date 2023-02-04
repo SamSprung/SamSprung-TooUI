@@ -50,6 +50,7 @@ class SamSprung : Application() {
         const val prefAlphas: String = "prefAlphas"
         const val prefWarned: String = "prefWarned"
         const val prefViewer: String = "prefViewer"
+        const val prefCloser: String = "prefCloser"
         const val prefSlider: String = "prefSlider"
         const val prefShifts: String = "prefShifts"
         const val prefThemes: String = "prefThemes"

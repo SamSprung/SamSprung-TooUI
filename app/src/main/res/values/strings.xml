@@ -29,6 +29,7 @@
     <string name="drawer_options">Drawer Options</string>
     <string name="options_vibration">Button Feedback</string>
     <string name="options_gestures">Drawer Gesture</string>
+    <string name="options_minimize">Close on Minimize</string>
     <string name="options_animate">Page Animation</string>
     <string name="options_length">Apps Per Row &#160;%1$s</string>
     <string name="options_search">App Search Bar</string>
