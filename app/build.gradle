@@ -10,7 +10,7 @@ android {
         applicationId 'com.eightbit.samsprung'
         minSdk 30
         targetSdk 33
-        versionName "2.2.7"
+        versionName "2.2.8"
         versionCode = versionName.replace(".","").toInteger()
 
         vectorDrawables {
@@ -79,12 +79,13 @@ android {
         buildTypes.debug.signingConfig signingConfigs.document
     } catch (FileNotFoundException ignored) { }
 
+    def javaVersion = JavaVersion.VERSION_11
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_11
-        targetCompatibility JavaVersion.VERSION_11
+        sourceCompatibility javaVersion
+        targetCompatibility javaVersion
     }
     kotlinOptions {
-        jvmTarget = '1.8'
+        jvmTarget = javaVersion.toString()
     }
     lint {
         abortOnError false
@@ -109,8 +110,9 @@ dependencies {
     implementation 'com.android.billingclient:billing:5.1.0'
 
     implementation 'com.github.8bitDream:android-issue-reporter:15cdc1024d'
+    implementation 'com.github.8bitDream:RecyclerView-FastScroller:2284dc5693'
 
-    implementation 'com.google.android.material:material:1.7.0'
+    implementation 'com.google.android.material:material:1.8.0'
     implementation 'com.google.android.play:core:1.10.3'
     implementation 'com.google.android.play:core-ktx:1.8.1'
 

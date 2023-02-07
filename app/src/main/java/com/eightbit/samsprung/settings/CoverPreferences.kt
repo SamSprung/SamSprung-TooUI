@@ -65,6 +65,7 @@ import androidx.core.view.isVisible
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.eightbit.content.ScaledContext
 import com.eightbit.io.Debug
 import com.eightbit.material.IconifiedSnackbar
@@ -82,7 +83,6 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import myinnos.indexfastscrollrecycler.IndexFastScrollRecyclerView
 import java.io.*
 import java.util.regex.Pattern
 
@@ -102,7 +102,7 @@ class CoverPreferences : AppCompatActivity() {
     private lateinit var keyboard: SwitchCompat
     private lateinit var wikiDrawer: DrawerLayout
 
-    private lateinit var hiddenList: IndexFastScrollRecyclerView
+    private lateinit var hiddenList: RecyclerView
 
     private val donationManager = DonationManager(this)
 

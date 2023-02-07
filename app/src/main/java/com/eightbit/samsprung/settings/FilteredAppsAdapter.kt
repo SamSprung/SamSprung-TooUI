@@ -21,14 +21,13 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.LinearLayout
-import android.widget.SectionIndexer
 import android.widget.TextView
 import androidx.appcompat.widget.AppCompatImageView
 import androidx.appcompat.widget.SwitchCompat
 import androidx.recyclerview.widget.RecyclerView
 import com.eightbit.samsprung.R
 import com.eightbit.samsprung.SamSprung
-import java.util.*
+import com.qtalk.recyclerviewfastscroller.RecyclerViewFastScroller
 import java.util.concurrent.Executors
 
 class FilteredAppsAdapter(
@@ -36,7 +35,8 @@ class FilteredAppsAdapter(
     private var packages: MutableList<ResolveInfo>,
     private var hide: HashSet<String>,
     private val prefs: SharedPreferences
-) : RecyclerView.Adapter<FilteredAppsAdapter.HideViewHolder>(), SectionIndexer {
+) : RecyclerView.Adapter<FilteredAppsAdapter.HideViewHolder>(),
+    RecyclerViewFastScroller.OnPopupViewUpdate {
 
     fun setPackages(packages: MutableList<ResolveInfo>, hide: HashSet<String>) {
         this.packages = packages
@@ -55,50 +55,21 @@ class FilteredAppsAdapter(
         return packages[i]
     }
 
-    private var mSectionPositions: ArrayList<Int>? = null
-
-    override fun getSectionForPosition(position: Int): Int {
-        return 0
-    }
-
-    override fun getSections(): Array<String> {
-        val sections: ArrayList<String> = ArrayList(36)
-        if (itemCount > 0) {
-            mSectionPositions = ArrayList(36)
-            var i = 0
-            val size: Int = packages.size
-            while (i < size) {
-                val appName: CharSequence = try {
-                    packages[i].loadLabel(pacMan)
-                } catch (e: Exception) {
-                    packages[i].nonLocalizedLabel
-                }
-                if (appName.isNotEmpty()) {
-                    val section: String =
-                        java.lang.String.valueOf(appName[0]).uppercase(
-                            Locale.getDefault()
-                        )
-                    if (!sections.contains(section)) {
-                        sections.add(section)
-                        mSectionPositions?.add(i)
-                    }
-                }
-                i++
-            }
-        }
-        return sections.toTypedArray()
-    }
-
-    override fun getPositionForSection(sectionIndex: Int): Int {
-        return mSectionPositions?.get(sectionIndex) ?: 0
-    }
-
     override fun getItemViewType(position: Int): Int {
         return position
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): HideViewHolder {
         return SimpleViewHolder(parent, pacMan, prefs, hide)
+    }
+
+    override fun onUpdate(position: Int, popupTextView: TextView) {
+        val item = packages[position]
+        popupTextView.text = try {
+            item.loadLabel(pacMan)
+        } catch (e: Exception) {
+            item.nonLocalizedLabel
+        }.toString()[0].uppercase()
     }
 
     override fun onBindViewHolder(holder: HideViewHolder, position: Int) {
