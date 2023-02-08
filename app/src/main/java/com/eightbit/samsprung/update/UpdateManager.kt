@@ -58,10 +58,10 @@ class UpdateManager(private var activity: Activity) {
     private val scopeIO = CoroutineScope(Dispatchers.IO)
 
     init {
-        if (BuildConfig.GOOGLE_PLAY) configureManager() else configureUpdates()
+        if (BuildConfig.GOOGLE_PLAY) configurePlay() else configureGit()
     }
 
-    private fun configureManager() {
+    private fun configurePlay() {
         if (null == appUpdateManager) appUpdateManager = AppUpdateManagerFactory.create(activity)
         val appUpdateInfoTask = appUpdateManager?.appUpdateInfo
         // Checks that the platform will allow the specified type of update.
@@ -73,7 +73,7 @@ class UpdateManager(private var activity: Activity) {
         }
     }
 
-    private fun configureUpdates() {
+    private fun configureGit() {
         try {
             (activity.getSystemService(AppCompatActivity.NOTIFICATION_SERVICE)
                     as NotificationManager).cancel(SamSprung.request_code)
@@ -92,11 +92,11 @@ class UpdateManager(private var activity: Activity) {
                     name.lowercase(Locale.getDefault()).endsWith(".apk")
                 }?.forEach { if (!it.isDirectory) it.delete() }
             }
-            retrieveUpdate()
+            requestUpdateJSON()
         }
     }
 
-    private fun installUpdate(apkUri: Uri) {
+    private fun installUpdateTask(apkUri: Uri) {
         scopeIO.launch(Dispatchers.IO) {
             activity.run {
                 applicationContext.contentResolver.openInputStream(apkUri)?.use { apkStream ->
@@ -127,7 +127,7 @@ class UpdateManager(private var activity: Activity) {
         }
     }
 
-    fun downloadUpdate(link: String) {
+    fun requestInstallUpdate(link: String) {
         if (activity.packageManager.canRequestPackageInstalls()) {
             val download: String = link.substring(link.lastIndexOf(File.separator) + 1)
             val apk = File(activity.externalCacheDir, download)
@@ -135,7 +135,7 @@ class UpdateManager(private var activity: Activity) {
                 URL(link).openStream().use { stream ->
                     FileOutputStream(apk).use {
                         stream.copyTo(it)
-                        installUpdate(FileProvider.getUriForFile(
+                        installUpdateTask(FileProvider.getUriForFile(
                             activity.applicationContext, SamSprung.provider, apk
                         ))
                     }
@@ -148,7 +148,7 @@ class UpdateManager(private var activity: Activity) {
         }
     }
 
-    fun downloadPlayUpdate(appUpdateInfo: AppUpdateInfo) {
+    fun startPlayUpdateFlow(appUpdateInfo: AppUpdateInfo) {
         appUpdateManager?.startUpdateFlowForResult(
             // Pass the intent that is returned by 'getAppUpdateInfo()'.
             appUpdateInfo,
@@ -176,7 +176,7 @@ class UpdateManager(private var activity: Activity) {
         } catch (ignored: JSONException) { }
     }
 
-    fun retrieveUpdate() {
+    fun requestUpdateJSON() {
         RequestGitHubAPI("${repo}sideload")
             .setResultListener(object : RequestGitHubAPI.ResultListener {
             override fun onResults(result: String) {

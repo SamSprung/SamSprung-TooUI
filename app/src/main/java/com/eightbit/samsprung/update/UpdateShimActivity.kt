@@ -33,7 +33,7 @@ class UpdateShimActivity : AppCompatActivity() {
     override fun onNewIntent(intent: Intent?) {
         super.onNewIntent(intent)
         if (null != intent?.action) {
-            UpdateManager(this).downloadUpdate(intent.action!!)
+            UpdateManager(this).requestInstallUpdate(intent.action!!)
         }
         finish()
     }

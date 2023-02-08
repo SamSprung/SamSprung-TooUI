@@ -908,9 +908,9 @@ class CoverPreferences : AppCompatActivity() {
                 anim.cancel()
                 buildInfo.setTextColor(colorStateList)
                 if (null != appUpdateInfo) {
-                    updateManager?.downloadPlayUpdate(appUpdateInfo)
+                    updateManager?.startPlayUpdateFlow(appUpdateInfo)
                 } else if (null != downloadUrl) {
-                    updateManager?.downloadUpdate(downloadUrl)
+                    updateManager?.requestInstallUpdate(downloadUrl)
                 }
             }
         }
@@ -1198,7 +1198,7 @@ class CoverPreferences : AppCompatActivity() {
     val updateLauncher = registerForActivityResult(
         ActivityResultContracts.StartActivityForResult()) {
         if (packageManager.canRequestPackageInstalls())
-            updateManager?.retrieveUpdate()
+            updateManager?.requestUpdateJSON()
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {

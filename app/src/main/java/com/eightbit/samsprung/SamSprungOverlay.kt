@@ -1048,9 +1048,9 @@ class SamSprungOverlay : AppCompatActivity() {
             }
             fakeSnackbar.setOnClickListener {
                 if (null != appUpdateInfo) {
-                    updateManager?.downloadPlayUpdate(appUpdateInfo)
+                    updateManager?.startPlayUpdateFlow(appUpdateInfo)
                 } else if (null != downloadUrl) {
-                    updateManager?.downloadUpdate(downloadUrl)
+                    updateManager?.requestInstallUpdate(downloadUrl)
                     Toast.makeText(this,
                         R.string.main_screen_required,
                         Toast.LENGTH_LONG).show()
