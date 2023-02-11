@@ -422,7 +422,7 @@
                         android:clipToPadding="false"
                         android:scrollbars="vertical"
                         android:paddingStart="4dp"
-                        android:paddingEnd="20dp"
+                        android:paddingEnd="12dp"
                         android:scrollbarSize="0dp"
                         android:scrollbarStyle="outsideOverlay" />
                 </com.qtalk.recyclerviewfastscroller.RecyclerViewFastScroller>
