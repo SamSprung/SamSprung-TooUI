@@ -24,6 +24,7 @@ import android.appwidget.AppWidgetManager
 import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothManager
 import android.content.*
+import android.content.pm.ActivityInfo
 import android.content.pm.ApplicationInfo
 import android.content.pm.PackageManager
 import android.content.pm.PackageManager.ApplicationInfoFlags
@@ -172,6 +173,8 @@ class SamSprungOverlay : AppCompatActivity() {
 
         super.onCreate(savedInstanceState)
         supportActionBar?.hide()
+
+        requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_BEHIND
 
         window.setType(WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY)
         window.setFlags(
