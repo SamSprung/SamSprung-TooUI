@@ -24,7 +24,6 @@ import com.eightbit.samsprung.SamSprungOverlay
 import com.eightbit.samsprung.drawer.panels.WidgetSettings.BaseLauncherColumns
 import com.eightbit.samsprung.drawer.panels.WidgetSettings.Favorites
 import java.lang.ref.WeakReference
-import java.util.*
 
 /**
  * Maintains in-memory state of the Launcher. It is expected that there should be only one

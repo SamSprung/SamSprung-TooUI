@@ -20,12 +20,12 @@ import android.app.PendingIntent
 import android.content.Intent
 import android.content.pm.PackageInstaller
 import android.net.Uri
-import android.os.Build
 import android.provider.Settings
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.FileProvider
 import androidx.documentfile.provider.DocumentFile
 import com.eightbit.net.RequestGitHubAPI
+import com.eightbit.os.Version
 import com.eightbit.samsprung.BuildConfig
 import com.eightbit.samsprung.R
 import com.eightbit.samsprung.SamSprung
@@ -116,7 +116,7 @@ class UpdateManager(private var activity: Activity) {
                         applicationContext, SamSprung.request_code,
                         Intent(applicationContext, UpdateReceiver::class.java)
                             .setAction(SamSprung.updating),
-                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S)
+                        if (Version.isSnowCone)
                             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_MUTABLE
                         else PendingIntent.FLAG_UPDATE_CURRENT
                     )

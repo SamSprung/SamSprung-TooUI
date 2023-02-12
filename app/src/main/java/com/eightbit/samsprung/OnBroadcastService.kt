@@ -22,13 +22,13 @@ import android.content.Intent
 import android.content.IntentFilter
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
-import android.os.Build
 import android.os.IBinder
 import android.provider.Settings
 import androidx.core.app.NotificationCompat
 import androidx.core.content.ContextCompat
 import com.eightbit.app.CoverOptions
 import com.eightbit.content.ScaledContext
+import com.eightbit.os.Version
 import com.eightbit.samsprung.drawer.OrientationManager
 
 class OnBroadcastService : Service() {
@@ -94,10 +94,8 @@ class OnBroadcastService : Service() {
         val mNotificationManager: NotificationManager = getSystemService(
             Context.NOTIFICATION_SERVICE) as NotificationManager
         val pendingIntent = PendingIntent.getService(this, 0,
-            Intent(this, OnBroadcastService::class.java)
-                .setAction(SamSprung.updating),
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S)
-                PendingIntent.FLAG_IMMUTABLE else 0)
+            Intent(this, OnBroadcastService::class.java).setAction(SamSprung.updating),
+            if (Version.isSnowCone) PendingIntent.FLAG_IMMUTABLE else 0)
         val iconNotification = BitmapFactory.decodeResource(resources, R.mipmap.sprung_icon)
         var group = mNotificationManager.getNotificationChannelGroup("tooui_services")
         if (null == group) {

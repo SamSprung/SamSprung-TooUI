@@ -19,7 +19,6 @@ import android.app.*
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
-import android.content.SharedPreferences
 import android.content.res.ColorStateList
 import android.content.res.Configuration
 import android.graphics.BlendMode
@@ -48,6 +47,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.eightbit.app.CoverOptions
 import com.eightbit.content.ScaledContext
+import com.eightbit.os.Version
 import com.eightbit.samsprung.NotificationReceiver
 import com.eightbit.samsprung.R
 import com.eightbit.samsprung.SamSprung
@@ -284,7 +284,7 @@ class NotificationFragment : Fragment(), NotificationAdapter.OnNoticeClickListen
     private val vibrationEffect = VibrationEffect
         .createOneShot(20, VibrationEffect.DEFAULT_AMPLITUDE)
     private fun tactileFeedback() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+        if (Version.isSnowCone) {
             (requireActivity().getSystemService(
                 Context.VIBRATOR_MANAGER_SERVICE
             ) as VibratorManager).defaultVibrator.vibrate(vibrationEffect)

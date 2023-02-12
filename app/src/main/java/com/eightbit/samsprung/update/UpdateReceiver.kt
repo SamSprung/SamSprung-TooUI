@@ -18,9 +18,9 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageInstaller
-import android.os.Build
 import android.os.Parcelable
 import android.widget.Toast
+import com.eightbit.os.Version
 import com.eightbit.samsprung.BuildConfig
 import com.eightbit.samsprung.OnBroadcastService
 import com.eightbit.samsprung.SamSprung
@@ -29,7 +29,7 @@ import com.eightbit.samsprung.settings.CoverPreferences
 class UpdateReceiver : BroadcastReceiver() {
 
     private inline fun <reified T : Parcelable> Intent.parcelable(key: String): T? = when {
-        Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU ->
+        Version.isTiramisu ->
             getParcelableExtra(key, T::class.java)
         else -> @Suppress("DEPRECATION") getParcelableExtra(key) as? T
     }

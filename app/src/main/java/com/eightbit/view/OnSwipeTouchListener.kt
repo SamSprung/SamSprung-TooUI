@@ -14,7 +14,6 @@
 
 package com.eightbit.view
 
-import android.annotation.SuppressLint
 import android.content.Context
 import android.view.GestureDetector
 import android.view.GestureDetector.SimpleOnGestureListener

@@ -17,7 +17,6 @@ package com.eightbit.io
 import android.content.*
 import android.net.Uri
 import android.os.Build
-import android.os.Build.VERSION_CODES
 import com.eightbit.samsprung.BuildConfig
 import com.eightbit.samsprung.R
 import com.heinrichreimersoftware.androidissuereporter.IssueReporterLauncher
@@ -51,11 +50,11 @@ class Debug(private var context: Context) {
         log.append(context.getString(R.string.build_hash, BuildConfig.FLAVOR, BuildConfig.COMMIT))
         log.append(separator)
         log.append("Android ")
-        val fields = VERSION_CODES::class.java.fields
+        val fields = Build.VERSION_CODES::class.java.fields
         var codeName = "UNKNOWN"
         for (field in fields) {
             try {
-                if (field.getInt(VERSION_CODES::class.java) == Build.VERSION.SDK_INT) {
+                if (field.getInt(Build.VERSION_CODES::class.java) == Build.VERSION.SDK_INT) {
                     codeName = field.name
                 }
             } catch (e: IllegalAccessException) {

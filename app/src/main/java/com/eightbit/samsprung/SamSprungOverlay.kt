@@ -65,12 +65,13 @@ import androidx.window.java.layout.WindowInfoTrackerCallbackAdapter
 import androidx.window.layout.WindowInfoTracker
 import com.eightbit.content.ScaledContext
 import com.eightbit.material.IconifiedSnackbar
+import com.eightbit.os.Version
 import com.eightbit.samsprung.drawer.CoverStateAdapter
 import com.eightbit.samsprung.drawer.LauncherManager
 import com.eightbit.samsprung.drawer.PanelWidgetManager
 import com.eightbit.samsprung.drawer.panels.*
-import com.eightbit.samsprung.update.UpdateManager
 import com.eightbit.samsprung.speech.VoiceRecognizer
+import com.eightbit.samsprung.update.UpdateManager
 import com.eightbit.view.AnimatedLinearLayout
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.floatingactionbutton.FloatingActionButton
@@ -84,7 +85,6 @@ import org.lsposed.hiddenapibypass.HiddenApiBypass
 import java.io.File
 import java.util.*
 import java.util.concurrent.Executors
-
 
 class SamSprungOverlay : AppCompatActivity() {
 
@@ -158,9 +158,11 @@ class SamSprungOverlay : AppCompatActivity() {
         }
     }
 
-    private fun hasPermissions(context: Context, vararg permissions: String): Boolean =
+    private fun hasPermissions(vararg permissions: String): Boolean =
         permissions.all {
-            ContextCompat.checkSelfPermission(context, it) == PackageManager.PERMISSION_GRANTED
+            ContextCompat.checkSelfPermission(
+                this@SamSprungOverlay, it
+            ) == PackageManager.PERMISSION_GRANTED
         }
 
     @SuppressLint("ClickableViewAccessibility", "MissingPermission")
@@ -181,7 +183,7 @@ class SamSprungOverlay : AppCompatActivity() {
         window.attributes.gravity = Gravity.BOTTOM
 
         prefs = getSharedPreferences(SamSprung.prefsValue, MODE_PRIVATE)
-        vibrator = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+        vibrator = if (Version.isSnowCone) {
             (getSystemService(VIBRATOR_MANAGER_SERVICE) as VibratorManager).defaultVibrator
         } else {
             @Suppress("DEPRECATION") (getSystemService(VIBRATOR_SERVICE) as Vibrator)
@@ -219,14 +221,14 @@ class SamSprungOverlay : AppCompatActivity() {
                 } catch (ignored: Exception) { }
             }
             val permissions: Array<String> =
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU)
+                if (Version.isTiramisu)
                     arrayOf(
                         Manifest.permission.READ_MEDIA_IMAGES,
                         Manifest.permission.READ_MEDIA_VIDEO
                     )
                 else
                     arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE)
-            if (null == background && hasPermissions(this, *permissions)) {
+            if (null == background && hasPermissions(*permissions)) {
                 try {
                     background = try {
                         WallpaperManager.getInstance(
@@ -245,7 +247,7 @@ class SamSprungOverlay : AppCompatActivity() {
         val blurView = findViewById<BlurView>(R.id.blurContainer)
         if (prefs.getBoolean(SamSprung.prefRadius, true)) {
             blurView.setupWith(coordinator,
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S)
+                if (Version.isSnowCone)
                     RenderEffectBlur()
                 else
                     @Suppress("DEPRECATION")
@@ -495,9 +497,7 @@ class SamSprungOverlay : AppCompatActivity() {
                 vibrator.vibrate(effectClick)
             bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
             bottomSheetBehaviorMain.state = BottomSheetBehavior.STATE_COLLAPSED
-            if (prefs.getBoolean(SamSprung.prefCloser,
-                    Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU)
-            ) onStopOverlay()
+            if (prefs.getBoolean(SamSprung.prefCloser, Version.isTiramisu)) onStopOverlay()
         }
         buttonClose.setOnLongClickListener { view ->
             Toast.makeText(
@@ -834,7 +834,7 @@ class SamSprungOverlay : AppCompatActivity() {
     private fun launchApplication(launchCommand: String, menuButton: FloatingActionButton) {
         val matchedApps: ArrayList<ApplicationInfo> = arrayListOf()
         val packages: List<ApplicationInfo> =
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            if (Version.isTiramisu) {
                 packageManager.getInstalledApplications(
                     ApplicationInfoFlags.of(PackageManager.GET_META_DATA.toLong())
                 )
@@ -845,7 +845,7 @@ class SamSprungOverlay : AppCompatActivity() {
         for (packageInfo in packages) {
             var ai: ApplicationInfo
             try {
-                ai =  if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                ai =  if (Version.isTiramisu) {
                     packageManager.getApplicationInfo(
                         packageInfo.packageName, ApplicationInfoFlags.of(0)
                     )
@@ -913,14 +913,9 @@ class SamSprungOverlay : AppCompatActivity() {
         else
             toolbar.menu.findItem(R.id.toggle_wifi)
                 .setIcon(R.drawable.ic_baseline_wifi_off_24dp)
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+        if (Version.isTiramisu) {
             toolbar.menu.findItem(R.id.toggle_bluetooth).isVisible = false
-        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S &&
-            ContextCompat.checkSelfPermission(
-                this@SamSprungOverlay,
-                Manifest.permission.BLUETOOTH_CONNECT,
-            ) == PackageManager.PERMISSION_GRANTED
-        ) {
+        } else if (Version.isSnowCone && hasPermissions(Manifest.permission.BLUETOOTH_CONNECT)) {
             if (bluetoothAdapter.isEnabled)
                 toolbar.menu.findItem(R.id.toggle_bluetooth)
                     .setIcon(R.drawable.ic_baseline_bluetooth_on_24dp)

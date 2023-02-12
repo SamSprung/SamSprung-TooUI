@@ -8,7 +8,6 @@ import android.appwidget.AppWidgetProviderInfo
 import android.content.Intent
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
-import android.os.Build
 import android.view.Gravity
 import android.view.View
 import android.widget.LinearLayout
@@ -20,6 +19,7 @@ import androidx.core.graphics.drawable.toBitmap
 import androidx.core.view.children
 import androidx.viewpager2.widget.ViewPager2
 import com.eightbit.content.ScaledContext
+import com.eightbit.os.Version
 import com.eightbit.samsprung.R
 import com.eightbit.samsprung.SamSprungOverlay
 import com.eightbit.samsprung.drawer.panels.*
@@ -43,7 +43,7 @@ class PanelWidgetManager(
 
         var spanX = appWidgetInfo.minWidth
         var spanY = appWidgetInfo.minHeight
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+        if (Version.isSnowCone) {
             spanX = Integer.max(appWidgetInfo.minWidth, appWidgetInfo.maxResizeWidth)
             spanY = Integer.max(appWidgetInfo.minHeight, appWidgetInfo.maxResizeHeight)
         }

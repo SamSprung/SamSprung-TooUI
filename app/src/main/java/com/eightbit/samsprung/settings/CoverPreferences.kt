@@ -29,7 +29,6 @@ import android.graphics.Matrix
 import android.graphics.drawable.ColorDrawable
 import android.icu.text.DecimalFormatSymbols
 import android.net.Uri
-import android.os.Build
 import android.os.Bundle
 import android.os.PowerManager
 import android.os.Process
@@ -69,6 +68,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.eightbit.content.ScaledContext
 import com.eightbit.io.Debug
 import com.eightbit.material.IconifiedSnackbar
+import com.eightbit.os.Version
 import com.eightbit.pm.PackageRetriever
 import com.eightbit.samsprung.*
 import com.eightbit.samsprung.update.UpdateManager
@@ -136,7 +136,7 @@ class CoverPreferences : AppCompatActivity() {
         coordinator = findViewById(R.id.coordinator)
         @Suppress("DEPRECATION")
         findViewById<BlurView>(R.id.blurContainer).setupWith(coordinator,
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S)
+            if (Version.isSnowCone)
                 RenderEffectBlur()
             else
                 RenderScriptBlur(this)
@@ -517,12 +517,12 @@ class CoverPreferences : AppCompatActivity() {
                     return@setOnMenuItemClickListener true
                 }
                 R.id.toggle_bluetooth -> {
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                    if (Version.isTiramisu) {
                         Toast.makeText(
                             this@CoverPreferences,
                             R.string.tiramisu_bluetooth, Toast.LENGTH_SHORT
                         ).show()
-                    } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                    } else if (Version.isSnowCone) {
                         requestBluetooth.launch(Manifest.permission.BLUETOOTH_CONNECT)
                     } else {
                         toggleBluetoothIcon(toolbar)
@@ -573,15 +573,15 @@ class CoverPreferences : AppCompatActivity() {
         else
             wifi.setIcon(R.drawable.ic_baseline_wifi_off_24dp)
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU
-                || !hasPermission(Manifest.permission.BLUETOOTH_CONNECT)) {
+        if (Version.isSnowCone) {
+            if (Version.isTiramisu || !hasPermission(Manifest.permission.BLUETOOTH_CONNECT)) {
                 with(prefs.edit()) {
                     putBoolean(toolbar.menu.findItem(R.id.toggle_bluetooth).title?.toPref, false)
                     apply()
                 }
             }
         }
+
         toggleBluetoothIcon(toolbar)
 
         val nfc = toolbar.menu.findItem(R.id.toggle_nfc)
@@ -650,9 +650,7 @@ class CoverPreferences : AppCompatActivity() {
         }
 
         val minimize = findViewById<AppCompatCheckBox>(R.id.minimize_switch)
-        minimize.isChecked = prefs.getBoolean(SamSprung.prefCloser,
-            Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU
-        )
+        minimize.isChecked = prefs.getBoolean(SamSprung.prefCloser, Version.isTiramisu)
         minimize.setOnCheckedChangeListener { _, isChecked ->
             with(prefs.edit()) {
                 putBoolean(SamSprung.prefCloser, isChecked)
@@ -1075,7 +1073,7 @@ class CoverPreferences : AppCompatActivity() {
         ActivityResultContracts.StartActivityForResult()) {
         if (this::mainSwitch.isInitialized) {
             mainSwitch.isChecked = Settings.canDrawOverlays(applicationContext)
-            if (mainSwitch.isChecked && Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            if (mainSwitch.isChecked && Version.isTiramisu) {
                 requestNotification.launch(Manifest.permission.POST_NOTIFICATIONS)
             }
             startForegroundService(Intent(
@@ -1145,7 +1143,9 @@ class CoverPreferences : AppCompatActivity() {
     }
 
     private fun hasPermission(permission: String) : Boolean {
-        return (checkSelfPermission(permission) == PackageManager.PERMISSION_GRANTED)
+        return ContextCompat.checkSelfPermission(
+            this@CoverPreferences, permission
+        ) == PackageManager.PERMISSION_GRANTED
     }
 
     private fun ignoreBatteryOptimization(): Boolean {
@@ -1208,7 +1208,7 @@ class CoverPreferences : AppCompatActivity() {
         mainSwitch = menu.findItem(R.id.switch_action_bar).actionView
             ?.findViewById(R.id.switch2) as SwitchCompat
         mainSwitch.isChecked = Settings.canDrawOverlays(applicationContext)
-        if (mainSwitch.isChecked && Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+        if (mainSwitch.isChecked && Version.isTiramisu) {
             requestNotification.launch(Manifest.permission.POST_NOTIFICATIONS)
         }
         mainSwitch.setOnClickListener {
@@ -1233,7 +1233,7 @@ class CoverPreferences : AppCompatActivity() {
         }
 
         requestWallpaper.launch(
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            if (Version.isTiramisu) {
                 arrayOf(
                     Manifest.permission.READ_MEDIA_IMAGES,
                     Manifest.permission.READ_MEDIA_VIDEO

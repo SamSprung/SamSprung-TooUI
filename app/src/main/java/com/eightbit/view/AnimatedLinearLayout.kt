@@ -17,7 +17,6 @@ package com.eightbit.view
 import android.content.Context
 import android.util.AttributeSet
 import android.widget.LinearLayout
-import com.eightbit.view.AnimatedLinearLayout
 
 class AnimatedLinearLayout : LinearLayout {
     constructor(context: Context?) : super(context) {}
