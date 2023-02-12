@@ -14,6 +14,7 @@
 
 package com.eightbit.material
 
+import android.app.Activity
 import android.content.res.Configuration
 import android.view.Gravity
 import android.view.View
@@ -26,45 +27,40 @@ import androidx.core.view.updatePadding
 import androidx.transition.TransitionManager
 import com.eightbit.samsprung.R
 import com.google.android.material.snackbar.Snackbar
-import java.lang.ref.WeakReference
 
-class IconifiedSnackbar {
-    private var mActivity: WeakReference<AppCompatActivity>
-    private var layout: ViewGroup? = null
+class IconifiedSnackbar @JvmOverloads constructor(activity: Activity, layout: ViewGroup? = null) {
+    private val mActivity: Activity
+    private val layout: ViewGroup?
 
-    constructor(activity: AppCompatActivity) {
-        mActivity = WeakReference(activity)
-    }
-
-    constructor(activity: AppCompatActivity, layout: ViewGroup?) {
-        mActivity = WeakReference(activity)
+    init {
+        mActivity = activity
         this.layout = layout
     }
 
     fun buildSnackbar(msg: String?, drawable: Int, length: Int, anchor: View?): Snackbar {
+        val message = msg ?: ""
         val snackbar = Snackbar.make(
-            mActivity.get()!!.findViewById(R.id.coordinator), msg!!, length
+            mActivity.findViewById(R.id.coordinator), message, length
         )
         val snackbarLayout = snackbar.view
         val textView = snackbarLayout.findViewById<TextView>(
-            R.id.snackbar_text
+            com.google.android.material.R.id.snackbar_text
         )
-        when (mActivity.get()!!.resources.configuration.uiMode
-                and Configuration.UI_MODE_NIGHT_MASK) {
+        when (mActivity.resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK) {
             Configuration.UI_MODE_NIGHT_YES -> {
                 snackbar.setBackgroundTint(
-                    ContextCompat.getColor(mActivity.get()!!, R.color.snackbar_dark)
+                    ContextCompat.getColor(mActivity, R.color.snackbar_dark)
                 )
                 textView.setTextColor(
-                    ContextCompat.getColor(mActivity.get()!!, R.color.primary_text_dark)
+                    ContextCompat.getColor(mActivity, R.color.primary_text_dark)
                 )
             }
             Configuration.UI_MODE_NIGHT_NO -> {
                 snackbar.setBackgroundTint(
-                    ContextCompat.getColor(mActivity.get()!!, android.R.color.darker_gray)
+                    ContextCompat.getColor(mActivity, android.R.color.darker_gray)
                 )
                 textView.setTextColor(
-                    ContextCompat.getColor(mActivity.get()!!, R.color.primary_text_light)
+                    ContextCompat.getColor(mActivity, R.color.primary_text_light)
                 )
             }
         }
@@ -82,21 +78,22 @@ class IconifiedSnackbar {
     }
 
     fun buildSnackbar(msgRes: Int, drawable: Int, length: Int): Snackbar {
-        return buildSnackbar(mActivity.get()!!.getString(msgRes), drawable, length, null)
+        return buildSnackbar(mActivity.getString(msgRes), drawable, length, null)
     }
 
     fun buildTickerBar(msg: String, drawable: Int, length: Int): Snackbar {
-        val snackbar = buildSnackbar(msg, drawable, length, null)
-            .addCallback(object : Snackbar.Callback() {
-            val top = if (null != layout) layout!!.paddingTop else 0
-            val bottom = if (null != layout) layout!!.paddingBottom else 0
+        val snackbar = buildSnackbar(
+            msg, drawable, length, null
+        ).addCallback(object : Snackbar.Callback() {
+            val top = layout?.paddingTop ?: 0
+            val bottom = layout?.paddingBottom ?: 0
             override fun onDismissed(snackbar: Snackbar, event: Int) {
                 if (null == layout) {
                     super.onDismissed(snackbar, event)
                     return
                 }
-                TransitionManager.beginDelayedTransition(layout!!)
-                layout!!.updatePadding(top = top, bottom = bottom)
+                TransitionManager.beginDelayedTransition(layout)
+                layout.updatePadding(top = top, bottom = bottom)
                 super.onDismissed(snackbar, event)
             }
 
@@ -106,7 +103,7 @@ class IconifiedSnackbar {
                     return
                 }
                 val adjusted = top + snackbar.view.measuredHeight
-                layout!!.updatePadding(top = adjusted, bottom = bottom)
+                layout.updatePadding(top = adjusted, bottom = bottom)
                 super.onShown(snackbar)
             }
         })
@@ -118,7 +115,7 @@ class IconifiedSnackbar {
 
     fun buildTickerBar(msg: String, value: Int): Snackbar {
         return try {
-            mActivity.get()!!.resources.getResourceTypeName(value)
+            mActivity.resources.getResourceTypeName(value)
             buildTickerBar(msg, value, Snackbar.LENGTH_LONG)
         } catch (exception: Exception) {
             buildTickerBar(msg, R.drawable.ic_baseline_samsprung_24dp, value)
