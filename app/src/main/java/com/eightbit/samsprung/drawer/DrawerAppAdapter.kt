@@ -144,7 +144,7 @@ class DrawerAppAdapter(
                     val label: CharSequence? = try {
                         resolveInfo.loadLabel(packageManager)
                     } catch (e: Exception) {
-                        resolveInfo.nonLocalizedLabel
+                        resolveInfo.nonLocalizedLabel ?: "?"
                     }
                     withContext(Dispatchers.Main) {
                         label?.let { textView?.text = it }

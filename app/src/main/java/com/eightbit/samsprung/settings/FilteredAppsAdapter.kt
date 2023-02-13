@@ -28,6 +28,10 @@ import androidx.recyclerview.widget.RecyclerView
 import com.eightbit.samsprung.R
 import com.eightbit.samsprung.SamSprung
 import com.qtalk.recyclerviewfastscroller.RecyclerViewFastScroller
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.util.concurrent.Executors
 
 class FilteredAppsAdapter(
@@ -68,7 +72,7 @@ class FilteredAppsAdapter(
         popupTextView.text = try {
             item.loadLabel(pacMan)
         } catch (e: Exception) {
-            item.nonLocalizedLabel
+            item.nonLocalizedLabel ?: "?"
         }.toString()[0].uppercase()
     }
 
@@ -83,19 +87,22 @@ class FilteredAppsAdapter(
         private val hide: HashSet<String>
     ) : RecyclerView.ViewHolder(itemView) {
         lateinit var application: ResolveInfo
+
+        private val scopeIO = CoroutineScope(Dispatchers.IO)
+
         fun bind(appInfo: ResolveInfo) {
             this.application = appInfo
             val detailView = itemView.findViewById<LinearLayout>(R.id.hiddenItemContainer)
 
-            Executors.newSingleThreadExecutor().execute {
+            scopeIO.launch {
                 val appName: CharSequence? = try {
                     application.loadLabel(packageManager)
                 } catch (e: Exception) {
-                    application.nonLocalizedLabel
+                    application.nonLocalizedLabel ?: "?"
                 }
                 val icon = application.loadIcon(packageManager)
 
-                detailView.post {
+                withContext(Dispatchers.Main) {
                     detailView.findViewById<AppCompatImageView>(
                         R.id.hiddenItemImage).setImageDrawable(icon)
                     detailView.findViewById<TextView>(R.id.hiddenItemText).text = appName
