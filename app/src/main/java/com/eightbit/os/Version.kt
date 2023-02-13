@@ -17,10 +17,6 @@ package com.eightbit.os
 import android.os.Build
 
 object Version {
-    @JvmStatic
-    fun isOlder(versionCode: Int): Boolean {
-        return Build.VERSION.SDK_INT < versionCode
-    }
 
     @JvmStatic
     val isSnowCone: Boolean get() {
