@@ -1075,9 +1075,16 @@ class CoverPreferences : AppCompatActivity() {
             if (mainSwitch.isChecked && Version.isTiramisu) {
                 requestNotification.launch(Manifest.permission.POST_NOTIFICATIONS)
             }
-            startForegroundService(Intent(
-                ScaledContext(this).cover(), OnBroadcastService::class.java
-            ))
+            try {
+                ScaledContext(this).cover().run {
+                    startForegroundService(Intent(this, OnBroadcastService::class.java))
+                }
+            } catch (ex: IllegalArgumentException) {
+                Toast.makeText(
+                    this@CoverPreferences,
+                    R.string.display_unavailable, Toast.LENGTH_SHORT
+                ).show()
+            }
         }
     }
 
@@ -1220,9 +1227,16 @@ class CoverPreferences : AppCompatActivity() {
     }
 
     private fun initializeLayout() {
-        startForegroundService(Intent(
-            ScaledContext(this).cover(), OnBroadcastService::class.java
-        ))
+        try {
+            ScaledContext(this).cover().run {
+                startForegroundService(Intent(this, OnBroadcastService::class.java))
+            }
+        } catch (ex: IllegalArgumentException) {
+            Toast.makeText(
+                this@CoverPreferences,
+                R.string.display_unavailable, Toast.LENGTH_SHORT
+            ).show()
+        }
         if (!prefs.getBoolean(SamSprung.prefWarned, false)) {
             wikiDrawer.openDrawer(GravityCompat.START)
             with(prefs.edit()) {
