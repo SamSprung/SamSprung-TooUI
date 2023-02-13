@@ -27,6 +27,10 @@ import androidx.appcompat.widget.AppCompatImageView
 import androidx.recyclerview.widget.RecyclerView
 import com.eightbit.samsprung.R
 import com.eightbit.samsprung.SamSprung
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.util.concurrent.Executors
 
 class DrawerAppAdapter(
@@ -111,7 +115,7 @@ class DrawerAppAdapter(
         override fun publishResults(charSequence: CharSequence, filterResults: FilterResults) {
             if (filteredData === filterResults.values) return
             val results: MutableList<ResolveInfo> = mutableListOf()
-            results.addAll(filterResults.values as Collection<ResolveInfo>)
+            filterResults.values?.let { results.addAll(it as Collection<ResolveInfo>) }
             filteredData = results
             notifyDataSetChanged()
         }
@@ -122,27 +126,28 @@ class DrawerAppAdapter(
         private val packageManager: PackageManager,
         private val prefs: SharedPreferences
     ) : RecyclerView.ViewHolder(itemView) {
-        val iconView: AppCompatImageView = itemView.findViewById(R.id.widgetItemImage)
         lateinit var resolveInfo: ResolveInfo
+        val iconView: AppCompatImageView = itemView.findViewById(R.id.widgetItemImage)
+        private var textView: TextView? = null
+
+        private val scopeIO = CoroutineScope(Dispatchers.IO)
+
         fun bind(resolveInfo: ResolveInfo) {
             this.resolveInfo = resolveInfo
-            Executors.newSingleThreadExecutor().execute {
+            scopeIO.launch {
                 val icon = resolveInfo.loadIcon(packageManager)
-                if (null != icon) {
-                    iconView.post {
-                        iconView.setImageDrawable(icon)
-                    }
+                withContext(Dispatchers.Main) {
+                    icon?.let { iconView.setImageDrawable(it) }
                 }
                 if (!prefs.getBoolean(SamSprung.prefLayout, true)) {
+                    textView = itemView.findViewById(R.id.widgetItemText)
                     val label: CharSequence? = try {
                         resolveInfo.loadLabel(packageManager)
                     } catch (e: Exception) {
                         resolveInfo.nonLocalizedLabel
                     }
-                    if (null != label) {
-                        itemView.post {
-                            itemView.findViewById<TextView>(R.id.widgetItemText).text = label
-                        }
+                    withContext(Dispatchers.Main) {
+                        label?.let { textView?.text = it }
                     }
                 }
             }
