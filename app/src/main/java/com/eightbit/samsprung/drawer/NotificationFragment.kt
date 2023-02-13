@@ -100,7 +100,7 @@ class NotificationFragment : Fragment(), NotificationAdapter.OnNoticeClickListen
         }
 
         val noticesView = view.findViewById<RecyclerView>(R.id.notificationList)
-        noticesView.setHasFixedSize(true)
+        // noticesView.setHasFixedSize(true)
 
         layoutManager = LinearLayoutManager(requireContext())
         noticesView.layoutManager = layoutManager

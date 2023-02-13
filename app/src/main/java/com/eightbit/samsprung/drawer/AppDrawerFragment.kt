@@ -26,6 +26,7 @@ import android.view.ViewGroup
 import android.widget.LinearLayout
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.SearchView
+import androidx.core.view.isGone
 import androidx.core.view.updatePadding
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.*
@@ -69,7 +70,7 @@ class AppDrawerFragment : Fragment(), DrawerAppAdapter.OnAppClickListener {
         launcherManager = LauncherManager(requireActivity() as SamSprungOverlay)
 
         launcherView = view.findViewById(R.id.appsList)
-        launcherView.setHasFixedSize(true)
+        // launcherView.setHasFixedSize(true)
 
         val packageRetriever = PackageRetriever(requireActivity())
         val packages = packageRetriever.getFilteredPackageList()
@@ -108,7 +109,7 @@ class AppDrawerFragment : Fragment(), DrawerAppAdapter.OnAppClickListener {
             })
         } else {
             launcherView.updatePadding(bottom = 30)
-            requireActivity().findViewById<SearchView>(R.id.package_search).visibility = View.GONE
+            requireActivity().findViewById<SearchView>(R.id.package_search).isGone = true
         }
 
         RecyclerViewTouch(launcherView).setSwipeCallback(ItemTouchHelper.DOWN,

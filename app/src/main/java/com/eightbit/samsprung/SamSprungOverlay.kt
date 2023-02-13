@@ -636,7 +636,7 @@ class SamSprungOverlay : AppCompatActivity() {
         setScreenTimeout(findViewById(R.id.bottom_sheet_main))
         showBottomHandle(bottomHandle, menuButton)
 
-        findViewById<AnimatedLinearLayout>(R.id.update_notice).visibility = View.GONE
+        findViewById<AnimatedLinearLayout>(R.id.update_notice).isGone = true
 
         if (null != intent?.action && SamSprung.launcher == intent.action) {
             Handler(Looper.getMainLooper()).postDelayed({
