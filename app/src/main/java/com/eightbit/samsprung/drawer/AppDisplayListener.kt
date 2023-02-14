@@ -261,7 +261,8 @@ class AppDisplayListener : Service() {
                 vibrator.vibrate(effectClick)
             if (hasAccessibility()) {
                 AccessibilityObserver.getInstance()?.performGlobalAction(
-                    AccessibilityService.GLOBAL_ACTION_BACK)
+                    AccessibilityService.GLOBAL_ACTION_BACK
+                )
             } else {
                 if (null != componentName)
                     restoreActivityDisplay(componentName, 1)

@@ -35,19 +35,15 @@ class AccessibilityObserver : AccessibilityService() {
 
     override fun onServiceConnected() {
         val info = AccessibilityServiceInfo()
-        info.eventTypes = AccessibilityEvent.TYPE_NOTIFICATION_STATE_CHANGED
-        info.feedbackType = AccessibilityServiceInfo.FEEDBACK_VISUAL
+        info.packageNames = arrayOf(packageName)
+        info.eventTypes = AccessibilityEvent.TYPE_VIEW_CLICKED
+        info.feedbackType = AccessibilityServiceInfo.FEEDBACK_GENERIC
         info.notificationTimeout = 100
         serviceInfo = info
         isConnected = true
     }
 
-    override fun onAccessibilityEvent(event: AccessibilityEvent) {
-//        if (AccessibilityEvent.TYPE_NOTIFICATION_STATE_CHANGED == event.eventType) {
-//            val notification = event.parcelableData
-//            if (notification is Notification) { }
-//        }
-    }
+    override fun onAccessibilityEvent(event: AccessibilityEvent) { }
 
     override fun onInterrupt() {
         if (null == getInstance()) observerInstance = this
