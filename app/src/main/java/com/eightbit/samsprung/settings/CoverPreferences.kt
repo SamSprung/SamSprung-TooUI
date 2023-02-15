@@ -194,9 +194,9 @@ class CoverPreferences : AppCompatActivity() {
         accessibility = findViewById(R.id.accessibility_switch)
         accessibility.isChecked = hasAccessibility()
         findViewById<LinearLayout>(R.id.accessibility).setOnClickListener {
-            if (BuildConfig.GOOGLE_PLAY && !accessibility.isChecked) {
+            if (!accessibility.isChecked) {
                 AlertDialog.Builder(this)
-                    .setMessage(getString(R.string.accessibility_disclaimer))
+                    .setMessage(R.string.accessibility_directions)
                     .setPositiveButton(R.string.button_confirm) { dialog, _ ->
                         accessibilityLauncher.launch(Intent(
                             Settings.ACTION_ACCESSIBILITY_SETTINGS
@@ -213,6 +213,7 @@ class CoverPreferences : AppCompatActivity() {
                 ))
             }
         }
+        accessibility.isGone = BuildConfig.GOOGLE_PLAY
 
         findViewById<LinearLayout>(R.id.voice_layout).setOnClickListener {
             requestVoice.launch(Manifest.permission.RECORD_AUDIO)
@@ -1160,6 +1161,7 @@ class CoverPreferences : AppCompatActivity() {
     }
 
     private fun hasAccessibility(): Boolean {
+        if (BuildConfig.GOOGLE_PLAY) return false
         val serviceString = Settings.Secure.getString(contentResolver,
             Settings.Secure.ENABLED_ACCESSIBILITY_SERVICES
         )

@@ -91,7 +91,7 @@
     <string name="main_screen_required">계속하려면 장치 열기</string>
     <string name="incompatible_fragment">패널을 삭제할 수 없습니다</string>
 
-    <string name="accessibility_disclaimer">접근성을 통해 하드웨어 뒤로 버튼을 시뮬레이션 할 수 있습니다.\n\nClick confirm to open Accessibility\n\nInstalled apps -> SamSprung Navigation\n&#160;&#160;&#160;&#160;-> Toggle switch on -> Allow to enable.</string>
+    <string name="accessibility_directions">접근성을 통해 하드웨어 뒤로 버튼을 시뮬레이션 할 수 있습니다.\n\nClick confirm to open Accessibility\n\nInstalled apps -> SamSprung Navigation\n&#160;&#160;&#160;&#160;-> Toggle switch on -> Allow to enable.</string>
     <string name="accessibility_service">SamSprung 내비게이션</string>
     <string name="accessibility_details">가상 탐색 작업 및 하드웨어 지원을 활성화합니다.</string>
 

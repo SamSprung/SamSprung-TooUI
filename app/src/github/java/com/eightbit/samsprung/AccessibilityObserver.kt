@@ -27,6 +27,9 @@ class AccessibilityObserver : AccessibilityService() {
         fun getInstance() : AccessibilityObserver? {
             return if (isConnected) observerInstance else null
         }
+        fun performBackAction() {
+            getInstance()?.performGlobalAction(GLOBAL_ACTION_BACK)
+        }
     }
 
     init {

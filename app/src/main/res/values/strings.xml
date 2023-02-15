@@ -102,7 +102,7 @@
     <string name="main_screen_required">Open device to continue</string>
     <string name="incompatible_fragment">Panel cannot be deleted</string>
 
-    <string name="accessibility_disclaimer">Accessibility allows SamSprung to simulate the hardware back button.\n\nClick confirm to open Accessibility\n\nInstalled apps -> SamSprung Navigation\n&#160;&#160;&#160;&#160;-> Toggle switch on -> Allow to enable.</string>
+    <string name="accessibility_directions">Click confirm to open Accessibility\n\nInstalled apps -> SamSprung Navigation\n&#160;&#160;&#160;&#160;-> Toggle switch on -> Allow to enable.</string>
     <string name="accessibility_service">SamSprung Navigation</string>
     <string name="accessibility_details">Enable virtual navigation action and hardware support.</string>
 

@@ -14,7 +14,6 @@
 
 package com.eightbit.samsprung.drawer
 
-import android.accessibilityservice.AccessibilityService
 import android.annotation.SuppressLint
 import android.app.*
 import android.content.*
@@ -36,10 +35,7 @@ import androidx.core.content.ContextCompat
 import androidx.core.view.isVisible
 import com.eightbit.app.CoverOptions
 import com.eightbit.content.ScaledContext
-import com.eightbit.samsprung.AccessibilityObserver
-import com.eightbit.samsprung.OnBroadcastService
-import com.eightbit.samsprung.R
-import com.eightbit.samsprung.SamSprung
+import com.eightbit.samsprung.*
 import com.eightbit.view.OnSwipeTouchListener
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import java.io.File
@@ -260,9 +256,7 @@ class AppDisplayListener : Service() {
             if (prefs.getBoolean(SamSprung.prefReacts, true))
                 vibrator.vibrate(effectClick)
             if (hasAccessibility()) {
-                AccessibilityObserver.getInstance()?.performGlobalAction(
-                    AccessibilityService.GLOBAL_ACTION_BACK
-                )
+                AccessibilityObserver.performBackAction()
             } else {
                 if (null != componentName)
                     restoreActivityDisplay(componentName, 1)
@@ -312,6 +306,7 @@ class AppDisplayListener : Service() {
     }
 
     private fun hasAccessibility(): Boolean {
+        if (BuildConfig.GOOGLE_PLAY) return false
         val serviceString = Settings.Secure.getString(contentResolver,
             Settings.Secure.ENABLED_ACCESSIBILITY_SERVICES
         )
