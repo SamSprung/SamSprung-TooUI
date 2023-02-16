@@ -24,7 +24,6 @@ import android.graphics.Color
 import android.graphics.PixelFormat
 import android.hardware.display.DisplayManager
 import android.os.*
-import android.provider.Settings
 import android.view.*
 import android.widget.ImageView
 import android.widget.LinearLayout
@@ -38,7 +37,6 @@ import com.eightbit.content.ScaledContext
 import com.eightbit.samsprung.*
 import com.eightbit.view.OnSwipeTouchListener
 import com.google.android.material.bottomsheet.BottomSheetBehavior
-import java.io.File
 
 class AppDisplayListener : Service() {
 
@@ -255,7 +253,7 @@ class AppDisplayListener : Service() {
         menu.findViewById<ImageView>(R.id.button_back).setOnClickListener {
             if (prefs.getBoolean(SamSprung.prefReacts, true))
                 vibrator.vibrate(effectClick)
-            if (hasAccessibility()) {
+            if (AccessibilityObserver.hasEnabledService(this)) {
                 AccessibilityObserver.performBackAction()
             } else {
                 if (null != componentName)
@@ -303,15 +301,6 @@ class AppDisplayListener : Service() {
         }
         builder.color = ContextCompat.getColor(this, R.color.primary_light)
         startForeground(startId, builder.build())
-    }
-
-    private fun hasAccessibility(): Boolean {
-        if (BuildConfig.GOOGLE_PLAY) return false
-        val serviceString = Settings.Secure.getString(contentResolver,
-            Settings.Secure.ENABLED_ACCESSIBILITY_SERVICES
-        )
-        return serviceString != null && serviceString.contains(packageName
-                + File.separator + AccessibilityObserver::class.java.name)
     }
 
     fun onDismissOverlay() {

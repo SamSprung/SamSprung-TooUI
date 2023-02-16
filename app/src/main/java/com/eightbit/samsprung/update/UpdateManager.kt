@@ -24,7 +24,7 @@ import android.provider.Settings
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.FileProvider
 import androidx.documentfile.provider.DocumentFile
-import com.eightbit.net.RequestGitHubAPI
+import com.eightbit.net.GitHubRequest
 import com.eightbit.os.Version
 import com.eightbit.samsprung.BuildConfig
 import com.eightbit.samsprung.R
@@ -68,8 +68,7 @@ class UpdateManager(private var activity: Activity) {
         appUpdateInfoTask?.addOnSuccessListener { appUpdateInfo ->
             isUpdateAvailable = appUpdateInfo.updateAvailability() == UpdateAvailability
                 .UPDATE_AVAILABLE && appUpdateInfo.isUpdateTypeAllowed(AppUpdateType.IMMEDIATE)
-            if (isUpdateAvailable && null != listenerPlay)
-                listenerPlay?.onPlayUpdateFound(appUpdateInfo)
+            if (isUpdateAvailable) listenerPlay?.onPlayUpdateFound(appUpdateInfo)
         }
     }
 
@@ -171,14 +170,13 @@ class UpdateManager(private var activity: Activity) {
             val asset = assets[0] as JSONObject
             val downloadUrl = asset["browser_download_url"] as String
             isUpdateAvailable = BuildConfig.COMMIT != lastCommit
-            if (isUpdateAvailable && null != listenerGit)
-                listenerGit?.onUpdateFound(downloadUrl)
+            if (isUpdateAvailable) listenerGit?.onUpdateFound(downloadUrl)
         } catch (ignored: JSONException) { }
     }
 
     fun requestUpdateJSON() {
-        RequestGitHubAPI("${repo}sideload")
-            .setResultListener(object : RequestGitHubAPI.ResultListener {
+        GitHubRequest("${repo}sideload")
+            .setResultListener(object : GitHubRequest.ResultListener {
             override fun onResults(result: String) {
                 parseUpdateJSON(result)
             }

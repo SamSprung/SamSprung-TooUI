@@ -150,8 +150,6 @@ class CoverPreferences : AppCompatActivity() {
             wikiDrawer.openDrawer(GravityCompat.START)
         }
 
-        initializeLayout()
-
         val googlePlay = findViewById<LinearLayout>(R.id.button_donate)
         googlePlay.setOnClickListener { donationManager.onSendDonationClicked() }
 
@@ -1228,37 +1226,6 @@ class CoverPreferences : AppCompatActivity() {
         return true
     }
 
-    private fun initializeLayout() {
-        try {
-            ScaledContext(this).cover().run {
-                startForegroundService(Intent(this, OnBroadcastService::class.java))
-            }
-        } catch (ex: IllegalArgumentException) {
-            Toast.makeText(
-                this@CoverPreferences,
-                R.string.display_unavailable, Toast.LENGTH_SHORT
-            ).show()
-        }
-        if (!prefs.getBoolean(SamSprung.prefWarned, false)) {
-            wikiDrawer.openDrawer(GravityCompat.START)
-            with(prefs.edit()) {
-                putBoolean(SamSprung.prefWarned, true)
-                apply()
-            }
-        }
-
-        requestWallpaper.launch(
-            if (Version.isTiramisu) {
-                arrayOf(
-                    Manifest.permission.READ_MEDIA_IMAGES,
-                    Manifest.permission.READ_MEDIA_VIDEO
-                )
-            } else {
-                arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE)
-            }
-        )
-    }
-
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         if (item.itemId == android.R.id.home) {
             if (wikiDrawer.isDrawerOpen(GravityCompat.START)) {
@@ -1271,11 +1238,6 @@ class CoverPreferences : AppCompatActivity() {
     }
 
     private var widgetNotice : Snackbar? = null
-
-    override fun onNewIntent(intent: Intent?) {
-        super.onNewIntent(intent)
-        initializeLayout()
-    }
 
     override fun onStart() {
         super.onStart()
@@ -1308,6 +1270,35 @@ class CoverPreferences : AppCompatActivity() {
                 }
             }
         })
+
+        try {
+            ScaledContext(this).cover().run {
+                startForegroundService(Intent(this, OnBroadcastService::class.java))
+            }
+        } catch (ex: IllegalArgumentException) {
+            Toast.makeText(
+                this@CoverPreferences,
+                R.string.display_unavailable, Toast.LENGTH_SHORT
+            ).show()
+        }
+        if (!prefs.getBoolean(SamSprung.prefWarned, false)) {
+            wikiDrawer.openDrawer(GravityCompat.START)
+            with(prefs.edit()) {
+                putBoolean(SamSprung.prefWarned, true)
+                apply()
+            }
+        }
+
+        requestWallpaper.launch(
+            if (Version.isTiramisu) {
+                arrayOf(
+                    Manifest.permission.READ_MEDIA_IMAGES,
+                    Manifest.permission.READ_MEDIA_VIDEO
+                )
+            } else {
+                arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE)
+            }
+        )
     }
 
     private fun File.writeBitmap(bitmap: Bitmap, format: Bitmap.CompressFormat, quality: Int) {

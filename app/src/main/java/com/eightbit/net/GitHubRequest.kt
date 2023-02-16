@@ -14,19 +14,23 @@
 
 package com.eightbit.net
 
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import java.io.BufferedReader
 import java.io.IOException
 import java.io.InputStreamReader
 import java.net.HttpURLConnection
 import java.net.URL
 import java.nio.charset.StandardCharsets
-import java.util.concurrent.Executors
 
-class RequestGitHubAPI(url: String) {
+class GitHubRequest(url: String) {
     private lateinit var listener: ResultListener
 
+    private val scopeIO = CoroutineScope(Dispatchers.IO)
+
     init {
-        Executors.newSingleThreadExecutor().execute {
+        scopeIO.launch(Dispatchers.IO) {
             try {
                 var conn = URL(url).openConnection() as HttpURLConnection
                 conn.requestMethod = "GET"
@@ -39,7 +43,7 @@ class RequestGitHubAPI(url: String) {
                         .openConnection() as HttpURLConnection
                 } else if (200 != responseCode) {
                     conn.disconnect()
-                    return@execute
+                    return@launch
                 }
                 conn.inputStream.use { inStream ->
                     BufferedReader(

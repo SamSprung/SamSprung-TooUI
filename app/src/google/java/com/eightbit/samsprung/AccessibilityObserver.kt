@@ -14,14 +14,22 @@
 
 package com.eightbit.samsprung
 
-import android.accessibilityservice.AccessibilityService
-import android.accessibilityservice.AccessibilityServiceInfo
-import android.content.Intent
-import android.view.accessibility.AccessibilityEvent
+import android.content.Context
+import android.provider.Settings
+import java.io.File
 
 class AccessibilityObserver {
 
     companion object {
+        fun hasEnabledService(context: Context): Boolean {
+            if (BuildConfig.GOOGLE_PLAY) return false
+            val serviceString = Settings.Secure.getString(context.contentResolver,
+                Settings.Secure.ENABLED_ACCESSIBILITY_SERVICES
+            )
+            return serviceString != null && serviceString.contains(context.packageName
+                    + File.separator + AccessibilityObserver::class.java.name)
+        }
         fun performBackAction() {}
+
     }
 }
