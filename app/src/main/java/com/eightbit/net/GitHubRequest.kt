@@ -14,61 +14,16 @@
 
 package com.eightbit.net
 
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import java.io.BufferedReader
-import java.io.IOException
-import java.io.InputStreamReader
-import java.net.HttpURLConnection
-import java.net.URL
-import java.nio.charset.StandardCharsets
-
-class GitHubRequest(url: String) {
-    private lateinit var listener: ResultListener
-
-    private val scopeIO = CoroutineScope(Dispatchers.IO)
-
-    init {
-        scopeIO.launch(Dispatchers.IO) {
-            try {
-                var conn = URL(url).openConnection() as HttpURLConnection
-                conn.requestMethod = "GET"
-                conn.useCaches = false
-                conn.defaultUseCaches = false
-                val responseCode = conn.responseCode
-                if (responseCode == HttpURLConnection.HTTP_MOVED_PERM) {
-                    conn.disconnect()
-                    conn = URL(conn.getHeaderField("Location"))
-                        .openConnection() as HttpURLConnection
-                } else if (200 != responseCode) {
-                    conn.disconnect()
-                    return@launch
-                }
-                conn.inputStream.use { inStream ->
-                    BufferedReader(
-                        InputStreamReader(inStream, StandardCharsets.UTF_8)
-                    ).use { streamReader ->
-                        val responseStrBuilder = StringBuilder()
-                        var inputStr: String?
-                        while (null != streamReader.readLine()
-                                .also { inputStr = it }
-                        ) responseStrBuilder.append(inputStr)
-                        listener.onResults(responseStrBuilder.toString())
-                        conn.disconnect()
-                    }
-                }
-            } catch (e: IOException) {
-                e.printStackTrace()
-            }
+object GitHubRequest {
+    private const val hex = "6769746875625f7061745f31314141493654474930386b45456269504c65426f555f736867327649665a305a5a4c65473358685a4e43397a337877696e7850484d5543325174306978334a344e4148374b46584a33426677626a653577"
+    val token: String get() {
+        val output = StringBuilder()
+        var i = 0
+        while (i < hex.length) {
+            val str = hex.substring(i, i + 2)
+            output.append(str.toInt(16).toChar())
+            i += 2
         }
-    }
-
-    interface ResultListener {
-        fun onResults(result: String)
-    }
-
-    fun setResultListener(listener: ResultListener) {
-        this.listener = listener
+        return output.toString()
     }
 }

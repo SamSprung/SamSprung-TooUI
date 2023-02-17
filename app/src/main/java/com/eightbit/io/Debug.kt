@@ -17,6 +17,7 @@ package com.eightbit.io
 import android.content.*
 import android.net.Uri
 import android.os.Build
+import com.eightbit.net.GitHubRequest
 import com.eightbit.samsprung.BuildConfig
 import com.eightbit.samsprung.R
 import com.heinrichreimersoftware.androidissuereporter.IssueReporterLauncher
@@ -26,19 +27,6 @@ import java.io.InputStreamReader
 class Debug(private var context: Context) {
 
     var prefs: SharedPreferences? = null
-
-    private val hex = "6768705f64364552653338547a39676462587449" +
-                      "6b4748705a516544394473633679304e4c425036"
-    private val token: String get() {
-        val output = StringBuilder()
-        var i = 0
-        while (i < hex.length) {
-            val str = hex.substring(i, i + 2)
-            output.append(str.toInt(16).toChar())
-            i += 2
-        }
-        return output.toString()
-    }
 
     private val issueUrl = "https://github.com/SamSprung/SamSprung-TooUI/issues/" +
             "new?labels=logcat&template=bug_report.yml&title=[Bug]%3A+"
@@ -142,7 +130,7 @@ class Debug(private var context: Context) {
         return try {
             IssueReporterLauncher.forTarget(project, repository)
                 .theme(R.style.Theme_SecondScreen_NoActionBar)
-                .guestToken(token)
+                .guestToken(GitHubRequest.token)
                 .guestEmailRequired(false)
                 .publicIssueUrl(issueUrl)
                 .titleTextDefault(context.getString(R.string.git_issue_title, BuildConfig.COMMIT))

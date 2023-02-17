@@ -24,7 +24,6 @@ import android.provider.Settings
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.FileProvider
 import androidx.documentfile.provider.DocumentFile
-import com.eightbit.net.GitHubRequest
 import com.eightbit.os.Version
 import com.eightbit.samsprung.BuildConfig
 import com.eightbit.samsprung.R
@@ -49,7 +48,6 @@ import java.util.*
 
 class UpdateManager(private var activity: Activity) {
 
-    private val repo = "https://api.github.com/repos/SamSprung/SamSprung-TooUI/releases/tags/"
     var listenerGit: GitUpdateListener? = null
     var listenerPlay: PlayUpdateListener? = null
     private var appUpdateManager: AppUpdateManager? = null
@@ -90,8 +88,8 @@ class UpdateManager(private var activity: Activity) {
                 activity.externalCacheDir?.listFiles { _, name ->
                     name.lowercase(Locale.getDefault()).endsWith(".apk")
                 }?.forEach { if (!it.isDirectory) it.delete() }
+                requestUpdateJSON()
             }
-            requestUpdateJSON()
         }
     }
 
@@ -160,27 +158,21 @@ class UpdateManager(private var activity: Activity) {
 
     }
 
-    private fun parseUpdateJSON(result: String) {
-        try {
-            val jsonObject = JSONTokener(result).nextValue() as JSONObject
-            val lastCommit = (jsonObject["name"] as String).substring(
-                activity.getString(R.string.samsprung).length + 1
-            )
-            val assets = jsonObject["assets"] as JSONArray
-            val asset = assets[0] as JSONObject
-            val downloadUrl = asset["browser_download_url"] as String
-            isUpdateAvailable = BuildConfig.COMMIT != lastCommit
-            if (isUpdateAvailable) listenerGit?.onUpdateFound(downloadUrl)
-        } catch (ignored: JSONException) { }
-    }
-
     fun requestUpdateJSON() {
-        GitHubRequest("${repo}sideload")
-            .setResultListener(object : GitHubRequest.ResultListener {
-            override fun onResults(result: String) {
-                parseUpdateJSON(result)
+        URL(repo).readText().also {
+            try {
+                val jsonObject = JSONTokener(it).nextValue() as JSONObject
+                val lastCommit = (jsonObject["name"] as String).substring(
+                    activity.getString(R.string.samsprung).length + 1
+                )
+                val assets = jsonObject["assets"] as JSONArray
+                val asset = assets[0] as JSONObject
+                val downloadUrl = asset["browser_download_url"] as String
+                isUpdateAvailable = BuildConfig.COMMIT != lastCommit
+                if (isUpdateAvailable) listenerGit?.onUpdateFound(downloadUrl)
+            } catch (ignored: JSONException) {
             }
-        })
+        }
     }
 
     fun hasPendingUpdate(): Boolean {
@@ -201,5 +193,9 @@ class UpdateManager(private var activity: Activity) {
 
     interface PlayUpdateListener {
         fun onPlayUpdateFound(appUpdateInfo: AppUpdateInfo)
+    }
+
+    companion object {
+        private const val repo = "https://api.github.com/repos/SamSprung/SamSprung-TooUI/releases/tags/sideload"
     }
 }
