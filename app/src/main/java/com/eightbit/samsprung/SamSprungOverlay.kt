@@ -1048,7 +1048,7 @@ class SamSprungOverlay : AppCompatActivity() {
                 if (null != appUpdateInfo) {
                     updateManager?.startPlayUpdateFlow(appUpdateInfo)
                 } else if (null != downloadUrl) {
-                    updateManager?.requestInstallUpdate(downloadUrl)
+                    updateManager?.requestDownload(downloadUrl)
                     Toast.makeText(this,
                         R.string.main_screen_required,
                         Toast.LENGTH_LONG).show()

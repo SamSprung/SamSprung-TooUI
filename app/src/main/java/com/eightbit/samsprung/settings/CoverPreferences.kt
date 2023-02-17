@@ -906,7 +906,7 @@ class CoverPreferences : AppCompatActivity() {
                 if (null != appUpdateInfo) {
                     updateManager?.startPlayUpdateFlow(appUpdateInfo)
                 } else if (null != downloadUrl) {
-                    updateManager?.requestInstallUpdate(downloadUrl)
+                    updateManager?.requestDownload(downloadUrl)
                 }
             }
         }

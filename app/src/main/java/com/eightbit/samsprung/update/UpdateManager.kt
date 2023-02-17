@@ -95,7 +95,7 @@ class UpdateManager(private var activity: Activity) {
         }
     }
 
-    private fun installUpdateTask(apkUri: Uri) {
+    private fun installDownload(apkUri: Uri) {
         scopeIO.launch(Dispatchers.IO) {
             activity.run {
                 applicationContext.contentResolver.openInputStream(apkUri)?.use { apkStream ->
@@ -126,7 +126,7 @@ class UpdateManager(private var activity: Activity) {
         }
     }
 
-    fun requestInstallUpdate(link: String) {
+    fun requestDownload(link: String) {
         if (activity.packageManager.canRequestPackageInstalls()) {
             val download: String = link.substring(link.lastIndexOf(File.separator) + 1)
             val apk = File(activity.externalCacheDir, download)
@@ -134,7 +134,7 @@ class UpdateManager(private var activity: Activity) {
                 URL(link).openStream().use { stream ->
                     FileOutputStream(apk).use {
                         stream.copyTo(it)
-                        installUpdateTask(FileProvider.getUriForFile(
+                        installDownload(FileProvider.getUriForFile(
                             activity.applicationContext, SamSprung.provider, apk
                         ))
                     }
