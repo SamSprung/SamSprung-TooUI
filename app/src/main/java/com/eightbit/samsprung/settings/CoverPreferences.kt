@@ -915,9 +915,11 @@ class CoverPreferences : AppCompatActivity() {
     @SuppressLint("MissingPermission")
     private val requestWallpaper = registerForActivityResult(
         ActivityResultContracts.RequestMultiplePermissions()) { permissions ->
-        var isStorageEnabled = true
+        var isStorageEnabled = false
         permissions.entries.forEach {
-            if (!it.value) isStorageEnabled = false
+            if (!Version.isTiramisu || it.key == Manifest.permission.READ_MEDIA_IMAGES) {
+                isStorageEnabled = it.value
+            }
         }
         if (isStorageEnabled) {
             try {
