@@ -35,10 +35,10 @@ class SamSprung : Application() {
     }
 
     companion object {
-        const val provider: String = "com.eightbit.samsprung.provider"
-        const val updating: String = "com.eightbit.samsprung.UPDATING"
-        const val services: String = "com.eightbit.samsprung.SERVICES"
-        const val launcher: String = "com.eightbit.samsprung.LAUNCHER"
+        const val provider: String = "${BuildConfig.APPLICATION_ID}.provider"
+        const val updating: String = "${BuildConfig.APPLICATION_ID}.UPDATING"
+        const val services: String = "${BuildConfig.APPLICATION_ID}.SERVICES"
+        const val launcher: String = "${BuildConfig.APPLICATION_ID}.LAUNCHER"
 
         const val request_code = 8675309
         const val notification = request_code.toString()

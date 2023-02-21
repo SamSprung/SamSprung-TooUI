@@ -10,7 +10,7 @@ android {
         applicationId 'com.eightbit.samsprung'
         minSdk 30
         targetSdk 33
-        versionName "2.3.2"
+        versionName "2.3.4"
         versionCode = versionName.replace(".","").toInteger()
 
         vectorDrawables {
@@ -39,7 +39,11 @@ android {
         github {
             dimension "source"
             manifestPlaceholders = [
-                    installPermission: "android.permission.REQUEST_INSTALL_PACKAGES"
+                    installPermission: "android.permission.REQUEST_INSTALL_PACKAGES",
+                    accessibilityPermission: "android.permission.BIND_ACCESSIBILITY_SERVICE",
+                    accessibilityFilter: "android.accessibilityservice.AccessibilityService",
+                    accessibilityMetaName: "android.accessibilityservice",
+                    accessibilityMetaRes: "@xml/accessibility_service"
             ]
             buildConfigField "boolean", "GOOGLE_PLAY", "false"
         }
@@ -47,7 +51,11 @@ android {
             dimension "source"
             isDefault true
             manifestPlaceholders = [
-                    installPermission: "com.eightbit.samsprung.UPDATING"
+                    installPermission: "${defaultConfig.applicationId}.UPDATING",
+                    accessibilityPermission: "${defaultConfig.applicationId}.SERVICES",
+                    accessibilityFilter: "${defaultConfig.applicationId}.SERVICES",
+                    accessibilityMetaName: "${defaultConfig.applicationId}.SERVICES",
+                    accessibilityMetaRes: "@xml/placeholder_service"
             ]
             buildConfigField "boolean", "GOOGLE_PLAY", "true"
         }
