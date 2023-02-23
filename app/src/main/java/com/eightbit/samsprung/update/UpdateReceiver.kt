@@ -60,11 +60,9 @@ class UpdateReceiver : BroadcastReceiver() {
             !BuildConfig.GOOGLE_PLAY && SamSprung.updating == action -> {
                 when (intent.getIntExtra(PackageInstaller.EXTRA_STATUS, -1)) {
                     PackageInstaller.STATUS_PENDING_USER_ACTION -> {
-                        val activityIntent = intent.parcelable<Intent>(Intent.EXTRA_INTENT)
-                        if (null != activityIntent) {
-                            val intentUri = activityIntent.toUri(0)
+                        intent.parcelable<Intent>(Intent.EXTRA_INTENT)?.let {
                             startLauncherActivity(
-                                context, Intent.parseUri(intentUri, Intent.URI_ALLOW_UNSAFE)
+                                context, Intent.parseUri(it.toUri(0), Intent.URI_ALLOW_UNSAFE)
                             )
                         }
                     }
