@@ -281,9 +281,9 @@ class SamSprungOverlay : AppCompatActivity() {
                 if (cameraId == camManager.cameraIdList[0]) isTorchEnabled = enabled
                 val torchMenu = toolbar.menu.findItem(R.id.toggle_torch)
                 if (isTorchEnabled) {
-                    torchMenu.setIcon(R.drawable.ic_baseline_flashlight_on_24dp)
+                    torchMenu.setIcon(R.drawable.ic_flashlight_on_24dp)
                 } else {
-                    torchMenu.setIcon(R.drawable.ic_baseline_flashlight_off_24dp)
+                    torchMenu.setIcon(R.drawable.ic_flashlight_off_24dp)
                 }
                 torchMenu.icon?.setTint(prefs.getInt(SamSprung.prefColors,
                     Color.rgb(255, 255, 255)))
@@ -330,14 +330,14 @@ class SamSprungOverlay : AppCompatActivity() {
                     this@SamSprungOverlay, bottomSheet as ViewGroup
                 ).buildTickerBar(
                     getString(R.string.rotation_lock),
-                    R.drawable.ic_baseline_screen_lock_rotation_24
+                    R.drawable.ic_screen_lock_rotation_24
                 )
                 lockBar.setAction(R.string.rotation_lock_action) {
                     with(prefs.edit()) {
                         putBoolean(SamSprung.prefRotate, true)
                         apply()
                     }
-                    buttonRotation.setImageResource(R.drawable.ic_baseline_screen_lock_rotation_24)
+                    buttonRotation.setImageResource(R.drawable.ic_screen_lock_rotation_24)
                 }
                 lockBar.show()
             } else {
@@ -345,7 +345,7 @@ class SamSprungOverlay : AppCompatActivity() {
                     putBoolean(SamSprung.prefRotate, false)
                     apply()
                 }
-                buttonRotation.setImageResource(R.drawable.ic_baseline_screen_rotation_24)
+                buttonRotation.setImageResource(R.drawable.ic_screen_rotation_24)
             }
         }
         buttonRotation.setOnLongClickListener { view ->
@@ -356,9 +356,9 @@ class SamSprungOverlay : AppCompatActivity() {
         }
         buttonRotation.setImageResource(
             if (prefs.getBoolean(SamSprung.prefRotate, false))
-                R.drawable.ic_baseline_screen_lock_rotation_24
+                R.drawable.ic_screen_lock_rotation_24
             else
-                R.drawable.ic_baseline_screen_rotation_24
+                R.drawable.ic_screen_rotation_24
         )
 
         val keyguardManager = (getSystemService(KEYGUARD_SERVICE) as KeyguardManager)
@@ -395,7 +395,7 @@ class SamSprungOverlay : AppCompatActivity() {
                                         this@SamSprungOverlay, bottomSheet as ViewGroup
                                     ).buildTickerBar(
                                         getString(R.string.auth_required),
-                                        R.drawable.ic_baseline_fingerprint_24dp
+                                        R.drawable.ic_fingerprint_24dp
                                     )
                                     authBar.setAction(R.string.auth_required_action) {
                                         onKeyguardClicked(keyguardManager, buttonAuth)
@@ -408,10 +408,10 @@ class SamSprungOverlay : AppCompatActivity() {
                                 @Suppress("DEPRECATION")
                                 if (bluetoothAdapter.isEnabled) {
                                     bluetoothAdapter.disable()
-                                    item.setIcon(R.drawable.ic_baseline_bluetooth_off_24dp)
+                                    item.setIcon(R.drawable.ic_bluetooth_off_24dp)
                                 } else {
                                     bluetoothAdapter.enable()
-                                    item.setIcon(R.drawable.ic_baseline_bluetooth_on_24dp)
+                                    item.setIcon(R.drawable.ic_bluetooth_on_24dp)
                                 }
                                 item.icon?.setTint(color)
                                 return@setOnMenuItemClickListener true
@@ -424,7 +424,7 @@ class SamSprungOverlay : AppCompatActivity() {
                                         this@SamSprungOverlay, bottomSheet as ViewGroup
                                     ).buildTickerBar(
                                         getString(R.string.auth_required),
-                                        R.drawable.ic_baseline_fingerprint_24dp
+                                        R.drawable.ic_fingerprint_24dp
                                     )
                                     authBar.setAction(R.string.auth_required_action) {
                                         onKeyguardClicked(keyguardManager, buttonAuth)
@@ -436,10 +436,10 @@ class SamSprungOverlay : AppCompatActivity() {
                             R.id.toggle_sound -> {
                                 if (audioManager.ringerMode == AudioManager.RINGER_MODE_NORMAL) {
                                     audioManager.ringerMode = AudioManager.RINGER_MODE_SILENT
-                                    item.setIcon(R.drawable.ic_baseline_sound_off_24dp)
+                                    item.setIcon(R.drawable.ic_sound_off_24dp)
                                 } else {
                                     audioManager.ringerMode = AudioManager.RINGER_MODE_NORMAL
-                                    item.setIcon(R.drawable.ic_baseline_sound_on_24dp)
+                                    item.setIcon(R.drawable.ic_sound_on_24dp)
                                 }
                                 item.icon?.setTint(color)
                                 return@setOnMenuItemClickListener true
@@ -449,11 +449,11 @@ class SamSprungOverlay : AppCompatActivity() {
                                     NotificationManager.INTERRUPTION_FILTER_ALL) {
                                     notificationManager.setInterruptionFilter(
                                         NotificationManager.INTERRUPTION_FILTER_NONE)
-                                    item.setIcon(R.drawable.ic_baseline_do_not_disturb_on_24dp)
+                                    item.setIcon(R.drawable.ic_do_not_disturb_on_24dp)
                                 } else {
                                     notificationManager.setInterruptionFilter(
                                         NotificationManager.INTERRUPTION_FILTER_ALL)
-                                    item.setIcon(R.drawable.ic_baseline_do_not_disturb_off_24dp)
+                                    item.setIcon(R.drawable.ic_do_not_disturb_off_24dp)
                                 }
                                 item.icon?.setTint(color)
                                 return@setOnMenuItemClickListener true
@@ -516,7 +516,7 @@ class SamSprungOverlay : AppCompatActivity() {
                 .setOnLongClickListener(View.OnLongClickListener {
                 if (viewPager.currentItem > 1) {
                     toolbar.menu.findItem(R.id.toggle_widgets)
-                        .setIcon(R.drawable.ic_baseline_delete_forever_24dp)
+                        .setIcon(R.drawable.ic_delete_forever_24dp)
                     if (prefs.getBoolean(SamSprung.prefReacts, true))
                         vibrator.vibrate(effectLongClick)
                     bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
@@ -540,7 +540,7 @@ class SamSprungOverlay : AppCompatActivity() {
                         }
                     }
                     toolbar.menu.findItem(R.id.toggle_widgets)
-                        .setIcon(R.drawable.ic_baseline_widgets_24dp)
+                        .setIcon(R.drawable.ic_widgets_24dp)
                     toolbar.menu.findItem(R.id.toggle_widgets).icon?.setTint(color)
                 } else {
                     Toast.makeText(this,
@@ -665,9 +665,9 @@ class SamSprungOverlay : AppCompatActivity() {
     private val wifiEnabler = registerForActivityResult(
         ActivityResultContracts.StartActivityForResult()) {
         if (wifiManager.isWifiEnabled)
-            toolbar.menu.findItem(R.id.toggle_wifi).setIcon(R.drawable.ic_baseline_wifi_on_24dp)
+            toolbar.menu.findItem(R.id.toggle_wifi).setIcon(R.drawable.ic_wifi_on_24dp)
         else
-            toolbar.menu.findItem(R.id.toggle_wifi).setIcon(R.drawable.ic_baseline_wifi_off_24dp)
+            toolbar.menu.findItem(R.id.toggle_wifi).setIcon(R.drawable.ic_wifi_off_24dp)
         toolbar.menu.findItem(R.id.toggle_wifi).icon?.setTint(
             prefs.getInt(SamSprung.prefColors, Color.rgb(255, 255, 255))
         )
@@ -676,9 +676,9 @@ class SamSprungOverlay : AppCompatActivity() {
     private val nfcEnabler = registerForActivityResult(
         ActivityResultContracts.StartActivityForResult()) {
         if (nfcAdapter.isEnabled)
-            toolbar.menu.findItem(R.id.toggle_nfc).setIcon(R.drawable.ic_baseline_nfc_on_24dp)
+            toolbar.menu.findItem(R.id.toggle_nfc).setIcon(R.drawable.ic_nfc_on_24dp)
         else
-            toolbar.menu.findItem(R.id.toggle_nfc).setIcon(R.drawable.ic_baseline_nfc_off_24dp)
+            toolbar.menu.findItem(R.id.toggle_nfc).setIcon(R.drawable.ic_nfc_off_24dp)
         toolbar.menu.findItem(R.id.toggle_nfc).icon?.setTint(
             prefs.getInt(SamSprung.prefColors, Color.rgb(255, 255, 255))
         )
@@ -819,7 +819,7 @@ class SamSprungOverlay : AppCompatActivity() {
                     authDialog.dismiss()
                     IconifiedSnackbar(this@SamSprungOverlay, viewPager).buildTickerBar(
                         getString(R.string.auth_unavailable),
-                        R.drawable.ic_baseline_fingerprint_24dp
+                        R.drawable.ic_fingerprint_24dp
                     ).show()
                     keyguardListener?.onKeyguardCheck(false)
                 }
@@ -912,46 +912,46 @@ class SamSprungOverlay : AppCompatActivity() {
 
         if (wifiManager.isWifiEnabled)
             toolbar.menu.findItem(R.id.toggle_wifi)
-                .setIcon(R.drawable.ic_baseline_wifi_on_24dp)
+                .setIcon(R.drawable.ic_wifi_on_24dp)
         else
             toolbar.menu.findItem(R.id.toggle_wifi)
-                .setIcon(R.drawable.ic_baseline_wifi_off_24dp)
+                .setIcon(R.drawable.ic_wifi_off_24dp)
         if (Version.isTiramisu) {
             toolbar.menu.findItem(R.id.toggle_bluetooth).isVisible = false
         } else if (Version.isSnowCone && hasPermissions(Manifest.permission.BLUETOOTH_CONNECT)) {
             if (bluetoothAdapter.isEnabled)
                 toolbar.menu.findItem(R.id.toggle_bluetooth)
-                    .setIcon(R.drawable.ic_baseline_bluetooth_on_24dp)
+                    .setIcon(R.drawable.ic_bluetooth_on_24dp)
             else
                 toolbar.menu.findItem(R.id.toggle_bluetooth)
-                    .setIcon(R.drawable.ic_baseline_bluetooth_off_24dp)
+                    .setIcon(R.drawable.ic_bluetooth_off_24dp)
         } else {
             toolbar.menu.findItem(R.id.toggle_bluetooth).isVisible = false
         }
 
         if (nfcAdapter.isEnabled)
             toolbar.menu.findItem(R.id.toggle_nfc)
-                .setIcon(R.drawable.ic_baseline_nfc_on_24dp)
+                .setIcon(R.drawable.ic_nfc_on_24dp)
         else
             toolbar.menu.findItem(R.id.toggle_nfc)
-                .setIcon(R.drawable.ic_baseline_nfc_off_24dp)
+                .setIcon(R.drawable.ic_nfc_off_24dp)
 
         if (audioManager.ringerMode == AudioManager.RINGER_MODE_NORMAL)
             toolbar.menu.findItem(R.id.toggle_sound)
-                .setIcon(R.drawable.ic_baseline_sound_on_24dp)
+                .setIcon(R.drawable.ic_sound_on_24dp)
         else
             toolbar.menu.findItem(R.id.toggle_sound)
-                .setIcon(R.drawable.ic_baseline_sound_off_24dp)
+                .setIcon(R.drawable.ic_sound_off_24dp)
 
         if (notificationManager.isNotificationPolicyAccessGranted) {
             if (notificationManager.currentInterruptionFilter ==
                 NotificationManager.INTERRUPTION_FILTER_ALL
             )
                 toolbar.menu.findItem(R.id.toggle_dnd)
-                    .setIcon(R.drawable.ic_baseline_do_not_disturb_off_24dp)
+                    .setIcon(R.drawable.ic_do_not_disturb_off_24dp)
             else
                 toolbar.menu.findItem(R.id.toggle_dnd)
-                    .setIcon(R.drawable.ic_baseline_do_not_disturb_on_24dp)
+                    .setIcon(R.drawable.ic_do_not_disturb_on_24dp)
         } else {
             toolbar.menu.findItem(R.id.toggle_dnd).isVisible = false
         }

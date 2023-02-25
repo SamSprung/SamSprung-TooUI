@@ -117,7 +117,7 @@ class CoverPreferences : AppCompatActivity() {
         ))
         supportActionBar?.setDisplayShowHomeEnabled(true)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
-        supportActionBar?.setHomeAsUpIndicator(R.drawable.ic_baseline_menu_24)
+        supportActionBar?.setHomeAsUpIndicator(R.drawable.ic_menu_24)
 
         prefs = getSharedPreferences(SamSprung.prefsValue, MODE_PRIVATE)
         setTheme(R.style.Theme_SecondScreen)
@@ -509,9 +509,9 @@ class CoverPreferences : AppCompatActivity() {
             when (item.itemId) {
                 R.id.toggle_wifi -> {
                     if (prefs.getBoolean(pref, true))
-                        item.setIcon(R.drawable.ic_baseline_wifi_on_24dp)
+                        item.setIcon(R.drawable.ic_wifi_on_24dp)
                     else
-                        item.setIcon(R.drawable.ic_baseline_wifi_off_24dp)
+                        item.setIcon(R.drawable.ic_wifi_off_24dp)
                     return@setOnMenuItemClickListener true
                 }
                 R.id.toggle_bluetooth -> {
@@ -529,30 +529,30 @@ class CoverPreferences : AppCompatActivity() {
                 }
                 R.id.toggle_nfc -> {
                     if (prefs.getBoolean(pref, true))
-                        item.setIcon(R.drawable.ic_baseline_nfc_on_24dp)
+                        item.setIcon(R.drawable.ic_nfc_on_24dp)
                     else
-                        item.setIcon(R.drawable.ic_baseline_nfc_off_24dp)
+                        item.setIcon(R.drawable.ic_nfc_off_24dp)
                     return@setOnMenuItemClickListener true
                 }
                 R.id.toggle_sound -> {
                     if (prefs.getBoolean(pref, true))
-                        item.setIcon(R.drawable.ic_baseline_sound_on_24dp)
+                        item.setIcon(R.drawable.ic_sound_on_24dp)
                     else
-                        item.setIcon(R.drawable.ic_baseline_sound_off_24dp)
+                        item.setIcon(R.drawable.ic_sound_off_24dp)
                     return@setOnMenuItemClickListener true
                 }
                 R.id.toggle_dnd -> {
                     if (prefs.getBoolean(pref, true))
-                        item.setIcon(R.drawable.ic_baseline_do_not_disturb_on_24dp)
+                        item.setIcon(R.drawable.ic_do_not_disturb_on_24dp)
                     else
-                        item.setIcon(R.drawable.ic_baseline_do_not_disturb_off_24dp)
+                        item.setIcon(R.drawable.ic_do_not_disturb_off_24dp)
                     return@setOnMenuItemClickListener true
                 }
                 R.id.toggle_torch -> {
                     if (prefs.getBoolean(pref, true))
-                        item.setIcon(R.drawable.ic_baseline_flashlight_on_24dp)
+                        item.setIcon(R.drawable.ic_flashlight_on_24dp)
                     else
-                        item.setIcon(R.drawable.ic_baseline_flashlight_off_24dp)
+                        item.setIcon(R.drawable.ic_flashlight_off_24dp)
                     return@setOnMenuItemClickListener true
                 }
                 R.id.toggle_widgets -> {
@@ -567,9 +567,9 @@ class CoverPreferences : AppCompatActivity() {
 
         val wifi = toolbar.menu.findItem(R.id.toggle_wifi)
         if (prefs.getBoolean(wifi.title?.toPref, true))
-            wifi.setIcon(R.drawable.ic_baseline_wifi_on_24dp)
+            wifi.setIcon(R.drawable.ic_wifi_on_24dp)
         else
-            wifi.setIcon(R.drawable.ic_baseline_wifi_off_24dp)
+            wifi.setIcon(R.drawable.ic_wifi_off_24dp)
 
         if (Version.isSnowCone) {
             if (Version.isTiramisu || !hasPermission(Manifest.permission.BLUETOOTH_CONNECT)) {
@@ -584,27 +584,27 @@ class CoverPreferences : AppCompatActivity() {
 
         val nfc = toolbar.menu.findItem(R.id.toggle_nfc)
         if (prefs.getBoolean(nfc.title?.toPref, true))
-            nfc.setIcon(R.drawable.ic_baseline_nfc_on_24dp)
+            nfc.setIcon(R.drawable.ic_nfc_on_24dp)
         else
-            nfc.setIcon(R.drawable.ic_baseline_nfc_off_24dp)
+            nfc.setIcon(R.drawable.ic_nfc_off_24dp)
 
         val sound = toolbar.menu.findItem(R.id.toggle_sound)
         if (prefs.getBoolean(sound.title?.toPref, true))
-            sound.setIcon(R.drawable.ic_baseline_sound_on_24dp)
+            sound.setIcon(R.drawable.ic_sound_on_24dp)
         else
-            sound.setIcon(R.drawable.ic_baseline_sound_off_24dp)
+            sound.setIcon(R.drawable.ic_sound_off_24dp)
 
         val dnd = toolbar.menu.findItem(R.id.toggle_dnd)
         if (prefs.getBoolean(dnd.title?.toPref, true))
-            dnd.setIcon(R.drawable.ic_baseline_do_not_disturb_on_24dp)
+            dnd.setIcon(R.drawable.ic_do_not_disturb_on_24dp)
         else
-            dnd.setIcon(R.drawable.ic_baseline_do_not_disturb_off_24dp)
+            dnd.setIcon(R.drawable.ic_do_not_disturb_off_24dp)
 
         val torch = toolbar.menu.findItem(R.id.toggle_torch)
         if (prefs.getBoolean(torch.title?.toPref, true))
-            torch.setIcon(R.drawable.ic_baseline_flashlight_on_24dp)
+            torch.setIcon(R.drawable.ic_flashlight_on_24dp)
         else
-            torch.setIcon(R.drawable.ic_baseline_flashlight_off_24dp)
+            torch.setIcon(R.drawable.ic_flashlight_off_24dp)
 
         toggleWidgetsIcon(toolbar)
 
@@ -889,7 +889,7 @@ class CoverPreferences : AppCompatActivity() {
         runOnUiThread {
             val buildIcon = findViewById<AppCompatImageView>(R.id.build_icon)
             buildIcon.setImageDrawable(ContextCompat.getDrawable(
-                this@CoverPreferences, R.drawable.ic_baseline_software_update_24))
+                this@CoverPreferences, R.drawable.ic_software_update_24))
             val buildInfo = findViewById<TextView>(R.id.build_info)
             val colorStateList = buildInfo.textColors
             buildInfo.setTextColor(Color.RED)
@@ -1028,9 +1028,9 @@ class CoverPreferences : AppCompatActivity() {
     private fun toggleVoiceIcon(isEnabled: Boolean) {
         findViewById<AppCompatImageView>(R.id.voice_button).setImageResource(
             if (isEnabled)
-                R.drawable.ic_baseline_record_voice_over_24dp
+                R.drawable.ic_record_voice_over_24dp
             else
-                R.drawable.ic_baseline_voice_over_off_24dp
+                R.drawable.ic_voice_over_off_24dp
         )
     }
 
@@ -1040,9 +1040,9 @@ class CoverPreferences : AppCompatActivity() {
     private fun toggleBluetoothIcon(toolbar: Toolbar) {
         val bluetooth = toolbar.menu.findItem(R.id.toggle_bluetooth)
         if (prefs.getBoolean(bluetooth.title?.toPref, true))
-            bluetooth.setIcon(R.drawable.ic_baseline_bluetooth_on_24dp)
+            bluetooth.setIcon(R.drawable.ic_bluetooth_on_24dp)
         else
-            bluetooth.setIcon(R.drawable.ic_baseline_bluetooth_off_24dp)
+            bluetooth.setIcon(R.drawable.ic_bluetooth_off_24dp)
     }
 
     @SuppressLint("MissingPermission")
@@ -1061,9 +1061,9 @@ class CoverPreferences : AppCompatActivity() {
     private fun toggleWidgetsIcon(toolbar: Toolbar) {
         val widgets = toolbar.menu.findItem(R.id.toggle_widgets)
         if (prefs.getBoolean(widgets.title?.toPref, false))
-            widgets.setIcon(R.drawable.ic_baseline_widgets_24dp)
+            widgets.setIcon(R.drawable.ic_widgets_24dp)
         else
-            widgets.setIcon(R.drawable.ic_baseline_insert_page_break_24dp)
+            widgets.setIcon(R.drawable.ic_insert_page_break_24dp)
     }
 
     private val requestNotification = registerForActivityResult(

@@ -58,7 +58,7 @@
             android:gravity="center"
             android:layout_weight="1"
             android:max="2"
-            android:thumb="@drawable/ic_baseline_samsprung_24dp"/>
+            android:thumb="@drawable/ic_samsprung_24dp"/>
     </LinearLayout>
 
     <LinearLayout

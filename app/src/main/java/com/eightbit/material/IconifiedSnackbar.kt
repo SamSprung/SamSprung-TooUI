@@ -20,7 +20,6 @@ import android.view.Gravity
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
-import androidx.appcompat.app.AppCompatActivity
 import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.core.content.ContextCompat
 import androidx.core.view.updatePadding
@@ -118,11 +117,11 @@ class IconifiedSnackbar @JvmOverloads constructor(activity: Activity, layout: Vi
             mActivity.resources.getResourceTypeName(value)
             buildTickerBar(msg, value, Snackbar.LENGTH_LONG)
         } catch (exception: Exception) {
-            buildTickerBar(msg, R.drawable.ic_baseline_samsprung_24dp, value)
+            buildTickerBar(msg, R.drawable.ic_samsprung_24dp, value)
         }
     }
 
     fun buildTickerBar(msg: String): Snackbar {
-        return buildTickerBar(msg, R.drawable.ic_baseline_samsprung_24dp, Snackbar.LENGTH_LONG)
+        return buildTickerBar(msg, R.drawable.ic_samsprung_24dp, Snackbar.LENGTH_LONG)
     }
 }

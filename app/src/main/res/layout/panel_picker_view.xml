@@ -28,7 +28,7 @@
             <androidx.appcompat.widget.AppCompatImageView
                 android:layout_width="24.0dip"
                 android:layout_height="24.0dip"
-                app:srcCompat="@drawable/ic_baseline_widgets_24dp"
+                app:srcCompat="@drawable/ic_widgets_24dp"
                 android:contentDescription="@string/description_icon" />
 
             <TextView

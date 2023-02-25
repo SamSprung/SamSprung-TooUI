@@ -98,7 +98,7 @@
             android:layout_height="wrap_content"
             android:gravity="center"
             android:layout_gravity="center"
-            app:srcCompat="@drawable/ic_baseline_record_voice_over_24dp"
+            app:srcCompat="@drawable/ic_record_voice_over_24dp"
             android:paddingStart="0dp"
             android:paddingEnd="4dp"
             android:contentDescription="@string/description_icon"/>
