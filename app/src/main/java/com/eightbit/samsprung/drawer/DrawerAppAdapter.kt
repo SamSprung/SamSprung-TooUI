@@ -129,12 +129,9 @@ class DrawerAppAdapter(
         lateinit var resolveInfo: ResolveInfo
         val iconView: AppCompatImageView = itemView.findViewById(R.id.widgetItemImage)
         private var textView: TextView? = null
-
-        private val scopeIO = CoroutineScope(Dispatchers.IO)
-
         fun bind(resolveInfo: ResolveInfo) {
             this.resolveInfo = resolveInfo
-            scopeIO.launch {
+            CoroutineScope(Dispatchers.IO).launch {
                 val icon = resolveInfo.loadIcon(packageManager)
                 withContext(Dispatchers.Main) {
                     icon?.let { iconView.setImageDrawable(it) }

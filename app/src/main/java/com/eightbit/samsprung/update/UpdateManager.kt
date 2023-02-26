@@ -48,12 +48,10 @@ import java.util.*
 
 class UpdateManager(private var activity: Activity) {
 
-    var listenerGit: GitUpdateListener? = null
-    var listenerPlay: PlayUpdateListener? = null
+    private var listenerGit: GitUpdateListener? = null
+    private var listenerPlay: PlayUpdateListener? = null
     private var appUpdateManager: AppUpdateManager? = null
     private var isUpdateAvailable = false
-
-    private val scopeIO = CoroutineScope(Dispatchers.IO)
 
     init {
         if (BuildConfig.GOOGLE_PLAY) configurePlay() else configureGit()
@@ -84,7 +82,7 @@ class UpdateManager(private var activity: Activity) {
                 }
             }
         } else {
-            scopeIO.launch(Dispatchers.IO) {
+            CoroutineScope(Dispatchers.IO).launch(Dispatchers.IO) {
                 activity.externalCacheDir?.listFiles { _, name ->
                     name.lowercase(Locale.getDefault()).endsWith(".apk")
                 }?.forEach { if (!it.isDirectory) it.delete() }
@@ -94,7 +92,7 @@ class UpdateManager(private var activity: Activity) {
     }
 
     private fun installDownload(apkUri: Uri) {
-        scopeIO.launch(Dispatchers.IO) {
+        CoroutineScope(Dispatchers.IO).launch(Dispatchers.IO) {
             activity.run {
                 applicationContext.contentResolver.openInputStream(apkUri)?.use { apkStream ->
                     val length = DocumentFile.fromSingleUri(
@@ -128,7 +126,7 @@ class UpdateManager(private var activity: Activity) {
         if (activity.packageManager.canRequestPackageInstalls()) {
             val download: String = link.substring(link.lastIndexOf(File.separator) + 1)
             val apk = File(activity.externalCacheDir, download)
-            scopeIO.launch(Dispatchers.IO) {
+            CoroutineScope(Dispatchers.IO).launch(Dispatchers.IO) {
                 URL(link).openStream().use { stream ->
                     FileOutputStream(apk).use {
                         stream.copyTo(it)

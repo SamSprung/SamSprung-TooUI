@@ -88,13 +88,11 @@ class FilteredAppsAdapter(
     ) : RecyclerView.ViewHolder(itemView) {
         lateinit var application: ResolveInfo
 
-        private val scopeIO = CoroutineScope(Dispatchers.IO)
-
         fun bind(appInfo: ResolveInfo) {
             this.application = appInfo
             val detailView = itemView.findViewById<LinearLayout>(R.id.hiddenItemContainer)
 
-            scopeIO.launch {
+            CoroutineScope(Dispatchers.IO).launch {
                 val appName: CharSequence? = try {
                     application.loadLabel(packageManager)
                 } catch (e: Exception) {

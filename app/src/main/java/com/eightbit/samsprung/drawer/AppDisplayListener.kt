@@ -202,8 +202,7 @@ class AppDisplayListener : Service() {
     private fun resetRecentActivities(componentName: ComponentName?, display: Int) {
         restoreActivityDisplay(componentName, 0)
 
-        startActivity(Intent(Intent.ACTION_MAIN).apply {
-            addCategory(Intent.CATEGORY_HOME)
+        startActivity(Intent(Intent.ACTION_MAIN).addCategory(Intent.CATEGORY_HOME).apply {
             flags = Intent.FLAG_ACTIVITY_NEW_TASK or
                     Intent.FLAG_ACTIVITY_FORWARD_RESULT or
                     Intent.FLAG_ACTIVITY_NO_ANIMATION

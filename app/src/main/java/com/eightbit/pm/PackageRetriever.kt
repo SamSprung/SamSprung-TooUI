@@ -35,8 +35,7 @@ class PackageRetriever(val context: Context) {
     )
 
     fun getPackageList() : MutableList<ResolveInfo> {
-        val mainIntent = Intent(Intent.ACTION_MAIN, null)
-        mainIntent.addCategory(Intent.CATEGORY_LAUNCHER)
+        val mainIntent = Intent(Intent.ACTION_MAIN, null).addCategory(Intent.CATEGORY_LAUNCHER)
         val packages: MutableList<ResolveInfo> = context.packageManager.queryIntentActivities(
             mainIntent, PackageManager.GET_RESOLVED_FILTER
         )

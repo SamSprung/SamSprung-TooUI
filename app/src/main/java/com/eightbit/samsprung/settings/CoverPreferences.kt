@@ -106,8 +106,6 @@ class CoverPreferences : AppCompatActivity() {
 
     private val donationManager = DonationManager(this)
 
-    private val scopeIO = CoroutineScope(Dispatchers.IO)
-
     @SuppressLint("ClickableViewAccessibility", "InflateParams")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -822,8 +820,9 @@ class CoverPreferences : AppCompatActivity() {
                     .setMessage(getString(R.string.incompatibility_warning))
                     .setPositiveButton(R.string.button_uninstall) { dialog, _ ->
                         try {
-                            startActivity(Intent(Intent.ACTION_DELETE)
-                                .setData(Uri.parse("package:apps.ijp.coveros")))
+                            startActivity(Intent(Intent.ACTION_DELETE).setData(
+                                Uri.parse("package:apps.ijp.coveros")
+                            ))
                             dialog.dismiss()
                         } catch (ignored: Exception) { }
                     }
@@ -950,7 +949,7 @@ class CoverPreferences : AppCompatActivity() {
     private fun saveAnimatedImage(sourceUri: Uri) {
         val background = File(filesDir, "wallpaper.png")
         if (background.exists()) background.delete()
-        scopeIO.launch(Dispatchers.IO) {
+        CoroutineScope(Dispatchers.IO).launch(Dispatchers.IO) {
             val destinationFilename = File(filesDir, "wallpaper.gif")
             try {
                 contentResolver.openInputStream(sourceUri).use { stream ->
@@ -967,7 +966,7 @@ class CoverPreferences : AppCompatActivity() {
     private fun saveStaticImage(sourceUri: Uri) {
         val animated = File(filesDir, "wallpaper.gif")
         if (animated.exists()) animated.delete()
-        scopeIO.launch(Dispatchers.IO) {
+        CoroutineScope(Dispatchers.IO).launch(Dispatchers.IO) {
             val source: ImageDecoder.Source = ImageDecoder.createSource(
                 this@CoverPreferences.contentResolver, sourceUri
             )
@@ -1093,7 +1092,7 @@ class CoverPreferences : AppCompatActivity() {
     private val usageLauncher = registerForActivityResult(
         ActivityResultContracts.StartActivityForResult()) {
         val packageRetriever = PackageRetriever(this)
-        scopeIO.launch(Dispatchers.IO) {
+        CoroutineScope(Dispatchers.IO).launch(Dispatchers.IO) {
             val packages = packageRetriever.getPackageList()
             val unlisted = packageRetriever.getHiddenPackages()
             withContext(Dispatchers.Main) {
