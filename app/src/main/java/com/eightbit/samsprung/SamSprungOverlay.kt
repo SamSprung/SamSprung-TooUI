@@ -71,6 +71,7 @@ import com.eightbit.samsprung.drawer.CoverStateAdapter
 import com.eightbit.samsprung.drawer.LauncherManager
 import com.eightbit.samsprung.drawer.PanelWidgetManager
 import com.eightbit.samsprung.drawer.panels.*
+import com.eightbit.samsprung.settings.Preferences
 import com.eightbit.samsprung.speech.VoiceRecognizer
 import com.eightbit.samsprung.update.UpdateManager
 import com.eightbit.view.AnimatedLinearLayout
@@ -185,7 +186,7 @@ class SamSprungOverlay : AppCompatActivity() {
         )
         window.attributes.gravity = Gravity.BOTTOM
 
-        prefs = getSharedPreferences(SamSprung.prefsValue, MODE_PRIVATE)
+        prefs = getSharedPreferences(Preferences.prefsValue, MODE_PRIVATE)
         vibrator = if (Version.isSnowCone) {
             (getSystemService(VIBRATOR_MANAGER_SERVICE) as VibratorManager).defaultVibrator
         } else {
@@ -248,7 +249,7 @@ class SamSprungOverlay : AppCompatActivity() {
         }
 
         val blurView = findViewById<BlurView>(R.id.blurContainer)
-        if (prefs.getBoolean(SamSprung.prefRadius, true)) {
+        if (prefs.getBoolean(Preferences.prefRadius, true)) {
             blurView.setupWith(coordinator,
                 if (Version.isSnowCone)
                     RenderEffectBlur()
@@ -285,7 +286,7 @@ class SamSprungOverlay : AppCompatActivity() {
                 } else {
                     torchMenu.setIcon(R.drawable.ic_flashlight_off_24dp)
                 }
-                torchMenu.icon?.setTint(prefs.getInt(SamSprung.prefColors,
+                torchMenu.icon?.setTint(prefs.getInt(Preferences.prefColors,
                     Color.rgb(255, 255, 255)))
             }
         }
@@ -322,9 +323,9 @@ class SamSprungOverlay : AppCompatActivity() {
 
         val buttonRotation = findViewById<AppCompatImageView>(R.id.button_rotation)
         buttonRotation.setOnClickListener {
-            if (prefs.getBoolean(SamSprung.prefReacts, true))
+            if (prefs.getBoolean(Preferences.prefReacts, true))
                 vibrator.vibrate(effectClick)
-            val unlocked = !prefs.getBoolean(SamSprung.prefRotate, false)
+            val unlocked = !prefs.getBoolean(Preferences.prefRotate, false)
             if (unlocked) {
                 val lockBar: Snackbar = IconifiedSnackbar(
                     this@SamSprungOverlay, bottomSheet as ViewGroup
@@ -334,7 +335,7 @@ class SamSprungOverlay : AppCompatActivity() {
                 )
                 lockBar.setAction(R.string.rotation_lock_action) {
                     with(prefs.edit()) {
-                        putBoolean(SamSprung.prefRotate, true)
+                        putBoolean(Preferences.prefRotate, true)
                         apply()
                     }
                     buttonRotation.setImageResource(R.drawable.ic_screen_lock_rotation_24)
@@ -342,7 +343,7 @@ class SamSprungOverlay : AppCompatActivity() {
                 lockBar.show()
             } else {
                 with(prefs.edit()) {
-                    putBoolean(SamSprung.prefRotate, false)
+                    putBoolean(Preferences.prefRotate, false)
                     apply()
                 }
                 buttonRotation.setImageResource(R.drawable.ic_screen_rotation_24)
@@ -355,7 +356,7 @@ class SamSprungOverlay : AppCompatActivity() {
             true
         }
         buttonRotation.setImageResource(
-            if (prefs.getBoolean(SamSprung.prefRotate, false))
+            if (prefs.getBoolean(Preferences.prefRotate, false))
                 R.drawable.ic_screen_lock_rotation_24
             else
                 R.drawable.ic_screen_rotation_24
@@ -496,11 +497,11 @@ class SamSprungOverlay : AppCompatActivity() {
 
         val buttonClose = findViewById<AppCompatImageView>(R.id.button_close)
         buttonClose.setOnClickListener {
-            if (prefs.getBoolean(SamSprung.prefReacts, true))
+            if (prefs.getBoolean(Preferences.prefReacts, true))
                 vibrator.vibrate(effectClick)
             bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
             bottomSheetBehaviorMain.state = BottomSheetBehavior.STATE_COLLAPSED
-            if (prefs.getBoolean(SamSprung.prefCloser, Version.isTiramisu)) onStopOverlay()
+            if (prefs.getBoolean(Preferences.prefCloser, Version.isTiramisu)) onStopOverlay()
         }
         buttonClose.setOnLongClickListener { view ->
             Toast.makeText(
@@ -517,7 +518,7 @@ class SamSprungOverlay : AppCompatActivity() {
                 if (viewPager.currentItem > 1) {
                     toolbar.menu.findItem(R.id.toggle_widgets)
                         .setIcon(R.drawable.ic_delete_forever_24dp)
-                    if (prefs.getBoolean(SamSprung.prefReacts, true))
+                    if (prefs.getBoolean(Preferences.prefReacts, true))
                         vibrator.vibrate(effectLongClick)
                     bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
                     val index = viewPager.currentItem
@@ -559,7 +560,7 @@ class SamSprungOverlay : AppCompatActivity() {
 
         viewPager = findViewById(R.id.pager)
         viewPager.adapter = pagerAdapter
-        if (prefs.getBoolean(SamSprung.prefCarded, true)) {
+        if (prefs.getBoolean(Preferences.prefCarded, true)) {
             val cardFlipPageTransformer = CardFlipPageTransformer()
             cardFlipPageTransformer.isScalable = false
             viewPager.setPageTransformer(cardFlipPageTransformer)
@@ -573,7 +574,7 @@ class SamSprungOverlay : AppCompatActivity() {
                 getSearchView()?.isGone = position != 1
                 setScreenTimeout(findViewById(R.id.bottom_sheet_main))
                 with(prefs.edit()) {
-                    putInt(SamSprung.prefViewer, position)
+                    putInt(Preferences.prefViewer, position)
                     apply()
                 }
             }
@@ -594,7 +595,7 @@ class SamSprungOverlay : AppCompatActivity() {
         val bottomHandle = findViewById<View>(R.id.bottom_handle)
         bottomSheetBehaviorMain = BottomSheetBehavior.from(findViewById(R.id.bottom_sheet_main))
         bottomSheetBehaviorMain.isFitToContents = false
-        bottomSheetBehaviorMain.isDraggable = prefs.getBoolean(SamSprung.prefSlider, true)
+        bottomSheetBehaviorMain.isDraggable = prefs.getBoolean(Preferences.prefSlider, true)
         bottomSheetBehaviorMain.state = BottomSheetBehavior.STATE_COLLAPSED
         bottomSheetBehaviorMain.addBottomSheetCallback(object : BottomSheetBehavior.BottomSheetCallback() {
             var hasConfigured = false
@@ -613,11 +614,11 @@ class SamSprungOverlay : AppCompatActivity() {
                         setActionButtonTimeout()
                     }, 300)
                     bottomSheetBehaviorMain.isDraggable =
-                        prefs.getBoolean(SamSprung.prefSlider, true)
+                        prefs.getBoolean(Preferences.prefSlider, true)
                 }
             }
             override fun onSlide(bottomSheet: View, slideOffset: Float) {
-                color = prefs.getInt(SamSprung.prefColors,
+                color = prefs.getInt(Preferences.prefColors,
                     Color.rgb(255, 255, 255))
                 if (slideOffset > 0) {
                     coordinator.alpha = slideOffset
@@ -627,7 +628,7 @@ class SamSprungOverlay : AppCompatActivity() {
                         fakeOverlay.visibility = View.GONE
                         menuButton.hide()
                         coordinator.visibility = View.VISIBLE
-                        val index = prefs.getInt(SamSprung.prefViewer, viewPager.currentItem)
+                        val index = prefs.getInt(Preferences.prefViewer, viewPager.currentItem)
                         viewPager.setCurrentItem(if (index < 2) 1 else index, false)
                     }
                 }
@@ -654,7 +655,7 @@ class SamSprungOverlay : AppCompatActivity() {
         voice?.setRecognitionListener(recognizer)
         if (SpeechRecognizer.isRecognitionAvailable(applicationContext)) {
             menuButton.setOnLongClickListener {
-                if (prefs.getBoolean(SamSprung.prefReacts, true))
+                if (prefs.getBoolean(Preferences.prefReacts, true))
                     vibrator.vibrate(effectLongClick)
                 voice?.startListening(recognizer.getSpeechIntent(false))
                 return@setOnLongClickListener true
@@ -669,7 +670,7 @@ class SamSprungOverlay : AppCompatActivity() {
         else
             toolbar.menu.findItem(R.id.toggle_wifi).setIcon(R.drawable.ic_wifi_off_24dp)
         toolbar.menu.findItem(R.id.toggle_wifi).icon?.setTint(
-            prefs.getInt(SamSprung.prefColors, Color.rgb(255, 255, 255))
+            prefs.getInt(Preferences.prefColors, Color.rgb(255, 255, 255))
         )
     }
 
@@ -680,18 +681,18 @@ class SamSprungOverlay : AppCompatActivity() {
         else
             toolbar.menu.findItem(R.id.toggle_nfc).setIcon(R.drawable.ic_nfc_off_24dp)
         toolbar.menu.findItem(R.id.toggle_nfc).icon?.setTint(
-            prefs.getInt(SamSprung.prefColors, Color.rgb(255, 255, 255))
+            prefs.getInt(Preferences.prefColors, Color.rgb(255, 255, 255))
         )
     }
 
     private fun setBottomTheme(bottomHandle: View, menuButton: FloatingActionButton) {
-        val color = prefs.getInt(SamSprung.prefColors,
+        val color = prefs.getInt(Preferences.prefColors,
             Color.rgb(255, 255, 255))
         bottomHandle.setBackgroundColor(color)
-        bottomHandle.alpha = prefs.getFloat(SamSprung.prefAlphas, 1f)
+        bottomHandle.alpha = prefs.getFloat(Preferences.prefAlphas, 1f)
         setMenuButtonGravity(menuButton)
         menuButton.drawable.setTint(color)
-        menuButton.alpha = prefs.getFloat(SamSprung.prefAlphas, 1f)
+        menuButton.alpha = prefs.getFloat(Preferences.prefAlphas, 1f)
     }
 
     private fun setKeyguardStatus(keyguardManager: KeyguardManager, button: AppCompatImageView) {
@@ -709,7 +710,7 @@ class SamSprungOverlay : AppCompatActivity() {
     private fun showBottomHandle(bottomHandle: View, menuButton: FloatingActionButton) {
         setBottomTheme(bottomHandle, menuButton)
         menuButton.setOnClickListener {
-            if (prefs.getBoolean(SamSprung.prefReacts, true))
+            if (prefs.getBoolean(Preferences.prefReacts, true))
                 vibrator.vibrate(effectClick)
             bottomSheetBehaviorMain.state = BottomSheetBehavior.STATE_EXPANDED
         }
@@ -726,13 +727,13 @@ class SamSprungOverlay : AppCompatActivity() {
 
     fun getSearchView() : SearchView? {
         val searchView = findViewById<SearchView>(R.id.package_search)
-        searchView.isVisible = prefs.getBoolean(SamSprung.prefSearch, true)
+        searchView.isVisible = prefs.getBoolean(Preferences.prefSearch, true)
         return if (searchView.isVisible) searchView else null
     }
 
     private fun checkUpdatesWithDelay() {
-        if (System.currentTimeMillis() <= prefs.getLong(SamSprung.prefUpdate, 0) + 14400000) return
-        prefs.edit().putLong(SamSprung.prefUpdate, System.currentTimeMillis()).apply()
+        if (System.currentTimeMillis() <= prefs.getLong(Preferences.prefUpdate, 0) + 14400000) return
+        prefs.edit().putLong(Preferences.prefUpdate, System.currentTimeMillis()).apply()
         updateManager = UpdateManager(this)
         if (BuildConfig.GOOGLE_PLAY) {
             updateManager?.setPlayUpdateListener(object :
@@ -768,7 +769,7 @@ class SamSprungOverlay : AppCompatActivity() {
             override fun onDismissError() {
                 super.onDismissError()
                 if (null != authDialog) {
-                    if (prefs.getBoolean(SamSprung.prefReacts, true))
+                    if (prefs.getBoolean(Preferences.prefReacts, true))
                         vibrator.vibrate(effectLongClick)
                     authDialog.dismiss()
                 }
@@ -778,7 +779,7 @@ class SamSprungOverlay : AppCompatActivity() {
             override fun onDismissSucceeded() {
                 super.onDismissSucceeded()
                 if (null != authDialog) {
-                    if (prefs.getBoolean(SamSprung.prefReacts, true))
+                    if (prefs.getBoolean(Preferences.prefReacts, true))
                         vibrator.vibrate(effectLongClick)
                     authDialog.dismiss()
                 }
@@ -903,11 +904,11 @@ class SamSprungOverlay : AppCompatActivity() {
                 toolbar.menu.getItem(i).isVisible = false
             }
         }
-        toggleStats.requestLayout()
+        toggleStats.invalidate()
     }
 
     private fun configureMenuIcons(toolbar: Toolbar) : Int {
-        val color = prefs.getInt(SamSprung.prefColors,
+        val color = prefs.getInt(Preferences.prefColors,
             Color.rgb(255, 255, 255))
 
         if (wifiManager.isWifiEnabled)
@@ -967,7 +968,7 @@ class SamSprungOverlay : AppCompatActivity() {
 
     private fun setMenuButtonGravity(menuButton: FloatingActionButton) {
         var gravity = GravityCompat.END
-        when (prefs.getInt(SamSprung.prefShifts, 2)) {
+        when (prefs.getInt(Preferences.prefShifts, 2)) {
             0 -> gravity = GravityCompat.START
             1 -> gravity = Gravity.CENTER_HORIZONTAL
             2 -> gravity = GravityCompat.END
@@ -1078,7 +1079,7 @@ class SamSprungOverlay : AppCompatActivity() {
     private val timeoutHandler = Handler(Looper.getMainLooper())
     private fun setScreenTimeout(anchorView: View) {
         timeoutHandler.removeCallbacksAndMessages(null)
-        val timeout = prefs.getInt(SamSprung.prefDelays, 5)
+        val timeout = prefs.getInt(Preferences.prefDelays, 5)
         if (timeout == 4) {
             anchorView.keepScreenOn = true
         } else if (timeout > 5) {

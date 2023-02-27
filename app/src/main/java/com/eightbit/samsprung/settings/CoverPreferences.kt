@@ -117,7 +117,7 @@ class CoverPreferences : AppCompatActivity() {
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
         supportActionBar?.setHomeAsUpIndicator(R.drawable.ic_menu_24)
 
-        prefs = getSharedPreferences(SamSprung.prefsValue, MODE_PRIVATE)
+        prefs = getSharedPreferences(Preferences.prefsValue, MODE_PRIVATE)
         setTheme(R.style.Theme_SecondScreen)
         setContentView(R.layout.preferences_layout)
 
@@ -254,7 +254,7 @@ class CoverPreferences : AppCompatActivity() {
         }
         general.isGone = true
 
-        val color = prefs.getInt(SamSprung.prefColors, Color.rgb(255, 255, 255))
+        val color = prefs.getInt(Preferences.prefColors, Color.rgb(255, 255, 255))
 
         val textRed = findViewById<TextView>(R.id.color_red_text)
         val colorRedBar = findViewById<SeekBar>(R.id.color_red_bar)
@@ -277,7 +277,7 @@ class CoverPreferences : AppCompatActivity() {
         colorBlueBar.progressTintList = ColorStateList
             .valueOf(Color.rgb(0, 0, colorBlueBar.progress))
 
-        val alphaFloat = prefs.getFloat(SamSprung.prefAlphas, 1f)
+        val alphaFloat = prefs.getFloat(Preferences.prefAlphas, 1f)
         val alphaPreview = findViewById<View>(R.id.alpha_preview)
         val alphaView = findViewById<LinearLayout>(R.id.color_alpha_view)
         val colorAlphaBar = findViewById<SeekBar>(R.id.color_alpha_bar)
@@ -376,7 +376,7 @@ class CoverPreferences : AppCompatActivity() {
                     colorBlueBar.progress
                 )
                 with(prefs.edit()) {
-                    putInt(SamSprung.prefColors, newColor)
+                    putInt(Preferences.prefColors, newColor)
                     apply()
                 }
                 colorComposite.setBackgroundColor(newColor)
@@ -399,7 +399,7 @@ class CoverPreferences : AppCompatActivity() {
                     colorBlueBar.progress
                 )
                 with(prefs.edit()) {
-                    putInt(SamSprung.prefColors, newColor)
+                    putInt(Preferences.prefColors, newColor)
                     apply()
                 }
                 colorComposite.setBackgroundColor(newColor)
@@ -422,7 +422,7 @@ class CoverPreferences : AppCompatActivity() {
                     progress
                 )
                 with(prefs.edit()) {
-                    putInt(SamSprung.prefColors, newColor)
+                    putInt(Preferences.prefColors, newColor)
                     apply()
                 }
                 colorComposite.setBackgroundColor(newColor)
@@ -441,7 +441,7 @@ class CoverPreferences : AppCompatActivity() {
                 if (!fromUser) return
                 val alpha = progress.toFloat() / 100
                 with(prefs.edit()) {
-                    putFloat(SamSprung.prefAlphas, alpha)
+                    putFloat(Preferences.prefAlphas, alpha)
                     apply()
                 }
                 alphaPreview.alpha = alpha
@@ -467,7 +467,7 @@ class CoverPreferences : AppCompatActivity() {
             override fun onProgressChanged(seek: SeekBar, progress: Int, fromUser: Boolean) {
                 if (!fromUser) return
                 with(prefs.edit()) {
-                    putInt(SamSprung.prefShifts, progress)
+                    putInt(Preferences.prefShifts, progress)
                     apply()
                 }
             }
@@ -476,18 +476,18 @@ class CoverPreferences : AppCompatActivity() {
 
             override fun onStopTrackingTouch(seek: SeekBar) { }
         })
-        placementBar.progress = prefs.getInt(SamSprung.prefShifts, 2)
+        placementBar.progress = prefs.getInt(Preferences.prefShifts, 2)
 
         val themeSpinner = findViewById<Spinner>(R.id.theme_spinner)
         val spinnerAdapter = ArrayAdapter(this, android.R.layout.simple_spinner_item,
             resources.getStringArray(R.array.theme_options))
         spinnerAdapter.setDropDownViewResource(R.layout.dropdown_item_1)
         themeSpinner.adapter = spinnerAdapter
-        themeSpinner.setSelection(prefs.getInt(SamSprung.prefThemes, 0))
+        themeSpinner.setSelection(prefs.getInt(Preferences.prefThemes, 0))
         themeSpinner.onItemSelectedListener = object: AdapterView.OnItemSelectedListener {
             override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
                 with (prefs.edit()) {
-                    putInt(SamSprung.prefThemes, position)
+                    putInt(Preferences.prefThemes, position)
                     apply()
                 }
                 (application as SamSprung).setThemePreference()
@@ -622,10 +622,10 @@ class CoverPreferences : AppCompatActivity() {
         drawer.isGone = true
 
         val vibration = findViewById<AppCompatCheckBox>(R.id.vibration_switch)
-        vibration.isChecked = prefs.getBoolean(SamSprung.prefReacts, true)
+        vibration.isChecked = prefs.getBoolean(Preferences.prefReacts, true)
         vibration.setOnCheckedChangeListener { _, isChecked ->
             with(prefs.edit()) {
-                putBoolean(SamSprung.prefReacts, isChecked)
+                putBoolean(Preferences.prefReacts, isChecked)
                 apply()
             }
         }
@@ -634,10 +634,10 @@ class CoverPreferences : AppCompatActivity() {
         }
 
         val gestures = findViewById<AppCompatCheckBox>(R.id.gestures_switch)
-        gestures.isChecked = prefs.getBoolean(SamSprung.prefSlider, true)
+        gestures.isChecked = prefs.getBoolean(Preferences.prefSlider, true)
         gestures.setOnCheckedChangeListener { _, isChecked ->
             with(prefs.edit()) {
-                putBoolean(SamSprung.prefSlider, isChecked)
+                putBoolean(Preferences.prefSlider, isChecked)
                 apply()
             }
         }
@@ -646,10 +646,10 @@ class CoverPreferences : AppCompatActivity() {
         }
 
         val minimize = findViewById<AppCompatCheckBox>(R.id.minimize_switch)
-        minimize.isChecked = prefs.getBoolean(SamSprung.prefCloser, Version.isTiramisu)
+        minimize.isChecked = prefs.getBoolean(Preferences.prefCloser, Version.isTiramisu)
         minimize.setOnCheckedChangeListener { _, isChecked ->
             with(prefs.edit()) {
-                putBoolean(SamSprung.prefCloser, isChecked)
+                putBoolean(Preferences.prefCloser, isChecked)
                 apply()
             }
         }
@@ -658,10 +658,10 @@ class CoverPreferences : AppCompatActivity() {
         }
 
         val animate = findViewById<AppCompatCheckBox>(R.id.animate_switch)
-        animate.isChecked = prefs.getBoolean(SamSprung.prefCarded, true)
+        animate.isChecked = prefs.getBoolean(Preferences.prefCarded, true)
         animate.setOnCheckedChangeListener { _, isChecked ->
             with(prefs.edit()) {
-                putBoolean(SamSprung.prefCarded, isChecked)
+                putBoolean(Preferences.prefCarded, isChecked)
                 apply()
             }
         }
@@ -675,7 +675,7 @@ class CoverPreferences : AppCompatActivity() {
             override fun onProgressChanged(seek: SeekBar, progress: Int, fromUser: Boolean) {
                 if (!fromUser) return
                 with(prefs.edit()) {
-                    putInt(SamSprung.prefLength, progress)
+                    putInt(Preferences.prefLength, progress)
                     apply()
                 }
                 val textLength = (if (lengthBar.progress < 6) lengthBar.progress else
@@ -687,7 +687,7 @@ class CoverPreferences : AppCompatActivity() {
 
             override fun onStopTrackingTouch(seek: SeekBar) { }
         })
-        lengthBar.progress = prefs.getInt(SamSprung.prefLength, 6)
+        lengthBar.progress = prefs.getInt(Preferences.prefLength, 6)
         val textLength = (if (lengthBar.progress < 6) lengthBar.progress else
             DecimalFormatSymbols.getInstance().infinity).toString()
         setSuperscriptText(lengthText, R.string.options_length, textLength)
@@ -695,12 +695,12 @@ class CoverPreferences : AppCompatActivity() {
         val search = findViewById<AppCompatCheckBox>(R.id.search_switch)
         search.setOnCheckedChangeListener { _, isChecked ->
             with(prefs.edit()) {
-                putBoolean(SamSprung.prefSearch, isChecked && keyboard.isChecked)
+                putBoolean(Preferences.prefSearch, isChecked && keyboard.isChecked)
                 apply()
             }
         }
         search.isChecked = prefs.getBoolean(
-            SamSprung.prefSearch, keyboard.isChecked
+            Preferences.prefSearch, keyboard.isChecked
         ) && keyboard.isChecked
         findViewById<LinearLayout>(R.id.search).setOnClickListener {
             search.isChecked = !search.isChecked && keyboard.isChecked
@@ -731,10 +731,10 @@ class CoverPreferences : AppCompatActivity() {
         }
 
         val radius = findViewById<AppCompatCheckBox>(R.id.radius_switch)
-        radius.isChecked = prefs.getBoolean(SamSprung.prefRadius, true)
+        radius.isChecked = prefs.getBoolean(Preferences.prefRadius, true)
         radius.setOnCheckedChangeListener { _, isChecked ->
             with(prefs.edit()) {
-                putBoolean(SamSprung.prefRadius, isChecked)
+                putBoolean(Preferences.prefRadius, isChecked)
                 apply()
             }
         }
@@ -748,7 +748,7 @@ class CoverPreferences : AppCompatActivity() {
             override fun onProgressChanged(seek: SeekBar, progress: Int, fromUser: Boolean) {
                 if (!fromUser) return
                 with(prefs.edit()) {
-                    putInt(SamSprung.prefDelays, progress)
+                    putInt(Preferences.prefDelays, progress)
                     apply()
                 }
                 val textDelay = (if (timeoutBar.progress > 4) timeoutBar.progress else
@@ -760,16 +760,16 @@ class CoverPreferences : AppCompatActivity() {
 
             override fun onStopTrackingTouch(seek: SeekBar) { }
         })
-        timeoutBar.progress = prefs.getInt(SamSprung.prefDelays, 5)
+        timeoutBar.progress = prefs.getInt(Preferences.prefDelays, 5)
         val textDelay = (if (timeoutBar.progress > 4) timeoutBar.progress else
             DecimalFormatSymbols.getInstance().infinity).toString()
         setSuperscriptText(timeoutText, R.string.options_timeout, textDelay)
 
-        val isGridView = prefs.getBoolean(SamSprung.prefLayout, true)
+        val isGridView = prefs.getBoolean(Preferences.prefLayout, true)
         findViewById<ToggleButton>(R.id.swapViewType).isChecked = isGridView
         findViewById<ToggleButton>(R.id.swapViewType).setOnCheckedChangeListener { _, isChecked ->
             with (prefs.edit()) {
-                putBoolean(SamSprung.prefLayout, isChecked)
+                putBoolean(Preferences.prefLayout, isChecked)
                 apply()
             }
         }
@@ -795,7 +795,7 @@ class CoverPreferences : AppCompatActivity() {
             override fun onProgressChanged(seek: SeekBar, progress: Int, fromUser: Boolean) {
                 if (!fromUser) return
                 with(prefs.edit()) {
-                    putInt(SamSprung.prefSnooze, progress * 10)
+                    putInt(Preferences.prefSnooze, progress * 10)
                     apply()
                 }
                 dismissText.text = getString(
@@ -807,7 +807,7 @@ class CoverPreferences : AppCompatActivity() {
 
             override fun onStopTrackingTouch(seek: SeekBar) { }
         })
-        dismissBar.progress = prefs.getInt(SamSprung.prefSnooze, 30) / 10
+        dismissBar.progress = prefs.getInt(Preferences.prefSnooze, 30) / 10
         dismissText.text = getString(
             R.string.options_dismiss, (dismissBar.progress * 10).toString()
         )
@@ -1282,10 +1282,10 @@ class CoverPreferences : AppCompatActivity() {
                 R.string.display_unavailable, Toast.LENGTH_SHORT
             ).show()
         }
-        if (!prefs.getBoolean(SamSprung.prefWarned, false)) {
+        if (!prefs.getBoolean(Preferences.prefWarned, false)) {
             wikiDrawer.openDrawer(GravityCompat.START)
             with(prefs.edit()) {
-                putBoolean(SamSprung.prefWarned, true)
+                putBoolean(Preferences.prefWarned, true)
                 apply()
             }
         }

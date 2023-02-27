@@ -35,6 +35,7 @@ import com.eightbit.pm.PackageRetriever
 import com.eightbit.samsprung.R
 import com.eightbit.samsprung.SamSprung
 import com.eightbit.samsprung.SamSprungOverlay
+import com.eightbit.samsprung.settings.Preferences
 import com.eightbit.view.OnSwipeTouchListener
 import com.eightbit.widget.RecyclerViewTouch
 import java.util.concurrent.Executors
@@ -65,7 +66,7 @@ class AppDrawerFragment : Fragment(), DrawerAppAdapter.OnAppClickListener {
         super.onViewCreated(view, savedInstanceState)
 
         prefs = requireActivity().getSharedPreferences(
-            SamSprung.prefsValue, AppCompatActivity.MODE_PRIVATE)
+            Preferences.prefsValue, AppCompatActivity.MODE_PRIVATE)
 
         launcherManager = LauncherManager(requireActivity() as SamSprungOverlay)
 
@@ -178,7 +179,7 @@ class AppDrawerFragment : Fragment(), DrawerAppAdapter.OnAppClickListener {
     }
 
     private fun getColumnCount(): Int {
-        val columns = prefs.getInt(SamSprung.prefLength, 6)
+        val columns = prefs.getInt(Preferences.prefLength, 6)
         return if (columns < 6)
             columns
         else
@@ -193,7 +194,7 @@ class AppDrawerFragment : Fragment(), DrawerAppAdapter.OnAppClickListener {
 
     override fun onResume() {
         super.onResume()
-        if (prefs.getBoolean(SamSprung.prefLayout, true)) {
+        if (prefs.getBoolean(Preferences.prefLayout, true)) {
             launcherView.layoutManager = GridLayoutManager(activity, getColumnCount())
         } else {
             launcherView.layoutManager = LinearLayoutManager(activity)

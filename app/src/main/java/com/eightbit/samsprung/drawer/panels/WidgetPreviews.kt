@@ -21,6 +21,7 @@ import androidx.core.content.res.ResourcesCompat
 import com.eightbit.samsprung.R
 import com.eightbit.samsprung.SamSprung
 import com.eightbit.samsprung.SamSprungOverlay
+import com.eightbit.samsprung.settings.Preferences
 import java.io.File
 import java.lang.ref.SoftReference
 import java.lang.ref.WeakReference
@@ -349,9 +350,7 @@ class WidgetPreviews(mLauncher: SamSprungOverlay) {
         mDb = mLauncher.getWidgetPreviewCacheDb()
         mLoadedPreviews = HashMap()
         mUnusedBitmaps = arrayListOf()
-        val sp = mLauncher.getSharedPreferences(
-            SamSprung.prefsValue, Context.MODE_PRIVATE
-        )
+        val sp = mLauncher.getSharedPreferences(Preferences.prefsValue, Context.MODE_PRIVATE)
         val lastVersionName = sp.getString(ANDROID_INCREMENTAL_VERSION_NAME_KEY, null)
         val versionName = Build.VERSION.INCREMENTAL
         if (versionName != lastVersionName) {

@@ -30,6 +30,7 @@ import com.eightbit.app.CoverOptions
 import com.eightbit.content.ScaledContext
 import com.eightbit.os.Version
 import com.eightbit.samsprung.drawer.OrientationManager
+import com.eightbit.samsprung.settings.Preferences
 
 class OnBroadcastService : Service() {
 
@@ -38,8 +39,8 @@ class OnBroadcastService : Service() {
         override fun onReceive(context: Context, intent: Intent) {
             if (Intent.ACTION_USER_PRESENT == intent.action
                 || Intent.ACTION_SCREEN_ON == intent.action) {
-                if (getSharedPreferences(SamSprung.prefsValue, MODE_PRIVATE)
-                        .getBoolean(SamSprung.prefRotate, false)) {
+                if (getSharedPreferences(Preferences.prefsValue, MODE_PRIVATE)
+                        .getBoolean(Preferences.prefRotate, false)) {
                     OrientationManager(context).removeOrientationLayout()
                 }
                 ScaledContext(context).cover().startActivity(

@@ -27,6 +27,7 @@ import androidx.appcompat.widget.AppCompatImageView
 import androidx.recyclerview.widget.RecyclerView
 import com.eightbit.samsprung.R
 import com.eightbit.samsprung.SamSprung
+import com.eightbit.samsprung.settings.Preferences
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -60,7 +61,7 @@ class DrawerAppAdapter(
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): AppViewHolder {
-        return if (prefs.getBoolean(SamSprung.prefLayout, true))
+        return if (prefs.getBoolean(Preferences.prefLayout, true))
             SimpleGridHolder(parent, listener, packageManager, prefs)
         else
         return SimpleViewHolder(parent, listener, packageManager, prefs)
@@ -136,7 +137,7 @@ class DrawerAppAdapter(
                 withContext(Dispatchers.Main) {
                     icon?.let { iconView.setImageDrawable(it) }
                 }
-                if (!prefs.getBoolean(SamSprung.prefLayout, true)) {
+                if (!prefs.getBoolean(Preferences.prefLayout, true)) {
                     textView = itemView.findViewById(R.id.widgetItemText)
                     val label: CharSequence? = try {
                         resolveInfo.loadLabel(packageManager)

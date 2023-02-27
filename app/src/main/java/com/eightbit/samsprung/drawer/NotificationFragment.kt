@@ -52,6 +52,7 @@ import com.eightbit.samsprung.NotificationReceiver
 import com.eightbit.samsprung.R
 import com.eightbit.samsprung.SamSprung
 import com.eightbit.samsprung.SamSprungOverlay
+import com.eightbit.samsprung.settings.Preferences
 import com.eightbit.view.OnSwipeTouchListener
 import com.eightbit.widget.RecyclerViewTouch
 import java.util.*
@@ -238,10 +239,10 @@ class NotificationFragment : Fragment(), NotificationAdapter.OnNoticeClickListen
                 if (null != notice.notification.actions) {
                     actionsPanel.visibility = View.VISIBLE
                     val prefs = requireActivity().getSharedPreferences(
-                        SamSprung.prefsValue, AppCompatActivity.MODE_PRIVATE)
+                        Preferences.prefsValue, AppCompatActivity.MODE_PRIVATE)
                     for (action in notice.notification.actions) {
                         setNotificationAction(position, actionsPanel, action, prefs.getInt(
-                            SamSprung.prefColors, Color.rgb(255, 255, 255)
+                            Preferences.prefColors, Color.rgb(255, 255, 255)
                         ).blended)
                     }
                 }

@@ -35,6 +35,7 @@ import androidx.core.view.isVisible
 import com.eightbit.app.CoverOptions
 import com.eightbit.content.ScaledContext
 import com.eightbit.samsprung.*
+import com.eightbit.samsprung.settings.Preferences
 import com.eightbit.view.OnSwipeTouchListener
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 
@@ -71,7 +72,7 @@ class AppDisplayListener : Service() {
 //            parcel.recycle()
 //        }
 
-        prefs = getSharedPreferences(SamSprung.prefsValue, MODE_PRIVATE)
+        prefs = getSharedPreferences(Preferences.prefsValue, MODE_PRIVATE)
         vibrator = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
             (getSystemService(VIBRATOR_MANAGER_SERVICE) as VibratorManager).defaultVibrator
         } else {
@@ -139,7 +140,7 @@ class AppDisplayListener : Service() {
             override fun onStateChanged(bottomSheet: View, newState: Int) {
                 if (newState == BottomSheetBehavior.STATE_EXPANDED) {
                     val color = prefs.getInt(
-                        SamSprung.prefColors,
+                        Preferences.prefColors,
                         Color.rgb(255, 255, 255))
                     if (!icons.isVisible) icons.visibility = View.VISIBLE
                     for (i in 0 until icons.childCount) {
@@ -156,7 +157,7 @@ class AppDisplayListener : Service() {
         })
 
         val color = prefs.getInt(
-            SamSprung.prefColors,
+            Preferences.prefColors,
             Color.rgb(255, 255, 255))
         if (!icons.isVisible) icons.visibility = View.VISIBLE
         for (i in 0 until icons.childCount) {
@@ -219,12 +220,12 @@ class AppDisplayListener : Service() {
         menu: LinearLayout, componentName: ComponentName?,
         launchPackage: String?, launchActivity: String?) {
         menu.findViewById<AppCompatImageView>(R.id.retract_drawer).setOnClickListener {
-            if (prefs.getBoolean(SamSprung.prefReacts, true))
+            if (prefs.getBoolean(Preferences.prefReacts, true))
                 vibrator.vibrate(effectClick)
             bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
         }
         menu.findViewById<ImageView>(R.id.button_recent).setOnClickListener {
-            if (prefs.getBoolean(SamSprung.prefReacts, true))
+            if (prefs.getBoolean(Preferences.prefReacts, true))
                 vibrator.vibrate(effectClick)
             if (null != componentName)
                 resetRecentActivities(componentName, 1)
@@ -236,7 +237,7 @@ class AppDisplayListener : Service() {
             ).setAction(SamSprung.launcher))
         }
         menu.findViewById<ImageView>(R.id.button_home).setOnClickListener {
-            if (prefs.getBoolean(SamSprung.prefReacts, true))
+            if (prefs.getBoolean(Preferences.prefReacts, true))
                 vibrator.vibrate(effectClick)
             if (null != componentName)
                 resetRecentActivities(componentName, 1)
@@ -250,7 +251,7 @@ class AppDisplayListener : Service() {
             )
         }
         menu.findViewById<ImageView>(R.id.button_back).setOnClickListener {
-            if (prefs.getBoolean(SamSprung.prefReacts, true))
+            if (prefs.getBoolean(Preferences.prefReacts, true))
                 vibrator.vibrate(effectClick)
             if (AccessibilityObserver.hasEnabledService(this)) {
                 AccessibilityObserver.performBackAction()
@@ -303,7 +304,7 @@ class AppDisplayListener : Service() {
     }
 
     fun onDismissOverlay() {
-        if (prefs.getBoolean(SamSprung.prefRotate, false)) {
+        if (prefs.getBoolean(Preferences.prefRotate, false)) {
             OrientationManager(this).removeOrientationLayout()
         }
         if (null != mDisplayListener) {

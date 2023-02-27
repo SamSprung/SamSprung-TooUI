@@ -42,6 +42,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.eightbit.samsprung.NotificationReceiver
 import com.eightbit.samsprung.R
 import com.eightbit.samsprung.SamSprung
+import com.eightbit.samsprung.settings.Preferences
 import java.util.*
 import java.util.concurrent.Executors
 
@@ -133,18 +134,18 @@ class NotificationAdapter(
                 NotificationReceiver.getReceiver()?.cancelNotification(notice.key)
             } else {
                 NotificationReceiver.getReceiver()?.snoozeNotification(
-                    notice.key, (prefs.getInt(SamSprung.prefSnooze, 30) * 60 * 1000).toLong()
+                    notice.key, (prefs.getInt(Preferences.prefSnooze, 30) * 60 * 1000).toLong()
                 )
             }
         }
 
         lateinit var notice: StatusBarNotification
         private val prefs = activity.getSharedPreferences(
-            SamSprung.prefsValue, FragmentActivity.MODE_PRIVATE
+            Preferences.prefsValue, FragmentActivity.MODE_PRIVATE
         )
         fun bind(notice: StatusBarNotification) {
             (itemView as CardView).setCardBackgroundColor(prefs.getInt(
-                SamSprung.prefColors, Color.rgb(255, 255, 255)).blended)
+                Preferences.prefColors, Color.rgb(255, 255, 255)).blended)
             this.notice = notice
             val notification = notice.notification
             val iconView = itemView.findViewById<AppCompatImageView>(R.id.icon)

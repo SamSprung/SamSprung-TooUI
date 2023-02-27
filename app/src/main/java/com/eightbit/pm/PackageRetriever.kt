@@ -25,13 +25,13 @@ import android.content.pm.ResolveInfo
 import android.os.Process
 import androidx.appcompat.app.AppCompatActivity
 import com.eightbit.samsprung.BuildConfig
-import com.eightbit.samsprung.SamSprung
+import com.eightbit.samsprung.settings.Preferences
 import java.util.*
 
 class PackageRetriever(val context: Context) {
 
     private var prefs: SharedPreferences = context.getSharedPreferences(
-        SamSprung.prefsValue, AppCompatActivity.MODE_PRIVATE
+        Preferences.prefsValue, AppCompatActivity.MODE_PRIVATE
     )
 
     fun getPackageList() : MutableList<ResolveInfo> {
@@ -50,7 +50,7 @@ class PackageRetriever(val context: Context) {
     fun getHiddenPackages() : HashSet<String> {
         val unlisted: HashSet<String> = HashSet()
         val hide: Set<String> = prefs.getStringSet(
-            SamSprung.prefHidden, setOf<String>()) as Set<String>
+            Preferences.prefHidden, setOf<String>()) as Set<String>
         unlisted.addAll(hide)
         return unlisted
     }
@@ -89,7 +89,7 @@ class PackageRetriever(val context: Context) {
             }
         }
         packages.removeIf {
-            prefs.getStringSet(SamSprung.prefHidden, HashSet())
+            prefs.getStringSet(Preferences.prefHidden, HashSet())
                 ?.contains(it.activityInfo.packageName) == true
         }
         return packages

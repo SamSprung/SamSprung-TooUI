@@ -26,13 +26,11 @@ import androidx.appcompat.widget.AppCompatImageView
 import androidx.appcompat.widget.SwitchCompat
 import androidx.recyclerview.widget.RecyclerView
 import com.eightbit.samsprung.R
-import com.eightbit.samsprung.SamSprung
 import com.qtalk.recyclerviewfastscroller.RecyclerViewFastScroller
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import java.util.concurrent.Executors
 
 class FilteredAppsAdapter(
     private val pacMan: PackageManager,
@@ -115,13 +113,13 @@ class FilteredAppsAdapter(
                 if (hide.contains(packageName)) {
                     hide.remove(packageName)
                     with(prefs.edit()) {
-                        putStringSet(SamSprung.prefHidden, hide)
+                        putStringSet(Preferences.prefHidden, hide)
                         apply()
                     }
                 } else {
                     hide.add(packageName)
                     with(prefs.edit()) {
-                        putStringSet(SamSprung.prefHidden, hide)
+                        putStringSet(Preferences.prefHidden, hide)
                         apply()
                     }
                 }

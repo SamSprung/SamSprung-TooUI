@@ -20,6 +20,7 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatDelegate
 import com.eightbit.io.Debug
 import com.eightbit.samsprung.drawer.OrientationManager
+import com.eightbit.samsprung.settings.Preferences
 import java.io.PrintWriter
 import java.io.StringWriter
 import kotlin.system.exitProcess
@@ -27,7 +28,7 @@ import kotlin.system.exitProcess
 class SamSprung : Application() {
 
     fun setThemePreference() {
-        when (getSharedPreferences(prefsValue, MODE_PRIVATE).getInt(prefThemes, 0)) {
+        when (getSharedPreferences(Preferences.prefsValue, MODE_PRIVATE).getInt(Preferences.prefThemes, 0)) {
             0 -> AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM)
             1 -> AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
             2 -> AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
@@ -42,27 +43,6 @@ class SamSprung : Application() {
 
         const val request_code = 8675309
         const val notification = request_code.toString()
-
-        const val prefsValue: String = "samsprung.preferences"
-        const val prefLayout: String = "prefLayout"
-        const val prefHidden: String = "prefHidden"
-        const val prefColors: String = "prefColors"
-        const val prefAlphas: String = "prefAlphas"
-        const val prefWarned: String = "prefWarned"
-        const val prefViewer: String = "prefViewer"
-        const val prefCloser: String = "prefCloser"
-        const val prefSlider: String = "prefSlider"
-        const val prefShifts: String = "prefShifts"
-        const val prefThemes: String = "prefThemes"
-        const val prefDelays: String = "prefDelays"
-        const val prefSnooze: String = "prefSnooze"
-        const val prefReacts: String = "prefReacts"
-        const val prefSearch: String = "prefSearch"
-        const val prefRadius: String = "prefRadius"
-        const val prefLength: String = "prefLength"
-        const val prefRotate: String = "prefRotate"
-        const val prefCarded: String = "prefCarded"
-        const val prefUpdate: String = "prefUpdate"
 
         var hasSubscription = false
     }
