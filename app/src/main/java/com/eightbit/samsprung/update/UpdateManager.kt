@@ -157,18 +157,19 @@ class UpdateManager(private var activity: Activity) {
     }
 
     fun requestUpdateJSON() {
-        URL(repo).readText().also {
-            try {
-                val jsonObject = JSONTokener(it).nextValue() as JSONObject
-                val lastCommit = (jsonObject["name"] as String).substring(
-                    activity.getString(R.string.samsprung).length + 1
-                )
-                val assets = jsonObject["assets"] as JSONArray
-                val asset = assets[0] as JSONObject
-                val downloadUrl = asset["browser_download_url"] as String
-                isUpdateAvailable = BuildConfig.COMMIT != lastCommit
-                if (isUpdateAvailable) listenerGit?.onUpdateFound(downloadUrl)
-            } catch (ignored: JSONException) {
+        CoroutineScope(Dispatchers.IO).launch(Dispatchers.IO) {
+            URL(repo).readText().also {
+                try {
+                    val jsonObject = JSONTokener(it).nextValue() as JSONObject
+                    val lastCommit = (jsonObject["name"] as String).substring(
+                        activity.getString(R.string.samsprung).length + 1
+                    )
+                    val assets = jsonObject["assets"] as JSONArray
+                    val asset = assets[0] as JSONObject
+                    isUpdateAvailable = BuildConfig.COMMIT != lastCommit
+                    if (isUpdateAvailable)
+                        listenerGit?.onUpdateFound(asset["browser_download_url"] as String)
+                } catch (ignored: JSONException) { }
             }
         }
     }
