@@ -94,12 +94,12 @@ class CoverPreferences : AppCompatActivity() {
     private lateinit var coordinator: CoordinatorLayout
     private var updateManager : UpdateManager? = null
 
-    private lateinit var mainSwitch: SwitchCompat
-    private lateinit var accessibility: SwitchCompat
-    private lateinit var optimization: SwitchCompat
-    private lateinit var notifications: SwitchCompat
-    private lateinit var statistics: SwitchCompat
-    private lateinit var keyboard: SwitchCompat
+    private var mainSwitch: SwitchCompat? = null
+    private var accessibility: SwitchCompat? = null
+    private var optimization: SwitchCompat? = null
+    private var notifications: SwitchCompat? = null
+    private var statistics: SwitchCompat? = null
+    private var keyboard: SwitchCompat? = null
     private lateinit var wikiDrawer: DrawerLayout
 
     private lateinit var hiddenList: RecyclerView
@@ -164,7 +164,7 @@ class CoverPreferences : AppCompatActivity() {
         }
 
         notifications = findViewById(R.id.notifications_switch)
-        notifications.isChecked = hasNotificationListener()
+        notifications?.isChecked = hasNotificationListener()
         findViewById<LinearLayout>(R.id.notifications).setOnClickListener {
             notificationLauncher.launch(Intent(
                 Settings.ACTION_NOTIFICATION_LISTENER_SETTINGS
@@ -172,7 +172,7 @@ class CoverPreferences : AppCompatActivity() {
         }
 
         statistics = findViewById(R.id.usage_switch)
-        statistics.isChecked = hasUsageStatistics()
+        statistics?.isChecked = hasUsageStatistics()
         findViewById<LinearLayout>(R.id.usage_layout).setOnClickListener {
             usageLauncher.launch(Intent(
                 Settings.ACTION_USAGE_ACCESS_SETTINGS
@@ -180,7 +180,7 @@ class CoverPreferences : AppCompatActivity() {
         }
 
         optimization = findViewById(R.id.optimization_switch)
-        optimization.isChecked = ignoreBatteryOptimization()
+        optimization?.isChecked = ignoreBatteryOptimization()
         findViewById<LinearLayout>(R.id.optimization).setOnClickListener {
             optimizationLauncher.launch(Intent(
                 Settings.ACTION_IGNORE_BATTERY_OPTIMIZATION_SETTINGS
@@ -188,9 +188,15 @@ class CoverPreferences : AppCompatActivity() {
         }
 
         accessibility = findViewById(R.id.accessibility_switch)
-        accessibility.isChecked = hasAccessibility()
+        accessibility?.isChecked = hasAccessibility()
         findViewById<LinearLayout>(R.id.accessibility).setOnClickListener {
-            if (!accessibility.isChecked) {
+            if (accessibility?.isChecked == true) {
+                accessibilityLauncher.launch(
+                    Intent(
+                        Settings.ACTION_ACCESSIBILITY_SETTINGS
+                    )
+                )
+            } else {
                 AlertDialog.Builder(this)
                     .setMessage(R.string.accessibility_directions)
                     .setPositiveButton(R.string.button_confirm) { dialog, _ ->
@@ -200,16 +206,12 @@ class CoverPreferences : AppCompatActivity() {
                         dialog.dismiss()
                     }
                     .setNegativeButton(R.string.button_cancel) { dialog, _ ->
-                        accessibility.isChecked = false
+                        accessibility?.isChecked = false
                         dialog.dismiss()
                     }.show()
-            } else {
-                accessibilityLauncher.launch(Intent(
-                    Settings.ACTION_ACCESSIBILITY_SETTINGS
-                ))
             }
         }
-        accessibility.isGone = BuildConfig.GOOGLE_PLAY
+        accessibility?.isGone = BuildConfig.GOOGLE_PLAY
 
         findViewById<LinearLayout>(R.id.voice_layout).setOnClickListener {
             requestVoice.launch(Manifest.permission.RECORD_AUDIO)
@@ -217,8 +219,8 @@ class CoverPreferences : AppCompatActivity() {
         toggleVoiceIcon(hasPermission(Manifest.permission.RECORD_AUDIO))
 
         keyboard = findViewById(R.id.keyboard_switch)
-        keyboard.isClickable = false
-        keyboard.isChecked = hasKeyboardInstalled()
+        keyboard?.isClickable = false
+        keyboard?.isChecked = hasKeyboardInstalled()
         findViewById<LinearLayout>(R.id.keyboard_layout).setOnClickListener {
             try {
                 val playIntent = Intent(Intent.ACTION_VIEW, Uri.parse(
@@ -695,16 +697,16 @@ class CoverPreferences : AppCompatActivity() {
         val search = findViewById<AppCompatCheckBox>(R.id.search_switch)
         search.setOnCheckedChangeListener { _, isChecked ->
             with(prefs.edit()) {
-                putBoolean(Preferences.prefSearch, isChecked && keyboard.isChecked)
+                putBoolean(Preferences.prefSearch, isChecked && keyboard?.isChecked == true)
                 apply()
             }
         }
         search.isChecked = prefs.getBoolean(
-            Preferences.prefSearch, keyboard.isChecked
-        ) && keyboard.isChecked
+            Preferences.prefSearch, keyboard?.isChecked == true
+        ) && keyboard?.isChecked == true
         findViewById<LinearLayout>(R.id.search).setOnClickListener {
-            search.isChecked = !search.isChecked && keyboard.isChecked
-            if (!keyboard.isChecked) {
+            search.isChecked = !search.isChecked && keyboard?.isChecked == true
+            if (keyboard?.isChecked != true) {
                 Toast.makeText(
                     this@CoverPreferences,
                     R.string.keyboard_missing, Toast.LENGTH_SHORT
@@ -1070,9 +1072,9 @@ class CoverPreferences : AppCompatActivity() {
 
     private val overlayLauncher = registerForActivityResult(
         ActivityResultContracts.StartActivityForResult()) {
-        if (this::mainSwitch.isInitialized) {
-            mainSwitch.isChecked = Settings.canDrawOverlays(applicationContext)
-            if (mainSwitch.isChecked && Version.isTiramisu) {
+        if (null != mainSwitch) {
+            mainSwitch?.isChecked = Settings.canDrawOverlays(applicationContext)
+            if (Version.isTiramisu && mainSwitch?.isChecked == true) {
                 requestNotification.launch(Manifest.permission.POST_NOTIFICATIONS)
             }
             try {
@@ -1101,32 +1103,27 @@ class CoverPreferences : AppCompatActivity() {
                 adapter.notifyDataSetChanged()
             }
         }
-        if (this::statistics.isInitialized)
-            statistics.isChecked = hasUsageStatistics()
+        statistics?.isChecked = hasUsageStatistics()
     }
 
     private val optimizationLauncher = registerForActivityResult(
         ActivityResultContracts.StartActivityForResult()) {
-        if (this::optimization.isInitialized)
-            optimization.isChecked = ignoreBatteryOptimization()
+        optimization?.isChecked = ignoreBatteryOptimization()
     }
 
     private val accessibilityLauncher = registerForActivityResult(
         ActivityResultContracts.StartActivityForResult()) {
-        if (this::accessibility.isInitialized)
-            accessibility.isChecked = hasAccessibility()
+        accessibility?.isChecked = hasAccessibility()
     }
 
     private val keyboardLauncher = registerForActivityResult(
         ActivityResultContracts.StartActivityForResult()) {
-        if (this::keyboard.isInitialized)
-            keyboard.isChecked = hasKeyboardInstalled()
+        keyboard?.isChecked = hasKeyboardInstalled()
     }
 
     private val notificationLauncher = registerForActivityResult(
         ActivityResultContracts.StartActivityForResult()) {
-        if (this::notifications.isInitialized)
-            notifications.isChecked = hasNotificationListener()
+        notifications?.isChecked = hasNotificationListener()
     }
 
     private val requestWidgets = registerForActivityResult(
@@ -1214,11 +1211,11 @@ class CoverPreferences : AppCompatActivity() {
         actionSwitch.setActionView(R.layout.configure_switch)
         mainSwitch = menu.findItem(R.id.switch_action_bar).actionView
             ?.findViewById(R.id.switch2) as SwitchCompat
-        mainSwitch.isChecked = Settings.canDrawOverlays(applicationContext)
-        if (mainSwitch.isChecked && Version.isTiramisu) {
+        mainSwitch?.isChecked = Settings.canDrawOverlays(applicationContext)
+        if (Version.isTiramisu && mainSwitch?.isChecked == true) {
             requestNotification.launch(Manifest.permission.POST_NOTIFICATIONS)
         }
-        mainSwitch.setOnClickListener {
+        mainSwitch?.setOnClickListener {
             overlayLauncher.launch(Intent(
                 Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
                 Uri.parse("package:$packageName")
@@ -1253,7 +1250,7 @@ class CoverPreferences : AppCompatActivity() {
                         widgetNotice = IconifiedSnackbar(
                             this@CoverPreferences, social
                         ).buildTickerBar(
-                            if (mainSwitch.isChecked)
+                            if (mainSwitch?.isChecked == true)
                                 getString(R.string.cover_widget_warning)
                                         + getString(R.string.cover_finish_warning)
                             else

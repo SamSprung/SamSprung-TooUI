@@ -1,0 +1,21 @@
+<resources>
+    <string name="permission_options">Permesso</string>
+    <string name="permission_notifications">Notifica</string>
+
+    <string name="permission_voice">Lancio vocale</string>
+
+    <string name="permission_usage">Utilizzo Accesso</string>
+
+    <string name="permission_optimization">Ignora batteria</string>
+
+    <string name="permission_accessibility">Raggiungibilità</string>
+
+
+    <string name="options_minimize">Chiudi su Minimizza</string>
+
+    <string name="cover_widget_warning">Importante: QUESTO NON È UN WIDGET DI COPERTURA</string>
+    <string name="cover_switch_warning">\nInterruttore principale deve essere acceso per utilizzare.</string>
+    <string name="cover_finish_warning">\nPremere indietro per uscire da SamSprung TooUI..</string>
+
+    <string name="lock_enabled">Il dispositivo è bloccato!</string>
+</resources>

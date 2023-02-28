@@ -33,7 +33,6 @@ import androidx.recyclerview.widget.*
 import com.eightbit.content.ScaledContext
 import com.eightbit.pm.PackageRetriever
 import com.eightbit.samsprung.R
-import com.eightbit.samsprung.SamSprung
 import com.eightbit.samsprung.SamSprungOverlay
 import com.eightbit.samsprung.settings.Preferences
 import com.eightbit.view.OnSwipeTouchListener

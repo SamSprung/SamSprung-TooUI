@@ -1106,15 +1106,13 @@ class SamSprungOverlay : AppCompatActivity() {
 
     fun onStopOverlay() {
         try {
-            if (this::torchCallback.isInitialized)
-                camManager.unregisterTorchCallback(torchCallback)
+            camManager.unregisterTorchCallback(torchCallback)
         } catch (ignored: Exception) { }
         timeoutHandler.removeCallbacksAndMessages(null)
         fabShowHandler.removeCallbacksAndMessages(null)
         findViewById<View>(R.id.bottom_sheet_main).keepScreenOn = false
         try {
-            if (this::battReceiver.isInitialized)
-                unregisterReceiver(battReceiver)
+            unregisterReceiver(battReceiver)
         } catch (ignored: Exception) { }
         try {
             unregisterReceiver(offReceiver)
