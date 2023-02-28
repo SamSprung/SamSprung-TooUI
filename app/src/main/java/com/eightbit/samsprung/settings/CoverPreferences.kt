@@ -142,8 +142,7 @@ class CoverPreferences : AppCompatActivity() {
             .setBlurRadius(10f).setBlurAutoUpdate(true)
 
         wikiDrawer = findViewById(R.id.drawer_layout)
-        findViewById<TextView>(R.id.build_info).text =
-            getString(R.string.build_hash_short, BuildConfig.COMMIT)
+        findViewById<TextView>(R.id.build_info).text = "#${BuildConfig.COMMIT}"
         findViewById<LinearLayout>(R.id.build_layout).setOnClickListener {
             wikiDrawer.openDrawer(GravityCompat.START)
         }

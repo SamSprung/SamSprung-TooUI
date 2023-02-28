@@ -20,6 +20,7 @@ import android.os.Build
 import com.eightbit.net.GitHubRequest
 import com.eightbit.samsprung.BuildConfig
 import com.eightbit.samsprung.R
+import com.eightbit.samsprung.organization
 import com.heinrichreimersoftware.androidissuereporter.IssueReporterLauncher
 import java.io.BufferedReader
 import java.io.InputStreamReader
@@ -28,7 +29,7 @@ class Debug(private var context: Context) {
 
     var prefs: SharedPreferences? = null
 
-    private val issueUrl = "https://github.com/SamSprung/SamSprung-TooUI/issues/" +
+    private val issueUrl = "https://github.com/$organization/$organization-TooUI/issues/" +
             "new?labels=logcat&template=bug_report.yml&title=[Bug]%3A+"
 
     private fun getDeviceProfile(isSecureDevice: Boolean): StringBuilder {
@@ -98,8 +99,7 @@ class Debug(private var context: Context) {
     }
 
     fun captureLogcat(isSecureDevice: Boolean) : Boolean {
-        val project = context.getString(R.string.samsprung)
-        val repository = "SamSprung-TooUI"
+        val repository = "$organization-TooUI"
 
         val separator = System.getProperty("line.separator") ?: "\n"
         val log = getDeviceProfile(isSecureDevice)
@@ -128,7 +128,7 @@ class Debug(private var context: Context) {
             return false
         }
         return try {
-            IssueReporterLauncher.forTarget(project, repository)
+            IssueReporterLauncher.forTarget(organization, repository)
                 .theme(R.style.Theme_SecondScreen_NoActionBar)
                 .guestToken(GitHubRequest.token)
                 .guestEmailRequired(false)

@@ -25,6 +25,8 @@ import java.io.PrintWriter
 import java.io.StringWriter
 import kotlin.system.exitProcess
 
+const val organization = "SamSprung"
+
 class SamSprung : Application() {
 
     fun setThemePreference() {

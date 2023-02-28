@@ -1030,7 +1030,7 @@ class SamSprungOverlay : AppCompatActivity() {
             val fakeSnackbar = findViewById<AnimatedLinearLayout>(R.id.update_notice)
             if (!fakeSnackbar.isVisible) {
                 findViewById<TextView>(R.id.update_text).text =
-                    getString(R.string.update_service, getString(R.string.samsprung))
+                    getString(R.string.update_service, organization)
                 animate = TranslateAnimation(
                     0f, 0f, 0f, -fakeSnackbar.height.toFloat()
                 )

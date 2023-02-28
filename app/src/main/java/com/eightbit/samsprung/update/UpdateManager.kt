@@ -26,8 +26,8 @@ import androidx.core.content.FileProvider
 import androidx.documentfile.provider.DocumentFile
 import com.eightbit.os.Version
 import com.eightbit.samsprung.BuildConfig
-import com.eightbit.samsprung.R
 import com.eightbit.samsprung.SamSprung
+import com.eightbit.samsprung.organization
 import com.eightbit.samsprung.settings.CoverPreferences
 import com.google.android.play.core.appupdate.AppUpdateInfo
 import com.google.android.play.core.appupdate.AppUpdateManager
@@ -161,9 +161,8 @@ class UpdateManager(private var activity: Activity) {
             URL(repo).readText().also {
                 try {
                     val jsonObject = JSONTokener(it).nextValue() as JSONObject
-                    val lastCommit = (jsonObject["name"] as String).substring(
-                        activity.getString(R.string.samsprung).length + 1
-                    )
+                    val lastCommit = (jsonObject["name"] as String)
+                        .substring(organization.length + 1)
                     val assets = jsonObject["assets"] as JSONArray
                     val asset = assets[0] as JSONObject
                     isUpdateAvailable = BuildConfig.COMMIT != lastCommit

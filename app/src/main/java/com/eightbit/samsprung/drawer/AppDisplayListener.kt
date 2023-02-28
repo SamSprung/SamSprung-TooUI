@@ -287,7 +287,7 @@ class AppDisplayListener : Service() {
         mNotificationManager.createNotificationChannel(notificationChannel)
         val builder = NotificationCompat.Builder(this, "display_channel")
 
-        val notificationText = getString(R.string.display_service, getString(R.string.samsprung))
+        val notificationText = getString(R.string.display_service, organization)
         builder.setContentTitle(notificationText).setTicker(notificationText)
             .setSmallIcon(R.drawable.ic_samsprung_24dp)
             .setPriority(NotificationCompat.PRIORITY_LOW)

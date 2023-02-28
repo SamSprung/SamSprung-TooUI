@@ -1,5 +1,4 @@
 <resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="MissingTranslation">
-
     <string name="permission_options">Permissions</string>
     <string name="permission_notifications">Notifications</string>
     <string name="details_notifications">View &amp; interact with notifications</string>

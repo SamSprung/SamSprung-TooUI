@@ -112,7 +112,7 @@ class OnBroadcastService : Service() {
         mNotificationManager.createNotificationChannel(notificationChannel)
         val builder = NotificationCompat.Builder(this, "tooui_overlay_channel")
 
-        val notificationText = getString(R.string.overlay_service, getString(R.string.samsprung))
+        val notificationText = getString(R.string.overlay_service, organization)
         builder.setContentTitle(notificationText).setTicker(notificationText)
             .setSmallIcon(R.drawable.ic_samsprung_24dp)
             .setPriority(NotificationCompat.PRIORITY_LOW)
