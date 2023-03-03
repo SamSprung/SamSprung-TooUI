@@ -112,8 +112,9 @@ class ScaledContext(base: Context) : ContextWrapper(base) {
 
     fun restore(display: Int): Context {
         resources.displayMetrics.setToDefaults()
-        val contextWrapper = createDisplayContext(
-            (getSystemService(DISPLAY_SERVICE) as DisplayManager).getDisplay(display)
+        val displayManager = getSystemService(DISPLAY_SERVICE) as DisplayManager
+        if (displayManager.displays.size <= display) return this
+        val contextWrapper = createDisplayContext(displayManager.getDisplay(display)
         ).run {
             val wm = getSystemService(WINDOW_SERVICE) as WindowManager
             object : ContextThemeWrapper(this, theme) {
@@ -128,8 +129,9 @@ class ScaledContext(base: Context) : ContextWrapper(base) {
     }
 
     fun cover() : Context {
-        createDisplayContext(
-            (getSystemService(DISPLAY_SERVICE) as DisplayManager).getDisplay(1)
+        val displayManager = getSystemService(DISPLAY_SERVICE) as DisplayManager
+        if (displayManager.displays.size < 2) return this
+        createDisplayContext(displayManager.getDisplay(1)
         ).run {
             val wm = getSystemService(WINDOW_SERVICE) as WindowManager
             return object : ContextThemeWrapper(this, theme) {

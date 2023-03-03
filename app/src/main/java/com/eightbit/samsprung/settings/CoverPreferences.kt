@@ -142,7 +142,8 @@ class CoverPreferences : AppCompatActivity() {
             .setBlurRadius(10f).setBlurAutoUpdate(true)
 
         wikiDrawer = findViewById(R.id.drawer_layout)
-        findViewById<TextView>(R.id.build_info).text = "#${BuildConfig.COMMIT}"
+        findViewById<TextView>(R.id.build_info).text =
+            getString(R.string.build_hash, BuildConfig.COMMIT)
         findViewById<LinearLayout>(R.id.build_layout).setOnClickListener {
             wikiDrawer.openDrawer(GravityCompat.START)
         }
@@ -1082,8 +1083,7 @@ class CoverPreferences : AppCompatActivity() {
                 }
             } catch (ex: IllegalArgumentException) {
                 Toast.makeText(
-                    this@CoverPreferences,
-                    R.string.display_unavailable, Toast.LENGTH_SHORT
+                    this@CoverPreferences, R.string.display_unavailable, Toast.LENGTH_SHORT
                 ).show()
             }
         }
@@ -1274,8 +1274,7 @@ class CoverPreferences : AppCompatActivity() {
             }
         } catch (ex: IllegalArgumentException) {
             Toast.makeText(
-                this@CoverPreferences,
-                R.string.display_unavailable, Toast.LENGTH_SHORT
+                this@CoverPreferences, R.string.display_unavailable, Toast.LENGTH_SHORT
             ).show()
         }
         if (!prefs.getBoolean(Preferences.prefWarned, false)) {

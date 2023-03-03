@@ -14,6 +14,7 @@
 
 package com.eightbit.io
 
+import android.annotation.SuppressLint
 import android.content.*
 import android.net.Uri
 import android.os.Build
@@ -35,9 +36,10 @@ class Debug(private var context: Context) {
     private fun getDeviceProfile(isSecureDevice: Boolean): StringBuilder {
         val separator = System.getProperty("line.separator") ?: "\n"
         val log = StringBuilder(separator)
-        log.append(context.getString(R.string.build_hash, BuildConfig.FLAVOR, BuildConfig.COMMIT))
+        log.append("$organization (${BuildConfig.FLAVOR}) #${BuildConfig.COMMIT}")
         log.append(separator)
-        log.append("Android ")
+        log.append(manufacturer)
+        log.append(" ")
         val fields = Build.VERSION_CODES::class.java.fields
         var codeName = "UNKNOWN"
         for (field in fields) {
@@ -142,5 +144,22 @@ class Debug(private var context: Context) {
             submitLogcat(context, logText)
             true
         }
+    }
+
+    companion object {
+        private val manufacturer : String
+            get() {
+                return try {
+                    @SuppressLint("PrivateApi")
+                    val c = Class.forName("android.os.SystemProperties")
+                    val get = c.getMethod("get", String::class.java)
+                    val name = get.invoke(c, "ro.product.manufacturer") as String
+                    name.ifEmpty { "Unknown" }
+                } catch (e: Exception) {
+                    Build.MANUFACTURER
+                }
+            }
+
+        val isOppoDevice: Boolean get() = manufacturer == "OPPO"
     }
 }
