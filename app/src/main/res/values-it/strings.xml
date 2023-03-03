@@ -13,9 +13,7 @@
 
     <string name="options_minimize">Chiudi su Minimizza</string>
 
-    <string name="cover_widget_warning">Importante: QUESTO NON È UN WIDGET DI COPERTURA</string>
-    <string name="cover_switch_warning">\nInterruttore principale deve essere acceso per utilizzare.</string>
-    <string name="cover_finish_warning">\nPremere indietro per uscire da SamSprung TooUI..</string>
+    <string name="cover_switch_warning">Interruttore principale deve essere acceso per utilizzare.\nPremere indietro per uscire da SamSprung TooUI..</string>
 
     <string name="lock_enabled">Il dispositivo è bloccato!</string>
 </resources>

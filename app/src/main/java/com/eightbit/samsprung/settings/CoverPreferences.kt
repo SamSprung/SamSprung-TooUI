@@ -1246,20 +1246,18 @@ class CoverPreferences : AppCompatActivity() {
                     wikiDrawer.isDrawerOpen(GravityCompat.START) ->
                         wikiDrawer.closeDrawer(GravityCompat.START)
                     null == widgetNotice -> {
-                        val social = findViewById<LinearLayout>(R.id.social_menu)
-                        widgetNotice = IconifiedSnackbar(
-                            this@CoverPreferences, social
-                        ).buildTickerBar(
-                            if (mainSwitch?.isChecked == true)
-                                getString(R.string.cover_widget_warning)
-                                        + getString(R.string.cover_finish_warning)
-                            else
-                                getString(R.string.cover_widget_warning)
-                                        + getString(R.string.cover_switch_warning),
-                            Snackbar.LENGTH_INDEFINITE)
-                        social.postDelayed({
-                            widgetNotice?.show()
-                        }, 250)
+                        if (mainSwitch?.isChecked == true) {
+                            finish()
+                        } else {
+                            val social = findViewById<LinearLayout>(R.id.social_menu)
+                            widgetNotice = IconifiedSnackbar(
+                                this@CoverPreferences, social
+                            ).buildTickerBar(
+                                getString(R.string.cover_switch_warning), Snackbar.LENGTH_INDEFINITE)
+                            social.postDelayed({
+                                widgetNotice?.show()
+                            }, 250)
+                        }
                     }
                     else -> {
                         widgetNotice?.dismiss()

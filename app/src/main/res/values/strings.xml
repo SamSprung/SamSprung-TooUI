@@ -92,9 +92,7 @@
     <string name="tiramisu_bluetooth">Bluetooth restricted (Android 13)</string>
 
     <string name="incompatibility_warning">SamSprung is not compatible with apps that block the entire screen.\nPlease remove or disable this app to continue.</string>
-    <string name="cover_widget_warning">Important: THIS IS NOT A COVER SCREEN WIDGET</string>
-    <string name="cover_switch_warning">\nMain switch must be enabled to appear on cover.</string>
-    <string name="cover_finish_warning">\nPress back button again to exit SamSprung TooUI.</string>
+    <string name="cover_switch_warning">Main switch must be enabled to appear on cover.\nPress back button again to exit SamSprung TooUI.</string>
 
     <string name="display_unavailable">Requires more than one display!</string>
 
