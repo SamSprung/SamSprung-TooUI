@@ -31,6 +31,7 @@ import androidx.core.view.updatePadding
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.*
 import com.eightbit.content.ScaledContext
+import com.eightbit.io.Debug
 import com.eightbit.pm.PackageRetriever
 import com.eightbit.samsprung.R
 import com.eightbit.samsprung.SamSprungOverlay
@@ -178,8 +179,9 @@ class AppDrawerFragment : Fragment(), DrawerAppAdapter.OnAppClickListener {
     }
 
     private fun getColumnCount(): Int {
-        val columns = prefs.getInt(Preferences.prefLength, 6)
-        return if (columns < 6) {
+        val columnDefault = if (Debug.isOppoDevice) 4 else 6
+        val columns = prefs.getInt(Preferences.prefLength, columnDefault)
+        return if (columns < columnDefault) {
             columns
         } else {
             (requireActivity().windowManager.currentWindowMetrics

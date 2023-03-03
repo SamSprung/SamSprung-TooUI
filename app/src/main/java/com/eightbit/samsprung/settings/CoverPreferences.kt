@@ -672,6 +672,7 @@ class CoverPreferences : AppCompatActivity() {
         }
 
         val lengthBar = findViewById<SeekBar>(R.id.length_bar)
+        lengthBar.max = if (Debug.isOppoDevice) 4 else 6
         val lengthText = findViewById<TextView>(R.id.length_text)
         lengthBar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
             override fun onProgressChanged(seek: SeekBar, progress: Int, fromUser: Boolean) {
@@ -680,7 +681,7 @@ class CoverPreferences : AppCompatActivity() {
                     putInt(Preferences.prefLength, progress)
                     apply()
                 }
-                val textLength = (if (lengthBar.progress < 6) lengthBar.progress else
+                val textLength = (if (lengthBar.progress < lengthBar.max) lengthBar.progress else
                     DecimalFormatSymbols.getInstance().infinity).toString()
                 setSuperscriptText(lengthText, R.string.options_length, textLength)
             }

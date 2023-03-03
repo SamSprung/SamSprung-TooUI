@@ -16,6 +16,7 @@ import android.os.Process
 import androidx.appcompat.app.AppCompatActivity
 import com.eightbit.app.CoverOptions
 import com.eightbit.content.ScaledContext
+import com.eightbit.io.Debug
 import com.eightbit.samsprung.SamSprung
 import com.eightbit.samsprung.SamSprungOverlay
 import com.eightbit.samsprung.settings.Preferences
@@ -31,11 +32,12 @@ class LauncherManager(private val overlay: SamSprungOverlay) {
 
     private fun postOrientationHandler(extras: Bundle) {
         val orientationLock = OrientationManager(overlay)
-        orientationLock.addOrientationLayout(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT)
+        if (!Debug.isOppoDevice)
+            orientationLock.addOrientationLayout(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT)
         Handler(Looper.getMainLooper()).postDelayed({
             // All apps are launched in portrait to prevent crashes related to orientation
             if (!prefs.getBoolean(Preferences.prefRotate, false)) {
-                orientationLock.removeOrientationLayout()
+                if (!Debug.isOppoDevice) orientationLock.removeOrientationLayout()
                 overlay.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
             }
             overlay.onStopOverlay()
