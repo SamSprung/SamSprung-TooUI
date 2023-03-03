@@ -32,8 +32,12 @@ class LauncherManager(private val overlay: SamSprungOverlay) {
 
     private fun postOrientationHandler(extras: Bundle) {
         val orientationLock = OrientationManager(overlay)
-        if (!Debug.isOppoDevice)
+        if (Debug.isOppoDevice) {
+            if (prefs.getBoolean(Preferences.prefRotate, false))
+                orientationLock.addOrientationLayout(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE)
+        } else {
             orientationLock.addOrientationLayout(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT)
+        }
         Handler(Looper.getMainLooper()).postDelayed({
             // All apps are launched in portrait to prevent crashes related to orientation
             if (!prefs.getBoolean(Preferences.prefRotate, false)) {
