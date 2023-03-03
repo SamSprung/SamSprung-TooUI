@@ -83,10 +83,13 @@ import com.wajahatkarim3.easyflipviewpager.CardFlipPageTransformer
 import eightbitlab.com.blurview.BlurView
 import eightbitlab.com.blurview.RenderEffectBlur
 import eightbitlab.com.blurview.RenderScriptBlur
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import org.lsposed.hiddenapibypass.HiddenApiBypass
 import java.io.File
 import java.util.*
-import java.util.concurrent.Executors
 
 class SamSprungOverlay : AppCompatActivity() {
 
@@ -209,9 +212,9 @@ class SamSprungOverlay : AppCompatActivity() {
                 val source: ImageDecoder.Source = ImageDecoder.createSource(
                     this.contentResolver, Uri.fromFile(animated)
                 )
-                Executors.newSingleThreadExecutor().execute {
+                CoroutineScope(Dispatchers.IO).launch(Dispatchers.IO) {
                     background = ImageDecoder.decodeDrawable(source) as AnimatedImageDrawable
-                    runOnUiThread {
+                    withContext(Dispatchers.Main) {
                         coordinator.background = background
                         (background as AnimatedImageDrawable).start()
                     }
@@ -264,7 +267,7 @@ class SamSprungOverlay : AppCompatActivity() {
         val mAppWidgetManager = AppWidgetManager.getInstance(applicationContext)
         val appWidgetHost = WidgetHost(applicationContext, APPWIDGET_HOST_ID)
         if (prefs.getBoolean(getString(R.string.toggle_widgets).toPref, true)) {
-            Executors.newSingleThreadExecutor().execute {
+            CoroutineScope(Dispatchers.IO).launch(Dispatchers.IO) {
                 recreateWidgetPreviewDb()
             }
             appWidgetHost.startListening()

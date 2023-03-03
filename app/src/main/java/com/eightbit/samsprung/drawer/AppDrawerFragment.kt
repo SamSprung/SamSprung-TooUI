@@ -179,11 +179,13 @@ class AppDrawerFragment : Fragment(), DrawerAppAdapter.OnAppClickListener {
 
     private fun getColumnCount(): Int {
         val columns = prefs.getInt(Preferences.prefLength, 6)
-        return if (columns < 6)
+        return if (columns < 6) {
             columns
-        else
+        } else {
             (requireActivity().windowManager.currentWindowMetrics
-                .bounds.width() / 92.toPx + 0.5).toInt()
+                .bounds.width() / 56.toPx + 0.5).toInt()
+            // drawer_apps_icon: width - 48, margin - 4
+        }
     }
 
     override fun onAppClicked(resolveInfo: ResolveInfo, position: Int) {
