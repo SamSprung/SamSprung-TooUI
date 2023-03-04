@@ -110,12 +110,15 @@ class ScaledContext(base: Context) : ContextWrapper(base) {
         return ScaledContext(this)
     }
 
-    fun restore(display: Int): Context {
+    fun restore(displayNumber: Int): Context {
         resources.displayMetrics.setToDefaults()
         val displayManager = getSystemService(DISPLAY_SERVICE) as DisplayManager
-        if (displayManager.displays.size <= display) return this
-        val contextWrapper = createDisplayContext(displayManager.getDisplay(display)
-        ).run {
+        val display = try {
+            displayManager.getDisplay(displayNumber)
+        } catch (iae: IllegalArgumentException) {
+            displayManager.getDisplay(0)
+        }
+        val contextWrapper = createDisplayContext(display).run {
             val wm = getSystemService(WINDOW_SERVICE) as WindowManager
             object : ContextThemeWrapper(this, theme) {
                 override fun getSystemService(name: String): Any? {
@@ -130,9 +133,12 @@ class ScaledContext(base: Context) : ContextWrapper(base) {
 
     fun cover() : Context {
         val displayManager = getSystemService(DISPLAY_SERVICE) as DisplayManager
-        if (displayManager.displays.size < 2) return this
-        createDisplayContext(displayManager.getDisplay(1)
-        ).run {
+        val diplay = try {
+            displayManager.getDisplay(1)
+        } catch (iae: IllegalArgumentException) {
+            displayManager.getDisplay(0)
+        }
+        createDisplayContext(diplay).run {
             val wm = getSystemService(WINDOW_SERVICE) as WindowManager
             return object : ContextThemeWrapper(this, theme) {
                 override fun getSystemService(name: String): Any? {

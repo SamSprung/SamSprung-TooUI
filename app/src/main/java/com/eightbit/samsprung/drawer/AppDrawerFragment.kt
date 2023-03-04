@@ -185,8 +185,8 @@ class AppDrawerFragment : Fragment(), DrawerAppAdapter.OnAppClickListener {
             columns
         } else {
             (requireActivity().windowManager.currentWindowMetrics
-                .bounds.width() / 56.toPx + 0.5).toInt()
-            // drawer_apps_icon: width - 48, margin - 4
+                .bounds.width() / 92.toPx + 0.5).toInt()
+            // drawer_apps_icon: width - 48, margin - 4, scale - 1.5
         }
     }
 
