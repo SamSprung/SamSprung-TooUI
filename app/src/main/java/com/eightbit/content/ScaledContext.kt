@@ -20,8 +20,14 @@ import android.content.res.Configuration
 import android.hardware.display.DisplayManager
 import android.view.ContextThemeWrapper
 import android.view.WindowManager
+import com.eightbit.io.Debug
 
+@Suppress("unused")
 class ScaledContext(base: Context) : ContextWrapper(base) {
+    private val ppiDisplay0 = if (Debug.isOppoDevice) 403f else 425f
+    private val ppiDisplay1 = if (Debug.isOppoDevice) 250f else 302f
+    private val portDisplay0 =  if (Debug.isOppoDevice) 2520 else 2640 // 2636
+
     fun getDisplayParams(): IntArray {
         val mWindowManager = getSystemService(WINDOW_SERVICE) as WindowManager
         val metrics = mWindowManager.currentWindowMetrics.bounds
@@ -33,18 +39,18 @@ class ScaledContext(base: Context) : ContextWrapper(base) {
         val metrics = resources.displayMetrics
         val orientation = resources.configuration.orientation
         metrics.density = density // 2
-        metrics.densityDpi = 360 // 360
+        metrics.densityDpi = 360
         if (orientation == Configuration.ORIENTATION_PORTRAIT) {
-            metrics.heightPixels = 2640 // 2640
-            metrics.widthPixels = 1080 // 1080
+            metrics.heightPixels = portDisplay0
+            metrics.widthPixels = 1080
         }
         if (orientation == Configuration.ORIENTATION_LANDSCAPE) {
-            metrics.heightPixels = 1080 // 1080
-            metrics.widthPixels = 2640 // 2640
+            metrics.heightPixels = 1080
+            metrics.widthPixels = portDisplay0
         }
         metrics.scaledDensity = density // 2
-        metrics.xdpi = 425f // 425
-        metrics.ydpi = 425f // 425
+        metrics.xdpi = ppiDisplay0
+        metrics.ydpi = ppiDisplay0
         metrics.setTo(metrics)
         return ScaledContext(this)
     }
@@ -68,18 +74,18 @@ class ScaledContext(base: Context) : ContextWrapper(base) {
         val metrics = resources.displayMetrics
         val orientation = resources.configuration.orientation
         metrics.density = density // 2
-        metrics.densityDpi = 360 // 360
+        metrics.densityDpi = 360
         if (orientation == Configuration.ORIENTATION_PORTRAIT) {
-            metrics.heightPixels = 2640 // 2640
-            metrics.widthPixels = 1080 // 1080
+            metrics.heightPixels = portDisplay0
+            metrics.widthPixels = 1080
         }
         if (orientation == Configuration.ORIENTATION_LANDSCAPE) {
-            metrics.heightPixels = 1080 // 1080
-            metrics.widthPixels = 2640 // 2640
+            metrics.heightPixels = 1080
+            metrics.widthPixels = portDisplay0
         }
         metrics.scaledDensity = density // 2
-        metrics.xdpi = 425f // 425
-        metrics.ydpi = 425f // 425
+        metrics.xdpi = ppiDisplay0
+        metrics.ydpi = ppiDisplay0
         metrics.setTo(metrics)
         return ScaledContext(displayContext)
     }
@@ -94,18 +100,28 @@ class ScaledContext(base: Context) : ContextWrapper(base) {
         val metrics = resources.displayMetrics
         val orientation = resources.configuration.orientation
         metrics.density = 1f
-        metrics.densityDpi = 160 // 160
+        metrics.densityDpi = 160
         if (orientation == Configuration.ORIENTATION_PORTRAIT) {
-            metrics.heightPixels = 512 // 512
-            metrics.widthPixels = 260 // 260
+            if (Debug.isOppoDevice) {
+                metrics.heightPixels = 720
+                metrics.widthPixels = 382
+            } else {
+                metrics.heightPixels = 512
+                metrics.widthPixels = 260
+            }
         }
         if (orientation == Configuration.ORIENTATION_LANDSCAPE) {
-            metrics.heightPixels = 260 // 260
-            metrics.widthPixels = 512 // 512
+            if (Debug.isOppoDevice) {
+                metrics.heightPixels = 382
+                metrics.widthPixels = 720
+            } else {
+                metrics.heightPixels = 260
+                metrics.widthPixels = 512
+            }
         }
         metrics.scaledDensity = 1f
-        metrics.xdpi = 302f // 302
-        metrics.ydpi = 302f // 302
+        metrics.xdpi = ppiDisplay1
+        metrics.ydpi = ppiDisplay1
         metrics.setTo(metrics)
         return ScaledContext(this)
     }
