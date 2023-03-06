@@ -18,6 +18,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:gravity="start|center_vertical"
+            android:layout_marginStart="2dp"
             android:orientation="horizontal">
 
             <androidx.appcompat.widget.AppCompatImageView
@@ -37,11 +38,16 @@
                 android:gravity="center_vertical" />
         </LinearLayout>
 
+        <View
+            android:layout_width="1dp"
+            android:layout_height="match_parent"
+            android:background="@color/primary_dark" />
+
         <LinearLayout
             android:id="@+id/button_donate"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
+            android:layout_weight="2"
             android:gravity="center"
             android:orientation="horizontal">
             <androidx.appcompat.widget.AppCompatImageView
@@ -60,12 +66,18 @@
                 android:text="@string/donate_link" />
         </LinearLayout>
 
+        <View
+            android:layout_width="1dp"
+            android:layout_height="match_parent"
+            android:background="@color/primary_dark" />
+
         <LinearLayout
             android:id="@+id/logcat"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:gravity="end|center_vertical"
+            android:layout_marginEnd="2dp"
             android:orientation="horizontal">
             <androidx.appcompat.widget.AppCompatImageView
                 android:layout_width="wrap_content"
