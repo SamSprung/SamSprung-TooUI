@@ -30,7 +30,7 @@ class ScaledContext(base: Context) : ContextWrapper(base) {
 
     fun getDisplayParams(): IntArray {
         val mWindowManager = getSystemService(WINDOW_SERVICE) as WindowManager
-        val metrics = mWindowManager.currentWindowMetrics.bounds
+        val metrics = mWindowManager.maximumWindowMetrics.bounds
         return intArrayOf(metrics.width(), metrics.height())
     }
 

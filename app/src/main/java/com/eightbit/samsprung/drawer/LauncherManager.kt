@@ -54,7 +54,7 @@ class LauncherManager(private val overlay: SamSprungOverlay) {
     }
 
     private fun getLaunchBounds() : Rect {
-        return overlay.windowManager.currentWindowMetrics.bounds
+        return overlay.windowManager.maximumWindowMetrics.bounds
     }
 
     fun launchResolveInfo(resolveInfo: ResolveInfo) {
