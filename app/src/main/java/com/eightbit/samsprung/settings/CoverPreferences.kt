@@ -672,7 +672,7 @@ class CoverPreferences : AppCompatActivity() {
         }
 
         val lengthBar = findViewById<SeekBar>(R.id.length_bar)
-        lengthBar.max = if (Debug.isOppoDevice) 4 else 6
+        lengthBar.max = if (Debug.isOppoDevice) 3 else 6
         val lengthText = findViewById<TextView>(R.id.length_text)
         lengthBar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
             override fun onProgressChanged(seek: SeekBar, progress: Int, fromUser: Boolean) {

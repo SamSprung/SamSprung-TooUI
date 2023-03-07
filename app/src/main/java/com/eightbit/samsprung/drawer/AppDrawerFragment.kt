@@ -179,7 +179,7 @@ class AppDrawerFragment : Fragment(), DrawerAppAdapter.OnAppClickListener {
     }
 
     private fun getColumnCount(): Int {
-        val columnDefault = if (Debug.isOppoDevice) 4 else 6
+        val columnDefault = if (Debug.isOppoDevice) 3 else 6
         val columns = prefs.getInt(Preferences.prefLength, columnDefault)
         return if (columns < columnDefault) {
             columns
