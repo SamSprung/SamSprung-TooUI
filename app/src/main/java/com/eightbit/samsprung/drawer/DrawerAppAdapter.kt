@@ -26,13 +26,11 @@ import android.widget.TextView
 import androidx.appcompat.widget.AppCompatImageView
 import androidx.recyclerview.widget.RecyclerView
 import com.eightbit.samsprung.R
-import com.eightbit.samsprung.SamSprung
 import com.eightbit.samsprung.settings.Preferences
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import java.util.concurrent.Executors
 
 class DrawerAppAdapter(
     private var packages: MutableList<ResolveInfo>,
@@ -101,7 +99,7 @@ class DrawerAppAdapter(
                 return filterResults
             }
             val tempList: MutableList<ResolveInfo> = mutableListOf()
-            Executors.newSingleThreadExecutor().execute {
+            CoroutineScope(Dispatchers.IO).launch(Dispatchers.IO) {
                 for (app in packages) {
                     if (app.loadLabel(packageManager).contains(queryText, ignoreCase = true))
                         tempList.add(app)

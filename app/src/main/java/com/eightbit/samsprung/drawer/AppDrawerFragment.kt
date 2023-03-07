@@ -38,6 +38,10 @@ import com.eightbit.samsprung.SamSprungOverlay
 import com.eightbit.samsprung.settings.Preferences
 import com.eightbit.view.OnSwipeTouchListener
 import com.eightbit.widget.RecyclerViewTouch
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.util.concurrent.Executors
 
 class AppDrawerFragment : Fragment(), DrawerAppAdapter.OnAppClickListener {
@@ -152,10 +156,10 @@ class AppDrawerFragment : Fragment(), DrawerAppAdapter.OnAppClickListener {
 
     @SuppressLint("NotifyDataSetChanged")
     private fun getFilteredPackageList() {
-        Executors.newSingleThreadExecutor().execute {
+        CoroutineScope(Dispatchers.IO).launch(Dispatchers.IO) {
             val packageRetriever = PackageRetriever(requireActivity())
             val packages = packageRetriever.getFilteredPackageList()
-            requireActivity().runOnUiThread {
+            withContext(Dispatchers.Main) {
                 val adapter = launcherView.adapter as DrawerAppAdapter
                 adapter.setPackages(packages)
                 adapter.notifyDataSetChanged()

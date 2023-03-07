@@ -41,10 +41,12 @@ import androidx.fragment.app.FragmentActivity
 import androidx.recyclerview.widget.RecyclerView
 import com.eightbit.samsprung.NotificationReceiver
 import com.eightbit.samsprung.R
-import com.eightbit.samsprung.SamSprung
 import com.eightbit.samsprung.settings.Preferences
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.util.*
-import java.util.concurrent.Executors
 
 class NotificationAdapter(
     private var activity: Activity,
@@ -159,12 +161,12 @@ class NotificationAdapter(
             linesText.ellipsize = TextUtils.TruncateAt.END
             titleText.text = ""
             linesText.text = ""
-            Executors.newSingleThreadExecutor().execute {
+            CoroutineScope(Dispatchers.IO).launch(Dispatchers.IO) {
                 when {
                     null != notification.getLargeIcon() -> {
                         val icon = notification.getLargeIcon().loadDrawable(activity)
                         if (null != icon) {
-                            activity.runOnUiThread {
+                            withContext(Dispatchers.Main) {
                                 icon.applyTheme(activity.theme)
                                 iconView.setImageDrawable(icon)
                             }
@@ -173,7 +175,7 @@ class NotificationAdapter(
                     null != notification.smallIcon -> {
                         val icon = notification.smallIcon.loadDrawable(activity)
                         if (null != icon) {
-                            activity.runOnUiThread {
+                            withContext(Dispatchers.Main) {
                                 icon.applyTheme(activity.theme)
                                 iconView.setImageDrawable(icon)
                             }
@@ -189,7 +191,7 @@ class NotificationAdapter(
                             else -> null
                         }
                         if (null != bitmap) {
-                            activity.runOnUiThread {
+                            withContext(Dispatchers.Main) {
                                 imageView.setImageBitmap(getScaledBitmap(activity, bitmap))
                             }
                         }
@@ -202,12 +204,12 @@ class NotificationAdapter(
                             else -> null
                         }
                         if (null != bitmap) {
-                            activity.runOnUiThread {
+                            withContext(Dispatchers.Main) {
                                 imageView.setImageBitmap(getScaledBitmap(activity, bitmap))
                             }
                         }
                     }
-                    activity.runOnUiThread {
+                    withContext(Dispatchers.Main) {
                         if (notification.extras.containsKey(NotificationCompat.EXTRA_TITLE_BIG)) {
                             val titleBig = notification.extras.get(NotificationCompat.EXTRA_TITLE_BIG)
                             if (null != titleBig) titleText.text = titleBig.toString()

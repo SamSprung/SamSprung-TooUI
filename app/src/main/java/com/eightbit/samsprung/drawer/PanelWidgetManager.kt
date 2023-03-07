@@ -23,8 +23,10 @@ import com.eightbit.os.Version
 import com.eightbit.samsprung.R
 import com.eightbit.samsprung.SamSprungOverlay
 import com.eightbit.samsprung.drawer.panels.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import java.util.*
-import java.util.concurrent.Executors
 
 class PanelWidgetManager(
     private var overlay: SamSprungOverlay,
@@ -54,7 +56,7 @@ class PanelWidgetManager(
         launcherInfo.spanX = spans[0]
         launcherInfo.spanY = spans[1]
 
-        Executors.newSingleThreadExecutor().execute {
+        CoroutineScope(Dispatchers.IO).launch(Dispatchers.IO) {
             WidgetModel.addItemToDatabase(
                 overlay.applicationContext, launcherInfo,
                 WidgetSettings.Favorites.CONTAINER_DESKTOP,
