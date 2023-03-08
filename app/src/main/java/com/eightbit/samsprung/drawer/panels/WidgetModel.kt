@@ -38,8 +38,8 @@ class WidgetModel {
     private var mDesktopLoaderThread: Thread? = null
     @Synchronized
     fun abortLoaders() {
-        if (mDesktopItemsLoader != null && mDesktopItemsLoader!!.isRunning) {
-            mDesktopItemsLoader!!.stop()
+        if (mDesktopItemsLoader?.isRunning == true) {
+            mDesktopItemsLoader?.stop()
             mDesktopItemsLoaded = false
         }
     }
@@ -57,12 +57,12 @@ class WidgetModel {
             launcher.onDesktopItemsLoaded(mDesktopItems, mDesktopAppWidgets)
             return
         }
-        if (mDesktopItemsLoader != null && mDesktopItemsLoader!!.isRunning) {
-            mDesktopItemsLoader!!.stop()
+        if (mDesktopItemsLoader?.isRunning == true) {
+            mDesktopItemsLoader?.stop()
             // Wait for the currently running thread to finish, this can take a little
             // time but it should be well below the timeout limit
             try {
-                mDesktopLoaderThread!!.join(APPLICATION_NOT_RESPONDING_TIMEOUT)
+                mDesktopLoaderThread?.join(APPLICATION_NOT_RESPONDING_TIMEOUT)
             } catch (e: InterruptedException) {
                 // Empty
             }
@@ -163,10 +163,8 @@ class WidgetModel {
      * Remove any [WidgetHostView] references in our widgets.
      */
     private fun unbindAppWidgetHostViews(appWidgets: ArrayList<PanelWidgetInfo>?) {
-        if (appWidgets != null) {
-            val count = appWidgets.size
-            for (i in 0 until count) {
-                val launcherInfo = appWidgets[i]
+        appWidgets?.let { it ->
+            it.forEach { launcherInfo ->
                 launcherInfo.hostView = null
             }
         }
@@ -201,15 +199,11 @@ class WidgetModel {
             item.spanX = spanX
             item.spanY = spanY
             val values = ContentValues()
-            val cr = context.contentResolver
             item.onAddToDatabase(values)
-            val result = cr.insert(
+            context.contentResolver.insert(
                 if (notify) Favorites.CONTENT_URI else Favorites.CONTENT_URI_NO_NOTIFICATION,
                 values
-            )
-            if (result != null) {
-                item.id = result.pathSegments[1].toInt().toLong()
-            }
+            )?.let { item.id = it.pathSegments[1].toInt().toLong() }
         }
 
         /**

@@ -35,8 +35,8 @@ class AccessibilityObserver : AccessibilityService() {
             val serviceString = Settings.Secure.getString(context.contentResolver,
                 Settings.Secure.ENABLED_ACCESSIBILITY_SERVICES
             )
-            return serviceString != null && serviceString.contains(context.packageName
-                    + File.separator + AccessibilityObserver::class.java.name)
+            return serviceString?.contains(context.packageName
+                    + File.separator + AccessibilityObserver::class.java.name) ?: false
         }
         fun performBackAction() {
             getInstance()?.performGlobalAction(GLOBAL_ACTION_BACK)

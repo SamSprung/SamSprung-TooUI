@@ -33,7 +33,7 @@ class VoiceRecognizer(private val listener: SpeechResultsListener?) : Recognitio
     override fun onResults(results: Bundle) {
         val data = results.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION)
         val grammar = StringBuilder()
-        if (data != null) grammar.append(data[0])
+        data?.let { grammar.append(it[0]) }
         grammar.setCharAt(0, Character.toUpperCase(grammar[0]))
         val suggested = grammar.toString()
         listener?.onSpeechResults(suggested)

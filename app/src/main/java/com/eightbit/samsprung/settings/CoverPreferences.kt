@@ -1161,8 +1161,8 @@ class CoverPreferences : AppCompatActivity() {
         val serviceString = Settings.Secure.getString(contentResolver,
             Settings.Secure.ENABLED_ACCESSIBILITY_SERVICES
         )
-        return serviceString != null && serviceString.contains(packageName
-                + File.separator + AccessibilityObserver::class.java.name)
+        return serviceString?.contains(packageName
+                + File.separator + AccessibilityObserver::class.java.name) ?: false
     }
 
     private fun hasNotificationListener(): Boolean {

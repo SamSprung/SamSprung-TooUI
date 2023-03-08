@@ -73,8 +73,8 @@ class WidgetPreviews(mLauncher: SamSprungOverlay) {
         private fun renderDrawableToBitmap(
             d: Drawable?, bitmap: Bitmap?, x: Int, y: Int, w: Int, h: Int
         ) {
-            if (bitmap != null) {
-                val c = Canvas(bitmap)
+            bitmap?.let {
+                val c = Canvas(it)
                 c.scale(1.0f, 1.0f)
                 val oldBounds = d!!.copyBounds()
                 d.setBounds(x, y, x + w, y + h)
@@ -169,7 +169,7 @@ class WidgetPreviews(mLauncher: SamSprungOverlay) {
         var defaultPreview: Bitmap? = null
         val widgetPreviewExists = drawable != null
         if (widgetPreviewExists) {
-            previewWidth = drawable!!.intrinsicWidth
+            previewWidth = drawable.intrinsicWidth
             previewHeight = drawable.intrinsicHeight
         } else {
             // Generate a preview image if we couldn't load one
@@ -224,9 +224,7 @@ class WidgetPreviews(mLauncher: SamSprungOverlay) {
         // Scale to fit width only - let the widget preview be clipped in the
         // vertical dimension
         var scale = 1f
-        if (preScaledWidthOut != null) {
-            preScaledWidthOut[0] = previewWidth
-        }
+        preScaledWidthOut?.let { it[0] = previewWidth }
         if (previewWidth > maxPreviewWidth) {
             scale = maxPreviewWidth / previewWidth.toFloat()
         }
@@ -331,9 +329,7 @@ class WidgetPreviews(mLauncher: SamSprungOverlay) {
         } catch (e: PackageManager.NameNotFoundException) {
             null
         }
-        if (resources != null) {
-            if (iconId != 0) return getFullResIcon(resources, iconId, user)
-        }
+        resources?.let { if (iconId != 0) return getFullResIcon(it, iconId, user) }
         return fullResDefaultActivityIcon
     }
 
