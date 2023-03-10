@@ -76,8 +76,8 @@ class IconifiedSnackbar @JvmOverloads constructor(activity: Activity, layout: Vi
         return snackbar
     }
 
-    fun buildSnackbar(msgRes: Int, drawable: Int, length: Int): Snackbar {
-        return buildSnackbar(mActivity.getString(msgRes), drawable, length, null)
+    fun buildSnackbar(msg: String, length: Int): Snackbar {
+        return buildSnackbar(msg, R.drawable.ic_samsprung_24dp, length, null)
     }
 
     fun buildTickerBar(msg: String, drawable: Int, length: Int): Snackbar {

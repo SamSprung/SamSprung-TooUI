@@ -56,11 +56,15 @@ class SamSprung : Application() {
         Thread.setDefaultUncaughtExceptionHandler { _: Thread?, error: Throwable ->
             val exception = StringWriter()
             error.printStackTrace(PrintWriter(exception))
-            Toast.makeText(this, R.string.logcat_crash, Toast.LENGTH_SHORT).show()
-            Debug(this).processException(
-                (getSystemService(KEYGUARD_SERVICE) as KeyguardManager).isDeviceSecure,
-                exception.toString()
-            )
+            try {
+                Toast.makeText(this, R.string.logcat_crash, Toast.LENGTH_SHORT).show()
+            } catch (ignored: Exception) { }
+            try {
+                Debug(this).processException(
+                    (getSystemService(KEYGUARD_SERVICE) as KeyguardManager).isDeviceSecure,
+                    exception.toString()
+                )
+            } catch (ignored: Exception) { }
             // Unrecoverable error encountered
             try {
                 OrientationManager(this).removeOrientationLayout()

@@ -158,8 +158,12 @@ class CoverPreferences : AppCompatActivity() {
                 ).show()
                 return@setOnClickListener
             }
-            if (!Debug(this).captureLogcat(isDeviceSecure())) {
-                wikiDrawer.openDrawer(GravityCompat.START)
+            try {
+                Debug(this).captureLogcat(isDeviceSecure())
+            } catch (e: IOException) {
+                IconifiedSnackbar(this).buildSnackbar(
+                    e.message, Snackbar.LENGTH_SHORT
+                ).show()
             }
         }
 
@@ -1129,6 +1133,10 @@ class CoverPreferences : AppCompatActivity() {
     private val requestWidgets = registerForActivityResult(
         ActivityResultContracts.RequestPermission()) {
         toggleWidgetsIcon(findViewById(R.id.toolbar))
+    }
+
+    fun openWikiDrawer() {
+        wikiDrawer.openDrawer(GravityCompat.START)
     }
 
     private fun setSuperscriptText(view: TextView, resource: Int, value: String) {
