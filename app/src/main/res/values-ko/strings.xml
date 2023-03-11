@@ -84,10 +84,6 @@
 
     <string name="lock_enabled">장치가 잠겨 있습니다!</string>
 
-    <string name="incompatibility_warning">SamSprung is not compatible with apps that block the entire screen.\nPlease remove or disable this app to continue.</string>
-    <string name="cover_widget_warning">중요:이 커버 화면 위젯이 아닙니다\n!! Questo non è un widget / Este não é um widget !!</string>
-    <string name="cover_switch_warning">\nMain switch must be enabled to appear on cover.</string>
-
     <string name="main_screen_required">계속하려면 장치 열기</string>
     <string name="incompatible_fragment">패널을 삭제할 수 없습니다</string>
 

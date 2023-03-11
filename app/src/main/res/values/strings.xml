@@ -112,6 +112,7 @@
     <string name="lock_enabled">Device is locked!</string>
     <string name="fingerprint_required">Please unlock the device\nwith your fingerprint</string>
     <string name="auth_unavailable">Bixby unlock required to continue!</string>
+    <string name="oppo_auth_unavailable">OPPO Secure lock is not supported!</string>
     <string name="auth_required">Fingerprint required!</string>
     <string name="auth_required_action">Scan</string>
     <string name="btn_auth_tip">Auth Status</string>

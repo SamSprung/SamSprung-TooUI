@@ -43,9 +43,7 @@ constructor(context: Context?) : BlurAlgorithm {
         //Allocation will use the same backing array of pixels as bitmap if created with USAGE_SHARED flag
         val inAllocation = Allocation.createFromBitmap(renderScript, bitmap)
         if (!canReuseAllocation(bitmap)) {
-            if (outAllocation != null) {
-                outAllocation!!.destroy()
-            }
+            outAllocation?.destroy()
             outAllocation = Allocation.createTyped(renderScript, inAllocation.type)
             lastBitmapWidth = bitmap!!.width
             lastBitmapHeight = bitmap.height
@@ -54,7 +52,7 @@ constructor(context: Context?) : BlurAlgorithm {
         blurScript.setInput(inAllocation)
         //do not use inAllocation in forEach. it will cause visual artifacts on blurred Bitmap
         blurScript.forEach(outAllocation)
-        outAllocation!!.copyTo(bitmap)
+        outAllocation?.copyTo(bitmap)
         inAllocation.destroy()
         return bitmap
     }
@@ -62,9 +60,7 @@ constructor(context: Context?) : BlurAlgorithm {
     override fun destroy() {
         blurScript.destroy()
         renderScript.destroy()
-        if (outAllocation != null) {
-            outAllocation!!.destroy()
-        }
+        outAllocation?.destroy()
     }
 
     override fun canModifyBitmap(): Boolean {

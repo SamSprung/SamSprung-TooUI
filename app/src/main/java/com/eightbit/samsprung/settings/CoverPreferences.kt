@@ -161,9 +161,9 @@ class CoverPreferences : AppCompatActivity() {
             try {
                 Debug(this).captureLogcat(isDeviceSecure())
             } catch (e: IOException) {
-                IconifiedSnackbar(this).buildSnackbar(
-                    e.message, Snackbar.LENGTH_SHORT
-                ).show()
+                e.message?.let {
+                    IconifiedSnackbar(this).buildSnackbar(it, Snackbar.LENGTH_SHORT).show()
+                }
             }
         }
 

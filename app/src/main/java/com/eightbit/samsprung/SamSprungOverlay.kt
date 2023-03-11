@@ -65,6 +65,7 @@ import androidx.viewpager2.widget.ViewPager2
 import androidx.window.java.layout.WindowInfoTrackerCallbackAdapter
 import androidx.window.layout.WindowInfoTracker
 import com.eightbit.content.ScaledContext
+import com.eightbit.io.Debug
 import com.eightbit.material.IconifiedSnackbar
 import com.eightbit.os.Version
 import com.eightbit.samsprung.drawer.CoverStateAdapter
@@ -821,11 +822,16 @@ class SamSprungOverlay : AppCompatActivity() {
                 } catch (ite: Exception) {
                     ite.printStackTrace()
                     authDialog.dismiss()
-                    IconifiedSnackbar(this@SamSprungOverlay, viewPager).buildTickerBar(
-                        getString(R.string.auth_unavailable),
-                        R.drawable.ic_fingerprint_24dp
-                    ).show()
-                    keyguardListener?.onKeyguardCheck(false)
+                    if (Debug.isOppoDevice) {
+                        IconifiedSnackbar(this@SamSprungOverlay, viewPager).buildTickerBar(
+                            getString(R.string.oppo_auth_unavailable), R.drawable.ic_fingerprint_24dp
+                        ).show()
+                    } else {
+                        IconifiedSnackbar(this@SamSprungOverlay, viewPager).buildTickerBar(
+                            getString(R.string.auth_unavailable), R.drawable.ic_fingerprint_24dp
+                        ).show()
+                        keyguardListener?.onKeyguardCheck(false)
+                    }
                 }
             } else {
                 dismissKeyguard(this, null)
