@@ -77,9 +77,7 @@ class OnBroadcastService : Service() {
                 CoverOptions(null).getActivityOptions(1).toBundle()
             )
         }
-        try {
-            applicationContext.unregisterReceiver(onReceiver)
-        } catch (ignored: Exception) { }
+        try { applicationContext.unregisterReceiver(onReceiver) } catch (ignored: Exception) { }
         IntentFilter().apply {
             addAction(Intent.ACTION_USER_PRESENT)
             addAction(Intent.ACTION_SCREEN_ON)
@@ -129,9 +127,7 @@ class OnBroadcastService : Service() {
     }
 
     private fun stopOverlayService(): Int {
-        try {
-            unregisterReceiver(onReceiver)
-        } catch (ignored: Exception) { }
+        try { unregisterReceiver(onReceiver) } catch (ignored: Exception) { }
         stopForeground(STOP_FOREGROUND_REMOVE)
         stopSelf()
         return START_NOT_STICKY

@@ -212,8 +212,6 @@ class AppDrawerFragment : Fragment(), DrawerAppAdapter.OnAppClickListener {
 
     override fun onDestroyView() {
         super.onDestroyView()
-        try {
-            if (null != packReceiver) requireActivity().unregisterReceiver(packReceiver)
-        } catch (ignored: Exception) { }
+        try { requireActivity().unregisterReceiver(packReceiver) } catch (ignored: Exception) { }
     }
 }

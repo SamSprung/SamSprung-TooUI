@@ -33,17 +33,15 @@ class OrientationManager(context: Context) {
 
     fun removeOrientationLayout() {
         try {
-            if (null != orientationView) {
+            orientationView?.let {
                 orientationLayout.screenOrientation = ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
-                windowManager.updateViewLayout(orientationView!!.get(), orientationLayout)
+                windowManager.updateViewLayout(it.get(), orientationLayout)
                 try {
-                    windowManager.removeViewImmediate(orientationView!!.get())
+                    windowManager.removeViewImmediate(it.get())
                 } catch (rvi: Exception) {
-                    try {
-                        windowManager.removeView(orientationView!!.get())
-                    } catch (ignored: Exception) { }
+                    try { windowManager.removeView(it.get()) } catch (ignored: Exception) { }
                 }
-            } else {
+            } ?: {
                 orientationLayout.screenOrientation = ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
                 windowManager.updateViewLayout(orientationManager, orientationLayout)
                 try {

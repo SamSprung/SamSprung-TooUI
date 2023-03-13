@@ -76,9 +76,7 @@ class UpdateManager(private var activity: Activity) {
         if (activity is UpdateShimActivity) {
             activity.applicationContext.packageManager.packageInstaller.run {
                 mySessions.forEach {
-                    try {
-                        abandonSession(it.sessionId)
-                    } catch (ignored: Exception) { }
+                    try { abandonSession(it.sessionId) } catch (ignored: Exception) { }
                 }
             }
         } else {

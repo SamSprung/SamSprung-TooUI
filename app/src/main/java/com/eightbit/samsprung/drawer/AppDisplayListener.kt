@@ -166,7 +166,7 @@ class AppDisplayListener : Service() {
         menuClose.setColorFilter(color)
         setClickListeners(icons, componentName, launchPackage, launchActivity)
 
-        floatView.findViewById<View>(R.id.bottom_sheet_nav)!!.setOnTouchListener(
+        floatView.findViewById<View>(R.id.bottom_sheet_nav).setOnTouchListener(
             object: OnSwipeTouchListener(this@AppDisplayListener) {
             override fun onSwipeTop() : Boolean {
                 bottomSheetBehavior.state = BottomSheetBehavior.STATE_EXPANDED
@@ -179,6 +179,9 @@ class AppDisplayListener : Service() {
         })
 
         (displayContext.getSystemService(WINDOW_SERVICE) as WindowManager).addView(floatView, params)
+        Handler(Looper.getMainLooper()).postDelayed({
+            bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
+        }, 500)
         return START_NOT_STICKY
     }
 
@@ -311,9 +314,7 @@ class AppDisplayListener : Service() {
             (getSystemService(DISPLAY_SERVICE) as DisplayManager)
                 .unregisterDisplayListener(mDisplayListener)
         }
-        try {
-            if (null != offReceiver) unregisterReceiver(offReceiver)
-        } catch (ignored: Exception) { }
+        try { unregisterReceiver(offReceiver) } catch (ignored: Exception) { }
         ScaledContext(
             ScaledContext(applicationContext).cover(R.style.Theme_SecondScreen)
         ).internal(1.5f).run {
@@ -321,9 +322,7 @@ class AppDisplayListener : Service() {
                 try {
                     removeViewImmediate(floatView)
                 } catch (rvi: Exception) {
-                    try {
-                        removeView(floatView)
-                    } catch (ignored: Exception) { }
+                    try { removeView(floatView) } catch (ignored: Exception) { }
                 }
             }
         }
