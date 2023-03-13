@@ -16,7 +16,7 @@
         android:textSize="24sp"
         android:textColor="?android:textColorPrimary"
         android:gravity="center_vertical"
-        android:layout_height="wrap_content"
+        android:layout_height="match_parent"
         android:text="@string/toggle_options" />
 
     <androidx.appcompat.widget.Toolbar

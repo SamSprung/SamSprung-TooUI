@@ -45,6 +45,7 @@ import android.os.*
 import android.provider.Settings
 import android.speech.SpeechRecognizer
 import android.view.*
+import android.view.GestureDetector.SimpleOnGestureListener
 import android.view.animation.TranslateAnimation
 import android.widget.*
 import androidx.activity.result.ActivityResult
@@ -76,6 +77,7 @@ import com.eightbit.samsprung.settings.Preferences
 import com.eightbit.samsprung.speech.VoiceRecognizer
 import com.eightbit.samsprung.update.UpdateManager
 import com.eightbit.view.AnimatedLinearLayout
+import com.eightbit.view.OnSwipeTouchListener
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.snackbar.Snackbar
@@ -91,6 +93,7 @@ import kotlinx.coroutines.withContext
 import org.lsposed.hiddenapibypass.HiddenApiBypass
 import java.io.File
 import java.util.*
+
 
 class SamSprungOverlay : AppCompatActivity() {
 
@@ -505,7 +508,6 @@ class SamSprungOverlay : AppCompatActivity() {
                 vibrator.vibrate(effectClick)
             bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
             bottomSheetBehaviorMain.state = BottomSheetBehavior.STATE_COLLAPSED
-            if (prefs.getBoolean(Preferences.prefCloser, Version.isTiramisu)) onStopOverlay()
         }
         buttonClose.setOnLongClickListener { view ->
             Toast.makeText(
@@ -711,13 +713,23 @@ class SamSprungOverlay : AppCompatActivity() {
         })
     }
 
+    @SuppressLint("ClickableViewAccessibility")
     private fun showBottomHandle(bottomHandle: View, menuButton: FloatingActionButton) {
         setBottomTheme(bottomHandle, menuButton)
-        menuButton.setOnClickListener {
-            if (prefs.getBoolean(Preferences.prefReacts, true))
-                vibrator.vibrate(effectClick)
-            bottomSheetBehaviorMain.state = BottomSheetBehavior.STATE_EXPANDED
-        }
+        val closeGesture = GestureDetector(applicationContext, object : SimpleOnGestureListener() {
+            override fun onDoubleTap(e: MotionEvent): Boolean {
+                onStopOverlay()
+                return super.onDoubleTap(e)
+            }
+
+            override fun onSingleTapConfirmed(e: MotionEvent): Boolean {
+                if (prefs.getBoolean(Preferences.prefReacts, true))
+                    vibrator.vibrate(effectClick)
+                bottomSheetBehaviorMain.state = BottomSheetBehavior.STATE_EXPANDED
+                return super.onSingleTapConfirmed(e)
+            }
+        })
+        menuButton.setOnTouchListener { _, event -> closeGesture.onTouchEvent(event) }
         setActionButtonTimeout()
     }
 
@@ -1021,14 +1033,14 @@ class SamSprungOverlay : AppCompatActivity() {
     appWidgets: ArrayList<PanelWidgetInfo>?
     ) {
         // Flag any old binder to terminate early
-        if (null != mBinder) mBinder!!.mTerminate = true
+        mBinder?.mTerminate = true
         mBinder = DesktopBinder(this, shortcuts, appWidgets)
-        mBinder!!.startBindingItems()
+        mBinder?.startBindingItems()
     }
 
     @Deprecated("Deprecated in Java")
     override fun onRetainCustomNonConfigurationInstance(): Any? {
-        if (null != mBinder) mBinder!!.mTerminate = true
+        mBinder?.mTerminate = true
         // return lastNonConfigurationInstance
         return null
     }
