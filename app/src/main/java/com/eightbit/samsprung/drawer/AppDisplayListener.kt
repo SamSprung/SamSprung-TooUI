@@ -310,10 +310,11 @@ class AppDisplayListener : Service() {
         if (prefs.getBoolean(Preferences.prefRotate, false)) {
             OrientationManager(this).removeOrientationLayout()
         }
-        if (null != mDisplayListener) {
-            (getSystemService(DISPLAY_SERVICE) as DisplayManager)
-                .unregisterDisplayListener(mDisplayListener)
-        }
+        try {
+            (getSystemService(DISPLAY_SERVICE) as DisplayManager).run {
+                unregisterDisplayListener(mDisplayListener)
+            }
+        } catch (ignored: Exception) { }
         try { unregisterReceiver(offReceiver) } catch (ignored: Exception) { }
         ScaledContext(
             ScaledContext(applicationContext).cover(R.style.Theme_SecondScreen)
