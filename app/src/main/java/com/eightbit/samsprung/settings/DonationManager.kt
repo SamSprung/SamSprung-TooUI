@@ -102,10 +102,12 @@ class DonationManager internal constructor(private val activity: CoverPreference
     private val subsOwnedListener = PurchasesResponseListener { billingResult, purchases ->
         if (billingResult.responseCode == BillingClient.BillingResponseCode.OK) {
             purchases.forEach {
-                for (sku in it.products) {
-                    if (subsPurchased.contains(sku)) {
-                        SamSprung.hasSubscription = true
-                        break
+                run breaking@{
+                    it.products.forEach { sku ->
+                        if (subsPurchased.contains(sku)) {
+                            SamSprung.hasSubscription = true
+                            return@breaking
+                        }
                     }
                 }
             }
@@ -124,9 +126,11 @@ class DonationManager internal constructor(private val activity: CoverPreference
     private val iapHistoryListener = PurchaseHistoryResponseListener { billingResult, purchases ->
         if (billingResult.responseCode == BillingClient.BillingResponseCode.OK && null != purchases) {
             purchases.forEach {
-                for (sku in it.products) {
-                    if (sku.split("_")[1].toInt() >= 10) {
-                        break
+                run breaking@{
+                    it.products.forEach { sku ->
+                        if (sku.split("_").toTypedArray()[1].toInt() >= 10) {
+                            return@breaking
+                        }
                     }
                 }
             }
