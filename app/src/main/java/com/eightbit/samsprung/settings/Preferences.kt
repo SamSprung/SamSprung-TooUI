@@ -13,6 +13,7 @@ object Preferences {
     const val prefThemes: String = "prefThemes"
     const val prefDelays: String = "prefDelays"
     const val prefSnooze: String = "prefSnooze"
+    const val prefTapper: String = "prefTapper"
     const val prefReacts: String = "prefReacts"
     const val prefSearch: String = "prefSearch"
     const val prefRadius: String = "prefRadius"

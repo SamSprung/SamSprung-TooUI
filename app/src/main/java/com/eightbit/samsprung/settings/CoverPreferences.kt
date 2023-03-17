@@ -627,6 +627,18 @@ class CoverPreferences : AppCompatActivity() {
         }
         drawer.isGone = true
 
+        val fabSize = findViewById<AppCompatCheckBox>(R.id.fab_size_switch)
+        fabSize.isChecked = prefs.getBoolean(Preferences.prefTapper, false)
+        fabSize.setOnCheckedChangeListener { _, isChecked ->
+            with(prefs.edit()) {
+                putBoolean(Preferences.prefTapper, isChecked)
+                apply()
+            }
+        }
+        findViewById<LinearLayout>(R.id.fab_size).setOnClickListener {
+            fabSize.isChecked = !fabSize.isChecked
+        }
+
         val vibration = findViewById<AppCompatCheckBox>(R.id.vibration_switch)
         vibration.isChecked = prefs.getBoolean(Preferences.prefReacts, true)
         vibration.setOnCheckedChangeListener { _, isChecked ->
