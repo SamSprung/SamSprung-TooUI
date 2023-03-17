@@ -78,7 +78,6 @@ import com.eightbit.samsprung.settings.Preferences
 import com.eightbit.samsprung.speech.VoiceRecognizer
 import com.eightbit.samsprung.update.UpdateManager
 import com.eightbit.view.AnimatedLinearLayout
-import com.eightbit.view.OnSwipeTouchListener
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.snackbar.Snackbar
@@ -727,6 +726,10 @@ class SamSprungOverlay : AppCompatActivity() {
     private fun showBottomHandle(bottomHandle: View, menuButton: FloatingActionButton) {
         setBottomTheme(bottomHandle, menuButton)
         val closeGesture = GestureDetector(applicationContext, object : SimpleOnGestureListener() {
+            override fun onDown(e: MotionEvent): Boolean {
+                return true
+            }
+
             override fun onDoubleTap(e: MotionEvent): Boolean {
                 onStopOverlay()
                 return super.onDoubleTap(e)
