@@ -117,7 +117,6 @@ dependencies {
 
     implementation 'com.android.billingclient:billing:5.1.0'
 
-    implementation 'com.github.8bitDream:android-issue-reporter:15cdc1024d'
     implementation 'com.github.8bitDream:RecyclerView-FastScroller:2284dc5693'
 
     implementation 'com.google.android.material:material:1.8.0'

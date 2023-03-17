@@ -18,12 +18,10 @@ import android.annotation.SuppressLint
 import android.content.*
 import android.net.Uri
 import android.os.Build
-import com.eightbit.net.GitHubRequest
 import com.eightbit.samsprung.BuildConfig
 import com.eightbit.samsprung.R
 import com.eightbit.samsprung.organization
 import com.eightbit.samsprung.settings.CoverPreferences
-import com.heinrichreimersoftware.androidissuereporter.IssueReporterLauncher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -109,8 +107,6 @@ class Debug(private var context: Context) {
     @Throws(IOException::class)
     fun captureLogcat(isSecureDevice: Boolean) {
         CoroutineScope(Dispatchers.IO).launch(Dispatchers.IO) {
-            val repository = "$organization-TooUI"
-
             val separator = System.getProperty("line.separator") ?: "\n"
             val log = getDeviceProfile(isSecureDevice)
             var line: String?
@@ -129,27 +125,8 @@ class Debug(private var context: Context) {
             reader.close()
             val logText = log.toString()
             withContext(Dispatchers.Main) {
-                val submitted = if (!logText.contains("AndroidRuntime")) {
-                    submitLogcat(context, logText)
-                    false
-                } else {
-                    try {
-                        IssueReporterLauncher.forTarget(organization, repository)
-                            .theme(R.style.Theme_SecondScreen_NoActionBar)
-                            .guestToken(GitHubRequest.token)
-                            .guestEmailRequired(false)
-                            .publicIssueUrl(issueUrl)
-                            .titleTextDefault(context.getString(R.string.git_issue_title, BuildConfig.COMMIT))
-                            .minDescriptionLength(1)
-                            .putExtraInfo("logcat", logText)
-                            .homeAsUpEnabled(false).launch(context)
-                        true
-                    } catch (ignored: Exception) {
-                        submitLogcat(context, logText)
-                        true
-                    }
-                }
-                if (!submitted && context is CoverPreferences) {
+                submitLogcat(context, logText)
+                if (!logText.contains("AndroidRuntime") && context is CoverPreferences) {
                     (context as CoverPreferences).openWikiDrawer()
                 }
             }
