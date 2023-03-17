@@ -186,9 +186,16 @@ class CoverPreferences : AppCompatActivity() {
         optimization = findViewById(R.id.optimization_switch)
         optimization?.isChecked = ignoreBatteryOptimization()
         findViewById<LinearLayout>(R.id.optimization).setOnClickListener {
-            optimizationLauncher.launch(Intent(
-                Settings.ACTION_IGNORE_BATTERY_OPTIMIZATION_SETTINGS
-            ))
+            try {
+                optimizationLauncher.launch(Intent(
+                    Settings.ACTION_IGNORE_BATTERY_OPTIMIZATION_SETTINGS,
+                    Uri.parse("package:$packageName")
+                ))
+            } catch (anf: ActivityNotFoundException) {
+                optimizationLauncher.launch(Intent(
+                    Settings.ACTION_IGNORE_BATTERY_OPTIMIZATION_SETTINGS
+                ))
+            }
         }
 
         accessibility = findViewById(R.id.accessibility_switch)

@@ -605,7 +605,7 @@ class SamSprungOverlay : AppCompatActivity() {
         val menuButton = findViewById<FloatingActionButton>(R.id.menu_fab)
         if (prefs.getBoolean(Preferences.prefTapper, false)) {
             menuButton.size = FloatingActionButton.SIZE_NORMAL
-            menuButton.setMaxImageSize(36.toPx.toInt())
+            menuButton.setMaxImageSize(34.toPx.toInt())
         }
         val bottomHandle = findViewById<View>(R.id.bottom_handle)
         bottomSheetBehaviorMain = BottomSheetBehavior.from(findViewById(R.id.bottom_sheet_main))
