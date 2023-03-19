@@ -101,7 +101,7 @@ class SamSprungOverlay : AppCompatActivity() {
     private val Number.toPx get() = TypedValue.applyDimension(
         TypedValue.COMPLEX_UNIT_DIP, this.toFloat(),
         ScaledContext(this@SamSprungOverlay).resources.displayMetrics
-    )
+    ).toInt()
 
     private val CharSequence.toPref get() = this.toString().lowercase().replace(" ", "_")
 
@@ -611,7 +611,12 @@ class SamSprungOverlay : AppCompatActivity() {
         val menuButton = findViewById<FloatingActionButton>(R.id.menu_fab)
         if (prefs.getBoolean(Preferences.prefTapper, false)) {
             menuButton.size = FloatingActionButton.SIZE_NORMAL
-            menuButton.setMaxImageSize(34.toPx.toInt())
+            menuButton.setMaxImageSize(34.toPx)
+            (menuButton.layoutParams as? CoordinatorLayout.LayoutParams)?.run {
+                val margin = -(8.toPx)
+                marginStart = margin
+                marginEnd = margin
+            }
         }
         val bottomHandle = findViewById<View>(R.id.bottom_handle)
         bottomSheetBehaviorMain = BottomSheetBehavior.from(findViewById(R.id.bottom_sheet_main))
