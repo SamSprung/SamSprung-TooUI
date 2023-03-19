@@ -889,9 +889,6 @@ class CoverPreferences : AppCompatActivity() {
         webViewSettings.javaScriptEnabled = true
         webViewSettings.domStorageEnabled = true
         webViewSettings.cacheMode = WebSettings.LOAD_NO_CACHE
-        webViewSettings.userAgentString = webViewSettings.userAgentString.replace(
-            "(?i)" + Pattern.quote("android").toRegex(), "SamSprung"
-        )
         webViewSettings.setSupportZoom(true)
         webViewSettings.builtInZoomControls = true
         mWebView.loadUrl("https://samsprung.github.io/launcher/")
