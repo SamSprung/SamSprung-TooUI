@@ -32,8 +32,8 @@ class UpdateShimActivity : AppCompatActivity() {
 
     override fun onNewIntent(intent: Intent?) {
         super.onNewIntent(intent)
-        if (null != intent?.action) {
-            UpdateManager(this).requestDownload(intent.action!!)
+        intent?.action?.let {
+            UpdateManager(this).requestDownload(it)
         }
         finish()
     }

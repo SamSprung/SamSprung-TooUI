@@ -75,7 +75,6 @@ import com.eightbit.samsprung.update.UpdateManager
 import com.eightbit.view.AnimatedLinearLayout
 import com.google.android.material.color.MaterialColors
 import com.google.android.material.snackbar.Snackbar
-import com.google.android.play.core.appupdate.AppUpdateInfo
 import eightbitlab.com.blurview.BlurView
 import eightbitlab.com.blurview.RenderEffectBlur
 import eightbitlab.com.blurview.RenderScriptBlur
@@ -898,8 +897,8 @@ class CoverPreferences : AppCompatActivity() {
         mWebView.loadUrl("https://samsprung.github.io/launcher/")
     }
 
-    private fun setAnimatedUpdateNotice(appUpdateInfo: AppUpdateInfo?, downloadUrl: String?) {
-        runOnUiThread {
+    private fun setAnimatedUpdateNotice() {
+        CoroutineScope(Dispatchers.Main).launch {
             val buildIcon = findViewById<AppCompatImageView>(R.id.build_icon)
             buildIcon.setImageDrawable(ContextCompat.getDrawable(
                 this@CoverPreferences, R.drawable.ic_software_update_24))
@@ -916,11 +915,7 @@ class CoverPreferences : AppCompatActivity() {
                     this@CoverPreferences, R.drawable.ic_github_octocat_24dp))
                 anim.cancel()
                 buildInfo.setTextColor(colorStateList)
-                if (null != appUpdateInfo) {
-                    updateManager?.startPlayUpdateFlow(appUpdateInfo)
-                } else if (null != downloadUrl) {
-                    updateManager?.requestDownload(downloadUrl)
-                }
+                updateManager?.onUpdateRequested()
             }
         }
     }
@@ -945,19 +940,14 @@ class CoverPreferences : AppCompatActivity() {
         }
 
         updateManager = UpdateManager(this@CoverPreferences)
-        if (BuildConfig.GOOGLE_PLAY) {
-            updateManager?.setPlayUpdateListener(object: UpdateManager.PlayUpdateListener {
-                override fun onPlayUpdateFound(appUpdateInfo: AppUpdateInfo) {
-                    setAnimatedUpdateNotice(appUpdateInfo, null)
-                }
-            })
-        } else {
-            updateManager?.setUpdateListener(object: UpdateManager.GitUpdateListener {
-                override fun onUpdateFound(downloadUrl: String) {
-                    setAnimatedUpdateNotice(null, downloadUrl)
-                }
-            })
-        }
+        updateManager?.setUpdateListener(object: UpdateManager.UpdateListener {
+            override fun onUpdateFound() {
+                setAnimatedUpdateNotice()
+            }
+            override fun onPlayUpdateFound() {
+                setAnimatedUpdateNotice()
+            }
+        })
     }
 
     private fun saveAnimatedImage(sourceUri: Uri) {

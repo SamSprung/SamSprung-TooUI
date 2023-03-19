@@ -48,10 +48,12 @@ import java.util.*
 
 class UpdateManager(private var activity: Activity) {
 
-    private var listenerGit: GitUpdateListener? = null
-    private var listenerPlay: PlayUpdateListener? = null
+    private var listener: UpdateListener? = null
     private var appUpdateManager: AppUpdateManager? = null
     private var isUpdateAvailable = false
+
+    private var updateUrl: String? = null
+    private var appUpdate: AppUpdateInfo? = null
 
     init {
         if (BuildConfig.GOOGLE_PLAY) configurePlay() else configureGit()
@@ -64,7 +66,10 @@ class UpdateManager(private var activity: Activity) {
         appUpdateInfoTask?.addOnSuccessListener { appUpdateInfo ->
             isUpdateAvailable = appUpdateInfo.updateAvailability() == UpdateAvailability
                 .UPDATE_AVAILABLE && appUpdateInfo.isUpdateTypeAllowed(AppUpdateType.IMMEDIATE)
-            if (isUpdateAvailable) listenerPlay?.onPlayUpdateFound(appUpdateInfo)
+            if (isUpdateAvailable) {
+                appUpdate = appUpdateInfo
+                listener?.onPlayUpdateFound()
+            }
         }
     }
 
@@ -141,7 +146,7 @@ class UpdateManager(private var activity: Activity) {
         }
     }
 
-    fun startPlayUpdateFlow(appUpdateInfo: AppUpdateInfo) {
+    private fun startPlayUpdateFlow(appUpdateInfo: AppUpdateInfo) {
         appUpdateManager?.startUpdateFlowForResult(
             // Pass the intent that is returned by 'getAppUpdateInfo()'.
             appUpdateInfo,
@@ -164,8 +169,10 @@ class UpdateManager(private var activity: Activity) {
                     val assets = jsonObject["assets"] as JSONArray
                     val asset = assets[0] as JSONObject
                     isUpdateAvailable = BuildConfig.COMMIT != lastCommit
-                    if (isUpdateAvailable)
-                        listenerGit?.onUpdateFound(asset["browser_download_url"] as String)
+                    if (isUpdateAvailable) {
+                        updateUrl = asset["browser_download_url"] as String
+                        listener?.onUpdateFound()
+                    }
                 } catch (ignored: JSONException) { }
             }
         }
@@ -175,20 +182,21 @@ class UpdateManager(private var activity: Activity) {
         return isUpdateAvailable
     }
 
-    fun setUpdateListener(listener: GitUpdateListener) {
-        this.listenerGit = listener
+    fun onUpdateRequested() {
+        if (BuildConfig.GOOGLE_PLAY) {
+            appUpdate?.let { startPlayUpdateFlow(it) }
+        } else {
+            updateUrl?.let { requestDownload(it) }
+        }
     }
 
-    fun setPlayUpdateListener(listenerPlay: PlayUpdateListener) {
-        this.listenerPlay = listenerPlay
+    fun setUpdateListener(listener: UpdateListener) {
+        this.listener = listener
     }
 
-    interface GitUpdateListener {
-        fun onUpdateFound(downloadUrl: String)
-    }
-
-    interface PlayUpdateListener {
-        fun onPlayUpdateFound(appUpdateInfo: AppUpdateInfo)
+    interface UpdateListener {
+        fun onUpdateFound()
+        fun onPlayUpdateFound()
     }
 
     companion object {

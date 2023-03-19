@@ -19,6 +19,7 @@ import android.accessibilityservice.AccessibilityServiceInfo
 import android.content.Context
 import android.content.Intent
 import android.provider.Settings
+import android.view.WindowManager
 import android.view.accessibility.AccessibilityEvent
 import java.io.File
 
@@ -40,6 +41,10 @@ class AccessibilityObserver : AccessibilityService() {
         }
         fun performBackAction() {
             getInstance()?.performGlobalAction(GLOBAL_ACTION_BACK)
+        }
+
+        fun getWindowManager() : WindowManager {
+            return getInstance()?.getSystemService(WINDOW_SERVICE) as WindowManager
         }
     }
 

@@ -36,6 +36,7 @@ import android.graphics.drawable.AnimatedImageDrawable
 import android.graphics.drawable.ColorDrawable
 import android.graphics.drawable.Drawable
 import android.hardware.camera2.CameraManager
+import android.hardware.input.InputManager
 import android.media.AudioManager
 import android.net.Uri
 import android.net.wifi.WifiManager
@@ -196,6 +197,11 @@ class SamSprungOverlay : AppCompatActivity() {
                     WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN,
             PixelFormat.TRANSPARENT
         )
+        if (Version.isSnowCone) {
+            (getSystemService(INPUT_SERVICE) as InputManager).run {
+                window.attributes.alpha = maximumObscuringOpacityForTouch
+            }
+        }
         window.attributes.gravity = Gravity.BOTTOM
 
         prefs = getSharedPreferences(Preferences.prefsValue, MODE_PRIVATE)
@@ -764,20 +770,14 @@ class SamSprungOverlay : AppCompatActivity() {
         if (System.currentTimeMillis() <= prefs.getLong(Preferences.prefUpdate, 0) + 14400000) return
         prefs.edit().putLong(Preferences.prefUpdate, System.currentTimeMillis()).apply()
         updateManager = UpdateManager(this)
-        if (BuildConfig.GOOGLE_PLAY) {
-            updateManager?.setPlayUpdateListener(object :
-                UpdateManager.PlayUpdateListener {
-                override fun onPlayUpdateFound(appUpdateInfo: AppUpdateInfo) {
-                    showUpdateNotice(appUpdateInfo, null)
-                }
-            })
-        } else {
-            updateManager?.setUpdateListener(object : UpdateManager.GitUpdateListener {
-                override fun onUpdateFound(downloadUrl: String) {
-                    showUpdateNotice(null, downloadUrl)
-                }
-            })
-        }
+        updateManager?.setUpdateListener(object : UpdateManager.UpdateListener {
+            override fun onUpdateFound() {
+                showUpdateNotice()
+            }
+            override fun onPlayUpdateFound() {
+                showUpdateNotice()
+            }
+        })
     }
 
     private var keyguardListener: KeyguardListener? = null
@@ -1058,8 +1058,8 @@ class SamSprungOverlay : AppCompatActivity() {
         return null
     }
 
-    fun showUpdateNotice(appUpdateInfo: AppUpdateInfo?, downloadUrl: String?) {
-        runOnUiThread {
+    fun showUpdateNotice() {
+        CoroutineScope(Dispatchers.Main).launch {
             var animate: TranslateAnimation? = null
             val fakeSnackbar = findViewById<AnimatedLinearLayout>(R.id.update_notice)
             if (!fakeSnackbar.isVisible) {
@@ -1080,14 +1080,10 @@ class SamSprungOverlay : AppCompatActivity() {
                 fakeSnackbar.startAnimation(animate)
             }
             fakeSnackbar.setOnClickListener {
-                if (null != appUpdateInfo) {
-                    updateManager?.startPlayUpdateFlow(appUpdateInfo)
-                } else if (null != downloadUrl) {
-                    updateManager?.requestDownload(downloadUrl)
-                    Toast.makeText(this,
-                        R.string.main_screen_required,
-                        Toast.LENGTH_LONG).show()
-                }
+                updateManager?.onUpdateRequested()
+                Toast.makeText(
+                    this@SamSprungOverlay, R.string.main_screen_required, Toast.LENGTH_LONG
+                ).show()
                 animate?.fillAfter = false
                 it.visibility = View.GONE
             }
