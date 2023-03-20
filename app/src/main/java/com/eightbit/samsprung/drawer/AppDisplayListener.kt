@@ -134,6 +134,9 @@ class AppDisplayListener : Service() {
         val icons = floatView.findViewById<LinearLayout>(R.id.icons_layout)
         val menuClose = icons.findViewById<AppCompatImageView>(R.id.retract_drawer)
 
+        icons.findViewById<ImageView>(R.id.button_back).isVisible =
+            AccessibilityObserver.hasEnabledService(this)
+
         bottomSheetBehavior = BottomSheetBehavior.from(floatView.findViewById(R.id.bottom_sheet_nav)!!)
         bottomSheetBehavior.state = BottomSheetBehavior.STATE_EXPANDED
         bottomSheetBehavior.addBottomSheetCallback(object : BottomSheetBehavior.BottomSheetCallback() {
@@ -256,14 +259,7 @@ class AppDisplayListener : Service() {
         menu.findViewById<ImageView>(R.id.button_back).setOnClickListener {
             if (prefs.getBoolean(Preferences.prefReacts, true))
                 vibrator.vibrate(effectClick)
-            if (AccessibilityObserver.hasEnabledService(this)) {
-                AccessibilityObserver.performBackAction()
-            } else {
-                if (null != componentName)
-                    restoreActivityDisplay(componentName, 1)
-                else
-                    restoreActivityDisplay(launchPackage, launchActivity, 1)
-            }
+            AccessibilityObserver.performBackAction()
         }
     }
 
