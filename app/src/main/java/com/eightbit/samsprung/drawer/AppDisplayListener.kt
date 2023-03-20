@@ -82,10 +82,11 @@ class AppDisplayListener : Service() {
         offReceiver = object : BroadcastReceiver() {
             override fun onReceive(context: Context?, intent: Intent) {
                 if (intent.action == Intent.ACTION_SCREEN_OFF) {
-                    if (null != componentName)
-                        resetRecentActivities(componentName, 0)
-                    else if (null != launchPackage)
-                        resetRecentActivities(launchPackage, launchActivity, 0)
+                    componentName?.let {
+                        restoreActivityDisplay(it, 0)
+                    } ?: launchPackage?.let {
+                        restoreActivityDisplay(it, launchActivity, 0)
+                    }
                     componentName = null
                     launchPackage = null
                     onDismissOverlay()
@@ -101,10 +102,11 @@ class AppDisplayListener : Service() {
                 override fun onDisplayAdded(display: Int) {}
                 override fun onDisplayChanged(display: Int) {
                     if (display == 0 && getDisplay(0).state == Display.STATE_ON) {
-                        if (null != componentName)
-                            restoreActivityDisplay(componentName, display)
-                        else if (null != launchPackage)
-                            restoreActivityDisplay(launchPackage, launchActivity, display)
+                        componentName?.let {
+                            restoreActivityDisplay(it, display)
+                        } ?: launchPackage?.let {
+                            restoreActivityDisplay(it, launchActivity, display)
+                        }
                         componentName = null
                         launchPackage = null
                         onDismissOverlay()
@@ -145,14 +147,14 @@ class AppDisplayListener : Service() {
                     val color = prefs.getInt(
                         Preferences.prefColors,
                         Color.rgb(255, 255, 255))
-                    if (!icons.isVisible) icons.visibility = View.VISIBLE
+                    icons.isVisible = true
                     for (i in 0 until icons.childCount) {
                         (icons.getChildAt(i) as AppCompatImageView).setColorFilter(color)
                     }
                     menuClose.setColorFilter(color)
                     setClickListeners(icons, componentName, launchPackage, launchActivity)
                 } else if (newState == BottomSheetBehavior.STATE_COLLAPSED) {
-                    if (icons.isVisible) icons.visibility = View.GONE
+                    icons.isVisible = false
                 }
             }
 
@@ -162,7 +164,7 @@ class AppDisplayListener : Service() {
         val color = prefs.getInt(
             Preferences.prefColors,
             Color.rgb(255, 255, 255))
-        if (!icons.isVisible) icons.visibility = View.VISIBLE
+        icons.isVisible = true
         for (i in 0 until icons.childCount) {
             (icons.getChildAt(i) as AppCompatImageView).setColorFilter(color)
         }
@@ -233,10 +235,11 @@ class AppDisplayListener : Service() {
         menu.findViewById<ImageView>(R.id.button_recent).setOnClickListener {
             if (prefs.getBoolean(Preferences.prefReacts, true))
                 vibrator.vibrate(effectClick)
-            if (null != componentName)
-                resetRecentActivities(componentName, 1)
-            else
+            componentName?.let {
+                resetRecentActivities(it, 1)
+            } ?: {
                 resetRecentActivities(launchPackage, launchActivity, 1)
+            }
             onDismissOverlay()
             startForegroundService(Intent(
                 applicationContext, OnBroadcastService::class.java
@@ -245,10 +248,11 @@ class AppDisplayListener : Service() {
         menu.findViewById<ImageView>(R.id.button_home).setOnClickListener {
             if (prefs.getBoolean(Preferences.prefReacts, true))
                 vibrator.vibrate(effectClick)
-            if (null != componentName)
-                resetRecentActivities(componentName, 1)
-            else
+            componentName?.let {
+                resetRecentActivities(it, 1)
+            } ?: {
                 resetRecentActivities(launchPackage, launchActivity, 1)
+            }
             onDismissOverlay()
             startForegroundService(
                 Intent(
@@ -293,19 +297,16 @@ class AppDisplayListener : Service() {
             .setWhen(0).setOnlyAlertOnce(true).setGroup(group.id)
             .setContentIntent(pendingIntent).setOngoing(true)
             .setCategory(NotificationCompat.CATEGORY_SERVICE)
-        if (null != iconNotification) {
-            builder.setLargeIcon(Bitmap.createScaledBitmap(
-                iconNotification, 128, 128, false
-            ))
+        iconNotification?.let {
+            builder.setLargeIcon(Bitmap.createScaledBitmap(it, 128, 128, false))
         }
         builder.color = ContextCompat.getColor(this, R.color.primary_light)
         startForeground(startId, builder.build())
     }
 
     fun onDismissOverlay() {
-        if (prefs.getBoolean(Preferences.prefRotate, false)) {
+        if (prefs.getBoolean(Preferences.prefRotate, false))
             OrientationManager(this).removeOrientationLayout()
-        }
         try {
             (getSystemService(DISPLAY_SERVICE) as DisplayManager).run {
                 unregisterDisplayListener(mDisplayListener)

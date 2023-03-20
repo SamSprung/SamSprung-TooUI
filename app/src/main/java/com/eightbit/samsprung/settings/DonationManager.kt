@@ -8,7 +8,6 @@ import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import android.net.Uri
 import android.util.TypedValue
-import android.view.View
 import android.widget.Button
 import android.widget.LinearLayout
 import androidx.appcompat.app.AlertDialog
@@ -270,88 +269,85 @@ class DonationManager internal constructor(private val activity: CoverPreference
         return button
     }
 
+    @SuppressLint("InflateParams")
     fun onSendDonationClicked() {
-        val view: LinearLayout = activity.layoutInflater
-            .inflate(R.layout.donation_layout, null) as LinearLayout
-        val dialog = AlertDialog.Builder(
-            ContextThemeWrapper(activity, R.style.Theme_Overlay_NoActionBar)
-        )
-        val donations = view.findViewById<LinearLayout>(R.id.donation_layout)
-        donations.removeAllViewsInLayout()
-        iapSkuDetails.sortedWith(
-            compareBy(String.CASE_INSENSITIVE_ORDER) { it.productId }
-        ).forEach { skuDetail ->
-            if (null != skuDetail.oneTimePurchaseOfferDetails)
-                donations.addView(getDonationButton(skuDetail))
-        }
-        val subscriptions = view.findViewById<LinearLayout>(R.id.subscription_layout)
-        if (BuildConfig.GOOGLE_PLAY) {
-            subscriptions.isVisible = false
-        } else {
-            subscriptions.isVisible = true
-            subscriptions.removeAllViewsInLayout()
-            subSkuDetails.sortedWith(
-                compareBy(String.CASE_INSENSITIVE_ORDER) { it.productId }
-            ).forEach { skuDetail ->
-                if (null != skuDetail.subscriptionOfferDetails)
-                    subscriptions.addView(getSubscriptionButton(skuDetail))
-            }
-        }
-        dialog.setOnCancelListener {
-            donations.removeAllViewsInLayout()
-            if (!BuildConfig.GOOGLE_PLAY) subscriptions.removeAllViewsInLayout()
-        }
-        dialog.setOnDismissListener {
-            donations.removeAllViewsInLayout()
-            if (!BuildConfig.GOOGLE_PLAY) subscriptions.removeAllViewsInLayout()
-        }
-        val donateDialog: Dialog = dialog.setView(view).show()
+        (activity.layoutInflater.inflate(R.layout.donation_layout, null) as LinearLayout).run {
+            val donateDialog: Dialog = AlertDialog.Builder(
+                ContextThemeWrapper(activity, R.style.Theme_Overlay_NoActionBar)
+            ).apply {
+                findViewById<LinearLayout>(R.id.donation_layout).also { layout ->
+                    layout.removeAllViewsInLayout()
+                    iapSkuDetails.sortedWith(
+                        compareBy(String.CASE_INSENSITIVE_ORDER) { it.productId }
+                    ).forEach { skuDetail ->
+                        if (null != skuDetail.oneTimePurchaseOfferDetails)
+                            layout.addView(getDonationButton(skuDetail))
+                    }
+                    findViewById<LinearLayout>(R.id.subscription_layout).run {
+                        if (BuildConfig.GOOGLE_PLAY) {
+                            isVisible = false
+                        } else {
+                            isVisible = true
+                            removeAllViewsInLayout()
+                            subSkuDetails.sortedWith(
+                                compareBy(String.CASE_INSENSITIVE_ORDER) { it.productId }
+                            ).forEach { skuDetail ->
+                                if (null != skuDetail.subscriptionOfferDetails)
+                                    addView(getSubscriptionButton(skuDetail))
+                            }
+                        }
+                        this@apply.setOnCancelListener {
+                            layout.removeAllViewsInLayout()
+                            if (!BuildConfig.GOOGLE_PLAY) removeAllViewsInLayout()
+                        }
+                        this@apply.setOnDismissListener {
+                            layout.removeAllViewsInLayout()
+                            if (!BuildConfig.GOOGLE_PLAY) removeAllViewsInLayout()
+                        }
+                    }
+                }
+            }.setView(this).show()
 
-        if (SamSprung.hasSubscription) {
-            val padding = TypedValue.applyDimension(
-                TypedValue.COMPLEX_UNIT_DIP,
-                4f,
-                Resources.getSystem().displayMetrics
-            ).toInt()
-            val params = LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.MATCH_PARENT,
-                LinearLayout.LayoutParams.WRAP_CONTENT
-            )
-            params.setMargins(0, padding, 0, padding)
+            if (SamSprung.hasSubscription) {
+                val padding = TypedValue.applyDimension(
+                    TypedValue.COMPLEX_UNIT_DIP, 4f, Resources.getSystem().displayMetrics
+                ).toInt()
+                val params = LinearLayout.LayoutParams(
+                    LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT
+                )
+                params.setMargins(0, padding, 0, padding)
 
-            @SuppressLint("InflateParams") val manage =
-                activity.layoutInflater.inflate(R.layout.button_cancel_sub, null)
-            manage.setOnClickListener {
-                activity.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(
-                    "https://support.google.com/googleplay/workflow/9827184"
-                )))
-                donateDialog.cancel()
+                addView(activity.layoutInflater.inflate(R.layout.button_cancel_sub, null).apply {
+                    setOnClickListener {
+                        activity.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(
+                            "https://support.google.com/googleplay/workflow/9827184"
+                        )))
+                        donateDialog.cancel()
+                    }
+                    layoutParams = params
+                })
             }
-            manage.layoutParams = params
-            view.addView(manage)
+
+            if (!BuildConfig.GOOGLE_PLAY) {
+                addView(activity.layoutInflater.inflate(R.layout.button_sponsor, null).apply {
+                    setOnClickListener {
+                        activity.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(
+                            "https://github.com/sponsors/AbandonedCart"
+                        )))
+                        donateDialog.cancel()
+                    }
+                })
+
+                addView(activity.layoutInflater.inflate(R.layout.button_paypal, null).apply {
+                    setOnClickListener {
+                        activity.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(
+                            "https://www.paypal.com/donate/?hosted_button_id=Q2LFH2SC8RHRN"
+                        )))
+                        donateDialog.cancel()
+                    }
+                })
+            }
+            donateDialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
         }
-
-        if (!BuildConfig.GOOGLE_PLAY) {
-            @SuppressLint("InflateParams")
-            val sponsor: View = activity.layoutInflater.inflate(R.layout.button_sponsor, null)
-            sponsor.setOnClickListener {
-                activity.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(
-                    "https://github.com/sponsors/AbandonedCart"
-                )))
-                donateDialog.cancel()
-            }
-            view.addView(sponsor)
-
-            @SuppressLint("InflateParams")
-            val paypal: View = activity.layoutInflater.inflate(R.layout.button_paypal, null)
-            paypal.setOnClickListener {
-                activity.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(
-                    "https://www.paypal.com/donate/?hosted_button_id=Q2LFH2SC8RHRN"
-                )))
-                donateDialog.cancel()
-            }
-            view.addView(paypal)
-        }
-        donateDialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
     }
 }

@@ -85,12 +85,11 @@ class AppDrawerFragment : Fragment(), DrawerAppAdapter.OnAppClickListener {
         )
         launcherView.adapter = adapter
 
-        val searchView = (requireActivity() as SamSprungOverlay).getSearchView()
-        if (null != searchView) {
+        (requireActivity() as SamSprungOverlay).getSearchView()?.apply {
             launcherView.updatePadding(bottom = 64)
-            searchView.isSubmitButtonEnabled = false
-            searchView.setIconifiedByDefault(true)
-            searchView.findViewById<LinearLayout>(R.id.search_bar)?.run {
+            isSubmitButtonEnabled = false
+            setIconifiedByDefault(true)
+            findViewById<LinearLayout>(R.id.search_bar)?.run {
                 this.layoutParams = this.layoutParams.apply {
                     height = TypedValue.applyDimension(
                         TypedValue.COMPLEX_UNIT_DIP,
@@ -98,21 +97,21 @@ class AppDrawerFragment : Fragment(), DrawerAppAdapter.OnAppClickListener {
                 }
             }
             (requireActivity().getSystemService(Context.SEARCH_SERVICE) as SearchManager).run {
-                searchView.setSearchableInfo(getSearchableInfo(requireActivity().componentName))
+                setSearchableInfo(getSearchableInfo(requireActivity().componentName))
             }
-            searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
+            setOnQueryTextListener(object : SearchView.OnQueryTextListener {
                 override fun onQueryTextSubmit(query: String): Boolean {
                     (launcherView.adapter as DrawerAppAdapter).setQuery(query)
                     return false
                 }
 
                 override fun onQueryTextChange(query: String): Boolean {
-                    if (query.isEmpty()) searchView.isIconified = true
+                    if (query.isEmpty()) isIconified = true
                     (launcherView.adapter as DrawerAppAdapter).setQuery(query)
                     return true
                 }
             })
-        } else {
+        } ?: {
             launcherView.updatePadding(bottom = 30)
             requireActivity().findViewById<SearchView>(R.id.package_search).isGone = true
         }

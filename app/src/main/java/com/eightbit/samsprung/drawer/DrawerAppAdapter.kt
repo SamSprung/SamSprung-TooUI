@@ -61,8 +61,7 @@ class DrawerAppAdapter(
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): AppViewHolder {
         return if (prefs.getBoolean(Preferences.prefLayout, true))
             SimpleGridHolder(parent, listener, packageManager, prefs)
-        else
-        return SimpleViewHolder(parent, listener, packageManager, prefs)
+        else return SimpleViewHolder(parent, listener, packageManager, prefs)
     }
 
     override fun onBindViewHolder(holder: AppViewHolder, position: Int) {
@@ -82,10 +81,8 @@ class DrawerAppAdapter(
     }
 
     private fun getFilter(): PackageFilter? {
-        if (null == this.filter) {
-            this.filter = PackageFilter()
-        }
-        return this.filter
+        filter = filter ?: PackageFilter()
+        return filter
     }
 
     inner class PackageFilter : Filter() {

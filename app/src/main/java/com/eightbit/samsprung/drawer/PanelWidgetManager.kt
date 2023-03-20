@@ -4,7 +4,7 @@ import android.annotation.SuppressLint
 import android.appwidget.AppWidgetHost
 import android.appwidget.AppWidgetHostView
 import android.appwidget.AppWidgetManager
-import android.appwidget.AppWidgetProviderInfo
+import android.appwidget.AppWidgetManager.*
 import android.content.Intent
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
@@ -100,16 +100,14 @@ class PanelWidgetManager(
                 override fun onKeyguardCheck(unlocked: Boolean) {
                     if (!unlocked) return
                     try {
-                        overlay.requestCreateAppWidget.launch(Intent(
-                            AppWidgetManager.ACTION_APPWIDGET_CONFIGURE
-                        ).apply {
-                            component = appWidget.configure
-                            putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId)
-                        })
+                        overlay.requestCreateAppWidget.launch(
+                            Intent(ACTION_APPWIDGET_CONFIGURE).apply {
+                                component = appWidget.configure
+                                putExtra(EXTRA_APPWIDGET_ID, appWidgetId)
+                            }
+                        )
                     } catch (ex: Exception) {
-                        Toast.makeText(overlay,
-                            R.string.widget_error,
-                            Toast.LENGTH_LONG).show()
+                        Toast.makeText(overlay, R.string.widget_error, Toast.LENGTH_LONG).show()
                         ex.printStackTrace()
                     }
                 }
@@ -125,57 +123,58 @@ class PanelWidgetManager(
         val mWidgetPreviewLoader = WidgetPreviews(overlay)
 
         val view: View = overlay.layoutInflater.inflate(R.layout.panel_picker_view, null)
-        val dialog = AlertDialog.Builder(
-            ContextThemeWrapper(overlay, R.style.Theme_Overlay_NoActionBar)
-        )
         val previews = view.findViewById<LinearLayout>(R.id.previews_layout)
-        dialog.setOnCancelListener {
-            for (previewImage in previews.children) {
-                mWidgetPreviewLoader.recycleBitmap(previewImage.tag,
-                    (previewImage as AppCompatImageView).drawable.toBitmap())
+        val widgetDialog = AlertDialog.Builder(
+            ContextThemeWrapper(overlay, R.style.Theme_Overlay_NoActionBar)
+        ).apply {
+            setOnCancelListener {
+                previews.children.forEach {
+                    mWidgetPreviewLoader.recycleBitmap(
+                        it.tag, (it as AppCompatImageView).drawable.toBitmap()
+                    )
+                }
+                previews.removeAllViewsInLayout()
             }
-            previews.removeAllViewsInLayout()
-        }
-        dialog.setOnDismissListener {
-            for (previewImage in previews.children) {
-                mWidgetPreviewLoader.recycleBitmap(previewImage.tag,
-                    (previewImage as AppCompatImageView).drawable.toBitmap())
+            setOnDismissListener {
+                previews.children.forEach {
+                    mWidgetPreviewLoader.recycleBitmap(
+                        it.tag, (it as AppCompatImageView).drawable.toBitmap()
+                    )
+                }
+                previews.removeAllViewsInLayout()
             }
-            previews.removeAllViewsInLayout()
-        }
-        val widgetDialog = dialog.setView(view).create()
+        }.setView(view).create()
         view.findViewById<LinearLayout>(R.id.widget_cancel).setOnClickListener {
             widgetDialog.dismiss()
         }
-        val infoList: List<AppWidgetProviderInfo> = mAppWidgetManager.installedProviders
-        for (info: AppWidgetProviderInfo in infoList) {
+        mAppWidgetManager.installedProviders.forEach { info ->
             val previewSizeBeforeScale = IntArray(1)
             val preview = mWidgetPreviewLoader.generateWidgetPreview(
                 info, overlay.window.decorView.width, overlay.window.decorView.height,
                 null, previewSizeBeforeScale
             )
-            val previewImage = overlay.layoutInflater.inflate(
-                R.layout.widget_preview, null
-            ) as AppCompatImageView
-            previewImage.adjustViewBounds = true
-            previewImage.setImageBitmap(preview)
-            previewImage.setOnClickListener {
-                val success = mAppWidgetManager.bindAppWidgetIdIfAllowed(appWidgetId, info.provider)
-                if (success) {
-                    addAppWidget(appWidgetId, viewPager)
-                } else {
-                    overlay.requestCreateAppWidget.launch(Intent(
-                        AppWidgetManager.ACTION_APPWIDGET_BIND
-                    )
-                        .putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId)
-                        .putExtra(AppWidgetManager.EXTRA_APPWIDGET_PROVIDER, info.provider)
-                        .putExtra(AppWidgetManager.EXTRA_APPWIDGET_PROVIDER_PROFILE, info.profile)
-                    )
+            previews.addView(
+                (overlay.layoutInflater.inflate(
+                    R.layout.widget_preview, null
+                ) as AppCompatImageView).apply {
+                adjustViewBounds = true
+                setImageBitmap(preview)
+                setOnClickListener {
+                    if (mAppWidgetManager.bindAppWidgetIdIfAllowed(appWidgetId, info.provider)) {
+                        addAppWidget(appWidgetId, viewPager)
+                    } else {
+                        this@PanelWidgetManager.overlay.requestCreateAppWidget.launch(
+                            Intent(ACTION_APPWIDGET_BIND).apply {
+                                putExtra(EXTRA_APPWIDGET_ID, appWidgetId)
+                                putExtra(EXTRA_APPWIDGET_PROVIDER, info.provider)
+                                putExtra(EXTRA_APPWIDGET_PROVIDER_PROFILE, info.profile)
+                            }
+                        )
+                    }
+                    widgetDialog.dismiss()
                 }
-                widgetDialog.dismiss()
-            }
-            previewImage.tag = info
-            previews.addView(previewImage)
+                tag = info
+            })
         }
         widgetDialog.show()
         widgetDialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
@@ -186,15 +185,16 @@ class PanelWidgetManager(
         binder: DesktopBinder,
         appWidgets: LinkedList<PanelWidgetInfo>
     ) {
-        if (!appWidgets.isEmpty()) {
+        if (appWidgets.isNotEmpty()) {
             val item = appWidgets.removeFirst()
             val appWidgetId = item.appWidgetId
             val appWidgetInfo = mAppWidgetManager.getAppWidgetInfo(appWidgetId)
             item.hostView = appWidgetHost.createView(ScaledContext(
                 ScaledContext(overlay.applicationContext).internal(1.5f)
-            ).cover(), appWidgetId, appWidgetInfo)
-            item.hostView!!.setAppWidget(appWidgetId, appWidgetInfo)
-            item.hostView!!.tag = item
+            ).cover(), appWidgetId, appWidgetInfo).apply {
+                setAppWidget(appWidgetId, appWidgetInfo)
+                tag = item
+            }
 
             val id = pagerAdapter.addFragment()
             val fragment = pagerAdapter.getFragment(id)
@@ -206,18 +206,15 @@ class PanelWidgetManager(
                 override fun onViewCreated(view: View) {
                     try {
                         val layout = (view as LinearLayout)
-                        for (child in layout.children) {
-                            if (child is AppWidgetHostView) {
-                                layout.removeView(child)
-                            }
+                        layout.children.forEach {
+                            if (it is AppWidgetHostView) layout.removeView(it)
                         }
                     } catch (ignored: Exception) { }
                     (view as LinearLayout).addView(item.hostView, params)
                 }
             })
         }
-        if (!appWidgets.isEmpty()) {
+        if (appWidgets.isNotEmpty())
             binder.obtainMessage(DesktopBinder.MESSAGE_BIND_APPWIDGETS).sendToTarget()
-        }
     }
 }

@@ -832,17 +832,19 @@ class SamSprungOverlay : AppCompatActivity() {
                 val authView = layoutInflater.inflate(R.layout.fingerprint_auth, null)
                 val authDialog = AlertDialog.Builder(ContextThemeWrapper(
                     this@SamSprungOverlay, R.style.Theme_Overlay_NoActionBar
-                )).setView(authView).create()
-                authDialog.setCancelable(false)
-                authDialog.window?.attributes?.windowAnimations = R.style.SlidingDialogAnimation
-                authDialog.show()
-                authDialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
-                authDialog.window?.setLayout(
-                    LinearLayout.LayoutParams.MATCH_PARENT,
-                    LinearLayout.LayoutParams.MATCH_PARENT
-                )
-                if (null != background)
-                    authView.findViewById<LinearLayout>(R.id.auth_view).background = background
+                )).setView(authView).create().apply {
+                    setCancelable(false)
+                    window?.attributes?.windowAnimations = R.style.SlidingDialogAnimation
+                    show()
+                    window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+                    window?.setLayout(
+                        LinearLayout.LayoutParams.MATCH_PARENT,
+                        LinearLayout.LayoutParams.MATCH_PARENT
+                    )
+                }
+                background?.let {
+                    authView.findViewById<LinearLayout>(R.id.auth_view).background = it
+                }
                 try {
                     HiddenApiBypass.invoke(
                         Class.forName("android.app.KeyguardManager"),
@@ -935,10 +937,11 @@ class SamSprungOverlay : AppCompatActivity() {
             val enabled = prefs.getBoolean(toolbar.menu.getItem(i).title?.toPref, true)
             if (enabled) {
                 toolbar.menu.getItem(i).isVisible = true
-                val icon = layoutInflater.inflate(R.layout.toggle_state_icon, toggleStats,
-                    false).findViewById<AppCompatImageView>(R.id.toggle_icon)
-                icon.setImageDrawable(toolbar.menu.getItem(i).icon)
-                toggleStats.addView(icon)
+                toggleStats.addView(layoutInflater.inflate(
+                    R.layout.toggle_state_icon, toggleStats, false
+                ).findViewById<AppCompatImageView>(R.id.toggle_icon).apply {
+                    setImageDrawable(toolbar.menu.getItem(i).icon)
+                })
             } else {
                 toolbar.menu.getItem(i).isVisible = false
             }

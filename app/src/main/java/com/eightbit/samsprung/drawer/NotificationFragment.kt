@@ -148,20 +148,21 @@ class NotificationFragment : Fragment(), NotificationAdapter.OnNoticeClickListen
                 val dialog = AlertDialog.Builder(
                     ContextThemeWrapper(requireActivity(), R.style.Theme_SecondScreen_NoActionBar)
                 )
-                val actionEntries = view.findViewById<LinearLayout>(R.id.entries)
-                val reply = actionEntries.findViewById<EditText>(R.id.reply)
-                actionEntries.findViewById<AppCompatImageView>(R.id.send).setOnClickListener {
-                    val replyIntent = Intent()
-                    val replyBundle = Bundle()
-                    replyBundle.putCharSequence(remoteInput.resultKey, reply.text.toString())
-                    RemoteInput.addResultsToIntent(action.remoteInputs, replyIntent, replyBundle)
-                    requireActivity().startIntentSender(action.actionIntent.intentSender,
-                        replyIntent, 0, 0, 0,
-                        CoverOptions(null).getActivityOptions(1).toBundle())
-                    replyDialog?.dismiss()
-                }
-                actionEntries.findViewById<AppCompatImageView>(R.id.cancel).setOnClickListener {
-                    replyDialog?.dismiss()
+                view.findViewById<LinearLayout>(R.id.entries).run {
+                    findViewById<AppCompatImageView>(R.id.send).setOnClickListener {
+                        val reply = findViewById<EditText>(R.id.reply)
+                        val replyIntent = Intent()
+                        val replyBundle = Bundle()
+                        replyBundle.putCharSequence(remoteInput.resultKey, reply.text.toString())
+                        RemoteInput.addResultsToIntent(action.remoteInputs, replyIntent, replyBundle)
+                        requireActivity().startIntentSender(action.actionIntent.intentSender,
+                            replyIntent, 0, 0, 0,
+                            CoverOptions(null).getActivityOptions(1).toBundle())
+                        replyDialog?.dismiss()
+                    }
+                    findViewById<AppCompatImageView>(R.id.cancel).setOnClickListener {
+                        replyDialog?.dismiss()
+                    }
                 }
                 replyDialog = dialog.setView(view).show()
                 replyDialog.window?.setLayout(
@@ -184,7 +185,7 @@ class NotificationFragment : Fragment(), NotificationAdapter.OnNoticeClickListen
         button.backgroundTintBlendMode = BlendMode.MODULATE
         button.backgroundTintList = ColorStateList.valueOf(color)
         button.setOnClickListener {
-            if (null != action.remoteInputs && action.remoteInputs.isNotEmpty()) {
+            if (!action.remoteInputs.isNullOrEmpty()) {
                 promptNotificationReply(action)
             } else {
                 try {
@@ -236,11 +237,11 @@ class NotificationFragment : Fragment(), NotificationAdapter.OnNoticeClickListen
             if (actionButtons.childCount > 0) {
                 actionsPanel.visibility = View.VISIBLE
             } else {
-                if (null != notice.notification.actions) {
+                notice.notification.actions?.let {
                     actionsPanel.visibility = View.VISIBLE
                     val prefs = requireActivity().getSharedPreferences(
                         Preferences.prefsValue, AppCompatActivity.MODE_PRIVATE)
-                    for (action in notice.notification.actions) {
+                    it.forEach { action ->
                         setNotificationAction(position, actionsPanel, action, prefs.getInt(
                             Preferences.prefColors, Color.rgb(255, 255, 255)
                         ).blended)
@@ -302,7 +303,7 @@ class NotificationFragment : Fragment(), NotificationAdapter.OnNoticeClickListen
             context.applicationContext, NotificationReceiver::class.java)
         val enabledListeners = Settings.Secure.getString(
             context.contentResolver, "enabled_notification_listeners")
-        if (null == enabledListeners || enabledListeners.isEmpty()) return false
+        if (enabledListeners.isNullOrEmpty()) return false
         return enabledListeners.split(":").map {
             ComponentName.unflattenFromString(it)
         }.any {componentName->
