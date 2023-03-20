@@ -102,6 +102,7 @@ class Debug(private var context: Context) {
         val log = getDeviceProfile(isSecureDevice)
         log.append(separator).append(separator).append(exception)
         submitLogcat(context, log.toString())
+        log.setLength(0)
     }
 
     @Throws(IOException::class)

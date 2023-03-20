@@ -36,6 +36,7 @@ class VoiceRecognizer(private val listener: SpeechResultsListener?) : Recognitio
         data?.let { grammar.append(it[0]) }
         grammar.setCharAt(0, Character.toUpperCase(grammar[0]))
         val suggested = grammar.toString()
+        grammar.setLength(0)
         listener?.onSpeechResults(suggested)
     }
 

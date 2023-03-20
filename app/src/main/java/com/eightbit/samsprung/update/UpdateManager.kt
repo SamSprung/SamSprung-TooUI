@@ -14,7 +14,6 @@
 
 package com.eightbit.samsprung.update
 
-import android.app.Activity
 import android.app.NotificationManager
 import android.app.PendingIntent
 import android.content.Intent
@@ -46,7 +45,7 @@ import java.io.FileOutputStream
 import java.net.URL
 import java.util.*
 
-class UpdateManager(private var activity: Activity) {
+class UpdateManager(private var activity: AppCompatActivity) {
 
     private var listener: UpdateListener? = null
     private var appUpdateManager: AppUpdateManager? = null

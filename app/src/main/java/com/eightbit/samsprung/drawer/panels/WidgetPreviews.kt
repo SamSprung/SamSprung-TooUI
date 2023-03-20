@@ -17,6 +17,7 @@ import android.os.Build
 import android.os.Process
 import android.os.UserHandle
 import android.view.View
+import androidx.core.content.ContextCompat
 import androidx.core.content.res.ResourcesCompat
 import com.eightbit.samsprung.R
 import com.eightbit.samsprung.SamSprung
@@ -47,27 +48,29 @@ class WidgetPreviews(mLauncher: SamSprungOverlay) {
         private var sInvalidPackages: HashSet<String> = hashSetOf()
         private const val WIDGET_PREFIX = "Widget:"
         private const val SHORTCUT_PREFIX = "Shortcut:"
-        private fun getObjectName(o: Any): String {
-            // should cache the string builder
-            val sb = StringBuilder()
-            if (o is AppWidgetProviderInfo) {
-                sb.append(WIDGET_PREFIX)
-                sb.append(o.profile)
-                sb.append('/')
-                sb.append(o.provider.flattenToString())
-            } else {
-                sb.append(SHORTCUT_PREFIX)
-                val info = o as ResolveInfo
-                sb.append(
-                    ComponentName(
-                        info.activityInfo.packageName,
-                        info.activityInfo.name
-                    ).flattenToString()
-                )
+        private fun getObjectName(tag: Any?): String? {
+            return tag?.let {
+                // should cache the string builder
+                val sb = StringBuilder()
+                if (it is AppWidgetProviderInfo) {
+                    sb.append(WIDGET_PREFIX)
+                    sb.append(it.profile)
+                    sb.append('/')
+                    sb.append(it.provider.flattenToString())
+                } else {
+                    sb.append(SHORTCUT_PREFIX)
+                    val info = it as ResolveInfo
+                    sb.append(
+                        ComponentName(
+                            info.activityInfo.packageName,
+                            info.activityInfo.name
+                        ).flattenToString()
+                    )
+                }
+                val output: String = sb.toString()
+                sb.setLength(0)
+                output
             }
-            val output: String = sb.toString()
-            sb.setLength(0)
-            return output
         }
 
         private fun renderDrawableToBitmap(
@@ -89,24 +92,22 @@ class WidgetPreviews(mLauncher: SamSprungOverlay) {
         }
     }
 
-    fun recycleBitmap(o: Any?, bitmapToRecycle: Bitmap) {
-        val name = getObjectName(o!!)
-        synchronized(mLoadedPreviews) {
-            if (mLoadedPreviews.containsKey(name)) {
-                val b = mLoadedPreviews[name]!!.get()
-                if (b == bitmapToRecycle) {
-                    mLoadedPreviews.remove(name)
-                    if (bitmapToRecycle.isMutable) {
-                        synchronized(mUnusedBitmaps) {
-                            mUnusedBitmaps.add(
-                                SoftReference(
-                                    b
-                                )
-                            )
+    fun recycleBitmap(tag: Any?, bitmapToRecycle: Bitmap) {
+        getObjectName(tag)?.let { name ->
+            synchronized(mLoadedPreviews) {
+                if (mLoadedPreviews.containsKey(name)) {
+                    mLoadedPreviews[name]?.get()?.let {
+                        if (it == bitmapToRecycle) {
+                            mLoadedPreviews.remove(name)
+                            if (bitmapToRecycle.isMutable) {
+                                synchronized(mUnusedBitmaps) {
+                                    mUnusedBitmaps.add(SoftReference(it))
+                                }
+                            }
+                        } else {
+                            throw java.lang.RuntimeException("Passed bitmap doesn't match target")
                         }
                     }
-                } else {
-                    throw java.lang.RuntimeException("Bitmap passed in doesn't match up")
                 }
             }
         }
@@ -116,13 +117,11 @@ class WidgetPreviews(mLauncher: SamSprungOverlay) {
         mContext, File(mContext.cacheDir, DB_NAME).path, null, DB_VERSION
     ) {
         override fun onCreate(database: SQLiteDatabase) {
-            database.execSQL(
-                "CREATE TABLE IF NOT EXISTS " + TABLE_NAME + " (" +
-                        COLUMN_NAME + " TEXT NOT NULL, " +
-                        COLUMN_SIZE + " TEXT NOT NULL, " +
-                        COLUMN_PREVIEW_BITMAP + " BLOB NOT NULL, " +
-                        "PRIMARY KEY (" + COLUMN_NAME + ", " + COLUMN_SIZE + ") " +
-                        ");"
+            database.execSQL("CREATE TABLE IF NOT EXISTS $TABLE_NAME (" +
+                        "$COLUMN_NAME TEXT NOT NULL, " +
+                        "$COLUMN_SIZE TEXT NOT NULL, " +
+                        "$COLUMN_PREVIEW_BITMAP BLOB NOT NULL, " +
+                        "PRIMARY KEY ($COLUMN_NAME, $COLUMN_SIZE) );"
             )
         }
 
@@ -144,12 +143,10 @@ class WidgetPreviews(mLauncher: SamSprungOverlay) {
     }
 
     private fun clearDb() {
-        val db = mDb!!.writableDatabase
         // Delete everything
         try {
-            db.delete(CacheDb.TABLE_NAME, null, null)
-        } catch (ignored: SQLiteDiskIOException) {
-        }
+            mDb?.writableDatabase?.delete(CacheDb.TABLE_NAME, null, null)
+        } catch (ignored: SQLiteDiskIOException) { }
     }
 
     fun generateWidgetPreview(
@@ -173,10 +170,9 @@ class WidgetPreviews(mLauncher: SamSprungOverlay) {
             previewHeight = drawable.intrinsicHeight
         } else {
             // Generate a preview image if we couldn't load one
-            val previewDrawable = ResourcesCompat.getDrawable(
-                mContext.resources, R.drawable.widget_preview_tile, mContext.theme
-            ) as BitmapDrawable?
-            if (null != previewDrawable) {
+            (ContextCompat.getDrawable(
+                mContext, R.drawable.widget_preview_tile
+            ) as? BitmapDrawable)?.let { previewDrawable ->
                 val previewDrawableWidth = previewDrawable.intrinsicWidth
                 val previewDrawableHeight = previewDrawable.intrinsicHeight
                 previewWidth = previewDrawableWidth // subtract 2 dips
@@ -205,19 +201,16 @@ class WidgetPreviews(mLauncher: SamSprungOverlay) {
                     var icon: Drawable? = null
                     val xoffset = ((previewDrawableWidth - mAppIconSize * iconScale) / 2).toInt()
                     val yoffset = ((previewDrawableHeight - mAppIconSize * iconScale) / 2).toInt()
-                    if (info.icon > 0) icon = getFullResIcon(
-                        info.provider.packageName,
-                        info.icon, info.profile
-                    )
-                    if (icon != null) {
+                    if (info.icon > 0)
+                        icon = getFullResIcon(info.provider.packageName, info.icon, info.profile)
+                    icon?.let {
                         renderDrawableToBitmap(
-                            icon, defaultPreview, xoffset,
+                            it, defaultPreview, xoffset,
                             yoffset, (mAppIconSize * iconScale).toInt(),
                             (mAppIconSize * iconScale).toInt()
                         )
                     }
-                } catch (ignored: NotFoundException) {
-                }
+                } catch (ignored: NotFoundException) { }
             }
         }
 
@@ -250,7 +243,7 @@ class WidgetPreviews(mLauncher: SamSprungOverlay) {
             val src = mCachedAppWidgetPreviewSrcRect.get()!!
             val dest = mCachedAppWidgetPreviewDestRect.get()!!
             c.setBitmap(preview)
-            if (null != defaultPreview) src[0, 0, defaultPreview.width] = defaultPreview.height
+            defaultPreview?.let { src[0, 0, it.width] = it.height }
             dest[x, 0, x + previewWidth] = previewHeight
             var p = mCachedAppWidgetPreviewPaint.get()
             if (p == null) {
@@ -258,7 +251,7 @@ class WidgetPreviews(mLauncher: SamSprungOverlay) {
                 p.isFilterBitmap = true
                 mCachedAppWidgetPreviewPaint.set(p)
             }
-            c.drawBitmap(defaultPreview!!, src, dest, p)
+            defaultPreview?.let { c.drawBitmap(it, src, dest, p) }
             c.setBitmap(null)
         }
 
@@ -306,26 +299,24 @@ class WidgetPreviews(mLauncher: SamSprungOverlay) {
             android.R.mipmap.sym_def_app_icon, Process.myUserHandle()
         )
 
-    fun getFullResIcon(resources: Resources, iconId: Int, user: UserHandle?): Drawable {
-        var d: Drawable?
-        d = try {
+    private fun getFullResIcon(resources: Resources, iconId: Int, user: UserHandle): Drawable {
+        var drawable: Drawable? = try {
             ResourcesCompat.getDrawableForDensity(resources, iconId, 160, resources.newTheme())
         } catch (e: NotFoundException) {
             null
         }
-        if (d == null) {
-            d = fullResDefaultActivityIcon
+        if (drawable == null) {
+            drawable = fullResDefaultActivityIcon
         }
-        return mPackageManager.getUserBadgedIcon(d, user!!)
+        return mPackageManager.getUserBadgedIcon(drawable, user)
     }
 
-    fun getFullResIcon(packageName: String?, iconId: Int, user: UserHandle?): Drawable {
-        val resources: Resources?
-        resources = try {
+    private fun getFullResIcon(packageName: String?, iconId: Int, user: UserHandle): Drawable {
+        val resources: Resources? = try {
             // TODO: Check if this needs to use the user param if we support
             // shortcuts/widgets from other profiles. It won't work as is
             // for packages that are only available in a different user profile.
-            mPackageManager.getResourcesForApplication(packageName!!)
+            packageName?.let { mPackageManager.getResourcesForApplication(it) }
         } catch (e: PackageManager.NameNotFoundException) {
             null
         }
