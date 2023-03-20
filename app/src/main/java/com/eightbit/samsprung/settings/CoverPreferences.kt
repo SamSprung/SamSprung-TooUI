@@ -927,24 +927,16 @@ class CoverPreferences : AppCompatActivity() {
             }
         }
         if (isStorageEnabled) {
-            try {
-                coordinator.background = try {
-                    WallpaperManager.getInstance(this).drawable
-                } catch (ex: SecurityException) {
-                    WallpaperManager.getInstance(this).peekDrawable()
-                }
-            } catch (ignored: SecurityException) { }
+            CoroutineScope(Dispatchers.Main).launch {
+                try {
+                    coordinator.background = try {
+                        WallpaperManager.getInstance(this@CoverPreferences).drawable
+                    } catch (ex: SecurityException) {
+                        WallpaperManager.getInstance(this@CoverPreferences).peekDrawable()
+                    }
+                } catch (ignored: SecurityException) { }
+            }
         }
-
-        updateManager = UpdateManager(this@CoverPreferences)
-        updateManager?.setUpdateListener(object: UpdateManager.UpdateListener {
-            override fun onUpdateFound() {
-                setAnimatedUpdateNotice()
-            }
-            override fun onPlayUpdateFound() {
-                setAnimatedUpdateNotice()
-            }
-        })
     }
 
     private fun saveAnimatedImage(sourceUri: Uri) {
@@ -1296,6 +1288,16 @@ class CoverPreferences : AppCompatActivity() {
                 arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE)
             }
         )
+
+        updateManager = UpdateManager(this@CoverPreferences)
+        updateManager?.setUpdateListener(object: UpdateManager.UpdateListener {
+            override fun onUpdateFound() {
+                setAnimatedUpdateNotice()
+            }
+            override fun onPlayUpdateFound() {
+                setAnimatedUpdateNotice()
+            }
+        })
     }
 
     private fun File.writeBitmap(bitmap: Bitmap, format: Bitmap.CompressFormat, quality: Int) {

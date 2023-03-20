@@ -98,7 +98,8 @@ class UpdateManager(private var activity: AppCompatActivity) {
             activity.run {
                 applicationContext.contentResolver.openInputStream(apkUri)?.use { apkStream ->
                     val length = DocumentFile.fromSingleUri(
-                        applicationContext, apkUri)?.length() ?: -1
+                        applicationContext, apkUri
+                    )?.length() ?: -1
                     val session = applicationContext.packageManager.packageInstaller.run {
                         val params = PackageInstaller.SessionParams(
                             PackageInstaller.SessionParams.MODE_FULL_INSTALL
@@ -154,8 +155,8 @@ class UpdateManager(private var activity: AppCompatActivity) {
             // The current activity making the update request.
             activity,
             // Include a request code to later monitor this update request.
-            SamSprung.request_code)
-
+            SamSprung.request_code
+        )
     }
 
     fun requestUpdateJSON() {
@@ -163,8 +164,9 @@ class UpdateManager(private var activity: AppCompatActivity) {
             URL(repo).readText().also {
                 try {
                     val jsonObject = JSONTokener(it).nextValue() as JSONObject
-                    val lastCommit = (jsonObject["name"] as String)
-                        .substring(organization.length + 1)
+                    val lastCommit = (jsonObject["name"] as String).substring(
+                        organization.length + 1
+                    )
                     val assets = jsonObject["assets"] as JSONArray
                     val asset = assets[0] as JSONObject
                     isUpdateAvailable = BuildConfig.COMMIT != lastCommit
