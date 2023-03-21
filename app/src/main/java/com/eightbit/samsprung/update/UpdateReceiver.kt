@@ -24,7 +24,6 @@ import com.eightbit.os.Version
 import com.eightbit.samsprung.BuildConfig
 import com.eightbit.samsprung.OnBroadcastService
 import com.eightbit.samsprung.SamSprung
-import com.eightbit.samsprung.settings.CoverPreferences
 
 class UpdateReceiver : BroadcastReceiver() {
 
@@ -45,18 +44,7 @@ class UpdateReceiver : BroadcastReceiver() {
                     || Intent.ACTION_REBOOT == action -> {
                 startBroadcastService(context)
             }
-            Intent.ACTION_MY_PACKAGE_REPLACED == action -> {
-                if (BuildConfig.GOOGLE_PLAY) {
-                    startBroadcastService(context)
-                } else {
-                    var mainIntent: Intent? = Intent(context, CoverPreferences::class.java)
-                    try {
-                        mainIntent = context.packageManager
-                            .getLaunchIntentForPackage(BuildConfig.APPLICATION_ID)
-                    } catch (ignored: Exception) { }
-                    startLauncherActivity(context, mainIntent)
-                }
-            }
+            Intent.ACTION_MY_PACKAGE_REPLACED == action -> { startBroadcastService(context) }
             !BuildConfig.GOOGLE_PLAY && SamSprung.updating == action -> {
                 when (intent.getIntExtra(PackageInstaller.EXTRA_STATUS, -1)) {
                     PackageInstaller.STATUS_PENDING_USER_ACTION -> {

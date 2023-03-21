@@ -197,11 +197,11 @@ class SamSprungOverlay : AppCompatActivity() {
                     WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN,
             PixelFormat.TRANSPARENT
         )
-        if (Version.isSnowCone) {
-            (getSystemService(INPUT_SERVICE) as InputManager).run {
-                window.attributes.alpha = maximumObscuringOpacityForTouch
-            }
-        }
+//        if (Version.isSnowCone) {
+//            (getSystemService(INPUT_SERVICE) as InputManager).run {
+//                window.attributes.alpha = maximumObscuringOpacityForTouch
+//            }
+//        }
         window.attributes.gravity = Gravity.BOTTOM
 
         prefs = getSharedPreferences(Preferences.prefsValue, MODE_PRIVATE)
