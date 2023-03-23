@@ -79,15 +79,15 @@ class PanelWidgetManager(
         params.gravity = Gravity.CENTER
         fragment.setListener(object: PanelViewFragment.ViewCreatedListener {
             override fun onViewCreated(view: View) {
+                val layout = view as LinearLayout
                 try {
-                    val layout = (view as LinearLayout)
-                    for (child in layout.children) {
+                    layout.children.forEach { child ->
                         if (child is AppWidgetHostView) {
                             layout.removeView(child)
                         }
                     }
                 } catch (ignored: Exception) { }
-                (view as LinearLayout).addView(launcherInfo.hostView, params)
+                layout.addView(launcherInfo.hostView, params)
             }
         })
         viewPager.setCurrentItem(id, true)

@@ -78,9 +78,7 @@ class NotificationFragment : Fragment(), NotificationAdapter.OnNoticeClickListen
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        return inflater.inflate(
-            R.layout.fragment_notices, container, false
-        ) as ViewGroup
+        return inflater.inflate(R.layout.fragment_notices, container, false)
     }
 
     @SuppressLint("ClickableViewAccessibility")

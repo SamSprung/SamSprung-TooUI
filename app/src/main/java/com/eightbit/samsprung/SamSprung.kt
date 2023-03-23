@@ -57,7 +57,7 @@ class SamSprung : Application() {
             val exception = StringWriter()
             error.printStackTrace(PrintWriter(exception))
             try {
-                Toast.makeText(this, R.string.logcat_crash, Toast.LENGTH_SHORT).show()
+                OrientationManager(this).removeOrientationLayout()
             } catch (ignored: Exception) { }
             try {
                 Debug(this).processException(
@@ -66,9 +66,6 @@ class SamSprung : Application() {
                 )
             } catch (ignored: Exception) { }
             // Unrecoverable error encountered
-            try {
-                OrientationManager(this).removeOrientationLayout()
-            } catch (ignored: Exception) { }
             exitProcess(0)
         }
 
