@@ -237,9 +237,7 @@ class AppDisplayListener : Service() {
                 vibrator.vibrate(effectClick)
             componentName?.let {
                 resetRecentActivities(it, 1)
-            } ?: {
-                resetRecentActivities(launchPackage, launchActivity, 1)
-            }
+            } ?: resetRecentActivities(launchPackage, launchActivity, 1)
             onDismissOverlay()
             startForegroundService(Intent(
                 applicationContext, OnBroadcastService::class.java
@@ -250,9 +248,7 @@ class AppDisplayListener : Service() {
                 vibrator.vibrate(effectClick)
             componentName?.let {
                 resetRecentActivities(it, 1)
-            } ?: {
-                resetRecentActivities(launchPackage, launchActivity, 1)
-            }
+            } ?: resetRecentActivities(launchPackage, launchActivity, 1)
             onDismissOverlay()
             startForegroundService(
                 Intent(

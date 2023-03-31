@@ -110,9 +110,9 @@ class AppDrawerFragment : Fragment(), DrawerAppAdapter.OnAppClickListener {
                     return true
                 }
             })
-        } ?: {
+        } ?: requireActivity().findViewById<SearchView>(R.id.package_search).let {
             launcherView.updatePadding(bottom = 30)
-            requireActivity().findViewById<SearchView>(R.id.package_search).isGone = true
+            it.isGone = true
         }
 
         RecyclerViewTouch(launcherView).setSwipeCallback(ItemTouchHelper.DOWN,

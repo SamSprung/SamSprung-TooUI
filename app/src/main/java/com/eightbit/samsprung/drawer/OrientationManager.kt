@@ -41,14 +41,14 @@ class OrientationManager(context: Context) {
                 } catch (rvi: Exception) {
                     try { windowManager.removeView(it.get()) } catch (ignored: Exception) { }
                 }
-            } ?: {
+            } ?: windowManager.run {
                 orientationLayout.screenOrientation = ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
-                windowManager.updateViewLayout(orientationManager, orientationLayout)
+                updateViewLayout(orientationManager, orientationLayout)
                 try {
-                    windowManager.removeViewImmediate(orientationManager)
+                    removeViewImmediate(orientationManager)
                 } catch (rvi: Exception) {
                     try {
-                        windowManager.removeView(orientationManager)
+                        removeView(orientationManager)
                     } catch (ignored: Exception) { }
                 }
             }
