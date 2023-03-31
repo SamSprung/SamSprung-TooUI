@@ -67,7 +67,7 @@ class UpdateManager(private var activity: AppCompatActivity) {
                 .UPDATE_AVAILABLE && appUpdateInfo.isUpdateTypeAllowed(AppUpdateType.IMMEDIATE)
             if (isUpdateAvailable) {
                 appUpdate = appUpdateInfo
-                listener?.onPlayUpdateFound()
+                listener?.onUpdateFound()
             }
         }
     }
@@ -197,7 +197,6 @@ class UpdateManager(private var activity: AppCompatActivity) {
 
     interface UpdateListener {
         fun onUpdateFound()
-        fun onPlayUpdateFound()
     }
 
     companion object {

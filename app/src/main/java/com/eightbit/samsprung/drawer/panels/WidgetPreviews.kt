@@ -20,7 +20,6 @@ import android.view.View
 import androidx.core.content.ContextCompat
 import androidx.core.content.res.ResourcesCompat
 import com.eightbit.samsprung.R
-import com.eightbit.samsprung.SamSprung
 import com.eightbit.samsprung.SamSprungOverlay
 import com.eightbit.samsprung.settings.Preferences
 import java.io.File

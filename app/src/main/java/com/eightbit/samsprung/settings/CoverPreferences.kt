@@ -83,7 +83,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.*
-import java.util.regex.Pattern
 
 class CoverPreferences : AppCompatActivity() {
 
@@ -1292,9 +1291,6 @@ class CoverPreferences : AppCompatActivity() {
         updateManager = UpdateManager(this@CoverPreferences)
         updateManager?.setUpdateListener(object: UpdateManager.UpdateListener {
             override fun onUpdateFound() {
-                setAnimatedUpdateNotice()
-            }
-            override fun onPlayUpdateFound() {
                 setAnimatedUpdateNotice()
             }
         })

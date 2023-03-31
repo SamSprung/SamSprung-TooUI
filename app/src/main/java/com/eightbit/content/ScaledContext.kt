@@ -35,7 +35,6 @@ class ScaledContext(base: Context) : ContextWrapper(base) {
     }
 
     fun internal(density: Float): ScaledContext {
-        val resources = resources
         val metrics = resources.displayMetrics
         val orientation = resources.configuration.orientation
         metrics.density = density // 2
@@ -96,7 +95,6 @@ class ScaledContext(base: Context) : ContextWrapper(base) {
     }
 
     fun external(): ScaledContext {
-        val resources = resources
         val metrics = resources.displayMetrics
         val orientation = resources.configuration.orientation
         metrics.density = 1f

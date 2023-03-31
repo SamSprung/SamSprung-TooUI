@@ -36,7 +36,6 @@ import android.graphics.drawable.AnimatedImageDrawable
 import android.graphics.drawable.ColorDrawable
 import android.graphics.drawable.Drawable
 import android.hardware.camera2.CameraManager
-import android.hardware.input.InputManager
 import android.media.AudioManager
 import android.net.Uri
 import android.net.wifi.WifiManager
@@ -82,7 +81,6 @@ import com.eightbit.view.AnimatedLinearLayout
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.snackbar.Snackbar
-import com.google.android.play.core.appupdate.AppUpdateInfo
 import com.wajahatkarim3.easyflipviewpager.CardFlipPageTransformer
 import eightbitlab.com.blurview.BlurView
 import eightbitlab.com.blurview.RenderEffectBlur
@@ -777,9 +775,6 @@ class SamSprungOverlay : AppCompatActivity() {
         updateManager = UpdateManager(this)
         updateManager?.setUpdateListener(object : UpdateManager.UpdateListener {
             override fun onUpdateFound() {
-                showUpdateNotice()
-            }
-            override fun onPlayUpdateFound() {
                 showUpdateNotice()
             }
         })
