@@ -19,6 +19,6 @@ object Preferences {
     const val prefRadius: String = "prefRadius"
     const val prefLength: String = "prefLength"
     const val prefRotate: String = "prefRotate"
-    const val prefCarded: String = "prefCarded"
+    const val prefPaging: String = "prefPaging"
     const val prefUpdate: String = "prefUpdate"
 }

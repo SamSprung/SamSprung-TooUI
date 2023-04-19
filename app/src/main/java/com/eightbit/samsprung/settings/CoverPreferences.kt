@@ -489,21 +489,27 @@ class CoverPreferences : AppCompatActivity() {
         })
         placementBar.progress = prefs.getInt(Preferences.prefShifts, 2)
 
-        val themeSpinner = findViewById<Spinner>(R.id.theme_spinner)
-        val spinnerAdapter = ArrayAdapter(this, android.R.layout.simple_spinner_item,
-            resources.getStringArray(R.array.theme_options))
-        spinnerAdapter.setDropDownViewResource(R.layout.dropdown_item_1)
-        themeSpinner.adapter = spinnerAdapter
-        themeSpinner.setSelection(prefs.getInt(Preferences.prefThemes, 0))
-        themeSpinner.onItemSelectedListener = object: AdapterView.OnItemSelectedListener {
-            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
-                with (prefs.edit()) {
-                    putInt(Preferences.prefThemes, position)
-                    apply()
-                }
-                (application as SamSprung).setThemePreference()
+        findViewById<Spinner>(R.id.theme_spinner).apply {
+            adapter = ArrayAdapter(
+                this@CoverPreferences, android.R.layout.simple_spinner_item,
+                resources.getStringArray(R.array.theme_options)
+            ).apply {
+                setDropDownViewResource(R.layout.dropdown_item_1)
             }
-            override fun onNothingSelected(parent: AdapterView<*>?) { }
+            setSelection(prefs.getInt(Preferences.prefThemes, 0))
+            onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+                override fun onItemSelected(
+                    parent: AdapterView<*>?, view: View?, position: Int, id: Long
+                ) {
+                    with(prefs.edit()) {
+                        putInt(Preferences.prefThemes, position)
+                        apply()
+                    }
+                    (application as SamSprung).setThemePreference()
+                }
+
+                override fun onNothingSelected(parent: AdapterView<*>?) {}
+            }
         }
 
         val toolbar = findViewById<Toolbar>(R.id.toolbar)
@@ -668,16 +674,26 @@ class CoverPreferences : AppCompatActivity() {
             gestures.isChecked = !gestures.isChecked
         }
 
-        val animate = findViewById<AppCompatCheckBox>(R.id.animate_switch)
-        animate.isChecked = prefs.getBoolean(Preferences.prefCarded, true)
-        animate.setOnCheckedChangeListener { _, isChecked ->
-            with(prefs.edit()) {
-                putBoolean(Preferences.prefCarded, isChecked)
-                apply()
+        findViewById<Spinner>(R.id.animate_spinner).apply {
+            adapter = ArrayAdapter(
+                this@CoverPreferences, android.R.layout.simple_spinner_item,
+                resources.getStringArray(R.array.pageTransformers)
+            ).apply {
+                setDropDownViewResource(R.layout.dropdown_item_1)
             }
-        }
-        findViewById<LinearLayout>(R.id.animate).setOnClickListener {
-            animate.isChecked = !animate.isChecked
+            setSelection(prefs.getInt(Preferences.prefPaging, 0))
+            onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+                override fun onItemSelected(
+                    parent: AdapterView<*>?, view: View?, position: Int, id: Long
+                ) {
+                    with(prefs.edit()) {
+                        putInt(Preferences.prefPaging, position)
+                        apply()
+                    }
+                }
+
+                override fun onNothingSelected(parent: AdapterView<*>?) {}
+            }
         }
 
         val lengthBar = findViewById<SeekBar>(R.id.length_bar)
@@ -1145,8 +1161,9 @@ class CoverPreferences : AppCompatActivity() {
     }
 
     private fun ignoreBatteryOptimization(): Boolean {
-        return ((getSystemService(POWER_SERVICE) as PowerManager)
-            .isIgnoringBatteryOptimizations(packageName))
+        return with (getSystemService(POWER_SERVICE) as PowerManager) {
+            isIgnoringBatteryOptimizations(packageName)
+        }
     }
 
     private fun hasAccessibility(): Boolean {
@@ -1173,7 +1190,7 @@ class CoverPreferences : AppCompatActivity() {
 
     private fun hasUsageStatistics() : Boolean {
         try {
-            (getSystemService(APP_OPS_SERVICE) as AppOpsManager).run {
+            with (getSystemService(APP_OPS_SERVICE) as AppOpsManager) {
                 unsafeCheckOp("android:get_usage_stats", Process.myUid(), packageName).run {
                     if (this == AppOpsManager.MODE_ALLOWED) return true
                 }

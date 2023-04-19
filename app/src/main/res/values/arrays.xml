@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="pageTransformers">
+        <item>Card Flip</item>
+        <item>Clock Spin</item>
+        <item>Depth</item>
+        <item>Fidget Spin</item>
+        <item>Pop</item>
+        <item>Spinner</item>
+        <item>Toss</item>
+        <item>None</item>
+    </string-array>
+</resources>

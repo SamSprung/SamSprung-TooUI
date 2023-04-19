@@ -127,7 +127,7 @@ class UpdateManager(private var activity: AppCompatActivity) {
 
     fun requestDownload(link: String) {
         if (activity.packageManager.canRequestPackageInstalls()) {
-            val download: String = link.substring(link.lastIndexOf(File.separator) + 1)
+            val download: String = link.substringAfterLast(File.separator)
             val apk = File(activity.externalCacheDir, download)
             CoroutineScope(Dispatchers.IO).launch(Dispatchers.IO) {
                 URL(link).openStream().use { stream ->

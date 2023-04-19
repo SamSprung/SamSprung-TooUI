@@ -52,22 +52,23 @@
 
         <TextView
             android:layout_width="0dp"
-            android:layout_weight="3"
+            android:layout_weight="1"
             android:textSize="24sp"
             android:textColor="?android:textColorPrimary"
             android:gravity="center_vertical"
             android:layout_height="wrap_content"
             android:text="@string/options_animate" />
 
-        <androidx.appcompat.widget.AppCompatCheckBox
-            android:id="@+id/animate_switch"
+        <Spinner
+            android:id="@+id/animate_spinner"
+            style="?android:attr/dropDownSpinnerStyle"
             android:layout_width="0dp"
-            android:gravity="center"
-            android:layout_gravity="end|center_vertical"
-            android:layout_weight="1"
             android:layout_height="wrap_content"
-            android:button="@null"
-            android:drawableEnd="?android:attr/listChoiceIndicatorMultiple" />
+            android:layout_weight="0.75"
+            android:textAlignment="center"
+            android:background="@android:drawable/btn_dropdown"
+            android:spinnerMode="dropdown"
+            android:entries="@array/pageTransformers"/>
     </LinearLayout>
 
     <LinearLayout

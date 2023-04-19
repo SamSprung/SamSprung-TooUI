@@ -78,10 +78,10 @@ import com.eightbit.samsprung.settings.Preferences
 import com.eightbit.samsprung.speech.VoiceRecognizer
 import com.eightbit.samsprung.update.UpdateManager
 import com.eightbit.view.AnimatedLinearLayout
+import com.eightbit.viewpager.*
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.snackbar.Snackbar
-import com.wajahatkarim3.easyflipviewpager.CardFlipPageTransformer
 import eightbitlab.com.blurview.BlurView
 import eightbitlab.com.blurview.RenderEffectBlur
 import eightbitlab.com.blurview.RenderScriptBlur
@@ -575,13 +575,16 @@ class SamSprungOverlay : AppCompatActivity() {
 
         viewPager = findViewById(R.id.pager)
         viewPager.adapter = pagerAdapter
-        if (prefs.getBoolean(Preferences.prefCarded, true)) {
-            val cardFlipPageTransformer = CardFlipPageTransformer()
-            cardFlipPageTransformer.isScalable = false
-            viewPager.setPageTransformer(cardFlipPageTransformer)
-        } else {
-            viewPager.setPageTransformer(null)
-        }
+        viewPager.setPageTransformer(when (prefs.getInt(Preferences.prefPaging, 0)) {
+            0 -> CardFlipTransformer().apply { isScalable = false }
+            1 -> ClockSpinTransformer()
+            2 -> DepthTransformer()
+            3 -> FidgetSpinTransformer()
+            4 -> PopTransformer()
+            5 -> SpinnerTransformer()
+            6 -> TossTransformer()
+            else -> null
+        })
         setViewPagerSensitivity(viewPager, 1)
         viewPager.registerOnPageChangeCallback(object: ViewPager2.OnPageChangeCallback() {
             override fun onPageSelected(position: Int) {
@@ -822,7 +825,7 @@ class SamSprungOverlay : AppCompatActivity() {
     fun setKeyguardListener(listener: KeyguardListener?) {
         this.keyguardListener = listener
         setTurnScreenOn(true)
-        (getSystemService(KEYGUARD_SERVICE) as KeyguardManager).run {
+        with (getSystemService(KEYGUARD_SERVICE) as KeyguardManager) {
             if (isDeviceLocked) {
                 val authView = layoutInflater.inflate(R.layout.fingerprint_auth, null)
                 val authDialog = AlertDialog.Builder(ContextThemeWrapper(

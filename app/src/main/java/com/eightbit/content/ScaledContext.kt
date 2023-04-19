@@ -29,9 +29,11 @@ class ScaledContext(base: Context) : ContextWrapper(base) {
     private val portDisplay0 =  if (Debug.isOppoDevice) 2520 else 2640 // 2636
 
     fun getDisplayParams(): IntArray {
-        val mWindowManager = getSystemService(WINDOW_SERVICE) as WindowManager
-        val metrics = mWindowManager.maximumWindowMetrics.bounds
-        return intArrayOf(metrics.width(), metrics.height())
+        with (getSystemService(WINDOW_SERVICE) as WindowManager) {
+            maximumWindowMetrics.bounds.run {
+                return intArrayOf(width(), height())
+            }
+        }
     }
 
     fun internal(density: Float): ScaledContext {
@@ -55,13 +57,13 @@ class ScaledContext(base: Context) : ContextWrapper(base) {
     }
 
     private fun screen() : Context {
-        createDisplayContext(
-            (getSystemService(DISPLAY_SERVICE) as DisplayManager).getDisplay(0)
-        ).run {
-            val wm = getSystemService(WINDOW_SERVICE) as WindowManager
-            return object : ContextThemeWrapper(this, theme) {
-                override fun getSystemService(name: String): Any? {
-                    return if (WINDOW_SERVICE == name) wm else super.getSystemService(name)
+        with (getSystemService(DISPLAY_SERVICE) as DisplayManager) {
+            createDisplayContext(getDisplay(0)).run {
+                val wm = getSystemService(WINDOW_SERVICE) as WindowManager
+                return object : ContextThemeWrapper(this, theme) {
+                    override fun getSystemService(name: String): Any? {
+                        return if (WINDOW_SERVICE == name) wm else super.getSystemService(name)
+                    }
                 }
             }
         }
@@ -126,37 +128,39 @@ class ScaledContext(base: Context) : ContextWrapper(base) {
 
     fun restore(displayNumber: Int): Context {
         resources.displayMetrics.setToDefaults()
-        val displayManager = getSystemService(DISPLAY_SERVICE) as DisplayManager
-        val display = try {
-            displayManager.getDisplay(displayNumber)
-        } catch (iae: IllegalArgumentException) {
-            displayManager.getDisplay(0)
-        }
-        val contextWrapper = createDisplayContext(display).run {
-            val wm = getSystemService(WINDOW_SERVICE) as WindowManager
-            object : ContextThemeWrapper(this, theme) {
-                override fun getSystemService(name: String): Any? {
-                    return if (WINDOW_SERVICE == name) wm else super.getSystemService(name)
+        with (getSystemService(DISPLAY_SERVICE) as DisplayManager) {
+            val display = try {
+                getDisplay(displayNumber)
+            } catch (iae: IllegalArgumentException) {
+                getDisplay(0)
+            }
+            val contextWrapper = createDisplayContext(display).run {
+                val wm = getSystemService(WINDOW_SERVICE) as WindowManager
+                object : ContextThemeWrapper(this, theme) {
+                    override fun getSystemService(name: String): Any? {
+                        return if (WINDOW_SERVICE == name) wm else super.getSystemService(name)
+                    }
                 }
             }
+            contextWrapper.resources.displayMetrics.setToDefaults()
+            return contextWrapper
         }
-        contextWrapper.resources.displayMetrics.setToDefaults()
-        return contextWrapper
 
     }
 
     fun cover() : Context {
-        val displayManager = getSystemService(DISPLAY_SERVICE) as DisplayManager
-        val diplay = try {
-            displayManager.getDisplay(1)
-        } catch (iae: IllegalArgumentException) {
-            displayManager.getDisplay(0)
-        }
-        createDisplayContext(diplay).run {
-            val wm = getSystemService(WINDOW_SERVICE) as WindowManager
-            return object : ContextThemeWrapper(this, theme) {
-                override fun getSystemService(name: String): Any? {
-                    return if (WINDOW_SERVICE == name) wm else super.getSystemService(name)
+        with (getSystemService(DISPLAY_SERVICE) as DisplayManager) {
+            val diplay = try {
+                getDisplay(1)
+            } catch (iae: IllegalArgumentException) {
+                getDisplay(0)
+            }
+            createDisplayContext(diplay).run {
+                val wm = getSystemService(WINDOW_SERVICE) as WindowManager
+                return object : ContextThemeWrapper(this, theme) {
+                    override fun getSystemService(name: String): Any? {
+                        return if (WINDOW_SERVICE == name) wm else super.getSystemService(name)
+                    }
                 }
             }
         }

@@ -97,7 +97,7 @@ class AppDisplayListener : Service() {
             registerReceiver(offReceiver, it)
         }
 
-        (getSystemService(DISPLAY_SERVICE) as DisplayManager).run {
+        with (getSystemService(DISPLAY_SERVICE) as DisplayManager) {
             mDisplayListener = object : DisplayManager.DisplayListener {
                 override fun onDisplayAdded(display: Int) {}
                 override fun onDisplayChanged(display: Int) {
@@ -183,7 +183,9 @@ class AppDisplayListener : Service() {
             }
         })
 
-        (displayContext.getSystemService(WINDOW_SERVICE) as WindowManager).addView(floatView, params)
+        with (displayContext.getSystemService(WINDOW_SERVICE) as WindowManager) {
+            addView(floatView, params)
+        }
         Handler(Looper.getMainLooper()).postDelayed({
             bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
         }, 500)
@@ -192,13 +194,14 @@ class AppDisplayListener : Service() {
 
     private fun restoreActivityDisplay(componentName: ComponentName?, display: Int) {
         ScaledContext(applicationContext).restore(display).run {
-            (getSystemService(AppCompatActivity.LAUNCHER_APPS_SERVICE)
-                    as LauncherApps).startMainActivity(
-                componentName,
-                Process.myUserHandle(),
-                (getSystemService(WINDOW_SERVICE) as WindowManager).maximumWindowMetrics.bounds,
-                CoverOptions(null).getActivityOptions(display).toBundle()
-            )
+            with (getSystemService(AppCompatActivity.LAUNCHER_APPS_SERVICE) as LauncherApps) {
+                startMainActivity(
+                    componentName,
+                    Process.myUserHandle(),
+                    (getSystemService(WINDOW_SERVICE) as WindowManager).maximumWindowMetrics.bounds,
+                    CoverOptions(null).getActivityOptions(display).toBundle()
+                )
+            }
         }
     }
 
@@ -304,7 +307,7 @@ class AppDisplayListener : Service() {
         if (prefs.getBoolean(Preferences.prefRotate, false))
             OrientationManager(this).removeOrientationLayout()
         try {
-            (getSystemService(DISPLAY_SERVICE) as DisplayManager).run {
+            with (getSystemService(DISPLAY_SERVICE) as DisplayManager) {
                 unregisterDisplayListener(mDisplayListener)
             }
         } catch (ignored: Exception) { }
@@ -312,7 +315,7 @@ class AppDisplayListener : Service() {
         ScaledContext(
             ScaledContext(applicationContext).cover(R.style.Theme_SecondScreen)
         ).internal(1.5f).run {
-            (getSystemService(WINDOW_SERVICE) as WindowManager).run {
+            with (getSystemService(WINDOW_SERVICE) as WindowManager) {
                 try {
                     removeViewImmediate(floatView)
                 } catch (rvi: Exception) {

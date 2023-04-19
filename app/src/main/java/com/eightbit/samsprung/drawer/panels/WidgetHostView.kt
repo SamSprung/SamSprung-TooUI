@@ -27,11 +27,10 @@ import com.eightbit.samsprung.R
  * {@inheritDoc}
  */
 class WidgetHostView(context: Context) : AppWidgetHostView(context) {
-    private val mInflater: LayoutInflater = context.getSystemService(
-        Context.LAYOUT_INFLATER_SERVICE
-    ) as LayoutInflater
     override fun getErrorView(): View {
-        return mInflater.inflate(R.layout.appwidget_error, this, false)
+        with (context.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater) {
+            return inflate(R.layout.appwidget_error, this@WidgetHostView, false)
+        }
     }
     override fun onInterceptTouchEvent(ev: MotionEvent): Boolean {
         when (ev.action) {

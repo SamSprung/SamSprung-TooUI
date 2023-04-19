@@ -95,7 +95,7 @@ class AppDrawerFragment : Fragment(), DrawerAppAdapter.OnAppClickListener {
                         20f, resources.displayMetrics).toInt()
                 }
             }
-            (requireActivity().getSystemService(Context.SEARCH_SERVICE) as SearchManager).run {
+            with (requireActivity().getSystemService(Context.SEARCH_SERVICE) as SearchManager) {
                 setSearchableInfo(getSearchableInfo(requireActivity().componentName))
             }
             setOnQueryTextListener(object : SearchView.OnQueryTextListener {

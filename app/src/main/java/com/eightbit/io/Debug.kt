@@ -74,7 +74,7 @@ class Debug(private var context: Context) {
 
     private fun submitLogcat(context: Context, logText: String) {
         val subject = context.getString(R.string.git_issue_title, BuildConfig.COMMIT)
-        (context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager).run {
+        with (context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager) {
             setPrimaryClip(ClipData.newPlainText(subject, logText))
         }
 
