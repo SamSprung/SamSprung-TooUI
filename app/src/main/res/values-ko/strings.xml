@@ -28,7 +28,7 @@
     <string name="drawer_options">서랍 옵션</string>
     <string name="options_vibration">터치 피드백</string>
     <string name="options_gestures">서랍 제스처</string>
-    <string name="options_animate">페이지 애니메이션</string>
+    <string name="options_viewpager">페이지 애니메이션</string>
     <string name="options_length">행당 앱 &#160;%1$s</string>
     <string name="options_search">앱 검색 창</string>
     <string name="options_wallpaper">배경 화면 설정</string>

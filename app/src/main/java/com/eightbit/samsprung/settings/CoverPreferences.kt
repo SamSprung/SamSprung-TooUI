@@ -674,7 +674,7 @@ class CoverPreferences : AppCompatActivity() {
             gestures.isChecked = !gestures.isChecked
         }
 
-        findViewById<Spinner>(R.id.animate_spinner).apply {
+        findViewById<Spinner>(R.id.viewpager_spinner).apply {
             adapter = ArrayAdapter(
                 this@CoverPreferences, android.R.layout.simple_spinner_item,
                 resources.getStringArray(R.array.pageTransformers)

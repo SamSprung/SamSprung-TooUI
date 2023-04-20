@@ -29,7 +29,7 @@
     <string name="options_fab_size">Use Large Icon</string>
     <string name="options_vibration">Button Feedback</string>
     <string name="options_gestures">Drawer Gesture</string>
-    <string name="options_animate">Page Animation</string>
+    <string name="options_viewpager">Page Transition</string>
     <string name="options_length">Apps Per Row &#160;%1$s</string>
     <string name="options_search">App Search Bar</string>
     <string name="options_wallpaper">Set Wallpaper</string>

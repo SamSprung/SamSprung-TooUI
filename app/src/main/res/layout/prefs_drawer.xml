@@ -40,7 +40,7 @@
     </LinearLayout>
 
     <LinearLayout
-        android:id="@+id/animate"
+        android:id="@+id/viewpager"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
@@ -57,10 +57,10 @@
             android:textColor="?android:textColorPrimary"
             android:gravity="center_vertical"
             android:layout_height="wrap_content"
-            android:text="@string/options_animate" />
+            android:text="@string/options_viewpager" />
 
         <Spinner
-            android:id="@+id/animate_spinner"
+            android:id="@+id/viewpager_spinner"
             style="?android:attr/dropDownSpinnerStyle"
             android:layout_width="0dp"
             android:layout_height="wrap_content"

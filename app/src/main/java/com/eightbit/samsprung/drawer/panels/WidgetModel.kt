@@ -164,9 +164,7 @@ class WidgetModel {
      */
     private fun unbindAppWidgetHostViews(appWidgets: ArrayList<PanelWidgetInfo>?) {
         appWidgets?.let { it ->
-            it.forEach { launcherInfo ->
-                launcherInfo.hostView = null
-            }
+            it.forEach { launcherInfo -> launcherInfo.hostView = null }
         }
     }
 
