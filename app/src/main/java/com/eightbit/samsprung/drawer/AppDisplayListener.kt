@@ -76,7 +76,7 @@ class AppDisplayListener : Service() {
         vibrator = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
             (getSystemService(VIBRATOR_MANAGER_SERVICE) as VibratorManager).defaultVibrator
         } else {
-            @Suppress("DEPRECATION") (getSystemService(VIBRATOR_SERVICE) as Vibrator)
+            @Suppress("deprecation") (getSystemService(VIBRATOR_SERVICE) as Vibrator)
         }
 
         offReceiver = object : BroadcastReceiver() {

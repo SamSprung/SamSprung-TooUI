@@ -289,7 +289,7 @@ class NotificationFragment : Fragment(), NotificationAdapter.OnNoticeClickListen
                 Context.VIBRATOR_MANAGER_SERVICE
             ) as VibratorManager).defaultVibrator.vibrate(vibrationEffect)
         } else {
-            @Suppress("DEPRECATION")
+            @Suppress("deprecation")
             (requireActivity().getSystemService(
                 Context.VIBRATOR_SERVICE
             ) as Vibrator).vibrate(vibrationEffect)

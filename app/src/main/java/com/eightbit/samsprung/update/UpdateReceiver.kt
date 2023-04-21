@@ -30,7 +30,7 @@ class UpdateReceiver : BroadcastReceiver() {
     private inline fun <reified T : Parcelable> Intent.parcelable(key: String): T? = when {
         Version.isTiramisu ->
             getParcelableExtra(key, T::class.java)
-        else -> @Suppress("DEPRECATION") getParcelableExtra(key) as? T
+        else -> @Suppress("deprecation") getParcelableExtra(key) as? T
     }
 
     override fun onReceive(context: Context, intent: Intent) {

@@ -130,7 +130,7 @@ class CoverPreferences : AppCompatActivity() {
         donationManager.retrieveDonationMenu()
 
         coordinator = findViewById(R.id.coordinator)
-        @Suppress("DEPRECATION")
+        @Suppress("deprecation")
         findViewById<BlurView>(R.id.blurContainer).setupWith(coordinator,
             if (Version.isSnowCone)
                 RenderEffectBlur()
@@ -1199,7 +1199,7 @@ class CoverPreferences : AppCompatActivity() {
         return false
     }
 
-    @Suppress("DEPRECATION")
+    @Suppress("deprecation")
     private fun hasKeyboardInstalled(): Boolean {
         return try {
             packageManager.getPackageInfo(BuildConfig.APPLICATION_ID + ".ime", 0)

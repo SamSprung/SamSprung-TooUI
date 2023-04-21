@@ -206,7 +206,7 @@ class SamSprungOverlay : AppCompatActivity() {
         vibrator = if (Version.isSnowCone) {
             (getSystemService(VIBRATOR_MANAGER_SERVICE) as VibratorManager).defaultVibrator
         } else {
-            @Suppress("DEPRECATION") (getSystemService(VIBRATOR_SERVICE) as Vibrator)
+            @Suppress("deprecation") (getSystemService(VIBRATOR_SERVICE) as Vibrator)
         }
 
         ScaledContext(this).internal(1.5f).setTheme(R.style.Theme_Launcher_NoActionBar)
@@ -270,7 +270,7 @@ class SamSprungOverlay : AppCompatActivity() {
                 if (Version.isSnowCone)
                     RenderEffectBlur()
                 else
-                    @Suppress("DEPRECATION")
+                    @Suppress("deprecation")
                     RenderScriptBlur(this)
             )
                 .setFrameClearDrawable(coordinator.background)
@@ -422,7 +422,7 @@ class SamSprungOverlay : AppCompatActivity() {
                                 return@setOnMenuItemClickListener true
                             }
                             R.id.toggle_bluetooth -> {
-                                @Suppress("DEPRECATION")
+                                @Suppress("deprecation")
                                 if (bluetoothAdapter.isEnabled) {
                                     bluetoothAdapter.disable()
                                     item.setIcon(R.drawable.ic_bluetooth_off_24dp)
@@ -882,7 +882,7 @@ class SamSprungOverlay : AppCompatActivity() {
                     ApplicationInfoFlags.of(PackageManager.GET_META_DATA.toLong())
                 )
             } else {
-                @Suppress("DEPRECATION")
+                @Suppress("deprecation")
                 packageManager.getInstalledApplications(PackageManager.GET_META_DATA)
             }
         for (packageInfo in packages) {
@@ -893,7 +893,7 @@ class SamSprungOverlay : AppCompatActivity() {
                         packageInfo.packageName, ApplicationInfoFlags.of(0)
                     )
                 } else {
-                    @Suppress("DEPRECATION")
+                    @Suppress("deprecation")
                     packageManager.getApplicationInfo(packageInfo.packageName, 0)
                 }
                 if (packageManager.getApplicationLabel(ai).contains(launchCommand, true)) {
