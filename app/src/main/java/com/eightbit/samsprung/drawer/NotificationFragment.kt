@@ -281,19 +281,20 @@ class NotificationFragment : Fragment(), NotificationAdapter.OnNoticeClickListen
         launcherManager?.launchPendingIntent(pendingIntent)
     }
 
+    private val vibrator by lazy {
+        if (Version.isSnowCone)
+            (requireActivity().getSystemService(
+                Context.VIBRATOR_MANAGER_SERVICE
+            ) as VibratorManager).defaultVibrator
+        else
+            @Suppress("DEPRECATION")
+            requireActivity().getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
+    }
+
     private val vibrationEffect = VibrationEffect
         .createOneShot(20, VibrationEffect.DEFAULT_AMPLITUDE)
     private fun tactileFeedback() {
-        if (Version.isSnowCone) {
-            (requireActivity().getSystemService(
-                Context.VIBRATOR_MANAGER_SERVICE
-            ) as VibratorManager).defaultVibrator.vibrate(vibrationEffect)
-        } else {
-            @Suppress("deprecation")
-            (requireActivity().getSystemService(
-                Context.VIBRATOR_SERVICE
-            ) as Vibrator).vibrate(vibrationEffect)
-        }
+        vibrator.vibrate(vibrationEffect)
     }
 
     private fun hasNotificationListener(context: Context): Boolean {
