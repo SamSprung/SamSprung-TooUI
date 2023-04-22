@@ -1,3 +1,15 @@
 <resources>
+    <string name="permission_options">Autorisations</string>
+    <string name="permission_notifications">Notifications</string>
+    <string name="details_notifications">Afficher et interagir avec les notifications</string>
+    <string name="permission_voice">Lancement Vocal</string>
+    <string name="details_voice">Autoriser le lancement de l\'application activée par la voix</string>
+    <string name="permission_usage">Accès à l\'Utilisation</string>
+    <string name="details_usage">Trier le tiroir d\'applications par récemment utilisé</string>
+    <string name="permission_optimization">Ignorer la Batterie</string>
+    <string name="details_optimization">Empêcher la résiliation anticipée du service</string>
+    <string name="permission_accessibility">Accessibilité</string>
+    <string name="details_accessibility">Activer le bouton de retour dans la navigation</string>
+
     <string name="lock_enabled">L\'appareil est verrouillé!</string>
 </resources>
