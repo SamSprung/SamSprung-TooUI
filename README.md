@@ -1,5 +1,5 @@
 <p align="center">
-  <a href="https://samsprung.github.io/launcher/"><h1 align="center">SamSprung TooUI Manual (Guides)</h1></a>
+  <h1 align="center"><a href="https://samsprung.github.io/launcher/">SamSprung TooUI Manual (Guides)</a></h1>
 </p>
 
 <p align="center">

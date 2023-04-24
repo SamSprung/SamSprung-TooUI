@@ -62,7 +62,7 @@ class NotificationFragment : Fragment(), NotificationAdapter.OnNoticeClickListen
     private val Number.toPx get() = TypedValue.applyDimension(
         TypedValue.COMPLEX_UNIT_DIP, this.toFloat(),
         ScaledContext(requireActivity()).cover().resources.displayMetrics
-    )
+    ).toInt()
 
     private inline val @receiver:ColorInt Int.blended
         @ColorInt
@@ -248,7 +248,7 @@ class NotificationFragment : Fragment(), NotificationAdapter.OnNoticeClickListen
             }
             if (actionButtons.childCount > 0) {
                 layoutManager?.scrollToPositionWithOffset(
-                    position, -(actionButtons.height) - 20.toPx.toInt()
+                    position, -(actionButtons.height) - 20.toPx
                 )
             } else {
                 layoutManager?.scrollToPosition(position)

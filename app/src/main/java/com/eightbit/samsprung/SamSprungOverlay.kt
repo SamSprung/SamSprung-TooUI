@@ -272,8 +272,7 @@ class SamSprungOverlay : AppCompatActivity() {
                 else
                     @Suppress("deprecation")
                     RenderScriptBlur(this)
-            )
-                .setFrameClearDrawable(coordinator.background)
+            ).setFrameClearDrawable(coordinator.background)
                 .setBlurRadius(1f).setBlurAutoUpdate(true)
         }
 
