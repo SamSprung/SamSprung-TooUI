@@ -16,6 +16,7 @@ package com.eightbit.samsprung.drawer
 
 import android.annotation.SuppressLint
 import android.app.SearchManager
+import android.app.Service
 import android.content.*
 import android.content.pm.ResolveInfo
 import android.os.Bundle
@@ -24,7 +25,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.LinearLayout
-import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.SearchView
 import androidx.core.view.isGone
 import androidx.core.view.updatePadding
@@ -50,10 +50,15 @@ class AppDrawerFragment : Fragment(), DrawerAppAdapter.OnAppClickListener {
         ScaledContext(requireActivity()).cover().resources.displayMetrics
     )
 
-    private var launcherManager: LauncherManager? = null
+    private val prefs: SharedPreferences by lazy {
+        requireActivity().getSharedPreferences(Preferences.prefsValue, Service.MODE_PRIVATE)
+    }
+    private val launcherManager: LauncherManager by lazy {
+        LauncherManager(requireActivity() as SamSprungOverlay)
+    }
+
     private lateinit var launcherView: RecyclerView
     private var packReceiver: BroadcastReceiver? = null
-    private lateinit var prefs: SharedPreferences
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -67,11 +72,6 @@ class AppDrawerFragment : Fragment(), DrawerAppAdapter.OnAppClickListener {
     @SuppressLint("ClickableViewAccessibility")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
-        prefs = requireActivity().getSharedPreferences(
-            Preferences.prefsValue, AppCompatActivity.MODE_PRIVATE)
-
-        launcherManager = LauncherManager(requireActivity() as SamSprungOverlay)
 
         launcherView = view.findViewById(R.id.appsList)
         // launcherView.setHasFixedSize(true)
@@ -193,7 +193,7 @@ class AppDrawerFragment : Fragment(), DrawerAppAdapter.OnAppClickListener {
     }
 
     override fun onAppClicked(resolveInfo: ResolveInfo, position: Int) {
-        launcherManager?.launchResolveInfo(resolveInfo)
+        launcherManager.launchResolveInfo(resolveInfo)
         if (this::launcherView.isInitialized) getFilteredPackageList()
     }
 

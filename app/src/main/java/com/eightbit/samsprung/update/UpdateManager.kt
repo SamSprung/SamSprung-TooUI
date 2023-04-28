@@ -78,7 +78,7 @@ class UpdateManager(private var activity: AppCompatActivity) {
                     as NotificationManager).cancel(SamSprung.request_code)
         } catch (ignored: Exception) { }
         if (activity is UpdateShimActivity) {
-            activity.applicationContext.packageManager.packageInstaller.run {
+            with (activity.applicationContext.packageManager.packageInstaller) {
                 mySessions.forEach {
                     try { abandonSession(it.sessionId) } catch (ignored: Exception) { }
                 }
@@ -100,7 +100,7 @@ class UpdateManager(private var activity: AppCompatActivity) {
                     val length = DocumentFile.fromSingleUri(
                         applicationContext, apkUri
                     )?.length() ?: -1
-                    val session = applicationContext.packageManager.packageInstaller.run {
+                    val session = with (applicationContext.packageManager.packageInstaller) {
                         val params = PackageInstaller.SessionParams(
                             PackageInstaller.SessionParams.MODE_FULL_INSTALL
                         )

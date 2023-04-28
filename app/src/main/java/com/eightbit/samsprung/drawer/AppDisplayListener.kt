@@ -34,6 +34,7 @@ import androidx.core.content.ContextCompat
 import androidx.core.view.isVisible
 import com.eightbit.app.CoverOptions
 import com.eightbit.content.ScaledContext
+import com.eightbit.os.Version
 import com.eightbit.samsprung.*
 import com.eightbit.samsprung.settings.Preferences
 import com.eightbit.view.OnSwipeTouchListener
@@ -41,17 +42,20 @@ import com.google.android.material.bottomsheet.BottomSheetBehavior
 
 class AppDisplayListener : Service() {
 
-    private lateinit var prefs: SharedPreferences
+    private val prefs: SharedPreferences by lazy {
+        getSharedPreferences(Preferences.prefsValue, MODE_PRIVATE)
+    }
+
     private var offReceiver: BroadcastReceiver? = null
     private var mDisplayListener: DisplayManager.DisplayListener? = null
     private lateinit var floatView: View
     private lateinit var bottomSheetBehavior: BottomSheetBehavior<View>
 
     private val vibrator by lazy {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S)
-            (getSystemService(Context.VIBRATOR_MANAGER_SERVICE) as VibratorManager).defaultVibrator
+        if (Version.isSnowCone)
+            (getSystemService(VIBRATOR_MANAGER_SERVICE) as VibratorManager).defaultVibrator
         else
-            @Suppress("DEPRECATION") getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
+            @Suppress("DEPRECATION") getSystemService(VIBRATOR_SERVICE) as Vibrator
     }
     private val effectClick = VibrationEffect.createPredefined(VibrationEffect.EFFECT_CLICK)
 
@@ -76,8 +80,6 @@ class AppDisplayListener : Service() {
 //            parcel.setDataPosition(0)
 //            parcel.recycle()
 //        }
-
-        prefs = getSharedPreferences(Preferences.prefsValue, MODE_PRIVATE)
 
         offReceiver = object : BroadcastReceiver() {
             override fun onReceive(context: Context?, intent: Intent) {

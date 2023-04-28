@@ -88,7 +88,10 @@ class CoverPreferences : AppCompatActivity() {
 
     private val CharSequence.toPref get() = this.toString().lowercase().replace(" ", "_")
 
-    private lateinit var prefs: SharedPreferences
+    private val prefs: SharedPreferences by lazy {
+        getSharedPreferences(Preferences.prefsValue, MODE_PRIVATE)
+    }
+
     private lateinit var coordinator: CoordinatorLayout
     private var updateManager : UpdateManager? = null
 
@@ -115,7 +118,6 @@ class CoverPreferences : AppCompatActivity() {
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
         supportActionBar?.setHomeAsUpIndicator(R.drawable.ic_menu_24)
 
-        prefs = getSharedPreferences(Preferences.prefsValue, MODE_PRIVATE)
         setTheme(R.style.Theme_SecondScreen)
         setContentView(R.layout.preferences_layout)
 

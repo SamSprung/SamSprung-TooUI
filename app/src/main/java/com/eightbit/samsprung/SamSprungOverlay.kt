@@ -103,10 +103,13 @@ class SamSprungOverlay : AppCompatActivity() {
 
     private val CharSequence.toPref get() = this.toString().lowercase().replace(" ", "_")
 
+    private val prefs: SharedPreferences by lazy {
+        getSharedPreferences(Preferences.prefsValue, MODE_PRIVATE)
+    }
+
     private var windowInfoTracker: WindowInfoTrackerCallbackAdapter? = null
     private val layoutStateCallback: LayoutStateChangeCallback = LayoutStateChangeCallback()
 
-    private lateinit var prefs: SharedPreferences
     private var launcherManager: LauncherManager? = null
     private var widgetManager: PanelWidgetManager? = null
     val model = WidgetModel()
@@ -137,7 +140,12 @@ class SamSprungOverlay : AppCompatActivity() {
     private lateinit var viewPager: ViewPager2
     private var pagerAdapter: FragmentStateAdapter = CoverStateAdapter(this)
 
-    private lateinit var vibrator: Vibrator
+    private val vibrator: Vibrator by lazy {
+        if (Version.isSnowCone)
+            (getSystemService(VIBRATOR_MANAGER_SERVICE) as VibratorManager).defaultVibrator
+        else
+            @Suppress("deprecation") (getSystemService(VIBRATOR_SERVICE) as Vibrator)
+    }
     private val effectClick = VibrationEffect.createPredefined(VibrationEffect.EFFECT_CLICK)
     private val effectLongClick = VibrationEffect.createPredefined(VibrationEffect.EFFECT_DOUBLE_CLICK)
 
@@ -201,13 +209,6 @@ class SamSprungOverlay : AppCompatActivity() {
 //            }
 //        }
         window.attributes.gravity = Gravity.BOTTOM
-
-        prefs = getSharedPreferences(Preferences.prefsValue, MODE_PRIVATE)
-        vibrator = if (Version.isSnowCone) {
-            (getSystemService(VIBRATOR_MANAGER_SERVICE) as VibratorManager).defaultVibrator
-        } else {
-            @Suppress("deprecation") (getSystemService(VIBRATOR_SERVICE) as Vibrator)
-        }
 
         ScaledContext(this).internal(1.5f).setTheme(R.style.Theme_Launcher_NoActionBar)
         setContentView(R.layout.home_main_view)
