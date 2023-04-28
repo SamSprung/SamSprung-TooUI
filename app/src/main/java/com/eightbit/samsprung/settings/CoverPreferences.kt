@@ -84,6 +84,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.*
 
+
 class CoverPreferences : AppCompatActivity() {
 
     private val CharSequence.toPref get() = this.toString().lowercase().replace(" ", "_")
@@ -503,6 +504,7 @@ class CoverPreferences : AppCompatActivity() {
                 override fun onItemSelected(
                     parent: AdapterView<*>?, view: View?, position: Int, id: Long
                 ) {
+                    (parent?.getChildAt(0) as TextView).setTextColor(Color.BLACK)
                     with(prefs.edit()) {
                         putInt(Preferences.prefThemes, position)
                         apply()
@@ -688,6 +690,7 @@ class CoverPreferences : AppCompatActivity() {
                 override fun onItemSelected(
                     parent: AdapterView<*>?, view: View?, position: Int, id: Long
                 ) {
+                    (parent?.getChildAt(0) as TextView).setTextColor(Color.BLACK)
                     with(prefs.edit()) {
                         putInt(Preferences.prefPaging, position)
                         apply()

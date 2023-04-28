@@ -18,11 +18,17 @@ import android.os.Build
 
 object Version {
 
+    /**
+     * Android 12, API 31
+     */
     @JvmStatic
     val isSnowCone: Boolean get() {
         return Build.VERSION.SDK_INT >= Build.VERSION_CODES.S
     }
 
+    /**
+     * Android 13, API 33
+     */
     @JvmStatic
     val isTiramisu: Boolean get() {
         return Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU
