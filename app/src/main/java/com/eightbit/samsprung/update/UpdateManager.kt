@@ -23,6 +23,7 @@ import android.provider.Settings
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.FileProvider
 import androidx.documentfile.provider.DocumentFile
+import com.eightbit.net.JSONExecutor
 import com.eightbit.os.Version
 import com.eightbit.samsprung.BuildConfig
 import com.eightbit.samsprung.SamSprung
@@ -161,21 +162,24 @@ class UpdateManager(private var activity: AppCompatActivity) {
 
     fun requestUpdateJSON() {
         CoroutineScope(Dispatchers.IO).launch(Dispatchers.IO) {
-            URL(repo).readText().also {
-                try {
-                    val jsonObject = JSONTokener(it).nextValue() as JSONObject
-                    val lastCommit = (jsonObject["name"] as String).substring(
-                        organization.length + 1
-                    )
-                    val assets = jsonObject["assets"] as JSONArray
-                    val asset = assets[0] as JSONObject
-                    isUpdateAvailable = BuildConfig.COMMIT != lastCommit
-                    if (isUpdateAvailable) {
-                        updateUrl = asset["browser_download_url"] as String
-                        listener?.onUpdateFound()
-                    }
-                } catch (ignored: JSONException) { }
-            }
+            JSONExecutor(repo).setResultListener(object : JSONExecutor.ResultListener {
+                override fun onResults(result: String?) {
+                    try {
+                        val jsonObject = JSONTokener(result).nextValue() as JSONObject
+                        val lastCommit = (jsonObject["name"] as String).substring(
+                            organization.length + 1
+                        )
+                        val assets = jsonObject["assets"] as JSONArray
+                        val asset = assets[0] as JSONObject
+                        isUpdateAvailable = BuildConfig.COMMIT != lastCommit
+                        if (isUpdateAvailable) {
+                            updateUrl = asset["browser_download_url"] as String
+                            listener?.onUpdateFound()
+                        }
+                    } catch (ignored: JSONException) { }
+                }
+                override fun onException(e: Exception) { }
+            })
         }
     }
 
