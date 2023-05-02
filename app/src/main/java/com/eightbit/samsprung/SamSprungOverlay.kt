@@ -1134,18 +1134,21 @@ class SamSprungOverlay : AppCompatActivity() {
     private fun setScreenTimeout(anchorView: View) {
         timeoutHandler.removeCallbacksAndMessages(null)
         val timeout = prefs.getInt(Preferences.prefDelays, 5)
-        if (timeout == 4) {
-            anchorView.keepScreenOn = true
-        } else if (timeout > 5) {
-            anchorView.keepScreenOn = true
-            timeoutHandler.postDelayed({
-                anchorView.keepScreenOn = false
-            }, (timeout * 1000).toLong())
+        when {
+            timeout == 4 -> { anchorView.keepScreenOn = true }
+            timeout == 5 -> { anchorView.keepScreenOn = false }
+            timeout > 5 -> {
+                anchorView.keepScreenOn = true
+                timeoutHandler.postDelayed({
+                    anchorView.keepScreenOn = false
+                }, (timeout * 1000).toLong())
+            }
         }
     }
 
     private val fabShowHandler = Handler(Looper.getMainLooper())
     private fun setActionButtonTimeout() {
+        if (Version.isTiramisu) return
         fabShowHandler.removeCallbacksAndMessages(null)
         if (bottomSheetBehaviorMain.state == BottomSheetBehavior.STATE_EXPANDED) return
         val fakeOverlay = findViewById<LinearLayout>(R.id.fake_overlay)
