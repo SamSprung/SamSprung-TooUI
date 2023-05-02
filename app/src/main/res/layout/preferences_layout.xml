@@ -26,406 +26,401 @@
                 android:layout_height="wrap_content"
                 android:orientation="vertical">
 
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="1dp"
-                android:layout_marginTop="0dp"
-                android:background="?colorPrimary" />
-
-            <include layout="@layout/social_menu_bar"
-                android:id="@+id/social_menu"/>
-
-            <ScrollView
-                android:id="@+id/nested_options"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent">
-
-                <LinearLayout
-                    android:id="@+id/innerLayout"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:animateLayoutChanges="true"
-                    android:orientation="vertical">
-
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:background="@color/backgroundTint"
-                        android:layout_marginTop="4dp"
-                        android:layout_marginBottom="6dp"
-                        android:orientation="vertical">
-
-                        <View
-                            android:layout_width="match_parent"
-                            android:layout_height="1dp"
-                            android:background="?colorPrimary"
-                            android:paddingTop="4dp"
-                            android:layout_marginBottom="4dp"/>
-
-                        <TextView
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:textSize="16sp"
-                            android:layout_marginStart="14dp"
-                            android:textColor="?android:textColorPrimary"
-                            android:gravity="center_vertical"
-                            android:text="@string/permission_options" />
-
-                        <View
-                            android:layout_width="match_parent"
-                            android:layout_height="1dp"
-                            android:background="?colorPrimary"
-                            android:layout_marginTop="4dp" />
-                    </LinearLayout>
-
-                    <include
-                        layout="@layout/prefs_permissions"
-                        android:id="@+id/permissions" />
-
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:background="@color/backgroundTint"
-                        android:layout_marginTop="8dp"
-                        android:layout_marginBottom="6dp"
-                        android:orientation="vertical">
-
-                        <View
-                            android:layout_width="match_parent"
-                            android:layout_height="1dp"
-                            android:background="?colorPrimary"
-                            android:paddingTop="4dp"
-                            android:layout_marginBottom="4dp"/>
-
-                        <TextView
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:textSize="16sp"
-                            android:layout_marginStart="14dp"
-                            android:textColor="?android:textColorPrimary"
-                            android:gravity="center_vertical"
-                            android:text="@string/config_options" />
-
-                        <View
-                            android:layout_width="match_parent"
-                            android:layout_height="1dp"
-                            android:background="?colorPrimary"
-                            android:layout_marginTop="4dp" />
-                    </LinearLayout>
-
-                    <LinearLayout
-                        android:id="@+id/keyboard_layout"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="horizontal"
-                        android:layout_marginBottom="4dp"
-                        android:layout_marginStart="16dp"
-                        android:layout_marginEnd="8dp"
-                        android:gravity="center_vertical"
-                        android:layout_gravity="center_vertical"
-                        tools:ignore="UseCompoundDrawables">
-
-                        <LinearLayout
-                            android:layout_width="0dp"
-                            android:layout_weight="3"
-                            android:layout_height="wrap_content"
-                            android:orientation="vertical"
-                            android:layout_gravity="center_vertical"
-                            tools:ignore="UseCompoundDrawables">
-
-                            <TextView
-                                android:layout_width="match_parent"
-                                android:textSize="24sp"
-                                android:textColor="?android:textColorPrimary"
-                                android:gravity="center_vertical"
-                                android:layout_height="wrap_content"
-                                android:text="@string/options_keyboard" />
-
-                            <TextView
-                                android:layout_width="match_parent"
-                                android:textSize="14sp"
-                                android:textColor="?android:textColorPrimary"
-                                android:gravity="center_vertical"
-                                android:layout_height="wrap_content"
-                                android:text="@string/details_keyboard" />
-                        </LinearLayout>
-
-                        <androidx.appcompat.widget.SwitchCompat
-                            android:id="@+id/keyboard_switch"
-                            android:layout_width="0dp"
-                            android:gravity="center"
-                            android:layout_gravity="end|center_vertical"
-                            android:layout_weight="1"
-                            android:layout_height="wrap_content" />
-                    </LinearLayout>
-
-                    <LinearLayout
-                        android:id="@+id/menu_general"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:background="@color/backgroundTint"
-                        android:layout_marginTop="8dp"
-                        android:layout_marginBottom="6dp"
-                        android:orientation="vertical">
-
-                        <View
-                            android:layout_width="match_parent"
-                            android:layout_height="1dp"
-                            android:background="?colorPrimary"
-                            android:paddingTop="4dp"
-                            android:layout_marginBottom="4dp"/>
-
-                        <LinearLayout
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:orientation="horizontal"
-                            android:layout_marginHorizontal="14dp"
-                            tools:ignore="UseCompoundDrawables">
-
-                            <TextView
-                                android:layout_width="0dp"
-                                android:layout_height="wrap_content"
-                                android:layout_weight="1"
-                                android:textSize="16sp"
-                                android:textColor="?android:textColorPrimary"
-                                android:gravity="center_vertical"
-                                android:text="@string/general_options" />
-
-                            <androidx.appcompat.widget.AppCompatImageView
-                                android:layout_width="wrap_content"
-                                android:gravity="center_vertical"
-                                android:layout_gravity="end"
-                                app:srcCompat="@drawable/ic_expand_20dp"
-                                android:layout_height="wrap_content"
-                                android:contentDescription="@string/description_icon"/>
-                        </LinearLayout>
-
-                        <View
-                            android:layout_width="match_parent"
-                            android:layout_height="1dp"
-                            android:background="?colorPrimary"
-                            android:layout_marginTop="4dp" />
-                    </LinearLayout>
-
-                    <include
-                        layout="@layout/prefs_general"
-                        android:id="@+id/general" />
-
-                    <LinearLayout
-                        android:id="@+id/menu_drawer"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:background="@color/backgroundTint"
-                        android:layout_marginTop="4dp"
-                        android:layout_marginBottom="6dp"
-                        android:orientation="vertical">
-
-                        <View
-                            android:layout_width="match_parent"
-                            android:layout_height="1dp"
-                            android:background="?colorPrimary"
-                            android:paddingTop="4dp"
-                            android:layout_marginBottom="4dp"/>
-
-                        <LinearLayout
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:orientation="horizontal"
-                            android:layout_marginHorizontal="14dp"
-                            tools:ignore="UseCompoundDrawables">
-
-                            <TextView
-                                android:layout_width="0dp"
-                                android:layout_height="wrap_content"
-                                android:layout_weight="1"
-                                android:textSize="16sp"
-                                android:textColor="?android:textColorPrimary"
-                                android:gravity="center_vertical"
-                                android:text="@string/drawer_options" />
-
-                            <androidx.appcompat.widget.AppCompatImageView
-                                android:layout_width="wrap_content"
-                                android:gravity="center_vertical"
-                                android:layout_gravity="end"
-                                app:srcCompat="@drawable/ic_expand_20dp"
-                                android:layout_height="wrap_content"
-                                android:contentDescription="@string/description_icon"/>
-                        </LinearLayout>
-
-                        <View
-                            android:layout_width="match_parent"
-                            android:layout_height="1dp"
-                            android:background="?colorPrimary"
-                            android:layout_marginTop="4dp"/>
-                    </LinearLayout>
-
-                    <include
-                        layout="@layout/prefs_drawer"
-                        android:id="@+id/drawer" />
-
-                    <LinearLayout
-                        android:id="@+id/menu_notices"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:background="@color/backgroundTint"
-                        android:layout_marginTop="4dp"
-                        android:layout_marginBottom="6dp"
-                        android:orientation="vertical">
-
-                        <View
-                            android:layout_width="match_parent"
-                            android:layout_height="1dp"
-                            android:background="?colorPrimary"
-                            android:paddingTop="4dp"
-                            android:layout_marginBottom="4dp"/>
-
-                        <LinearLayout
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:orientation="horizontal"
-                            android:layout_marginHorizontal="14dp"
-                            tools:ignore="UseCompoundDrawables">
-
-                            <TextView
-                                android:layout_width="0dp"
-                                android:layout_height="wrap_content"
-                                android:layout_weight="1"
-                                android:textSize="16sp"
-                                android:textColor="?android:textColorPrimary"
-                                android:gravity="center_vertical"
-                                android:text="@string/notice_options" />
-
-                            <androidx.appcompat.widget.AppCompatImageView
-                                android:layout_width="wrap_content"
-                                android:gravity="center_vertical"
-                                android:layout_gravity="end"
-                                app:srcCompat="@drawable/ic_expand_20dp"
-                                android:layout_height="wrap_content"
-                                android:contentDescription="@string/description_icon"/>
-                        </LinearLayout>
-
-                        <View
-                            android:layout_width="match_parent"
-                            android:layout_height="1dp"
-                            android:background="?colorPrimary"
-                            android:layout_marginTop="4dp" />
-                    </LinearLayout>
-
-                    <LinearLayout
-                        android:id="@+id/notices"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="vertical">
-
-                        <LinearLayout
-                            android:id="@+id/dismiss"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:orientation="horizontal"
-                            android:layout_marginStart="16dp"
-                            android:layout_marginEnd="8dp"
-                            android:layout_marginBottom="6dp"
-                            android:gravity="center_vertical"
-                            android:layout_gravity="center_vertical"
-                            tools:ignore="UseCompoundDrawables,UselessParent">
-
-                            <TextView
-                                android:id="@+id/dismiss_text"
-                                android:layout_width="0dp"
-                                android:layout_weight="1"
-                                android:textSize="24sp"
-                                android:textColor="?android:textColorPrimary"
-                                android:gravity="center_vertical"
-                                android:layout_height="wrap_content"
-                                android:text="@string/options_dismiss" />
-
-                            <SeekBar
-                                android:id="@+id/dismiss_bar"
-                                android:layout_width="0dp"
-                                android:layout_height="wrap_content"
-                                android:layout_gravity="center"
-                                android:gravity="center"
-                                android:layout_weight="1"
-                                android:min="1"
-                                android:max="12"/>
-                        </LinearLayout>
-                    </LinearLayout>
-                </LinearLayout>
-            </ScrollView>
-            <LinearLayout
-                android:id="@+id/list_divider"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical">
-
                 <View
-                    android:id="@+id/bottom_bar"
                     android:layout_width="match_parent"
                     android:layout_height="1dp"
-                    android:background="?colorPrimary"
-                    android:layout_marginTop="4dp"/>
+                    android:layout_marginTop="0dp"
+                    android:background="?colorPrimary" />
 
+                <include layout="@layout/social_menu_bar"
+                    android:id="@+id/social_menu"/>
+
+                <ScrollView
+                    android:id="@+id/nested_options"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent">
+
+                    <LinearLayout
+                        android:id="@+id/innerLayout"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:animateLayoutChanges="true"
+                        android:orientation="vertical">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:background="@color/backgroundTint"
+                            android:layout_marginTop="4dp"
+                            android:layout_marginBottom="6dp"
+                            android:orientation="vertical">
+
+                            <View
+                                android:layout_width="match_parent"
+                                android:layout_height="1dp"
+                                android:background="?colorPrimary"
+                                android:paddingTop="4dp"
+                                android:layout_marginBottom="4dp"/>
+
+                            <TextView
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:textSize="16sp"
+                                android:layout_marginStart="14dp"
+                                android:textColor="?android:textColorPrimary"
+                                android:gravity="center_vertical"
+                                android:text="@string/permission_options" />
+
+                            <View
+                                android:layout_width="match_parent"
+                                android:layout_height="1dp"
+                                android:background="?colorPrimary"
+                                android:layout_marginTop="4dp" />
+                        </LinearLayout>
+
+                        <include
+                            layout="@layout/prefs_permissions"
+                            android:id="@+id/permissions" />
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:background="@color/backgroundTint"
+                            android:layout_marginTop="8dp"
+                            android:layout_marginBottom="6dp"
+                            android:orientation="vertical">
+
+                            <View
+                                android:layout_width="match_parent"
+                                android:layout_height="1dp"
+                                android:background="?colorPrimary"
+                                android:paddingTop="4dp"
+                                android:layout_marginBottom="4dp"/>
+
+                            <TextView
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:textSize="16sp"
+                                android:layout_marginStart="14dp"
+                                android:textColor="?android:textColorPrimary"
+                                android:gravity="center_vertical"
+                                android:text="@string/config_options" />
+
+                            <View
+                                android:layout_width="match_parent"
+                                android:layout_height="1dp"
+                                android:background="?colorPrimary"
+                                android:layout_marginTop="4dp" />
+                        </LinearLayout>
+
+                        <LinearLayout
+                            android:id="@+id/keyboard_layout"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal"
+                            android:layout_marginBottom="4dp"
+                            android:layout_marginStart="16dp"
+                            android:layout_marginEnd="8dp"
+                            android:gravity="center_vertical"
+                            android:layout_gravity="center_vertical"
+                            tools:ignore="UseCompoundDrawables">
+
+                            <LinearLayout
+                                android:layout_width="0dp"
+                                android:layout_weight="3"
+                                android:layout_height="wrap_content"
+                                android:orientation="vertical"
+                                android:layout_gravity="center_vertical"
+                                tools:ignore="UseCompoundDrawables">
+
+                                <TextView
+                                    android:layout_width="match_parent"
+                                    android:textSize="24sp"
+                                    android:textColor="?android:textColorPrimary"
+                                    android:gravity="center_vertical"
+                                    android:layout_height="wrap_content"
+                                    android:text="@string/options_keyboard" />
+
+                                <TextView
+                                    android:layout_width="match_parent"
+                                    android:textSize="14sp"
+                                    android:textColor="?android:textColorPrimary"
+                                    android:gravity="center_vertical"
+                                    android:layout_height="wrap_content"
+                                    android:text="@string/details_keyboard" />
+                            </LinearLayout>
+
+                            <androidx.appcompat.widget.SwitchCompat
+                                android:id="@+id/keyboard_switch"
+                                android:layout_width="0dp"
+                                android:gravity="center"
+                                android:layout_gravity="end|center_vertical"
+                                android:layout_weight="1"
+                                android:layout_height="wrap_content" />
+                        </LinearLayout>
+
+                        <LinearLayout
+                            android:id="@+id/menu_general"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:background="@color/backgroundTint"
+                            android:layout_marginTop="8dp"
+                            android:layout_marginBottom="6dp"
+                            android:orientation="vertical">
+
+                            <View
+                                android:layout_width="match_parent"
+                                android:layout_height="1dp"
+                                android:background="?colorPrimary"
+                                android:paddingTop="4dp"
+                                android:layout_marginBottom="4dp"/>
+
+                            <LinearLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:orientation="horizontal"
+                                android:layout_marginHorizontal="14dp"
+                                tools:ignore="UseCompoundDrawables">
+
+                                <TextView
+                                    android:layout_width="0dp"
+                                    android:layout_height="wrap_content"
+                                    android:layout_weight="1"
+                                    android:textSize="16sp"
+                                    android:textColor="?android:textColorPrimary"
+                                    android:gravity="center_vertical"
+                                    android:text="@string/general_options" />
+
+                                <androidx.appcompat.widget.AppCompatImageView
+                                    android:layout_width="wrap_content"
+                                    android:gravity="center_vertical"
+                                    android:layout_gravity="end"
+                                    app:srcCompat="@drawable/ic_expand_20dp"
+                                    android:layout_height="wrap_content"
+                                    android:contentDescription="@string/description_icon"/>
+                            </LinearLayout>
+
+                            <View
+                                android:layout_width="match_parent"
+                                android:layout_height="1dp"
+                                android:background="?colorPrimary"
+                                android:layout_marginTop="4dp" />
+                        </LinearLayout>
+
+                        <include
+                            layout="@layout/prefs_general"
+                            android:id="@+id/general" />
+
+                        <LinearLayout
+                            android:id="@+id/menu_drawer"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:background="@color/backgroundTint"
+                            android:layout_marginTop="4dp"
+                            android:layout_marginBottom="6dp"
+                            android:orientation="vertical">
+
+                            <View
+                                android:layout_width="match_parent"
+                                android:layout_height="1dp"
+                                android:background="?colorPrimary"
+                                android:paddingTop="4dp"
+                                android:layout_marginBottom="4dp"/>
+
+                            <LinearLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:orientation="horizontal"
+                                android:layout_marginHorizontal="14dp"
+                                tools:ignore="UseCompoundDrawables">
+
+                                <TextView
+                                    android:layout_width="0dp"
+                                    android:layout_height="wrap_content"
+                                    android:layout_weight="1"
+                                    android:textSize="16sp"
+                                    android:textColor="?android:textColorPrimary"
+                                    android:gravity="center_vertical"
+                                    android:text="@string/drawer_options" />
+
+                                <androidx.appcompat.widget.AppCompatImageView
+                                    android:layout_width="wrap_content"
+                                    android:gravity="center_vertical"
+                                    android:layout_gravity="end"
+                                    app:srcCompat="@drawable/ic_expand_20dp"
+                                    android:layout_height="wrap_content"
+                                    android:contentDescription="@string/description_icon"/>
+                            </LinearLayout>
+
+                            <View
+                                android:layout_width="match_parent"
+                                android:layout_height="1dp"
+                                android:background="?colorPrimary"
+                                android:layout_marginTop="4dp"/>
+                        </LinearLayout>
+
+                        <include
+                            layout="@layout/prefs_drawer"
+                            android:id="@+id/drawer" />
+
+                        <LinearLayout
+                            android:id="@+id/menu_notices"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:background="@color/backgroundTint"
+                            android:layout_marginTop="4dp"
+                            android:layout_marginBottom="6dp"
+                            android:orientation="vertical">
+
+                            <View
+                                android:layout_width="match_parent"
+                                android:layout_height="1dp"
+                                android:background="?colorPrimary"
+                                android:paddingTop="4dp"
+                                android:layout_marginBottom="4dp"/>
+
+                            <LinearLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:orientation="horizontal"
+                                android:layout_marginHorizontal="14dp"
+                                tools:ignore="UseCompoundDrawables">
+
+                                <TextView
+                                    android:layout_width="0dp"
+                                    android:layout_height="wrap_content"
+                                    android:layout_weight="1"
+                                    android:textSize="16sp"
+                                    android:textColor="?android:textColorPrimary"
+                                    android:gravity="center_vertical"
+                                    android:text="@string/notice_options" />
+
+                                <androidx.appcompat.widget.AppCompatImageView
+                                    android:layout_width="wrap_content"
+                                    android:gravity="center_vertical"
+                                    android:layout_gravity="end"
+                                    app:srcCompat="@drawable/ic_expand_20dp"
+                                    android:layout_height="wrap_content"
+                                    android:contentDescription="@string/description_icon"/>
+                            </LinearLayout>
+
+                            <View
+                                android:layout_width="match_parent"
+                                android:layout_height="1dp"
+                                android:background="?colorPrimary"
+                                android:layout_marginTop="4dp" />
+                        </LinearLayout>
+
+                        <LinearLayout
+                            android:id="@+id/notices"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="vertical">
+
+                            <LinearLayout
+                                android:id="@+id/dismiss"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:orientation="horizontal"
+                                android:layout_marginStart="16dp"
+                                android:layout_marginEnd="8dp"
+                                android:layout_marginBottom="6dp"
+                                android:gravity="center_vertical"
+                                android:layout_gravity="center_vertical"
+                                tools:ignore="UseCompoundDrawables,UselessParent">
+
+                                <TextView
+                                    android:id="@+id/dismiss_text"
+                                    android:layout_width="0dp"
+                                    android:layout_weight="1"
+                                    android:textSize="24sp"
+                                    android:textColor="?android:textColorPrimary"
+                                    android:gravity="center_vertical"
+                                    android:layout_height="wrap_content"
+                                    android:text="@string/options_dismiss" />
+
+                                <SeekBar
+                                    android:id="@+id/dismiss_bar"
+                                    android:layout_width="0dp"
+                                    android:layout_height="wrap_content"
+                                    android:layout_gravity="center"
+                                    android:gravity="center"
+                                    android:layout_weight="1"
+                                    android:min="1"
+                                    android:max="12"/>
+                            </LinearLayout>
+                        </LinearLayout>
+                    </LinearLayout>
+                </ScrollView>
                 <LinearLayout
-                    android:id="@+id/visibility_handle"
+                    android:id="@+id/list_divider"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginBottom="4dp"
-                    android:background="@color/backgroundTint"
                     android:orientation="vertical">
 
                     <View
-                        android:layout_width="match_parent"
-                        android:layout_height="1dp"
-                        android:paddingTop="4dp"
-                        android:layout_marginBottom="4dp"/>
-
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="horizontal"
-                        android:layout_marginHorizontal="14dp"
-                        tools:ignore="UseCompoundDrawables">
-
-                        <TextView
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:textSize="16sp"
-                            android:textColor="?android:textColorPrimary"
-                            android:gravity="center_vertical"
-                            android:text="@string/visibility_options" />
-
-                        <androidx.appcompat.widget.AppCompatImageView
-                            android:layout_width="wrap_content"
-                            android:gravity="center_vertical"
-                            android:layout_gravity="end"
-                            app:srcCompat="@drawable/ic_move_up_20dp"
-                            android:layout_height="wrap_content"
-                            android:contentDescription="@string/description_icon"/>
-                    </LinearLayout>
-
-                    <View
+                        android:id="@+id/bottom_bar"
                         android:layout_width="match_parent"
                         android:layout_height="1dp"
                         android:background="?colorPrimary"
-                        android:layout_marginTop="6dp" />
-                </LinearLayout>
-            </LinearLayout>
+                        android:layout_marginTop="4dp"/>
 
-                <com.qtalk.recyclerviewfastscroller.RecyclerViewFastScroller
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent">
-                    <androidx.recyclerview.widget.RecyclerView
-                        android:id="@+id/app_toggle_list"
+                    <LinearLayout
+                        android:id="@+id/visibility_handle"
                         android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:clipToPadding="false"
-                        android:scrollbars="vertical"
-                        android:paddingStart="4dp"
-                        android:paddingEnd="12dp"
-                        android:scrollbarSize="0dp"
-                        android:scrollbarStyle="outsideOverlay" />
-                </com.qtalk.recyclerviewfastscroller.RecyclerViewFastScroller>
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="4dp"
+                        android:background="@color/backgroundTint"
+                        android:orientation="vertical">
+
+                        <View
+                            android:layout_width="match_parent"
+                            android:layout_height="1dp"
+                            android:paddingTop="4dp"
+                            android:layout_marginBottom="4dp"/>
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal"
+                            android:layout_marginHorizontal="14dp"
+                            tools:ignore="UseCompoundDrawables">
+
+                            <TextView
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:textSize="16sp"
+                                android:textColor="?android:textColorPrimary"
+                                android:gravity="center_vertical"
+                                android:text="@string/visibility_options" />
+
+                            <androidx.appcompat.widget.AppCompatImageView
+                                android:layout_width="wrap_content"
+                                android:gravity="center_vertical"
+                                android:layout_gravity="end"
+                                app:srcCompat="@drawable/ic_move_up_20dp"
+                                android:layout_height="wrap_content"
+                                android:contentDescription="@string/description_icon"/>
+                        </LinearLayout>
+
+                        <View
+                            android:layout_width="match_parent"
+                            android:layout_height="1dp"
+                            android:background="?colorPrimary"
+                            android:layout_marginTop="6dp" />
+                    </LinearLayout>
+                </LinearLayout>
+
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/app_toggle_list"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:clipToPadding="false"
+                    android:scrollbars="vertical"
+                    android:paddingVertical="4dp"
+                    android:scrollbarSize="0dp"
+                    android:scrollbarStyle="outsideOverlay" />
             </LinearLayout>
         </eightbitlab.com.blurview.BlurView>
     </androidx.coordinatorlayout.widget.CoordinatorLayout>

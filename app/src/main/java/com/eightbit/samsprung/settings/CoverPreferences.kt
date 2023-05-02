@@ -82,6 +82,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import me.zhanghai.android.fastscroll.FastScrollerBuilder
 import java.io.*
 
 
@@ -872,12 +873,14 @@ class CoverPreferences : AppCompatActivity() {
         }
         val unlisted = packageRetriever.getHiddenPackages()
 
-        hiddenList = findViewById(R.id.app_toggle_list)
-        hiddenList.layoutManager = LinearLayoutManager(this)
-        hiddenList.addItemDecoration(
-            DividerItemDecoration(this, DividerItemDecoration.VERTICAL)
-        )
-        hiddenList.adapter = FilteredAppsAdapter(packageManager, packages, unlisted, prefs)
+        hiddenList = findViewById<RecyclerView>(R.id.app_toggle_list).apply {
+            layoutManager = LinearLayoutManager(this@CoverPreferences)
+            addItemDecoration(DividerItemDecoration(
+                this@CoverPreferences, DividerItemDecoration.VERTICAL
+            ))
+            adapter = FilteredAppsAdapter(packageManager, packages, unlisted, prefs)
+            FastScrollerBuilder(this).build()
+        }
 
         findViewById<View>(R.id.list_divider).setOnTouchListener { v: View, event: MotionEvent ->
             val y = event.y.toInt()

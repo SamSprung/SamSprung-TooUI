@@ -26,19 +26,18 @@ import androidx.appcompat.widget.AppCompatImageView
 import androidx.appcompat.widget.SwitchCompat
 import androidx.recyclerview.widget.RecyclerView
 import com.eightbit.samsprung.R
-import com.qtalk.recyclerviewfastscroller.RecyclerViewFastScroller
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import me.zhanghai.android.fastscroll.PopupTextProvider
 
 class FilteredAppsAdapter(
     private val pacMan: PackageManager,
     private var packages: MutableList<ResolveInfo>,
     private var hide: HashSet<String>,
     private val prefs: SharedPreferences
-) : RecyclerView.Adapter<FilteredAppsAdapter.HideViewHolder>(),
-    RecyclerViewFastScroller.OnPopupViewUpdate {
+) : RecyclerView.Adapter<FilteredAppsAdapter.HideViewHolder>(), PopupTextProvider {
 
     fun setPackages(packages: MutableList<ResolveInfo>, hide: HashSet<String>) {
         this.packages = packages
@@ -65,9 +64,9 @@ class FilteredAppsAdapter(
         return SimpleViewHolder(parent, pacMan, prefs, hide)
     }
 
-    override fun onUpdate(position: Int, popupTextView: TextView) {
+    override fun getPopupText(position: Int) : CharSequence {
         val item = packages[position]
-        popupTextView.text = try {
+        return try {
             item.loadLabel(pacMan)
         } catch (e: Exception) {
             item.nonLocalizedLabel ?: "?"
