@@ -68,8 +68,10 @@ class FilteredAppsAdapter(
         val item = packages[position]
         return try {
             item.loadLabel(pacMan)
-        } catch (e: Exception) {
-            item.nonLocalizedLabel ?: "?"
+        } catch (ignored: Exception) {
+            try {
+                item.nonLocalizedLabel ?: "?"
+            } catch (ignored: Exception) { "?" }
         }.toString()[0].uppercase()
     }
 
