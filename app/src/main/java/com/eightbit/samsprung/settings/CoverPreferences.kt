@@ -22,6 +22,7 @@ import android.app.WallpaperManager
 import android.content.*
 import android.content.pm.PackageManager
 import android.content.res.ColorStateList
+import android.content.res.Resources
 import android.graphics.Bitmap
 import android.graphics.Color
 import android.graphics.ImageDecoder
@@ -37,6 +38,7 @@ import android.provider.Settings
 import android.text.Spannable
 import android.text.SpannableStringBuilder
 import android.text.style.RelativeSizeSpan
+import android.util.TypedValue
 import android.view.*
 import android.view.animation.AlphaAnimation
 import android.view.animation.Animation
@@ -85,10 +87,13 @@ import kotlinx.coroutines.withContext
 import me.zhanghai.android.fastscroll.FastScrollerBuilder
 import java.io.*
 
+private val Number.toPx get() = TypedValue.applyDimension(
+    TypedValue.COMPLEX_UNIT_DIP, this.toFloat(), Resources.getSystem().displayMetrics
+).toInt()
+
+private val CharSequence.toPref get() = this.toString().lowercase().replace(" ", "_")
 
 class CoverPreferences : AppCompatActivity() {
-
-    private val CharSequence.toPref get() = this.toString().lowercase().replace(" ", "_")
 
     private val prefs: SharedPreferences by lazy {
         getSharedPreferences(Preferences.prefsValue, MODE_PRIVATE)
@@ -505,7 +510,7 @@ class CoverPreferences : AppCompatActivity() {
                 override fun onItemSelected(
                     parent: AdapterView<*>?, view: View?, position: Int, id: Long
                 ) {
-                    (parent?.getChildAt(0) as TextView).setTextColor(Color.BLACK)
+                    (getChildAt(0) as? TextView)?.setTextColor(Color.BLACK)
                     with(prefs.edit()) {
                         putInt(Preferences.prefThemes, position)
                         apply()
@@ -691,7 +696,7 @@ class CoverPreferences : AppCompatActivity() {
                 override fun onItemSelected(
                     parent: AdapterView<*>?, view: View?, position: Int, id: Long
                 ) {
-                    (parent?.getChildAt(0) as TextView).setTextColor(Color.BLACK)
+                    (getChildAt(0) as? TextView)?.setTextColor(Color.BLACK)
                     with(prefs.edit()) {
                         putInt(Preferences.prefPaging, position)
                         apply()
@@ -879,7 +884,7 @@ class CoverPreferences : AppCompatActivity() {
                 this@CoverPreferences, DividerItemDecoration.VERTICAL
             ))
             adapter = FilteredAppsAdapter(packageManager, packages, unlisted, prefs)
-            FastScrollerBuilder(this).build()
+            FastScrollerBuilder(this).build().setPadding(0, (-4).toPx,0,0)
         }
 
         findViewById<View>(R.id.list_divider).setOnTouchListener { v: View, event: MotionEvent ->
