@@ -65,6 +65,7 @@ class FilteredAppsAdapter(
     }
 
     override fun getPopupText(position: Int) : CharSequence {
+        if (position >= packages.size) return "?"
         val item = packages[position]
         return try {
             item.loadLabel(pacMan)
@@ -72,7 +73,7 @@ class FilteredAppsAdapter(
             try {
                 item.nonLocalizedLabel ?: "?"
             } catch (ignored: Exception) { "?" }
-        }.toString()[0].uppercase()
+        }[0].uppercase()
     }
 
     override fun onBindViewHolder(holder: HideViewHolder, position: Int) {
