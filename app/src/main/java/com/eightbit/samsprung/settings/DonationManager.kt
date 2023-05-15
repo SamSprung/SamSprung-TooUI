@@ -1,7 +1,6 @@
 package com.eightbit.samsprung.settings
 
 import android.annotation.SuppressLint
-import android.app.Dialog
 import android.content.Intent
 import android.content.res.Resources
 import android.graphics.Color
@@ -38,8 +37,6 @@ class DonationManager internal constructor(private val activity: CoverPreference
     private lateinit var billingClient: BillingClient
     private val iapSkuDetails: ArrayList<ProductDetails> = arrayListOf()
     private val subSkuDetails: ArrayList<ProductDetails> = arrayListOf()
-
-    private val backgroundScope = CoroutineScope(Dispatchers.IO)
 
     private fun getIAP(amount: Int) : String {
         return String.format("subscription_%02d", amount)
@@ -171,13 +168,13 @@ class DonationManager internal constructor(private val activity: CoverPreference
     }
 
     fun retrieveDonationMenu() {
-        billingClient = BillingClient.newBuilder(activity)
-            .setListener(purchasesUpdatedListener).enablePendingPurchases().build()
+        CoroutineScope(Dispatchers.IO).launch(Dispatchers.IO) {
+            billingClient = BillingClient.newBuilder(activity)
+                .setListener(purchasesUpdatedListener).enablePendingPurchases().build()
 
-        iapSkuDetails.clear()
-        subSkuDetails.clear()
+            iapSkuDetails.clear()
+            subSkuDetails.clear()
 
-        backgroundScope.launch(Dispatchers.IO) {
             val clientResponseCode = billingClient.connect().responseCode
             if (clientResponseCode == BillingClient.BillingResponseCode.OK) {
                 iapList.add(getIAP(1))
@@ -271,8 +268,8 @@ class DonationManager internal constructor(private val activity: CoverPreference
 
     @SuppressLint("InflateParams")
     fun onSendDonationClicked() {
-        (activity.layoutInflater.inflate(R.layout.donation_layout, null) as LinearLayout).run {
-            val donateDialog: Dialog = AlertDialog.Builder(
+        with (activity.layoutInflater.inflate(R.layout.donation_layout, null) as LinearLayout) {
+           AlertDialog.Builder(
                 ContextThemeWrapper(activity, R.style.Theme_Overlay_NoActionBar)
             ).apply {
                 findViewById<LinearLayout>(R.id.donation_layout).also { layout ->
@@ -306,48 +303,49 @@ class DonationManager internal constructor(private val activity: CoverPreference
                         }
                     }
                 }
-            }.setView(this).show()
+            }.setView(this).show().also { donateDialog ->
+               val padding = TypedValue.applyDimension(
+                   TypedValue.COMPLEX_UNIT_DIP, 4f, Resources.getSystem().displayMetrics
+               ).toInt()
+               val params = LinearLayout.LayoutParams(
+                   LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT
+               )
+               params.setMargins(0, padding, 0, padding)
 
-            if (SamSprung.hasSubscription) {
-                val padding = TypedValue.applyDimension(
-                    TypedValue.COMPLEX_UNIT_DIP, 4f, Resources.getSystem().displayMetrics
-                ).toInt()
-                val params = LinearLayout.LayoutParams(
-                    LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT
-                )
-                params.setMargins(0, padding, 0, padding)
+               if (SamSprung.hasSubscription) {
+                   addView(activity.layoutInflater.inflate(R.layout.button_cancel_sub, null).apply {
+                       setOnClickListener {
+                           activity.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(
+                               "https://support.google.com/googleplay/workflow/9827184"
+                           )))
+                           donateDialog.cancel()
+                       }
+                       layoutParams = params
+                   })
+               }
 
-                addView(activity.layoutInflater.inflate(R.layout.button_cancel_sub, null).apply {
-                    setOnClickListener {
-                        activity.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(
-                            "https://support.google.com/googleplay/workflow/9827184"
-                        )))
-                        donateDialog.cancel()
-                    }
-                    layoutParams = params
-                })
-            }
+               if (!BuildConfig.GOOGLE_PLAY) {
+                   addView(activity.layoutInflater.inflate(R.layout.button_sponsor, null).apply {
+                       setOnClickListener {
+                           activity.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(
+                               "https://github.com/sponsors/AbandonedCart"
+                           )))
+                           donateDialog.cancel()
+                       }
+                       layoutParams = params
+                   })
 
-            if (!BuildConfig.GOOGLE_PLAY) {
-                addView(activity.layoutInflater.inflate(R.layout.button_sponsor, null).apply {
-                    setOnClickListener {
-                        activity.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(
-                            "https://github.com/sponsors/AbandonedCart"
-                        )))
-                        donateDialog.cancel()
-                    }
-                })
-
-                addView(activity.layoutInflater.inflate(R.layout.button_paypal, null).apply {
-                    setOnClickListener {
-                        activity.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(
-                            "https://www.paypal.com/donate/?hosted_button_id=Q2LFH2SC8RHRN"
-                        )))
-                        donateDialog.cancel()
-                    }
-                })
-            }
-            donateDialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+                   addView(activity.layoutInflater.inflate(R.layout.button_paypal, null).apply {
+                       setOnClickListener {
+                           activity.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(
+                               "https://www.paypal.com/donate/?hosted_button_id=Q2LFH2SC8RHRN"
+                           )))
+                           donateDialog.cancel()
+                       }
+                   })
+               }
+               donateDialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+           }
         }
     }
 }
