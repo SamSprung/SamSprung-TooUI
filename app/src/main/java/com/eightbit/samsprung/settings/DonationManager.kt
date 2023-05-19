@@ -168,10 +168,10 @@ class DonationManager internal constructor(private val activity: CoverPreference
     }
 
     fun retrieveDonationMenu() {
-        CoroutineScope(Dispatchers.IO).launch(Dispatchers.IO) {
-            billingClient = BillingClient.newBuilder(activity)
-                .setListener(purchasesUpdatedListener).enablePendingPurchases().build()
+        billingClient = BillingClient.newBuilder(activity)
+            .setListener(purchasesUpdatedListener).enablePendingPurchases().build()
 
+        CoroutineScope(Dispatchers.IO).launch(Dispatchers.IO) {
             iapSkuDetails.clear()
             subSkuDetails.clear()
 

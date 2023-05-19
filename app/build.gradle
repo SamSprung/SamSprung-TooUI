@@ -111,18 +111,20 @@ dependencies {
     implementation 'androidx.activity:activity-ktx:1.7.1'
     implementation 'androidx.appcompat:appcompat:1.6.1'
     implementation 'androidx.cardview:cardview:1.0.0'
-    implementation 'androidx.core:core-ktx:1.10.0'
+    implementation 'androidx.core:core-ktx:1.10.1'
     implementation 'androidx.fragment:fragment-ktx:1.5.7'
     implementation 'androidx.recyclerview:recyclerview:1.3.0'
     implementation 'androidx.window:window-java:1.0.0'
 
-    implementation 'com.android.billingclient:billing:5.2.0'
+    implementation 'com.android.billingclient:billing:6.0.0'
 
-    implementation 'com.github.8bitdream:AndroidFastScroll:bc9a2b7b6f'
+    implementation 'com.github.8bitdream:AndroidFastScroll:4cb96477d5'
 
     implementation 'com.google.android.material:material:1.9.0'
     implementation 'com.google.android.play:core:1.10.3'
     implementation 'com.google.android.play:core-ktx:1.8.1'
 
     implementation 'org.lsposed.hiddenapibypass:hiddenapibypass:4.3'
+
+    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.6.4'
 }

@@ -1091,9 +1091,10 @@ class SamSprungOverlay : AppCompatActivity() {
                     getString(R.string.update_service, organization)
                 animate = TranslateAnimation(
                     0f, 0f, 0f, -fakeSnackbar.height.toFloat()
-                )
-                animate.duration = 500
-                animate.fillAfter = true
+                ).apply {
+                    duration = 500
+                    fillAfter = true
+                }
                 fakeSnackbar.setAnimationListener(object : AnimatedLinearLayout.AnimationListener {
                     override fun onAnimationStart(layout: AnimatedLinearLayout) {}
                     override fun onAnimationEnd(layout: AnimatedLinearLayout) {

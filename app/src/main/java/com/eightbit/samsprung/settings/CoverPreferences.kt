@@ -313,9 +313,10 @@ class CoverPreferences : AppCompatActivity() {
             if (colorPanel.isVisible) {
                 val animate = TranslateAnimation(
                     0f, 0f, 0f, -colorPanel.height.toFloat()
-                )
-                animate.duration = 750
-                animate.fillAfter = false
+                ).apply {
+                    duration = 750
+                    fillAfter = false
+                }
                 colorPanel.setAnimationListener(object : AnimatedLinearLayout.AnimationListener {
                     override fun onAnimationStart(layout: AnimatedLinearLayout) {
                         colorPanel.postDelayed({

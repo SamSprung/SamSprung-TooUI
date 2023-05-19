@@ -135,19 +135,17 @@ class Debug(private var context: Context) {
     }
 
     companion object {
-        private val manufacturer : String
-            get() {
-                return try {
-                    @SuppressLint("PrivateApi")
-                    val c = Class.forName("android.os.SystemProperties")
-                    val get = c.getMethod("get", String::class.java)
-                    val name = get.invoke(c, "ro.product.manufacturer") as String
-                    name.ifEmpty { "Unknown" }
-                } catch (e: Exception) {
-                    Build.MANUFACTURER
-                }
+        private val manufacturer: String by lazy {
+            try {
+                @SuppressLint("PrivateApi")
+                val c = Class.forName("android.os.SystemProperties")
+                val get = c.getMethod("get", String::class.java)
+                val name = get.invoke(c, "ro.product.manufacturer") as String
+                name.ifEmpty { "Unknown" }
+            } catch (e: Exception) {
+                Build.MANUFACTURER
             }
-
+        }
         val isOppoDevice: Boolean get() = manufacturer == "OPPO"
     }
 }
