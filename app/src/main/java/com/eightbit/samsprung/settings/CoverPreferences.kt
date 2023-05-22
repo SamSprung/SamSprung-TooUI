@@ -140,11 +140,7 @@ class CoverPreferences : AppCompatActivity() {
 
         coordinator = findViewById(R.id.coordinator)
         @Suppress("deprecation")
-        findViewById<BlurView>(R.id.blurContainer).setupWith(coordinator,
-            if (Version.isSnowCone)
-                RenderEffectBlur()
-            else RenderScriptBlur(this)
-        )
+        findViewById<BlurView>(R.id.blurContainer).setupWith(coordinator)
             .setFrameClearDrawable(coordinator.background)
             .setBlurRadius(10f).setBlurAutoUpdate(true)
 

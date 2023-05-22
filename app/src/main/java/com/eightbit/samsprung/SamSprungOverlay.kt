@@ -267,13 +267,8 @@ class SamSprungOverlay : AppCompatActivity() {
 
         val blurView = findViewById<BlurView>(R.id.blurContainer)
         if (prefs.getBoolean(Preferences.prefRadius, true)) {
-            blurView.setupWith(coordinator,
-                if (Version.isSnowCone)
-                    RenderEffectBlur()
-                else
-                    @Suppress("deprecation")
-                    RenderScriptBlur(this)
-            ).setFrameClearDrawable(coordinator.background)
+            blurView.setupWith(coordinator)
+                .setFrameClearDrawable(coordinator.background)
                 .setBlurRadius(1f).setBlurAutoUpdate(true)
         }
 
