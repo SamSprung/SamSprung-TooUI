@@ -73,16 +73,16 @@ class AppDrawerFragment : Fragment(), DrawerAppAdapter.OnAppClickListener {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        launcherView = view.findViewById(R.id.appsList)
-        // launcherView.setHasFixedSize(true)
+        launcherView = view.findViewById<RecyclerView>(R.id.appsList).apply {
+            setItemViewCacheSize(40)
+        }
 
         val packageRetriever = PackageRetriever(requireActivity())
         val packages = packageRetriever.getFilteredPackageList()
 
-        val adapter = DrawerAppAdapter(
+        launcherView.adapter = DrawerAppAdapter(
             packages, this, requireActivity().packageManager, prefs
         )
-        launcherView.adapter = adapter
 
         (requireActivity() as SamSprungOverlay).getSearchView()?.apply {
             launcherView.updatePadding(bottom = 64)
@@ -200,9 +200,13 @@ class AppDrawerFragment : Fragment(), DrawerAppAdapter.OnAppClickListener {
     override fun onResume() {
         super.onResume()
         if (prefs.getBoolean(Preferences.prefLayout, true)) {
-            launcherView.layoutManager = GridLayoutManager(activity, getColumnCount())
+            launcherView.layoutManager = GridLayoutManager(activity, getColumnCount()).apply {
+                initialPrefetchItemCount = 10
+            }
         } else {
-            launcherView.layoutManager = LinearLayoutManager(activity)
+            launcherView.layoutManager = LinearLayoutManager(activity).apply {
+                initialPrefetchItemCount = 10
+            }
             launcherView.addItemDecoration(DividerItemDecoration(activity,
                 DividerItemDecoration.VERTICAL))
         }

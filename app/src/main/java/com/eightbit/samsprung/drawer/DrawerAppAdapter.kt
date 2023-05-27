@@ -58,22 +58,36 @@ class DrawerAppAdapter(
         return filteredData[i]
     }
 
+    init {
+        setHasStableIds(true)
+    }
+
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): AppViewHolder {
         return if (prefs.getBoolean(Preferences.prefLayout, true))
-            SimpleGridHolder(parent, listener, packageManager, prefs)
-        else return SimpleViewHolder(parent, listener, packageManager, prefs)
+            SimpleGridHolder(parent, listener, packageManager, prefs).apply {
+                itemView.setOnClickListener {
+                    if (null != listener)
+                        listener.onAppClicked(resolveInfo, bindingAdapterPosition)
+                }
+                iconView.setOnClickListener {
+                    if (null != listener)
+                        listener.onAppClicked(resolveInfo, bindingAdapterPosition)
+                }
+            }
+        else return SimpleViewHolder(parent, listener, packageManager, prefs).apply {
+            itemView.setOnClickListener {
+                if (null != listener)
+                    listener.onAppClicked(resolveInfo, bindingAdapterPosition)
+            }
+            iconView.setOnClickListener {
+                if (null != listener)
+                    listener.onAppClicked(resolveInfo, bindingAdapterPosition)
+            }
+        }
     }
 
     override fun onBindViewHolder(holder: AppViewHolder, position: Int) {
-        holder.itemView.setOnClickListener {
-            if (null != holder.listener)
-                holder.listener.onAppClicked(holder.resolveInfo, position)
-        }
-        holder.iconView.setOnClickListener {
-            if (null != holder.listener)
-                holder.listener.onAppClicked(holder.resolveInfo, position)
-        }
-        holder.bind(getItem(position))
+        holder.bind(getItem(holder.bindingAdapterPosition))
     }
 
     fun setQuery(query: String) {

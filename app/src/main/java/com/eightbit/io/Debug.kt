@@ -111,11 +111,9 @@ class Debug(private var context: Context) {
             val separator = System.getProperty("line.separator") ?: "\n"
             val log = getDeviceProfile(isSecureDevice)
             var line: String?
-            val mLogcatProc: Process = Runtime.getRuntime().exec(arrayOf(
-                "logcat", "-d", "-t", "192", BuildConfig.APPLICATION_ID,
-                "AndroidRuntime", "System.err",
-                "AppIconSolution:S", "ViewRootImpl*:S",
-                "IssueReporterActivity:S", "*:W"
+            val mLogcatProc = Runtime.getRuntime().exec(arrayOf(
+                "logcat", "-d", "-t", "256", "--pid=${android.os.Process.myPid()}",
+                "*:W", "AndroidRuntime", "System.err", "AppIconSolution*:S", "ViewRootImpl*:S"
             ))
             val reader = BufferedReader(InputStreamReader(mLogcatProc.inputStream))
             log.append(separator).append(separator)
