@@ -1,0 +1,126 @@
+<resources xmlns:ns0="http://schemas.android.com/tools" ns0:ignore="MissingTranslation">
+    <string name="permission_options">Uprawnienia</string>
+    <string name="permission_notifications">Powiadomienia</string>
+    <string name="details_notifications">Wyświetlanie powiadomień i interakcja z nimi</string>
+    <string name="permission_voice">Uruchamianie głosowe</string>
+    <string name="details_voice">Zezwalanie na uruchamianie aplikacji aktywowanych głosem</string>
+    <string name="permission_usage">Dostęp do użytkowania</string>
+    <string name="details_usage">Sortuj szufladę aplikacji według ostatnio używanych</string>
+    <string name="permission_optimization">Ignorowanie baterii</string>
+    <string name="details_optimization">Zapobieganie przedwczesnemu zakończeniu usługi</string>
+    <string name="permission_accessibility">Dostępność</string>
+    <string name="details_accessibility">Włącz przycisk Wstecz w nawigacji</string>
+
+    <string name="config_options">Zgodność</string>
+    <string name="options_keyboard">Klawiatura / IME</string>
+    <string name="details_keyboard">$1.99 może utrzymać aktywny rozwój</string>
+
+    <string name="general_options">Ustawienia okładki</string>
+    <string name="options_placement">Wyrównanie ikon</string>
+    <string name="options_theme">Wybór motywu</string>
+    <string-array name="theme_options">
+        <item>Auto</item>
+        <item>Ciemny</item>
+        <item>Jasny</item>
+    </string-array>
+    <string name="toggle_options">Przełączniki</string>
+
+    <string name="drawer_options">Opcje szuflady</string>
+    <string name="options_fab_size">Użyj dużej ikony</string>
+    <string name="options_vibration">Przycisk sprzężenia zwrotnego</string>
+    <string name="options_gestures">Gest szuflady</string>
+    <string name="options_viewpager">Przejście strony</string>
+    <string name="options_length">Aplikacje w wierszu %1$s</string>
+    <string name="options_search">Pasek wyszukiwania aplikacji</string>
+    <string name="options_wallpaper">Ustaw tapetę</string>
+    <string name="options_radius">Rozmycie tapety</string>
+    <string name="options_timeout">Limit czasu ekranu %1$s</string>
+
+    <string name="swap_viewgrid">Przełącz widok siatki na styl widoku listy</string>
+    <string name="swap_viewlist">Przełącz widok listy na styl siatki</string>
+
+    <string name="notice_options">Powiadomienia</string>
+    <string name="options_dismiss">Długość drzemki (%1$sᵐ)</string>
+
+    <string name="visibility_options">Ukryj / Pokaż aplikacje</string>
+
+    <string name="donate_link">Przekaż darowiznę</string>
+    <string name="google_link">Przekaż darowiznę za pomocą Google Play</string>
+    <string name="sponsor_link">Sponsoruj na GitHub</string>
+    <string name="paypal_link">Przekaż darowiznę za pomocą PayPal</string>
+    <string name="cancel_link">Anuluj subskrypcję</string>
+    <string name="logcat_link">Problem?</string>
+    <string name="logcat_crash">BŁĄD! Przesłać log?</string>
+
+    <string name="keyboard_missing">Wymagana klawiatura!</string>
+    <string name="wallpaper_cleared">Reset tapety!</string>
+
+    <string name="button_confirm">Potwierdź</string>
+    <string name="button_cancel">Anuluj</string>
+    <string name="button_wiki">Odwiedź Wiki</string>
+    <string name="button_uninstall">Odinstaluj</string>
+    <string name="button_disable">Wyłącz</string>
+
+    <string name="color_red">Czerwony</string>
+    <string name="color_green">Zielony</string>
+    <string name="color_blue">Niebieski</string>
+    <string name="color_alpha">Krycie paska nakładki</string>
+
+    <string name="overlay_service">%1$s Usługa nakładki</string>
+    <string name="display_service">%1$s Usługa wyświetlania</string>
+    <string name="update_service">%1$s Dostępna aktualizacja</string>
+
+    <string name="loading_text">Loading&#8230;</string>
+
+    <string name="sub_button">%1$s Miesięczna darowizna</string>
+    <string name="iap_button">%1$s Jednorazowa darowizna</string>
+    <string name="donation_thanks">Dziękujemy za wsparcie TooUI!</string>
+
+    <string name="menu_recent">Ostatnie</string>
+    <string name="menu_home">Strona główna</string>
+    <string name="menu_back">Wstecz</string>
+
+    <string name="toggle_wifi">Przełącz Wifi</string>
+    <string name="toggle_bluetooth">Przełącz Bluetooth</string>
+    <string name="toggle_nfc">Przełącz NFC</string>
+    <string name="toggle_sound">Przełącz dźwięk</string>
+    <string name="toggle_dnd">Przełącz DnD</string>
+    <string name="toggle_torch">Przełącz latarkę</string>
+    <string name="toggle_widgets">Przełącz widżety</string>
+    <string name="color_theme">Kolor akcentu menu</string>
+
+    <string name="tiramisu_bluetooth">Bluetooth ograniczony (Android 13)</string>
+
+    <string name="incompatibility_warning">SamSprung nie jest kompatybilny z aplikacjami, które blokują cały ekran.\nProsimy usunąć lub wyłączyć tę aplikację, aby kontynuować.</string>
+    <string name="cover_switch_warning">Główny przełącznik musi być włączony, aby pojawić się na okładce.\nNaciśnij ponownie przycisk Wstecz, aby wyjść z SamSprung TooUI.</string>
+
+    <string name="display_unavailable">Wymaga więcej niż jednego wyświetlacza!</string>
+
+    <string name="main_screen_required">Otwórz urządzenie, aby kontynuować</string>
+    <string name="incompatible_fragment">Panel nie może zostać usunięty</string>
+
+    <string name="accessibility_directions">Kliknij potwierdź, aby otworzyć Dostępność\n\nZainstalowane aplikacje -&gt; SamSprung Navigation\n -&gt; Włącz przełącznik -&gt; Zezwól, aby włączyć.</string>
+    <string name="accessibility_service">SamSprung Navigation</string>
+    <string name="accessibility_details">Włącz wirtualną nawigację i wsparcie sprzętowe.</string>
+
+    <string name="btn_close_tip">Zamknij Launcher</string>
+
+    <string name="rotation_lock">Zablokować aplikacje do portretu?</string>
+    <string name="rotation_lock_action">Zablokuj</string>
+    <string name="btn_rotation_tip">Blokada obrotu</string>
+
+    <string name="lock_enabled">Urządzenie jest zablokowane!</string>
+    <string name="fingerprint_required">Odblokuj urządzenie za pomocą odcisku palca</string>
+    <string name="auth_unavailable">Aby kontynuować, wymagane jest odblokowanie Bixby!</string>
+    <string name="oppo_auth_unavailable">Blokada OPPO Secure nie jest obsługiwana!</string>
+    <string name="auth_required">Wymagany odcisk palca!</string>
+    <string name="auth_required_action">Skanuj</string>
+    <string name="btn_auth_tip">Status uwierzytelniania</string>
+
+    <string name="widget_cancel">Anulowanie wyboru widżetu</string>
+    
+    <string name="out_of_space">Anulowano dodawanie widżetu</string>
+    
+    <string name="gadget_error_text">Problem z załadowaniem widżetu</string>
+    <string name="widget_error">Widżet niedostępny!</string>
+</resources>

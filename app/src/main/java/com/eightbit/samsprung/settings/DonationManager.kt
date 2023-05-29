@@ -97,8 +97,8 @@ class DonationManager internal constructor(private val activity: CoverPreference
 
     private val subsOwnedListener = PurchasesResponseListener { billingResult, purchases ->
         if (billingResult.responseCode == BillingClient.BillingResponseCode.OK) {
-            purchases.forEach {
-                run breaking@{
+            run breaking@{
+                purchases.forEach {
                     it.products.forEach { sku ->
                         if (subsPurchased.contains(sku)) {
                             SamSprung.hasSubscription = true
@@ -121,8 +121,8 @@ class DonationManager internal constructor(private val activity: CoverPreference
 
     private val iapHistoryListener = PurchaseHistoryResponseListener { billingResult, purchases ->
         if (billingResult.responseCode == BillingClient.BillingResponseCode.OK && null != purchases) {
-            purchases.forEach {
-                run breaking@{
+            run breaking@{
+                purchases.forEach {
                     it.products.forEach { sku ->
                         if (sku.split("_").toTypedArray()[1].toInt() >= 10) {
                             return@breaking

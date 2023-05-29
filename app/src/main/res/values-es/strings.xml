@@ -1,4 +1,126 @@
-<resources>
-    <string name="description_icon">Icono</string>
-    <string name="lock_enabled">El dispositivo está bloqueado!</string>
+<resources xmlns:ns0="http://schemas.android.com/tools" ns0:ignore="MissingTranslation">
+    <string name="permission_options">Permisos</string>
+    <string name="permission_notifications">Notificaciones</string>
+    <string name="details_notifications">Ver notificaciones e interactuar con ellas</string>
+    <string name="permission_voice">Inicio por voz</string>
+    <string name="details_voice">Permitir el inicio de aplicaciones activadas por voz</string>
+    <string name="permission_usage">Acceso de uso</string>
+    <string name="details_usage">Ordenar el cajón de aplicaciones por las usadas recientemente</string>
+    <string name="permission_optimization">Ignorar batería</string>
+    <string name="details_optimization">Impedir la finalización anticipada del servicio</string>
+    <string name="permission_accessibility">Accesibilidad</string>
+    <string name="details_accessibility">Activar el botón Atrás en la navegación</string>
+
+    <string name="config_options">Compatibilidad</string>
+    <string name="options_keyboard">Teclado / IME</string>
+    <string name="details_keyboard">$1.99 puede mantener el desarrollo activo</string>
+
+    <string name="general_options">Ajustes de portada</string>
+    <string name="options_placement">Alineación de iconos</string>
+    <string name="options_theme">Selección de tema</string>
+    <string-array name="theme_options">
+        <item>Auto</item>
+        <item>Oscuro</item>
+        <item>Claro</item>
+    </string-array>
+    <string name="toggle_options">Alternar</string>
+
+    <string name="drawer_options">Opciones de cajón</string>
+    <string name="options_fab_size">Usar icono grande</string>
+    <string name="options_vibration">Retroalimentación del botón</string>
+    <string name="options_gestures">Gesto del cajón</string>
+    <string name="options_viewpager">Transición de página</string>
+    <string name="options_length">Aplicaciones por fila %1$s</string>
+    <string name="options_search">Barra de búsqueda de aplicaciones</string>
+    <string name="options_wallpaper">Establecer fondo de pantalla</string>
+    <string name="options_radius">Desenfoque del fondo de pantalla</string>
+    <string name="options_timeout">Tiempo de espera de pantalla %1$s</string>
+
+    <string name="swap_viewgrid">Cambiar GridView a ListView</string>
+    <string name="swap_viewlist">Cambiar estilo ListView a GridView</string>
+
+    <string name="notice_options">Notificaciones</string>
+    <string name="options_dismiss">Duración de la repetición (%1$sᵐ)</string>
+
+    <string name="visibility_options">Ocultar / Mostrar aplicaciones</string>
+
+    <string name="donate_link">Donar</string>
+    <string name="google_link">Donar con Google Play</string>
+    <string name="sponsor_link">Patrocinar en GitHub</string>
+    <string name="paypal_link">Donar con PayPal</string>
+    <string name="cancel_link">Cancelar suscripción</string>
+    <string name="logcat_link">¿Algún problema?</string>
+    <string name="logcat_crash">¡ERROR! ¿Enviar un registro?</string>
+
+    <string name="keyboard_missing">¡Necesito teclado!</string>
+    <string name="wallpaper_cleared">¡Restablecer fondo de pantalla!</string>
+
+    <string name="button_confirm">Confirmar</string>
+    <string name="button_cancel">Cancelar</string>
+    <string name="button_wiki">Visitar Wiki</string>
+    <string name="button_uninstall">Desinstalar</string>
+    <string name="button_disable">Desactivar</string>
+
+    <string name="color_red">Rojo</string>
+    <string name="color_green">Verde</string>
+    <string name="color_blue">Azul</string>
+    <string name="color_alpha">Opacidad de la barra de cobertura</string>
+
+    <string name="overlay_service">%1$s Servicio de superposición</string>
+    <string name="display_service">%1$s Servicio de visualización</string>
+    <string name="update_service">%1$s Actualización disponible</string>
+
+    <string name="loading_text">Cargando&#8230;</string>
+
+    <string name="sub_button">%1$s Donación mensual</string>
+    <string name="iap_button">%1$s Donación única</string>
+    <string name="donation_thanks">¡Gracias por apoyar TooUI!</string>
+
+    <string name="menu_recent">Reciente</string>
+    <string name="menu_home">Inicio</string>
+    <string name="menu_back">Atrás</string>
+
+    <string name="toggle_wifi">Activar Wifi</string>
+    <string name="toggle_bluetooth">Activar Bluetooth</string>
+    <string name="toggle_nfc">Activar NFC</string>
+    <string name="toggle_sound">Activar Sonido</string>
+    <string name="toggle_dnd">Activar DnD</string>
+    <string name="toggle_torch">Alternar Linterna</string>
+    <string name="toggle_widgets">Activar widgets</string>
+    <string name="color_theme">Menú Color de acento</string>
+
+    <string name="tiramisu_bluetooth">Bluetooth restringido (Android 13)</string>
+
+    <string name="incompatibility_warning">SamSprung no es compatible con aplicaciones que bloquean toda la pantalla.\nPor favor, elimina o desactiva esta aplicación para continuar.</string>
+    <string name="cover_switch_warning">El interruptor principal debe estar activado para que aparezca en la cubierta.\NPulsa de nuevo el botón atrás para salir de SamSprung TooUI.</string>
+
+    <string name="display_unavailable">¡Necesita más de una pantalla!</string>
+
+    <string name="main_screen_required">Abre el dispositivo para continuar</string>
+    <string name="incompatible_fragment">El panel no se puede borrar</string>
+
+    <string name="accessibility_directions">Pulsa confirmar para abrir Accesibilidad\nAplicaciones instaladas -&gt; SamSprung Navigation\n -&gt; Activar -&gt; Permitir para habilitar.</string>
+    <string name="accessibility_service">Navegación SamSprung</string>
+    <string name="accessibility_details">Habilitar acción de navegación virtual y soporte de hardware.</string>
+
+    <string name="btn_close_tip">Cerrar Launcher</string>
+
+    <string name="rotation_lock">¿Bloquear aplicaciones en vertical?</string>
+    <string name="rotation_lock_action">Bloquear</string>
+    <string name="btn_rotation_tip">Bloqueo de rotación</string>
+
+    <string name="lock_enabled">¡El dispositivo está bloqueado!</string>
+    <string name="fingerprint_required">Desbloquea el dispositivo con tu huella dactilar</string>
+    <string name="auth_unavailable">¡Se requiere desbloqueo Bixby para continuar!</string>
+    <string name="oppo_auth_unavailable">¡No se admite el bloqueo seguro de OPPO!</string>
+    <string name="auth_required">¡Se requiere huella dactilar!</string>
+    <string name="auth_required_action">Escanear</string>
+    <string name="btn_auth_tip">Estado de autenticación</string>
+
+    <string name="widget_cancel">Cancelar selección de widget</string>
+    
+    <string name="out_of_space">Añadido widget cancelado</string>
+    
+    <string name="gadget_error_text">Problema al cargar el widget</string>
+    <string name="widget_error">¡Widget no disponible!</string>
 </resources>
