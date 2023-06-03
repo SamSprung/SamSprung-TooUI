@@ -6,7 +6,7 @@ import android.os.Message
 import android.os.MessageQueue
 import com.eightbit.samsprung.SamSprungOverlay
 import java.lang.ref.SoftReference
-import java.util.*
+import java.util.LinkedList
 
 class DesktopBinder(
     launcher: SamSprungOverlay, shortcuts: ArrayList<WidgetInfo?>?,

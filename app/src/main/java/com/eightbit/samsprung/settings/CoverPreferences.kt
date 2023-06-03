@@ -78,8 +78,6 @@ import com.eightbit.view.AnimatedLinearLayout
 import com.google.android.material.color.MaterialColors
 import com.google.android.material.snackbar.Snackbar
 import eightbitlab.com.blurview.BlurView
-import eightbitlab.com.blurview.RenderEffectBlur
-import eightbitlab.com.blurview.RenderScriptBlur
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -139,7 +137,6 @@ class CoverPreferences : AppCompatActivity() {
         donationManager.retrieveDonationMenu()
 
         coordinator = findViewById(R.id.coordinator)
-        @Suppress("deprecation")
         findViewById<BlurView>(R.id.blurContainer).setupWith(coordinator)
             .setFrameClearDrawable(coordinator.background)
             .setBlurRadius(10f).setBlurAutoUpdate(true)
@@ -1161,7 +1158,7 @@ class CoverPreferences : AppCompatActivity() {
     }
 
     private fun isDeviceSecure(): Boolean {
-        return (getSystemService(KEYGUARD_SERVICE) as KeyguardManager).isDeviceSecure
+        return with (getSystemService(KEYGUARD_SERVICE) as KeyguardManager) { isDeviceSecure }
     }
 
     private fun hasPermission(permission: String) : Boolean {

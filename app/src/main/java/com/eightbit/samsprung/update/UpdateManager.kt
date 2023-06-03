@@ -44,11 +44,11 @@ import org.json.JSONTokener
 import java.io.File
 import java.io.FileOutputStream
 import java.net.URL
-import java.util.*
+import java.util.Locale
 
 class UpdateManager(private var activity: AppCompatActivity) {
 
-    private var listener: UpdateListener? = null
+    private var updateListener: UpdateListener? = null
     private var appUpdateManager: AppUpdateManager? = null
     private var isUpdateAvailable = false
 
@@ -68,7 +68,7 @@ class UpdateManager(private var activity: AppCompatActivity) {
                 .UPDATE_AVAILABLE && appUpdateInfo.isUpdateTypeAllowed(AppUpdateType.IMMEDIATE)
             if (isUpdateAvailable) {
                 appUpdate = appUpdateInfo
-                listener?.onUpdateFound()
+                updateListener?.onUpdateFound()
             }
         }
     }
@@ -174,7 +174,7 @@ class UpdateManager(private var activity: AppCompatActivity) {
                         isUpdateAvailable = BuildConfig.COMMIT != lastCommit
                         if (isUpdateAvailable) {
                             updateUrl = asset["browser_download_url"] as String
-                            listener?.onUpdateFound()
+                            updateListener?.onUpdateFound()
                         }
                     } catch (ignored: JSONException) { }
                 }
@@ -196,7 +196,7 @@ class UpdateManager(private var activity: AppCompatActivity) {
     }
 
     fun setUpdateListener(listener: UpdateListener) {
-        this.listener = listener
+        updateListener = listener
     }
 
     interface UpdateListener {

@@ -127,17 +127,15 @@ class PanelWidgetManager(
         ).apply {
             setOnCancelListener {
                 previews.children.forEach {
-                    mWidgetPreviewLoader.recycleBitmap(
-                        it.tag, (it as AppCompatImageView).drawable.toBitmap()
-                    )
+                    val imageView = it as AppCompatImageView
+                    mWidgetPreviewLoader.recycleBitmap(it.tag, imageView.drawable.toBitmap())
                 }
                 previews.removeAllViewsInLayout()
             }
             setOnDismissListener {
                 previews.children.forEach {
-                    mWidgetPreviewLoader.recycleBitmap(
-                        it.tag, (it as AppCompatImageView).drawable.toBitmap()
-                    )
+                    val imageView = it as AppCompatImageView
+                    mWidgetPreviewLoader.recycleBitmap(it.tag, imageView.drawable.toBitmap())
                 }
                 previews.removeAllViewsInLayout()
             }
@@ -151,10 +149,8 @@ class PanelWidgetManager(
                 info, overlay.window.decorView.width, overlay.window.decorView.height,
                 null, previewSizeBeforeScale
             )
-            previews.addView(
-                (overlay.layoutInflater.inflate(
-                    R.layout.widget_preview, null
-                ) as AppCompatImageView).apply {
+            val imageView = overlay.layoutInflater.inflate(R.layout.widget_preview, null) as AppCompatImageView
+            previews.addView(imageView.apply {
                 adjustViewBounds = true
                 setImageBitmap(preview)
                 setOnClickListener {
@@ -208,7 +204,8 @@ class PanelWidgetManager(
                             if (it is AppWidgetHostView) layout.removeView(it)
                         }
                     } catch (ignored: Exception) { }
-                    (view as LinearLayout).addView(item.hostView, params)
+                    val layout = view as LinearLayout
+                    layout.addView(item.hostView, params)
                 }
             })
         }

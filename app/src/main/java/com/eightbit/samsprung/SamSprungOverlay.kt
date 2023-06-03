@@ -83,8 +83,6 @@ import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.snackbar.Snackbar
 import eightbitlab.com.blurview.BlurView
-import eightbitlab.com.blurview.RenderEffectBlur
-import eightbitlab.com.blurview.RenderScriptBlur
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -142,7 +140,7 @@ class SamSprungOverlay : AppCompatActivity() {
 
     private val vibrator: Vibrator by lazy {
         if (Version.isSnowCone)
-            (getSystemService(VIBRATOR_MANAGER_SERVICE) as VibratorManager).defaultVibrator
+            with (getSystemService(VIBRATOR_MANAGER_SERVICE) as VibratorManager) { defaultVibrator }
         else
             @Suppress("deprecation") (getSystemService(VIBRATOR_SERVICE) as Vibrator)
     }
@@ -230,7 +228,8 @@ class SamSprungOverlay : AppCompatActivity() {
                     background = ImageDecoder.decodeDrawable(source) as AnimatedImageDrawable
                     withContext(Dispatchers.Main) {
                         coordinator.background = background
-                        (background as AnimatedImageDrawable).start()
+                        val animation = background as AnimatedImageDrawable
+                        animation.start()
                     }
                 }
             } catch (ignored: Exception) { }
@@ -282,8 +281,8 @@ class SamSprungOverlay : AppCompatActivity() {
         }
 
         wifiManager = getSystemService(WIFI_SERVICE) as WifiManager
-        bluetoothAdapter = (getSystemService(BLUETOOTH_SERVICE) as BluetoothManager).adapter
-        nfcAdapter = (getSystemService(NFC_SERVICE) as NfcManager).defaultAdapter
+        bluetoothAdapter = with (getSystemService(BLUETOOTH_SERVICE) as BluetoothManager) { adapter }
+        nfcAdapter = with (getSystemService(NFC_SERVICE) as NfcManager) { defaultAdapter }
         audioManager = getSystemService(AUDIO_SERVICE) as AudioManager
         notificationManager = getSystemService(NOTIFICATION_SERVICE) as NotificationManager
         camManager = getSystemService(CAMERA_SERVICE) as CameraManager

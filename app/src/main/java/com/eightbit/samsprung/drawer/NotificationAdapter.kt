@@ -142,7 +142,8 @@ class NotificationAdapter(
             Preferences.prefsValue, FragmentActivity.MODE_PRIVATE
         )
         fun bind(notice: StatusBarNotification) {
-            (itemView as CardView).setCardBackgroundColor(prefs.getInt(
+            val cardView = itemView as CardView
+            cardView.setCardBackgroundColor(prefs.getInt(
                 Preferences.prefColors, Color.rgb(255, 255, 255)).blended)
             this.notice = notice
             val notification = notice.notification

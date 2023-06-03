@@ -10,7 +10,11 @@ import android.content.res.Resources.NotFoundException
 import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteDiskIOException
 import android.database.sqlite.SQLiteOpenHelper
-import android.graphics.*
+import android.graphics.Bitmap
+import android.graphics.Canvas
+import android.graphics.Paint
+import android.graphics.Rect
+import android.graphics.Shader
 import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.Drawable
 import android.os.Build

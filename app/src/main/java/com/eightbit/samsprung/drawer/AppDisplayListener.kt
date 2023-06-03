@@ -53,7 +53,7 @@ class AppDisplayListener : Service() {
 
     private val vibrator by lazy {
         if (Version.isSnowCone)
-            (getSystemService(VIBRATOR_MANAGER_SERVICE) as VibratorManager).defaultVibrator
+           with (getSystemService(VIBRATOR_MANAGER_SERVICE) as VibratorManager) { defaultVibrator }
         else
             @Suppress("DEPRECATION") getSystemService(VIBRATOR_SERVICE) as Vibrator
     }
@@ -200,7 +200,7 @@ class AppDisplayListener : Service() {
                 startMainActivity(
                     componentName,
                     Process.myUserHandle(),
-                    (getSystemService(WINDOW_SERVICE) as WindowManager).maximumWindowMetrics.bounds,
+                    with (getSystemService(WINDOW_SERVICE) as WindowManager) { maximumWindowMetrics.bounds },
                     CoverOptions(null).getActivityOptions(display).toBundle()
                 )
             }

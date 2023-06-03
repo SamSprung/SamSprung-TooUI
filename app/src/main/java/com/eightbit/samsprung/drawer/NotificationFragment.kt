@@ -115,7 +115,8 @@ class NotificationFragment : Fragment(), NotificationAdapter.OnNoticeClickListen
             object: RecyclerViewTouch.SwipeCallback {
             override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
                 if (direction == ItemTouchHelper.END) {
-                    (viewHolder as NotificationAdapter.NoticeViewHolder).dismissNotification()
+                    val holder = viewHolder as NotificationAdapter.NoticeViewHolder
+                    holder.dismissNotification()
                 }
                 if (direction == ItemTouchHelper.DOWN) {
                     onSwipeClosed(noticesView)
@@ -134,7 +135,8 @@ class NotificationFragment : Fragment(), NotificationAdapter.OnNoticeClickListen
     private fun onSwipeClosed(recyclerView: RecyclerView) {
         val manager = recyclerView.layoutManager as LinearLayoutManager
         if (manager.itemCount == 0 || manager.findFirstCompletelyVisibleItemPosition() == 0) {
-            (requireActivity() as SamSprungOverlay).closeMainDrawer()
+            val activity = requireActivity() as SamSprungOverlay
+            activity.closeMainDrawer()
         }
     }
 
@@ -257,8 +259,8 @@ class NotificationFragment : Fragment(), NotificationAdapter.OnNoticeClickListen
     }
 
     override fun onNoticeClicked(itemView: View, position: Int, notice: StatusBarNotification) {
-        (requireActivity() as SamSprungOverlay)
-            .setKeyguardListener(object: SamSprungOverlay.KeyguardListener {
+        val activity = requireActivity() as SamSprungOverlay
+        activity.setKeyguardListener(object: SamSprungOverlay.KeyguardListener {
             override fun onKeyguardCheck(unlocked: Boolean) {
                 if (!unlocked) return
                 onNoticeExpanded(itemView, position, notice)
@@ -283,9 +285,9 @@ class NotificationFragment : Fragment(), NotificationAdapter.OnNoticeClickListen
 
     private val vibrator by lazy {
         if (Version.isSnowCone)
-            (requireActivity().getSystemService(
+            with (requireActivity().getSystemService(
                 Context.VIBRATOR_MANAGER_SERVICE
-            ) as VibratorManager).defaultVibrator
+            ) as VibratorManager) { defaultVibrator }
         else
             @Suppress("DEPRECATION")
             requireActivity().getSystemService(Context.VIBRATOR_SERVICE) as Vibrator

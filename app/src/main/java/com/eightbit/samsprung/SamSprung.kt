@@ -60,7 +60,7 @@ class SamSprung : Application() {
             } catch (ignored: Exception) { }
             try {
                 Debug(this).processException(
-                    (getSystemService(KEYGUARD_SERVICE) as KeyguardManager).isDeviceSecure,
+                    with (getSystemService(KEYGUARD_SERVICE) as KeyguardManager) { isDeviceSecure },
                     exception.toString()
                 )
             } catch (ignored: Exception) { }

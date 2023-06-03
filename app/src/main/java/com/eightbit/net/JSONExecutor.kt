@@ -32,7 +32,8 @@ class JSONExecutor(url: String) {
 
     @get:Throws(IOException::class)
     private val URL.asConnection get() : HttpsURLConnection {
-        return (openConnection() as HttpsURLConnection).apply {
+        val connection = openConnection() as HttpsURLConnection
+        return connection.apply {
             requestMethod = "GET"
             useCaches = false
             defaultUseCaches = false

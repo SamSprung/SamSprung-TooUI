@@ -47,10 +47,7 @@ class BlurView : FrameLayout {
                 R.styleable.BlurView_blurOverlayColor,
                 PreDrawBlurController.TRANSPARENT
             )
-        } finally {
-            a.recycle()
-        }
-        if (Version.isSnowCone) setLayerType(View.LAYER_TYPE_SOFTWARE, null)
+        } finally { a.recycle() }
     }
 
     override fun draw(canvas: Canvas) {
@@ -86,6 +83,7 @@ class BlurView : FrameLayout {
      * @param algorithm sets the blur algorithm
      * @return [BlurView] to setup needed params.
      */
+    @SuppressWarnings("WeakerAccess")
     fun setupWith(rootView: ViewGroup, algorithm: BlurAlgorithm): BlurViewFacade {
         blurController.destroy()
         val blurController: BlurController =
@@ -104,7 +102,6 @@ class BlurView : FrameLayout {
      * It uses RenderEffectBlur on API 31+, and RenderScriptBlur on older versions.
      * @return [BlurView] to setup needed params.
      */
-    @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN_MR1)
     fun setupWith(rootView: ViewGroup): BlurViewFacade {
         return setupWith(rootView, getBlurAlgorithm())
     }
@@ -139,7 +136,6 @@ class BlurView : FrameLayout {
         return blurController.setBlurEnabled(enabled)
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN_MR1)
     private fun getBlurAlgorithm(): BlurAlgorithm {
         val algorithm: BlurAlgorithm = if (Version.isSnowCone) {
             RenderEffectBlur()

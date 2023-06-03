@@ -44,7 +44,11 @@ class IconifiedSnackbar @JvmOverloads constructor(activity: Activity, layout: Vi
         val snackbarLayout = snackbar.view
         val textView = snackbarLayout.findViewById<TextView>(
             com.google.android.material.R.id.snackbar_text
-        )
+        ).apply {
+            setCompoundDrawablesRelativeWithIntrinsicBounds(drawable, 0, 0, 0)
+            gravity = Gravity.CENTER_VERTICAL
+            compoundDrawablePadding = resources.getDimensionPixelOffset(R.dimen.snackbar_icon_padding)
+        }
         when (mActivity.resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK) {
             Configuration.UI_MODE_NIGHT_YES -> {
                 snackbar.setBackgroundTint(
@@ -63,15 +67,10 @@ class IconifiedSnackbar @JvmOverloads constructor(activity: Activity, layout: Vi
                 )
             }
         }
-        textView.setCompoundDrawablesRelativeWithIntrinsicBounds(
-            drawable, 0, 0, 0
-        )
-        textView.gravity = Gravity.CENTER_VERTICAL
-        textView.compoundDrawablePadding = textView.resources
-            .getDimensionPixelOffset(R.dimen.snackbar_icon_padding)
         val params = snackbarLayout.layoutParams as CoordinatorLayout.LayoutParams
-        params.width = CoordinatorLayout.LayoutParams.MATCH_PARENT
-        snackbar.view.layoutParams = params
+        snackbar.view.layoutParams = params.apply {
+            width = CoordinatorLayout.LayoutParams.MATCH_PARENT
+        }
         snackbar.anchorView = anchor
         return snackbar
     }

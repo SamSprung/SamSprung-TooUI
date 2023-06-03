@@ -20,7 +20,6 @@ import androidx.annotation.RequiresApi
     """because RenderScript is deprecated and its hardware acceleration is not guaranteed.
   RenderEffectBlur is the best alternative at the moment."""
 )
-@RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN_MR1)
 class RenderScriptBlur constructor(context: Context) : BlurAlgorithm {
     private val paint = Paint(Paint.FILTER_BITMAP_FLAG)
     private val renderScript: RenderScript
@@ -46,8 +45,7 @@ class RenderScriptBlur constructor(context: Context) : BlurAlgorithm {
      * @param blurRadius blur radius (1..25)
      * @return blurred bitmap
      */
-    @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN_MR1)
-    override fun blur(bitmap: Bitmap?, blurRadius: Float): Bitmap? {
+    override fun blur(bitmap: Bitmap?, blurRadius: Float): Bitmap {
         //Allocation will use the same backing array of pixels as bitmap if created with USAGE_SHARED flag
         val inAllocation = Allocation.createFromBitmap(renderScript, bitmap)
         if (!canReuseAllocation(bitmap!!)) {

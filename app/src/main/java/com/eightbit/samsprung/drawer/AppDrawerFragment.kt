@@ -84,7 +84,8 @@ class AppDrawerFragment : Fragment(), DrawerAppAdapter.OnAppClickListener {
             packages, this, requireActivity().packageManager, prefs
         )
 
-        (requireActivity() as SamSprungOverlay).getSearchView()?.apply {
+        val activity = requireActivity() as SamSprungOverlay
+        activity.getSearchView()?.apply {
             launcherView.updatePadding(bottom = 64)
             isSubmitButtonEnabled = false
             setIconifiedByDefault(true)
@@ -100,13 +101,15 @@ class AppDrawerFragment : Fragment(), DrawerAppAdapter.OnAppClickListener {
             }
             setOnQueryTextListener(object : SearchView.OnQueryTextListener {
                 override fun onQueryTextSubmit(query: String): Boolean {
-                    (launcherView.adapter as DrawerAppAdapter).setQuery(query)
+                    val adapter = launcherView.adapter as DrawerAppAdapter
+                    adapter.setQuery(query)
                     return false
                 }
 
                 override fun onQueryTextChange(query: String): Boolean {
                     if (query.isEmpty()) isIconified = true
-                    (launcherView.adapter as DrawerAppAdapter).setQuery(query)
+                    val adapter = launcherView.adapter as DrawerAppAdapter
+                    adapter.setQuery(query)
                     return true
                 }
             })
@@ -169,13 +172,15 @@ class AppDrawerFragment : Fragment(), DrawerAppAdapter.OnAppClickListener {
         if (recyclerView.layoutManager is LinearLayoutManager) {
             val manager = recyclerView.layoutManager as LinearLayoutManager
             if (manager.itemCount == 0 || manager.findFirstCompletelyVisibleItemPosition() == 0) {
-                (requireActivity() as SamSprungOverlay).closeMainDrawer()
+                val activity = requireActivity() as SamSprungOverlay
+                activity.closeMainDrawer()
             }
         }
         if (recyclerView.layoutManager is GridLayoutManager) {
             val manager = recyclerView.layoutManager as GridLayoutManager
             if (manager.itemCount == 0 || manager.findFirstCompletelyVisibleItemPosition() == 0) {
-                (requireActivity() as SamSprungOverlay).closeMainDrawer()
+                val activity = requireActivity() as SamSprungOverlay
+                activity.closeMainDrawer()
             }
         }
     }

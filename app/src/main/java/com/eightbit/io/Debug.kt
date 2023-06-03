@@ -126,7 +126,8 @@ class Debug(private var context: Context) {
             withContext(Dispatchers.Main) {
                 submitLogcat(context, logText)
                 if (!logText.contains("AndroidRuntime") && context is CoverPreferences) {
-                    (context as CoverPreferences).openWikiDrawer()
+                    val activity = context as CoverPreferences
+                    activity.openWikiDrawer()
                 }
             }
         }
