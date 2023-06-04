@@ -16,7 +16,9 @@ package com.eightbit.samsprung
 
 import android.app.Application
 import android.app.KeyguardManager
+import android.text.Spanned
 import androidx.appcompat.app.AppCompatDelegate
+import androidx.core.text.HtmlCompat
 import com.eightbit.io.Debug
 import com.eightbit.samsprung.drawer.OrientationManager
 import com.eightbit.samsprung.settings.Preferences
@@ -46,6 +48,13 @@ class SamSprung : Application() {
         const val notification = request_code.toString()
 
         var hasSubscription = false
+
+        private const val commitHash = "#${BuildConfig.COMMIT}"
+        val versionLabel = "$organization ${BuildConfig.VERSION_NAME} (${
+            if (BuildConfig.GOOGLE_PLAY) "Play" else "GitHub"
+        } ${
+            if (BuildConfig.BUILD_TYPE == "release") "Release" else "Debug"
+        }) $commitHash"
     }
 
     override fun onCreate() {

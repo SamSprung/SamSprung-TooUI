@@ -47,6 +47,7 @@ class IconifiedSnackbar @JvmOverloads constructor(activity: Activity, layout: Vi
         ).apply {
             setCompoundDrawablesRelativeWithIntrinsicBounds(drawable, 0, 0, 0)
             gravity = Gravity.CENTER_VERTICAL
+            textAlignment = View.TEXT_ALIGNMENT_CENTER
             compoundDrawablePadding = resources.getDimensionPixelOffset(R.dimen.snackbar_icon_padding)
         }
         when (mActivity.resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK) {

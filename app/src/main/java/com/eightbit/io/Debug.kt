@@ -20,6 +20,7 @@ import android.net.Uri
 import android.os.Build
 import com.eightbit.samsprung.BuildConfig
 import com.eightbit.samsprung.R
+import com.eightbit.samsprung.SamSprung
 import com.eightbit.samsprung.organization
 import com.eightbit.samsprung.settings.CoverPreferences
 import kotlinx.coroutines.CoroutineScope
@@ -40,7 +41,7 @@ class Debug(private var context: Context) {
     private fun getDeviceProfile(isSecureDevice: Boolean): StringBuilder {
         val separator = System.getProperty("line.separator") ?: "\n"
         val log = StringBuilder(separator)
-        log.append("$organization (${BuildConfig.FLAVOR}) #${BuildConfig.COMMIT}")
+        log.append(SamSprung.versionLabel)
         log.append(separator)
         log.append(manufacturer)
         log.append(" ")
