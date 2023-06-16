@@ -746,12 +746,7 @@ class CoverPreferences : AppCompatActivity() {
         }
 
         findViewById<LinearLayout>(R.id.wallpaper_layout).setOnClickListener {
-            onPickImage.launch(Intent.createChooser(Intent(Intent.ACTION_OPEN_DOCUMENT)
-                .setType("image/*").addCategory(Intent.CATEGORY_OPENABLE)
-                .addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
-                .addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION)
-                .putExtra("android.content.extra.SHOW_ADVANCED", true)
-                .putExtra("android.content.extra.FANCY", true), title))
+            onPickImage.launch(arrayOf("image/*"))
         }
         findViewById<LinearLayout>(R.id.wallpaper_layout).setOnLongClickListener {
             val background = File(filesDir, "wallpaper.png")
@@ -1009,33 +1004,28 @@ class CoverPreferences : AppCompatActivity() {
     }
 
     private val onPickImage = registerForActivityResult(
-        ActivityResultContracts.StartActivityForResult()) { result ->
-        if (result.resultCode == RESULT_OK && null != result.data) {
-            var photoUri: Uri? = null
-            if (null != result.data!!.clipData && result.data?.clipData!!.itemCount > 0) {
-                photoUri = result.data!!.clipData!!.getItemAt(0)!!.uri
-            } else if (null != result.data!!.data) {
-                photoUri = result.data!!.data!!
-            }
-            if (null != photoUri) {
-                val extension: String? = when {
-                    photoUri.scheme == ContentResolver.SCHEME_CONTENT -> {
-                        MimeTypeMap.getSingleton().getExtensionFromMimeType(
-                            contentResolver.getType(photoUri)
-                        )
-                    } null != photoUri.path -> {
-                        MimeTypeMap.getFileExtensionFromUrl(
-                            Uri.fromFile(File(photoUri.path!!)).toString()
-                        )
-                    } else -> {
-                        null
-                    }
+        ActivityResultContracts.OpenDocument()
+    ) { document: Uri? ->
+        document?.let {
+            contentResolver.takePersistableUriPermission(document, Intent.FLAG_GRANT_READ_URI_PERMISSION)
+            contentResolver.takePersistableUriPermission(document, Intent.FLAG_GRANT_WRITE_URI_PERMISSION)
+            val extension: String? = when {
+                document.scheme == ContentResolver.SCHEME_CONTENT -> {
+                    MimeTypeMap.getSingleton().getExtensionFromMimeType(
+                        contentResolver.getType(document)
+                    )
+                } null != document.path -> {
+                    MimeTypeMap.getFileExtensionFromUrl(
+                        Uri.fromFile(File(document.path!!)).toString()
+                    )
+                } else -> {
+                    null
                 }
-                if (extension.equals("gif", true))
-                    saveAnimatedImage(photoUri)
-                else
-                    saveStaticImage(photoUri)
             }
+            if (extension.equals("gif", true))
+                saveAnimatedImage(document)
+            else
+                saveStaticImage(document)
         }
     }
 
