@@ -52,17 +52,16 @@ class PackageRetriever(val context: Context) {
     }
 
     fun getHiddenPackages() : HashSet<String> {
-        val unlisted: HashSet<String> = HashSet()
+        val unlisted: HashSet<String> = hashSetOf()
         val hide: Set<String> = prefs.getStringSet(
             Preferences.prefHidden, setOf<String>()) as Set<String>
         unlisted.addAll(hide)
         return unlisted
     }
 
-    private fun getRecentPackageList(
-        statsManager: UsageStatsManager, packages: MutableList<ResolveInfo>
-    ) : HashSet<ResolveInfo> {
-        val recent: HashSet<ResolveInfo> = HashSet()
+    private fun getUsagePackageList(statsManager: UsageStatsManager) : MutableList<ResolveInfo> {
+        val packages = getPackageList()
+        val recent: HashSet<ResolveInfo> = hashSetOf()
         val endTime = System.currentTimeMillis()
         val startTime = endTime - (60 * 60 * 1000)
         val usageEvents: UsageEvents = statsManager.queryEvents(startTime, endTime)
@@ -82,18 +81,20 @@ class PackageRetriever(val context: Context) {
                 }
             }
         }
-        return recent
+        packages.addAll(0, recent)
+        return packages
     }
 
     fun getFilteredPackageList() : MutableList<ResolveInfo> {
-        val packages = getPackageList()
-        if (hasUsageStatistics()) {
+        val packages = if (hasUsageStatistics()) {
             with (context.getSystemService(Context.USAGE_STATS_SERVICE) as UsageStatsManager) {
-                packages.addAll(0, getRecentPackageList(this, packages))
+                getUsagePackageList(this)
             }
+        } else {
+            getPackageList()
         }
         packages.removeIf {
-            prefs.getStringSet(Preferences.prefHidden, HashSet())
+            prefs.getStringSet(Preferences.prefHidden, hashSetOf())
                 ?.contains(it.activityInfo.packageName) == true
         }
         return packages

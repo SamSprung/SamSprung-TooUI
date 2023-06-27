@@ -66,22 +66,18 @@ class DrawerAppAdapter(
         return if (prefs.getBoolean(Preferences.prefLayout, true))
             SimpleGridHolder(parent, listener, packageManager, prefs).apply {
                 itemView.setOnClickListener {
-                    if (null != listener)
-                        listener.onAppClicked(resolveInfo, bindingAdapterPosition)
+                    listener?.onAppClicked(resolveInfo, bindingAdapterPosition)
                 }
                 iconView.setOnClickListener {
-                    if (null != listener)
-                        listener.onAppClicked(resolveInfo, bindingAdapterPosition)
+                    listener?.onAppClicked(resolveInfo, bindingAdapterPosition)
                 }
             }
         else return SimpleViewHolder(parent, listener, packageManager, prefs).apply {
             itemView.setOnClickListener {
-                if (null != listener)
-                    listener.onAppClicked(resolveInfo, bindingAdapterPosition)
+                listener?.onAppClicked(resolveInfo, bindingAdapterPosition)
             }
             iconView.setOnClickListener {
-                if (null != listener)
-                    listener.onAppClicked(resolveInfo, bindingAdapterPosition)
+                listener?.onAppClicked(resolveInfo, bindingAdapterPosition)
             }
         }
     }

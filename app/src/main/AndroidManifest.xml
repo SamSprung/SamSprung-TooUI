@@ -43,11 +43,12 @@
     <uses-permission android:name="samsprung.permission.WRITE_SETTINGS" />
     <uses-permission android:name="samsprung.permission.READ_SETTINGS" />
 
-    <uses-feature android:name="android.software.home_screen" android:required="false"/>
-    <uses-feature android:name="android.software.app_widgets" android:required="false"/>
-    <uses-feature android:name="android.software.verified_boot" android:required="false"/>
-    <uses-feature android:name="android.software.webview" android:required="false"/>
-    <uses-feature android:name="android.hardware.camera.flash" android:required="false"/>
+    <uses-feature android:name="android.software.home_screen" android:required="false" />
+    <uses-feature android:name="android.software.app_widgets" android:required="false" />
+    <uses-feature android:name="android.software.verified_boot" android:required="false" />
+    <uses-feature android:name="android.software.webview" android:required="false" />
+    <uses-feature android:name="android.hardware.camera" android:required="false" />
+    <uses-feature android:name="android.hardware.camera.flash" android:required="false" />
 
     <queries>
         <intent>
@@ -67,8 +68,7 @@
         android:roundIcon="@mipmap/sprung_icon_round"
         android:supportsRtl="true"
         android:resizeableActivity="false"
-        android:theme="@style/Theme.SecondScreen"
-        tools:targetApi="S">
+        android:theme="@style/Theme.SecondScreen">
         <meta-data
             android:name="android.supports_size_changes" android:value="true" />
         <activity
