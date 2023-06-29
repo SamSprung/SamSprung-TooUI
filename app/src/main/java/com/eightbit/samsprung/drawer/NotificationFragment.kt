@@ -192,11 +192,12 @@ class NotificationFragment : Fragment(), NotificationAdapter.OnNoticeClickListen
                     var onFinished: PendingIntent.OnFinished? = null
                     if (action.actionIntent.creatorPackage.toString() == "com.android.systemui") {
                         onFinished = PendingIntent.OnFinished { pendingIntent, _, _, _, _ ->
-                            val extras = Bundle()
-                            extras.putString("launchPackage", pendingIntent.creatorPackage)
-                            requireContext().startForegroundService(Intent(
+                            val foregroundService = Intent(
                                 requireContext().applicationContext, AppDisplayListener::class.java
-                            ).putExtras(extras))
+                            ).putExtras(Bundle().apply {
+                                putString("launchPackage", pendingIntent.creatorPackage)
+                            })
+                            requireContext().startForegroundService(foregroundService)
                         }
                     }
                     action.actionIntent.send(requireContext(), SamSprung.request_code,
