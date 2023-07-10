@@ -48,10 +48,9 @@ class JSONExecutor(url: String) {
     init {
         CoroutineScope(Dispatchers.IO).launch(Dispatchers.IO) {
             try {
-                URL(url).readText().also {
-                    listener?.onResults(it)
-                    return@launch
-                }
+                val result = URL(url).readText()
+                listener?.onResults(result)
+                return@launch
             } catch (fnf: FileNotFoundException) {
                 return@launch
             } catch (ignored: UnknownHostException) { }

@@ -146,11 +146,16 @@ class DrawerAppAdapter(
                     textView = itemView.findViewById(R.id.widgetItemText)
                     val label: CharSequence? = try {
                         resolveInfo.loadLabel(packageManager)
-                    } catch (e: Exception) {
-                        resolveInfo.nonLocalizedLabel ?: "?"
+                    } catch (ex: Exception) {
+                        try {
+                            resolveInfo.nonLocalizedLabel
+                        } catch (ignored: Exception) {
+                            null
+                        }
                     }
+                    val appName = if (label.isNullOrEmpty()) "?" else label
                     withContext(Dispatchers.Main) {
-                        label?.let { textView?.text = it }
+                        textView?.text = appName
                     }
                 }
             }

@@ -67,13 +67,16 @@ class FilteredAppsAdapter(
     override fun getPopupText(position: Int) : CharSequence {
         if (position >= packages.size) return "?"
         val item = packages[position]
-        return try {
+        val label: CharSequence? = try {
             item.loadLabel(pacMan)
-        } catch (ignored: Exception) {
+        } catch (ex: Exception) {
             try {
-                item.nonLocalizedLabel ?: "?"
-            } catch (ignored: Exception) { "?" }
-        }[0].uppercase()
+                item.nonLocalizedLabel
+            } catch (ignored: Exception) {
+                null
+            }
+        }
+        return if (label.isNullOrEmpty()) "?" else label[0].uppercase()
     }
 
     override fun onBindViewHolder(holder: HideViewHolder, position: Int) {
@@ -93,11 +96,16 @@ class FilteredAppsAdapter(
             val detailView = itemView.findViewById<LinearLayout>(R.id.hiddenItemContainer)
 
             CoroutineScope(Dispatchers.IO).launch {
-                val appName: CharSequence? = try {
+                val label: CharSequence? = try {
                     application.loadLabel(packageManager)
-                } catch (e: Exception) {
-                    application.nonLocalizedLabel ?: "?"
+                } catch (ex: Exception) {
+                    try {
+                        application.nonLocalizedLabel
+                    } catch (ignored: Exception) {
+                        null
+                    }
                 }
+                val appName = if (label.isNullOrEmpty()) "?" else label
                 val icon = application.loadIcon(packageManager)
 
                 withContext(Dispatchers.Main) {
