@@ -10,7 +10,7 @@ android {
         applicationId 'com.eightbit.samsprung'
         minSdk 30
         targetSdk 34
-        versionName "2.5.3"
+        versionName "2.5.4"
         versionCode = versionName.replace(".","").toInteger()
 
         vectorDrawables {

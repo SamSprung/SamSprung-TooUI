@@ -41,7 +41,6 @@ class PackageRetriever(val context: Context) {
             context.packageManager.queryIntentActivities(mainIntent, PackageManager
                 .ResolveInfoFlags.of(PackageManager.GET_RESOLVED_FILTER.toLong()))
         else
-            @Suppress("deprecation")
             context.packageManager.queryIntentActivities(mainIntent, PackageManager.GET_RESOLVED_FILTER)
         packages.removeIf { item ->
             (null != item.filter && item.filter.hasCategory(Intent.CATEGORY_HOME))
