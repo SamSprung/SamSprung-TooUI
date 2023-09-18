@@ -26,12 +26,14 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.LinearLayout
 import androidx.appcompat.widget.SearchView
+import androidx.core.content.ContextCompat
 import androidx.core.view.isGone
 import androidx.core.view.updatePadding
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.*
 import com.eightbit.content.ScaledContext
 import com.eightbit.io.Debug
+import com.eightbit.os.Version
 import com.eightbit.pm.PackageRetriever
 import com.eightbit.samsprung.R
 import com.eightbit.samsprung.SamSprungOverlay
@@ -73,8 +75,7 @@ class AppDrawerFragment : Fragment(), DrawerAppAdapter.OnAppClickListener {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        val packageRetriever = PackageRetriever(requireActivity())
-        val packages = packageRetriever.getFilteredPackageList()
+        val packages = PackageRetriever(requireActivity()).getFilteredPackageList()
         launcherView = view.findViewById<RecyclerView>(R.id.appsList).apply {
             adapter = DrawerAppAdapter(
                 packages, this@AppDrawerFragment, requireActivity().packageManager, prefs
@@ -148,15 +149,16 @@ class AppDrawerFragment : Fragment(), DrawerAppAdapter.OnAppClickListener {
             addAction(Intent.ACTION_PACKAGE_REMOVED)
             addDataScheme("package")
         }.also {
-            requireActivity().registerReceiver(packReceiver, it)
+            ContextCompat.registerReceiver(
+                requireActivity(), packReceiver, it, ContextCompat.RECEIVER_NOT_EXPORTED
+            )
         }
     }
 
     @SuppressLint("NotifyDataSetChanged")
     private fun getFilteredPackageList() {
         CoroutineScope(Dispatchers.IO).launch(Dispatchers.IO) {
-            val packageRetriever = PackageRetriever(requireActivity())
-            val packages = packageRetriever.getFilteredPackageList()
+            val packages = PackageRetriever(requireActivity()).getFilteredPackageList()
             withContext(Dispatchers.Main) {
                 val adapter = launcherView.adapter as DrawerAppAdapter
                 adapter.setPackages(packages)

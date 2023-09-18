@@ -92,10 +92,8 @@ class PackageRetriever(val context: Context) {
         } else {
             getPackageList()
         }
-        packages.removeIf {
-            prefs.getStringSet(Preferences.prefHidden, hashSetOf())
-                ?.contains(it.activityInfo.packageName) == true
-        }
+        val hidden = getHiddenPackages()
+        packages.removeIf { hidden.contains(it.activityInfo.packageName) }
         return packages
     }
 

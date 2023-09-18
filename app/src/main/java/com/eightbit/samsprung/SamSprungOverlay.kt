@@ -214,7 +214,9 @@ class SamSprungOverlay : AppCompatActivity() {
         IntentFilter().apply {
             addAction(Intent.ACTION_SCREEN_OFF)
         }.also {
-            registerReceiver(offReceiver, it)
+            ContextCompat.registerReceiver(
+                this, offReceiver, it, ContextCompat.RECEIVER_NOT_EXPORTED
+            )
         }
 
         val coordinator = findViewById<CoordinatorLayout>(R.id.coordinator)
@@ -318,7 +320,9 @@ class SamSprungOverlay : AppCompatActivity() {
         IntentFilter().apply {
             addAction(Intent.ACTION_BATTERY_CHANGED)
         }.also {
-            registerReceiver(battReceiver, it)
+            ContextCompat.registerReceiver(
+                this, battReceiver, it, ContextCompat.RECEIVER_NOT_EXPORTED
+            )
         }
 
         val clock = findViewById<TextClock>(R.id.clock_status)
@@ -520,7 +524,7 @@ class SamSprungOverlay : AppCompatActivity() {
             })
         }
 
-        val buttonClose = findViewById<AppCompatImageView>(R.id.button_close).apply {
+        findViewById<AppCompatImageView>(R.id.button_close).apply {
             setOnClickListener {
                 if (prefs.getBoolean(Preferences.prefReacts, true))
                     vibrator.vibrate(effectClick)
@@ -894,7 +898,6 @@ class SamSprungOverlay : AppCompatActivity() {
                     ApplicationInfoFlags.of(PackageManager.GET_META_DATA.toLong())
                 )
             } else {
-                @Suppress("deprecation")
                 packageManager.getInstalledApplications(PackageManager.GET_META_DATA)
             }
         for (packageInfo in packages) {
@@ -905,7 +908,6 @@ class SamSprungOverlay : AppCompatActivity() {
                         packageInfo.packageName, ApplicationInfoFlags.of(0)
                     )
                 } else {
-                    @Suppress("deprecation")
                     packageManager.getApplicationInfo(packageInfo.packageName, 0)
                 }
                 if (packageManager.getApplicationLabel(ai).contains(launchCommand, true)) {
