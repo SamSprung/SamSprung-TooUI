@@ -39,7 +39,7 @@ class DrawerAppAdapter(
     private val prefs: SharedPreferences
 ) : RecyclerView.Adapter<DrawerAppAdapter.AppViewHolder>() {
     private var filter: PackageFilter? = null
-    private var filteredData: MutableList<ResolveInfo> = packages
+    private var filteredData: MutableList<ResolveInfo>
 
     fun setPackages(packages: MutableList<ResolveInfo>) {
         this.packages = packages
@@ -59,7 +59,7 @@ class DrawerAppAdapter(
     }
 
     init {
-        setHasStableIds(true)
+        filteredData = packages
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): AppViewHolder {

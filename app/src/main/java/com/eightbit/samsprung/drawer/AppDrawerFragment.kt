@@ -75,10 +75,10 @@ class AppDrawerFragment : Fragment(), DrawerAppAdapter.OnAppClickListener {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        val packages = PackageRetriever(requireActivity()).getFilteredPackageList()
         launcherView = view.findViewById<RecyclerView>(R.id.appsList).apply {
             adapter = DrawerAppAdapter(
-                packages, this@AppDrawerFragment, requireActivity().packageManager, prefs
+                PackageRetriever(requireActivity()).getFilteredPackageList(),
+                this@AppDrawerFragment, requireActivity().packageManager, prefs
             )
         }
 

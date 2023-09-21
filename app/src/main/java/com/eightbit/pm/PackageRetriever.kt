@@ -52,30 +52,32 @@ class PackageRetriever(val context: Context) {
 
     fun getHiddenPackages() : HashSet<String> {
         val unlisted: HashSet<String> = hashSetOf()
-        val hide: Set<String> = prefs.getStringSet(
-            Preferences.prefHidden, setOf<String>()) as Set<String>
-        unlisted.addAll(hide)
+        unlisted.addAll(prefs.getStringSet(Preferences.prefHidden, setOf<String>()) as Set<String>)
         return unlisted
     }
 
-    private fun getUsagePackageList(statsManager: UsageStatsManager) : MutableList<ResolveInfo> {
+    private fun getUsagePackageList() : MutableList<ResolveInfo> {
         val packages = getPackageList()
         val recent: HashSet<ResolveInfo> = hashSetOf()
         val endTime = System.currentTimeMillis()
         val startTime = endTime - (60 * 60 * 1000)
-        val usageEvents: UsageEvents = statsManager.queryEvents(startTime, endTime)
-        while (usageEvents.hasNextEvent()) {
-            val event = UsageEvents.Event()
-            usageEvents.getNextEvent(event)
-            if (UsageEvents.Event.ACTIVITY_RESUMED == event.eventType ||
-                UsageEvents.Event.SHORTCUT_INVOCATION == event.eventType) {
-                val iterator: MutableIterator<ResolveInfo> = packages.iterator()
-                while (iterator.hasNext()) {
-                    val info = iterator.next()
-                    if (context.packageName != event.packageName
-                        && event.packageName == info.activityInfo.packageName) {
-                        iterator.remove()
-                        recent.add(info)
+        with (context.getSystemService(Context.USAGE_STATS_SERVICE) as UsageStatsManager) {
+            val usageEvents: UsageEvents = queryEvents(startTime, endTime)
+            while (usageEvents.hasNextEvent()) {
+                val event = UsageEvents.Event()
+                usageEvents.getNextEvent(event)
+                if (UsageEvents.Event.ACTIVITY_RESUMED == event.eventType ||
+                    UsageEvents.Event.SHORTCUT_INVOCATION == event.eventType
+                ) {
+                    val iterator: MutableIterator<ResolveInfo> = packages.iterator()
+                    while (iterator.hasNext()) {
+                        val info = iterator.next()
+                        if (context.packageName != event.packageName
+                            && event.packageName == info.activityInfo.packageName
+                        ) {
+                            iterator.remove()
+                            recent.add(info)
+                        }
                     }
                 }
             }
@@ -85,15 +87,8 @@ class PackageRetriever(val context: Context) {
     }
 
     fun getFilteredPackageList() : MutableList<ResolveInfo> {
-        val packages = if (hasUsageStatistics()) {
-            with (context.getSystemService(Context.USAGE_STATS_SERVICE) as UsageStatsManager) {
-                getUsagePackageList(this)
-            }
-        } else {
-            getPackageList()
-        }
-        val hidden = getHiddenPackages()
-        packages.removeIf { hidden.contains(it.activityInfo.packageName) }
+        val packages = if (hasUsageStatistics()) getUsagePackageList() else getPackageList()
+        packages.removeIf { getHiddenPackages().contains(it.activityInfo.packageName) }
         return packages
     }
 
