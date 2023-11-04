@@ -169,6 +169,7 @@ class CoverPreferences : AppCompatActivity() {
 
         notifications = findViewById(R.id.notifications_switch)
         notifications?.isChecked = hasNotificationListener()
+        notifications?.isClickable = false
         findViewById<LinearLayout>(R.id.notifications).setOnClickListener {
             notificationLauncher.launch(Intent(
                 Settings.ACTION_NOTIFICATION_LISTENER_SETTINGS
@@ -177,6 +178,7 @@ class CoverPreferences : AppCompatActivity() {
 
         statistics = findViewById(R.id.usage_switch)
         statistics?.isChecked = hasUsageStatistics()
+        statistics?.isClickable = false
         findViewById<LinearLayout>(R.id.usage_layout).setOnClickListener {
             usageLauncher.launch(Intent(
                 Settings.ACTION_USAGE_ACCESS_SETTINGS
@@ -185,6 +187,7 @@ class CoverPreferences : AppCompatActivity() {
 
         optimization = findViewById(R.id.optimization_switch)
         optimization?.isChecked = ignoreBatteryOptimization()
+        optimization?.isClickable = false
         findViewById<LinearLayout>(R.id.optimization).setOnClickListener {
             try {
                 optimizationLauncher.launch(Intent(
@@ -200,6 +203,7 @@ class CoverPreferences : AppCompatActivity() {
 
         accessibility = findViewById(R.id.accessibility_switch)
         accessibility?.isChecked = hasAccessibility()
+        accessibility?.isClickable = false
         findViewById<LinearLayout>(R.id.accessibility).setOnClickListener {
             if (accessibility?.isChecked == true) {
                 accessibilityLauncher.launch(

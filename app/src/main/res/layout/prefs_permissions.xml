@@ -51,8 +51,7 @@
             android:layout_height="wrap_content"
             android:gravity="center"
             android:layout_gravity="end|center_vertical"
-            android:layout_weight="1"
-            android:clickable="false" />
+            android:layout_weight="1" />
     </LinearLayout>
 
     <LinearLayout
@@ -147,8 +146,7 @@
             android:layout_height="wrap_content"
             android:gravity="center"
             android:layout_gravity="end|center_vertical"
-            android:layout_weight="1"
-            android:clickable="false" />
+            android:layout_weight="1" />
     </LinearLayout>
 
     <LinearLayout
@@ -194,8 +192,7 @@
             android:layout_height="wrap_content"
             android:gravity="center"
             android:layout_gravity="end|center_vertical"
-            android:layout_weight="1"
-            android:clickable="false" />
+            android:layout_weight="1" />
     </LinearLayout>
 
     <LinearLayout
@@ -241,8 +238,7 @@
             android:layout_height="wrap_content"
             android:gravity="center"
             android:layout_gravity="end|center_vertical"
-            android:layout_weight="1"
-            android:clickable="false" />
+            android:layout_weight="1" />
     </LinearLayout>
 </LinearLayout>
 </merge>
