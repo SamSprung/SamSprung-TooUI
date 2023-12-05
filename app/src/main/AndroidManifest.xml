@@ -118,12 +118,14 @@
             </intent-filter>
         </receiver>
         <service android:name=".OnBroadcastService"
+            android:process=":SamSprung"
             android:exported="true"
             android:permission="android.permission.FOREGROUND_SERVICE"
             android:foregroundServiceType="specialUse">
             <property android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE" android:value="Cover screen launcher in background"/>
         </service>
         <service android:name=".drawer.AppDisplayListener"
+            android:process=":SamSprung"
             android:exported="true"
             android:permission="android.permission.FOREGROUND_SERVICE"
             android:foregroundServiceType="specialUse"

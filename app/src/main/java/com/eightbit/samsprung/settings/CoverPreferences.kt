@@ -844,40 +844,46 @@ class CoverPreferences : AppCompatActivity() {
             R.string.options_dismiss, (dismissBar.progress * 10).toString()
         )
 
-        val packageRetriever = PackageRetriever(this)
-        val packages = packageRetriever.getPackageList()
-        for (installed in packages) {
-            if (installed.resolvePackageName == "apps.ijp.coveros") {
-                val compatDialog = AlertDialog.Builder(this)
-                    .setMessage(getString(R.string.incompatibility_warning))
-                    .setPositiveButton(R.string.button_uninstall) { dialog, _ ->
-                        try {
-                            startActivity(Intent(Intent.ACTION_DELETE).setData(
-                                Uri.parse("package:apps.ijp.coveros")
-                            ))
-                            dialog.dismiss()
-                        } catch (ignored: Exception) { }
+        CoroutineScope(Dispatchers.IO).launch {
+            val packageRetriever = PackageRetriever(this@CoverPreferences)
+            val packages = packageRetriever.getPackageList()
+            for (installed in packages) {
+                if (installed.resolvePackageName == "apps.ijp.coveros") {
+                    withContext(Dispatchers.Main) {
+                        val compatDialog = AlertDialog.Builder(this@CoverPreferences)
+                            .setMessage(getString(R.string.incompatibility_warning))
+                            .setPositiveButton(R.string.button_uninstall) { dialog, _ ->
+                                try {
+                                    startActivity(Intent(Intent.ACTION_DELETE).setData(
+                                        Uri.parse("package:apps.ijp.coveros")
+                                    ))
+                                    dialog.dismiss()
+                                } catch (ignored: Exception) { }
+                            }
+                            .setNegativeButton(R.string.button_disable) { dialog, _ ->
+                                startActivity(Intent(
+                                    Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
+                                    Uri.parse("package:apps.ijp.coveros")
+                                ))
+                                dialog.dismiss()
+                            }.create()
+                        compatDialog.setCancelable(false)
+                        compatDialog.show()
                     }
-                    .setNegativeButton(R.string.button_disable) { dialog, _ ->
-                        startActivity(Intent(
-                            Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
-                            Uri.parse("package:apps.ijp.coveros")
-                        ))
-                        dialog.dismiss()
-                    }.create()
-                compatDialog.setCancelable(false)
-                compatDialog.show()
+                }
             }
-        }
-        val unlisted = packageRetriever.getHiddenPackages()
+            val unlisted = packageRetriever.getHiddenPackages()
 
-        hiddenList = findViewById<RecyclerView>(R.id.app_toggle_list).apply {
-            layoutManager = LinearLayoutManager(this@CoverPreferences)
-            addItemDecoration(DividerItemDecoration(
-                this@CoverPreferences, DividerItemDecoration.VERTICAL
-            ))
-            adapter = FilteredAppsAdapter(packageManager, packages, unlisted, prefs)
-            FastScrollerBuilder(this).build().setPadding(0, (-4).toPx,0,0)
+            withContext(Dispatchers.Main) {
+                hiddenList = findViewById<RecyclerView>(R.id.app_toggle_list).apply {
+                    layoutManager = LinearLayoutManager(this@CoverPreferences)
+                    addItemDecoration(DividerItemDecoration(
+                        this@CoverPreferences, DividerItemDecoration.VERTICAL
+                    ))
+                    adapter = FilteredAppsAdapter(packageManager, packages, unlisted, prefs)
+                    FastScrollerBuilder(this).build().setPadding(0, (-4).toPx,0,0)
+                }
+            }
         }
 
         findViewById<View>(R.id.list_divider).setOnTouchListener { v: View, event: MotionEvent ->
@@ -1100,7 +1106,7 @@ class CoverPreferences : AppCompatActivity() {
     private val usageLauncher = registerForActivityResult(
         ActivityResultContracts.StartActivityForResult()) {
         val packageRetriever = PackageRetriever(this)
-        CoroutineScope(Dispatchers.IO).launch(Dispatchers.IO) {
+        CoroutineScope(Dispatchers.IO).launch {
             val packages = packageRetriever.getPackageList()
             val unlisted = packageRetriever.getHiddenPackages()
             withContext(Dispatchers.Main) {
@@ -1200,7 +1206,6 @@ class CoverPreferences : AppCompatActivity() {
         return false
     }
 
-    @Suppress("deprecation")
     private fun hasKeyboardInstalled(): Boolean {
         return try {
             packageManager.getPackageInfo(BuildConfig.APPLICATION_ID + ".ime", 0)
