@@ -40,6 +40,7 @@ android {
             dimension "source"
             manifestPlaceholders.putAll([
                     installPermission: "android.permission.REQUEST_INSTALL_PACKAGES",
+                    updatesPermission: "android.permission.UPDATE_PACKAGES_WITHOUT_USER_ACTION",
                     accessibilityPermission: "android.permission.BIND_ACCESSIBILITY_SERVICE",
                     accessibilityFilter: "android.accessibilityservice.AccessibilityService",
                     accessibilityMetaName: "android.accessibilityservice",
@@ -51,7 +52,8 @@ android {
             dimension "source"
             isDefault true
             manifestPlaceholders.putAll([
-                    installPermission: "${defaultConfig.applicationId}.UPDATING",
+                    installPermission: "${defaultConfig.applicationId}.INSTALLS",
+                    updatesPermission: "${defaultConfig.applicationId}.UPDATING",
                     accessibilityPermission: "${defaultConfig.applicationId}.SERVICES",
                     accessibilityFilter: "${defaultConfig.applicationId}.SERVICES",
                     accessibilityMetaName: "${defaultConfig.applicationId}.SERVICES",
@@ -107,7 +109,7 @@ android {
 }
 
 dependencies {
-    implementation 'androidx.activity:activity-ktx:1.8.1'
+    implementation 'androidx.activity:activity-ktx:1.8.2'
     implementation 'androidx.appcompat:appcompat:1.6.1'
     implementation 'androidx.cardview:cardview:1.0.0'
     implementation 'androidx.core:core-ktx:1.12.0'
@@ -119,7 +121,7 @@ dependencies {
 
     implementation 'com.github.8bitdream:AndroidFastScroll:4cb96477d5'
 
-    implementation 'com.google.android.material:material:1.10.0'
+    implementation 'com.google.android.material:material:1.11.0'
     implementation 'com.google.android.play:core:1.10.3'
     implementation 'com.google.android.play:core-ktx:1.8.1'
 

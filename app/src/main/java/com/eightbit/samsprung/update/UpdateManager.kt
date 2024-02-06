@@ -105,6 +105,11 @@ class UpdateManager(private var activity: AppCompatActivity) {
                         val params = PackageInstaller.SessionParams(
                             PackageInstaller.SessionParams.MODE_FULL_INSTALL
                         )
+                        if (!BuildConfig.GOOGLE_PLAY && Version.isSnowCone) {
+                            params.setRequireUserAction(
+                                PackageInstaller.SessionParams.USER_ACTION_NOT_REQUIRED
+                            )
+                        }
                         openSession(createSession(params))
                     }
                     session.openWrite("NAME", 0, length).use { sessionStream ->
