@@ -63,7 +63,7 @@ class AppDisplayListener : Service() {
         return null
     }
 
-    @SuppressLint("InflateParams", "ClickableViewAccessibility")
+    @SuppressLint("InflateParams", "ClickableViewAccessibility", "UnspecifiedRegisterReceiverFlag")
     override fun onStartCommand(intent: Intent, flags: Int, startId: Int): Int {
         super.onStartCommand(intent, flags, startId)
 
@@ -95,8 +95,13 @@ class AppDisplayListener : Service() {
                 }
             }
         }
+        @Suppress("UnspecifiedRegisterReceiverFlag")
         IntentFilter(Intent.ACTION_SCREEN_OFF).also {
-            registerReceiver(offReceiver, it)
+            if (Version.isTiramisu) {
+                registerReceiver(offReceiver, it, RECEIVER_NOT_EXPORTED)
+            } else {
+                registerReceiver(offReceiver, it)
+            }
         }
 
         with (getSystemService(DISPLAY_SERVICE) as DisplayManager) {

@@ -529,7 +529,7 @@ class SamSprungOverlay : AppCompatActivity() {
                 if (prefs.getBoolean(Preferences.prefReacts, true))
                     vibrator.vibrate(effectClick)
                 bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
-                bottomSheetBehaviorMain.state = BottomSheetBehavior.STATE_COLLAPSED
+                closeMainDrawer()
             }
             setOnLongClickListener { view ->
                 Toast.makeText(
@@ -1145,7 +1145,6 @@ class SamSprungOverlay : AppCompatActivity() {
 
     private val fabShowHandler = Handler(Looper.getMainLooper())
     private fun setActionButtonTimeout() {
-        if (Version.isTiramisu) return
         fabShowHandler.removeCallbacksAndMessages(null)
         if (bottomSheetBehaviorMain.state == BottomSheetBehavior.STATE_EXPANDED) return
         val fakeOverlay = findViewById<LinearLayout>(R.id.fake_overlay)
