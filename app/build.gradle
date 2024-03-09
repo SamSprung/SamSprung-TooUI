@@ -9,7 +9,7 @@ android {
         compileSdk 34
         minSdk 30
         targetSdk 34
-        versionName "2.5.9"
+        versionName "2.6.0"
         versionCode = versionName.replace(".","").toInteger()
 
         vectorDrawables {
@@ -91,6 +91,10 @@ android {
         buildTypes.debug.signingConfig signingConfigs.document
     } catch (FileNotFoundException ignored) { }
 
+    buildFeatures {
+        buildConfig true
+    }
+
     def javaVersion = JavaVersion.VERSION_11
     kotlinOptions {
         jvmTarget = javaVersion.toString()
@@ -129,5 +133,5 @@ dependencies {
 
     implementation 'org.lsposed.hiddenapibypass:hiddenapibypass:4.3'
 
-    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3'
+    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.8.0'
 }
