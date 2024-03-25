@@ -548,7 +548,8 @@ class SamSprungOverlay : AppCompatActivity() {
                     toolbar.menu.findItem(R.id.toggle_widgets)
                         .setIcon(R.drawable.ic_delete_forever_24dp)
                     if (prefs.getBoolean(Preferences.prefReacts, true))
-                        vibrator.vibrate(effectLongClick)
+                        it.performHapticFeedback(HapticFeedbackConstants.LONG_PRESS)
+                        // vibrator.vibrate(effectLongClick)
                     bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
                     val index = viewPager.currentItem
                     val adapter = pagerAdapter as CoverStateAdapter
@@ -699,7 +700,8 @@ class SamSprungOverlay : AppCompatActivity() {
         if (SpeechRecognizer.isRecognitionAvailable(applicationContext)) {
             menuButton.setOnLongClickListener {
                 if (prefs.getBoolean(Preferences.prefReacts, true))
-                    vibrator.vibrate(effectLongClick)
+                    it.performHapticFeedback(HapticFeedbackConstants.LONG_PRESS)
+                    // vibrator.vibrate(effectLongClick)
                 voice?.startListening(recognizer.getSpeechIntent(false))
                 return@setOnLongClickListener true
             }

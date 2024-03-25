@@ -235,7 +235,7 @@ class WidgetPreviews(mLauncher: SamSprungOverlay) {
         }
 
         // Draw the scaled preview into the final bitmap
-        val x = (preview!!.width - previewWidth) / 2
+        val x = (preview.width - previewWidth) / 2
         if (widgetPreviewExists) {
             renderDrawableToBitmap(
                 drawable, preview, x, 0, previewWidth,
